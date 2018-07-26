@@ -1,0 +1,12 @@
+project.ext.devConfig = new Properties()
+
+try {
+    new FileInputStream("$projectDir/localConfig.properties").withStream {
+        project.ext.devConfig.load(it)
+    }
+} catch (ignore) {
+}
+
+if (project.ext.devConfig) {
+    println "Using devConfig: $project.ext.devConfig"
+}

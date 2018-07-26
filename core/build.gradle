@@ -1,0 +1,32 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion Config.targetApiLevel
+    defaultConfig {
+        minSdkVersion Config.minApiLevel
+        targetSdkVersion Config.targetApiLevel
+        versionCode gitVersionCode
+        versionName gitVersionName
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+group = 'com.emarsys.core'
+
+dependencies {
+    androidTestImplementation TestLibs.mockito_android
+    androidTestImplementation TestLibs.kluent
+    androidTestImplementation TestLibs.kotlin
+    androidTestImplementation TestLibs.support_test_runner
+    androidTestImplementation TestLibs.support_test_rules
+    androidTestImplementation TestLibs.hamcrest_core
+    androidTestImplementation TestLibs.hamcrest_integration
+    androidTestImplementation TestLibs.hamcrest_library
+}

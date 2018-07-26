@@ -1,0 +1,45 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion Config.targetApiLevel
+    defaultConfig {
+        minSdkVersion Config.minApiLevel
+        targetSdkVersion Config.targetApiLevel
+        versionCode gitVersionCode
+        versionName gitVersionName
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "ME_BASE_V2_URL", System.env.ME_BASEV2_URL ?: project.ME_BASE_V2_URL
+        buildConfigField "String", "ME_BASE_V3_URL", System.env.ME_BASE_V3_URL ?: project.ME_BASE_V3_URL
+        buildConfigField "String", "INBOX_BASE_URL", System.env.INBOX_BASE_URL ?: project.INBOX_BASE_URL
+        buildConfigField "String", "DEEP_LINK_BASE_URL", System.env.DEEP_LINK_BASE_URL ?: project.DEEP_LINK_BASE_URL
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+group = 'com.emarsys.mobile-engage'
+
+dependencies {
+    implementation project(':core')
+    implementation Libs.appcompat
+    implementation Libs.support_annotations
+    implementation Libs.firebase_core
+    implementation Libs.firebase_messaging
+    implementation Libs.espresso_idling_resources
+
+
+    androidTestImplementation TestLibs.mockito_android
+    androidTestImplementation TestLibs.support_test_runner
+    androidTestImplementation TestLibs.support_test_rules
+    androidTestImplementation TestLibs.hamcrest_core
+    androidTestImplementation TestLibs.hamcrest_integration
+    androidTestImplementation TestLibs.hamcrest_library
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
