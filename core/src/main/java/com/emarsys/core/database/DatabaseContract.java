@@ -6,13 +6,20 @@ public final class DatabaseContract {
     }
 
     public static final String REQUEST_TABLE_NAME = "request";
-    public static final String COLUMN_NAME_REQUEST_ID = "request_id";
-    public static final String COLUMN_NAME_METHOD = "method";
-    public static final String COLUMN_NAME_URL = "url";
-    public static final String COLUMN_NAME_HEADERS = "headers";
-    public static final String COLUMN_NAME_PAYLOAD = "payload";
-    public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
-    public static final String COLUMN_NAME_TTL = "ttl";
+    public static final String SHARD_TABLE_NAME = "shard";
+
+    public static final String REQUEST_COLUMN_NAME_REQUEST_ID = "request_id";
+    public static final String REQUEST_COLUMN_NAME_METHOD = "method";
+    public static final String REQUEST_COLUMN_NAME_URL = "url";
+    public static final String REQUEST_COLUMN_NAME_HEADERS = "headers";
+    public static final String REQUEST_COLUMN_NAME_PAYLOAD = "payload";
+    public static final String REQUEST_COLUMN_NAME_TIMESTAMP = "timestamp";
+    public static final String REQUEST_COLUMN_NAME_TTL = "ttl";
+
+    public static final String SHARD_COLUMN_TYPE = "type";
+    public static final String SHARD_COLUMN_DATA = "data";
+    public static final String SHARD_COLUMN_TIMESTAMP = "timestamp";
+    public static final String SHARD_COLUMN_TTL = "ttl";
 
     public static final String UPGRADE_TO_1 =
             "CREATE TABLE IF NOT EXISTS request (" +

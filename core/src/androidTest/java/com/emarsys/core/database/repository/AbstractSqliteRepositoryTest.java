@@ -24,13 +24,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_HEADERS;
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_METHOD;
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_PAYLOAD;
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_REQUEST_ID;
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_TIMESTAMP;
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_TTL;
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_URL;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_HEADERS;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_METHOD;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_PAYLOAD;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_REQUEST_ID;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_TIMESTAMP;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_TTL;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_URL;
 import static com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -186,13 +186,13 @@ public class AbstractSqliteRepositoryTest {
 
     private ContentValues contentValuesFrom(RequestModel item) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_NAME_REQUEST_ID, item.getId());
-        contentValues.put(COLUMN_NAME_METHOD, item.getMethod().name());
-        contentValues.put(COLUMN_NAME_URL, item.getUrl().toString());
-        contentValues.put(COLUMN_NAME_HEADERS, serializableToBlob(item.getHeaders()));
-        contentValues.put(COLUMN_NAME_PAYLOAD, serializableToBlob(item.getPayload()));
-        contentValues.put(COLUMN_NAME_TIMESTAMP, item.getTimestamp());
-        contentValues.put(COLUMN_NAME_TTL, item.getTtl());
+        contentValues.put(REQUEST_COLUMN_NAME_REQUEST_ID, item.getId());
+        contentValues.put(REQUEST_COLUMN_NAME_METHOD, item.getMethod().name());
+        contentValues.put(REQUEST_COLUMN_NAME_URL, item.getUrl().toString());
+        contentValues.put(REQUEST_COLUMN_NAME_HEADERS, serializableToBlob(item.getHeaders()));
+        contentValues.put(REQUEST_COLUMN_NAME_PAYLOAD, serializableToBlob(item.getPayload()));
+        contentValues.put(REQUEST_COLUMN_NAME_TIMESTAMP, item.getTimestamp());
+        contentValues.put(REQUEST_COLUMN_NAME_TTL, item.getTtl());
         return contentValues;
     }
 }

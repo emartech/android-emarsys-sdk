@@ -13,7 +13,7 @@ public class FilterByUrlPattern implements SqlSpecification {
 
     @Override
     public String getSql() {
-        return "SELECT * FROM " + DatabaseContract.REQUEST_TABLE_NAME + " WHERE " + DatabaseContract.COLUMN_NAME_URL + " LIKE ?;";
+        return "SELECT * FROM " + DatabaseContract.REQUEST_TABLE_NAME + " WHERE " + DatabaseContract.REQUEST_COLUMN_NAME_URL + " LIKE ?;";
     }
 
     @Override

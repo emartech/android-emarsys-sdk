@@ -22,13 +22,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_HEADERS;
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_METHOD;
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_PAYLOAD;
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_REQUEST_ID;
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_TIMESTAMP;
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_TTL;
-import static com.emarsys.core.database.DatabaseContract.COLUMN_NAME_URL;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_HEADERS;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_METHOD;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_PAYLOAD;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_REQUEST_ID;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_TIMESTAMP;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_TTL;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_URL;
 import static com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -72,32 +72,32 @@ public class RequestModelRepositoryTest {
     public void testContentValuesFromItem() {
         ContentValues result = repository.contentValuesFromItem(request);
 
-        assertEquals(request.getId(), result.getAsString(COLUMN_NAME_REQUEST_ID));
-        assertEquals(request.getMethod().name(), result.getAsString(COLUMN_NAME_METHOD));
-        assertEquals(request.getUrl().toString(), result.getAsString(COLUMN_NAME_URL));
-        assertArrayEquals(serializableToBlob(request.getHeaders()), result.getAsByteArray(COLUMN_NAME_HEADERS));
-        assertArrayEquals(serializableToBlob(request.getPayload()), result.getAsByteArray(COLUMN_NAME_PAYLOAD));
-        assertEquals(request.getTimestamp(), (long) result.getAsLong(COLUMN_NAME_TIMESTAMP));
-        assertEquals(request.getTtl(), (long) result.getAsLong(COLUMN_NAME_TTL));
+        assertEquals(request.getId(), result.getAsString(REQUEST_COLUMN_NAME_REQUEST_ID));
+        assertEquals(request.getMethod().name(), result.getAsString(REQUEST_COLUMN_NAME_METHOD));
+        assertEquals(request.getUrl().toString(), result.getAsString(REQUEST_COLUMN_NAME_URL));
+        assertArrayEquals(serializableToBlob(request.getHeaders()), result.getAsByteArray(REQUEST_COLUMN_NAME_HEADERS));
+        assertArrayEquals(serializableToBlob(request.getPayload()), result.getAsByteArray(REQUEST_COLUMN_NAME_PAYLOAD));
+        assertEquals(request.getTimestamp(), (long) result.getAsLong(REQUEST_COLUMN_NAME_TIMESTAMP));
+        assertEquals(request.getTtl(), (long) result.getAsLong(REQUEST_COLUMN_NAME_TTL));
     }
 
     @Test
     public void testItemFromCursor() {
         Cursor cursor = mock(Cursor.class);
 
-        when(cursor.getColumnIndex(COLUMN_NAME_REQUEST_ID)).thenReturn(0);
+        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_REQUEST_ID)).thenReturn(0);
         when(cursor.getString(0)).thenReturn(request.getId());
-        when(cursor.getColumnIndex(COLUMN_NAME_METHOD)).thenReturn(1);
+        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_METHOD)).thenReturn(1);
         when(cursor.getString(1)).thenReturn(request.getMethod().name());
-        when(cursor.getColumnIndex(COLUMN_NAME_URL)).thenReturn(2);
+        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_URL)).thenReturn(2);
         when(cursor.getString(2)).thenReturn(request.getUrl().toString());
-        when(cursor.getColumnIndex(COLUMN_NAME_HEADERS)).thenReturn(3);
+        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_HEADERS)).thenReturn(3);
         when(cursor.getBlob(3)).thenReturn(serializableToBlob(request.getHeaders()));
-        when(cursor.getColumnIndex(COLUMN_NAME_PAYLOAD)).thenReturn(4);
+        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_PAYLOAD)).thenReturn(4);
         when(cursor.getBlob(4)).thenReturn(serializableToBlob(request.getPayload()));
-        when(cursor.getColumnIndex(COLUMN_NAME_TIMESTAMP)).thenReturn(5);
+        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_TIMESTAMP)).thenReturn(5);
         when(cursor.getLong(5)).thenReturn(request.getTimestamp());
-        when(cursor.getColumnIndex(COLUMN_NAME_TTL)).thenReturn(6);
+        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_TTL)).thenReturn(6);
         when(cursor.getLong(6)).thenReturn(request.getTtl());
 
         RequestModel result = repository.itemFromCursor(cursor);
@@ -143,13 +143,13 @@ public class RequestModelRepositoryTest {
 
     private ContentValues createContentValues(String id, Object attributes) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_NAME_REQUEST_ID, id);
-        contentValues.put(COLUMN_NAME_METHOD, RequestMethod.POST.toString());
-        contentValues.put(COLUMN_NAME_URL, URL_EMARSYS);
-        contentValues.put(COLUMN_NAME_HEADERS, serializableToBlob(new HashMap<>()));
-        contentValues.put(COLUMN_NAME_PAYLOAD, serializableToBlob(attributes));
-        contentValues.put(COLUMN_NAME_TIMESTAMP, 100);
-        contentValues.put(COLUMN_NAME_TTL, 300);
+        contentValues.put(REQUEST_COLUMN_NAME_REQUEST_ID, id);
+        contentValues.put(REQUEST_COLUMN_NAME_METHOD, RequestMethod.POST.toString());
+        contentValues.put(REQUEST_COLUMN_NAME_URL, URL_EMARSYS);
+        contentValues.put(REQUEST_COLUMN_NAME_HEADERS, serializableToBlob(new HashMap<>()));
+        contentValues.put(REQUEST_COLUMN_NAME_PAYLOAD, serializableToBlob(attributes));
+        contentValues.put(REQUEST_COLUMN_NAME_TIMESTAMP, 100);
+        contentValues.put(REQUEST_COLUMN_NAME_TTL, 300);
         return contentValues;
     }
 
