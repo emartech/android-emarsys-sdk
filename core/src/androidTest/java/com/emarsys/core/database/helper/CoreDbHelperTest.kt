@@ -3,14 +3,20 @@ package com.emarsys.core.database.helper;
 import android.database.sqlite.SQLiteDatabase
 import android.support.test.InstrumentationRegistry
 import com.emarsys.core.testUtil.DatabaseTestUtils
+import com.emarsys.core.testUtil.TimeoutUtils
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldEqualTo
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 class CoreDbHelperTest {
 
+    @Rule
+    @JvmField
+    val timeout = TimeoutUtils.getTimeoutRule()
+    
     lateinit var dbHelper: CoreDbHelper
     lateinit var db: SQLiteDatabase
 

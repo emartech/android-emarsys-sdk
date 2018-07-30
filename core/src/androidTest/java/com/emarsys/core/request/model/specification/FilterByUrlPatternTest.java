@@ -24,6 +24,11 @@ public class FilterByUrlPatternTest {
         specification = new FilterByUrlPattern(pattern);
     }
 
+    @Test (expected = IllegalArgumentException.class)
+    public void testConstructor_patternMustNotBeNull(){
+        new FilterByUrlPattern(null);
+    }
+
     @Test
     public void testGetSql() {
         assertEquals("SELECT * FROM request WHERE url LIKE ?;", specification.getSql());

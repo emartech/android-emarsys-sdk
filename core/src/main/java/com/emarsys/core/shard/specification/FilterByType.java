@@ -2,6 +2,7 @@ package com.emarsys.core.shard.specification;
 
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.util.Assert;
 
 
 public class FilterByType implements SqlSpecification {
@@ -9,6 +10,7 @@ public class FilterByType implements SqlSpecification {
     private final String type;
 
     public FilterByType(String type) {
+        Assert.notNull(type, "Type must not be null!");
         this.type = type;
     }
 

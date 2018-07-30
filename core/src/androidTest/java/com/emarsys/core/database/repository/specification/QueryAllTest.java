@@ -22,6 +22,11 @@ public class QueryAllTest {
         specification = new QueryAll("table");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_tableNameMustNotBeNull() {
+        new QueryAll(null);
+    }
+
     @Test
     public void testGetSql() {
         String expected = "SELECT * FROM table;";

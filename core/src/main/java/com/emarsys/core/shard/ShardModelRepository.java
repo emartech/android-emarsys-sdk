@@ -10,6 +10,7 @@ import com.emarsys.core.database.repository.AbstractSqliteRepository;
 import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.core.util.serialization.SerializationException;
+import com.emarsys.core.util.serialization.SerializationUtils;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -19,8 +20,7 @@ import static com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_DATA;
 import static com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TIMESTAMP;
 import static com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TTL;
 import static com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TYPE;
-import static com.emarsys.core.util.serialization.SerializationUtils.blobToSerializable;
-import static com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob;
+
 
 public class ShardModelRepository extends AbstractSqliteRepository<ShardModel> {
 
@@ -33,7 +33,7 @@ public class ShardModelRepository extends AbstractSqliteRepository<ShardModel> {
         ContentValues contentValues = new ContentValues();
 
         contentValues.put(SHARD_COLUMN_TYPE, item.getType());
-        contentValues.put(SHARD_COLUMN_DATA, serializableToBlob(item.getData()));
+        contentValues.put(SHARD_COLUMN_DATA, SerializationUtils.serializableToBlob(item.getData()));
         contentValues.put(SHARD_COLUMN_TIMESTAMP, item.getTimestamp());
         contentValues.put(SHARD_COLUMN_TTL, item.getTtl());
 
@@ -47,7 +47,7 @@ public class ShardModelRepository extends AbstractSqliteRepository<ShardModel> {
 
         Map<String, Serializable> data = new HashMap<>();
         try {
-            data = (Map<String, Serializable>) blobToSerializable(cursor.getBlob(cursor.getColumnIndex(SHARD_COLUMN_DATA)));
+            data = (Map<String, Serializable>) SerializationUtils.blobToSerializable(cursor.getBlob(cursor.getColumnIndex(SHARD_COLUMN_DATA)));
         } catch (SerializationException | ClassCastException e) {
             EMSLogger.log(CoreTopic.UTIL, "Exception: %s", e);
         }
