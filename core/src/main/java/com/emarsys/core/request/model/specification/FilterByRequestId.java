@@ -3,6 +3,7 @@ package com.emarsys.core.request.model.specification;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.core.util.DatabaseUtil;
 
 public class FilterByRequestId implements SqlSpecification {
 
@@ -11,7 +12,7 @@ public class FilterByRequestId implements SqlSpecification {
 
     public FilterByRequestId(RequestModel model) {
         this.args = createRequestIds(model);
-        this.sql = createSql(args);
+        this.sql = DatabaseUtil.generateInStatement("request_id", args);
     }
 
     @Override
@@ -34,14 +35,4 @@ public class FilterByRequestId implements SqlSpecification {
         }
         return args;
     }
-
-    private String createSql(String[] args) {
-        StringBuilder sb = new StringBuilder("request_id IN (?");
-        for (int i = 1; i < args.length; i++) {
-            sb.append(", ?");
-        }
-        sb.append(")");
-        return sb.toString();
-    }
-
 }
