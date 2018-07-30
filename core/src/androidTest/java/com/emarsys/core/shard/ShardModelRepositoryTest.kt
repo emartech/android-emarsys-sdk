@@ -18,9 +18,10 @@ import java.io.Serializable
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
 
 import com.nhaarman.mockito_kotlin.whenever
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldEqualTo
 
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 
@@ -62,11 +63,11 @@ class ShardModelRepositoryTest {
     @Test
     fun testContentValuesFromItem() {
         val result = repository.contentValuesFromItem(shardModel)
-        assertEquals(shardModel.id, result.getAsString(SHARD_COLUMN_ID))
-        assertEquals(shardModel.type, result.getAsString(SHARD_COLUMN_TYPE))
-        assertArrayEquals(serializableToBlob(shardModel.data), result.getAsByteArray(SHARD_COLUMN_DATA))
-        assertEquals(shardModel.timestamp, result.getAsLong(SHARD_COLUMN_TIMESTAMP) as Long)
-        assertEquals(shardModel.ttl, result.getAsLong(SHARD_COLUMN_TTL) as Long)
+        shardModel.id shouldBeEqualTo result.getAsString(SHARD_COLUMN_ID)
+        shardModel.type shouldBeEqualTo result.getAsString(SHARD_COLUMN_TYPE)
+        serializableToBlob(shardModel.data) shouldEqual result.getAsByteArray(SHARD_COLUMN_DATA)
+        shardModel.timestamp shouldEqualTo result.getAsLong(SHARD_COLUMN_TIMESTAMP)
+        shardModel.ttl shouldEqualTo result.getAsLong(SHARD_COLUMN_TTL)
     }
 
     @Test
@@ -88,6 +89,6 @@ class ShardModelRepositoryTest {
         whenever(cursor.getColumnIndex(SHARD_COLUMN_TTL)).thenReturn(4)
         whenever(cursor.getLong(4)).thenReturn(TTL)
 
-        assertEquals(shardModel, repository.itemFromCursor(cursor))
+        shardModel shouldEqual repository.itemFromCursor(cursor)
     }
 }

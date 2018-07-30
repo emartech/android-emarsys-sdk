@@ -1,15 +1,14 @@
 package com.emarsys.core.shard.specification
 
 import com.emarsys.core.testUtil.TimeoutUtils
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldEqual
 
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
-
-open class FilterByTypeTest {
+class FilterByTypeTest {
 
     @Rule
     @JvmField
@@ -33,11 +32,11 @@ open class FilterByTypeTest {
 
     @Test
     fun testGetSql() {
-        assertEquals("SELECT * FROM shard WHERE type LIKE ? ORDER BY ROWID ASC;", specification.sql)
+        specification.sql shouldBeEqualTo "SELECT * FROM shard WHERE type LIKE ? ORDER BY ROWID ASC;"
     }
 
     @Test
     fun testGetArgs() {
-        assertArrayEquals(arrayOf(TYPE), specification.args)
+        specification.args shouldEqual arrayOf(TYPE)
     }
 }
