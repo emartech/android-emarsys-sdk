@@ -7,9 +7,9 @@ import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.request.RequestIdProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.MobileEngageUtils;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
@@ -61,8 +61,8 @@ public class DeepLinkInternalIdlingResourceTest {
                 .disableDefaultChannel()
                 .build();
 
-        RequestIdProvider requestIdProvider = mock(RequestIdProvider.class);
-        when(requestIdProvider.provideId()).thenReturn("REQUEST_ID");
+        UUIDProvider UUIDProvider = mock(UUIDProvider.class);
+        when(UUIDProvider.provideId()).thenReturn("REQUEST_ID");
 
         RequestContext requestContext = new RequestContext(
                 mock(MobileEngageConfig.class),
@@ -71,7 +71,7 @@ public class DeepLinkInternalIdlingResourceTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
-                requestIdProvider
+                UUIDProvider
         );
 
         deepLink = new DeepLinkInternal(mock(RequestManager.class), requestContext);

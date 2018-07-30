@@ -4,8 +4,8 @@ import android.app.Application;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.request.RequestIdProvider;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.BuildConfig;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
@@ -45,7 +45,7 @@ public class RequestPayloadUtilsTest {
     public static final String REQUEST_ID = "REQUEST_ID";
 
     private RequestContext requestContext;
-    private RequestIdProvider requestIdProvider;
+    private UUIDProvider UUIDProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -59,8 +59,8 @@ public class RequestPayloadUtilsTest {
                 .disableDefaultChannel()
                 .build();
 
-        requestIdProvider = mock(RequestIdProvider.class);
-        when(requestIdProvider.provideId()).thenReturn(REQUEST_ID);
+        UUIDProvider = mock(UUIDProvider.class);
+        when(UUIDProvider.provideId()).thenReturn(REQUEST_ID);
 
         requestContext = new RequestContext(
                 config,
@@ -69,7 +69,7 @@ public class RequestPayloadUtilsTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
-                requestIdProvider);
+                UUIDProvider);
 
         requestContext.setAppLoginParameters(new AppLoginParameters(3, "test@test.com"));
     }

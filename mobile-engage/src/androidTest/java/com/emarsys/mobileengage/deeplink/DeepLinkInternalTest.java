@@ -6,10 +6,10 @@ import android.net.Uri;
 import android.os.Build;
 
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.request.RequestIdProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
@@ -42,7 +42,7 @@ public class DeepLinkInternalTest {
     private RequestManager manager;
     private RequestContext requestContext;
     private TimestampProvider timestampProvider;
-    private RequestIdProvider requestIdProvider;
+    private UUIDProvider UUIDProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -55,8 +55,8 @@ public class DeepLinkInternalTest {
         manager = mock(RequestManager.class);
 
         timestampProvider = mock(TimestampProvider.class);
-        requestIdProvider = mock(RequestIdProvider.class);
-        when(requestIdProvider.provideId()).thenReturn("REQUEST_ID");
+        UUIDProvider = mock(UUIDProvider.class);
+        when(UUIDProvider.provideId()).thenReturn("REQUEST_ID");
         requestContext = new RequestContext(
                 mock(MobileEngageConfig.class),
                 mock(DeviceInfo.class),
@@ -64,7 +64,7 @@ public class DeepLinkInternalTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 timestampProvider,
-                requestIdProvider
+                UUIDProvider
         );
 
         deepLinkInternal = new DeepLinkInternal(manager, requestContext);
@@ -91,7 +91,7 @@ public class DeepLinkInternalTest {
         headers.put("User-Agent",
                 String.format("Mobile Engage SDK %s Android %s", MobileEngageInternal.MOBILEENGAGE_SDK_VERSION, Build.VERSION.SDK_INT));
 
-        RequestModel expected = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url("https://deep-link.eservice.emarsys.net/api/clicks")
                 .headers(headers)
                 .payload(payload)

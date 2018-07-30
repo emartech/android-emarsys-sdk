@@ -7,12 +7,12 @@ import android.support.test.InstrumentationRegistry;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.helper.DbHelper;
-import com.emarsys.core.request.RequestIdProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.testUtil.DatabaseTestUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -162,10 +162,10 @@ public class AbstractSqliteRepositoryTest {
         repository.dbHelper = helper;
         CoreSQLiteDatabase db = helper.getWritableCoreDatabase();
         TimestampProvider timestampProvider = new TimestampProvider();
-        RequestIdProvider requestIdProvider = new RequestIdProvider();
+        UUIDProvider UUIDProvider = new UUIDProvider();
 
-        RequestModel model1 = new RequestModel.Builder(timestampProvider, requestIdProvider).url("https://google.com").build();
-        RequestModel model2 = new RequestModel.Builder(timestampProvider, requestIdProvider).url("https://emarsys.com").build();
+        RequestModel model1 = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://google.com").build();
+        RequestModel model2 = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://emarsys.com").build();
         db.insert(DatabaseContract.REQUEST_TABLE_NAME, null, contentValuesFrom(model1));
         db.insert(DatabaseContract.REQUEST_TABLE_NAME, null, contentValuesFrom(model2));
 

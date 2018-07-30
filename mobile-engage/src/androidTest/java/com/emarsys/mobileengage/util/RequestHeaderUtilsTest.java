@@ -5,8 +5,8 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.request.RequestIdProvider;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.HeaderUtils;
 import com.emarsys.mobileengage.BuildConfig;
 import com.emarsys.mobileengage.RequestContext;
@@ -98,8 +98,8 @@ public class RequestHeaderUtilsTest {
         meIdSignatureStorage.set(meIdSignature);
         MobileEngageConfig config = mock(MobileEngageConfig.class);
         when(config.getApplicationCode()).thenReturn(APPLICATION_CODE);
-        RequestIdProvider requestIdProvider = mock(RequestIdProvider.class);
-        when(requestIdProvider.provideId()).thenReturn("REQUEST_ID");
+        UUIDProvider UUIDProvider = mock(UUIDProvider.class);
+        when(UUIDProvider.provideId()).thenReturn("REQUEST_ID");
 
         TimestampProvider timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(100_000L);
@@ -111,7 +111,7 @@ public class RequestHeaderUtilsTest {
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                requestIdProvider);
+                UUIDProvider);
 
         Map<String, String> expected = new HashMap<>();
         expected.put("X-ME-ID", meId);

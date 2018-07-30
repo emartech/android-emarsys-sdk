@@ -2,7 +2,7 @@ package com.emarsys.core.database.repository.specification;
 
 import android.support.test.InstrumentationRegistry;
 
-import com.emarsys.core.request.RequestIdProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.request.model.RequestMethod;
@@ -11,7 +11,7 @@ import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.request.model.specification.FilterByRequestId;
 import com.emarsys.core.testUtil.DatabaseTestUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,12 +39,12 @@ public class FilterByRequestIdTest {
     public void init() {
         DatabaseTestUtils.INSTANCE.deleteCoreDatabase();
         TimestampProvider timestampProvider = new TimestampProvider();
-        RequestIdProvider requestIdProvider = new RequestIdProvider();
+        UUIDProvider UUIDProvider = new UUIDProvider();
 
-        requestModel1 = new RequestModel.Builder(timestampProvider, requestIdProvider).url("https://emarsys.com/1").build();
-        requestModel2 = new RequestModel.Builder(timestampProvider, requestIdProvider).url("https://emarsys.com/2").build();
-        requestModel3 = new RequestModel.Builder(timestampProvider, requestIdProvider).url("https://emarsys.com/3").build();
-        requestModel4 = new RequestModel.Builder(timestampProvider, requestIdProvider).url("https://emarsys.com/4").build();
+        requestModel1 = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://emarsys.com/1").build();
+        requestModel2 = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://emarsys.com/2").build();
+        requestModel3 = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://emarsys.com/3").build();
+        requestModel4 = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://emarsys.com/4").build();
 
         repository = new RequestModelRepository(InstrumentationRegistry.getTargetContext());
 

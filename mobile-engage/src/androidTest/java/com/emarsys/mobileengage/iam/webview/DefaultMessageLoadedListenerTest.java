@@ -8,7 +8,7 @@ import android.support.test.filters.SdkSuppress;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.response.ResponseModel;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.testUtil.CurrentActivityWatchdogTestUtils;
 import com.emarsys.mobileengage.testUtil.TimeoutUtils;

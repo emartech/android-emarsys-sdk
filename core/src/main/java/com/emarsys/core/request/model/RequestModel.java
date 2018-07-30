@@ -1,7 +1,7 @@
 package com.emarsys.core.request.model;
 
-import com.emarsys.core.request.RequestIdProvider;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.Assert;
 
 import java.io.Serializable;
@@ -115,12 +115,12 @@ public class RequestModel implements Serializable {
         private long ttl;
         private String id;
 
-        public Builder(TimestampProvider timestampProvider, RequestIdProvider requestIdProvider) {
+        public Builder(TimestampProvider timestampProvider, UUIDProvider UUIDProvider) {
             method = RequestMethod.POST;
             headers = new HashMap<>();
             timestamp = timestampProvider.provideTimestamp();
             ttl = Long.MAX_VALUE;
-            id = requestIdProvider.provideId();
+            id = UUIDProvider.provideId();
         }
 
         public Builder url(String url) {

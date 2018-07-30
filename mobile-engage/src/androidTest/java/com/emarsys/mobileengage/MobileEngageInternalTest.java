@@ -9,11 +9,11 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.request.RequestIdProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
@@ -86,7 +86,7 @@ public class MobileEngageInternalTest {
     private AppLoginParameters otherAppLoginParameters;
     private RequestContext requestContext;
     private TimestampProvider timestampProvider;
-    private RequestIdProvider requestIdProvider;
+    private UUIDProvider UUIDProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -114,8 +114,8 @@ public class MobileEngageInternalTest {
 
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
-        requestIdProvider = mock(RequestIdProvider.class);
-        when(requestIdProvider.provideId()).thenReturn(REQUEST_ID);
+        UUIDProvider = mock(UUIDProvider.class);
+        when(UUIDProvider.provideId()).thenReturn(REQUEST_ID);
 
         meIdStorage = new MeIdStorage(application);
         meIdSignatureStorage = new MeIdSignatureStorage(application);
@@ -126,7 +126,7 @@ public class MobileEngageInternalTest {
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                requestIdProvider);
+                UUIDProvider);
 
         mobileEngage = new MobileEngageInternal(
                 baseConfig,
@@ -183,7 +183,7 @@ public class MobileEngageInternalTest {
     public void testAppLogin_anonymous_requestManagerCalledWithCorrectRequestModel() {
         meIdStorage.remove();
         Map<String, Object> payload = injectLoginPayload(createBasePayload());
-        RequestModel expected = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(ENDPOINT_LOGIN)
                 .payload(payload)
                 .headers(defaultHeaders)
@@ -244,7 +244,7 @@ public class MobileEngageInternalTest {
     public void testAppLogin_shouldSetAppLoginParametersOnRequestContext() {
         final RequestContext requestContext = mock(RequestContext.class, RETURNS_DEEP_STUBS);
         when(requestContext.getConfig()).thenReturn(baseConfig);
-        when(requestContext.getRequestIdProvider()).thenReturn(requestIdProvider);
+        when(requestContext.getUUIDProvider()).thenReturn(UUIDProvider);
 
         MobileEngageInternal internal = new MobileEngageInternal(
                 baseConfig,
@@ -405,7 +405,7 @@ public class MobileEngageInternalTest {
     @Test
     public void testAppLogout_requestManagerCalledWithCorrectRequestModel() {
         Map<String, Object> payload = createBasePayload();
-        RequestModel expected = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(ENDPOINT_LOGOUT)
                 .payload(payload)
                 .headers(defaultHeaders)
@@ -461,7 +461,7 @@ public class MobileEngageInternalTest {
                 eventAttributes,
                 CUSTOM);
 
-        RequestModel expected = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(ENDPOINT_BASE_V3 + ME_ID + "/events")
                 .payload(payload)
                 .headers(defaultHeaders)
@@ -500,7 +500,7 @@ public class MobileEngageInternalTest {
         Map<String, Object> payload = createBasePayload();
         payload.put("attributes", eventAttributes);
 
-        RequestModel expected = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(ENDPOINT_BASE_V2 + "events/" + eventName)
                 .payload(payload)
                 .headers(defaultHeaders)
@@ -563,7 +563,7 @@ public class MobileEngageInternalTest {
                 eventAttributes,
                 INTERNAL);
 
-        RequestModel expected = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(ENDPOINT_BASE_V3 + ME_ID + "/events")
                 .payload(payload)
                 .headers(defaultHeaders)
@@ -589,7 +589,7 @@ public class MobileEngageInternalTest {
                 null,
                 INTERNAL);
 
-        RequestModel expected = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(ENDPOINT_BASE_V3 + ME_ID + "/events")
                 .payload(payload)
                 .headers(defaultHeaders)
@@ -641,7 +641,7 @@ public class MobileEngageInternalTest {
         Map<String, Object> payload = createBasePayload();
         payload.put("sid", "+43c_lODSmXqCvdOz");
 
-        RequestModel expected = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(ENDPOINT_BASE_V2 + "events/message_open")
                 .payload(payload)
                 .headers(defaultHeaders)
@@ -891,7 +891,7 @@ public class MobileEngageInternalTest {
         Map<String, Object> payload = injectLoginPayload(createBasePayload());
         payload.put("contact_field_id", appLoginParameters.getContactFieldId());
         payload.put("contact_field_value", appLoginParameters.getContactFieldValue());
-        return new RequestModel.Builder(timestampProvider, requestIdProvider)
+        return new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(ENDPOINT_LOGIN)
                 .payload(payload)
                 .headers(defaultHeaders)
@@ -902,7 +902,7 @@ public class MobileEngageInternalTest {
         Map<String, Object> payload = createBasePayload();
         payload.put("contact_field_id", appLoginParameters.getContactFieldId());
         payload.put("contact_field_value", appLoginParameters.getContactFieldValue());
-        return new RequestModel.Builder(timestampProvider, requestIdProvider)
+        return new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(ENDPOINT_LAST_MOBILE_ACTIVITY)
                 .payload(payload)
                 .headers(defaultHeaders)

@@ -10,13 +10,14 @@ import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.fake.FakeCompletionHandler;
 import com.emarsys.core.fake.FakeRunnableFactory;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.QueryNewestRequestModel;
 import com.emarsys.core.testUtil.ConnectionTestUtils;
 import com.emarsys.core.testUtil.DatabaseTestUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 
@@ -54,7 +55,7 @@ public class RequestManagerTest {
     private Repository<RequestModel, SqlSpecification> requestRepository;
     private Worker worker;
     private TimestampProvider timestampProvider;
-    private RequestIdProvider requestIdProvider;
+    private com.emarsys.core.provider.uuid.UUIDProvider UUIDProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -81,7 +82,7 @@ public class RequestManagerTest {
         manager = new RequestManager(coreSdkHandler, requestRepository, worker);
 
         timestampProvider = new TimestampProvider();
-        requestIdProvider = new RequestIdProvider();
+        UUIDProvider = new UUIDProvider();
         runnableFactoryLatch = new CountDownLatch(1);
         manager.runnableFactory = new FakeRunnableFactory(runnableFactoryLatch);
 
@@ -89,7 +90,7 @@ public class RequestManagerTest {
         headers.put("accept", "application/json");
         headers.put("content", "application/x-www-form-urlencoded");
 
-        model = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        model = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(GOOGLE_URL)
                 .method(RequestMethod.GET)
                 .headers(headers)
@@ -254,7 +255,7 @@ public class RequestManagerTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testError_callbackWithResponseModel() throws Exception {
-        model = new RequestModel.Builder(timestampProvider, requestIdProvider).url(GOOGLE_URL).method(RequestMethod.POST).build();
+        model = new RequestModel.Builder(timestampProvider, UUIDProvider).url(GOOGLE_URL).method(RequestMethod.POST).build();
 
         when(connectionWatchDog.isConnected()).thenReturn(true, false);
         when(requestRepository.isEmpty()).thenReturn(false, false, true);
@@ -276,7 +277,7 @@ public class RequestManagerTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testError_callbackWithException() throws Exception {
-        model = new RequestModel.Builder(timestampProvider, requestIdProvider).url("https://www.nosuchwebsite.emarsys.com").method(RequestMethod.GET).build();
+        model = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://www.nosuchwebsite.emarsys.com").method(RequestMethod.GET).build();
 
         when(connectionWatchDog.isConnected()).thenReturn(true, false);
         when(requestRepository.isEmpty()).thenReturn(false, false, true);

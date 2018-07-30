@@ -1,5 +1,6 @@
-package com.emarsys.core.request;
+package com.emarsys.core.provider.uuid;
 
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.testUtil.TimeoutUtils;
 
 import org.junit.Rule;
@@ -9,7 +10,7 @@ import org.junit.rules.TestRule;
 import static junit.framework.Assert.assertNotNull;
 
 
-public class RequestIdProviderTest {
+public class UUIDProviderTest {
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -17,7 +18,7 @@ public class RequestIdProviderTest {
 
     @Test
     public void testProvideId_returnsNotNullId() {
-        RequestIdProvider provider = new RequestIdProvider();
+        UUIDProvider provider = new UUIDProvider();
         assertNotNull(provider.provideId());
     }
 

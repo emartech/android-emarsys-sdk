@@ -11,10 +11,10 @@ import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
-import com.emarsys.core.request.RequestIdProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModelRepository;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
@@ -446,8 +446,8 @@ public class MobileEngageTest {
                 null,
                 completionHandler);
 
-        RequestIdProvider requestIdProvider = mock(RequestIdProvider.class);
-        when(requestIdProvider.provideId()).thenReturn("REQUEST_ID");
+        UUIDProvider UUIDProvider = mock(UUIDProvider.class);
+        when(UUIDProvider.provideId()).thenReturn("REQUEST_ID");
 
         MobileEngageInternal internal = new MobileEngageInternal(
                 baseConfig,
@@ -461,7 +461,7 @@ public class MobileEngageTest {
                         mock(MeIdStorage.class),
                         mock(MeIdSignatureStorage.class),
                         mock(TimestampProvider.class),
-                        requestIdProvider
+                        UUIDProvider
                 ));
 
         MobileEngage.completionHandler = completionHandler;

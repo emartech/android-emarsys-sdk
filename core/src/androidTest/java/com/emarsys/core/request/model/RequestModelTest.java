@@ -1,8 +1,8 @@
 package com.emarsys.core.request.model;
 
-import com.emarsys.core.request.RequestIdProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.testUtil.TimeoutUtils;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,7 +27,7 @@ public class RequestModelTest {
     private long ttl;
     private String id;
     private TimestampProvider timestampProvider;
-    private RequestIdProvider requestIdProvider;
+    private UUIDProvider UUIDProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -42,7 +42,7 @@ public class RequestModelTest {
         ttl = 6000;
         id = "uuid";
         timestampProvider = new TimestampProvider();
-        requestIdProvider = new RequestIdProvider();
+        UUIDProvider = new UUIDProvider();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -67,7 +67,7 @@ public class RequestModelTest {
 
     @Test
     public void testBuilder_mandatoryArgumentsInitialized() throws Exception{
-        RequestModel result = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        RequestModel result = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(url)
                 .build();
 
@@ -76,7 +76,7 @@ public class RequestModelTest {
 
     @Test
     public void testBuilder_optionalArgumentsInitializedWithDefaultValue(){
-        RequestModel result = new RequestModel.Builder(timestampProvider, requestIdProvider).url(url).build();
+        RequestModel result = new RequestModel.Builder(timestampProvider, UUIDProvider).url(url).build();
 
         assertEquals(new HashMap<String, String>(), result.getHeaders());
         assertEquals(null, result.getPayload());
@@ -86,7 +86,7 @@ public class RequestModelTest {
 
     @Test
     public void testBuilder_idAndTimestampInitialized(){
-        RequestModel result = new RequestModel.Builder(timestampProvider, requestIdProvider).url(url).build();
+        RequestModel result = new RequestModel.Builder(timestampProvider, UUIDProvider).url(url).build();
 
         assertNotNull(result.getTimestamp());
         assertNotNull(result.getId());
@@ -94,7 +94,7 @@ public class RequestModelTest {
 
     @Test
     public void testBuilder_withAllArguments(){
-        RequestModel result = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        RequestModel result = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(url)
                 .method(method)
                 .payload(payload)
@@ -115,7 +115,7 @@ public class RequestModelTest {
         final long timestamp = 1L;
         when(timestampProvider.provideTimestamp()).thenReturn(timestamp);
 
-        RequestModel result = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        RequestModel result = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(url)
                 .build();
 
@@ -124,11 +124,11 @@ public class RequestModelTest {
 
     @Test
     public void testBuilder_requestIdCorrectlySet(){
-        RequestIdProvider requestIdProvider = mock(RequestIdProvider.class);
+        UUIDProvider UUIDProvider = mock(UUIDProvider.class);
         final String requestId = "REQUEST_ID";
-        when(requestIdProvider.provideId()).thenReturn(requestId);
+        when(UUIDProvider.provideId()).thenReturn(requestId);
 
-        RequestModel result = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        RequestModel result = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(url)
                 .build();
 

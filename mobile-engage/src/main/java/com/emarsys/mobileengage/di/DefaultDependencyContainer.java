@@ -14,12 +14,12 @@ import com.emarsys.core.connection.ConnectionWatchDog;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.log.LogRepository;
-import com.emarsys.core.request.RequestIdProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
@@ -83,7 +83,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
     private Application application;
     private ActivityLifecycleWatchdog activityLifecycleWatchdog;
     private InAppPresenter inAppPresenter;
-    private RequestIdProvider requestIdProvider;
+    private UUIDProvider UUIDProvider;
 
     public DefaultDependencyContainer(MobileEngageConfig mobileEngageConfig) {
         initializeDependencies(mobileEngageConfig);
@@ -139,7 +139,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
         uiHandler = new Handler(Looper.getMainLooper());
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
         timestampProvider = new TimestampProvider();
-        requestIdProvider = new RequestIdProvider();
+        UUIDProvider = new UUIDProvider();
         doNotDisturbProvider = new DoNotDisturbProvider();
         appLoginStorage = new AppLoginStorage(application);
         meIdStorage = new MeIdStorage(application);
@@ -179,7 +179,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                requestIdProvider);
+                UUIDProvider);
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(Context application) {

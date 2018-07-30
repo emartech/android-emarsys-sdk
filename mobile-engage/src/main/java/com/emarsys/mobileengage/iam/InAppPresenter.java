@@ -10,7 +10,7 @@ import android.os.Handler;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
@@ -26,7 +26,6 @@ import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener;
 
 import java.util.Arrays;
-import java.util.Map;
 
 public class InAppPresenter {
 

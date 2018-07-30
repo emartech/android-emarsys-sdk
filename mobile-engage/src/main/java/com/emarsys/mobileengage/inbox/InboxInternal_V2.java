@@ -91,7 +91,7 @@ public class InboxInternal_V2 implements InboxInternal {
                     }
                 });
             } else {
-                RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getRequestIdProvider())
+                RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                         .url(String.format(Endpoint.INBOX_FETCH_V2, meId))
                         .headers(createBaseHeaders(requestContext.getConfig()))
                         .method(RequestMethod.GET)
@@ -146,7 +146,7 @@ public class InboxInternal_V2 implements InboxInternal {
         EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", listener);
         String meId = requestContext.getMeIdStorage().get();
         if (meId != null) {
-            RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getRequestIdProvider())
+            RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                     .url(String.format(INBOX_RESET_BADGE_COUNT_V2, meId))
                     .headers(createBaseHeaders(requestContext.getConfig()))
                     .method(RequestMethod.DELETE)

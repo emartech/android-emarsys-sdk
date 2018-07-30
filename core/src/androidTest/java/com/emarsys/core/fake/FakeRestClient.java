@@ -5,7 +5,7 @@ import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.request.RequestTask;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 
 import java.util.ArrayList;
 import java.util.Arrays;

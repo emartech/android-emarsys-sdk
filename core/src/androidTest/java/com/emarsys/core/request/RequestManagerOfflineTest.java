@@ -13,6 +13,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.fake.FakeCompletionHandler;
 import com.emarsys.core.fake.FakeConnectionWatchDog;
 import com.emarsys.core.fake.FakeRestClient;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
@@ -20,7 +21,7 @@ import com.emarsys.core.request.model.specification.FilterByRequestId;
 import com.emarsys.core.testUtil.ConnectionTestUtils;
 import com.emarsys.core.testUtil.DatabaseTestUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 
@@ -269,8 +270,8 @@ public class RequestManagerOfflineTest {
 
     private RequestModel normal() {
         TimestampProvider timestampProvider = new TimestampProvider();
-        RequestIdProvider requestIdProvider = new RequestIdProvider();
-        return new RequestModel.Builder(timestampProvider, requestIdProvider).url(URL).method(RequestMethod.GET).ttl(60_000).build();
+        UUIDProvider UUIDProvider = new UUIDProvider();
+        return new RequestModel.Builder(timestampProvider, UUIDProvider).url(URL).method(RequestMethod.GET).ttl(60_000).build();
     }
 
     private RequestModel expired() {
@@ -281,6 +282,6 @@ public class RequestManagerOfflineTest {
                 new HashMap<String, String>(),
                 System.currentTimeMillis() - 5000,
                 100,
-                new RequestIdProvider().provideId());
+                new UUIDProvider().provideId());
     }
 }

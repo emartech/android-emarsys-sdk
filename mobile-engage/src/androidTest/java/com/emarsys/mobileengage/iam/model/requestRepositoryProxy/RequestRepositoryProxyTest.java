@@ -8,13 +8,13 @@ import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.QueryAll;
-import com.emarsys.core.request.RequestIdProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.request.model.specification.QueryNewestRequestModel;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.iam.DoNotDisturbProvider;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
@@ -68,7 +68,7 @@ public class RequestRepositoryProxyTest {
     private DoNotDisturbProvider doNotDisturbProvider;
 
     private RequestRepositoryProxy compositeRepository;
-    private RequestIdProvider requestIdProvider;
+    private UUIDProvider UUIDProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -95,8 +95,8 @@ public class RequestRepositoryProxyTest {
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
 
-        requestIdProvider = mock(RequestIdProvider.class);
-        when(requestIdProvider.provideId()).thenReturn("REQUEST_ID");
+        UUIDProvider = mock(UUIDProvider.class);
+        when(UUIDProvider.provideId()).thenReturn("REQUEST_ID");
 
         doNotDisturbProvider = mock(DoNotDisturbProvider.class);
 
@@ -492,7 +492,7 @@ public class RequestRepositoryProxyTest {
                 headers,
                 System.currentTimeMillis(),
                 999,
-                requestIdProvider.provideId()
+                UUIDProvider.provideId()
         );
     }
 
@@ -504,7 +504,7 @@ public class RequestRepositoryProxyTest {
         headers.put("header1", "value1");
         headers.put("header2", "value2");
 
-        return new RequestModel.Builder(timestampProvider, requestIdProvider)
+        return new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url("https://emarsys.com")
                 .payload(payload)
                 .headers(headers)

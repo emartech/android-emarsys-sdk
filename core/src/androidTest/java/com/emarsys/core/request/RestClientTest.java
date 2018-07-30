@@ -5,12 +5,13 @@ import android.support.test.InstrumentationRegistry;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.fake.FakeCompletionHandler;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.testUtil.ConnectionTestUtils;
 import com.emarsys.core.testUtil.RequestModelTestUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -87,8 +88,8 @@ public class RestClientTest {
     public void testSendRequest_callbackWithException() throws Exception {
         FakeCompletionHandler handler = new FakeCompletionHandler(latch);
         TimestampProvider timestampProvider = new TimestampProvider();
-        RequestIdProvider requestIdProvider = new RequestIdProvider();
-        RequestModel model = new RequestModel.Builder(timestampProvider, requestIdProvider).url("https://www.nosuchwebsite.emarsys.com").method(RequestMethod.GET).build();
+        UUIDProvider UUIDProvider = new UUIDProvider();
+        RequestModel model = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://www.nosuchwebsite.emarsys.com").method(RequestMethod.GET).build();
 
         client.execute(model, handler);
 

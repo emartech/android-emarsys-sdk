@@ -1,7 +1,7 @@
 package com.emarsys.core.response;
 
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.Assert;
 
 import org.json.JSONException;

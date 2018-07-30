@@ -5,13 +5,13 @@ import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.request.RequestIdProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
-import com.emarsys.core.timestamp.TimestampProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.MobileEngageException;
 import com.emarsys.mobileengage.RequestContext;
@@ -82,7 +82,7 @@ public class InboxInternal_V2Test {
     private Notification notification;
     private FakeStatusListener statusListener;
     private TimestampProvider timestampProvider;
-    private RequestIdProvider requestIdProvider;
+    private UUIDProvider UUIDProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -159,8 +159,8 @@ public class InboxInternal_V2Test {
         meIdSignatureStorage = mock(MeIdSignatureStorage.class);
         when(meIdSignatureStorage.get()).thenReturn(ME_ID_SIGNATURE);
 
-        requestIdProvider = mock(RequestIdProvider.class);
-        when(requestIdProvider.provideId()).thenReturn(REQUEST_ID);
+        UUIDProvider = mock(UUIDProvider.class);
+        when(UUIDProvider.provideId()).thenReturn(REQUEST_ID);
 
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
@@ -171,7 +171,7 @@ public class InboxInternal_V2Test {
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                requestIdProvider);
+                UUIDProvider);
 
         inbox = new InboxInternal_V2(manager, restClient, requestContext);
 
@@ -718,7 +718,7 @@ public class InboxInternal_V2Test {
         payload.put("viewed_messages", new ArrayList<>());
         payload.put("events", Collections.singletonList(event));
 
-        RequestModel expected = new RequestModel.Builder(timestampProvider, requestIdProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(ENDPOINT_BASE_V3 + ME_ID + "/events")
                 .payload(payload)
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
@@ -924,7 +924,7 @@ public class InboxInternal_V2Test {
         headers.putAll(RequestHeaderUtils.createDefaultHeaders(config));
         headers.putAll(RequestHeaderUtils.createBaseHeaders_V2(config));
 
-        return new RequestModel.Builder(timestampProvider, requestIdProvider)
+        return new RequestModel.Builder(timestampProvider, UUIDProvider)
                 .url(path)
                 .headers(headers)
                 .method(method)

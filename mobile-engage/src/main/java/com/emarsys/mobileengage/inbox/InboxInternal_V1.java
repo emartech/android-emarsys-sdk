@@ -71,7 +71,7 @@ public class InboxInternal_V1 implements InboxInternal {
     }
 
     private void handleFetchRequest(final InboxResultListener<NotificationInboxStatus> resultListener) {
-        RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getRequestIdProvider())
+        RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(INBOX_FETCH_V1)
                 .headers(createBaseHeaders(requestContext.getConfig()))
                 .method(RequestMethod.GET)
@@ -124,7 +124,7 @@ public class InboxInternal_V1 implements InboxInternal {
         Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
         payload.put("source", "inbox");
         payload.put("sid", message.getSid());
-        RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getRequestIdProvider())
+        RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(RequestUrlUtils.createEventUrl_V2("message_open"))
                 .payload(payload)
                 .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext.getConfig()))
@@ -140,7 +140,7 @@ public class InboxInternal_V1 implements InboxInternal {
     }
 
     private void handleResetRequest(final ResetBadgeCountResultListener listener) {
-        RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getRequestIdProvider())
+        RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(INBOX_RESET_BADGE_COUNT_V1)
                 .headers(createBaseHeaders(requestContext.getConfig()))
                 .method(RequestMethod.POST)

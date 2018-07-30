@@ -1,4 +1,4 @@
-package com.emarsys.core.timestamp;
+package com.emarsys.core.provider.timestamp;
 
 import com.emarsys.core.testUtil.TimeoutUtils;
 
