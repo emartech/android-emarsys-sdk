@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_DATA;
+import static com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_ID;
 import static com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TIMESTAMP;
 import static com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TTL;
 import static com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TYPE;
@@ -31,7 +32,7 @@ public class ShardModelRepository extends AbstractSqliteRepository<ShardModel> {
     @Override
     protected ContentValues contentValuesFromItem(ShardModel item) {
         ContentValues contentValues = new ContentValues();
-
+        contentValues.put(SHARD_COLUMN_ID, item.getId());
         contentValues.put(SHARD_COLUMN_TYPE, item.getType());
         contentValues.put(SHARD_COLUMN_DATA, SerializationUtils.serializableToBlob(item.getData()));
         contentValues.put(SHARD_COLUMN_TIMESTAMP, item.getTimestamp());
@@ -43,6 +44,7 @@ public class ShardModelRepository extends AbstractSqliteRepository<ShardModel> {
     @Override
     @SuppressWarnings("unchecked")
     protected ShardModel itemFromCursor(Cursor cursor) {
+        String id = cursor.getString(cursor.getColumnIndex(SHARD_COLUMN_ID));
         String type = cursor.getString(cursor.getColumnIndex(SHARD_COLUMN_TYPE));
 
         Map<String, Serializable> data = new HashMap<>();
@@ -55,7 +57,7 @@ public class ShardModelRepository extends AbstractSqliteRepository<ShardModel> {
         long timeStamp = cursor.getLong(cursor.getColumnIndex(SHARD_COLUMN_TIMESTAMP));
         long ttl = cursor.getLong(cursor.getColumnIndex(SHARD_COLUMN_TTL));
 
-        return new ShardModel(type, data, timeStamp, ttl);
+        return new ShardModel(id, type, data, timeStamp, ttl);
     }
 
 

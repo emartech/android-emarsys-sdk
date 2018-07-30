@@ -16,7 +16,7 @@ class CoreDbHelperTest {
     @Rule
     @JvmField
     val timeout = TimeoutUtils.getTimeoutRule()
-    
+
     lateinit var dbHelper: CoreDbHelper
     lateinit var db: SQLiteDatabase
 
@@ -99,6 +99,7 @@ class CoreDbHelperTest {
 
         val expectedShardColumns = setOf(
                 ColumnInfo("type", "TEXT"),
+                ColumnInfo("id", "TEXT"),
                 ColumnInfo("data", "BLOB"),
                 ColumnInfo("timestamp", "INTEGER"),
                 ColumnInfo("ttl", "INTEGER")
