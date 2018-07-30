@@ -37,18 +37,25 @@ import static org.mockito.Mockito.when;
 
 public class RequestModelRepositoryTest {
 
-    public static final String URL_EMARSYS = "https://www.emarsys.com";
+    @Rule
+    public TestRule timeout = TimeoutUtils.getTimeoutRule();
+
 
     static {
         mock(Cursor.class);
     }
 
+    private static final String URL_EMARSYS = "https://www.emarsys.com";
+    private static final String REQUEST_ID = "idka";
+    private static final long TTL = 600;
+    private static final long TIMESTAMP = System.currentTimeMillis();
+    private static final String URL = "https://www.google.com";
+
     private RequestModel request;
     private RequestModelRepository repository;
     private Context context;
-
-    @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
+    private HashMap<String, String> headers = new HashMap<>();
+    private HashMap<String, Object> payload = new HashMap<>();
 
     @Before
     public void init() {
@@ -57,15 +64,13 @@ public class RequestModelRepositoryTest {
         context = InstrumentationRegistry.getContext();
         repository = new RequestModelRepository(context);
 
-        HashMap<String, Object> payload = new HashMap<>();
         payload.put("payload1", "payload_value1");
         payload.put("payload2", "payload_value2");
 
-        HashMap<String, String> headers = new HashMap<>();
         headers.put("header1", "header_value1");
         headers.put("header2", "header_value2");
 
-        request = new RequestModel("https://www.google.com", RequestMethod.GET, payload, headers, System.currentTimeMillis(), 600, "idka");
+        request = new RequestModel(URL, RequestMethod.GET, payload, headers, TIMESTAMP, TTL, REQUEST_ID);
     }
 
     @Test
@@ -86,19 +91,25 @@ public class RequestModelRepositoryTest {
         Cursor cursor = mock(Cursor.class);
 
         when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_REQUEST_ID)).thenReturn(0);
-        when(cursor.getString(0)).thenReturn(request.getId());
+        when(cursor.getString(0)).thenReturn(REQUEST_ID);
+
         when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_METHOD)).thenReturn(1);
-        when(cursor.getString(1)).thenReturn(request.getMethod().name());
+        when(cursor.getString(1)).thenReturn(RequestMethod.GET.name());
+
         when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_URL)).thenReturn(2);
-        when(cursor.getString(2)).thenReturn(request.getUrl().toString());
+        when(cursor.getString(2)).thenReturn(URL);
+
         when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_HEADERS)).thenReturn(3);
-        when(cursor.getBlob(3)).thenReturn(serializableToBlob(request.getHeaders()));
+        when(cursor.getBlob(3)).thenReturn(serializableToBlob(headers));
+
         when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_PAYLOAD)).thenReturn(4);
-        when(cursor.getBlob(4)).thenReturn(serializableToBlob(request.getPayload()));
+        when(cursor.getBlob(4)).thenReturn(serializableToBlob(payload));
+
         when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_TIMESTAMP)).thenReturn(5);
-        when(cursor.getLong(5)).thenReturn(request.getTimestamp());
+        when(cursor.getLong(5)).thenReturn(TIMESTAMP);
+
         when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_TTL)).thenReturn(6);
-        when(cursor.getLong(6)).thenReturn(request.getTtl());
+        when(cursor.getLong(6)).thenReturn(TTL);
 
         RequestModel result = repository.itemFromCursor(cursor);
 

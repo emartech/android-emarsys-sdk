@@ -29,11 +29,18 @@ class ShardModelRepositoryTest {
 
     private lateinit var shardModel: ShardModel
     private lateinit var repository: ShardModelRepository
-    internal lateinit var context: Context
+    private lateinit var payload: Map<String, Serializable>
+    private lateinit var context: Context
 
     @Rule
     @JvmField
     val timeout = TimeoutUtils.getTimeoutRule()
+
+    companion object {
+        const val TYPE: String = "type1"
+        const val TIMESTAMP: Long = 1234L
+        const val TTL: Long = 4321L
+    }
 
     @Before
     fun init() {
@@ -43,12 +50,12 @@ class ShardModelRepositoryTest {
 
         repository = ShardModelRepository(context)
 
-        val payload = mutableMapOf<String, Serializable>().apply {
+        payload = mutableMapOf<String, Serializable>().apply {
             this["payload1"] = "payload_value1"
             this["payload2"] = "payload_value2"
         }
 
-        shardModel = ShardModel("type1", payload, 1234, 4321)
+        shardModel = ShardModel(TYPE, payload, TIMESTAMP, TTL)
     }
 
     @Test
@@ -65,16 +72,16 @@ class ShardModelRepositoryTest {
         val cursor = mock(Cursor::class.java)
 
         whenever(cursor.getColumnIndex(SHARD_COLUMN_TYPE)).thenReturn(0)
-        whenever(cursor.getString(0)).thenReturn(shardModel.getType())
+        whenever(cursor.getString(0)).thenReturn(TYPE)
 
         whenever(cursor.getColumnIndex(SHARD_COLUMN_DATA)).thenReturn(1)
-        whenever(cursor.getBlob(1)).thenReturn(serializableToBlob(shardModel.getData()))
+        whenever(cursor.getBlob(1)).thenReturn(serializableToBlob(payload))
 
         whenever(cursor.getColumnIndex(SHARD_COLUMN_TIMESTAMP)).thenReturn(2)
-        whenever(cursor.getLong(2)).thenReturn(shardModel.getTimestamp())
+        whenever(cursor.getLong(2)).thenReturn(TIMESTAMP)
 
         whenever(cursor.getColumnIndex(SHARD_COLUMN_TTL)).thenReturn(3)
-        whenever(cursor.getLong(3)).thenReturn(shardModel.getTtl())
+        whenever(cursor.getLong(3)).thenReturn(TTL)
 
         assertEquals(shardModel, repository.itemFromCursor(cursor))
     }
