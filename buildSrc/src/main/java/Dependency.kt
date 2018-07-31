@@ -8,7 +8,6 @@ object Versions {
     const val firebase_messaging_version = "10.2.1"
     const val hamcrest_version = "1.3"
     const val support_test_version = "1.0.2"
-
 }
 
 object Libs {
