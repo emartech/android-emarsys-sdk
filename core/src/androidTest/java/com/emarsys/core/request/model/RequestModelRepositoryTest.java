@@ -54,8 +54,8 @@ public class RequestModelRepositoryTest {
     private RequestModel request;
     private RequestModelRepository repository;
     private Context context;
-    private HashMap<String, String> headers = new HashMap<>();
-    private HashMap<String, Object> payload = new HashMap<>();
+    private HashMap<String, String> headers;
+    private HashMap<String, Object> payload;
 
     @Before
     public void init() {
@@ -64,9 +64,12 @@ public class RequestModelRepositoryTest {
         context = InstrumentationRegistry.getContext();
         repository = new RequestModelRepository(context);
 
+
+        payload = new HashMap<>();
         payload.put("payload1", "payload_value1");
         payload.put("payload2", "payload_value2");
 
+        headers = new HashMap<>();
         headers.put("header1", "header_value1");
         headers.put("header2", "header_value2");
 
