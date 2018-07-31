@@ -19,6 +19,11 @@ class ShardModelTest {
     val timeout = TimeoutUtils.getTimeoutRule()
 
     @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_idMustNotBeNull() {
+        ShardModel(null, TYPE, mapOf(), 0, 0)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
     fun testConstructor_typeMustNotBeNull() {
         ShardModel(ID, null, mapOf(), 0, 0)
     }
@@ -26,11 +31,6 @@ class ShardModelTest {
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_dataMustNotBeNull() {
         ShardModel(ID, TYPE, null, 0, 0)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_idMustNotBeNull() {
-        ShardModel(null, TYPE, mapOf(), 0, 0)
     }
 
     @Test

@@ -6,11 +6,11 @@ import java.io.Serializable;
 import java.util.Map;
 
 public class ShardModel {
-    private String id;
-    private String type;
-    private Map<String, Serializable> data;
-    private long timestamp;
-    private long ttl;
+    final private String id;
+    final private String type;
+    final private Map<String, Serializable> data;
+    final private long timestamp;
+    final private long ttl;
 
     public ShardModel(String id, String type, Map<String, Serializable> data, long timestamp, long ttl) {
         Assert.notNull(type, "Type must not be null!");
