@@ -8,7 +8,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class FilterByTypeTest {
+class FilterByShardTypeTest {
 
     @Rule
     @JvmField
@@ -18,16 +18,16 @@ class FilterByTypeTest {
         const val TYPE = "type1"
     }
 
-    private lateinit var specification: FilterByType
+    private lateinit var specification: FilterByShardType
 
     @Before
     fun setUp() {
-        specification = FilterByType(TYPE)
+        specification = FilterByShardType(TYPE)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_mustNotBeNull() {
-        FilterByType(null)
+        FilterByShardType(null)
     }
 
     @Test
