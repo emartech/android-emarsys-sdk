@@ -16,7 +16,7 @@ public final class DatabaseContract {
     public static final String REQUEST_COLUMN_NAME_TIMESTAMP = "timestamp";
     public static final String REQUEST_COLUMN_NAME_TTL = "ttl";
 
-    public static final String SHARD_COLUMN_ID = "id";
+    public static final String SHARD_COLUMN_ID = "shard_id";
     public static final String SHARD_COLUMN_TYPE = "type";
     public static final String SHARD_COLUMN_DATA = "data";
     public static final String SHARD_COLUMN_TIMESTAMP = "timestamp";
@@ -35,7 +35,7 @@ public final class DatabaseContract {
 
     public static final String UPGRADE_TO_3 =
             "CREATE TABLE IF NOT EXISTS shard (" +
-                    "id TEXT," +
+                    "shard_id TEXT," +
                     "type TEXT," +
                     "data BLOB," +
                     "timestamp INTEGER," +

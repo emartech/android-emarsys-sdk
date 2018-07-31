@@ -99,7 +99,7 @@ class CoreDbHelperTest {
 
         val expectedShardColumns = setOf(
                 ColumnInfo("type", "TEXT"),
-                ColumnInfo("id", "TEXT"),
+                ColumnInfo("shard_id", "TEXT"),
                 ColumnInfo("data", "BLOB"),
                 ColumnInfo("timestamp", "INTEGER"),
                 ColumnInfo("ttl", "INTEGER")
