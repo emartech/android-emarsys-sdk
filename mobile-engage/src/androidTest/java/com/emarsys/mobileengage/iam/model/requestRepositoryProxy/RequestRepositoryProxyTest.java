@@ -68,7 +68,7 @@ public class RequestRepositoryProxyTest {
     private DoNotDisturbProvider doNotDisturbProvider;
 
     private RequestRepositoryProxy compositeRepository;
-    private UUIDProvider UUIDProvider;
+    private UUIDProvider uuidProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -95,8 +95,8 @@ public class RequestRepositoryProxyTest {
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
 
-        UUIDProvider = mock(UUIDProvider.class);
-        when(UUIDProvider.provideId()).thenReturn("REQUEST_ID");
+        uuidProvider = mock(UUIDProvider.class);
+        when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
 
         doNotDisturbProvider = mock(DoNotDisturbProvider.class);
 
@@ -492,7 +492,7 @@ public class RequestRepositoryProxyTest {
                 headers,
                 System.currentTimeMillis(),
                 999,
-                UUIDProvider.provideId()
+                uuidProvider.provideId()
         );
     }
 
@@ -504,7 +504,7 @@ public class RequestRepositoryProxyTest {
         headers.put("header1", "value1");
         headers.put("header2", "value2");
 
-        return new RequestModel.Builder(timestampProvider, UUIDProvider)
+        return new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url("https://emarsys.com")
                 .payload(payload)
                 .headers(headers)

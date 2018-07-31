@@ -98,8 +98,8 @@ public class RequestHeaderUtilsTest {
         meIdSignatureStorage.set(meIdSignature);
         MobileEngageConfig config = mock(MobileEngageConfig.class);
         when(config.getApplicationCode()).thenReturn(APPLICATION_CODE);
-        UUIDProvider UUIDProvider = mock(UUIDProvider.class);
-        when(UUIDProvider.provideId()).thenReturn("REQUEST_ID");
+        UUIDProvider uuidProvider = mock(UUIDProvider.class);
+        when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
 
         TimestampProvider timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(100_000L);
@@ -111,7 +111,7 @@ public class RequestHeaderUtilsTest {
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                UUIDProvider);
+                uuidProvider);
 
         Map<String, String> expected = new HashMap<>();
         expected.put("X-ME-ID", meId);

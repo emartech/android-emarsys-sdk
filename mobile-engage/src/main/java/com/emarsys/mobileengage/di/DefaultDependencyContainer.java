@@ -83,7 +83,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
     private Application application;
     private ActivityLifecycleWatchdog activityLifecycleWatchdog;
     private InAppPresenter inAppPresenter;
-    private UUIDProvider UUIDProvider;
+    private UUIDProvider uuidProvider;
 
     public DefaultDependencyContainer(MobileEngageConfig mobileEngageConfig) {
         initializeDependencies(mobileEngageConfig);
@@ -139,7 +139,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
         uiHandler = new Handler(Looper.getMainLooper());
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
         timestampProvider = new TimestampProvider();
-        UUIDProvider = new UUIDProvider();
+        uuidProvider = new UUIDProvider();
         doNotDisturbProvider = new DoNotDisturbProvider();
         appLoginStorage = new AppLoginStorage(application);
         meIdStorage = new MeIdStorage(application);
@@ -179,7 +179,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                UUIDProvider);
+                uuidProvider);
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(Context application) {

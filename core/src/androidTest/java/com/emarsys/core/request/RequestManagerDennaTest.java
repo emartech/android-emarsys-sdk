@@ -37,7 +37,6 @@ import static org.mockito.Mockito.mock;
 
 public class RequestManagerDennaTest {
 
-    private static final String DENNA_ERROR_URL = "https://ems-denna.herokuapp.com/error500";
     private static final String DENNA_ECHO_URL = "https://ems-denna.herokuapp.com/echo";
 
     private RequestManager manager;
@@ -49,7 +48,7 @@ public class RequestManagerDennaTest {
     private Handler coreSdkHandler;
     private Worker worker;
     private TimestampProvider timestampProvider;
-    private com.emarsys.core.provider.uuid.UUIDProvider UUIDProvider;
+    private UUIDProvider uuidProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -72,7 +71,7 @@ public class RequestManagerDennaTest {
         RestClient restClient = new RestClient(mock(Repository.class), mock(TimestampProvider.class));
         worker = new DefaultWorker(requestRepository, connectionWatchDog, coreSdkHandler, handler, restClient);
         timestampProvider = new TimestampProvider();
-        UUIDProvider = new UUIDProvider();
+        uuidProvider = new UUIDProvider();
         manager = new RequestManager(coreSdkHandler, requestRepository, worker);
         headers = new HashMap<>();
         headers.put("accept", "application/json");
@@ -88,7 +87,7 @@ public class RequestManagerDennaTest {
 
     @Test
     public void testGet() throws Exception {
-        model = new RequestModel.Builder(timestampProvider, UUIDProvider).url(DENNA_ECHO_URL).method(RequestMethod.GET).headers(headers).build();
+        model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO_URL).method(RequestMethod.GET).headers(headers).build();
         manager.submit(model);
         latch.await();
 
@@ -120,7 +119,7 @@ public class RequestManagerDennaTest {
         payload.put("key4", 4);
         payload.put("deepKey", deepPayload);
 
-        model = new RequestModel.Builder(timestampProvider, UUIDProvider).url(DENNA_ECHO_URL).method(RequestMethod.POST).headers(headers).payload(payload).build();
+        model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO_URL).method(RequestMethod.POST).headers(headers).payload(payload).build();
         manager.submit(model);
         latch.await();
 
@@ -149,7 +148,7 @@ public class RequestManagerDennaTest {
 
     @Test
     public void testDelete() throws Exception {
-        model = new RequestModel.Builder(timestampProvider, UUIDProvider).url(DENNA_ECHO_URL).method(RequestMethod.DELETE).headers(headers).build();
+        model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO_URL).method(RequestMethod.DELETE).headers(headers).build();
         manager.submit(model);
         latch.await();
 

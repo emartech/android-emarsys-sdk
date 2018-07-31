@@ -39,12 +39,12 @@ public class FilterByRequestIdTest {
     public void init() {
         DatabaseTestUtils.INSTANCE.deleteCoreDatabase();
         TimestampProvider timestampProvider = new TimestampProvider();
-        UUIDProvider UUIDProvider = new UUIDProvider();
+        UUIDProvider uuidProvider = new UUIDProvider();
 
-        requestModel1 = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://emarsys.com/1").build();
-        requestModel2 = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://emarsys.com/2").build();
-        requestModel3 = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://emarsys.com/3").build();
-        requestModel4 = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://emarsys.com/4").build();
+        requestModel1 = new RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/1").build();
+        requestModel2 = new RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/2").build();
+        requestModel3 = new RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/3").build();
+        requestModel4 = new RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/4").build();
 
         repository = new RequestModelRepository(InstrumentationRegistry.getTargetContext());
 

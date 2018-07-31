@@ -82,7 +82,7 @@ public class InboxInternal_V2Test {
     private Notification notification;
     private FakeStatusListener statusListener;
     private TimestampProvider timestampProvider;
-    private UUIDProvider UUIDProvider;
+    private UUIDProvider uuidProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -159,8 +159,8 @@ public class InboxInternal_V2Test {
         meIdSignatureStorage = mock(MeIdSignatureStorage.class);
         when(meIdSignatureStorage.get()).thenReturn(ME_ID_SIGNATURE);
 
-        UUIDProvider = mock(UUIDProvider.class);
-        when(UUIDProvider.provideId()).thenReturn(REQUEST_ID);
+        uuidProvider = mock(UUIDProvider.class);
+        when(uuidProvider.provideId()).thenReturn(REQUEST_ID);
 
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
@@ -171,7 +171,7 @@ public class InboxInternal_V2Test {
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                UUIDProvider);
+                uuidProvider);
 
         inbox = new InboxInternal_V2(manager, restClient, requestContext);
 
@@ -718,7 +718,7 @@ public class InboxInternal_V2Test {
         payload.put("viewed_messages", new ArrayList<>());
         payload.put("events", Collections.singletonList(event));
 
-        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(ENDPOINT_BASE_V3 + ME_ID + "/events")
                 .payload(payload)
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
@@ -924,7 +924,7 @@ public class InboxInternal_V2Test {
         headers.putAll(RequestHeaderUtils.createDefaultHeaders(config));
         headers.putAll(RequestHeaderUtils.createBaseHeaders_V2(config));
 
-        return new RequestModel.Builder(timestampProvider, UUIDProvider)
+        return new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(path)
                 .headers(headers)
                 .method(method)

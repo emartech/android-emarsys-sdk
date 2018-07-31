@@ -270,8 +270,8 @@ public class RequestManagerOfflineTest {
 
     private RequestModel normal() {
         TimestampProvider timestampProvider = new TimestampProvider();
-        UUIDProvider UUIDProvider = new UUIDProvider();
-        return new RequestModel.Builder(timestampProvider, UUIDProvider).url(URL).method(RequestMethod.GET).ttl(60_000).build();
+        UUIDProvider uuidProvider = new UUIDProvider();
+        return new RequestModel.Builder(timestampProvider, uuidProvider).url(URL).method(RequestMethod.GET).ttl(60_000).build();
     }
 
     private RequestModel expired() {

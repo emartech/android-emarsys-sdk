@@ -115,12 +115,12 @@ public class RequestModel implements Serializable {
         private long ttl;
         private String id;
 
-        public Builder(TimestampProvider timestampProvider, UUIDProvider UUIDProvider) {
+        public Builder(TimestampProvider timestampProvider, UUIDProvider uuidProvider) {
             method = RequestMethod.POST;
             headers = new HashMap<>();
             timestamp = timestampProvider.provideTimestamp();
             ttl = Long.MAX_VALUE;
-            id = UUIDProvider.provideId();
+            id = uuidProvider.provideId();
         }
 
         public Builder url(String url) {

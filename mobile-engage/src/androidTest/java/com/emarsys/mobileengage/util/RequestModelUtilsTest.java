@@ -52,7 +52,7 @@ public class RequestModelUtilsTest {
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
-    private UUIDProvider UUIDProvider;
+    private UUIDProvider uuidProvider;
     private TimestampProvider timestampProvider;
 
     @Before
@@ -65,8 +65,8 @@ public class RequestModelUtilsTest {
                 .build();
 
         meIdStorage = mock(MeIdStorage.class);
-        UUIDProvider = mock(UUIDProvider.class);
-        when(UUIDProvider.provideId()).thenReturn(REQUEST_ID);
+        uuidProvider = mock(UUIDProvider.class);
+        when(uuidProvider.provideId()).thenReturn(REQUEST_ID);
 
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
@@ -77,7 +77,7 @@ public class RequestModelUtilsTest {
                 meIdStorage,
                 mock(MeIdSignatureStorage.class),
                 timestampProvider,
-                UUIDProvider);
+                uuidProvider);
 
         requestContext.setAppLoginParameters(new AppLoginParameters(3, "test@test.com"));
     }
@@ -94,7 +94,7 @@ public class RequestModelUtilsTest {
 
     @Test
     public void testIsCustomEvent_V3_returnsTrue_ifIndeedV3Event() {
-        RequestModel requestModel = new RequestModel.Builder(timestampProvider, UUIDProvider)
+        RequestModel requestModel = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(VALID_CUSTOM_EVENT_V3)
                 .build();
 
@@ -103,7 +103,7 @@ public class RequestModelUtilsTest {
 
     @Test
     public void testIsCustomEvent_V3_returnsFalse_ifThereIsNoMatch() {
-        RequestModel requestModel = new RequestModel.Builder(timestampProvider, UUIDProvider)
+        RequestModel requestModel = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url("https://www.google.com")
                 .build();
 
@@ -117,7 +117,7 @@ public class RequestModelUtilsTest {
 
     @Test
     public void testCreateAppLogin_V2() {
-        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url("https://push.eservice.emarsys.net/api/mobileengage/v2/users/login")
                 .payload(RequestPayloadUtils.createAppLoginPayload(requestContext, null))
                 .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext.getConfig()))
@@ -135,7 +135,7 @@ public class RequestModelUtilsTest {
 
     @Test
     public void testCreateLastMobileActivity_V2() {
-        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url("https://push.eservice.emarsys.net/api/mobileengage/v2/events/ems_lastMobileActivity")
                 .payload(RequestPayloadUtils.createBasePayload(requestContext))
                 .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext.getConfig()))
@@ -152,7 +152,7 @@ public class RequestModelUtilsTest {
 
         when(meIdStorage.get()).thenReturn("meId");
 
-        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(RequestUrlUtils.createEventUrl_V3(requestContext.getMeIdStorage().get()))
                 .payload(RequestPayloadUtils.createBasePayload(requestContext))
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))

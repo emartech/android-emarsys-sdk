@@ -45,7 +45,7 @@ public class RequestPayloadUtilsTest {
     public static final String REQUEST_ID = "REQUEST_ID";
 
     private RequestContext requestContext;
-    private UUIDProvider UUIDProvider;
+    private UUIDProvider uuidProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -59,8 +59,8 @@ public class RequestPayloadUtilsTest {
                 .disableDefaultChannel()
                 .build();
 
-        UUIDProvider = mock(UUIDProvider.class);
-        when(UUIDProvider.provideId()).thenReturn(REQUEST_ID);
+        uuidProvider = mock(UUIDProvider.class);
+        when(uuidProvider.provideId()).thenReturn(REQUEST_ID);
 
         requestContext = new RequestContext(
                 config,
@@ -69,7 +69,7 @@ public class RequestPayloadUtilsTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
-                UUIDProvider);
+                uuidProvider);
 
         requestContext.setAppLoginParameters(new AppLoginParameters(3, "test@test.com"));
     }

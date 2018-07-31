@@ -446,8 +446,8 @@ public class MobileEngageTest {
                 null,
                 completionHandler);
 
-        UUIDProvider UUIDProvider = mock(UUIDProvider.class);
-        when(UUIDProvider.provideId()).thenReturn("REQUEST_ID");
+        UUIDProvider uuidProvider = mock(UUIDProvider.class);
+        when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
 
         MobileEngageInternal internal = new MobileEngageInternal(
                 baseConfig,
@@ -461,7 +461,7 @@ public class MobileEngageTest {
                         mock(MeIdStorage.class),
                         mock(MeIdSignatureStorage.class),
                         mock(TimestampProvider.class),
-                        UUIDProvider
+                        uuidProvider
                 ));
 
         MobileEngage.completionHandler = completionHandler;

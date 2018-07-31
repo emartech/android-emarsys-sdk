@@ -61,8 +61,8 @@ public class DeepLinkInternalIdlingResourceTest {
                 .disableDefaultChannel()
                 .build();
 
-        UUIDProvider UUIDProvider = mock(UUIDProvider.class);
-        when(UUIDProvider.provideId()).thenReturn("REQUEST_ID");
+        UUIDProvider uuidProvider = mock(UUIDProvider.class);
+        when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
 
         RequestContext requestContext = new RequestContext(
                 mock(MobileEngageConfig.class),
@@ -71,7 +71,7 @@ public class DeepLinkInternalIdlingResourceTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
-                UUIDProvider
+                uuidProvider
         );
 
         deepLink = new DeepLinkInternal(mock(RequestManager.class), requestContext);

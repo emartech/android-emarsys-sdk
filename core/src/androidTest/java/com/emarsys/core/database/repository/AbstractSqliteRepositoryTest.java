@@ -162,10 +162,10 @@ public class AbstractSqliteRepositoryTest {
         repository.dbHelper = helper;
         CoreSQLiteDatabase db = helper.getWritableCoreDatabase();
         TimestampProvider timestampProvider = new TimestampProvider();
-        UUIDProvider UUIDProvider = new UUIDProvider();
+        UUIDProvider uuidProvider = new UUIDProvider();
 
-        RequestModel model1 = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://google.com").build();
-        RequestModel model2 = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://emarsys.com").build();
+        RequestModel model1 = new RequestModel.Builder(timestampProvider, uuidProvider).url("https://google.com").build();
+        RequestModel model2 = new RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com").build();
         db.insert(DatabaseContract.REQUEST_TABLE_NAME, null, contentValuesFrom(model1));
         db.insert(DatabaseContract.REQUEST_TABLE_NAME, null, contentValuesFrom(model2));
 

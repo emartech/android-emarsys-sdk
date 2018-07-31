@@ -55,7 +55,7 @@ public class RequestManagerTest {
     private Repository<RequestModel, SqlSpecification> requestRepository;
     private Worker worker;
     private TimestampProvider timestampProvider;
-    private com.emarsys.core.provider.uuid.UUIDProvider UUIDProvider;
+    private UUIDProvider uuidProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -82,7 +82,7 @@ public class RequestManagerTest {
         manager = new RequestManager(coreSdkHandler, requestRepository, worker);
 
         timestampProvider = new TimestampProvider();
-        UUIDProvider = new UUIDProvider();
+        uuidProvider = new UUIDProvider();
         runnableFactoryLatch = new CountDownLatch(1);
         manager.runnableFactory = new FakeRunnableFactory(runnableFactoryLatch);
 
@@ -90,7 +90,7 @@ public class RequestManagerTest {
         headers.put("accept", "application/json");
         headers.put("content", "application/x-www-form-urlencoded");
 
-        model = new RequestModel.Builder(timestampProvider, UUIDProvider)
+        model = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(GOOGLE_URL)
                 .method(RequestMethod.GET)
                 .headers(headers)
@@ -255,7 +255,7 @@ public class RequestManagerTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testError_callbackWithResponseModel() throws Exception {
-        model = new RequestModel.Builder(timestampProvider, UUIDProvider).url(GOOGLE_URL).method(RequestMethod.POST).build();
+        model = new RequestModel.Builder(timestampProvider, uuidProvider).url(GOOGLE_URL).method(RequestMethod.POST).build();
 
         when(connectionWatchDog.isConnected()).thenReturn(true, false);
         when(requestRepository.isEmpty()).thenReturn(false, false, true);
@@ -277,7 +277,7 @@ public class RequestManagerTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testError_callbackWithException() throws Exception {
-        model = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://www.nosuchwebsite.emarsys.com").method(RequestMethod.GET).build();
+        model = new RequestModel.Builder(timestampProvider, uuidProvider).url("https://www.nosuchwebsite.emarsys.com").method(RequestMethod.GET).build();
 
         when(connectionWatchDog.isConnected()).thenReturn(true, false);
         when(requestRepository.isEmpty()).thenReturn(false, false, true);

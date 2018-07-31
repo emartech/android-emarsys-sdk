@@ -77,7 +77,7 @@ public class InboxInternal_V1Test {
     private RestClient restClient;
     private DeviceInfo deviceInfo;
     private RequestContext requestContext;
-    private UUIDProvider UUIDProvider;
+    private UUIDProvider uuidProvider;
     private TimestampProvider timestampProvider;
 
     @Rule
@@ -104,8 +104,8 @@ public class InboxInternal_V1Test {
         restClient = mock(RestClient.class);
         deviceInfo = new DeviceInfo(application);
 
-        UUIDProvider = mock(UUIDProvider.class);
-        when(UUIDProvider.provideId()).thenReturn(REQUEST_ID);
+        uuidProvider = mock(UUIDProvider.class);
+        when(uuidProvider.provideId()).thenReturn(REQUEST_ID);
 
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
@@ -116,7 +116,7 @@ public class InboxInternal_V1Test {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 timestampProvider,
-                UUIDProvider
+                uuidProvider
         );
 
         inbox = new InboxInternal_V1(manager, restClient, requestContext);
@@ -613,7 +613,7 @@ public class InboxInternal_V1Test {
         payload.put("sid", "sid1");
         payload.put("source", "inbox");
 
-        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url("https://push.eservice.emarsys.net/api/mobileengage/v2/events/message_open")
                 .payload(payload)
                 .headers(defaultHeaders)
@@ -669,7 +669,7 @@ public class InboxInternal_V1Test {
         headers.putAll(RequestHeaderUtils.createDefaultHeaders(config));
         headers.putAll(RequestHeaderUtils.createBaseHeaders_V2(config));
 
-        return new RequestModel.Builder(timestampProvider, UUIDProvider)
+        return new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(path)
                 .headers(headers)
                 .method(method)

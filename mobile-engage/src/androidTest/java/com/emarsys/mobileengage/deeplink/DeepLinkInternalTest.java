@@ -42,7 +42,7 @@ public class DeepLinkInternalTest {
     private RequestManager manager;
     private RequestContext requestContext;
     private TimestampProvider timestampProvider;
-    private UUIDProvider UUIDProvider;
+    private UUIDProvider uuidProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -55,8 +55,8 @@ public class DeepLinkInternalTest {
         manager = mock(RequestManager.class);
 
         timestampProvider = mock(TimestampProvider.class);
-        UUIDProvider = mock(UUIDProvider.class);
-        when(UUIDProvider.provideId()).thenReturn("REQUEST_ID");
+        uuidProvider = mock(UUIDProvider.class);
+        when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
         requestContext = new RequestContext(
                 mock(MobileEngageConfig.class),
                 mock(DeviceInfo.class),
@@ -64,7 +64,7 @@ public class DeepLinkInternalTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 timestampProvider,
-                UUIDProvider
+                uuidProvider
         );
 
         deepLinkInternal = new DeepLinkInternal(manager, requestContext);
@@ -91,7 +91,7 @@ public class DeepLinkInternalTest {
         headers.put("User-Agent",
                 String.format("Mobile Engage SDK %s Android %s", MobileEngageInternal.MOBILEENGAGE_SDK_VERSION, Build.VERSION.SDK_INT));
 
-        RequestModel expected = new RequestModel.Builder(timestampProvider, UUIDProvider)
+        RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url("https://deep-link.eservice.emarsys.net/api/clicks")
                 .headers(headers)
                 .payload(payload)

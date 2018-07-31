@@ -88,8 +88,7 @@ public class RestClientTest {
     public void testSendRequest_callbackWithException() throws Exception {
         FakeCompletionHandler handler = new FakeCompletionHandler(latch);
         TimestampProvider timestampProvider = new TimestampProvider();
-        UUIDProvider UUIDProvider = new UUIDProvider();
-        RequestModel model = new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://www.nosuchwebsite.emarsys.com").method(RequestMethod.GET).build();
+        RequestModel model = new RequestModel.Builder(timestampProvider, new UUIDProvider()).url("https://www.nosuchwebsite.emarsys.com").method(RequestMethod.GET).build();
 
         client.execute(model, handler);
 

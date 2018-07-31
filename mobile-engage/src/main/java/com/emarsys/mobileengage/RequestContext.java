@@ -19,7 +19,7 @@ public class RequestContext {
     private final MeIdStorage meIdStorage;
     private final MeIdSignatureStorage meIdSignatureStorage;
     private final TimestampProvider timestampProvider;
-    private final UUIDProvider UUIDProvider;
+    private final UUIDProvider uuidProvider;
     private AppLoginParameters appLoginParameters;
 
     public RequestContext(
@@ -29,21 +29,21 @@ public class RequestContext {
             MeIdStorage meIdStorage,
             MeIdSignatureStorage meIdSignatureStorage,
             TimestampProvider timestampProvider,
-            UUIDProvider UUIDProvider) {
+            UUIDProvider uuidProvider) {
         Assert.notNull(config, "Config must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
         Assert.notNull(appLoginStorage, "AppLoginStorage must not be null!");
         Assert.notNull(meIdStorage, "MeIdStorage must not be null!");
         Assert.notNull(meIdSignatureStorage, "MeIdSignatureStorage must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
-        Assert.notNull(UUIDProvider, "UUIDProvider must not be null!");
+        Assert.notNull(uuidProvider, "UUIDProvider must not be null!");
         this.config = config;
         this.deviceInfo = deviceInfo;
         this.appLoginStorage = appLoginStorage;
         this.meIdStorage = meIdStorage;
         this.meIdSignatureStorage = meIdSignatureStorage;
         this.timestampProvider = timestampProvider;
-        this.UUIDProvider = UUIDProvider;
+        this.uuidProvider = uuidProvider;
     }
 
     public String getApplicationCode() {
@@ -75,7 +75,7 @@ public class RequestContext {
     }
 
     public UUIDProvider getUUIDProvider() {
-        return UUIDProvider;
+        return uuidProvider;
     }
 
     public AppLoginParameters getAppLoginParameters() {

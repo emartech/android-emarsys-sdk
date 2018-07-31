@@ -129,8 +129,8 @@ public class MobileEngageInternalStatusListenerTest {
         when(meIdStorage.get()).thenReturn("meId");
         MeIdSignatureStorage meIdSignatureStorage = mock(MeIdSignatureStorage.class);
         when(meIdSignatureStorage.get()).thenReturn("meIdSignature");
-        UUIDProvider UUIDProvider = mock(UUIDProvider.class);
-        when(UUIDProvider.provideId()).thenReturn("REQUEST_ID");
+        UUIDProvider uuidProvider = mock(UUIDProvider.class);
+        when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
         requestContext = new RequestContext(
                 baseConfig,
                 mock(DeviceInfo.class),
@@ -138,7 +138,7 @@ public class MobileEngageInternalStatusListenerTest {
                 meIdStorage,
                 meIdSignatureStorage,
                 mock(TimestampProvider.class),
-                UUIDProvider);
+                uuidProvider);
 
         mobileEngage = new MobileEngageInternal(
                 baseConfig,

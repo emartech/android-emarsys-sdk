@@ -78,8 +78,8 @@ public class MobileEngageInternalIdlingResourceTest {
         MeIdSignatureStorage meIdSignatureStorage = mock(MeIdSignatureStorage.class);
         when(meIdSignatureStorage.get()).thenReturn("meIdSignature");
 
-        UUIDProvider UUIDProvider = mock(UUIDProvider.class);
-        when(UUIDProvider.provideId()).thenReturn("REQUEST_ID");
+        UUIDProvider uuidProvider = mock(UUIDProvider.class);
+        when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
         mobileEngage = new MobileEngageInternal(
                 config,
                 mock(RequestManager.class),
@@ -92,7 +92,7 @@ public class MobileEngageInternalIdlingResourceTest {
                         meIdStorage,
                         meIdSignatureStorage,
                         mock(TimestampProvider.class),
-                        UUIDProvider));
+                        uuidProvider));
 
         MobileEngageUtils.setup(config);
         idlingResource = mock(MobileEngageIdlingResource.class);

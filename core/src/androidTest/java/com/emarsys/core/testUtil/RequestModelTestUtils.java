@@ -12,9 +12,8 @@ public class RequestModelTestUtils {
     public static RequestModel createRequestModel(RequestMethod method) {
         Map<String, String> headers = new HashMap<>();
         TimestampProvider timestampProvider = new TimestampProvider();
-        UUIDProvider UUIDProvider = new UUIDProvider();
         headers.put("accept", "application/json");
         headers.put("content", "application/x-www-form-urlencoded");
-        return new RequestModel.Builder(timestampProvider, UUIDProvider).url("https://www.google.com").method(method).headers(headers).build();
+        return new RequestModel.Builder(timestampProvider, new UUIDProvider()).url("https://www.google.com").method(method).headers(headers).build();
     }
 }
