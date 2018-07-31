@@ -1,2 +1,2 @@
-include ':mobile-engage'
 include ':core'
+include ':mobile-engage'
