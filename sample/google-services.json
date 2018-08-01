@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "963751477587",
+    "firebase_url": "https://android-emarsys-sdk.firebaseio.com",
+    "project_id": "android-emarsys-sdk",
+    "storage_bucket": "android-emarsys-sdk.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:963751477587:android:8e9d0fea7cd3ca97",
+        "android_client_info": {
+          "package_name": "com.emarsys.sample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "963751477587-dl0kj31p9pjtpk3jt0816togagdl2snf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkTlGvVBBjh0Cvr4UrQxm49SHp7AN4glA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

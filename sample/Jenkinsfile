@@ -1,0 +1,55 @@
+@Library(['android-pipeline', 'general-pipeline']) _
+
+properties([
+        parameters([
+                booleanParam(
+                        name: 'DEVELOPMENT_MODE',
+                        description: 'Use local sdk module as dependency',
+                        defaultValue: true)])])
+
+node('master') {
+    def envs = params.DEVELOPMENT_MODE ? ['DEVELOPMENT_MODE=true'] : []
+
+    withEnv(envs) {
+        timeout(15) {
+            withSlack channel: 'jenkins', {
+                stage("init") {
+                    deleteDir()
+                    deviceCount shouldBe: env.ANDROID_DEVICE_COUNT,
+                            action: { devices, message ->
+                                slackMessage channel: 'jenkins', text: message
+                            }
+                    git url: 'git@github.com:emartech/android-emarsys-sdk.git', branch: 'master'
+
+                    def testFileCount = sh(returnStdout: true, script: 'find . -name  "*Test.java" | wc -l').trim() as Integer
+                    def timeoutRuleCount = sh(returnStdout: true, script: 'grep -r "^\\s*public TestRule timeout = TimeoutUtils.getTimeoutRule();" . | wc -l').trim() as Integer
+                    if (testFileCount != timeoutRuleCount) {
+                        error("$testFileCount tests found, but only $timeoutRuleCount timeout rules!")
+                    }
+                }
+
+                stage("build") {
+                    androidBuild module: 'sample', andArchive: '**/apk/*.apk'
+                }
+
+                stage('lint') {
+                    androidLint module: 'sample', andArchive: '**/lint-results*.*'
+                }
+
+                stage("instrumentation-test") {
+                    sh './gradlew sample:uninstallDebug'
+                    sh './gradlew sample:uninstallDebugAndroidTest'
+                    androidInstrumentationTest module: 'sample', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, withRetryCount: 2, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: '**/outputs/androidTest-results/connected/*.xml'
+                }
+
+                stage("install") {
+                    sh './gradlew sample:installDebug'
+                }
+
+                stage('Deploy APK to Amazon S3') {
+                    sh env.AWS_DEPLOY_COMMAND
+                }
+            }
+        }
+    }
+}

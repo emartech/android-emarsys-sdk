@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">android-mobile-engage-sample-app</string>
+    <string name="anonymousApplogin">anonymous login</string>
+    <string name="applogin">login</string>
+    <string name="applogout">logout</string>
+    <string name="customevent">track custom event</string>
+    <string name="messageopen">track message open</string>
+    <string name="contactFieldId">contactFieldId</string>
+    <string name="contactFieldValue">contactFieldValue</string>
+    <string name="eventname">eventName</string>
+    <string name="messageId">messageId</string>
+    <string name="eventattributes">eventAttributes</string>
+    <string name="press_any_button">Press any button</string>
+    <string name="refresh">Refresh</string>
+    <string name="do_not_disturb">Do not disturb</string>
+    <string name="get_push_token">Get PushToken</string>
+</resources>
