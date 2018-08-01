@@ -1,5 +1,6 @@
 package com.emarsys.core.request.model.specification;
 
+import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
@@ -12,7 +13,7 @@ public class FilterByRequestId implements SqlSpecification {
 
     public FilterByRequestId(RequestModel model) {
         this.args = createRequestIds(model);
-        this.sql = DatabaseUtil.generateInStatement("request_id", args);
+        this.sql = DatabaseUtil.generateInStatement(DatabaseContract.REQUEST_COLUMN_NAME_REQUEST_ID, args);
     }
 
     @Override
