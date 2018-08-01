@@ -1,0 +1,38 @@
+@Library(['android-pipeline', 'general-pipeline']) _
+
+node('master') {
+    withSlack channel: 'jenkins', {
+        timeout(15) {
+            stage("init") {
+                deleteDir()
+                deviceCount shouldBe: env.ANDROID_DEVICE_COUNT, action: { devices, message ->
+                    slackMessage channel: 'jenkins', text: message
+                }
+
+                git url: 'git@github.com:emartech/android-core-sdk.git', branch: 'master'
+
+                def testFileCount = sh(returnStdout: true, script: 'find . -name  "*Test.java" | wc -l').trim() as Integer
+                def timeoutRuleCount = sh(returnStdout: true, script: 'grep -r "^\\s*public TestRule timeout = TimeoutUtils.getTimeoutRule();" . | wc -l').trim() as Integer
+                if (testFileCount != timeoutRuleCount) {
+                    error("$testFileCount tests found, but only $timeoutRuleCount timeout rules!")
+                }
+            }
+
+            stage("build") {
+                androidBuild module: 'core', andArchive: '**/*.aar'
+            }
+
+            stage('lint') {
+                androidLint module: 'core', andArchive: '**/lint-results*.*'
+            }
+
+            stage('remove-test-app') {
+                sh './gradlew uninstallDebugAndroidTest'
+            }
+
+            stage("instrumentation-test") {
+                androidInstrumentationTest module: 'core', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, withRetryCount: 2, runTrulyParallel: false, withStepNames: env.ANDROID_STEP_NAMES, andArchive: '**/outputs/androidTest-results/connected/*.xml'
+            }
+        }
+    }
+}
