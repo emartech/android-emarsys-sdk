@@ -22,24 +22,31 @@ public final class DatabaseContract {
     public static final String SHARD_COLUMN_TIMESTAMP = "timestamp";
     public static final String SHARD_COLUMN_TTL = "ttl";
 
-    public static final String UPGRADE_TO_1 =
+    public static final String[] UPGRADE_TO_1 = {
             "CREATE TABLE IF NOT EXISTS request (" +
                     "request_id TEXT," +
                     "method TEXT," +
                     "url TEXT," +
                     "headers BLOB," +
                     "payload BLOB," +
-                    "timestamp INTEGER);";
+                    "timestamp INTEGER);"};
 
-    public static final String UPGRADE_TO_2 = "ALTER TABLE request ADD COLUMN ttl INTEGER DEFAULT " + Long.MAX_VALUE + ";";
+    public static final String[] UPGRADE_TO_2 = {"ALTER TABLE request ADD COLUMN ttl INTEGER DEFAULT " + Long.MAX_VALUE + ";"};
 
-    public static final String UPGRADE_TO_3 =
+    private static final String UPGRADE_TO_V3_CREATE_TABLE =
             "CREATE TABLE IF NOT EXISTS shard (" +
                     "shard_id TEXT," +
                     "type TEXT," +
                     "data BLOB," +
                     "timestamp INTEGER," +
                     "ttl INTEGER);";
+    private static final String UPGRADE_TO_V3_ADD_INDEX_TO_ID = "CREATE INDEX shard_id_index ON shard (shard_id);";
+    private static final String UPGRADE_TO_V3_ADD_INDEX_TO_TYPE = "CREATE INDEX shard_type_index ON shard (type);";
 
-    public static final String[] MIGRATION = {UPGRADE_TO_1, UPGRADE_TO_2, UPGRADE_TO_3};
+
+    public static final String[] UPGRADE_TO_3 = {UPGRADE_TO_V3_CREATE_TABLE,
+            UPGRADE_TO_V3_ADD_INDEX_TO_ID,
+            UPGRADE_TO_V3_ADD_INDEX_TO_TYPE};
+
+    public static final String[][] MIGRATION = {UPGRADE_TO_1, UPGRADE_TO_2, UPGRADE_TO_3};
 }

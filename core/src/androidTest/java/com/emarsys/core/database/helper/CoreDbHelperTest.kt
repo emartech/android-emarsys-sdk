@@ -1,9 +1,11 @@
 package com.emarsys.core.database.helper;
 
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.support.test.InstrumentationRegistry
 import com.emarsys.core.testUtil.DatabaseTestUtils
 import com.emarsys.core.testUtil.TimeoutUtils
+import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldEqualTo
 import org.junit.After
@@ -112,7 +114,25 @@ class CoreDbHelperTest {
     }
 
     @Test
-    fun testOnCreate_withLatestDbVersion() {
+    fun testOnCreate_shouldNotAddIndexesToRequestTable_V3() {
+        initializeDatabaseWithVersion(3)
+
+        val indexedColumns = getIndexedColumnsOnTable(db, "request")
+        indexedColumns.size shouldEqualTo 0
+    }
+
+    @Test
+    fun testOnCreate_createsIndexOnShardId_and_Type_database_V3() {
+        initializeDatabaseWithVersion(3)
+
+        val indexedColumns = getIndexedColumnsOnTable(db, "shard")
+        indexedColumns.size shouldEqualTo 2
+        indexedColumns shouldContain "shard_id"
+        indexedColumns shouldContain "type"
+    }
+
+    @Test
+    fun testOnCreate_withDbVersion_V3() {
         initializeDatabaseWithVersion(3)
 
         val expectedRequestColumns = getTableColumns(db, "request")
@@ -139,6 +159,25 @@ class CoreDbHelperTest {
                 val notNull = it.getInt(it.getColumnIndex("notnull")) == 1
                 val defaultValue = it.getString(it.getColumnIndex("dflt_value"))
                 result.add(ColumnInfo(columnName, columnType, defaultValue, primaryKey, notNull))
+                it.moveToNext()
+            }
+            result
+        }
+    }
+
+    private fun getIndexedColumnsOnTable(db: SQLiteDatabase, tableName: String): Set<String> {
+        return db.rawQuery("PRAGMA index_list($tableName)", null).use {
+            val result = mutableSetOf<String>()
+            it.moveToFirst()
+            while (!it.isAfterLast) {
+                val indexName = it.getString(it.getColumnIndex("name"))
+                db.rawQuery("PRAGMA index_info('$indexName');", null).use { indexInfoCursor: Cursor ->
+                    indexInfoCursor.moveToFirst()
+                    while (!indexInfoCursor.isAfterLast) {
+                        result.add(indexInfoCursor.getString(indexInfoCursor.getColumnIndex("name")))
+                        indexInfoCursor.moveToNext()
+                    }
+                }
                 it.moveToNext()
             }
             result

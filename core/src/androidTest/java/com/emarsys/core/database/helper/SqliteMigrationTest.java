@@ -61,7 +61,7 @@ public class SqliteMigrationTest {
         SQLiteDatabase db = helper.getWritableDatabase();
         db.insert(TABLE_NAME, null, contentValues);
 
-        db.execSQL(replaceTableName(DatabaseContract.UPGRADE_TO_2));
+        db.execSQL(replaceTableName(DatabaseContract.UPGRADE_TO_2[0]));
 
         Cursor cursor = db.rawQuery(String.format("SELECT * FROM %s;", TABLE_NAME), null);
         cursor.moveToFirst();

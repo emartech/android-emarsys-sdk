@@ -25,7 +25,9 @@ public class CoreDbHelper extends AbstractDbHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         EMSLogger.log(CoreTopic.OFFLINE, "Upgrading existing database, old version: %s, new version: %s", oldVersion, newVersion);
         for (int i = oldVersion; i<newVersion; ++i){
-            db.execSQL(DatabaseContract.MIGRATION[i]);
+            for (String sqlCommand:DatabaseContract.MIGRATION[i]) {
+                db.execSQL(sqlCommand);
+            }
         }
     }
 }
