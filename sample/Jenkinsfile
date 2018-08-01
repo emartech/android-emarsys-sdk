@@ -29,7 +29,7 @@ node('master') {
                 }
 
                 stage("build") {
-                    androidBuild module: 'sample', andArchive: '**/apk/*.apk'
+                    androidBuild module: 'sample', andArchive: '**/apk/**/*.apk'
                 }
 
                 stage('lint') {
