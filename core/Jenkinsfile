@@ -27,7 +27,7 @@ node('master') {
             }
 
             stage('remove-test-app') {
-                sh './gradlew uninstallDebugAndroidTest'
+                sh './gradlew core:uninstallDebugAndroidTest'
             }
 
             stage("instrumentation-test") {
