@@ -5,10 +5,9 @@ node('master') {
         timeout(20) {
             stage("init") {
                 deleteDir()
-                deviceCount shouldBe: env.ANDROID_DEVICE_COUNT,
-                        action: { devices, message ->
-                            slackMessage channel: 'jenkins', text: message
-                        }
+                deviceCount shouldBe: env.ANDROID_DEVICE_COUNT, action: { devices, message ->
+                    slackMessage channel: 'jenkins', text: message
+                }
 
                 git url: 'git@github.com:emartech/android-emarsys-sdk.git', branch: 'master'
 
