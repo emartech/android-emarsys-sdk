@@ -15,10 +15,9 @@ node('master') {
             withSlack channel: 'jenkins', {
                 stage("init") {
                     deleteDir()
-                    deviceCount shouldBe: env.ANDROID_DEVICE_COUNT,
-                            action: { devices, message ->
-                                slackMessage channel: 'jenkins', text: message
-                            }
+                    deviceCount shouldBe: env.ANDROID_DEVICE_COUNT, action: { devices, message ->
+                        slackMessage channel: 'jenkins', text: message
+                    }
                     git url: 'git@github.com:emartech/android-emarsys-sdk.git', branch: 'master'
 
                     def testFileCount = sh(returnStdout: true, script: 'find . -name  "*Test.java" | wc -l').trim() as Integer
