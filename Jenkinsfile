@@ -2,7 +2,7 @@
 
 node('master'){
     withSlack channel:'jenkins',{
-        timeout(15){
+        timeout(30){
             stage('core'){
                 build job: 'android-core-sdk'
             }
