@@ -11,7 +11,7 @@ node('master') {
     def envs = params.DEVELOPMENT_MODE ? ['DEVELOPMENT_MODE=true'] : []
 
     withEnv(envs) {
-        timeout(15) {
+        timeout(30) {
             withSlack channel: 'jenkins', {
                 stage("init") {
                     deleteDir()
