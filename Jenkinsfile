@@ -3,6 +3,10 @@
 node('master'){
     withSlack channel:'jenkins',{
         timeout(30){
+            stage('init'){
+                deleteDir()
+                git url: 'git@github.com:emartech/android-emarsys-sdk.git', branch: 'master'
+            }
             stage('core'){
                 build job: 'android-core-sdk'
             }
