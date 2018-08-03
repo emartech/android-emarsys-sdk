@@ -25,12 +25,11 @@ group = 'com.emarsys.mobile-engage'
 
 dependencies {
     implementation project(':core')
-    implementation Libs.appcompat
+    implementation Libs.support_appcompat
     implementation Libs.support_annotations
     implementation Libs.firebase_core
     implementation Libs.firebase_messaging
     implementation Libs.espresso_idling_resources
-
 
     androidTestImplementation TestLibs.mockito_android
     androidTestImplementation TestLibs.support_test_runner
@@ -38,8 +37,4 @@ dependencies {
     androidTestImplementation TestLibs.hamcrest_core
     androidTestImplementation TestLibs.hamcrest_integration
     androidTestImplementation TestLibs.hamcrest_library
-}
-
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
