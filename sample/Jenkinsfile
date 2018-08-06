@@ -38,7 +38,7 @@ node('master') {
                 stage("instrumentation-test") {
                     sh './gradlew sample:uninstallDebug'
                     sh './gradlew sample:uninstallDebugAndroidTest'
-                    androidInstrumentationTest module: 'sample', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, withRetryCount: 2, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: '**/outputs/androidTest-results/connected/*.xml'
+                    androidInstrumentationTest module: 'sample', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: '**/outputs/androidTest-results/connected/*.xml'
                 }
 
                 stage("install") {
