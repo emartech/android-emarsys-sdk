@@ -19,11 +19,11 @@ node('master') {
             }
 
             stage("build") {
-                androidBuild module: 'core', andArchive: '**/*.aar'
+                androidBuild module: 'core', andArchive: 'core/**/*.aar'
             }
 
             stage('lint') {
-                androidLint module: 'core', andArchive: '**/lint-results*.*'
+                androidLint module: 'core', andArchive: 'core/**/lint-results*.*'
             }
 
             stage('remove-test-app') {
@@ -31,7 +31,7 @@ node('master') {
             }
 
             stage("instrumentation-test") {
-                androidInstrumentationTest module: 'core', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: '**/outputs/androidTest-results/connected/*.xml'
+                androidInstrumentationTest module: 'core', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: 'core/**/outputs/androidTest-results/connected/*.xml'
             }
         }
     }

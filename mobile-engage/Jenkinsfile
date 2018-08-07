@@ -19,11 +19,11 @@ node('master') {
             }
 
             stage("build") {
-                androidBuild module: 'mobile-engage', andArchive: '**/*.aar'
+                androidBuild module: 'mobile-engage', andArchive: 'mobile-engage/**/*.aar'
             }
 
             stage('lint') {
-                androidLint module: 'mobile-engage', andArchive: '**/lint-results*.*'
+                androidLint module: 'mobile-engage', andArchive: 'mobile-engage/**/lint-results*.*'
             }
 
             stage('remove-test-app') {
@@ -31,7 +31,7 @@ node('master') {
             }
 
             stage("instrumentation-test") {
-                androidInstrumentationTest module: 'mobile-engage', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: '**/outputs/androidTest-results/connected/*.xml'
+                androidInstrumentationTest module: 'mobile-engage', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: 'mobile-engage/**/outputs/androidTest-results/connected/*.xml'
             }
         }
     }

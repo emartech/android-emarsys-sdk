@@ -28,17 +28,17 @@ node('master') {
                 }
 
                 stage("build") {
-                    androidBuild module: 'sample', andArchive: '**/apk/**/*.apk'
+                    androidBuild module: 'sample', andArchive: 'sample/**/apk/**/*.apk'
                 }
 
                 stage('lint') {
-                    androidLint module: 'sample', andArchive: '**/lint-results*.*'
+                    androidLint module: 'sample', andArchive: 'sample/**/lint-results*.*'
                 }
 
                 stage("instrumentation-test") {
                     sh './gradlew sample:uninstallDebug'
                     sh './gradlew sample:uninstallDebugAndroidTest'
-                    androidInstrumentationTest module: 'sample', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: '**/outputs/androidTest-results/connected/*.xml'
+                    androidInstrumentationTest module: 'sample', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: 'sample/**/outputs/androidTest-results/connected/*.xml'
                 }
 
                 stage("install") {
