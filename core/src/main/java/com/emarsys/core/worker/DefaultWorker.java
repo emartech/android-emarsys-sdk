@@ -79,6 +79,7 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
                         new CoreCompletionHandlerMiddleware(
                                 this,
                                 requestRepository,
+                                uiHandler,
                                 coreSdkHandler,
                                 coreCompletionHandler));
             } else {

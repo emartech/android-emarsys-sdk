@@ -62,7 +62,7 @@ public class CoreCompletionHandlerMiddlewareTest {
         requestRepository = mock(Repository.class);
         uiHandler = new Handler(Looper.getMainLooper());
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
-        middleware = new CoreCompletionHandlerMiddleware(worker, requestRepository, coreSdkHandler, coreCompletionHandler);
+        middleware = new CoreCompletionHandlerMiddleware(worker, requestRepository, uiHandler, coreSdkHandler, coreCompletionHandler);
         captor = ArgumentCaptor.forClass(Message.class);
     }
 
@@ -73,22 +73,28 @@ public class CoreCompletionHandlerMiddlewareTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_workerShouldNotBeNull() {
-        new CoreCompletionHandlerMiddleware(null, requestRepository, coreSdkHandler, coreCompletionHandler);
+        new CoreCompletionHandlerMiddleware(null, requestRepository, uiHandler, coreSdkHandler, coreCompletionHandler);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_queueShouldNotBeNull() {
-        new CoreCompletionHandlerMiddleware(worker, null, coreSdkHandler, coreCompletionHandler);
+        new CoreCompletionHandlerMiddleware(worker, null, uiHandler, coreSdkHandler, coreCompletionHandler);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_coreCompletionHandlerShouldNotBeNull() {
-        new CoreCompletionHandlerMiddleware(worker, requestRepository, coreSdkHandler, null);
+        new CoreCompletionHandlerMiddleware(worker, requestRepository, uiHandler, coreSdkHandler, null);
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_uiHandlerShouldNotBeNull() {
+        new CoreCompletionHandlerMiddleware(worker, requestRepository, null, coreSdkHandler, coreCompletionHandler);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_HandlerShouldNotBeNull() {
-        new CoreCompletionHandlerMiddleware(worker, requestRepository, null, coreCompletionHandler);
+    public void testConstructor_coreHandlerShouldNotBeNull() {
+        new CoreCompletionHandlerMiddleware(worker, requestRepository, uiHandler, null, coreCompletionHandler);
     }
 
     @Test
