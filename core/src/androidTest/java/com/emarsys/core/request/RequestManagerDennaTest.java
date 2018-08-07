@@ -2,6 +2,7 @@ package com.emarsys.core.request;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
@@ -46,6 +47,7 @@ public class RequestManagerDennaTest {
     private FakeCompletionHandler handler;
     private CoreSdkHandlerProvider provider;
     private Handler coreSdkHandler;
+    private Handler uiHandler;
     private Worker worker;
     private TimestampProvider timestampProvider;
     private UUIDProvider uuidProvider;
@@ -62,6 +64,7 @@ public class RequestManagerDennaTest {
 
         provider = new CoreSdkHandlerProvider();
         coreSdkHandler = provider.provideHandler();
+        uiHandler = new Handler(Looper.getMainLooper());
 
         ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(context, coreSdkHandler);
         Repository<RequestModel, SqlSpecification> requestRepository = new RequestModelRepository(context);
@@ -69,7 +72,7 @@ public class RequestManagerDennaTest {
         latch = new CountDownLatch(1);
         handler = new FakeCompletionHandler(latch);
         RestClient restClient = new RestClient(mock(Repository.class), mock(TimestampProvider.class));
-        worker = new DefaultWorker(requestRepository, connectionWatchDog, coreSdkHandler, handler, restClient);
+        worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, coreSdkHandler, handler, restClient);
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
         manager = new RequestManager(coreSdkHandler, requestRepository, worker);

@@ -1,6 +1,7 @@
 package com.emarsys.core.worker;
 
 import android.os.Handler;
+import android.os.Looper;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.connection.ConnectionState;
@@ -51,7 +52,8 @@ public class DefaultWorkerTest {
     private Repository<RequestModel, SqlSpecification> requestRepository;
     private CoreCompletionHandler coreCompletionHandlerMock;
     private RestClient restClient;
-    private Handler handler;
+    private Handler coreHandler;
+    private Handler uiHandler;
 
     private long now;
     private RequestModel expiredModel1;
@@ -74,9 +76,11 @@ public class DefaultWorkerTest {
 
         restClient = mock(RestClient.class);
 
-        handler = mock(Handler.class);
+        coreHandler = mock(Handler.class);
 
-        worker = new DefaultWorker(requestRepository, watchDogMock, handler, coreCompletionHandlerMock, restClient);
+        uiHandler = new Handler(Looper.getMainLooper());
+
+        worker = new DefaultWorker(requestRepository, watchDogMock, uiHandler, coreHandler, coreCompletionHandlerMock, restClient);
         worker.coreCompletionHandler = coreCompletionHandlerMock;
         worker.restClient = restClient;
 
@@ -107,22 +111,27 @@ public class DefaultWorkerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_queueShouldNotBeNull() {
-        new DefaultWorker(null, mock(ConnectionWatchDog.class), handler, coreCompletionHandlerMock, restClient);
+        new DefaultWorker(null, mock(ConnectionWatchDog.class), uiHandler, coreHandler, coreCompletionHandlerMock, restClient);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_watchDogShouldNotBeNull() {
-        new DefaultWorker(requestRepository, null, handler, coreCompletionHandlerMock, restClient);
+        new DefaultWorker(requestRepository, null, uiHandler, coreHandler, coreCompletionHandlerMock, restClient);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_handlerShouldNotBeNull() {
-        new DefaultWorker(requestRepository, mock(ConnectionWatchDog.class), null, coreCompletionHandlerMock, restClient);
+    public void testConstructor_uiHandlerShouldNotBeNull() {
+        new DefaultWorker(requestRepository, mock(ConnectionWatchDog.class), null, coreHandler, coreCompletionHandlerMock, restClient);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_coreHandlerShouldNotBeNull() {
+        new DefaultWorker(requestRepository, mock(ConnectionWatchDog.class), uiHandler, null, coreCompletionHandlerMock, restClient);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_restClientShouldNotBeNull() {
-        new DefaultWorker(requestRepository, mock(ConnectionWatchDog.class), handler, coreCompletionHandlerMock, null);
+        new DefaultWorker(requestRepository, mock(ConnectionWatchDog.class), uiHandler, coreHandler, coreCompletionHandlerMock, null);
     }
 
     @Test
@@ -142,14 +151,14 @@ public class DefaultWorkerTest {
 
     @Test
     public void testConstructor_setRepositorySuccessfully() {
-        worker = new DefaultWorker(requestRepository, mock(ConnectionWatchDog.class), handler, coreCompletionHandlerMock, restClient);
+        worker = new DefaultWorker(requestRepository, mock(ConnectionWatchDog.class), uiHandler, coreHandler, coreCompletionHandlerMock, restClient);
         assertEquals(requestRepository, worker.requestRepository);
     }
 
     @Test
     public void testConstructor_setWatchDogSuccessfully() {
         ConnectionWatchDog watchDog = mock(ConnectionWatchDog.class);
-        worker = new DefaultWorker(requestRepository, watchDog, handler, coreCompletionHandlerMock, restClient);
+        worker = new DefaultWorker(requestRepository, watchDog, uiHandler, coreHandler, coreCompletionHandlerMock, restClient);
         assertEquals(watchDog, worker.connectionWatchDog);
     }
 

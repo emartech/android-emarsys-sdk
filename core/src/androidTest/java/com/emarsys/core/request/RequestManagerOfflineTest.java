@@ -46,7 +46,6 @@ public class RequestManagerOfflineTest {
 
     public static final String URL = "https://www.google.com";
 
-    private Handler handler;
 
     private Boolean[] connectionStates;
     private Object[] requestResults;
@@ -55,7 +54,6 @@ public class RequestManagerOfflineTest {
     private int completionHandlerCountDown;
 
     private CountDownLatch watchDogLatch;
-    private Context context;
     private FakeConnectionWatchDog watchDog;
     private Repository<RequestModel, SqlSpecification> requestRepository;
     private CountDownLatch completionLatch;
@@ -64,6 +62,7 @@ public class RequestManagerOfflineTest {
     private RestClient client;
     private CoreSdkHandlerProvider provider;
     private Handler coreSdkHandler;
+    private Handler uiHandler;
     private Worker worker;
 
     @Rule
@@ -73,7 +72,7 @@ public class RequestManagerOfflineTest {
     public void setup() {
         DatabaseTestUtils.INSTANCE.deleteCoreDatabase();
 
-        handler = new Handler(Looper.getMainLooper());
+        uiHandler = new Handler(Looper.getMainLooper());
     }
 
     @After
@@ -94,7 +93,7 @@ public class RequestManagerOfflineTest {
         assertFalse(requestRepository.isEmpty());
         completionHandler.latch = new CountDownLatch(1);
 
-        handler.post(new Runnable() {
+        uiHandler.post(new Runnable() {
             @Override
             public void run() {
                 watchDog.connectionChangeListener.onConnectionChanged(ConnectionState.CONNECTED, true);
@@ -163,10 +162,8 @@ public class RequestManagerOfflineTest {
         assertEquals(0, completionHandler.getOnErrorCount());
         assertTrue(!requestRepository.isEmpty());
 
-        for (int i = 0; i < requestModels.length; ++i) {
-            requestRepository.remove(new FilterByRequestId(normal1));
-            requestRepository.remove(new FilterByRequestId(normal2));
-            requestRepository.remove(new FilterByRequestId(normal3));
+        for (RequestModel model : requestModels) {
+            requestRepository.remove(new FilterByRequestId(model));
         }
         assertTrue(requestRepository.isEmpty());
     }
@@ -236,7 +233,6 @@ public class RequestManagerOfflineTest {
 
     private void prepareTestCaseAndWait() throws InterruptedException {
         watchDogLatch = new CountDownLatch(watchDogCountDown);
-        context = ConnectionTestUtils.getContextMock_withAppContext_withConnectivityManager(false, 0);
         watchDog = new FakeConnectionWatchDog(watchDogLatch, connectionStates);
 
         requestRepository = new RequestModelRepository(InstrumentationRegistry.getTargetContext());
@@ -250,12 +246,12 @@ public class RequestManagerOfflineTest {
         coreSdkHandler = provider.provideHandler();
 
         RestClient restClient = new RestClient(mock(Repository.class), mock(TimestampProvider.class));
-        worker = new DefaultWorker(requestRepository, watchDog, coreSdkHandler, completionHandler, restClient);
+        worker = new DefaultWorker(requestRepository, watchDog, uiHandler, coreSdkHandler, completionHandler, restClient);
 
         manager = new RequestManager(coreSdkHandler, requestRepository, worker);
-        manager.worker = new DefaultWorker(requestRepository, watchDog, manager.coreSDKHandler, completionHandler, client);
+        manager.worker = new DefaultWorker(requestRepository, watchDog, uiHandler, manager.coreSDKHandler, completionHandler, client);
 
-        handler.post(new Runnable() {
+        uiHandler.post(new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < requestModels.length; ++i) {

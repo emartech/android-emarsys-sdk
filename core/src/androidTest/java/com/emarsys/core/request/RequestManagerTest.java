@@ -2,6 +2,7 @@ package com.emarsys.core.request;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
@@ -52,6 +53,7 @@ public class RequestManagerTest {
     private ConnectionWatchDog connectionWatchDog;
     private CoreSdkHandlerProvider coreSdkHandlerProvider;
     private Handler coreSdkHandler;
+    private Handler uiHandler;
     private Repository<RequestModel, SqlSpecification> requestRepository;
     private Worker worker;
     private TimestampProvider timestampProvider;
@@ -71,6 +73,8 @@ public class RequestManagerTest {
         coreSdkHandlerProvider = new CoreSdkHandlerProvider();
         coreSdkHandler = coreSdkHandlerProvider.provideHandler();
 
+        uiHandler = new Handler(Looper.getMainLooper());
+        
         connectionWatchDog = mock(ConnectionWatchDog.class);
         requestRepository = mock(Repository.class);
         when(requestRepository.isEmpty()).thenReturn(true);
@@ -78,7 +82,7 @@ public class RequestManagerTest {
         completionHandlerLatch = new CountDownLatch(1);
         handler = new FakeCompletionHandler(completionHandlerLatch);
         RestClient restClient = new RestClient(mock(Repository.class), mock(TimestampProvider.class));
-        worker = new DefaultWorker(requestRepository, connectionWatchDog, coreSdkHandler, handler, restClient);
+        worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, coreSdkHandler, handler, restClient);
         manager = new RequestManager(coreSdkHandler, requestRepository, worker);
 
         timestampProvider = new TimestampProvider();

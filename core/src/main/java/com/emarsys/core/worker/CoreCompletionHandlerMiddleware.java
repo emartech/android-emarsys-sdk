@@ -28,17 +28,23 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
     Handler uiHandler;
     RunnableFactory runnableFactory;
 
-    public CoreCompletionHandlerMiddleware(final Worker worker, Repository<RequestModel, SqlSpecification> requestRepository, Handler coreSDKHandler, CoreCompletionHandler coreCompletionHandler) {
+    public CoreCompletionHandlerMiddleware(
+            Worker worker,
+            Repository<RequestModel, SqlSpecification> requestRepository,
+            Handler uiHandler,
+            Handler coreSDKHandler,
+            CoreCompletionHandler coreCompletionHandler) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(worker, "Worker must not be null!");
         Assert.notNull(coreCompletionHandler, "CoreCompletionHandler must not be null!");
+        Assert.notNull(uiHandler, "uiHandler must not be null!");
         Assert.notNull(coreSDKHandler, "coreSDKHandler must not be null!");
         this.coreCompletionHandler = coreCompletionHandler;
         this.requestRepository = requestRepository;
         this.worker = worker;
         this.coreSDKHandler = coreSDKHandler;
         this.runnableFactory = new DefaultRunnableFactory();
-        this.uiHandler = new Handler(Looper.getMainLooper());
+        this.uiHandler = uiHandler;
     }
 
     @Override
