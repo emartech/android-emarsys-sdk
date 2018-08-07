@@ -162,10 +162,8 @@ public class RequestManagerOfflineTest {
         assertEquals(0, completionHandler.getOnErrorCount());
         assertTrue(!requestRepository.isEmpty());
 
-        for (int i = 0; i < requestModels.length; ++i) {
-            requestRepository.remove(new FilterByRequestId(normal1));
-            requestRepository.remove(new FilterByRequestId(normal2));
-            requestRepository.remove(new FilterByRequestId(normal3));
+        for (RequestModel model : requestModels) {
+            requestRepository.remove(new FilterByRequestId(model));
         }
         assertTrue(requestRepository.isEmpty());
     }
