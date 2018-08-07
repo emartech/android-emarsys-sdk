@@ -54,7 +54,6 @@ public class RequestManagerOfflineTest {
     private int completionHandlerCountDown;
 
     private CountDownLatch watchDogLatch;
-    private Context context;
     private FakeConnectionWatchDog watchDog;
     private Repository<RequestModel, SqlSpecification> requestRepository;
     private CountDownLatch completionLatch;
@@ -236,7 +235,6 @@ public class RequestManagerOfflineTest {
 
     private void prepareTestCaseAndWait() throws InterruptedException {
         watchDogLatch = new CountDownLatch(watchDogCountDown);
-        context = ConnectionTestUtils.getContextMock_withAppContext_withConnectivityManager(false, 0);
         watchDog = new FakeConnectionWatchDog(watchDogLatch, connectionStates);
 
         requestRepository = new RequestModelRepository(InstrumentationRegistry.getTargetContext());
