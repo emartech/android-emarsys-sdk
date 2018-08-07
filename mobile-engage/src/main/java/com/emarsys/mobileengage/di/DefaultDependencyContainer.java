@@ -162,6 +162,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
         Worker worker = new DefaultWorker(
                 requestModelRepository,
                 connectionWatchDog,
+                uiHandler,
                 coreSdkHandler,
                 completionHandler,
                 restClient);

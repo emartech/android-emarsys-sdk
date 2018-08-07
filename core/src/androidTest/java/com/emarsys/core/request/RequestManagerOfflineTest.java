@@ -46,7 +46,6 @@ public class RequestManagerOfflineTest {
 
     public static final String URL = "https://www.google.com";
 
-    private Handler handler;
 
     private Boolean[] connectionStates;
     private Object[] requestResults;
@@ -64,6 +63,7 @@ public class RequestManagerOfflineTest {
     private RestClient client;
     private CoreSdkHandlerProvider provider;
     private Handler coreSdkHandler;
+    private Handler uiHandler;
     private Worker worker;
 
     @Rule
@@ -73,7 +73,7 @@ public class RequestManagerOfflineTest {
     public void setup() {
         DatabaseTestUtils.INSTANCE.deleteCoreDatabase();
 
-        handler = new Handler(Looper.getMainLooper());
+        uiHandler = new Handler(Looper.getMainLooper());
     }
 
     @After
@@ -94,7 +94,7 @@ public class RequestManagerOfflineTest {
         assertFalse(requestRepository.isEmpty());
         completionHandler.latch = new CountDownLatch(1);
 
-        handler.post(new Runnable() {
+        uiHandler.post(new Runnable() {
             @Override
             public void run() {
                 watchDog.connectionChangeListener.onConnectionChanged(ConnectionState.CONNECTED, true);
@@ -250,12 +250,12 @@ public class RequestManagerOfflineTest {
         coreSdkHandler = provider.provideHandler();
 
         RestClient restClient = new RestClient(mock(Repository.class), mock(TimestampProvider.class));
-        worker = new DefaultWorker(requestRepository, watchDog, coreSdkHandler, completionHandler, restClient);
+        worker = new DefaultWorker(requestRepository, watchDog, uiHandler, coreSdkHandler, completionHandler, restClient);
 
         manager = new RequestManager(coreSdkHandler, requestRepository, worker);
-        manager.worker = new DefaultWorker(requestRepository, watchDog, manager.coreSDKHandler, completionHandler, client);
+        manager.worker = new DefaultWorker(requestRepository, watchDog, uiHandler, manager.coreSDKHandler, completionHandler, client);
 
-        handler.post(new Runnable() {
+        uiHandler.post(new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < requestModels.length; ++i) {

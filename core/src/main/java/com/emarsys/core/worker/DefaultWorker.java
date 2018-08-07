@@ -25,16 +25,17 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
 
     Repository<RequestModel, SqlSpecification> requestRepository;
     ConnectionWatchDog connectionWatchDog;
-    boolean locked;
+    private boolean locked;
     CoreCompletionHandler coreCompletionHandler;
     RestClient restClient;
-    Handler coreSdkHandler;
-    Handler uiHandler;
+    private Handler coreSdkHandler;
+    private Handler uiHandler;
 
-    public DefaultWorker(Repository<RequestModel, SqlSpecification> requestRepository, ConnectionWatchDog connectionWatchDog, Handler coreSdkHandler, CoreCompletionHandler coreCompletionHandler, RestClient restClient) {
+    public DefaultWorker(Repository<RequestModel, SqlSpecification> requestRepository, ConnectionWatchDog connectionWatchDog, Handler uiHandler, Handler coreSdkHandler, CoreCompletionHandler coreCompletionHandler, RestClient restClient) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(connectionWatchDog, "ConnectionWatchDog must not be null!");
-        Assert.notNull(coreSdkHandler, "Handler must not be null!");
+        Assert.notNull(uiHandler, "UiHandler must not be null!");
+        Assert.notNull(coreSdkHandler, "CoreSdkHandler must not be null!");
         Assert.notNull(coreCompletionHandler, "CoreCompletionHandler must not be null!");
         Assert.notNull(restClient, "Restclient must not be null!");
         this.coreCompletionHandler = coreCompletionHandler;
@@ -42,7 +43,7 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
         this.connectionWatchDog = connectionWatchDog;
         this.connectionWatchDog.registerReceiver(this);
         this.coreSdkHandler = coreSdkHandler;
-        this.uiHandler = new Handler(Looper.getMainLooper());
+        this.uiHandler = uiHandler;
         this.restClient = restClient;
     }
 
@@ -73,7 +74,7 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
             lock();
             RequestModel model = findFirstNonExpiredModel();
             EMSLogger.log(CoreTopic.OFFLINE, "First non expired model: %s", model);
-            if(model != null){
+            if (model != null) {
                 restClient.execute(
                         model,
                         new CoreCompletionHandlerMiddleware(
