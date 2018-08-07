@@ -5,14 +5,15 @@ import android.os.Looper;
 import android.os.Message;
 
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
-import com.emarsys.core.fake.FakeRunnableFactory;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.FilterByRequestId;
 import com.emarsys.core.response.ResponseModel;
+import com.emarsys.core.testUtil.HandlerUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -24,7 +25,6 @@ import org.mockito.ArgumentCaptor;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -46,8 +46,8 @@ public class CoreCompletionHandlerMiddlewareTest {
     private String expectedId;
     private CoreCompletionHandlerMiddleware middleware;
     private ArgumentCaptor<Message> captor;
-    private Handler handler;
-    private CountDownLatch latch;
+    private Handler uiHandler;
+    private Handler coreSdkHandler;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -60,12 +60,10 @@ public class CoreCompletionHandlerMiddlewareTest {
         worker = mock(Worker.class);
         coreCompletionHandler = mock(CoreCompletionHandler.class);
         requestRepository = mock(Repository.class);
-        handler = new Handler(Looper.getMainLooper());
-        middleware = new CoreCompletionHandlerMiddleware(worker, requestRepository, handler, coreCompletionHandler);
+        uiHandler = new Handler(Looper.getMainLooper());
+        coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
+        middleware = new CoreCompletionHandlerMiddleware(worker, requestRepository, coreSdkHandler, coreCompletionHandler);
         captor = ArgumentCaptor.forClass(Message.class);
-
-        latch = new CountDownLatch(1);
-        middleware.runnableFactory = new FakeRunnableFactory(latch);
     }
 
     @Test
@@ -75,17 +73,17 @@ public class CoreCompletionHandlerMiddlewareTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_workerShouldNotBeNull() {
-        new CoreCompletionHandlerMiddleware(null, requestRepository, handler, coreCompletionHandler);
+        new CoreCompletionHandlerMiddleware(null, requestRepository, coreSdkHandler, coreCompletionHandler);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_queueShouldNotBeNull() {
-        new CoreCompletionHandlerMiddleware(worker, null, handler, coreCompletionHandler);
+        new CoreCompletionHandlerMiddleware(worker, null, coreSdkHandler, coreCompletionHandler);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_coreCompletionHandlerShouldNotBeNull() {
-        new CoreCompletionHandlerMiddleware(worker, requestRepository, handler, null);
+        new CoreCompletionHandlerMiddleware(worker, requestRepository, coreSdkHandler, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -94,16 +92,15 @@ public class CoreCompletionHandlerMiddlewareTest {
     }
 
     @Test
-    public void testOnSuccess() throws InterruptedException {
-        initMiddlewareWith_ui_and_coreSDK_latch();
-
+    public void testOnSuccess() {
         ArgumentCaptor<FilterByRequestId> captor = ArgumentCaptor.forClass(FilterByRequestId.class);
 
         ResponseModel expectedModel = createResponseModel(200);
 
         middleware.onSuccess(expectedId, expectedModel);
 
-        latch.await();
+        HandlerUtils.waitForEventLoopToFinish(coreSdkHandler);
+        HandlerUtils.waitForEventLoopToFinish(uiHandler);
 
         verify(worker).unlock();
         verify(worker).run();
@@ -112,6 +109,7 @@ public class CoreCompletionHandlerMiddlewareTest {
         verify(requestRepository).remove(captor.capture());
         FilterByRequestId filter = captor.getValue();
         assertEquals(expectedModel.getRequestModel().getId(), filter.getArgs()[0]);
+
         verify(coreCompletionHandler).onSuccess(expectedId, expectedModel);
     }
 
@@ -130,10 +128,7 @@ public class CoreCompletionHandlerMiddlewareTest {
     }
 
     @Test
-    public void testOnSuccess_withCompositeModel() throws InterruptedException {
-        latch = new CountDownLatch(3);
-        middleware.runnableFactory = new FakeRunnableFactory(latch);
-
+    public void testOnSuccess_withCompositeModel() {
         String[] ids = new String[]{"id1", "id2", "id3"};
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -157,7 +152,8 @@ public class CoreCompletionHandlerMiddlewareTest {
 
         middleware.onSuccess("0", responseModel);
 
-        latch.await();
+        HandlerUtils.waitForEventLoopToFinish(coreSdkHandler);
+        HandlerUtils.waitForEventLoopToFinish(uiHandler);
 
         verify(middleware.coreCompletionHandler, times(3)).onSuccess(captor.capture(), eq(responseModel));
         List<String> capturedIds = captor.getAllValues();
@@ -165,16 +161,15 @@ public class CoreCompletionHandlerMiddlewareTest {
     }
 
     @Test
-    public void testOnError_4xx() throws InterruptedException {
-        initMiddlewareWith_ui_and_coreSDK_latch();
-
+    public void testOnError_4xx() {
         ArgumentCaptor<FilterByRequestId> captor = ArgumentCaptor.forClass(FilterByRequestId.class);
 
         ResponseModel expectedModel = createResponseModel(403);
 
         middleware.onError(expectedId, expectedModel);
 
-        latch.await();
+        HandlerUtils.waitForEventLoopToFinish(coreSdkHandler);
+        HandlerUtils.waitForEventLoopToFinish(uiHandler);
 
         verify(requestRepository).remove(captor.capture());
         FilterByRequestId filter = captor.getValue();
@@ -187,7 +182,7 @@ public class CoreCompletionHandlerMiddlewareTest {
     }
 
     @Test
-    public void testOnError_4xx_callsHandlerPost() throws Exception {
+    public void testOnError_4xx_callsHandlerPost() {
         Handler handler = mock(Handler.class);
         middleware.coreSDKHandler = handler;
 
@@ -200,12 +195,13 @@ public class CoreCompletionHandlerMiddlewareTest {
     }
 
     @Test
-    public void testOnError_408_shouldHandleErrorAsRetriable() throws InterruptedException {
+    public void testOnError_408_shouldHandleErrorAsRetriable() {
         ResponseModel expectedModel = createResponseModel(408);
 
         middleware.onError(expectedId, expectedModel);
 
-        latch.await();
+        HandlerUtils.waitForEventLoopToFinish(coreSdkHandler);
+        HandlerUtils.waitForEventLoopToFinish(uiHandler);
 
         verify(worker).unlock();
         verifyNoMoreInteractions(worker);
@@ -215,12 +211,13 @@ public class CoreCompletionHandlerMiddlewareTest {
     }
 
     @Test
-    public void testOnError_5xx() throws InterruptedException {
+    public void testOnError_5xx() {
         ResponseModel expectedModel = createResponseModel(500);
 
         middleware.onError(expectedId, expectedModel);
 
-        latch.await();
+        HandlerUtils.waitForEventLoopToFinish(coreSdkHandler);
+        HandlerUtils.waitForEventLoopToFinish(uiHandler);
 
         verify(worker).unlock();
         verifyNoMoreInteractions(worker);
@@ -230,10 +227,7 @@ public class CoreCompletionHandlerMiddlewareTest {
     }
 
     @Test
-    public void testOnError_4xx_withCompositeModel() throws InterruptedException {
-        latch = new CountDownLatch(4);
-        middleware.runnableFactory = new FakeRunnableFactory(latch);
-
+    public void testOnError_4xx_withCompositeModel() {
         String[] ids = new String[]{"id1", "id2", "id3"};
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -257,7 +251,8 @@ public class CoreCompletionHandlerMiddlewareTest {
 
         middleware.onError("0", responseModel);
 
-        latch.await();
+        HandlerUtils.waitForEventLoopToFinish(coreSdkHandler);
+        HandlerUtils.waitForEventLoopToFinish(uiHandler);
 
         verify(middleware.coreCompletionHandler, times(3)).onError(captor.capture(), eq(responseModel));
         List<String> capturedIds = captor.getAllValues();
@@ -265,14 +260,13 @@ public class CoreCompletionHandlerMiddlewareTest {
     }
 
     @Test
-    public void testOnError_withException() throws InterruptedException {
-        initMiddlewareWith_ui_and_coreSDK_latch();
-
+    public void testOnError_withException() {
         Exception expectedException = new Exception("Expected exception");
 
         middleware.onError(expectedId, expectedException);
 
-        latch.await();
+        HandlerUtils.waitForEventLoopToFinish(coreSdkHandler);
+        HandlerUtils.waitForEventLoopToFinish(uiHandler);
 
         verify(worker).unlock();
         verifyNoMoreInteractions(worker);
@@ -293,10 +287,5 @@ public class CoreCompletionHandlerMiddlewareTest {
                 .message("message")
                 .requestModel(requestModel)
                 .build();
-    }
-
-    private void initMiddlewareWith_ui_and_coreSDK_latch() {
-        latch = new CountDownLatch(2);
-        middleware.runnableFactory = new FakeRunnableFactory(latch);
     }
 }
