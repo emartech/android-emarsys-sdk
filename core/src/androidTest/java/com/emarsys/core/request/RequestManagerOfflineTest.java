@@ -1,6 +1,5 @@
 package com.emarsys.core.request;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
@@ -18,7 +17,8 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.request.model.specification.FilterByRequestId;
-import com.emarsys.core.testUtil.ConnectionTestUtils;
+import com.emarsys.core.shard.ShardModel;
+import com.emarsys.core.shard.ShardModelRepository;
 import com.emarsys.core.testUtil.DatabaseTestUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
@@ -56,6 +56,7 @@ public class RequestManagerOfflineTest {
     private CountDownLatch watchDogLatch;
     private FakeConnectionWatchDog watchDog;
     private Repository<RequestModel, SqlSpecification> requestRepository;
+    private Repository<ShardModel, SqlSpecification> shardRepository;
     private CountDownLatch completionLatch;
     private FakeCompletionHandler completionHandler;
     private RequestManager manager;
@@ -236,6 +237,7 @@ public class RequestManagerOfflineTest {
         watchDog = new FakeConnectionWatchDog(watchDogLatch, connectionStates);
 
         requestRepository = new RequestModelRepository(InstrumentationRegistry.getTargetContext());
+        shardRepository = new ShardModelRepository(InstrumentationRegistry.getTargetContext());
 
         completionLatch = new CountDownLatch(completionHandlerCountDown);
         completionHandler = new FakeCompletionHandler(completionLatch);
@@ -248,7 +250,7 @@ public class RequestManagerOfflineTest {
         RestClient restClient = new RestClient(mock(Repository.class), mock(TimestampProvider.class));
         worker = new DefaultWorker(requestRepository, watchDog, uiHandler, coreSdkHandler, completionHandler, restClient);
 
-        manager = new RequestManager(coreSdkHandler, requestRepository, worker);
+        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker);
         manager.worker = new DefaultWorker(requestRepository, watchDog, uiHandler, manager.coreSDKHandler, completionHandler, client);
 
         uiHandler.post(new Runnable() {

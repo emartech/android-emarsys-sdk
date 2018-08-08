@@ -7,6 +7,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.request.factory.DefaultRunnableFactory;
 import com.emarsys.core.request.factory.RunnableFactory;
 import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
@@ -24,9 +25,10 @@ public class RequestManager {
     RunnableFactory runnableFactory;
     Repository<RequestModel, SqlSpecification> requestRepository;
 
-    public RequestManager(Handler coreSDKHandler, Repository<RequestModel, SqlSpecification> requestRepository, Worker worker) {
+    public RequestManager(Handler coreSDKHandler, Repository<RequestModel, SqlSpecification> requestRepository, Repository<ShardModel, SqlSpecification> shardRepository, Worker worker) {
         Assert.notNull(coreSDKHandler, "CoreSDKHandler must not be null!");
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
+        Assert.notNull(shardRepository, "ShardRepository must not be null!");
         Assert.notNull(worker, "Worker must not be null!");
         defaultHeaders = new HashMap<>();
         this.requestRepository = requestRepository;

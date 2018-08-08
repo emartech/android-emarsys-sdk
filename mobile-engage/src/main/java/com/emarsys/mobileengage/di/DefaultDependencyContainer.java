@@ -20,6 +20,8 @@ import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.shard.ShardModel;
+import com.emarsys.core.shard.ShardModelRepository;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
@@ -78,6 +80,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
     private ButtonClickedRepository buttonClickedRepository;
     private DisplayedIamRepository displayedIamRepository;
     private Repository<RequestModel, SqlSpecification> requestModelRepository;
+    private Repository<ShardModel, SqlSpecification> shardModelRepository;
     private RestClient restClient;
     private Repository<Map<String, Object>, SqlSpecification> logRepositoryProxy;
     private Application application;
@@ -150,6 +153,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
         completionHandler = new MobileEngageCoreCompletionHandler(config.getStatusListener());
 
         requestModelRepository = createRequestModelRepository(application);
+        shardModelRepository = new ShardModelRepository(application);
 
         Repository<Map<String, Object>, SqlSpecification> logRepository = new LogRepository(application);
         List<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>> logHandlers = Arrays.<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>>asList(
@@ -170,6 +174,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
         requestManager = new RequestManager(
                 coreSdkHandler,
                 requestModelRepository,
+                shardModelRepository,
                 worker);
         requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(config));
 

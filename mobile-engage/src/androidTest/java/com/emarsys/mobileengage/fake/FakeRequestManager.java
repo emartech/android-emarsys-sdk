@@ -31,7 +31,7 @@ public class FakeRequestManager extends RequestManager {
             ResponseType responseType,
             CountDownLatch latch,
             CoreCompletionHandler coreCompletionHandler) {
-        super(new Handler(Looper.getMainLooper()), mock(Repository.class), mock(Worker.class));
+        super(new Handler(Looper.getMainLooper()), mock(Repository.class), mock(Repository.class), mock(Worker.class));
         this.coreCompletionHandler = coreCompletionHandler;
         this.responseType = responseType;
         this.latch = latch;

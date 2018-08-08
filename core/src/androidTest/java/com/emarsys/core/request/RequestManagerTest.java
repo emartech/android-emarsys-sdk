@@ -15,6 +15,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.QueryNewestRequestModel;
+import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.testUtil.ConnectionTestUtils;
 import com.emarsys.core.testUtil.DatabaseTestUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
@@ -55,6 +56,7 @@ public class RequestManagerTest {
     private Handler coreSdkHandler;
     private Handler uiHandler;
     private Repository<RequestModel, SqlSpecification> requestRepository;
+    private Repository<ShardModel, SqlSpecification> shardRepository;
     private Worker worker;
     private TimestampProvider timestampProvider;
     private UUIDProvider uuidProvider;
@@ -74,16 +76,19 @@ public class RequestManagerTest {
         coreSdkHandler = coreSdkHandlerProvider.provideHandler();
 
         uiHandler = new Handler(Looper.getMainLooper());
-        
+
         connectionWatchDog = mock(ConnectionWatchDog.class);
+
         requestRepository = mock(Repository.class);
         when(requestRepository.isEmpty()).thenReturn(true);
+
+        shardRepository = mock(Repository.class);
 
         completionHandlerLatch = new CountDownLatch(1);
         handler = new FakeCompletionHandler(completionHandlerLatch);
         RestClient restClient = new RestClient(mock(Repository.class), mock(TimestampProvider.class));
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, coreSdkHandler, handler, restClient);
-        manager = new RequestManager(coreSdkHandler, requestRepository, worker);
+        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker);
 
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
@@ -108,17 +113,22 @@ public class RequestManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_coreSdkHandlerShouldNotBeNull() {
-        new RequestManager(null, requestRepository, worker);
+        new RequestManager(null, requestRepository, shardRepository, worker);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestRepositoryShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, null, worker);
+        new RequestManager(coreSdkHandler, null, shardRepository, worker);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_shardRepositoryShouldNotBeNull() {
+        new RequestManager(coreSdkHandler, requestRepository, null, worker);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_workerShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, null);
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, null);
     }
 
     @Test
