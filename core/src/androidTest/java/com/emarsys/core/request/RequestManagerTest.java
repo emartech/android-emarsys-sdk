@@ -47,7 +47,7 @@ public class RequestManagerTest {
     private static final String GOOGLE_URL = "https://www.google.com";
 
     private RequestManager manager;
-    private RequestModel model;
+    private RequestModel requestModel;
     private FakeCompletionHandler handler;
     private CountDownLatch completionHandlerLatch;
     private CountDownLatch runnableFactoryLatch;
@@ -99,7 +99,7 @@ public class RequestManagerTest {
         headers.put("accept", "application/json");
         headers.put("content", "application/x-www-form-urlencoded");
 
-        model = new RequestModel.Builder(timestampProvider, uuidProvider)
+        requestModel = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(GOOGLE_URL)
                 .method(RequestMethod.GET)
                 .headers(headers)
@@ -137,25 +137,25 @@ public class RequestManagerTest {
         defaultHeaders.put("connection", "close");
 
         manager.setDefaultHeaders(defaultHeaders);
-        manager.injectDefaultHeaders(model);
+        manager.injectDefaultHeaders(requestModel);
 
         Map<String, String> expectedHeaders = new HashMap<>();
         expectedHeaders.put("content", "application/x-www-form-urlencoded");
         expectedHeaders.put("accept", "application/json");
         expectedHeaders.put("connection", "close");
 
-        assertEquals(expectedHeaders, model.getHeaders());
+        assertEquals(expectedHeaders, requestModel.getHeaders());
     }
 
     @Test
     public void testInjectDefaultHeaders_withEmptyDefaultHeaders() {
-        manager.injectDefaultHeaders(model);
+        manager.injectDefaultHeaders(requestModel);
 
         Map<String, String> expectedHeaders = new HashMap<>();
         expectedHeaders.put("content", "application/x-www-form-urlencoded");
         expectedHeaders.put("accept", "application/json");
 
-        assertEquals(expectedHeaders, model.getHeaders());
+        assertEquals(expectedHeaders, requestModel.getHeaders());
     }
 
     @Test
@@ -165,41 +165,41 @@ public class RequestManagerTest {
         defaultHeaders.put("accept", "magic");
 
         manager.setDefaultHeaders(defaultHeaders);
-        manager.injectDefaultHeaders(model);
+        manager.injectDefaultHeaders(requestModel);
 
         Map<String, String> expectedHeaders = new HashMap<>();
         expectedHeaders.put("content", "application/x-www-form-urlencoded");
         expectedHeaders.put("accept", "application/json");
         expectedHeaders.put("connection", "close");
 
-        assertEquals(expectedHeaders, model.getHeaders());
+        assertEquals(expectedHeaders, requestModel.getHeaders());
     }
 
     @Test
-    public void testSubmit_shouldCallInjectDefaultHeaders() throws InterruptedException {
+    public void testSubmit_withRequestModel_shouldCallInjectDefaultHeaders() throws InterruptedException {
         RequestManager managerSpy = spy(manager);
-        managerSpy.submit(model);
+        managerSpy.submit(requestModel);
 
         runnableFactoryLatch.await();
 
-        verify(managerSpy).injectDefaultHeaders(model);
+        verify(managerSpy).injectDefaultHeaders(requestModel);
     }
 
     @Test
-    public void testSubmit_shouldAddModelToQueue() throws InterruptedException {
-        manager.submit(model);
+    public void testSubmit_shouldAddRequestModelToQueue() throws InterruptedException {
+        manager.submit(requestModel);
 
         runnableFactoryLatch.await();
 
-        verify(requestRepository).add(model);
+        verify(requestRepository).add(requestModel);
     }
 
     @Test
-    public void testSubmit_shouldInvokeRunOnTheWorker() throws InterruptedException {
+    public void testSubmit_withRequestModel_shouldInvokeRunOnTheWorker() throws InterruptedException {
         Worker worker = mock(Worker.class);
         manager.worker = worker;
 
-        manager.submit(model);
+        manager.submit(requestModel);
 
         runnableFactoryLatch.await();
 
@@ -207,7 +207,7 @@ public class RequestManagerTest {
     }
 
     @Test
-    public void testSubmit_modelHeadersShouldBeExtendedWithDefaultHeaders() throws InterruptedException {
+    public void testSubmit_requestModelHeadersShouldBeExtendedWithDefaultHeaders() throws InterruptedException {
         Map<String, String> expectedHeaders = new HashMap<>();
         expectedHeaders.put("content", "application/x-www-form-urlencoded");
         expectedHeaders.put("accept", "application/json");
@@ -219,7 +219,7 @@ public class RequestManagerTest {
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
         manager.setDefaultHeaders(defaultHeaders);
-        manager.submit(model);
+        manager.submit(requestModel);
 
         runnableFactoryLatch.await();
 
@@ -230,11 +230,11 @@ public class RequestManagerTest {
     }
 
     @Test
-    public void testSubmit_executesRunnableOn_CoreSDKHandlerThread() throws InterruptedException {
+    public void testSubmit_withRequestModel_executesRunnableOn_CoreSDKHandlerThread() throws InterruptedException {
         FakeRunnableFactory fakeRunnableFactory = new FakeRunnableFactory(runnableFactoryLatch, true);
         manager.runnableFactory = fakeRunnableFactory;
 
-        manager.submit(model);
+        manager.submit(requestModel);
 
         runnableFactoryLatch.await();
 
@@ -244,45 +244,45 @@ public class RequestManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSubmit_requestModelShouldNotBeNull() {
-        manager.submit(null);
+        manager.submit((RequestModel)null);
     }
 
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testSuccess() throws Exception {
+    public void testSubmit_withRequestModel_Success() throws Exception {
         when(connectionWatchDog.isConnected()).thenReturn(true, false);
         when(requestRepository.isEmpty()).thenReturn(false, false, true);
         when(requestRepository.query(any(QueryNewestRequestModel.class))).thenReturn(
-                Collections.singletonList(model),
+                Collections.singletonList(requestModel),
                 Collections.<RequestModel>emptyList()
         );
 
-        manager.submit(model);
+        manager.submit(requestModel);
 
         completionHandlerLatch.await();
-        assertEquals(model.getId(), handler.getSuccessId());
+        assertEquals(requestModel.getId(), handler.getSuccessId());
         assertEquals(1, handler.getOnSuccessCount());
         assertEquals(0, handler.getOnErrorCount());
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testError_callbackWithResponseModel() throws Exception {
-        model = new RequestModel.Builder(timestampProvider, uuidProvider).url(GOOGLE_URL).method(RequestMethod.POST).build();
+    public void testError_callbackWithResponseContainsRequestModel() throws Exception {
+        requestModel = new RequestModel.Builder(timestampProvider, uuidProvider).url(GOOGLE_URL).method(RequestMethod.POST).build();
 
         when(connectionWatchDog.isConnected()).thenReturn(true, false);
         when(requestRepository.isEmpty()).thenReturn(false, false, true);
         when(requestRepository.query(any(QueryNewestRequestModel.class))).thenReturn(
-                Collections.singletonList(model),
+                Collections.singletonList(requestModel),
                 Collections.<RequestModel>emptyList()
         );
 
-        manager.submit(model);
+        manager.submit(requestModel);
 
         completionHandlerLatch.await();
 
-        assertEquals(model.getId(), handler.getErrorId());
+        assertEquals(requestModel.getId(), handler.getErrorId());
         assertEquals(0, handler.getOnSuccessCount());
         assertEquals(1, handler.getOnErrorCount());
         assertEquals(405, handler.getFailureResponseModel().getStatusCode());
@@ -290,23 +290,24 @@ public class RequestManagerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testError_callbackWithException() throws Exception {
-        model = new RequestModel.Builder(timestampProvider, uuidProvider).url("https://www.nosuchwebsite.emarsys.com").method(RequestMethod.GET).build();
+    public void testError_withRequestModel_callbackWithException() throws Exception {
+        requestModel = new RequestModel.Builder(timestampProvider, uuidProvider).url("https://www.nosuchwebsite.emarsys.com").method(RequestMethod.GET).build();
 
         when(connectionWatchDog.isConnected()).thenReturn(true, false);
         when(requestRepository.isEmpty()).thenReturn(false, false, true);
         when(requestRepository.query(any(QueryNewestRequestModel.class))).thenReturn(
-                Collections.singletonList(model),
+                Collections.singletonList(requestModel),
                 Collections.<RequestModel>emptyList()
         );
 
-        manager.submit(model);
+        manager.submit(requestModel);
 
         completionHandlerLatch.await();
 
-        assertEquals(model.getId(), handler.getErrorId());
+        assertEquals(requestModel.getId(), handler.getErrorId());
         assertEquals(0, handler.getOnSuccessCount());
         assertEquals(1, handler.getOnErrorCount());
         assertEquals(((Exception) new UnknownHostException()).getClass(), handler.getException().getClass());
     }
+
 }
