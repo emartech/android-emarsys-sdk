@@ -23,7 +23,8 @@ public class RequestManager {
     Worker worker;
     Handler coreSDKHandler;
     RunnableFactory runnableFactory;
-    Repository<RequestModel, SqlSpecification> requestRepository;
+    private Repository<RequestModel, SqlSpecification> requestRepository;
+    private Repository<ShardModel, SqlSpecification> shardRepository;
 
     public RequestManager(Handler coreSDKHandler, Repository<RequestModel, SqlSpecification> requestRepository, Repository<ShardModel, SqlSpecification> shardRepository, Worker worker) {
         Assert.notNull(coreSDKHandler, "CoreSDKHandler must not be null!");
@@ -32,6 +33,7 @@ public class RequestManager {
         Assert.notNull(worker, "Worker must not be null!");
         defaultHeaders = new HashMap<>();
         this.requestRepository = requestRepository;
+        this.shardRepository = shardRepository;
         this.coreSDKHandler = coreSDKHandler;
         this.worker = worker;
         runnableFactory = new DefaultRunnableFactory();
@@ -54,6 +56,21 @@ public class RequestManager {
                 worker.run();
             }
         }));
+
+    }
+
+    public void submit(final ShardModel model) {
+        Assert.notNull(model, "ShardModel must not be null!");
+        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", model);
+
+        coreSDKHandler.post(runnableFactory.runnableFrom(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        shardRepository.add(model);
+                    }
+                }
+        ));
 
     }
 

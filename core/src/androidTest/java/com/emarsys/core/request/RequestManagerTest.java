@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.mockito.ArgumentCaptor;
 
+import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,6 +49,7 @@ public class RequestManagerTest {
 
     private RequestManager manager;
     private RequestModel requestModel;
+    private ShardModel shardModel;
     private FakeCompletionHandler handler;
     private CountDownLatch completionHandlerLatch;
     private CountDownLatch runnableFactoryLatch;
@@ -104,6 +106,8 @@ public class RequestManagerTest {
                 .method(RequestMethod.GET)
                 .headers(headers)
                 .build();
+
+        shardModel = new ShardModel("shard_id", "shard_type", new HashMap<String, Serializable>(), 0, Long.MAX_VALUE);
     }
 
     @After
@@ -244,7 +248,7 @@ public class RequestManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSubmit_requestModelShouldNotBeNull() {
-        manager.submit((RequestModel)null);
+        manager.submit((RequestModel) null);
     }
 
 
@@ -308,6 +312,34 @@ public class RequestManagerTest {
         assertEquals(0, handler.getOnSuccessCount());
         assertEquals(1, handler.getOnErrorCount());
         assertEquals(((Exception) new UnknownHostException()).getClass(), handler.getException().getClass());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings("ConstantConditions")
+    public void testSubmit_shardModelShouldNotBeNull() {
+        manager.submit((ShardModel) null);
+    }
+
+    @Test
+    public void testSubmit_shouldAddShardModelToDatabase() throws InterruptedException {
+        manager.submit(shardModel);
+
+        runnableFactoryLatch.await();
+
+        verify(shardRepository).add(shardModel);
+    }
+
+
+    @Test
+    public void testSubmit_withShardModel_executesRunnableOn_CoreSDKHandlerThread() throws InterruptedException {
+        FakeRunnableFactory fakeRunnableFactory = new FakeRunnableFactory(runnableFactoryLatch, true);
+        manager.runnableFactory = fakeRunnableFactory;
+
+        manager.submit(shardModel);
+
+        runnableFactoryLatch.await();
+
+        assertEquals(1, fakeRunnableFactory.executionCount);
     }
 
 }
