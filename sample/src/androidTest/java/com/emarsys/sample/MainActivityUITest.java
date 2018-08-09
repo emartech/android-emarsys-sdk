@@ -8,7 +8,6 @@ import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.emarsys.core.util.log.EMSLoggerSettings;
 import com.emarsys.mobileengage.MobileEngage;
 import com.emarsys.mobileengage.MobileEngageUtils;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
@@ -57,8 +56,6 @@ public class MainActivityUITest {
                 .statusListener(fragment)
                 .build();
         MobileEngage.setup(config);
-
-        EMSLoggerSettings.enableLoggingForAllTopics();
 
         Espresso.registerIdlingResources(MobileEngageUtils.getIdlingResource());
     }
