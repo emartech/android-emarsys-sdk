@@ -25,8 +25,10 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class MobileEngageFragment extends Fragment implements MobileEngageStatusListener {
@@ -51,11 +53,15 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
 
     private String requestId;
 
+    private List<String> requestList;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_mobile_engage, container, false);
 
         MobileEngage.setStatusListener(this);
+
+        requestList = new ArrayList<>();
 
         statusLabel = root.findViewById(R.id.mobileEngageStatusLabel);
 
@@ -78,8 +84,8 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
         appLogingAnonymous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                statusLabel.setText("Anonymous login: ");
-                MobileEngage.appLogin();
+                String requestId = MobileEngage.appLogin();
+                handleRequestSent("Anonymous login: ", requestId);
             }
         });
 
@@ -91,7 +97,7 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
                     int id = Integer.parseInt(contactFieldId);
                     String secret = applicationSecret.getText().toString();
                     requestId = MobileEngage.appLogin(id, secret);
-                    statusLabel.setText("Login: ");
+                    handleRequestSent("Login: ", requestId);
                 }
             }
         });
@@ -99,8 +105,8 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
         appLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MobileEngage.appLogout();
-                statusLabel.setText("Logout: ");
+                String requestId = MobileEngage.appLogout();
+                handleRequestSent("Logout: ", requestId);
             }
         });
 
@@ -125,8 +131,8 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
                     }
                 }
 
-                MobileEngage.trackCustomEvent(name, attributes);
-                statusLabel.setText("Custom event: ");
+                String requestId = MobileEngage.trackCustomEvent(name, attributes);
+                handleRequestSent("Custom event: ", requestId);
             }
         });
 
@@ -139,8 +145,8 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
                 payload.putString("key1", "value1");
                 payload.putString("u", String.format("{\"sid\": \"%s\"}", id));
                 intent.putExtra("payload", payload);
-                statusLabel.setText("Message open: ");
-                MobileEngage.trackMessageOpen(intent);
+                String requestId = MobileEngage.trackMessageOpen(intent);
+                handleRequestSent("Message open: ", requestId);
             }
         });
 
@@ -172,10 +178,24 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
         return root;
     }
 
+    private void handleRequestSent(String title, String id) {
+        statusLabel.setText(title);
+        requestList.add(id);
+    }
+
+    private void handleResponse(String message, String id) {
+        if (requestList.contains(id)) {
+            statusLabel.append(message);
+            requestList.remove(id);
+        } else {
+            Log.i(TAG, "Non user initiated request arrived! With ID: "+id);
+        }
+    }
+
     @Override
     public void onStatusLog(String id, String message) {
         Log.i(TAG, message);
-        statusLabel.append("OK");
+        handleResponse("OK", id);
         if (id.equals(requestId)) {
             ((MainActivity) getActivity()).updateBadgeCount();
         }
@@ -191,6 +211,6 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
             sb.append(" - ");
         }
         sb.append(e.getMessage());
-        statusLabel.append(sb.toString());
+        handleResponse(sb.toString(), id);
     }
 }
