@@ -8,6 +8,7 @@ import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.emarsys.core.util.log.EMSLoggerSettings;
 import com.emarsys.mobileengage.MobileEngage;
 import com.emarsys.mobileengage.MobileEngageUtils;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
@@ -57,6 +58,8 @@ public class MainActivityUITest {
                 .build();
         MobileEngage.setup(config);
 
+        EMSLoggerSettings.enableLoggingForAllTopics();
+
         Espresso.registerIdlingResources(MobileEngageUtils.getIdlingResource());
     }
 
@@ -76,20 +79,19 @@ public class MainActivityUITest {
     }
 
     @Test
-    public void testAnonymousLogin() throws InterruptedException {
+    public void testAnonymousLogin() {
         onView(ViewMatchers.withId(R.id.appLoginAnonymous)).perform(scrollTo(), click());
         onView(withId(R.id.mobileEngageStatusLabel)).check(matches(withText("Anonymous login: OK")));
     }
 
     @Test
-    public void testLogin() throws InterruptedException {
+    public void testLogin() {
         login();
         onView(withId(R.id.mobileEngageStatusLabel)).check(matches(withText("Login: OK")));
     }
 
-
     @Test
-    public void testCustomEvent_noAttributes() throws InterruptedException {
+    public void testCustomEvent_noAttributes() {
         login();
         onView(withId(R.id.mobileEngageStatusLabel)).check(matches(withText("Login: OK")));
         onView(withId(R.id.eventName)).perform(scrollTo(), typeText("eventName"));
@@ -98,7 +100,7 @@ public class MainActivityUITest {
     }
 
     @Test
-    public void testCustomEvent_withAttributes() throws InterruptedException {
+    public void testCustomEvent_withAttributes() {
         login();
         onView(withId(R.id.eventName)).perform(scrollTo(), typeText("eventName"));
         onView(withId(R.id.eventAttributes)).perform(scrollTo(), typeText("{attr1: true, attr2: 34, attr3: \"customString\"}"));
@@ -107,7 +109,7 @@ public class MainActivityUITest {
     }
 
     @Test
-    public void testMessageOpen() throws InterruptedException {
+    public void testMessageOpen() {
         login();
         onView(withId(R.id.messageId)).perform(scrollTo(), typeText("dd8_zXfDdndBNEQi"));
         onView(withId(R.id.messageOpen)).perform(scrollTo(), click());
@@ -115,7 +117,7 @@ public class MainActivityUITest {
     }
 
     @Test
-    public void testLogout() throws InterruptedException {
+    public void testLogout() {
         onView(withId(R.id.appLogout)).perform(scrollTo(), click());
         onView(withId(R.id.mobileEngageStatusLabel)).check(matches(withText("Logout: OK")));
     }
