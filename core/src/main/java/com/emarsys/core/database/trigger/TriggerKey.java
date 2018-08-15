@@ -1,14 +1,26 @@
 package com.emarsys.core.database.trigger;
 
 public class TriggerKey {
-    final String tableName;
-    final TriggerType triggerType;
-    final TriggerEvent triggerEvent;
+    private final String tableName;
+    private final TriggerType triggerType;
+    private final TriggerEvent triggerEvent;
 
     public TriggerKey(String tableName, TriggerType triggerType, TriggerEvent triggerEvent) {
         this.tableName = tableName;
         this.triggerType = triggerType;
         this.triggerEvent = triggerEvent;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public TriggerType getTriggerType() {
+        return triggerType;
+    }
+
+    public TriggerEvent getTriggerEvent() {
+        return triggerEvent;
     }
 
     @Override
