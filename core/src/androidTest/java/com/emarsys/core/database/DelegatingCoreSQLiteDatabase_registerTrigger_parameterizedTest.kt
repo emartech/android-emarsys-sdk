@@ -18,8 +18,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.Mockito.mock
 
-private typealias TriggerMap = Map<TriggerKey, Runnable>
-
 @RunWith(Parameterized::class)
 class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
 
@@ -76,7 +74,7 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
         verify(mockRunnable).run()
     }
 
-    private fun createUnusedTriggerMap(): TriggerMap {
+    private fun createUnusedTriggerMap(): Map<TriggerKey, Runnable> {
         return TriggerType.values().flatMap { type ->
             TriggerEvent.values().map { event ->
                 type to event
@@ -104,6 +102,11 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
         lateinit var mockRunnable: Runnable
         lateinit var db: DelegatingCoreSQLiteDatabase
 
+        private val contentValues = ContentValues().apply {
+            put(COLUMN_1, "value")
+            put(COLUMN_2, 1234)
+        }
+
         @JvmStatic
         @Parameterized.Parameters
         fun data(): Collection<Array<Any>> {
@@ -122,12 +125,7 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
                                 mockRunnable.run()
                             },
                             Runnable {
-                                ContentValues().apply {
-                                    put(COLUMN_1, "value")
-                                    put(COLUMN_2, 1234)
-                                }.let {
-                                    db.insert(TABLE_NAME, null, it)
-                                }
+                                db.insert(TABLE_NAME, null, contentValues)
                             }),
                     arrayOf(
                             TABLE_NAME,
@@ -143,24 +141,14 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
                                 mockRunnable.run()
                             },
                             Runnable {
-                                ContentValues().apply {
-                                    put(COLUMN_1, "value")
-                                    put(COLUMN_2, 1234)
-                                }.let {
-                                    db.insert(TABLE_NAME, null, it)
-                                }
+                                db.insert(TABLE_NAME, null, contentValues)
                             }),
                     arrayOf(
                             TABLE_NAME,
                             TriggerType.BEFORE,
                             TriggerEvent.DELETE,
                             Runnable {
-                                ContentValues().apply {
-                                    put(COLUMN_1, "value")
-                                    put(COLUMN_2, 1234)
-                                }.let {
-                                    db.insert(TABLE_NAME, null, it)
-                                }
+                                db.insert(TABLE_NAME, null, contentValues)
                             },
                             Runnable {
                                 db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
@@ -176,12 +164,7 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
                             TriggerType.AFTER,
                             TriggerEvent.DELETE,
                             Runnable {
-                                ContentValues().apply {
-                                    put(COLUMN_1, "value")
-                                    put(COLUMN_2, 1234)
-                                }.let {
-                                    db.insert(TABLE_NAME, null, it)
-                                }
+                                db.insert(TABLE_NAME, null, contentValues)
                             },
                             Runnable {
                                 db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
