@@ -9,7 +9,7 @@ import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.database.trigger.TriggerType;
 import com.emarsys.core.util.Assert;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +17,7 @@ public class DelegatingCoreSQLiteDatabase implements CoreSQLiteDatabase {
 
     private final SQLiteDatabase database;
     private final Map<TriggerKey, List<Runnable>> registeredTriggers;
+    private boolean locked;
 
     public DelegatingCoreSQLiteDatabase(
             SQLiteDatabase database,
@@ -57,7 +58,8 @@ public class DelegatingCoreSQLiteDatabase implements CoreSQLiteDatabase {
         List<Runnable> runnables = registeredTriggers.get(key);
 
         if (runnables == null) {
-            runnables = Arrays.asList(trigger);
+            runnables = new ArrayList<>();
+            runnables.add(trigger);
         } else {
             runnables.add(trigger);
         }
@@ -97,11 +99,15 @@ public class DelegatingCoreSQLiteDatabase implements CoreSQLiteDatabase {
     }
 
     private void runTriggers(String tableName, TriggerType triggerType, TriggerEvent triggerEvent) {
-        List<Runnable> runnables = registeredTriggers.get(new TriggerKey(tableName, triggerType, triggerEvent));
-        if (runnables != null) {
-            for (Runnable runnable : runnables) {
-                runnable.run();
+        if (!locked) {
+            locked = true;
+            List<Runnable> runnables = registeredTriggers.get(new TriggerKey(tableName, triggerType, triggerEvent));
+            if (runnables != null) {
+                for (Runnable runnable : runnables) {
+                    runnable.run();
+                }
             }
+            locked = false;
         }
     }
 }

@@ -3,11 +3,14 @@ package com.emarsys.core.database
 import android.support.test.InstrumentationRegistry
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.trigger.TriggerEvent
+import com.emarsys.core.database.trigger.TriggerKey
 import com.emarsys.core.database.trigger.TriggerType
 import com.emarsys.core.testUtil.TimeoutUtils
+import junit.framework.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito.mock
 
 class DelegatingCoreSQLiteDatabaseTest {
 
@@ -16,11 +19,15 @@ class DelegatingCoreSQLiteDatabaseTest {
     val timeout = TimeoutUtils.getTimeoutRule()
 
     lateinit var db: DelegatingCoreSQLiteDatabase
+    lateinit var triggerMap: MutableMap<TriggerKey, List<Runnable>>
 
     @Before
     fun init() {
         val coreDbHelper = CoreDbHelper(InstrumentationRegistry.getTargetContext().applicationContext, mutableMapOf())
-        db = DelegatingCoreSQLiteDatabase(coreDbHelper.writableDatabase, mutableMapOf())
+
+        triggerMap = mutableMapOf()
+
+        db = DelegatingCoreSQLiteDatabase(coreDbHelper.writableDatabase, triggerMap)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -51,5 +58,17 @@ class DelegatingCoreSQLiteDatabaseTest {
     @Test(expected = IllegalArgumentException::class)
     fun testRegisterTrigger_trigger_mustNotBeNull() {
         db.registerTrigger("table", TriggerType.AFTER, TriggerEvent.INSERT, null)
+    }
+
+    @Test
+    fun testRegisterTrigger_shouldRegisterMultipleTriggers() {
+        val triggerKey = TriggerKey("table", TriggerType.AFTER, TriggerEvent.DELETE)
+        val count = 3
+
+        repeat(count) {
+            db.registerTrigger(triggerKey.tableName, triggerKey.triggerType, triggerKey.triggerEvent, mock(Runnable::class.java))
+        }
+
+        Assert.assertEquals(count, triggerMap[triggerKey]?.size)
     }
 }
