@@ -4,10 +4,12 @@ import android.content.ContentValues
 import android.support.test.InstrumentationRegistry
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.trigger.TriggerEvent
+import com.emarsys.core.database.trigger.TriggerKey
 import com.emarsys.core.database.trigger.TriggerType
 import com.emarsys.core.testUtil.DatabaseTestUtils
 import com.emarsys.core.testUtil.TimeoutUtils
 import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.verifyZeroInteractions
 import junit.framework.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -15,6 +17,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.Mockito.mock
+
+private typealias TriggerMap = Map<TriggerKey, Runnable>
 
 @RunWith(Parameterized::class)
 class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
@@ -41,12 +45,15 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
     @Parameterized.Parameter(5)
     lateinit var action: Runnable
 
+    lateinit var registeredTriggerMap: MutableMap<TriggerKey, MutableList<Runnable>>
+
     @Before
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
 
         val coreDbHelper = CoreDbHelper(InstrumentationRegistry.getTargetContext().applicationContext, mutableMapOf())
-        db = DelegatingCoreSQLiteDatabase(coreDbHelper.writableDatabase, mutableMapOf())
+        registeredTriggerMap = mutableMapOf()
+        db = DelegatingCoreSQLiteDatabase(coreDbHelper.writableDatabase, registeredTriggerMap)
 
         db.backingDatabase.execSQL(CREATE)
 
@@ -57,11 +64,34 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
     fun testTrigger() {
         setup.run()
 
+        val unusedTriggerMap = createUnusedTriggerMap()
+        unusedTriggerMap.forEach { (key, trigger) ->
+            db.registerTrigger(key.tableName, key.triggerType, key.triggerEvent, trigger)
+        }
         db.registerTrigger(tableName, triggerType, triggerEvent, trigger)
 
         action.run()
 
+        unusedTriggerMap.values.forEach { verifyZeroInteractions(it) }
         verify(mockRunnable).run()
+    }
+
+    private fun createUnusedTriggerMap(): TriggerMap {
+        return TriggerType.values().flatMap { type ->
+            TriggerEvent.values().map { event ->
+                type to event
+            }
+        }.map { (type, event) ->
+            TriggerKey(tableName, type, event)
+        }.filter {
+            it.triggerEvent != triggerEvent
+        }.let { triggerKeys ->
+            HashMap<TriggerKey, Runnable>().apply {
+                triggerKeys.forEach {
+                    put(it, mock(Runnable::class.java))
+                }
+            }
+        }
     }
 
     companion object {
