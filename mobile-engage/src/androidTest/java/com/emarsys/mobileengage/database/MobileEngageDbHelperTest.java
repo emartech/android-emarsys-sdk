@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.mobileengage.testUtil.DatabaseTestUtils;
 import com.emarsys.mobileengage.testUtil.TimeoutUtils;
 
@@ -12,6 +13,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+
+import java.util.HashMap;
+import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -32,7 +36,7 @@ public class MobileEngageDbHelperTest {
         DatabaseTestUtils.deleteMobileEngageDatabase();
 
         Context context = InstrumentationRegistry.getContext();
-        dbHelper = new MobileEngageDbHelper(context);
+        dbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
     }
 
     @Test

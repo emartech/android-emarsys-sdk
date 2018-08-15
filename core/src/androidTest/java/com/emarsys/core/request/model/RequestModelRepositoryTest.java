@@ -9,6 +9,7 @@ import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.specification.QueryAll;
+import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.testUtil.DatabaseTestUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
 
@@ -133,7 +134,9 @@ public class RequestModelRepositoryTest {
     }
 
     private void initializeDatabaseWithCorrectAndIncorrectData() throws JSONException {
-        CoreDbHelper dbHelper = new CoreDbHelper(context);
+        CoreDbHelper dbHelper = new CoreDbHelper(
+                context,
+                new HashMap<TriggerKey, List<Runnable>>());
         CoreSQLiteDatabase db = dbHelper.getWritableCoreDatabase();
 
         String jsonString = "{'key1': 'value1', 'key2':321}";

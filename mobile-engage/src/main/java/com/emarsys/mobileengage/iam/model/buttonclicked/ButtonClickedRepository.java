@@ -5,7 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 
 import com.emarsys.core.database.repository.AbstractSqliteRepository;
+import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.mobileengage.database.MobileEngageDbHelper;
+
+import java.util.HashMap;
+import java.util.List;
 
 import static com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedContract.COLUMN_NAME_BUTTON_ID;
 import static com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedContract.COLUMN_NAME_CAMPAIGN_ID;
@@ -15,7 +19,7 @@ import static com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedCont
 public class ButtonClickedRepository extends AbstractSqliteRepository<ButtonClicked> {
 
     public ButtonClickedRepository(Context context) {
-        super(TABLE_NAME, new MobileEngageDbHelper(context));
+        super(TABLE_NAME, new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>()));
     }
 
     @Override

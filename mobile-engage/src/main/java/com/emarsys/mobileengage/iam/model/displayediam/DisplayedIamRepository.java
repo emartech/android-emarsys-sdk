@@ -5,12 +5,16 @@ import android.content.Context;
 import android.database.Cursor;
 
 import com.emarsys.core.database.repository.AbstractSqliteRepository;
+import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.mobileengage.database.MobileEngageDbHelper;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class DisplayedIamRepository extends AbstractSqliteRepository<DisplayedIam> {
 
     public DisplayedIamRepository(Context context) {
-        super(DisplayedIamContract.TABLE_NAME, new MobileEngageDbHelper(context));
+        super(DisplayedIamContract.TABLE_NAME, new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>()));
     }
 
     @Override

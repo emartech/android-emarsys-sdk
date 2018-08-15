@@ -4,15 +4,19 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.emarsys.core.database.DatabaseContract;
+import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
+
+import java.util.List;
+import java.util.Map;
 
 public class CoreDbHelper extends AbstractDbHelper {
     public static final int DATABASE_VERSION = 3;
     public static final String DATABASE_NAME = "EmarsysCoreQueue.db";
 
-    public CoreDbHelper(Context context) {
-        super(context, DATABASE_NAME, DATABASE_VERSION);
+    public CoreDbHelper(Context context, Map<TriggerKey, List<Runnable>> triggerMap) {
+        super(context, DATABASE_NAME, DATABASE_VERSION, triggerMap);
     }
 
     @Override

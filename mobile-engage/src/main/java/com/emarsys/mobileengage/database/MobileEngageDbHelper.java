@@ -4,8 +4,12 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.emarsys.core.database.helper.AbstractDbHelper;
+import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedContract;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamContract;
+
+import java.util.List;
+import java.util.Map;
 
 
 public class MobileEngageDbHelper extends AbstractDbHelper {
@@ -13,8 +17,8 @@ public class MobileEngageDbHelper extends AbstractDbHelper {
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "EmarsysMobileEngage.db";
 
-    public MobileEngageDbHelper(Context context) {
-        super(context, DATABASE_NAME, DATABASE_VERSION);
+    public MobileEngageDbHelper(Context context, Map<TriggerKey, List<Runnable>> triggerMap) {
+        super(context, DATABASE_NAME, DATABASE_VERSION, triggerMap);
     }
 
     @Override

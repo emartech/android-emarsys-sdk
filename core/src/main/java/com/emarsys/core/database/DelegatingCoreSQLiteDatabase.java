@@ -4,12 +4,27 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.emarsys.core.database.trigger.TriggerEvent;
+import com.emarsys.core.database.trigger.TriggerKey;
+import com.emarsys.core.database.trigger.TriggerType;
+import com.emarsys.core.util.Assert;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 public class DelegatingCoreSQLiteDatabase implements CoreSQLiteDatabase {
 
     private final SQLiteDatabase database;
+    private final Map<TriggerKey, List<Runnable>> registeredTriggers;
 
-    public DelegatingCoreSQLiteDatabase(SQLiteDatabase database) {
+    public DelegatingCoreSQLiteDatabase(
+            SQLiteDatabase database,
+            Map<TriggerKey, List<Runnable>> triggerMap) {
+        Assert.notNull(database, "Database must not be null!");
+        Assert.notNull(triggerMap, "TriggerMap must not be null!");
         this.database = database;
+        this.registeredTriggers = triggerMap;
     }
 
     @Override
@@ -28,13 +43,42 @@ public class DelegatingCoreSQLiteDatabase implements CoreSQLiteDatabase {
     }
 
     @Override
+    public void registerTrigger(
+            String table,
+            TriggerType triggerType,
+            TriggerEvent triggerEvent,
+            Runnable trigger) {
+        Assert.notNull(table, "Table must not be null!");
+        Assert.notNull(triggerType, "TriggerType must not be null!");
+        Assert.notNull(triggerEvent, "TriggerEvent must not be null!");
+        Assert.notNull(trigger, "Trigger must not be null!");
+
+        TriggerKey key = new TriggerKey(table, triggerType, triggerEvent);
+        List<Runnable> runnables = registeredTriggers.get(key);
+
+        if (runnables == null) {
+            runnables = Arrays.asList(trigger);
+        } else {
+            runnables.add(trigger);
+        }
+
+        registeredTriggers.put(key, runnables);
+    }
+
+    @Override
     public long insert(String table, String nullColumnHack, ContentValues values) {
-        return database.insert(table, nullColumnHack, values);
+        runTriggers(table, TriggerType.BEFORE, TriggerEvent.INSERT);
+        long rowId = database.insert(table, nullColumnHack, values);
+        runTriggers(table, TriggerType.AFTER, TriggerEvent.INSERT);
+        return rowId;
     }
 
     @Override
     public int delete(String table, String whereClause, String[] whereArgs) {
-        return database.delete(table, whereClause, whereArgs);
+        runTriggers(table, TriggerType.BEFORE, TriggerEvent.DELETE);
+        int rowsAffected = database.delete(table, whereClause, whereArgs);
+        runTriggers(table, TriggerType.AFTER, TriggerEvent.DELETE);
+        return rowsAffected;
     }
 
     @Override
@@ -52,4 +96,12 @@ public class DelegatingCoreSQLiteDatabase implements CoreSQLiteDatabase {
         database.endTransaction();
     }
 
+    private void runTriggers(String tableName, TriggerType triggerType, TriggerEvent triggerEvent) {
+        List<Runnable> runnables = registeredTriggers.get(new TriggerKey(tableName, triggerType, triggerEvent));
+        if (runnables != null) {
+            for (Runnable runnable : runnables) {
+                runnable.run();
+            }
+        }
+    }
 }

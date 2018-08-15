@@ -5,14 +5,15 @@ import android.database.Cursor;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.database.CoreSQLiteDatabase;
+import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.helper.DbHelper;
+import com.emarsys.core.database.trigger.TriggerKey;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
-import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.testUtil.DatabaseTestUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,6 +23,7 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_HEADERS;
@@ -157,7 +159,9 @@ public class AbstractSqliteRepositoryTest {
 
     @Test
     public void testIsEmpty_shouldReturnFalse_whenThereAreRows() {
-        DbHelper helper = new CoreDbHelper(InstrumentationRegistry.getTargetContext());
+        DbHelper helper = new CoreDbHelper(
+                InstrumentationRegistry.getTargetContext(),
+                new HashMap<TriggerKey, List<Runnable>>());
         repository.tableName = DatabaseContract.REQUEST_TABLE_NAME;
         repository.dbHelper = helper;
         CoreSQLiteDatabase db = helper.getWritableCoreDatabase();
@@ -174,7 +178,9 @@ public class AbstractSqliteRepositoryTest {
 
     @Test
     public void testIsEmpty_shouldReturnTrue_whenTableIsEmpty() {
-        DbHelper helper = new CoreDbHelper(InstrumentationRegistry.getTargetContext());
+        DbHelper helper = new CoreDbHelper(
+                InstrumentationRegistry.getTargetContext(),
+                new HashMap<TriggerKey, List<Runnable>>());
         repository.dbHelper = helper;
         repository.tableName = DatabaseContract.REQUEST_TABLE_NAME;
         CoreSQLiteDatabase db = helper.getWritableCoreDatabase();

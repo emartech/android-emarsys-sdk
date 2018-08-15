@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.database.CoreSQLiteDatabase;
+import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -12,14 +13,21 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import java.util.HashMap;
+import java.util.List;
+
 import static junit.framework.Assert.assertEquals;
 
 public class AbstractDbHelperTest {
 
     private static class DummyDbHelper extends AbstractDbHelper {
 
-        public DummyDbHelper(Context context, String databaseName, int databaseVersion) {
-            super(context, databaseName, databaseVersion);
+        public DummyDbHelper(
+                Context context,
+                String databaseName,
+                int databaseVersion,
+                HashMap<TriggerKey, List<Runnable>> triggerMap) {
+            super(context, databaseName, databaseVersion, triggerMap);
         }
 
         @Override
@@ -35,6 +43,7 @@ public class AbstractDbHelperTest {
 
     private Context context;
     private AbstractDbHelper dbHelper;
+    private HashMap<TriggerKey, List<Runnable>> triggerMap;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -42,21 +51,28 @@ public class AbstractDbHelperTest {
     @Before
     public void init() {
         context = InstrumentationRegistry.getTargetContext();
+        triggerMap = new HashMap<>();
         dbHelper = new DummyDbHelper(
                 context,
                 "name",
-                1
+                1,
+                triggerMap
         );
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_contextMustNotBeNull() {
-        new DummyDbHelper(null, "name", 1);
+    public void testConstructor_context_mustNotBeNull() {
+        new DummyDbHelper(null, "name", 1, triggerMap);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_databaseNameMustNotBeNull() {
-        new DummyDbHelper(context, null, 1);
+    public void testConstructor_databaseName_mustNotBeNull() {
+        new DummyDbHelper(context, null, 1, triggerMap);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_triggerMap_mustNotBeNull() {
+        new DummyDbHelper(context, "name", 1, null);
     }
 
     @Test

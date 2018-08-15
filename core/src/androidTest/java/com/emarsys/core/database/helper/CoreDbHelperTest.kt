@@ -25,7 +25,9 @@ class CoreDbHelperTest {
     @Before
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
-        dbHelper = CoreDbHelper(InstrumentationRegistry.getTargetContext().applicationContext)
+        dbHelper = CoreDbHelper(
+                InstrumentationRegistry.getTargetContext().applicationContext,
+                mutableMapOf())
         db = dbHelper.writableCoreDatabase.backingDatabase
         DatabaseTestUtils.dropAllTables(db)
     }
