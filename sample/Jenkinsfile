@@ -35,12 +35,6 @@ node('master') {
                     androidLint module: 'sample', andArchive: 'sample/**/lint-results*.*'
                 }
 
-                stage("instrumentation-test") {
-                    sh './gradlew sample:uninstallDebug'
-                    sh './gradlew sample:uninstallDebugAndroidTest'
-                    androidInstrumentationTest module: 'sample', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: 'sample/**/outputs/androidTest-results/connected/*.xml'
-                }
-
                 stage("install") {
                     sh './gradlew sample:installDebug'
                 }
