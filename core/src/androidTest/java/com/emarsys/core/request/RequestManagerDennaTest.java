@@ -70,7 +70,7 @@ public class RequestManagerDennaTest {
 
         ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(context, coreSdkHandler);
         Repository<RequestModel, SqlSpecification> requestRepository = new RequestModelRepository(context);
-        Repository<ShardModel, SqlSpecification>  shardRepository = new ShardModelRepository(context);
+        Repository<ShardModel, SqlSpecification> shardRepository = new ShardModelRepository(context);
 
         latch = new CountDownLatch(1);
         handler = new FakeCompletionHandler(latch);
@@ -78,7 +78,7 @@ public class RequestManagerDennaTest {
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, coreSdkHandler, handler, restClient);
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
-        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker);
+        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClient);
         headers = new HashMap<>();
         headers.put("accept", "application/json");
         headers.put("content", "application/x-www-form-urlencoded");

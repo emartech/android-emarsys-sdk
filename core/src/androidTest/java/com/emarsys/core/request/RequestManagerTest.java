@@ -62,6 +62,7 @@ public class RequestManagerTest {
     private Worker worker;
     private TimestampProvider timestampProvider;
     private UUIDProvider uuidProvider;
+    private RestClient restClientMock;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -89,8 +90,9 @@ public class RequestManagerTest {
         completionHandlerLatch = new CountDownLatch(1);
         handler = new FakeCompletionHandler(completionHandlerLatch);
         RestClient restClient = new RestClient(mock(Repository.class), mock(TimestampProvider.class));
+        restClientMock = mock(RestClient.class);
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, coreSdkHandler, handler, restClient);
-        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker);
+        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClientMock);
 
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
@@ -117,22 +119,27 @@ public class RequestManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_coreSdkHandlerShouldNotBeNull() {
-        new RequestManager(null, requestRepository, shardRepository, worker);
+        new RequestManager(null, requestRepository, shardRepository, worker, restClientMock);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestRepositoryShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, null, shardRepository, worker);
+        new RequestManager(coreSdkHandler, null, shardRepository, worker, restClientMock);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_shardRepositoryShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, null, worker);
+        new RequestManager(coreSdkHandler, requestRepository, null, worker, restClientMock);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_workerShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, shardRepository, null);
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, null, restClientMock);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_restClientShouldNotBeNull() {
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, null);
     }
 
     @Test
@@ -268,6 +275,13 @@ public class RequestManagerTest {
         assertEquals(requestModel.getId(), handler.getSuccessId());
         assertEquals(1, handler.getOnSuccessCount());
         assertEquals(0, handler.getOnErrorCount());
+    }
+
+    @Test
+    public void testSubmitNow_shouldCallRestClientsExecuteWithGivenParameters() {
+        manager.submitNow(requestModel, handler);
+
+        verify(restClientMock).execute(requestModel, handler);
     }
 
     @Test

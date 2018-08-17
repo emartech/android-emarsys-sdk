@@ -175,7 +175,9 @@ public class DefaultDependencyContainer implements DependencyContainer {
                 coreSdkHandler,
                 requestModelRepository,
                 shardModelRepository,
-                worker);
+                worker,
+                restClient);
+
         requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(config));
 
         requestContext = new RequestContext(

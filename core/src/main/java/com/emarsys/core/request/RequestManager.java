@@ -2,6 +2,7 @@ package com.emarsys.core.request;
 
 import android.os.Handler;
 
+import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.request.factory.DefaultRunnableFactory;
@@ -18,6 +19,7 @@ import java.util.Map;
 
 public class RequestManager {
 
+    private final RestClient restClient;
     private Map<String, String> defaultHeaders;
 
     Worker worker;
@@ -26,16 +28,18 @@ public class RequestManager {
     private Repository<RequestModel, SqlSpecification> requestRepository;
     private Repository<ShardModel, SqlSpecification> shardRepository;
 
-    public RequestManager(Handler coreSDKHandler, Repository<RequestModel, SqlSpecification> requestRepository, Repository<ShardModel, SqlSpecification> shardRepository, Worker worker) {
+    public RequestManager(Handler coreSDKHandler, Repository<RequestModel, SqlSpecification> requestRepository, Repository<ShardModel, SqlSpecification> shardRepository, Worker worker, RestClient restClient) {
         Assert.notNull(coreSDKHandler, "CoreSDKHandler must not be null!");
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(shardRepository, "ShardRepository must not be null!");
         Assert.notNull(worker, "Worker must not be null!");
+        Assert.notNull(restClient, "RestClient must not be null!");
         defaultHeaders = new HashMap<>();
         this.requestRepository = requestRepository;
         this.shardRepository = shardRepository;
         this.coreSDKHandler = coreSDKHandler;
         this.worker = worker;
+        this.restClient = restClient;
         runnableFactory = new DefaultRunnableFactory();
     }
 
@@ -74,6 +78,10 @@ public class RequestManager {
 
     }
 
+    public void submitNow(RequestModel requestModel, CoreCompletionHandler completionHandler) {
+        restClient.execute(requestModel, completionHandler);
+    }
+
     void injectDefaultHeaders(RequestModel model) {
         Map<String, String> modelHeaders = model.getHeaders();
         for (Map.Entry<String, String> defaultHeader : defaultHeaders.entrySet()) {
@@ -85,5 +93,4 @@ public class RequestManager {
             }
         }
     }
-
 }

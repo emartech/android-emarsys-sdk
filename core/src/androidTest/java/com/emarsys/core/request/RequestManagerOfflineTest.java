@@ -250,7 +250,7 @@ public class RequestManagerOfflineTest {
         RestClient restClient = new RestClient(mock(Repository.class), mock(TimestampProvider.class));
         worker = new DefaultWorker(requestRepository, watchDog, uiHandler, coreSdkHandler, completionHandler, restClient);
 
-        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker);
+        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, client);
         manager.worker = new DefaultWorker(requestRepository, watchDog, uiHandler, manager.coreSDKHandler, completionHandler, client);
 
         uiHandler.post(new Runnable() {
