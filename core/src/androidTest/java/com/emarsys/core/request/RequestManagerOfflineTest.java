@@ -7,11 +7,14 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionState;
+import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.database.repository.specification.QueryAll;
 import com.emarsys.core.fake.FakeCompletionHandler;
 import com.emarsys.core.fake.FakeConnectionWatchDog;
 import com.emarsys.core.fake.FakeRestClient;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
@@ -21,7 +24,6 @@ import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.shard.ShardModelRepository;
 import com.emarsys.core.testUtil.DatabaseTestUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 
@@ -33,12 +35,12 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 @RunWith(AndroidJUnit4.class)
@@ -104,8 +106,7 @@ public class RequestManagerOfflineTest {
         completionHandler.latch.await();
 
         assertEquals(2, completionHandler.getOnSuccessCount());
-
-        assertTrue(requestRepository.isEmpty());
+        assertRequestTableEmpty();
     }
 
     @Test
@@ -119,7 +120,7 @@ public class RequestManagerOfflineTest {
         prepareTestCaseAndWait();
 
         assertEquals(3, completionHandler.getOnSuccessCount());
-        assertTrue(requestRepository.isEmpty());
+        assertRequestTableEmpty();
     }
 
     @Test
@@ -142,7 +143,7 @@ public class RequestManagerOfflineTest {
 
         assertEquals(3, completionHandler.getOnSuccessCount());
         assertEquals(4, completionHandler.getOnErrorCount());
-        assertTrue(requestRepository.isEmpty());
+        assertRequestTableEmpty();
     }
 
     @Test
@@ -161,12 +162,12 @@ public class RequestManagerOfflineTest {
 
         assertEquals(0, completionHandler.getOnSuccessCount());
         assertEquals(0, completionHandler.getOnErrorCount());
-        assertTrue(!requestRepository.isEmpty());
+        assertFalse(requestRepository.isEmpty());
 
         for (RequestModel model : requestModels) {
             requestRepository.remove(new FilterByRequestId(model));
         }
-        assertTrue(requestRepository.isEmpty());
+        assertRequestTableEmpty();
     }
 
     @Test
@@ -181,7 +182,7 @@ public class RequestManagerOfflineTest {
 
         assertEquals(2, completionHandler.getOnSuccessCount());
         assertEquals(1, completionHandler.getOnErrorCount());
-        assertTrue(requestRepository.isEmpty());
+        assertRequestTableEmpty();
     }
 
     @Test
@@ -196,7 +197,7 @@ public class RequestManagerOfflineTest {
 
         assertEquals(1, completionHandler.getOnSuccessCount());
         assertEquals(0, completionHandler.getOnErrorCount());
-        assertTrue(!requestRepository.isEmpty());
+        assertFalse(requestRepository.isEmpty());
     }
 
     @Test
@@ -211,7 +212,7 @@ public class RequestManagerOfflineTest {
 
         assertEquals(1, completionHandler.getOnSuccessCount());
         assertEquals(0, completionHandler.getOnErrorCount());
-        assertTrue(!requestRepository.isEmpty());
+        assertFalse(requestRepository.isEmpty());
     }
 
     @Test
@@ -227,9 +228,9 @@ public class RequestManagerOfflineTest {
 
         assertEquals(3, completionHandler.getOnSuccessCount());
         assertEquals(0, completionHandler.getOnErrorCount());
-        assertTrue(!requestRepository.isEmpty());
+        assertFalse(requestRepository.isEmpty());
         requestRepository.remove(new FilterByRequestId(lastNormal));
-        assertTrue(requestRepository.isEmpty());
+        assertRequestTableEmpty();
     }
 
     private void prepareTestCaseAndWait() throws InterruptedException {
@@ -281,5 +282,9 @@ public class RequestManagerOfflineTest {
                 System.currentTimeMillis() - 5000,
                 100,
                 new UUIDProvider().provideId());
+    }
+
+    private void assertRequestTableEmpty(){
+        assertEquals(new ArrayList<RequestModel>(),requestRepository.query(new QueryAll(DatabaseContract.REQUEST_TABLE_NAME)));
     }
 }
