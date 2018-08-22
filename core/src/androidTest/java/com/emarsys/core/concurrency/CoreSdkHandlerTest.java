@@ -11,6 +11,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import java.util.concurrent.CountDownLatch;
+
 public class CoreSdkHandlerTest {
 
     CoreSdkHandler handler;
@@ -49,10 +51,19 @@ public class CoreSdkHandlerTest {
 
     @Test
     public void testDispatchMessage_shouldBeResilient_toExceptions() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+
         handler.post(failingRunnable);
         handler.post(failingRunnable);
 
-        Thread.sleep(100);
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                latch.countDown();
+            }
+        });
+
+        latch.await();
 
         Assert.assertTrue(handler.getLooper().getThread().isAlive());
     }
