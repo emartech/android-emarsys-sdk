@@ -1,6 +1,6 @@
 package com.emarsys.predict;
 
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.predict.testUtil.TimeoutUtils;
 
 import org.junit.Rule;
 import org.junit.Test;
