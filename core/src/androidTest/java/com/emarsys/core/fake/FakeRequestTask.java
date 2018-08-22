@@ -2,10 +2,10 @@ package com.emarsys.core.fake;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.database.repository.Repository;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.RequestTask;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +34,7 @@ public class FakeRequestTask extends RequestTask {
     @Override
     protected Void doInBackground(Void... params) {
         try {
-            Thread.sleep(100);
+            Thread.sleep(20);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

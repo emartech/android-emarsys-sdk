@@ -41,13 +41,11 @@ import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
-import static org.mockito.Mockito.mock;
 
 @RunWith(AndroidJUnit4.class)
 public class RequestManagerOfflineTest {
 
     public static final String URL = "https://www.google.com";
-
 
     private Boolean[] connectionStates;
     private Object[] requestResults;
@@ -62,7 +60,7 @@ public class RequestManagerOfflineTest {
     private CountDownLatch completionLatch;
     private FakeCompletionHandler completionHandler;
     private RequestManager manager;
-    private RestClient client;
+    private RestClient fakeRestClient;
     private CoreSdkHandlerProvider provider;
     private Handler coreSdkHandler;
     private Handler uiHandler;
@@ -243,16 +241,14 @@ public class RequestManagerOfflineTest {
         completionLatch = new CountDownLatch(completionHandlerCountDown);
         completionHandler = new FakeCompletionHandler(completionLatch);
 
-        client = new FakeRestClient(requestResults);
+        fakeRestClient = new FakeRestClient(requestResults);
 
         provider = new CoreSdkHandlerProvider();
         coreSdkHandler = provider.provideHandler();
 
-        RestClient restClient = new RestClient(mock(Repository.class), mock(TimestampProvider.class));
-        worker = new DefaultWorker(requestRepository, watchDog, uiHandler, coreSdkHandler, completionHandler, restClient);
+        worker = new DefaultWorker(requestRepository, watchDog, uiHandler, coreSdkHandler, completionHandler, fakeRestClient);
 
-        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, client);
-        manager.worker = new DefaultWorker(requestRepository, watchDog, uiHandler, manager.coreSDKHandler, completionHandler, client);
+        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, fakeRestClient);
 
         uiHandler.post(new Runnable() {
             @Override
