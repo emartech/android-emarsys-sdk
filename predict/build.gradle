@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion Config.targetApiLevel
@@ -22,6 +23,7 @@ group = 'com.emarsys.predict'
 dependencies {
     implementation project(':core')
 
+    androidTestImplementation TestLibs.kotlin
     androidTestImplementation TestLibs.mockito_android
     androidTestImplementation TestLibs.support_test_runner
     androidTestImplementation TestLibs.support_test_rules
