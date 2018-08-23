@@ -26,6 +26,10 @@ node('master') {
                     parallel tasks
                 }
 
+                stage('emarsys') {
+                    build job: 'android-emarsys-sdk'
+                }
+
                 stage('sample') {
                     build job: 'android-emarsys-sdk-sample'
                 }
