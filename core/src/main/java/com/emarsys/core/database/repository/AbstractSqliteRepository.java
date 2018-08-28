@@ -16,6 +16,8 @@ public abstract class AbstractSqliteRepository<T> implements Repository<T, SqlSp
     DbHelper dbHelper;
 
     public AbstractSqliteRepository(String tableName, DbHelper dbHelper) {
+        Assert.notNull(dbHelper, "DbHelper must not be null!");
+        Assert.notNull(tableName, "TableName must not be null!");
         this.tableName = tableName;
         this.dbHelper = dbHelper;
     }

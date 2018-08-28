@@ -1,6 +1,7 @@
 package com.emarsys.core.shard.specification
 
 import android.support.test.InstrumentationRegistry
+import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.core.testUtil.DatabaseTestUtils
@@ -47,7 +48,8 @@ class FilterByShardTypeTest {
     @Test
     fun testQueryUsingFilterByShardType() {
         val context = InstrumentationRegistry.getTargetContext().applicationContext
-        val repository = ShardModelRepository(context)
+        val coreDbHelper = CoreDbHelper(context, mapOf())
+        val repository = ShardModelRepository(coreDbHelper)
         val shardList = mutableListOf(
                 ShardModel("a1", "button_click", mapOf(), 0, 0),
                 ShardModel("a2", "button_click", mapOf(), 0, 0),

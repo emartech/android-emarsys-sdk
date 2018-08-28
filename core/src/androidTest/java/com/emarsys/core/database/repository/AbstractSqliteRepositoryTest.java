@@ -43,6 +43,34 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class AbstractSqliteRepositoryTest {
+
+    private static class DummySqliteRepository extends AbstractSqliteRepository {
+
+        public DummySqliteRepository(String tableName, DbHelper dbHelper) {
+            super(tableName, dbHelper);
+        }
+
+        @Override
+        protected ContentValues contentValuesFromItem(Object item) {
+            return null;
+        }
+
+        @Override
+        protected Object itemFromCursor(Cursor cursor) {
+            return null;
+        }
+
+        @Override
+        public void remove(Object specification) {
+
+        }
+
+        @Override
+        public List query(Object specification) {
+            return null;
+        }
+    }
+
     private final static String TABLE_NAME = "table";
 
     private AbstractSqliteRepository<Object> repository;
@@ -66,7 +94,11 @@ public class AbstractSqliteRepositoryTest {
         repository = mock(AbstractSqliteRepository.class, Mockito.CALLS_REAL_METHODS);
         repository.tableName = TABLE_NAME;
         repository.dbHelper = dbHelperMock;
+    }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_tableName_mustNotBeNull() {
+        new DummySqliteRepository(null, dbHelperMock);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -1,13 +1,11 @@
 package com.emarsys.core.shard;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.AbstractSqliteRepository;
-import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.core.util.serialization.SerializationException;
@@ -15,7 +13,6 @@ import com.emarsys.core.util.serialization.SerializationUtils;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_DATA;
@@ -27,8 +24,8 @@ import static com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TYPE;
 
 public class ShardModelRepository extends AbstractSqliteRepository<ShardModel> {
 
-    public ShardModelRepository(Context context) {
-        super(DatabaseContract.SHARD_TABLE_NAME, new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>()));
+    public ShardModelRepository(CoreDbHelper coreDbHelper) {
+        super(DatabaseContract.SHARD_TABLE_NAME, coreDbHelper);
     }
 
     @Override

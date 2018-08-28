@@ -3,6 +3,7 @@ package com.emarsys.core.shard.specification
 import android.content.Context
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
+import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.QueryAll
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
@@ -18,8 +19,8 @@ import org.junit.runner.RunWith
 class FilterByShardIdsTest {
 
     lateinit var context: Context
-    lateinit var originalShardList:List<ShardModel>
-    lateinit var shardModelRepository:ShardModelRepository
+    lateinit var originalShardList: List<ShardModel>
+    lateinit var shardModelRepository: ShardModelRepository
 
     @Rule
     @JvmField
@@ -37,8 +38,8 @@ class FilterByShardIdsTest {
                 ShardModel("id4", "type4", mapOf(), 3, 30)
         )
 
-        shardModelRepository = ShardModelRepository(context)
-
+        val coreDbHelper = CoreDbHelper(context, mapOf())
+        shardModelRepository = ShardModelRepository(coreDbHelper)
     }
 
     @Test(expected = IllegalArgumentException::class)
