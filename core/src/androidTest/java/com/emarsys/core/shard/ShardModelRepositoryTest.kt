@@ -5,25 +5,20 @@ import android.database.Cursor
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
 import com.emarsys.core.database.DatabaseContract.*
-
+import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.testUtil.DatabaseTestUtils
 import com.emarsys.core.testUtil.TimeoutUtils
-
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-
-import java.io.Serializable
-
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
-
 import com.nhaarman.mockito_kotlin.whenever
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldEqualTo
-
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import java.io.Serializable
 
 @RunWith(AndroidJUnit4::class)
 class ShardModelRepositoryTest {
@@ -50,7 +45,7 @@ class ShardModelRepositoryTest {
 
         context = InstrumentationRegistry.getContext()
 
-        repository = ShardModelRepository(context)
+        repository = ShardModelRepository(CoreDbHelper(context, mapOf()))
 
         payload = mutableMapOf<String, Serializable>().apply {
             this["payload1"] = "payload_value1"
@@ -58,6 +53,11 @@ class ShardModelRepositoryTest {
         }
 
         shardModel = ShardModel(SHARD_ID, TYPE, payload, TIMESTAMP, TTL)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_coreDbHelper_mustNotBeNull() {
+        ShardModelRepository(null)
     }
 
     @Test

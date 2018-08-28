@@ -8,14 +8,16 @@ import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.QueryAll;
+import com.emarsys.core.database.trigger.TriggerKey;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.request.model.specification.QueryNewestRequestModel;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.TimestampUtils;
+import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.iam.DoNotDisturbProvider;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
@@ -90,7 +92,9 @@ public class RequestRepositoryProxyTest {
 
         requestModelRepository = new RequestModelRepository(context);
         displayedIamRepository = new DisplayedIamRepository(context);
-        buttonClickedRepository = new ButtonClickedRepository(context);
+        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
+
+        buttonClickedRepository = new ButtonClickedRepository(mobileEngageDbHelper);
 
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);

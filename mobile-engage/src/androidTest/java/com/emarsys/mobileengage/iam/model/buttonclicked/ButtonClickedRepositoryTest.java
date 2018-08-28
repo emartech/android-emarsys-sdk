@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.database.trigger.TriggerKey;
+import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.testUtil.DatabaseTestUtils;
 import com.emarsys.mobileengage.testUtil.TimeoutUtils;
 
@@ -15,6 +17,8 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedContract.COLUMN_NAME_BUTTON_ID;
 import static com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedContract.COLUMN_NAME_CAMPAIGN_ID;
@@ -39,8 +43,16 @@ public class ButtonClickedRepositoryTest {
         DatabaseTestUtils.deleteMobileEngageDatabase();
 
         Context context = InstrumentationRegistry.getContext();
-        repository = new ButtonClickedRepository(context);
+
+        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
+
+        repository = new ButtonClickedRepository(mobileEngageDbHelper);
         buttonClicked1 = new ButtonClicked("campaign1", "button1", new Date().getTime());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_dbHelper_mustNotBeNull() {
+        new ButtonClickedRepository(null);
     }
 
     @Test

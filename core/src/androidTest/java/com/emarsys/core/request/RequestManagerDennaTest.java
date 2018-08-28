@@ -7,9 +7,12 @@ import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionWatchDog;
+import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.fake.FakeCompletionHandler;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
@@ -19,7 +22,6 @@ import com.emarsys.core.shard.ShardModelRepository;
 import com.emarsys.core.testUtil.ConnectionTestUtils;
 import com.emarsys.core.testUtil.DatabaseTestUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 
@@ -31,6 +33,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -70,7 +73,8 @@ public class RequestManagerDennaTest {
 
         ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(context, coreSdkHandler);
         Repository<RequestModel, SqlSpecification> requestRepository = new RequestModelRepository(context);
-        Repository<ShardModel, SqlSpecification> shardRepository = new ShardModelRepository(context);
+        CoreDbHelper coreDbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
+        Repository<ShardModel, SqlSpecification> shardRepository = new ShardModelRepository(coreDbHelper);
 
         latch = new CountDownLatch(1);
         handler = new FakeCompletionHandler(latch);

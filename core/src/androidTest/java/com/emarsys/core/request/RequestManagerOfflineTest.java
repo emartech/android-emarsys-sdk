@@ -8,9 +8,11 @@ import android.support.test.runner.AndroidJUnit4;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionState;
 import com.emarsys.core.database.DatabaseContract;
+import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.QueryAll;
+import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.fake.FakeCompletionHandler;
 import com.emarsys.core.fake.FakeConnectionWatchDog;
 import com.emarsys.core.fake.FakeRestClient;
@@ -37,6 +39,7 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
@@ -236,7 +239,8 @@ public class RequestManagerOfflineTest {
         watchDog = new FakeConnectionWatchDog(watchDogLatch, connectionStates);
 
         requestRepository = new RequestModelRepository(InstrumentationRegistry.getTargetContext());
-        shardRepository = new ShardModelRepository(InstrumentationRegistry.getTargetContext());
+        CoreDbHelper coreDbHelper = new CoreDbHelper(InstrumentationRegistry.getTargetContext(), new HashMap<TriggerKey, List<Runnable>>());
+        shardRepository = new ShardModelRepository(coreDbHelper);
 
         completionLatch = new CountDownLatch(completionHandlerCountDown);
         completionHandler = new FakeCompletionHandler(completionLatch);
@@ -280,7 +284,7 @@ public class RequestManagerOfflineTest {
                 new UUIDProvider().provideId());
     }
 
-    private void assertRequestTableEmpty(){
-        assertEquals(new ArrayList<RequestModel>(),requestRepository.query(new QueryAll(DatabaseContract.REQUEST_TABLE_NAME)));
+    private void assertRequestTableEmpty() {
+        assertEquals(new ArrayList<RequestModel>(), requestRepository.query(new QueryAll(DatabaseContract.REQUEST_TABLE_NAME)));
     }
 }
