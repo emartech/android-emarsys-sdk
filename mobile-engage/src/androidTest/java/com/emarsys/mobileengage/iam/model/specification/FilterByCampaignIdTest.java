@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.database.repository.specification.QueryAll;
+import com.emarsys.core.database.trigger.TriggerKey;
+import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedContract;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
@@ -20,6 +22,7 @@ import org.junit.rules.TestRule;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -104,7 +107,9 @@ public class FilterByCampaignIdTest {
 
     @Test
     public void testExecution_buttonClicked_shouldDeleteIam() {
-        ButtonClickedRepository repository = new ButtonClickedRepository(context);
+        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
+
+        ButtonClickedRepository repository = new ButtonClickedRepository(mobileEngageDbHelper);
 
         ButtonClicked btn1 = new ButtonClicked("campaign1", "button1", 10L);
         ButtonClicked btn2 = new ButtonClicked("campaign1", "button3", 10L);
@@ -124,7 +129,9 @@ public class FilterByCampaignIdTest {
 
     @Test
     public void testExecution_buttonClicked_shouldDelete_multipleIams() {
-        ButtonClickedRepository repository = new ButtonClickedRepository(context);
+        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
+
+        ButtonClickedRepository repository = new ButtonClickedRepository(mobileEngageDbHelper);
 
         ButtonClicked btn1 = new ButtonClicked("campaign1", "button1", 10L);
         ButtonClicked btn2 = new ButtonClicked("campaign1", "button3", 10L);
@@ -146,7 +153,9 @@ public class FilterByCampaignIdTest {
 
     @Test
     public void testExecution_buttonClicked_withEmptyIdArray() {
-        ButtonClickedRepository repository = new ButtonClickedRepository(context);
+        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
+
+        ButtonClickedRepository repository = new ButtonClickedRepository(mobileEngageDbHelper);
 
         ButtonClicked btn1 = new ButtonClicked("campaign1", "button1", 10L);
         ButtonClicked btn2 = new ButtonClicked("campaign1", "button3", 10L);

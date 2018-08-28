@@ -30,6 +30,7 @@ import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
+import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
@@ -150,7 +151,8 @@ public class DefaultDependencyContainer implements DependencyContainer {
         meIdStorage = new MeIdStorage(application);
         meIdSignatureStorage = new MeIdSignatureStorage(application);
         deviceInfo = new DeviceInfo(application);
-        buttonClickedRepository = new ButtonClickedRepository(application);
+        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(application, new HashMap<TriggerKey, List<Runnable>>());
+        buttonClickedRepository = new ButtonClickedRepository(mobileEngageDbHelper);
         displayedIamRepository = new DisplayedIamRepository(application);
         completionHandler = new MobileEngageCoreCompletionHandler(config.getStatusListener());
 
