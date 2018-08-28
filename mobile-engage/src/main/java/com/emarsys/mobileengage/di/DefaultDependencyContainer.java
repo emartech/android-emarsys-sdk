@@ -153,7 +153,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
         deviceInfo = new DeviceInfo(application);
         MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(application, new HashMap<TriggerKey, List<Runnable>>());
         buttonClickedRepository = new ButtonClickedRepository(mobileEngageDbHelper);
-        displayedIamRepository = new DisplayedIamRepository(application);
+        displayedIamRepository = new DisplayedIamRepository(mobileEngageDbHelper);
         completionHandler = new MobileEngageCoreCompletionHandler(config.getStatusListener());
 
         requestModelRepository = createRequestModelRepository(application);
@@ -197,7 +197,8 @@ public class DefaultDependencyContainer implements DependencyContainer {
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(Context application) {
-        RequestModelRepository requestModelRepository = new RequestModelRepository(application);
+        CoreDbHelper coreDbHelper = new CoreDbHelper(application, new HashMap<TriggerKey, List<Runnable>>());
+        RequestModelRepository requestModelRepository = new RequestModelRepository(coreDbHelper);
         if (MobileEngageExperimental.isV3Enabled()) {
             return new RequestRepositoryProxy(
                     deviceInfo,

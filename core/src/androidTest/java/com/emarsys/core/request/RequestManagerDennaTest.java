@@ -72,8 +72,8 @@ public class RequestManagerDennaTest {
         uiHandler = new Handler(Looper.getMainLooper());
 
         ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(context, coreSdkHandler);
-        Repository<RequestModel, SqlSpecification> requestRepository = new RequestModelRepository(context);
         CoreDbHelper coreDbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
+        Repository<RequestModel, SqlSpecification> requestRepository = new RequestModelRepository(coreDbHelper);
         Repository<ShardModel, SqlSpecification> shardRepository = new ShardModelRepository(coreDbHelper);
 
         latch = new CountDownLatch(1);

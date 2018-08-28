@@ -5,6 +5,7 @@ import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.database.DatabaseContract;
+import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.QueryAll;
@@ -90,10 +91,11 @@ public class RequestRepositoryProxyTest {
         mockDisplayedIamRepository = mock(Repository.class);
         mockButtonClickedRepository = mock(Repository.class);
 
-        requestModelRepository = new RequestModelRepository(context);
-        displayedIamRepository = new DisplayedIamRepository(context);
+        CoreDbHelper coreDbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
         MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
 
+        requestModelRepository = new RequestModelRepository(coreDbHelper);
+        displayedIamRepository = new DisplayedIamRepository(mobileEngageDbHelper);
         buttonClickedRepository = new ButtonClickedRepository(mobileEngageDbHelper);
 
         timestampProvider = mock(TimestampProvider.class);

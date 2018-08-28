@@ -63,7 +63,8 @@ public class RequestModelRepositoryTest {
         DatabaseTestUtils.INSTANCE.deleteCoreDatabase();
 
         context = InstrumentationRegistry.getContext();
-        repository = new RequestModelRepository(context);
+        CoreDbHelper coreDbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
+        repository = new RequestModelRepository(coreDbHelper);
 
 
         payload = new HashMap<>();

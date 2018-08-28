@@ -29,33 +29,35 @@ import static org.junit.Assert.assertEquals;
 
 public class FilterByCampaignIdTest {
 
-    private Context context;
-
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
+    private DisplayedIamRepository displayedIamRepository;
+    private ButtonClickedRepository buttonClickedRepository;
 
     @Before
     public void init() {
         DatabaseTestUtils.deleteMobileEngageDatabase();
 
-        context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getContext();
+        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
+
+        displayedIamRepository = new DisplayedIamRepository(mobileEngageDbHelper);
+        buttonClickedRepository = new ButtonClickedRepository(mobileEngageDbHelper);
     }
 
     @Test
     public void testExecution_displayedIam_shouldDeleteIam() {
-        DisplayedIamRepository repository = new DisplayedIamRepository(context);
-
         DisplayedIam iam1 = new DisplayedIam("campaign1", 10L);
         DisplayedIam iam2 = new DisplayedIam("campaign2", 20L);
         DisplayedIam iam3 = new DisplayedIam("campaign3", 30L);
 
-        repository.add(iam1);
-        repository.add(iam2);
-        repository.add(iam3);
+        displayedIamRepository.add(iam1);
+        displayedIamRepository.add(iam2);
+        displayedIamRepository.add(iam3);
 
-        repository.remove(new FilterByCampaignId("campaign2"));
+        displayedIamRepository.remove(new FilterByCampaignId("campaign2"));
 
-        List<DisplayedIam> result = repository.query(new QueryAll(DisplayedIamContract.TABLE_NAME));
+        List<DisplayedIam> result = displayedIamRepository.query(new QueryAll(DisplayedIamContract.TABLE_NAME));
         List<DisplayedIam> expected = Arrays.asList(iam1, iam3);
 
         assertEquals(expected, result);
@@ -63,21 +65,19 @@ public class FilterByCampaignIdTest {
 
     @Test
     public void testExecution_displayedIam_shouldDelete_multipleIams() {
-        DisplayedIamRepository repository = new DisplayedIamRepository(context);
-
         DisplayedIam iam1 = new DisplayedIam("campaign1", 10L);
         DisplayedIam iam2 = new DisplayedIam("campaign2", 20L);
         DisplayedIam iam3 = new DisplayedIam("campaign3", 30L);
         DisplayedIam iam4 = new DisplayedIam("campaign4", 40L);
 
-        repository.add(iam1);
-        repository.add(iam2);
-        repository.add(iam3);
-        repository.add(iam4);
+        displayedIamRepository.add(iam1);
+        displayedIamRepository.add(iam2);
+        displayedIamRepository.add(iam3);
+        displayedIamRepository.add(iam4);
 
-        repository.remove(new FilterByCampaignId("campaign1", "campaign2"));
+        displayedIamRepository.remove(new FilterByCampaignId("campaign1", "campaign2"));
 
-        List<DisplayedIam> result = repository.query(new QueryAll(DisplayedIamContract.TABLE_NAME));
+        List<DisplayedIam> result = displayedIamRepository.query(new QueryAll(DisplayedIamContract.TABLE_NAME));
         List<DisplayedIam> expected = Arrays.asList(iam3, iam4);
 
         assertEquals(expected, result);
@@ -85,21 +85,19 @@ public class FilterByCampaignIdTest {
 
     @Test
     public void testExecution_displayedIam_withEmptyIdArray() {
-        DisplayedIamRepository repository = new DisplayedIamRepository(context);
-
         DisplayedIam iam1 = new DisplayedIam("campaign1", 10L);
         DisplayedIam iam2 = new DisplayedIam("campaign2", 20L);
         DisplayedIam iam3 = new DisplayedIam("campaign3", 30L);
         DisplayedIam iam4 = new DisplayedIam("campaign4", 40L);
 
-        repository.add(iam1);
-        repository.add(iam2);
-        repository.add(iam3);
-        repository.add(iam4);
+        displayedIamRepository.add(iam1);
+        displayedIamRepository.add(iam2);
+        displayedIamRepository.add(iam3);
+        displayedIamRepository.add(iam4);
 
-        repository.remove(new FilterByCampaignId());
+        displayedIamRepository.remove(new FilterByCampaignId());
 
-        List<DisplayedIam> result = repository.query(new QueryAll(DisplayedIamContract.TABLE_NAME));
+        List<DisplayedIam> result = displayedIamRepository.query(new QueryAll(DisplayedIamContract.TABLE_NAME));
         List<DisplayedIam> expected = Arrays.asList(iam1, iam2, iam3, iam4);
 
         assertEquals(expected, result);
@@ -107,21 +105,17 @@ public class FilterByCampaignIdTest {
 
     @Test
     public void testExecution_buttonClicked_shouldDeleteIam() {
-        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
-
-        ButtonClickedRepository repository = new ButtonClickedRepository(mobileEngageDbHelper);
-
         ButtonClicked btn1 = new ButtonClicked("campaign1", "button1", 10L);
         ButtonClicked btn2 = new ButtonClicked("campaign1", "button3", 10L);
         ButtonClicked btn3 = new ButtonClicked("campaign2", "button10", 10L);
 
-        repository.add(btn1);
-        repository.add(btn2);
-        repository.add(btn3);
+        buttonClickedRepository.add(btn1);
+        buttonClickedRepository.add(btn2);
+        buttonClickedRepository.add(btn3);
 
-        repository.remove(new FilterByCampaignId("campaign2"));
+        buttonClickedRepository.remove(new FilterByCampaignId("campaign2"));
 
-        List<ButtonClicked> result = repository.query(new QueryAll(ButtonClickedContract.TABLE_NAME));
+        List<ButtonClicked> result = buttonClickedRepository.query(new QueryAll(ButtonClickedContract.TABLE_NAME));
         List<ButtonClicked> expected = Arrays.asList(btn1, btn2);
 
         assertEquals(expected, result);
@@ -129,23 +123,19 @@ public class FilterByCampaignIdTest {
 
     @Test
     public void testExecution_buttonClicked_shouldDelete_multipleIams() {
-        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
-
-        ButtonClickedRepository repository = new ButtonClickedRepository(mobileEngageDbHelper);
-
         ButtonClicked btn1 = new ButtonClicked("campaign1", "button1", 10L);
         ButtonClicked btn2 = new ButtonClicked("campaign1", "button3", 10L);
         ButtonClicked btn3 = new ButtonClicked("campaign2", "button10", 10L);
         ButtonClicked btn4 = new ButtonClicked("campaign3", "button10", 10L);
 
-        repository.add(btn1);
-        repository.add(btn2);
-        repository.add(btn3);
-        repository.add(btn4);
+        buttonClickedRepository.add(btn1);
+        buttonClickedRepository.add(btn2);
+        buttonClickedRepository.add(btn3);
+        buttonClickedRepository.add(btn4);
 
-        repository.remove(new FilterByCampaignId("campaign1", "campaign2"));
+        buttonClickedRepository.remove(new FilterByCampaignId("campaign1", "campaign2"));
 
-        List<ButtonClicked> result = repository.query(new QueryAll(ButtonClickedContract.TABLE_NAME));
+        List<ButtonClicked> result = buttonClickedRepository.query(new QueryAll(ButtonClickedContract.TABLE_NAME));
         List<ButtonClicked> expected = Collections.singletonList(btn4);
 
         assertEquals(expected, result);
@@ -153,21 +143,17 @@ public class FilterByCampaignIdTest {
 
     @Test
     public void testExecution_buttonClicked_withEmptyIdArray() {
-        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
-
-        ButtonClickedRepository repository = new ButtonClickedRepository(mobileEngageDbHelper);
-
         ButtonClicked btn1 = new ButtonClicked("campaign1", "button1", 10L);
         ButtonClicked btn2 = new ButtonClicked("campaign1", "button3", 10L);
         ButtonClicked btn3 = new ButtonClicked("campaign2", "button10", 10L);
 
-        repository.add(btn1);
-        repository.add(btn2);
-        repository.add(btn3);
+        buttonClickedRepository.add(btn1);
+        buttonClickedRepository.add(btn2);
+        buttonClickedRepository.add(btn3);
 
-        repository.remove(new FilterByCampaignId());
+        buttonClickedRepository.remove(new FilterByCampaignId());
 
-        List<ButtonClicked> result = repository.query(new QueryAll(ButtonClickedContract.TABLE_NAME));
+        List<ButtonClicked> result = buttonClickedRepository.query(new QueryAll(ButtonClickedContract.TABLE_NAME));
         List<ButtonClicked> expected = Arrays.asList(btn1, btn2, btn3);
 
         assertEquals(expected, result);

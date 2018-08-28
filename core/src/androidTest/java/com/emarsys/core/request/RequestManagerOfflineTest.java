@@ -238,8 +238,8 @@ public class RequestManagerOfflineTest {
         watchDogLatch = new CountDownLatch(watchDogCountDown);
         watchDog = new FakeConnectionWatchDog(watchDogLatch, connectionStates);
 
-        requestRepository = new RequestModelRepository(InstrumentationRegistry.getTargetContext());
         CoreDbHelper coreDbHelper = new CoreDbHelper(InstrumentationRegistry.getTargetContext(), new HashMap<TriggerKey, List<Runnable>>());
+        requestRepository = new RequestModelRepository(coreDbHelper);
         shardRepository = new ShardModelRepository(coreDbHelper);
 
         completionLatch = new CountDownLatch(completionHandlerCountDown);

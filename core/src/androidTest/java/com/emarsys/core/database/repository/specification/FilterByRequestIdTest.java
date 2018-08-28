@@ -2,16 +2,18 @@ package com.emarsys.core.database.repository.specification;
 
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.database.DatabaseContract;
+import com.emarsys.core.database.helper.CoreDbHelper;
+import com.emarsys.core.database.trigger.TriggerKey;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
-import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.request.model.specification.FilterByRequestId;
 import com.emarsys.core.testUtil.DatabaseTestUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,7 +48,8 @@ public class FilterByRequestIdTest {
         requestModel3 = new RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/3").build();
         requestModel4 = new RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/4").build();
 
-        repository = new RequestModelRepository(InstrumentationRegistry.getTargetContext());
+        CoreDbHelper coreDbHelper = new CoreDbHelper(InstrumentationRegistry.getTargetContext(), new HashMap<TriggerKey, List<Runnable>>());
+        repository = new RequestModelRepository(coreDbHelper);
 
         repository.add(requestModel1);
         repository.add(requestModel2);

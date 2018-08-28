@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 
+import com.emarsys.core.database.trigger.TriggerKey;
+import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.testUtil.DatabaseTestUtils;
 import com.emarsys.mobileengage.testUtil.TimeoutUtils;
 
@@ -17,6 +19,8 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamContract.COLUMN_NAME_CAMPAIGN_ID;
@@ -42,7 +46,8 @@ public class DisplayedIamRepositoryTest {
         DatabaseTestUtils.deleteMobileEngageDatabase();
 
         Context context = InstrumentationRegistry.getContext();
-        iamRepository = new DisplayedIamRepository(context);
+        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
+        iamRepository = new DisplayedIamRepository(mobileEngageDbHelper);
         displayedIam1 = new DisplayedIam("campaign1", new Date().getTime());
     }
 

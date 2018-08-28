@@ -12,9 +12,11 @@ import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionWatchDog;
+import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.log.LogRepository;
+import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -31,6 +33,7 @@ import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
+import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
@@ -161,12 +164,16 @@ public class DefaultDependencyContainer implements DependencyContainer {
         meIdStorage = new MeIdStorage(application);
         meIdSignatureStorage = new MeIdSignatureStorage(application);
         deviceInfo = new DeviceInfo(application);
-        buttonClickedRepository = new ButtonClickedRepository(application);
-        displayedIamRepository = new DisplayedIamRepository(application);
-        completionHandler = new MobileEngageCoreCompletionHandler(config.getStatusListener());
 
-        requestModelRepository = createRequestModelRepository(application);
-        shardModelRepository = new ShardModelRepository(application);
+        CoreDbHelper coreDbHelper = new CoreDbHelper(application, new HashMap<TriggerKey, List<Runnable>>());
+        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(application, new HashMap<TriggerKey, List<Runnable>>());
+
+        requestModelRepository = createRequestModelRepository(coreDbHelper);
+        shardModelRepository = new ShardModelRepository(coreDbHelper);
+
+        buttonClickedRepository = new ButtonClickedRepository(mobileEngageDbHelper);
+        displayedIamRepository = new DisplayedIamRepository(mobileEngageDbHelper);
+        completionHandler = new MobileEngageCoreCompletionHandler(config.getStatusListener());
 
         Repository<Map<String, Object>, SqlSpecification> logRepository = new LogRepository(application);
         List<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>> logHandlers = Arrays.<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>>asList(
@@ -206,8 +213,8 @@ public class DefaultDependencyContainer implements DependencyContainer {
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
     }
 
-    private Repository<RequestModel, SqlSpecification> createRequestModelRepository(Context application) {
-        RequestModelRepository requestModelRepository = new RequestModelRepository(application);
+    private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
+        RequestModelRepository requestModelRepository = new RequestModelRepository(coreDbHelper);
         if (MobileEngageExperimental.isV3Enabled()) {
             return new RequestRepositoryProxy(
                     deviceInfo,

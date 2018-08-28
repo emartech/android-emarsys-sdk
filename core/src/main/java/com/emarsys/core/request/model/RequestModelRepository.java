@@ -1,19 +1,16 @@
 package com.emarsys.core.request.model;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.AbstractSqliteRepository;
-import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.core.util.serialization.SerializationException;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_HEADERS;
@@ -28,8 +25,8 @@ import static com.emarsys.core.util.serialization.SerializationUtils.serializabl
 
 public class RequestModelRepository extends AbstractSqliteRepository<RequestModel> {
 
-    public RequestModelRepository(Context context) {
-        super(DatabaseContract.REQUEST_TABLE_NAME, new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>()));
+    public RequestModelRepository(CoreDbHelper coreDbHelper) {
+        super(DatabaseContract.REQUEST_TABLE_NAME, coreDbHelper);
     }
 
     @Override
