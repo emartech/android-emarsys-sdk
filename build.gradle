@@ -28,3 +28,13 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+dependencyUpdates.resolutionStrategy {
+    componentSelection { rules ->
+        rules.all { ComponentSelection selection ->
+            if (!(selection.candidate.version ==~ /\d+\.\d+(\.\d+)?/)) {
+                selection.reject('Not release candidate!')
+            }
+        }
+    }
+}
