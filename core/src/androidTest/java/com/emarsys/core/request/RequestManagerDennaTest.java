@@ -101,6 +101,7 @@ public class RequestManagerDennaTest {
         manager.submit(model);
         latch.await();
 
+        assertEquals(null, handler.getException());
         assertEquals(0, handler.getOnErrorCount());
         assertEquals(1, handler.getOnSuccessCount());
         assertEquals(200, handler.getSuccessResponseModel().getStatusCode());
@@ -133,6 +134,7 @@ public class RequestManagerDennaTest {
         manager.submit(model);
         latch.await();
 
+        assertEquals(null, handler.getException());
         assertEquals(0, handler.getOnErrorCount());
         assertEquals(1, handler.getOnSuccessCount());
         assertEquals(200, handler.getSuccessResponseModel().getStatusCode());
@@ -162,6 +164,7 @@ public class RequestManagerDennaTest {
         manager.submit(model);
         latch.await();
 
+        assertEquals(null, handler.getException());
         assertEquals(0, handler.getOnErrorCount());
         assertEquals(1, handler.getOnSuccessCount());
         assertEquals(200, handler.getSuccessResponseModel().getStatusCode());
