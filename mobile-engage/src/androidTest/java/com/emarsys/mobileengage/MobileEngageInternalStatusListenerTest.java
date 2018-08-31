@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,11 +8,10 @@ import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.response.ResponseModel;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.fake.FakeRequestManager;
 import com.emarsys.mobileengage.fake.FakeStatusListener;
 import com.emarsys.mobileengage.responsehandler.AbstractResponseHandler;
@@ -44,7 +42,7 @@ public class MobileEngageInternalStatusListenerTest {
 
     public static final String EVENT_NAME = "event";
     private static String APPLICATION_ID = "user";
-    private static String APPLICATION_SECRET = "pass";
+    private static String APPLICATION_PASSWORD = "pass";
     private static final int CONTACT_FIELD_ID = 3456;
     public static final String CONTACT_FIELD_VALUE = "value";
 
@@ -53,11 +51,9 @@ public class MobileEngageInternalStatusListenerTest {
     private MobileEngageStatusListener statusListener;
     private FakeStatusListener mainThreadStatusListener;
     private Map<String, String> authHeader;
-    private MobileEngageConfig baseConfig;
     private RequestManager manager;
     private RequestManager failingManager;
     private RequestManager succeedingManager;
-    private Application application;
     private Context context;
     private CountDownLatch latch;
     private Handler coreSdkHandler;
@@ -68,11 +64,10 @@ public class MobileEngageInternalStatusListenerTest {
     private RequestContext requestContext;
 
     @Before
-    public void init() throws Exception {
+    public void init() {
         authHeader = new HashMap<>();
         authHeader.put("Authorization", "Basic dXNlcjpwYXNz");
         context = InstrumentationRegistry.getTargetContext();
-        application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
 
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
 
@@ -118,13 +113,6 @@ public class MobileEngageInternalStatusListenerTest {
     }
 
     private void mobileEngageWith(MobileEngageStatusListener statusListener, RequestManager requestManager) {
-        baseConfig = new MobileEngageConfig.Builder()
-                .application(application)
-                .credentials(APPLICATION_ID, APPLICATION_SECRET)
-                .statusListener(statusListener)
-                .disableDefaultChannel()
-                .build();
-
         MeIdStorage meIdStorage = mock(MeIdStorage.class);
         when(meIdStorage.get()).thenReturn("meId");
         MeIdSignatureStorage meIdSignatureStorage = mock(MeIdSignatureStorage.class);
@@ -132,7 +120,8 @@ public class MobileEngageInternalStatusListenerTest {
         UUIDProvider uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
         requestContext = new RequestContext(
-                baseConfig,
+                APPLICATION_ID,
+                APPLICATION_PASSWORD,
                 mock(DeviceInfo.class),
                 new AppLoginStorage(context),
                 meIdStorage,
@@ -141,7 +130,6 @@ public class MobileEngageInternalStatusListenerTest {
                 uuidProvider);
 
         mobileEngage = new MobileEngageInternal(
-                baseConfig,
                 requestManager,
                 coreSdkHandler,
                 completionHandler,

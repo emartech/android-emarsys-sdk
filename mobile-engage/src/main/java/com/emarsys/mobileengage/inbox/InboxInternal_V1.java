@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.core.CoreCompletionHandler;
-import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestMethod;
@@ -14,7 +13,6 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.MobileEngageException;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.inbox.model.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.inbox.model.NotificationInboxStatus;
@@ -44,7 +42,7 @@ public class InboxInternal_V1 implements InboxInternal {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(restClient, "RestClient must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
-        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: config %s, requestManager %s", requestContext.getConfig(), requestManager);
+        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: requestContext %s, requestManager %s", requestContext, requestManager);
 
         this.client = restClient;
         this.handler = new Handler(Looper.getMainLooper());
@@ -73,7 +71,7 @@ public class InboxInternal_V1 implements InboxInternal {
     private void handleFetchRequest(final InboxResultListener<NotificationInboxStatus> resultListener) {
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(INBOX_FETCH_V1)
-                .headers(createBaseHeaders(requestContext.getConfig()))
+                .headers(createBaseHeaders(requestContext))
                 .method(RequestMethod.GET)
                 .build();
 
@@ -127,7 +125,7 @@ public class InboxInternal_V1 implements InboxInternal {
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(RequestUrlUtils.createEventUrl_V2("message_open"))
                 .payload(payload)
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext.getConfig()))
+                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
         manager.submit(model);
@@ -142,7 +140,7 @@ public class InboxInternal_V1 implements InboxInternal {
     private void handleResetRequest(final ResetBadgeCountResultListener listener) {
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(INBOX_RESET_BADGE_COUNT_V1)
-                .headers(createBaseHeaders(requestContext.getConfig()))
+                .headers(createBaseHeaders(requestContext))
                 .method(RequestMethod.POST)
                 .build();
 
@@ -173,16 +171,16 @@ public class InboxInternal_V1 implements InboxInternal {
         });
     }
 
-    private Map<String, String> createBaseHeaders(MobileEngageConfig config) {
+    private Map<String, String> createBaseHeaders(RequestContext requestContext) {
         Map<String, String> result = new HashMap<>();
 
-        result.put("x-ems-me-hardware-id", new DeviceInfo(config.getApplication()).getHwid());
-        result.put("x-ems-me-application-code", config.getApplicationCode());
+        result.put("x-ems-me-hardware-id", requestContext.getDeviceInfo().getHwid());
+        result.put("x-ems-me-application-code", requestContext.getApplicationCode());
         result.put("x-ems-me-contact-field-id", String.valueOf(requestContext.getAppLoginParameters().getContactFieldId()));
         result.put("x-ems-me-contact-field-value", requestContext.getAppLoginParameters().getContactFieldValue());
 
-        result.putAll(RequestHeaderUtils.createDefaultHeaders(config));
-        result.putAll(RequestHeaderUtils.createBaseHeaders_V2(config));
+        result.putAll(RequestHeaderUtils.createDefaultHeaders(requestContext));
+        result.putAll(RequestHeaderUtils.createBaseHeaders_V2(requestContext));
 
         return result;
     }

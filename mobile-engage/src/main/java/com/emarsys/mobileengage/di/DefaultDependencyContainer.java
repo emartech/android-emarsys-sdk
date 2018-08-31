@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
 
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleAction;
@@ -93,7 +92,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
 
     public DefaultDependencyContainer(MobileEngageConfig mobileEngageConfig) {
         initializeDependencies(mobileEngageConfig);
-        initializeInstances(mobileEngageConfig);
+        initializeInstances();
         initializeInAppPresenter();
         initializeResponseHandlers();
         initializeActivityLifecycleWatchdog();
@@ -184,16 +183,17 @@ public class DefaultDependencyContainer implements DependencyContainer {
                 worker,
                 restClient);
 
-        requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(config));
-
         requestContext = new RequestContext(
-                config,
+                config.getApplicationCode(),
+                config.getApplicationPassword(),
                 deviceInfo,
                 appLoginStorage,
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
                 uuidProvider);
+
+        requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(requestContext));
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(Context application) {
@@ -212,9 +212,8 @@ public class DefaultDependencyContainer implements DependencyContainer {
         }
     }
 
-    private void initializeInstances(@NonNull MobileEngageConfig config) {
+    private void initializeInstances() {
         mobileEngageInternal = new MobileEngageInternal(
-                config,
                 requestManager,
                 uiHandler,
                 completionHandler,

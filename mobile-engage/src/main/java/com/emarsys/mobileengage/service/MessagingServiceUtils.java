@@ -42,6 +42,7 @@ public class MessagingServiceUtils {
     public static final String METADATA_SMALL_NOTIFICATION_ICON_KEY = "com.emarsys.mobileengage.small_notification_icon";
     public static final String METADATA_NOTIFICATION_COLOR = "com.emarsys.mobileengage.notification_color";
     public static final int DEFAULT_SMALL_NOTIFICATION_ICON = com.emarsys.mobileengage.R.drawable.default_small_notification_icon;
+    public static final String DEFAULT_CHANNEL_ID = "ems_me_default";
 
     static NotificationCache notificationCache = new NotificationCache();
 
@@ -112,7 +113,7 @@ public class MessagingServiceUtils {
         String channelId = getChannelId(remoteMessageData, oreoConfig);
         List<Action> actions = NotificationActionUtils.createActions(context, remoteMessageData, notificationId);
 
-        if (OreoConfig.DEFAULT_CHANNEL_ID.equals(channelId)) {
+        if (DEFAULT_CHANNEL_ID.equals(channelId)) {
             createDefaultChannel(context, oreoConfig);
         }
 
@@ -167,7 +168,7 @@ public class MessagingServiceUtils {
     static String getChannelId(Map<String, String> remoteMessageData, OreoConfig oreoConfig) {
         String result = remoteMessageData.get("channel_id");
         if (result == null && oreoConfig.isDefaultChannelEnabled()) {
-            result = OreoConfig.DEFAULT_CHANNEL_ID;
+            result = DEFAULT_CHANNEL_ID;
         }
         return result;
     }
@@ -220,7 +221,7 @@ public class MessagingServiceUtils {
     static void createDefaultChannel(Context context, OreoConfig oreoConfig) {
         if (Build.VERSION.SDK_INT >= 26) {
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            NotificationChannel channel = new NotificationChannel(OreoConfig.DEFAULT_CHANNEL_ID, oreoConfig.getDefaultChannelName(), NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationChannel channel = new NotificationChannel(DEFAULT_CHANNEL_ID, oreoConfig.getDefaultChannelName(), NotificationManager.IMPORTANCE_DEFAULT);
             channel.setDescription(oreoConfig.getDefaultChannelDescription());
             notificationManager.createNotificationChannel(channel);
         }

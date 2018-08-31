@@ -32,7 +32,7 @@ public class RequestModelUtils {
         return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(ME_LOGIN_V2)
                 .payload(payload)
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext.getConfig()))
+                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
     }
 
@@ -48,7 +48,7 @@ public class RequestModelUtils {
             result = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                     .url(ME_LAST_MOBILE_ACTIVITY_V2)
                     .payload(RequestPayloadUtils.createBasePayload(requestContext))
-                    .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext.getConfig()))
+                    .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                     .build();
         }
         return result;

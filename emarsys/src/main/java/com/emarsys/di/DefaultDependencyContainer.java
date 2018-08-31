@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
 
+import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
@@ -31,8 +31,8 @@ import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
@@ -99,9 +99,9 @@ public class DefaultDependencyContainer implements DependencyContainer {
     private UUIDProvider uuidProvider;
     private KeyValueStore sharedPrefsKeyStore;
 
-    public DefaultDependencyContainer(MobileEngageConfig mobileEngageConfig) {
-        initializeDependencies(mobileEngageConfig);
-        initializeInstances(mobileEngageConfig);
+    public DefaultDependencyContainer(EmarsysConfig emarsysConfig) {
+        initializeDependencies(emarsysConfig);
+        initializeInstances();
         initializeInAppPresenter();
         initializeResponseHandlers();
         initializeActivityLifecycleWatchdog();
@@ -152,7 +152,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
         return inAppPresenter;
     }
 
-    private void initializeDependencies(MobileEngageConfig config) {
+    private void initializeDependencies(EmarsysConfig config) {
         application = config.getApplication();
 
         uiHandler = new Handler(Looper.getMainLooper());
@@ -173,7 +173,17 @@ public class DefaultDependencyContainer implements DependencyContainer {
 
         buttonClickedRepository = new ButtonClickedRepository(mobileEngageDbHelper);
         displayedIamRepository = new DisplayedIamRepository(mobileEngageDbHelper);
-        completionHandler = new MobileEngageCoreCompletionHandler(config.getStatusListener());
+        completionHandler = new MobileEngageCoreCompletionHandler(new MobileEngageStatusListener() {
+            @Override
+            public void onError(String id, Exception cause) {
+
+            }
+
+            @Override
+            public void onStatusLog(String id, String log) {
+
+            }
+        });
 
         Repository<Map<String, Object>, SqlSpecification> logRepository = new LogRepository(application);
         List<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>> logHandlers = Arrays.<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>>asList(
@@ -198,16 +208,18 @@ public class DefaultDependencyContainer implements DependencyContainer {
                 worker,
                 restClient);
 
-        requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(config));
 
         requestContext = new RequestContext(
-                config,
+                config.getApplicationCode(),
+                config.getApplicationPassword(),
                 deviceInfo,
                 appLoginStorage,
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
                 uuidProvider);
+
+        requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(requestContext));
 
         SharedPreferences prefs = application.getSharedPreferences(EMARSYS_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
@@ -228,9 +240,8 @@ public class DefaultDependencyContainer implements DependencyContainer {
         }
     }
 
-    private void initializeInstances(@NonNull MobileEngageConfig config) {
+    private void initializeInstances() {
         mobileEngageInternal = new MobileEngageInternal(
-                config,
                 requestManager,
                 uiHandler,
                 completionHandler,

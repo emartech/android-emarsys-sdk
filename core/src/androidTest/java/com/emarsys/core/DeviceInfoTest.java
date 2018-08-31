@@ -1,12 +1,15 @@
 package com.emarsys.core;
 
+import android.app.Application;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.testUtil.ApplicationTestUtils;
 import com.emarsys.core.testUtil.TimeoutUtils;
 
 import org.junit.After;
@@ -18,8 +21,12 @@ import org.junit.rules.TestRule;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -67,6 +74,7 @@ public class DeviceInfoTest {
         when(mockContext.getPackageName()).thenReturn(packageName);
         when(mockContext.getPackageManager()).thenReturn(packageManager);
         when(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo);
+        when(mockContext.getApplicationInfo()).thenReturn(mock(ApplicationInfo.class));
 
         DeviceInfo info = new DeviceInfo(mockContext);
 
@@ -84,7 +92,7 @@ public class DeviceInfoTest {
     }
 
     @Test
-    public void test_timezoneCorrectylFormatted_withArabicLocale() {
+    public void test_timezoneCorrectlyFormatted_withArabicLocale() {
         Locale previous = Locale.getDefault();
 
         Locale locale = new Locale("my");
@@ -104,5 +112,23 @@ public class DeviceInfoTest {
     @Test
     public void test_getDisplayMetrics() {
         assertEquals(deviceInfo.getDisplayMetrics(), Resources.getSystem().getDisplayMetrics());
+    }
+
+    @Test
+    public void testIsDebugMode_withDebugApplication() throws PackageManager.NameNotFoundException {
+        Application mockDebugContext = ApplicationTestUtils.applicationDebug();
+        when(mockDebugContext.getPackageManager().getPackageInfo(anyString(), anyInt())).thenReturn(new PackageInfo());
+
+        DeviceInfo debugDeviceInfo = new DeviceInfo(mockDebugContext);
+        assertTrue(debugDeviceInfo.isDebugMode());
+    }
+
+    @Test
+    public void testIsDebugMode_withReleaseApplication() throws PackageManager.NameNotFoundException {
+        Application mockReleaseContext = ApplicationTestUtils.applicationRelease();
+        when(mockReleaseContext.getPackageManager().getPackageInfo(anyString(), anyInt())).thenReturn(new PackageInfo());
+
+        DeviceInfo releaseDeviceInfo = new DeviceInfo(mockReleaseContext);
+        assertFalse(releaseDeviceInfo.isDebugMode());
     }
 }

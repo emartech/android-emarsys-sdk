@@ -1,16 +1,14 @@
 package com.emarsys.mobileengage.util;
 
-import android.app.Application;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
 import com.emarsys.mobileengage.experimental.MobileEngageFeature;
@@ -58,11 +56,6 @@ public class RequestModelUtilsTest {
     @Before
     public void setup() {
         SharedPrefsUtils.deleteMobileEngageSharedPrefs();
-        MobileEngageConfig config = new MobileEngageConfig.Builder()
-                .application((Application) InstrumentationRegistry.getTargetContext().getApplicationContext())
-                .credentials(APPLICATION_CODE, APPLICATION_PASSWORD)
-                .disableDefaultChannel()
-                .build();
 
         meIdStorage = mock(MeIdStorage.class);
         uuidProvider = mock(UUIDProvider.class);
@@ -71,7 +64,8 @@ public class RequestModelUtilsTest {
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
         requestContext = new RequestContext(
-                config,
+                APPLICATION_CODE,
+                APPLICATION_PASSWORD,
                 new DeviceInfo(InstrumentationRegistry.getContext()),
                 mock(AppLoginStorage.class),
                 meIdStorage,
@@ -120,7 +114,7 @@ public class RequestModelUtilsTest {
         RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url("https://push.eservice.emarsys.net/api/mobileengage/v2/users/login")
                 .payload(RequestPayloadUtils.createAppLoginPayload(requestContext, null))
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext.getConfig()))
+                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
         RequestModel result = RequestModelUtils.createAppLogin_V2(requestContext, null);
@@ -138,7 +132,7 @@ public class RequestModelUtilsTest {
         RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url("https://push.eservice.emarsys.net/api/mobileengage/v2/events/ems_lastMobileActivity")
                 .payload(RequestPayloadUtils.createBasePayload(requestContext))
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext.getConfig()))
+                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
         RequestModel result = RequestModelUtils.createLastMobileActivity(requestContext);

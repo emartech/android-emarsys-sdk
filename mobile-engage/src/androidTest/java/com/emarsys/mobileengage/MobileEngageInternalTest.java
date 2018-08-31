@@ -9,11 +9,11 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
@@ -62,7 +62,7 @@ public class MobileEngageInternalTest {
     public static final String REQUEST_ID = "REQUEST_ID";
 
     private static String APPLICATION_ID = "user";
-    private static String APPLICATION_SECRET = "pass";
+    private static String APPLICATION_PASSWORD = "pass";
     private static String ENDPOINT_BASE_V2 = "https://push.eservice.emarsys.net/api/mobileengage/v2/";
     private static String ENDPOINT_BASE_V3 = "https://mobile-events.eservice.emarsys.net/v3/devices/";
     private static String ENDPOINT_LOGIN = ENDPOINT_BASE_V2 + "users/login";
@@ -105,12 +105,11 @@ public class MobileEngageInternalTest {
         statusListener = mock(MobileEngageStatusListener.class);
         baseConfig = new MobileEngageConfig.Builder()
                 .application(application)
-                .credentials(APPLICATION_ID, APPLICATION_SECRET)
+                .credentials(APPLICATION_ID, APPLICATION_PASSWORD)
                 .statusListener(statusListener)
                 .disableDefaultChannel()
                 .build();
 
-        defaultHeaders = RequestHeaderUtils.createDefaultHeaders(baseConfig);
 
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
@@ -120,7 +119,8 @@ public class MobileEngageInternalTest {
         meIdStorage = new MeIdStorage(application);
         meIdSignatureStorage = new MeIdSignatureStorage(application);
         requestContext = new RequestContext(
-                baseConfig,
+                APPLICATION_ID,
+                APPLICATION_PASSWORD,
                 deviceInfo,
                 appLoginStorage,
                 meIdStorage,
@@ -128,8 +128,9 @@ public class MobileEngageInternalTest {
                 timestampProvider,
                 uuidProvider);
 
+        defaultHeaders = RequestHeaderUtils.createDefaultHeaders(requestContext);
+
         mobileEngage = new MobileEngageInternal(
-                baseConfig,
                 manager,
                 mock(Handler.class),
                 coreCompletionHandler,
@@ -150,19 +151,8 @@ public class MobileEngageInternalTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_configShouldNotBeNull() {
-        new MobileEngageInternal(
-                null,
-                manager,
-                mock(Handler.class),
-                coreCompletionHandler,
-                mock(RequestContext.class));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestManagerShouldNotBeNull() {
         new MobileEngageInternal(
-                baseConfig,
                 null,
                 mock(Handler.class),
                 coreCompletionHandler,
@@ -172,7 +162,6 @@ public class MobileEngageInternalTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestContextShouldNotBeNull() {
         new MobileEngageInternal(
-                baseConfig,
                 manager,
                 mock(Handler.class),
                 coreCompletionHandler,
@@ -243,11 +232,11 @@ public class MobileEngageInternalTest {
     @Test
     public void testAppLogin_shouldSetAppLoginParametersOnRequestContext() {
         final RequestContext requestContext = mock(RequestContext.class, RETURNS_DEEP_STUBS);
-        when(requestContext.getConfig()).thenReturn(baseConfig);
+        when(requestContext.getApplicationCode()).thenReturn(APPLICATION_ID);
+        when(requestContext.getApplicationPassword()).thenReturn(APPLICATION_PASSWORD);
         when(requestContext.getUUIDProvider()).thenReturn(uuidProvider);
 
         MobileEngageInternal internal = new MobileEngageInternal(
-                baseConfig,
                 manager,
                 mock(Handler.class),
                 coreCompletionHandler,
@@ -833,7 +822,6 @@ public class MobileEngageInternalTest {
 
         if (shouldReinstantiateMobileEngage) {
             mobileEngage = new MobileEngageInternal(
-                    baseConfig,
                     manager,
                     mock(Handler.class),
                     coreCompletionHandler,

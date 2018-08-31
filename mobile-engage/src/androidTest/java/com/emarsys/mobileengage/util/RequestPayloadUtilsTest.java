@@ -1,15 +1,13 @@
 package com.emarsys.mobileengage.util;
 
-import android.app.Application;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.mobileengage.BuildConfig;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.iam.model.IamConversionUtils;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
@@ -53,17 +51,13 @@ public class RequestPayloadUtilsTest {
     @Before
     public void setup() {
         SharedPrefsUtils.deleteMobileEngageSharedPrefs();
-        MobileEngageConfig config = new MobileEngageConfig.Builder()
-                .application((Application) InstrumentationRegistry.getTargetContext().getApplicationContext())
-                .credentials(APPLICATION_CODE, APPLICATION_PASSWORD)
-                .disableDefaultChannel()
-                .build();
 
         uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn(REQUEST_ID);
 
         requestContext = new RequestContext(
-                config,
+                APPLICATION_CODE,
+                APPLICATION_PASSWORD,
                 new DeviceInfo(InstrumentationRegistry.getContext()),
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),

@@ -6,13 +6,12 @@ import android.net.Uri;
 import android.os.Build;
 
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
@@ -58,7 +57,8 @@ public class DeepLinkInternalTest {
         uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
         requestContext = new RequestContext(
-                mock(MobileEngageConfig.class),
+                "",
+                "",
                 mock(DeviceInfo.class),
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),

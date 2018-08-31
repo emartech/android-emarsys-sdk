@@ -11,7 +11,6 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.core.util.log.EMSLogger;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
 import com.emarsys.mobileengage.experimental.MobileEngageFeature;
@@ -37,26 +36,22 @@ public class MobileEngageInternal {
     public static final String MOBILEENGAGE_SDK_VERSION = BuildConfig.VERSION_NAME;
 
     String pushToken;
-    final MobileEngageConfig config;
     final RequestManager manager;
     final MobileEngageCoreCompletionHandler coreCompletionHandler;
     final Handler uiHandler;
     final RequestContext requestContext;
 
     public MobileEngageInternal(
-            MobileEngageConfig config,
             RequestManager manager,
             Handler uiHandler,
             MobileEngageCoreCompletionHandler coreCompletionHandler,
             RequestContext requestContext
     ) {
-        Assert.notNull(config, "Config must not be null!");
         Assert.notNull(manager, "Manager must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
         Assert.notNull(coreCompletionHandler, "CoreCompletionHandler must not be null!");
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Arguments: config %s, manager %s, coreCompletionHandler %s", config, manager, coreCompletionHandler);
+        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Arguments: requestContext %s, manager %s, coreCompletionHandler %s", requestContext, manager, coreCompletionHandler);
 
-        this.config = config;
         this.manager = manager;
         this.requestContext = requestContext;
         this.uiHandler = uiHandler;
@@ -131,7 +126,7 @@ public class MobileEngageInternal {
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(ME_LOGOUT_V2)
                 .payload(RequestPayloadUtils.createBasePayload(requestContext))
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(config))
+                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
         MobileEngageUtils.incrementIdlingResource();
@@ -161,7 +156,7 @@ public class MobileEngageInternal {
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(RequestUrlUtils.createEventUrl_V2(eventName))
                 .payload(payload)
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(config))
+                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
         MobileEngageUtils.incrementIdlingResource();
@@ -265,7 +260,7 @@ public class MobileEngageInternal {
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(RequestUrlUtils.createEventUrl_V2("message_open"))
                 .payload(payload)
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(config))
+                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
         MobileEngageUtils.incrementIdlingResource();

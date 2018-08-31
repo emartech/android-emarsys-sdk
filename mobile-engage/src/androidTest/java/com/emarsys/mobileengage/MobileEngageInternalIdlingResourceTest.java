@@ -10,11 +10,11 @@ import android.support.test.runner.AndroidJUnit4;
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.responsehandler.AbstractResponseHandler;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
@@ -81,12 +81,12 @@ public class MobileEngageInternalIdlingResourceTest {
         UUIDProvider uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
         mobileEngage = new MobileEngageInternal(
-                config,
                 mock(RequestManager.class),
                 mock(Handler.class),
                 mock(MobileEngageCoreCompletionHandler.class),
                 new RequestContext(
-                        config,
+                        "applicationCode",
+                        "applicationPassword",
                         mock(DeviceInfo.class),
                         mock(AppLoginStorage.class),
                         meIdStorage,

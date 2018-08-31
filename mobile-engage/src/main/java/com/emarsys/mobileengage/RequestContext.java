@@ -1,11 +1,10 @@
 package com.emarsys.mobileengage;
 
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.EMSLogger;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
@@ -13,7 +12,8 @@ import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 
 public class RequestContext {
-    private final MobileEngageConfig config;
+    private final String applicationCode;
+    private final String applicationPassword;
     private final DeviceInfo deviceInfo;
     private final AppLoginStorage appLoginStorage;
     private final MeIdStorage meIdStorage;
@@ -23,21 +23,24 @@ public class RequestContext {
     private AppLoginParameters appLoginParameters;
 
     public RequestContext(
-            MobileEngageConfig config,
+            String applicationCode,
+            String applicationPassword,
             DeviceInfo deviceInfo,
             AppLoginStorage appLoginStorage,
             MeIdStorage meIdStorage,
             MeIdSignatureStorage meIdSignatureStorage,
             TimestampProvider timestampProvider,
             UUIDProvider uuidProvider) {
-        Assert.notNull(config, "Config must not be null!");
+        Assert.notNull(applicationCode, "ApplicationCode must not be null!");
+        Assert.notNull(applicationPassword, "ApplicationPassword must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
         Assert.notNull(appLoginStorage, "AppLoginStorage must not be null!");
         Assert.notNull(meIdStorage, "MeIdStorage must not be null!");
         Assert.notNull(meIdSignatureStorage, "MeIdSignatureStorage must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(uuidProvider, "UUIDProvider must not be null!");
-        this.config = config;
+        this.applicationCode = applicationCode;
+        this.applicationPassword = applicationPassword;
         this.deviceInfo = deviceInfo;
         this.appLoginStorage = appLoginStorage;
         this.meIdStorage = meIdStorage;
@@ -47,11 +50,11 @@ public class RequestContext {
     }
 
     public String getApplicationCode() {
-        return config.getApplicationCode();
+        return applicationCode;
     }
 
-    public MobileEngageConfig getConfig() {
-        return config;
+    public String getApplicationPassword() {
+        return applicationPassword;
     }
 
     public DeviceInfo getDeviceInfo() {
@@ -85,5 +88,20 @@ public class RequestContext {
     public void setAppLoginParameters(AppLoginParameters appLoginParameters) {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Setting appLoginParameters: %s", appLoginParameters);
         this.appLoginParameters = appLoginParameters;
+    }
+
+    @Override
+    public String toString() {
+        return "RequestContext{" +
+                "applicationCode='" + applicationCode + '\'' +
+                ", applicationPassword='" + applicationPassword + '\'' +
+                ", deviceInfo=" + deviceInfo +
+                ", appLoginStorage=" + appLoginStorage +
+                ", meIdStorage=" + meIdStorage +
+                ", meIdSignatureStorage=" + meIdSignatureStorage +
+                ", timestampProvider=" + timestampProvider +
+                ", uuidProvider=" + uuidProvider +
+                ", appLoginParameters=" + appLoginParameters +
+                '}';
     }
 }

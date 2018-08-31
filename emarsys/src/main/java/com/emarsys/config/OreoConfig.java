@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.config;
+package com.emarsys.config;
 
 public class OreoConfig {
 

@@ -15,7 +15,6 @@ import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.MobileEngageException;
 import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.endpoint.Endpoint;
 import com.emarsys.mobileengage.inbox.model.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
@@ -52,7 +51,7 @@ public class InboxInternal_V2 implements InboxInternal {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(restClient, "RestClient must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
-        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: config %s, requestManager %s", requestContext.getConfig(), requestManager);
+        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: requestContext %s, requestManager %s", requestContext, requestManager);
 
         this.client = restClient;
         this.mainHandler = new Handler(Looper.getMainLooper());
@@ -93,7 +92,7 @@ public class InboxInternal_V2 implements InboxInternal {
             } else {
                 RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                         .url(String.format(Endpoint.INBOX_FETCH_V2, meId))
-                        .headers(createBaseHeaders(requestContext.getConfig()))
+                        .headers(createBaseHeaders(requestContext))
                         .method(RequestMethod.GET)
                         .build();
 
@@ -148,7 +147,7 @@ public class InboxInternal_V2 implements InboxInternal {
         if (meId != null) {
             RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                     .url(String.format(INBOX_RESET_BADGE_COUNT_V2, meId))
-                    .headers(createBaseHeaders(requestContext.getConfig()))
+                    .headers(createBaseHeaders(requestContext))
                     .method(RequestMethod.DELETE)
                     .build();
 
@@ -209,7 +208,7 @@ public class InboxInternal_V2 implements InboxInternal {
             requestId = requestModel.getId();
         } else {
             final String uuid = UUID.randomUUID().toString();
-            final MobileEngageStatusListener statusListener = requestContext.getConfig().getStatusListener();
+            final MobileEngageStatusListener statusListener = null;
             if (statusListener != null) {
                 mainHandler.post(new Runnable() {
                     @Override
@@ -251,12 +250,12 @@ public class InboxInternal_V2 implements InboxInternal {
         return exception;
     }
 
-    private Map<String, String> createBaseHeaders(MobileEngageConfig config) {
+    private Map<String, String> createBaseHeaders(RequestContext requestContext) {
         Map<String, String> result = new HashMap<>();
 
-        result.put("x-ems-me-application-code", config.getApplicationCode());
-        result.putAll(RequestHeaderUtils.createDefaultHeaders(config));
-        result.putAll(RequestHeaderUtils.createBaseHeaders_V2(config));
+        result.put("x-ems-me-application-code", requestContext.getApplicationCode());
+        result.putAll(RequestHeaderUtils.createDefaultHeaders(requestContext));
+        result.putAll(RequestHeaderUtils.createBaseHeaders_V2(requestContext));
 
         return result;
     }

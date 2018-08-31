@@ -5,17 +5,16 @@ import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.MobileEngageException;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.fake.FakeInboxResultListener;
 import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener;
 import com.emarsys.mobileengage.fake.FakeRestClient;
@@ -73,7 +72,6 @@ public class InboxInternal_V2Test {
     private RestClient restClient;
     private MeIdStorage meIdStorage;
     private MeIdSignatureStorage meIdSignatureStorage;
-    private MobileEngageConfig config;
     private InboxResultListener<NotificationInboxStatus> resultListener;
     private ResetBadgeCountResultListener resetListenerMock;
     private CountDownLatch latch;
@@ -143,13 +141,6 @@ public class InboxInternal_V2Test {
 
         statusListener = new FakeStatusListener(latch, FakeStatusListener.Mode.MAIN_THREAD);
 
-        config = new MobileEngageConfig.Builder()
-                .application(application)
-                .credentials(APPLICATION_ID, "applicationPassword")
-                .disableDefaultChannel()
-                .statusListener(statusListener)
-                .build();
-
         manager = mock(RequestManager.class);
         restClient = mock(RestClient.class);
 
@@ -165,7 +156,8 @@ public class InboxInternal_V2Test {
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
         requestContext = new RequestContext(
-                config,
+                APPLICATION_ID,
+                "applicationPassword",
                 mock(DeviceInfo.class),
                 mock(AppLoginStorage.class),
                 meIdStorage,
@@ -920,9 +912,9 @@ public class InboxInternal_V2Test {
 
     private RequestModel createRequestModel(String path, RequestMethod method) {
         Map<String, String> headers = new HashMap<>();
-        headers.put("x-ems-me-application-code", config.getApplicationCode());
-        headers.putAll(RequestHeaderUtils.createDefaultHeaders(config));
-        headers.putAll(RequestHeaderUtils.createBaseHeaders_V2(config));
+        headers.put("x-ems-me-application-code", requestContext.getApplicationCode());
+        headers.putAll(RequestHeaderUtils.createDefaultHeaders(requestContext));
+        headers.putAll(RequestHeaderUtils.createBaseHeaders_V2(requestContext));
 
         return new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(path)

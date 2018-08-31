@@ -4,17 +4,19 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.HeaderUtils;
 import com.emarsys.mobileengage.BuildConfig;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class RequestHeaderUtils {
 
-    public static Map<String, String> createBaseHeaders_V2(MobileEngageConfig config) {
-        Assert.notNull(config, "Config must not be null!");
+    public static Map<String, String> createBaseHeaders_V2(RequestContext requestContext) {
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
         Map<String, String> baseHeaders = new HashMap<>();
-        baseHeaders.put("Authorization", HeaderUtils.createBasicAuth(config.getApplicationCode(), config.getApplicationPassword()));
+        baseHeaders.put("Authorization", HeaderUtils.createBasicAuth(
+                requestContext.getApplicationCode(),
+                requestContext.getApplicationPassword()));
         return baseHeaders;
     }
 
@@ -29,13 +31,13 @@ public class RequestHeaderUtils {
         return baseHeaders;
     }
 
-    public static Map<String, String> createDefaultHeaders(MobileEngageConfig config) {
-        Assert.notNull(config, "Config must not be null!");
+    public static Map<String, String> createDefaultHeaders(RequestContext requestContext) {
+        Assert.notNull(requestContext, "RequestContext must not be null!");
 
         HashMap<String, String> defaultHeaders = new HashMap<>();
         defaultHeaders.put("Content-Type", "application/json");
         defaultHeaders.put("X-MOBILEENGAGE-SDK-VERSION", BuildConfig.VERSION_NAME);
-        defaultHeaders.put("X-MOBILEENGAGE-SDK-MODE", config.isDebugMode() ? "debug" : "production");
+        defaultHeaders.put("X-MOBILEENGAGE-SDK-MODE", requestContext.getDeviceInfo().isDebugMode() ? "debug" : "production");
 
         return defaultHeaders;
     }

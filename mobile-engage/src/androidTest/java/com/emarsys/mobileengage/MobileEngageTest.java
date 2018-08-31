@@ -11,10 +11,10 @@ import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModelRepository;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
@@ -92,8 +92,8 @@ public class MobileEngageTest {
         mock(Intent.class);
     }
 
-    private static final String appID = "56789876";
-    private static final String appSecret = "secret";
+    private static final String APPLICATION_CODE = "56789876";
+    private static final String APPLICATION_PASSWORD = "secret";
 
     private MobileEngageCoreCompletionHandler coreCompletionHandler;
     private MobileEngageInternal mobileEngageInternal;
@@ -450,12 +450,12 @@ public class MobileEngageTest {
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
 
         MobileEngageInternal internal = new MobileEngageInternal(
-                baseConfig,
                 succeedingManager,
                 mock(Handler.class),
                 completionHandler,
                 new RequestContext(
-                        baseConfig,
+                        APPLICATION_CODE,
+                        APPLICATION_PASSWORD,
                         mock(DeviceInfo.class),
                         new AppLoginStorage(application),
                         mock(MeIdStorage.class),
@@ -618,7 +618,7 @@ public class MobileEngageTest {
     private MobileEngageConfig createConfigWithFlippers(FlipperFeature... experimentalFeatures) {
         return new MobileEngageConfig.Builder()
                 .application(spy(application))
-                .credentials(appID, appSecret)
+                .credentials(APPLICATION_CODE, APPLICATION_PASSWORD)
                 .disableDefaultChannel()
                 .enableExperimentalFeatures(experimentalFeatures)
                 .setDefaultInAppEventHandler(new EventHandler() {

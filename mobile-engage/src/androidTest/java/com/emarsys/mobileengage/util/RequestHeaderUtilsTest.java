@@ -1,12 +1,11 @@
 package com.emarsys.mobileengage.util;
 
-import android.app.Application;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.util.HeaderUtils;
 import com.emarsys.mobileengage.BuildConfig;
 import com.emarsys.mobileengage.RequestContext;
@@ -14,7 +13,6 @@ import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.testUtil.ApplicationTestUtils;
 import com.emarsys.mobileengage.testUtil.SharedPrefsUtils;
 import com.emarsys.mobileengage.testUtil.TimeoutUtils;
 
@@ -35,9 +33,8 @@ public class RequestHeaderUtilsTest {
     private static final String APPLICATION_CODE = "applicationCode";
     private static final String APPLICATION_PASSWORD = "applicationPassword";
 
-    private MobileEngageConfig realConfig;
-    private MobileEngageConfig mockDebugConfig;
-    private MobileEngageConfig mockReleaseConfig;
+    private RequestContext debugRequestContext;
+    private RequestContext releaseRequestContext;
     private Context context;
 
     @Rule
@@ -49,23 +46,49 @@ public class RequestHeaderUtilsTest {
 
         context = InstrumentationRegistry.getTargetContext();
 
-        realConfig = new MobileEngageConfig.Builder()
-                .application((Application) InstrumentationRegistry.getTargetContext().getApplicationContext())
-                .credentials(APPLICATION_CODE, APPLICATION_PASSWORD)
-                .disableDefaultChannel()
-                .build();
+        String meId = "meid";
+        String meIdSignature = "meidsignature";
+        MeIdStorage meIdStorage = new MeIdStorage(context);
+        meIdStorage.set(meId);
+        MeIdSignatureStorage meIdSignatureStorage = new MeIdSignatureStorage(context);
+        meIdSignatureStorage.set(meIdSignature);
 
-        mockDebugConfig = new MobileEngageConfig.Builder()
-                .application(ApplicationTestUtils.applicationDebug())
-                .credentials(APPLICATION_CODE, APPLICATION_PASSWORD)
-                .disableDefaultChannel()
-                .build();
+        MobileEngageConfig config = mock(MobileEngageConfig.class);
+        when(config.getApplicationCode()).thenReturn(APPLICATION_CODE);
 
-        mockReleaseConfig = new MobileEngageConfig.Builder()
-                .application(ApplicationTestUtils.applicationRelease())
-                .credentials(APPLICATION_CODE, APPLICATION_PASSWORD)
-                .disableDefaultChannel()
-                .build();
+        UUIDProvider uuidProvider = mock(UUIDProvider.class);
+        when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
+
+        TimestampProvider timestampProvider = mock(TimestampProvider.class);
+        when(timestampProvider.provideTimestamp()).thenReturn(100_000L);
+
+        DeviceInfo debugDeviceInfo = mock(DeviceInfo.class);
+        when(debugDeviceInfo.isDebugMode()).thenReturn(true);
+
+        debugRequestContext = new RequestContext(
+                APPLICATION_CODE,
+                APPLICATION_PASSWORD,
+                debugDeviceInfo,
+                mock(AppLoginStorage.class),
+                meIdStorage,
+                meIdSignatureStorage,
+                timestampProvider,
+                uuidProvider);
+
+        DeviceInfo releaseDeviceInfo = mock(DeviceInfo.class);
+        when(releaseDeviceInfo.isDebugMode()).thenReturn(false);
+
+        releaseRequestContext = new RequestContext(
+                APPLICATION_CODE,
+                APPLICATION_PASSWORD,
+                releaseDeviceInfo,
+                mock(AppLoginStorage.class),
+                meIdStorage,
+                meIdSignatureStorage,
+                timestampProvider,
+                uuidProvider);
+
+
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -76,9 +99,9 @@ public class RequestHeaderUtilsTest {
     @Test
     public void testCreateBaseHeaders_V2_shouldReturnCorrectMap() {
         Map<String, String> expected = new HashMap<>();
-        expected.put("Authorization", HeaderUtils.createBasicAuth(realConfig.getApplicationCode(), realConfig.getApplicationPassword()));
+        expected.put("Authorization", HeaderUtils.createBasicAuth(releaseRequestContext.getApplicationCode(), releaseRequestContext.getApplicationPassword()));
 
-        Map<String, String> result = RequestHeaderUtils.createBaseHeaders_V2(realConfig);
+        Map<String, String> result = RequestHeaderUtils.createBaseHeaders_V2(releaseRequestContext);
 
         assertEquals(expected, result);
     }
@@ -96,8 +119,10 @@ public class RequestHeaderUtilsTest {
         meIdStorage.set(meId);
         MeIdSignatureStorage meIdSignatureStorage = new MeIdSignatureStorage(context);
         meIdSignatureStorage.set(meIdSignature);
+
         MobileEngageConfig config = mock(MobileEngageConfig.class);
         when(config.getApplicationCode()).thenReturn(APPLICATION_CODE);
+
         UUIDProvider uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
 
@@ -105,7 +130,8 @@ public class RequestHeaderUtilsTest {
         when(timestampProvider.provideTimestamp()).thenReturn(100_000L);
 
         RequestContext requestContext = new RequestContext(
-                config,
+                APPLICATION_CODE,
+                APPLICATION_PASSWORD,
                 mock(DeviceInfo.class),
                 mock(AppLoginStorage.class),
                 meIdStorage,
@@ -130,7 +156,7 @@ public class RequestHeaderUtilsTest {
 
     @Test
     public void testCreateDefaultHeaders_returnedValueShouldNotBeNull() {
-        assertNotNull(RequestHeaderUtils.createDefaultHeaders(mockDebugConfig));
+        assertNotNull(RequestHeaderUtils.createDefaultHeaders(debugRequestContext));
     }
 
     @Test
@@ -140,7 +166,7 @@ public class RequestHeaderUtilsTest {
         expected.put("X-MOBILEENGAGE-SDK-VERSION", BuildConfig.VERSION_NAME);
         expected.put("X-MOBILEENGAGE-SDK-MODE", "debug");
 
-        Map<String, String> result = RequestHeaderUtils.createDefaultHeaders(mockDebugConfig);
+        Map<String, String> result = RequestHeaderUtils.createDefaultHeaders(debugRequestContext);
 
         assertEquals(expected, result);
     }
@@ -152,7 +178,7 @@ public class RequestHeaderUtilsTest {
         expected.put("X-MOBILEENGAGE-SDK-VERSION", BuildConfig.VERSION_NAME);
         expected.put("X-MOBILEENGAGE-SDK-MODE", "production");
 
-        Map<String, String> result = RequestHeaderUtils.createDefaultHeaders(mockReleaseConfig);
+        Map<String, String> result = RequestHeaderUtils.createDefaultHeaders(releaseRequestContext);
 
         assertEquals(expected, result);
     }

@@ -32,7 +32,7 @@ public class Emarsys {
     public static void setup(@NonNull EmarsysConfig config) {
         Assert.notNull(config, "Config must not be null!");
 
-        DependencyInjection.setup(new DefaultDependencyContainer(config.getMobileEngageConfig()));
+        DependencyInjection.setup(new DefaultDependencyContainer(config));
         container = DependencyInjection.getContainer();
         initializeFields();
     }
