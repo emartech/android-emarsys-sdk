@@ -1,5 +1,7 @@
+apply from: 'version.gradle'
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion Config.targetApiLevel
@@ -19,11 +21,12 @@ android {
 }
 
 group = 'com.emarsys'
+version = gitVersionName
 
 dependencies {
     implementation project(':core')
     implementation project(':mobile-engage')
-    implementation project(':predict')
+    api project(':predict')
     
     implementation Libs.support_annotations
 
@@ -35,3 +38,5 @@ dependencies {
     androidTestImplementation TestLibs.hamcrest_integration
     androidTestImplementation TestLibs.hamcrest_library
 }
+
+apply from: 'maven.gradle'

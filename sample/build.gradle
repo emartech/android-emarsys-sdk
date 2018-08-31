@@ -6,8 +6,6 @@ android {
         applicationId "com.emarsys.sample"
         minSdkVersion Config.minApiLevel
         targetSdkVersion Config.targetApiLevel
-        versionCode gitVersionCode
-        versionName gitVersionName
         testInstrumentationRunner "com.emarsys.sample.testutils.SampleAppTestRunner"
     }
 
@@ -48,6 +46,7 @@ repositories {
 dependencies {
     if (project.devConfig.useLocalDependency || System.env.DEVELOPMENT_MODE) {
         implementation project(':mobile-engage')
+        implementation project(':emarsys')
     } else {
         implementation 'com.emarsys:mobile-engage-sdk:+'
     }

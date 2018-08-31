@@ -1,0 +1,10 @@
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            packaging 'aar'
+            groupId 'com.emarsys'
+            artifactId project.sdkArtifactName
+            name project.sdkArtifactName
+        }
+    }
+}
