@@ -33,6 +33,7 @@ import static com.emarsys.mobileengage.endpoint.Endpoint.INBOX_RESET_BADGE_COUNT
 
 public class InboxInternal_V2 implements InboxInternal {
 
+    private final MobileEngageStatusListener statusListener;
     private Handler mainHandler;
     private RestClient client;
     private NotificationCache cache;
@@ -47,7 +48,8 @@ public class InboxInternal_V2 implements InboxInternal {
     public InboxInternal_V2(
             RequestManager requestManager,
             RestClient restClient,
-            RequestContext requestContext) {
+            RequestContext requestContext,
+            MobileEngageStatusListener statusListener) {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(restClient, "RestClient must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
@@ -59,6 +61,7 @@ public class InboxInternal_V2 implements InboxInternal {
         this.manager = requestManager;
         this.requestContext = requestContext;
         this.queuedResultListeners = new ArrayList<>();
+        this.statusListener = statusListener;
     }
 
     public RequestContext getRequestContext() {
@@ -208,7 +211,6 @@ public class InboxInternal_V2 implements InboxInternal {
             requestId = requestModel.getId();
         } else {
             final String uuid = UUID.randomUUID().toString();
-            final MobileEngageStatusListener statusListener = null;
             if (statusListener != null) {
                 mainHandler.post(new Runnable() {
                     @Override

@@ -14,6 +14,7 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.MobileEngageException;
+import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.fake.FakeInboxResultListener;
 import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener;
@@ -165,7 +166,7 @@ public class InboxInternal_V2Test {
                 timestampProvider,
                 uuidProvider);
 
-        inbox = new InboxInternal_V2(manager, restClient, requestContext);
+        inbox = new InboxInternal_V2(manager, restClient, requestContext, statusListener);
 
         resultListener = mock(InboxResultListener.class);
         resetListenerMock = mock(ResetBadgeCountResultListener.class);
@@ -189,17 +190,17 @@ public class InboxInternal_V2Test {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestManager_shouldNotBeNull() {
-        inbox = new InboxInternal_V2(null, restClient, requestContext);
+        inbox = new InboxInternal_V2(null, restClient, requestContext, mock(MobileEngageStatusListener.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_restClient_shouldNotBeNull() {
-        inbox = new InboxInternal_V2(manager, null, requestContext);
+        inbox = new InboxInternal_V2(manager, null, requestContext, mock(MobileEngageStatusListener.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestContext_shouldNotBeNull() {
-        inbox = new InboxInternal_V2(manager, restClient, null);
+        inbox = new InboxInternal_V2(manager, restClient, null, mock(MobileEngageStatusListener.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -231,7 +232,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch);
         inbox.fetchNotifications(listener);
@@ -247,7 +249,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch, FakeInboxResultListener.Mode.MAIN_THREAD);
         inbox.fetchNotifications(listener);
@@ -267,7 +270,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch, FakeInboxResultListener.Mode.MAIN_THREAD);
         inbox.fetchNotifications(listener);
@@ -288,7 +292,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(expectedException),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch);
         inbox.fetchNotifications(listener);
@@ -305,7 +310,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(expectedException),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch, FakeInboxResultListener.Mode.MAIN_THREAD);
         inbox.fetchNotifications(listener);
@@ -325,7 +331,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch);
         inbox.fetchNotifications(listener);
@@ -354,7 +361,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch, FakeInboxResultListener.Mode.MAIN_THREAD);
         inbox.fetchNotifications(listener);
@@ -386,7 +394,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         CountDownLatch latch1 = new CountDownLatch(1);
         FakeInboxResultListener listener1 = new FakeInboxResultListener(latch1);
@@ -412,7 +421,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         CountDownLatch latch1 = new CountDownLatch(1);
         FakeInboxResultListener listener1 = new FakeInboxResultListener(latch1);
@@ -441,7 +451,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(responses, FakeRestClient.Mode.ERROR_RESPONSE_MODEL),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         CountDownLatch latch1 = new CountDownLatch(1);
         FakeInboxResultListener listener1 = new FakeInboxResultListener(latch1);
@@ -471,7 +482,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(exceptions),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         CountDownLatch latch1 = new CountDownLatch(1);
         FakeInboxResultListener listener1 = new FakeInboxResultListener(latch1);
@@ -502,7 +514,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         CountDownLatch latch1 = new CountDownLatch(1);
         FakeInboxResultListener listener1 = new FakeInboxResultListener(latch1);
@@ -543,7 +556,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(mock(ResponseModel.class), FakeRestClient.Mode.SUCCESS),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch);
         inbox.resetBadgeCount(listener);
@@ -558,7 +572,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(mock(ResponseModel.class), FakeRestClient.Mode.SUCCESS),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch, FakeResetBadgeCountResultListener.Mode.MAIN_THREAD);
         inbox.resetBadgeCount(listener);
@@ -574,7 +589,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(expectedException),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch);
         inbox.resetBadgeCount(listener);
@@ -591,7 +607,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(expectedException),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch, FakeResetBadgeCountResultListener.Mode.MAIN_THREAD);
         inbox.resetBadgeCount(listener);
@@ -611,7 +628,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch);
         inbox.resetBadgeCount(listener);
@@ -640,7 +658,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch, FakeResetBadgeCountResultListener.Mode.MAIN_THREAD);
         inbox.resetBadgeCount(listener);
@@ -673,7 +692,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         CountDownLatch latch1 = new CountDownLatch(1);
         FakeInboxResultListener listener1 = new FakeInboxResultListener(latch1);
@@ -813,7 +833,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         CountDownLatch latch1 = new CountDownLatch(1);
         FakeInboxResultListener listener1 = new FakeInboxResultListener(latch1);
@@ -844,7 +865,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         CountDownLatch latch1 = new CountDownLatch(1);
         FakeInboxResultListener listener1 = new FakeInboxResultListener(latch1);
@@ -885,7 +907,8 @@ public class InboxInternal_V2Test {
         inbox = new InboxInternal_V2(
                 manager,
                 new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
-                requestContext);
+                requestContext,
+                mock(MobileEngageStatusListener.class));
 
         CountDownLatch latch1 = new CountDownLatch(1);
         FakeInboxResultListener listener1 = new FakeInboxResultListener(latch1);

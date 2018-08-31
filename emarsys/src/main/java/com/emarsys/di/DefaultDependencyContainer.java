@@ -251,7 +251,18 @@ public class DefaultDependencyContainer implements DependencyContainer {
                 MobileEngageExperimental.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX),
                 requestManager,
                 restClient,
-                requestContext
+                requestContext,
+                new MobileEngageStatusListener() {
+                    @Override
+                    public void onError(String id, Exception cause) {
+
+                    }
+
+                    @Override
+                    public void onStatusLog(String id, String log) {
+
+                    }
+                }
         );
         deepLinkInternal = new DeepLinkInternal(requestManager, requestContext);
         predictInternal = new PredictInternal(sharedPrefsKeyStore);

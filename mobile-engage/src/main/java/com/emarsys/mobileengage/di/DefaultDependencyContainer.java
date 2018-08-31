@@ -27,6 +27,7 @@ import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.database.MobileEngageDbHelper;
@@ -223,7 +224,18 @@ public class DefaultDependencyContainer implements DependencyContainer {
                 MobileEngageExperimental.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX),
                 requestManager,
                 restClient,
-                requestContext
+                requestContext,
+                new MobileEngageStatusListener() {
+                    @Override
+                    public void onError(String id, Exception cause) {
+
+                    }
+
+                    @Override
+                    public void onStatusLog(String id, String log) {
+
+                    }
+                }
         );
         deepLinkInternal = new DeepLinkInternal(requestManager, requestContext);
     }
