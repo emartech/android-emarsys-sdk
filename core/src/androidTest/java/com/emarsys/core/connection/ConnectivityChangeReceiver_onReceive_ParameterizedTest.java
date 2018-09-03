@@ -9,8 +9,8 @@ import android.os.Handler;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionWatchDog.ConnectivityChangeReceiver;
 import com.emarsys.core.fake.FakeConnectionChangeListener;
-import com.emarsys.core.testUtil.ConnectionTestUtils;
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.test.util.ConnectionTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Rule;
 import org.junit.Test;

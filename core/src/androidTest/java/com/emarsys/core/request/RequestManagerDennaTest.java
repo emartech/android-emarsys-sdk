@@ -19,11 +19,11 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.shard.ShardModelRepository;
-import com.emarsys.core.testUtil.ConnectionTestUtils;
-import com.emarsys.core.testUtil.DatabaseTestUtils;
-import com.emarsys.core.testUtil.TimeoutUtils;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
+import com.emarsys.test.util.ConnectionTestUtils;
+import com.emarsys.test.util.DatabaseTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.json.JSONObject;
 import org.junit.After;
@@ -62,7 +62,7 @@ public class RequestManagerDennaTest {
 
     @Before
     public void init() {
-        DatabaseTestUtils.INSTANCE.deleteCoreDatabase();
+        DatabaseTestUtils.deleteCoreDatabase();
 
         Context context = InstrumentationRegistry.getTargetContext();
         ConnectionTestUtils.checkConnection(context);

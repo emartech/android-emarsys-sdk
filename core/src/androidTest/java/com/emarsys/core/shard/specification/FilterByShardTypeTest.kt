@@ -4,8 +4,8 @@ import android.support.test.InstrumentationRegistry
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
-import com.emarsys.core.testUtil.DatabaseTestUtils
-import com.emarsys.core.testUtil.TimeoutUtils
+import com.emarsys.test.util.DatabaseTestUtils
+import com.emarsys.test.util.TimeoutUtils
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
@@ -16,7 +16,7 @@ class FilterByShardTypeTest {
 
     @Rule
     @JvmField
-    val timeout = TimeoutUtils.getTimeoutRule()
+    val timeout = TimeoutUtils.timeoutRule
 
     companion object {
         const val TYPE = "type1"

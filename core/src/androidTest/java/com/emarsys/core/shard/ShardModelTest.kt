@@ -1,6 +1,6 @@
 package com.emarsys.core.shard;
 
-import com.emarsys.core.testUtil.TimeoutUtils
+import com.emarsys.test.util.TimeoutUtils
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldEqualTo
@@ -16,7 +16,7 @@ class ShardModelTest {
 
     @Rule
     @JvmField
-    val timeout = TimeoutUtils.getTimeoutRule()
+    val timeout = TimeoutUtils.timeoutRule
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_idMustNotBeNull() {

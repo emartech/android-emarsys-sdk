@@ -6,9 +6,9 @@ import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
 import com.emarsys.core.database.DatabaseContract.*
 import com.emarsys.core.database.helper.CoreDbHelper
-import com.emarsys.core.testUtil.DatabaseTestUtils
-import com.emarsys.core.testUtil.TimeoutUtils
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
+import com.emarsys.test.util.DatabaseTestUtils
+import com.emarsys.test.util.TimeoutUtils
 import com.nhaarman.mockito_kotlin.whenever
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldEqual
@@ -30,7 +30,7 @@ class ShardModelRepositoryTest {
 
     @Rule
     @JvmField
-    val timeout = TimeoutUtils.getTimeoutRule()
+    val timeout = TimeoutUtils.timeoutRule
 
     companion object {
         const val TYPE: String = "type1"

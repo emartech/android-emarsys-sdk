@@ -1,8 +1,8 @@
 package com.emarsys.core.response;
 
-import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.testUtil.TimeoutUtils;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;

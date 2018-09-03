@@ -5,8 +5,8 @@ import android.support.test.InstrumentationRegistry
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerType
-import com.emarsys.core.testUtil.DatabaseTestUtils
-import com.emarsys.core.testUtil.TimeoutUtils
+import com.emarsys.test.util.DatabaseTestUtils
+import com.emarsys.test.util.TimeoutUtils
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -20,7 +20,7 @@ class DelegatingCoreSQLiteDatabase_triggerRecursion_parameterizedTest {
 
     @Rule
     @JvmField
-    val timeout = TimeoutUtils.getTimeoutRule()
+    val timeout = TimeoutUtils.timeoutRule
 
     @Parameterized.Parameter
     lateinit var triggerType: TriggerType

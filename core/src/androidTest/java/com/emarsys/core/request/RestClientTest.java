@@ -5,13 +5,13 @@ import android.support.test.InstrumentationRegistry;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.fake.FakeCompletionHandler;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.testUtil.ConnectionTestUtils;
 import com.emarsys.core.testUtil.RequestModelTestUtils;
-import com.emarsys.core.testUtil.TimeoutUtils;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.test.util.ConnectionTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

@@ -19,6 +19,7 @@ android {
 group = 'com.emarsys.core'
 
 dependencies {
+    androidTestImplementation project(':testUtils')
     androidTestImplementation TestLibs.mockito_android
     androidTestImplementation TestLibs.kluent
     androidTestImplementation TestLibs.kotlin

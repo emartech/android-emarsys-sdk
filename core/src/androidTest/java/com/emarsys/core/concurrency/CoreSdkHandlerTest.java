@@ -2,7 +2,7 @@ package com.emarsys.core.concurrency;
 
 import android.os.HandlerThread;
 
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Assert;

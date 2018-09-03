@@ -8,8 +8,8 @@ import android.os.Handler;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.emarsys.core.testUtil.ConnectionTestUtils;
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.test.util.ConnectionTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

@@ -13,9 +13,9 @@ import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.QueryNewestRequestModel;
-import com.emarsys.core.testUtil.DatabaseTestUtils;
 import com.emarsys.core.testUtil.RequestModelTestUtils;
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.test.util.DatabaseTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -66,7 +66,7 @@ public class DefaultWorkerTest {
     @Before
     @SuppressWarnings("unchecked")
     public void setup() {
-        DatabaseTestUtils.INSTANCE.deleteCoreDatabase();
+        DatabaseTestUtils.deleteCoreDatabase();
 
         watchDogMock = mock(ConnectionWatchDog.class);
         when(watchDogMock.isConnected()).thenReturn(true);

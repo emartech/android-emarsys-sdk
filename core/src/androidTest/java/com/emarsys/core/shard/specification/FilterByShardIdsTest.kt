@@ -7,8 +7,8 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.QueryAll
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
-import com.emarsys.core.testUtil.DatabaseTestUtils
-import com.emarsys.core.testUtil.TimeoutUtils
+import com.emarsys.test.util.DatabaseTestUtils
+import com.emarsys.test.util.TimeoutUtils
 import org.amshove.kluent.shouldEqual
 import org.junit.Before
 import org.junit.Rule
@@ -24,7 +24,7 @@ class FilterByShardIdsTest {
 
     @Rule
     @JvmField
-    val timeout = TimeoutUtils.getTimeoutRule()
+    val timeout = TimeoutUtils.timeoutRule
 
     @Before
     fun init() {

@@ -9,8 +9,8 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.support.test.InstrumentationRegistry;
 
-import com.emarsys.core.testUtil.ApplicationTestUtils;
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.test.util.ApplicationTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -116,7 +116,7 @@ public class DeviceInfoTest {
 
     @Test
     public void testIsDebugMode_withDebugApplication() throws PackageManager.NameNotFoundException {
-        Application mockDebugContext = ApplicationTestUtils.applicationDebug();
+        Application mockDebugContext = ApplicationTestUtils.getApplicationDebug();
         when(mockDebugContext.getPackageManager().getPackageInfo(anyString(), anyInt())).thenReturn(new PackageInfo());
 
         DeviceInfo debugDeviceInfo = new DeviceInfo(mockDebugContext);
@@ -125,7 +125,7 @@ public class DeviceInfoTest {
 
     @Test
     public void testIsDebugMode_withReleaseApplication() throws PackageManager.NameNotFoundException {
-        Application mockReleaseContext = ApplicationTestUtils.applicationRelease();
+        Application mockReleaseContext = ApplicationTestUtils.getApplicationRelease();
         when(mockReleaseContext.getPackageManager().getPackageInfo(anyString(), anyInt())).thenReturn(new PackageInfo());
 
         DeviceInfo releaseDeviceInfo = new DeviceInfo(mockReleaseContext);

@@ -1,6 +1,6 @@
 package com.emarsys.core.provider.timestamp;
 
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import junit.framework.Assert;
 

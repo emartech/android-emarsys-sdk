@@ -1,8 +1,8 @@
 package com.emarsys.core.request.model;
 
-import com.emarsys.core.provider.uuid.UUIDProvider;
-import com.emarsys.core.testUtil.TimeoutUtils;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

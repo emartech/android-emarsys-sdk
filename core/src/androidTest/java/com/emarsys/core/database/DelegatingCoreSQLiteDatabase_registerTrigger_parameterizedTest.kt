@@ -6,8 +6,8 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerKey
 import com.emarsys.core.database.trigger.TriggerType
-import com.emarsys.core.testUtil.DatabaseTestUtils
-import com.emarsys.core.testUtil.TimeoutUtils
+import com.emarsys.test.util.DatabaseTestUtils
+import com.emarsys.test.util.TimeoutUtils
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.verifyZeroInteractions
 import junit.framework.Assert
@@ -23,7 +23,7 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
 
     @Rule
     @JvmField
-    val timeout = TimeoutUtils.getTimeoutRule()
+    val timeout = TimeoutUtils.timeoutRule
 
     @Parameterized.Parameter
     lateinit var tableName: String

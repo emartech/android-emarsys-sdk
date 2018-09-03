@@ -2,7 +2,9 @@ package com.emarsys.core.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
-import com.emarsys.core.testUtil.TimeoutUtils;
+
+import com.emarsys.test.util.TimeoutUtils;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -11,7 +13,10 @@ import org.junit.rules.TestRule;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class ActivityLifecycleWatchdogTest {
 

@@ -5,8 +5,8 @@ import android.net.ConnectivityManager;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
-import com.emarsys.core.testUtil.ConnectionTestUtils;
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.test.util.ConnectionTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Rule;
 import org.junit.Test;

@@ -1,6 +1,6 @@
 package com.emarsys.core.request.model;
 
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Rule;
 import org.junit.Test;

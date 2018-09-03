@@ -12,8 +12,8 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.request.model.specification.FilterByRequestId;
-import com.emarsys.core.testUtil.DatabaseTestUtils;
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.test.util.DatabaseTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,7 +39,7 @@ public class FilterByRequestIdTest {
 
     @Before
     public void init() {
-        DatabaseTestUtils.INSTANCE.deleteCoreDatabase();
+        DatabaseTestUtils.deleteCoreDatabase();
         TimestampProvider timestampProvider = new TimestampProvider();
         UUIDProvider uuidProvider = new UUIDProvider();
 

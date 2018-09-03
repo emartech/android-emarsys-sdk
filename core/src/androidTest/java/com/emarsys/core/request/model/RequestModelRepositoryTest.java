@@ -10,8 +10,8 @@ import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.specification.QueryAll;
 import com.emarsys.core.database.trigger.TriggerKey;
-import com.emarsys.core.testUtil.DatabaseTestUtils;
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.test.util.DatabaseTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.json.JSONException;
 import org.junit.Before;
@@ -60,7 +60,7 @@ public class RequestModelRepositoryTest {
 
     @Before
     public void init() {
-        DatabaseTestUtils.INSTANCE.deleteCoreDatabase();
+        DatabaseTestUtils.deleteCoreDatabase();
 
         context = InstrumentationRegistry.getContext();
         CoreDbHelper coreDbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());

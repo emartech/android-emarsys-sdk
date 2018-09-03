@@ -3,7 +3,7 @@ package com.emarsys.core.util;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

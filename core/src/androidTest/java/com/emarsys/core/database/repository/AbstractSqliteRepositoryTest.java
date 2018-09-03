@@ -12,8 +12,8 @@ import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.testUtil.DatabaseTestUtils;
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.test.util.DatabaseTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -83,7 +83,7 @@ public class AbstractSqliteRepositoryTest {
     @Before
     @SuppressWarnings("unchecked")
     public void init() {
-        DatabaseTestUtils.INSTANCE.deleteCoreDatabase();
+        DatabaseTestUtils.deleteCoreDatabase();
 
         dbMock = mock(CoreSQLiteDatabase.class);
 

@@ -5,7 +5,7 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerKey
 import com.emarsys.core.database.trigger.TriggerType
-import com.emarsys.core.testUtil.TimeoutUtils
+import com.emarsys.test.util.TimeoutUtils
 import junit.framework.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -16,7 +16,7 @@ class DelegatingCoreSQLiteDatabaseTest {
 
     @Rule
     @JvmField
-    val timeout = TimeoutUtils.getTimeoutRule()
+    val timeout = TimeoutUtils.timeoutRule
 
     lateinit var db: DelegatingCoreSQLiteDatabase
     lateinit var triggerMap: MutableMap<TriggerKey, List<Runnable>>

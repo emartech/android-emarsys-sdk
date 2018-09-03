@@ -1,7 +1,6 @@
 package com.emarsys.core.provider.uuid;
 
-import com.emarsys.core.provider.uuid.UUIDProvider;
-import com.emarsys.core.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Rule;
 import org.junit.Test;

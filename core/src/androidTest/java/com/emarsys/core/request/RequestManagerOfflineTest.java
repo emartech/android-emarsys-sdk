@@ -24,10 +24,10 @@ import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.request.model.specification.FilterByRequestId;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.shard.ShardModelRepository;
-import com.emarsys.core.testUtil.DatabaseTestUtils;
-import com.emarsys.core.testUtil.TimeoutUtils;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
+import com.emarsys.test.util.DatabaseTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -74,7 +74,7 @@ public class RequestManagerOfflineTest {
 
     @Before
     public void setup() {
-        DatabaseTestUtils.INSTANCE.deleteCoreDatabase();
+        DatabaseTestUtils.deleteCoreDatabase();
 
         uiHandler = new Handler(Looper.getMainLooper());
     }
