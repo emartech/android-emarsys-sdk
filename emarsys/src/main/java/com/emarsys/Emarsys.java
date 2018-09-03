@@ -15,7 +15,7 @@ import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.inbox.model.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationInboxStatus;
 import com.emarsys.predict.PredictInternal;
-import com.emarsys.predict.model.CartItem;
+import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.result.CompletionListener;
 import com.emarsys.result.ResultListener;
 import com.emarsys.result.Try;

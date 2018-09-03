@@ -1,4 +1,4 @@
-package com.emarsys.predict.model;
+package com.emarsys.predict.api.model;
 
 public interface CartItem {
     String getItemId();

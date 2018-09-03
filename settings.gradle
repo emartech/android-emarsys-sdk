@@ -1,6 +1,7 @@
 include ':testUtils'
 include ':core'
 include ':mobile-engage'
+include ':predict-api'
 include ':predict'
 include ':emarsys'
 include ':sample'
