@@ -1,3 +1,4 @@
+include ':testUtils'
 include ':core'
 include ':mobile-engage'
 include ':predict'
