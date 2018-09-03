@@ -29,6 +29,7 @@ dependencies {
     implementation Libs.firebase_messaging
     implementation Libs.espresso_idling_resources
 
+    androidTestImplementation project(':testUtils')
     androidTestImplementation TestLibs.mockito_android
     androidTestImplementation TestLibs.support_test_runner
     androidTestImplementation TestLibs.support_test_rules

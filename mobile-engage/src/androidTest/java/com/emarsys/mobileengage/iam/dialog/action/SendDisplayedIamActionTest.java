@@ -4,8 +4,8 @@ import android.os.Handler;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
-import com.emarsys.mobileengage.testUtil.mockito.ThreadSpy;
+import com.emarsys.test.mockito.ThreadSpy;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

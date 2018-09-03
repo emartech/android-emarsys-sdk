@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.responsehandler;
 
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

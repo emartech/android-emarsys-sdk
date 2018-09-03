@@ -9,8 +9,8 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
-import com.emarsys.mobileengage.testUtil.mockito.ThreadSpy;
+import com.emarsys.test.mockito.ThreadSpy;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -43,7 +43,7 @@ public class SaveDisplayedIamActionTest {
 
     @Before
     @SuppressWarnings("unchecked")
-    public void init() throws NoSuchFieldException, IllegalAccessException {
+    public void init() {
         threadSpy = new ThreadSpy();
         repository = mock(Repository.class);
         handler = new CoreSdkHandlerProvider().provideHandler();

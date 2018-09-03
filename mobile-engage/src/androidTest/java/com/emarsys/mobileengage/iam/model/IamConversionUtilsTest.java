@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.iam.model;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

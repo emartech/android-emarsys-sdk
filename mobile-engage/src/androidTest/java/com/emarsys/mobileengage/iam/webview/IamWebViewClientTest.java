@@ -7,7 +7,7 @@ import android.support.test.filters.SdkSuppress;
 import android.webkit.WebView;
 
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

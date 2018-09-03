@@ -24,11 +24,11 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
-import com.emarsys.mobileengage.testUtil.DatabaseTestUtils;
-import com.emarsys.mobileengage.testUtil.RandomTestUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.test.util.DatabaseTestUtils;
+import com.emarsys.test.util.RandomTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

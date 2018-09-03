@@ -41,15 +41,14 @@ import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.testUtil.CollectionTestUtils;
 import com.emarsys.mobileengage.testUtil.CurrentActivityWatchdogTestUtils;
-import com.emarsys.mobileengage.testUtil.DatabaseTestUtils;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
-import com.emarsys.mobileengage.testUtil.ReflectionTestUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.CollectionTestUtils;
+import com.emarsys.test.util.DatabaseTestUtils;
+import com.emarsys.test.util.ReflectionTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.hamcrest.Matchers;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
@@ -525,7 +524,7 @@ public class MobileEngageTest {
     }
 
     @Test
-    public void testTrackCustomEvent_callsInternal() throws Exception {
+    public void testTrackCustomEvent_callsInternal() {
         Map<String, String> attributes = mock(Map.class);
         MobileEngage.trackCustomEvent("event", attributes);
         verify(mobileEngageInternal).trackCustomEvent("event", attributes);
@@ -539,14 +538,14 @@ public class MobileEngageTest {
     }
 
     @Test
-    public void testTrackMessageOpen_message_callsInternal() throws JSONException {
+    public void testTrackMessageOpen_message_callsInternal() {
         Notification message = new Notification("id", "sid", "title", null, new HashMap<String, String>(), new JSONObject(), 7200, new Date().getTime());
         MobileEngage.Inbox.trackMessageOpen(message);
         verify(inboxInternal).trackMessageOpen(message);
     }
 
     @Test
-    public void testTrackDeepLinkOpen_callsInternal() throws Exception {
+    public void testTrackDeepLinkOpen_callsInternal() {
         Intent intent = mock(Intent.class);
         Activity activity = mock(Activity.class, RETURNS_DEEP_STUBS);
 
@@ -556,17 +555,17 @@ public class MobileEngageTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testTrackDeepLinkOpen_throwExceptionWhenIntentIsNull() throws Exception {
+    public void testTrackDeepLinkOpen_throwExceptionWhenIntentIsNull() {
         MobileEngage.trackDeepLink(mock(Activity.class, RETURNS_DEEP_STUBS), null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testTrackDeepLinkOpen_throwExceptionWhenActivityIsNull() throws Exception {
+    public void testTrackDeepLinkOpen_throwExceptionWhenActivityIsNull() {
         MobileEngage.trackDeepLink(null, new Intent());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testTrackDeepLinkOpen_throwExceptionWhenIntentFromActivity_isNull() throws Exception {
+    public void testTrackDeepLinkOpen_throwExceptionWhenIntentFromActivity_isNull() {
         MobileEngage.trackDeepLink(mock(Activity.class), new Intent());
     }
 

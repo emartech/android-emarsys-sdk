@@ -5,9 +5,9 @@ import android.os.Handler;
 import android.support.test.filters.SdkSuppress;
 
 import com.emarsys.core.database.repository.log.LogRepository;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
@@ -21,8 +21,8 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener;
-import com.emarsys.mobileengage.testUtil.CollectionTestUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.CollectionTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

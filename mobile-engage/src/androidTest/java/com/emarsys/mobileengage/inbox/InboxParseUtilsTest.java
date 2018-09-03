@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.inbox;
 
 import com.emarsys.mobileengage.inbox.model.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationInboxStatus;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;

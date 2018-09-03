@@ -3,18 +3,18 @@ package com.emarsys.test.util
 object ReflectionTestUtils {
 
     @JvmStatic
-    fun setStaticField(type: Class<*>, fieldName: String, value: Any) {
+    fun setStaticField(type: Class<*>, fieldName: String, value: Any?) {
         val containerField = type.getDeclaredField(fieldName)
         containerField.isAccessible = true
         containerField.set(null, value)
     }
 
     @JvmStatic
-    fun <T> getStaticField(type: Class<*>, fieldName: String): T {
+    fun <T> getStaticField(type: Class<*>, fieldName: String): T? {
         val field = type.getDeclaredField(fieldName)
         field.isAccessible = true
         val result = field.get(null)
-        return result as T
+        return result as T?
     }
 
     @JvmStatic

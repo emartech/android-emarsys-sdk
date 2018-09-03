@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.deeplink;
 import android.app.Activity;
 import android.content.Intent;
 
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

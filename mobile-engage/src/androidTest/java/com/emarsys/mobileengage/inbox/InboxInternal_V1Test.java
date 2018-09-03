@@ -24,8 +24,8 @@ import com.emarsys.mobileengage.inbox.model.NotificationInboxStatus;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import junit.framework.Assert;
 

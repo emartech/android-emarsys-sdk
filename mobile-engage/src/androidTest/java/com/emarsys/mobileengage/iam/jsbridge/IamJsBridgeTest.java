@@ -12,13 +12,13 @@ import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.mobileengage.EventHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.fake.FakeActivity;
-import com.emarsys.mobileengage.EventHandler;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
-import com.emarsys.mobileengage.testUtil.mockito.ThreadSpy;
+import com.emarsys.test.mockito.ThreadSpy;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;

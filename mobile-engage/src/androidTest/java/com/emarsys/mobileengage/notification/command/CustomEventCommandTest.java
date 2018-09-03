@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.notification.command;
 
 import com.emarsys.mobileengage.MobileEngage;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

@@ -18,7 +18,7 @@ import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
 import com.emarsys.mobileengage.testUtil.RequestModelTestUtils;
 import com.emarsys.mobileengage.testUtil.SharedPrefsUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

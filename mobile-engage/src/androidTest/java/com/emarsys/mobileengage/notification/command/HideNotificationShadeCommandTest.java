@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.notification.command;
 import android.content.Context;
 import android.content.Intent;
 
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import junit.framework.Assert;
 

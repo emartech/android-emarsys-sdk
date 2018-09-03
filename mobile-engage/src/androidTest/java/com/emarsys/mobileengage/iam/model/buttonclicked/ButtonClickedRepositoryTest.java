@@ -7,8 +7,8 @@ import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.mobileengage.database.MobileEngageDbHelper;
-import com.emarsys.mobileengage.testUtil.DatabaseTestUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.DatabaseTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Assert;
 import org.junit.Before;

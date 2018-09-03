@@ -7,15 +7,14 @@ import com.emarsys.core.response.ResponseModel;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.junit.Assert.assertFalse;

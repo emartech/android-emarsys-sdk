@@ -4,11 +4,11 @@ import android.app.Application;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 
+import com.emarsys.mobileengage.EventHandler;
 import com.emarsys.mobileengage.MobileEngage;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.experimental.MobileEngageFeature;
-import com.emarsys.mobileengage.EventHandler;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

@@ -2,7 +2,7 @@ package com.emarsys.mobileengage;
 
 import android.support.test.runner.AndroidJUnit4;
 
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Assert;

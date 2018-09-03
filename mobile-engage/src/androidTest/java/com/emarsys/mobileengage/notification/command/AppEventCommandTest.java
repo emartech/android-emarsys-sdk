@@ -9,8 +9,8 @@ import com.emarsys.mobileengage.MobileEngage;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.di.DependencyInjection;
 import com.emarsys.mobileengage.notification.NotificationEventHandler;
-import com.emarsys.mobileengage.testUtil.ReflectionTestUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.ReflectionTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import junit.framework.Assert;
 

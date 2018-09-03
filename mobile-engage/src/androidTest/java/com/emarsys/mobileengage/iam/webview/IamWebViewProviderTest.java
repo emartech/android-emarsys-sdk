@@ -16,7 +16,7 @@ import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge;
 import com.emarsys.mobileengage.iam.jsbridge.InAppMessageHandlerProvider;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

@@ -6,8 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.database.trigger.TriggerKey;
-import com.emarsys.mobileengage.testUtil.DatabaseTestUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.DatabaseTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

@@ -21,8 +21,8 @@ import com.emarsys.mobileengage.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.inbox.model.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
-import com.emarsys.mobileengage.testUtil.ReflectionTestUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.ReflectionTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 import com.google.firebase.messaging.RemoteMessage;
 
 import org.json.JSONArray;
@@ -103,27 +103,27 @@ public class MessagingServiceUtilsTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testHandleMessage_contextShouldNotBeNull() throws Exception {
+    public void testHandleMessage_contextShouldNotBeNull() {
         MessagingServiceUtils.handleMessage(null, createEMSRemoteMessage(), enabledOreoConfig);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testHandleMessage_remoteMessageShouldNotBeNull() throws Exception {
+    public void testHandleMessage_remoteMessageShouldNotBeNull() {
         MessagingServiceUtils.handleMessage(context, null, enabledOreoConfig);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testHandleMessage_oreoConfigShouldNotBeNull() throws Exception {
+    public void testHandleMessage_oreoConfigShouldNotBeNull() {
         MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), null);
     }
 
     @Test
-    public void testHandleMessage_shouldReturnFalse_ifMessageIsNotHandled() throws Exception {
+    public void testHandleMessage_shouldReturnFalse_ifMessageIsNotHandled() {
         assertFalse(MessagingServiceUtils.handleMessage(context, createRemoteMessage(), enabledOreoConfig));
     }
 
     @Test
-    public void testHandleMessage_shouldReturnTrue_ifMessageIsHandled() throws Exception {
+    public void testHandleMessage_shouldReturnTrue_ifMessageIsHandled() {
         assertTrue(MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), enabledOreoConfig));
     }
 
@@ -322,7 +322,7 @@ public class MessagingServiceUtilsTest {
 
     @Test
     @SdkSuppress(minSdkVersion = LOLLIPOP)
-    public void testCreateNotification_setsNotificationColor() throws PackageManager.NameNotFoundException {
+    public void testCreateNotification_setsNotificationColor() {
         int colorResourceId = android.R.color.darker_gray;
         int expectedColor = ContextCompat.getColor(context, colorResourceId);
         when(metaDataReader.getInt(any(Context.class), any(String.class))).thenReturn(colorResourceId);
@@ -337,7 +337,7 @@ public class MessagingServiceUtilsTest {
 
     @Test
     @SdkSuppress(minSdkVersion = LOLLIPOP)
-    public void testCreateNotification_doesNotSet_notificationColor_when() throws PackageManager.NameNotFoundException {
+    public void testCreateNotification_doesNotSet_notificationColor_when() {
         Map<String, String> input = new HashMap<>();
         input.put("title", TITLE);
         input.put("body", BODY);
@@ -420,7 +420,7 @@ public class MessagingServiceUtilsTest {
 
     @Test
     @SdkSuppress(minSdkVersion = KITKAT)
-    public void testCreateNotification_action_withoutActions() throws JSONException {
+    public void testCreateNotification_action_withoutActions() {
         Map<String, String> input = new HashMap<>();
         input.put("title", TITLE);
         input.put("body", BODY);
@@ -533,13 +533,13 @@ public class MessagingServiceUtilsTest {
     }
 
     @Test
-    public void testGetInAppDescriptor_shouldReturnNull_whenThereIsNoEmsInPayload() throws JSONException {
+    public void testGetInAppDescriptor_shouldReturnNull_whenThereIsNoEmsInPayload() {
         assertNull(MessagingServiceUtils.getInAppDescriptor(context, createNoEmsInPayload()));
     }
 
 
     @Test
-    public void testGetInAppDescriptor_shouldReturnNull_whenThereIsNoInAppInPayload() throws JSONException {
+    public void testGetInAppDescriptor_shouldReturnNull_whenThereIsNoInAppInPayload() {
         assertNull(MessagingServiceUtils.getInAppDescriptor(context, createNoInAppInPayload()));
     }
 
@@ -653,14 +653,14 @@ public class MessagingServiceUtilsTest {
         Assert.assertTrue(result.getReceivedAt() <= after);
     }
 
-    private RemoteMessage createRemoteMessage() throws Exception {
+    private RemoteMessage createRemoteMessage() {
         Bundle bundle = new Bundle();
         bundle.putString("title", "title");
         bundle.putString("body", "body");
         return ReflectionTestUtils.instantiate(RemoteMessage.class, 0, bundle);
     }
 
-    private RemoteMessage createEMSRemoteMessage() throws Exception {
+    private RemoteMessage createEMSRemoteMessage() {
         Bundle bundle = new Bundle();
         bundle.putString("title", "title");
         bundle.putString("body", "body");

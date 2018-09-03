@@ -1,6 +1,6 @@
 package com.emarsys.mobileengage.inbox.model;
 
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import junit.framework.Assert;
 

@@ -1,13 +1,14 @@
 package com.emarsys.mobileengage.util;
 
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import static junit.framework.Assert.assertFalse;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class RequestUrlUtilsTest {
     public static final String VALID_CUSTOM_EVENT_V3 = "https://mobile-events.eservice.emarsys.net/v3/devices/12345/events";

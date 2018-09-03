@@ -16,9 +16,9 @@ import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.testUtil.DatabaseTestUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
 import com.emarsys.mobileengage.util.MobileEngageIdlingResource;
+import com.emarsys.test.util.DatabaseTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

@@ -15,8 +15,8 @@ import com.emarsys.mobileengage.notification.command.LaunchApplicationCommand;
 import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand;
 import com.emarsys.mobileengage.notification.command.TrackActionClickCommand;
 import com.emarsys.mobileengage.service.IntentUtils;
-import com.emarsys.mobileengage.testUtil.CollectionTestUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.CollectionTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;

@@ -8,9 +8,9 @@ import com.emarsys.mobileengage.di.DependencyInjection;
 import com.emarsys.mobileengage.fake.FakeInboxResultListener;
 import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener;
 import com.emarsys.mobileengage.fake.FakeStatusListener;
-import com.emarsys.mobileengage.testUtil.ConnectionTestUtils;
-import com.emarsys.mobileengage.testUtil.DatabaseTestUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.ConnectionTestUtils;
+import com.emarsys.test.util.DatabaseTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

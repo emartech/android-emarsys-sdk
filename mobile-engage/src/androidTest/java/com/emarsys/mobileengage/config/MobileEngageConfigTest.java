@@ -8,8 +8,8 @@ import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.experimental.FlipperFeature;
 import com.emarsys.mobileengage.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.notification.NotificationEventHandler;
-import com.emarsys.mobileengage.testUtil.ApplicationTestUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.ApplicationTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,8 +44,8 @@ public class MobileEngageConfigTest {
     @Before
     public void init() {
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
-        applicationDebug = ApplicationTestUtils.applicationDebug();
-        applicationRelease = ApplicationTestUtils.applicationRelease();
+        applicationDebug = ApplicationTestUtils.getApplicationDebug();
+        applicationRelease = ApplicationTestUtils.getApplicationRelease();
         statusListenerMock = mock(MobileEngageStatusListener.class);
         mockOreoConfig = mock(OreoConfig.class);
         defaultInAppEventHandler = mock(EventHandler.class);

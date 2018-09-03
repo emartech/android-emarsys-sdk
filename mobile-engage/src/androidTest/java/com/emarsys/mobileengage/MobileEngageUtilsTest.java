@@ -4,8 +4,8 @@ import android.app.Application;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.mobileengage.config.MobileEngageConfig;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
 import com.emarsys.mobileengage.util.MobileEngageIdlingResource;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

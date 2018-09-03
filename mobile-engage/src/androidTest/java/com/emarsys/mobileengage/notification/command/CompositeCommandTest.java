@@ -1,6 +1,6 @@
 package com.emarsys.mobileengage.notification.command;
 
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Rule;
 import org.junit.Test;

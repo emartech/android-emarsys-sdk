@@ -15,9 +15,10 @@ import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.testUtil.RandomTestUtils;
+import com.emarsys.mobileengage.testUtil.RandomMETestUtils;
 import com.emarsys.mobileengage.testUtil.SharedPrefsUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
+import com.emarsys.test.util.RandomTestUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -252,13 +253,13 @@ public class RequestPayloadUtilsTest {
                 RandomTestUtils.randomMap()
         );
         List<DisplayedIam> displayedIams = Arrays.asList(
-                RandomTestUtils.randomDisplayedIam(),
-                RandomTestUtils.randomDisplayedIam()
+                RandomMETestUtils.randomDisplayedIam(),
+                RandomMETestUtils.randomDisplayedIam()
         );
         List<ButtonClicked> buttonClicks = Arrays.asList(
-                RandomTestUtils.randomButtonClick(),
-                RandomTestUtils.randomButtonClick(),
-                RandomTestUtils.randomButtonClick()
+                RandomMETestUtils.randomButtonClick(),
+                RandomMETestUtils.randomButtonClick(),
+                RandomMETestUtils.randomButtonClick()
         );
         Map<String, Object> expectedPayload = new HashMap<>();
         expectedPayload.put("events", events);

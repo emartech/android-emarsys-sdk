@@ -23,10 +23,10 @@ import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
-import com.emarsys.mobileengage.testUtil.TimeoutUtils;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestModelUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.test.util.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;
