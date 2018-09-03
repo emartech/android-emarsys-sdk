@@ -19,7 +19,7 @@ node('master') {
             }
 
             stage("build") {
-                andoirdBuild module: 'predict-api', andArchive: 'predict-api/**/*.aar'
+                androidBuild module: 'predict-api', andArchive: 'predict-api/**/*.aar'
                 androidBuild module: 'predict', andArchive: 'predict/**/*.aar'
             }
 
