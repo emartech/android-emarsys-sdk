@@ -8,8 +8,8 @@ import android.support.test.filters.SdkSuppress;
 
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.mobileengage.database.MobileEngageDbHelper;
-import com.emarsys.test.util.DatabaseTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;
 

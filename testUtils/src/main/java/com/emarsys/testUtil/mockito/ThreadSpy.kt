@@ -1,4 +1,4 @@
-package com.emarsys.test.mockito
+package com.emarsys.testUtil.mockito
 
 import android.os.Looper
 import junit.framework.Assert.assertEquals

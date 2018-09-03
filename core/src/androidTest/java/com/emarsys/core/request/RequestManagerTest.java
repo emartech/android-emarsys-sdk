@@ -19,9 +19,9 @@ import com.emarsys.core.request.model.specification.QueryNewestRequestModel;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
-import com.emarsys.test.util.ConnectionTestUtils;
-import com.emarsys.test.util.DatabaseTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.ConnectionTestUtils;
+import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

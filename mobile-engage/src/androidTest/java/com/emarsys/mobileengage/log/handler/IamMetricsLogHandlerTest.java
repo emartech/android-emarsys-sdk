@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.log.handler;
 
 import com.emarsys.core.util.CollectionUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;
 

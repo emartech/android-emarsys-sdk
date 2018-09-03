@@ -10,8 +10,8 @@ import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.specification.QueryAll;
 import com.emarsys.core.database.trigger.TriggerKey;
-import com.emarsys.test.util.DatabaseTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.json.JSONException;
 import org.junit.Before;

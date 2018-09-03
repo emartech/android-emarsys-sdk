@@ -1,6 +1,6 @@
 package com.emarsys.core.shard;
 
-import com.emarsys.test.util.TimeoutUtils
+import com.emarsys.testUtil.TimeoutUtils
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldEqualTo

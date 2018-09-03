@@ -12,8 +12,8 @@ import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.test.util.DatabaseTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

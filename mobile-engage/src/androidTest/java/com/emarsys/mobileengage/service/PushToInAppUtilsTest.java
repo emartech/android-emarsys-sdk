@@ -14,7 +14,7 @@ import com.emarsys.mobileengage.di.DependencyContainer;
 import com.emarsys.mobileengage.di.DependencyInjection;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.PushToInAppAction;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;

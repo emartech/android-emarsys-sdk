@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.log;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.handler.Handler;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

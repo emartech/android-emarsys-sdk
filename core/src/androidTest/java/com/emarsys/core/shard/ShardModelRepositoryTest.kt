@@ -7,8 +7,8 @@ import android.support.test.runner.AndroidJUnit4
 import com.emarsys.core.database.DatabaseContract.*
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
-import com.emarsys.test.util.DatabaseTestUtils
-import com.emarsys.test.util.TimeoutUtils
+import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockito_kotlin.whenever
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldEqual

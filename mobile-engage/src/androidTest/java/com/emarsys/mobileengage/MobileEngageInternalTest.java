@@ -26,7 +26,7 @@ import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestModelUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

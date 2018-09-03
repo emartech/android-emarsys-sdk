@@ -4,8 +4,8 @@ import android.support.test.InstrumentationRegistry
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
-import com.emarsys.test.util.DatabaseTestUtils
-import com.emarsys.test.util.TimeoutUtils
+import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.TimeoutUtils
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldEqual
 import org.junit.Before

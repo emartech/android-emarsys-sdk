@@ -3,7 +3,7 @@ package com.emarsys.core.concurrency;
 
 import android.os.Handler;
 
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

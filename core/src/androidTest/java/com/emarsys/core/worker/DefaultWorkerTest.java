@@ -14,8 +14,8 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.QueryNewestRequestModel;
 import com.emarsys.core.testUtil.RequestModelTestUtils;
-import com.emarsys.test.util.DatabaseTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

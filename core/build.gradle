@@ -20,12 +20,5 @@ group = 'com.emarsys.core'
 
 dependencies {
     androidTestImplementation project(':testUtils')
-    androidTestImplementation TestLibs.mockito_android
     androidTestImplementation TestLibs.kluent
-    androidTestImplementation TestLibs.kotlin
-    androidTestImplementation TestLibs.support_test_runner
-    androidTestImplementation TestLibs.support_test_rules
-    androidTestImplementation TestLibs.hamcrest_core
-    androidTestImplementation TestLibs.hamcrest_integration
-    androidTestImplementation TestLibs.hamcrest_library
 }

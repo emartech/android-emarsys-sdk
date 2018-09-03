@@ -11,7 +11,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.testUtil.CurrentActivityWatchdogTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

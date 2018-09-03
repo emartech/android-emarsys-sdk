@@ -4,7 +4,7 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;
 

@@ -3,7 +3,7 @@ package com.emarsys.core.activity;
 import android.app.Activity;
 import android.os.Bundle;
 
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Assert;
 import org.junit.Before;

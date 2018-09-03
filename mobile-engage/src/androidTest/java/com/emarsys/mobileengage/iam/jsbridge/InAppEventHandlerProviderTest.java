@@ -8,7 +8,7 @@ import com.emarsys.mobileengage.EventHandler;
 import com.emarsys.mobileengage.MobileEngage;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.experimental.MobileEngageFeature;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

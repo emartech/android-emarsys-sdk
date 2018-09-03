@@ -10,8 +10,8 @@ import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.testUtil.RequestModelTestUtils;
-import com.emarsys.test.util.ConnectionTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.ConnectionTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

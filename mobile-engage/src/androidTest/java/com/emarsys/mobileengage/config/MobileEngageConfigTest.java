@@ -8,8 +8,8 @@ import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.experimental.FlipperFeature;
 import com.emarsys.mobileengage.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.notification.NotificationEventHandler;
-import com.emarsys.test.util.ApplicationTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.ApplicationTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

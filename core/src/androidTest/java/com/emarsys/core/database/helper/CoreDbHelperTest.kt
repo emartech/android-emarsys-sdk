@@ -3,8 +3,8 @@ package com.emarsys.core.database.helper;
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.support.test.InstrumentationRegistry
-import com.emarsys.test.util.DatabaseTestUtils
-import com.emarsys.test.util.TimeoutUtils
+import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.TimeoutUtils
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldEqualTo

@@ -2,7 +2,7 @@ package com.emarsys.core.util;
 
 import android.os.Build;
 
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;

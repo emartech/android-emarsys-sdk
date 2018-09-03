@@ -6,7 +6,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

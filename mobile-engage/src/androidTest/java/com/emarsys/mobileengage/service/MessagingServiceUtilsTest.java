@@ -21,8 +21,8 @@ import com.emarsys.mobileengage.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.inbox.model.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
-import com.emarsys.test.util.ReflectionTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.ReflectionTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 import com.google.firebase.messaging.RemoteMessage;
 
 import org.json.JSONArray;

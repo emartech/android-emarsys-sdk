@@ -4,7 +4,7 @@ import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;
 

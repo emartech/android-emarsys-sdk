@@ -4,7 +4,7 @@ import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
 import com.emarsys.mobileengage.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

@@ -5,8 +5,8 @@ import android.support.test.InstrumentationRegistry
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerType
-import com.emarsys.test.util.DatabaseTestUtils
-import com.emarsys.test.util.TimeoutUtils
+import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

@@ -2,7 +2,7 @@ package com.emarsys.core.database.repository.specification;
 
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.request.model.specification.QueryNewestRequestModel;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

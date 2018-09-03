@@ -21,8 +21,8 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener;
-import com.emarsys.test.util.CollectionTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.CollectionTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

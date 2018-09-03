@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.inbox.model;
 
 import android.support.test.runner.AndroidJUnit4;
 
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;
 

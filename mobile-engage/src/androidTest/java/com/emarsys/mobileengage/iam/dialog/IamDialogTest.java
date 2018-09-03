@@ -16,7 +16,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.fake.FakeActivity;
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

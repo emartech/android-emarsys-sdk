@@ -1,4 +1,4 @@
-package com.emarsys.test.util
+package com.emarsys.testUtil
 
 import android.os.Handler
 import java.util.concurrent.CountDownLatch

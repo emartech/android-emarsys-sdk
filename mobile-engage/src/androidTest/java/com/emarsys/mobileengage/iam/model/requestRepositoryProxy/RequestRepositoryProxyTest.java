@@ -26,9 +26,9 @@ import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
-import com.emarsys.test.util.DatabaseTestUtils;
-import com.emarsys.test.util.RandomTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.RandomTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

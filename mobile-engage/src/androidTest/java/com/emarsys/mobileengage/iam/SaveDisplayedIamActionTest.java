@@ -9,8 +9,8 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
-import com.emarsys.test.mockito.ThreadSpy;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
+import com.emarsys.testUtil.mockito.ThreadSpy;
 
 import org.junit.After;
 import org.junit.Before;

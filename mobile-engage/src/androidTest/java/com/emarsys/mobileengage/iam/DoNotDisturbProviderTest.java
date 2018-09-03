@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.iam;
 
 import com.emarsys.mobileengage.MobileEngage;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Rule;

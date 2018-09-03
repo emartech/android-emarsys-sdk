@@ -4,8 +4,8 @@ import android.os.Handler;
 
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.testUtil.SharedPrefsUtils;
-import com.emarsys.test.util.DatabaseTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

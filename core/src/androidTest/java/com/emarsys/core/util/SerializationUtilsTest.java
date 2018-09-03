@@ -4,7 +4,7 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.serialization.SerializationException;
 import com.emarsys.core.util.serialization.SerializationUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Rule;
 import org.junit.Test;

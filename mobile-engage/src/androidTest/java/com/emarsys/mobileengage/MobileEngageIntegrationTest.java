@@ -15,9 +15,9 @@ import com.emarsys.mobileengage.inbox.model.Notification;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
-import com.emarsys.test.util.ConnectionTestUtils;
-import com.emarsys.test.util.DatabaseTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.ConnectionTestUtils;
+import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.json.JSONObject;
 import org.junit.After;

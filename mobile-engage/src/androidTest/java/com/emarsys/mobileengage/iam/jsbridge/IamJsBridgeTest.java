@@ -17,8 +17,8 @@ import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.fake.FakeActivity;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
-import com.emarsys.test.mockito.ThreadSpy;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
+import com.emarsys.testUtil.mockito.ThreadSpy;
 
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -43,10 +43,10 @@ import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.testUtil.CurrentActivityWatchdogTestUtils;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
-import com.emarsys.test.util.CollectionTestUtils;
-import com.emarsys.test.util.DatabaseTestUtils;
-import com.emarsys.test.util.ReflectionTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.CollectionTestUtils;
+import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.ReflectionTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.hamcrest.Matchers;
 import org.json.JSONObject;

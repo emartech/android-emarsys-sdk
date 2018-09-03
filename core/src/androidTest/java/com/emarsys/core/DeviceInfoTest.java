@@ -9,8 +9,8 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.support.test.InstrumentationRegistry;
 
-import com.emarsys.test.util.ApplicationTestUtils;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.ApplicationTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;

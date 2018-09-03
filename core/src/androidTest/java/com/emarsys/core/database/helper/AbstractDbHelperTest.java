@@ -6,7 +6,7 @@ import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.trigger.TriggerKey;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;

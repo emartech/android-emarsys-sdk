@@ -15,7 +15,7 @@ import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.test.util.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
 import org.junit.Rule;
