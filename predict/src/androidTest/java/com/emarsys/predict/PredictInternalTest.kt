@@ -1,7 +1,7 @@
 package com.emarsys.predict
 
 import com.emarsys.core.storage.KeyValueStore
-import com.emarsys.predict.testUtil.TimeoutUtils
+import com.emarsys.test.util.TimeoutUtils
 import org.junit.Before
 
 import org.junit.Rule
@@ -13,7 +13,7 @@ class PredictInternalTest {
 
     @Rule
     @JvmField
-    var timeout = TimeoutUtils.getTimeoutRule()
+    var timeout = TimeoutUtils.timeoutRule
 
     private lateinit var mockKeyValueStore: KeyValueStore
     private lateinit var predictInternal: PredictInternal

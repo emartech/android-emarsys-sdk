@@ -21,6 +21,7 @@ group = 'com.emarsys.predict'
 dependencies {
     implementation project(':core')
 
+    androidTestImplementation project(':testUtils')
     androidTestImplementation TestLibs.kotlin
     androidTestImplementation TestLibs.mockito_android
     androidTestImplementation TestLibs.support_test_runner
