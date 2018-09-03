@@ -1,7 +1,7 @@
 package com.emarsys.predict
 
 import com.emarsys.core.storage.KeyValueStore
-import com.emarsys.test.util.TimeoutUtils
+import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Before
 
 import org.junit.Rule
