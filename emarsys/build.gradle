@@ -28,15 +28,9 @@ dependencies {
     implementation project(':mobile-engage')
     api project(':predict')
     
-    implementation Libs.support_annotations
+    api Libs.support_annotations
 
-    androidTestImplementation TestLibs.kotlin
-    androidTestImplementation TestLibs.mockito_android
-    androidTestImplementation TestLibs.support_test_runner
-    androidTestImplementation TestLibs.support_test_rules
-    androidTestImplementation TestLibs.hamcrest_core
-    androidTestImplementation TestLibs.hamcrest_integration
-    androidTestImplementation TestLibs.hamcrest_library
+    androidTestImplementation project(':testUtils')
 }
 
 apply from: 'maven.gradle'
