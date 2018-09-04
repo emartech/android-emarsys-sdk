@@ -19,18 +19,25 @@ node('master') {
             }
 
             stage("build") {
+                androidBuild module: 'mobile-engage-api', andArchive: 'mobile-engage-api/**/*.aar'
                 androidBuild module: 'mobile-engage', andArchive: 'mobile-engage/**/*.aar'
             }
 
             stage('lint') {
+                androidLint module: 'mobile-engage-api', andArchive: 'mobile-engage-api/**/lint-results*.*'
                 androidLint module: 'mobile-engage', andArchive: 'mobile-engage/**/lint-results*.*'
             }
 
             stage('remove-test-app') {
+                sh './gradlew mobile-engage-api:uninstallDebugAndroidTest'
                 sh './gradlew mobile-engage:uninstallDebugAndroidTest'
             }
 
-            stage("instrumentation-test") {
+            stage("mobile-engage-api-cAT") {
+                androidInstrumentationTest module: 'mobile-engage-api', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: 'mobile-engage-api/**/outputs/androidTest-results/connected/*.xml'
+            }
+
+            stage("mobile-engage-cAT") {
                 androidInstrumentationTest module: 'mobile-engage', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: 'mobile-engage/**/outputs/androidTest-results/connected/*.xml'
             }
         }

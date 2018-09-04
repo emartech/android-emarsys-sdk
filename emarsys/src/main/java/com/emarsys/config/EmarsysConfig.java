@@ -4,10 +4,10 @@ import android.app.Application;
 import android.support.annotation.NonNull;
 
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.EventHandler;
+import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.experimental.FlipperFeature;
 import com.emarsys.mobileengage.experimental.MobileEngageFeature;
-import com.emarsys.mobileengage.notification.NotificationEventHandler;
 
 import java.util.Arrays;
 

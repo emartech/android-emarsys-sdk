@@ -3,6 +3,7 @@ package com.emarsys.mobileengage;
 import android.app.Application;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.di.DependencyInjection;
 import com.emarsys.mobileengage.experimental.MobileEngageFeature;

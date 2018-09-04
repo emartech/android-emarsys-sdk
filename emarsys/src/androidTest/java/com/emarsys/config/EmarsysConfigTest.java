@@ -3,10 +3,10 @@ package com.emarsys.config;
 import android.app.Application;
 import android.support.test.InstrumentationRegistry;
 
-import com.emarsys.mobileengage.EventHandler;
+import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.experimental.FlipperFeature;
 import com.emarsys.mobileengage.experimental.MobileEngageFeature;
-import com.emarsys.mobileengage.notification.NotificationEventHandler;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -32,7 +32,6 @@ public class EmarsysConfigTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
 
     @Before
     public void init() {

@@ -10,11 +10,11 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.emarsys.mobileengage.EventHandler;
 import com.emarsys.mobileengage.MobileEngage;
+import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.experimental.MobileEngageFeature;
-import com.emarsys.mobileengage.notification.NotificationEventHandler;
 
 import org.json.JSONObject;
 

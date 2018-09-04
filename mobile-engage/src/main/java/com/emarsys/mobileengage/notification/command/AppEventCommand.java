@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.MobileEngage;
-import com.emarsys.mobileengage.notification.NotificationEventHandler;
+import com.emarsys.mobileengage.api.NotificationEventHandler;
 
 import org.json.JSONObject;
 

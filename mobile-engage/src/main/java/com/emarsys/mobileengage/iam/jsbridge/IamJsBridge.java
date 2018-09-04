@@ -19,7 +19,7 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.JsonUtils;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.EventHandler;
+import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.util.log.MobileEngageTopic;

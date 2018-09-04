@@ -1,5 +1,6 @@
 include ':testUtils'
 include ':core'
+include ':mobile-engage-api'
 include ':mobile-engage'
 include ':predict-api'
 include ':predict'
