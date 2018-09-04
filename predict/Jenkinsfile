@@ -33,8 +33,11 @@ node('master') {
                 sh './gradlew predict:uninstallDebugAndroidTest'
             }
 
-            stage("instrumentation-test") {
+            stage("predict-api-cAT") {
                 androidInstrumentationTest module: 'predict-api', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: 'predict-api/**/outputs/androidTest-results/connected/*.xml'
+            }
+
+            stage("predict-cAT") {
                 androidInstrumentationTest module: 'predict', withScreenOn: true, withLock: env.ANDROID_DEVICE_FARM_LOCK, runTrulyParallel: true, withStepNames: env.ANDROID_STEP_NAMES, andArchive: 'predict/**/outputs/androidTest-results/connected/*.xml'
             }
         }
