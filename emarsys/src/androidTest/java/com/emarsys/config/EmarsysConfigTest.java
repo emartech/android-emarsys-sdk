@@ -197,8 +197,8 @@ public class EmarsysConfigTest {
                 .enableIdlingResource(true)
                 .enableDefaultChannel("defaultChannelName", "defaultChannelDescription")
                 .enableExperimentalFeatures(features)
-                .setDefaultInAppEventHandler(defaultInAppEventHandler)
-                .setNotificationEventHandler(defaultNotificationEventHandler)
+                .inAppEventHandler(defaultInAppEventHandler)
+                .notificationEventHandler(defaultNotificationEventHandler)
                 .build();
 
         assertEquals(expected, result);

@@ -30,8 +30,8 @@ public class SampleApplication extends Application implements EventHandler, Noti
                 .application(this)
                 .credentials("14C19-A121F", "PaNkfOD90AVpYimMBuZopCpm8OWCrREu")
                 .enableDefaultChannel("default", "here is a description")
-                .setDefaultInAppEventHandler(this)
-                .setNotificationEventHandler(this)
+                .inAppEventHandler(this)
+                .notificationEventHandler(this)
                 .build();
 
         createNotificationChannels();

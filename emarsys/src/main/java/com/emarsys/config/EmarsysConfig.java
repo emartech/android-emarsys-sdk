@@ -195,12 +195,12 @@ public class EmarsysConfig {
             return this;
         }
 
-        public Builder setDefaultInAppEventHandler(EventHandler inAppEventHandler) {
+        public Builder inAppEventHandler(EventHandler inAppEventHandler) {
             this.defaultInAppEventHandler = inAppEventHandler;
             return this;
         }
 
-        public Builder setNotificationEventHandler(NotificationEventHandler notificationEventHandler) {
+        public Builder notificationEventHandler(NotificationEventHandler notificationEventHandler) {
             this.notificationEventHandler = notificationEventHandler;
             return this;
         }
