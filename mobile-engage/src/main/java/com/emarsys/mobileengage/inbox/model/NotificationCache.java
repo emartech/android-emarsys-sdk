@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.inbox.model;
 
 import com.emarsys.core.util.log.EMSLogger;
+import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 
 import java.util.ArrayList;

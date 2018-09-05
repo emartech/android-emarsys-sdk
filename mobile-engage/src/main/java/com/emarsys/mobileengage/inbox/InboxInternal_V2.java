@@ -12,13 +12,13 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.EMSLogger;
-import com.emarsys.mobileengage.MobileEngageException;
+import com.emarsys.mobileengage.api.MobileEngageException;
 import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.endpoint.Endpoint;
-import com.emarsys.mobileengage.inbox.model.Notification;
+import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
-import com.emarsys.mobileengage.inbox.model.NotificationInboxStatus;
+import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestModelUtils;
 import com.emarsys.mobileengage.util.log.MobileEngageTopic;
@@ -122,7 +122,10 @@ public class InboxInternal_V2 implements InboxInternal {
                     public void onError(String id, ResponseModel responseModel) {
                         EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
 
-                        this.onError(id, new MobileEngageException(responseModel));
+                        this.onError(id, new MobileEngageException(
+                                responseModel.getStatusCode(),
+                                responseModel.getMessage(),
+                                responseModel.getBody()));
                     }
 
                     @Override
@@ -170,7 +173,10 @@ public class InboxInternal_V2 implements InboxInternal {
                 public void onError(String id, ResponseModel responseModel) {
                     EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
                     if (listener != null) {
-                        listener.onError(new MobileEngageException(responseModel));
+                        listener.onError(new MobileEngageException(
+                                responseModel.getStatusCode(),
+                                responseModel.getMessage(),
+                                responseModel.getBody()));
                     }
                 }
 

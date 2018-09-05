@@ -11,11 +11,11 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.EMSLogger;
-import com.emarsys.mobileengage.MobileEngageException;
+import com.emarsys.mobileengage.api.MobileEngageException;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.inbox.model.Notification;
+import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
-import com.emarsys.mobileengage.inbox.model.NotificationInboxStatus;
+import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
@@ -87,7 +87,10 @@ public class InboxInternal_V1 implements InboxInternal {
             @Override
             public void onError(String id, ResponseModel responseModel) {
                 EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
-                resultListener.onError(new MobileEngageException(responseModel));
+                resultListener.onError(new MobileEngageException(
+                        responseModel.getStatusCode(),
+                        responseModel.getMessage(),
+                        responseModel.getBody()));
             }
 
             @Override
@@ -157,7 +160,10 @@ public class InboxInternal_V1 implements InboxInternal {
             public void onError(String id, ResponseModel responseModel) {
                 EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
                 if (listener != null) {
-                    listener.onError(new MobileEngageException(responseModel));
+                    listener.onError(new MobileEngageException(
+                            responseModel.getStatusCode(),
+                            responseModel.getMessage(),
+                            responseModel.getBody()));
                 }
             }
 

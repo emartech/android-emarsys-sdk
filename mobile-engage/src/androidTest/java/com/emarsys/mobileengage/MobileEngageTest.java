@@ -34,7 +34,7 @@ import com.emarsys.mobileengage.inbox.InboxInternal_V1;
 import com.emarsys.mobileengage.inbox.InboxInternal_V2;
 import com.emarsys.mobileengage.inbox.InboxResultListener;
 import com.emarsys.mobileengage.inbox.ResetBadgeCountResultListener;
-import com.emarsys.mobileengage.inbox.model.Notification;
+import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.responsehandler.AbstractResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;

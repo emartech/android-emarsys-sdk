@@ -13,16 +13,16 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.TimestampUtils;
-import com.emarsys.mobileengage.MobileEngageException;
+import com.emarsys.mobileengage.api.MobileEngageException;
 import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.fake.FakeInboxResultListener;
 import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener;
 import com.emarsys.mobileengage.fake.FakeRestClient;
 import com.emarsys.mobileengage.fake.FakeStatusListener;
-import com.emarsys.mobileengage.inbox.model.Notification;
+import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
-import com.emarsys.mobileengage.inbox.model.NotificationInboxStatus;
+import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
@@ -466,7 +466,7 @@ public class InboxInternal_V2Test {
         latch1.await();
         latch2.await();
 
-        MobileEngageException expected = new MobileEngageException(response1);
+        MobileEngageException expected = createExceptionFrom(response1);
         Assert.assertEquals(expected, listener1.errorCause);
         Assert.assertEquals(expected, listener2.errorCause);
     }
@@ -474,8 +474,8 @@ public class InboxInternal_V2Test {
     @Test
     public void testFetchNotification_listener_errorWithException_callsBufferedListener_whenCalledTwiceInAMinute_asynchronousCalling() throws InterruptedException {
         List<Exception> exceptions = new ArrayList<>();
-        Exception exception1 = new MobileEngageException(createNotificationStatusResponse(Collections.singletonList(NOTIFICATION_STRING_1)));
-        Exception exception2 = new MobileEngageException(createNotificationStatusResponse(Collections.singletonList(NOTIFICATION_STRING_1)));
+        Exception exception1 = createExceptionFrom(createNotificationStatusResponse(Collections.singletonList(NOTIFICATION_STRING_1)));
+        Exception exception2 = createExceptionFrom(createNotificationStatusResponse(Collections.singletonList(NOTIFICATION_STRING_1)));
         exceptions.add(exception1);
         exceptions.add(exception2);
 
@@ -954,6 +954,13 @@ public class InboxInternal_V2Test {
         notificationStrings.add(NOTIFICATION_STRING_3);
 
         return createNotificationStatusResponse(notificationStrings);
+    }
+
+    private MobileEngageException createExceptionFrom(ResponseModel responseModel) {
+        return new MobileEngageException(
+                responseModel.getStatusCode(),
+                responseModel.getMessage(),
+                responseModel.getBody());
     }
 
     private ResponseModel createNotificationStatusResponse(List<String> notifications) {

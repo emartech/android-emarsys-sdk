@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.inbox;
 
-import com.emarsys.mobileengage.inbox.model.Notification;
-import com.emarsys.mobileengage.inbox.model.NotificationInboxStatus;
+import com.emarsys.mobileengage.api.inbox.Notification;
+import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 
 public interface InboxInternal {
     void fetchNotifications(InboxResultListener<NotificationInboxStatus> resultListener);

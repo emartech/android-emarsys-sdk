@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.inbox.model;
 
+import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;

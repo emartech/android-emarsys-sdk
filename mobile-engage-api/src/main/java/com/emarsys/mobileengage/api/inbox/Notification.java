@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.inbox.model;
+package com.emarsys.mobileengage.api.inbox;
 
 import android.support.annotation.NonNull;
 

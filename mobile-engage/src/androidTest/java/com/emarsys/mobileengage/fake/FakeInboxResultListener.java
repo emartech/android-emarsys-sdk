@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.fake;
 import android.os.Looper;
 
 import com.emarsys.mobileengage.inbox.InboxResultListener;
-import com.emarsys.mobileengage.inbox.model.NotificationInboxStatus;
+import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 
 import java.util.concurrent.CountDownLatch;
 

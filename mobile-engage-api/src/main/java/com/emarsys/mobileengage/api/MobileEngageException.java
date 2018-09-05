@@ -1,6 +1,4 @@
-package com.emarsys.mobileengage;
-
-import com.emarsys.core.response.ResponseModel;
+package com.emarsys.mobileengage.api;
 
 public class MobileEngageException extends Exception {
     private final int statusCode;
@@ -12,10 +10,6 @@ public class MobileEngageException extends Exception {
         this.statusCode = statusCode;
         this.statusMessage = statusMessage;
         this.body = body;
-    }
-
-    public MobileEngageException(ResponseModel requestModel) {
-        this(requestModel.getStatusCode(), requestModel.getMessage(), requestModel.getBody());
     }
 
     public int getStatusCode() {

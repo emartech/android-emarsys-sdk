@@ -18,7 +18,7 @@ import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.mobileengage.config.OreoConfig;
 import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
 import com.emarsys.mobileengage.experimental.MobileEngageFeature;
-import com.emarsys.mobileengage.inbox.model.Notification;
+import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.ReflectionTestUtils;

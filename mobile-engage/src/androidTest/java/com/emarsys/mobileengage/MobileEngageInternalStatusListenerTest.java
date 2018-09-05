@@ -12,6 +12,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.response.ResponseModel;
+import com.emarsys.mobileengage.api.MobileEngageException;
 import com.emarsys.mobileengage.fake.FakeRequestManager;
 import com.emarsys.mobileengage.fake.FakeStatusListener;
 import com.emarsys.mobileengage.responsehandler.AbstractResponseHandler;

@@ -15,14 +15,13 @@ import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.di.DefaultDependencyContainer;
 import com.emarsys.mobileengage.di.DependencyContainer;
 import com.emarsys.mobileengage.di.DependencyInjection;
-import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.experimental.FlipperFeature;
 import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxResultListener;
 import com.emarsys.mobileengage.inbox.ResetBadgeCountResultListener;
-import com.emarsys.mobileengage.inbox.model.Notification;
-import com.emarsys.mobileengage.inbox.model.NotificationInboxStatus;
+import com.emarsys.mobileengage.api.inbox.Notification;
+import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 
 import java.util.Map;
