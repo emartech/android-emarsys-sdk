@@ -56,20 +56,20 @@ public class MobileEngageFragment extends Fragment {
 
         final CompletionListener completionListener = new CompletionListener() {
             @Override
-            public void onCompleted(@Nullable Throwable cause) {
+            public void onCompleted(@Nullable Throwable errorCause) {
                 String message;
-                if (cause == null) {
+                if (errorCause == null) {
                     message = "OK";
                     Log.i(TAG, message);
                 } else {
-                    Log.e(TAG, cause.getMessage(), cause);
+                    Log.e(TAG, errorCause.getMessage(), errorCause);
                     StringBuilder sb = new StringBuilder();
-                    if (cause instanceof MobileEngageException) {
-                        MobileEngageException mee = (MobileEngageException) cause;
+                    if (errorCause instanceof MobileEngageException) {
+                        MobileEngageException mee = (MobileEngageException) errorCause;
                         sb.append(mee.getStatusCode());
                         sb.append(" - ");
                     }
-                    sb.append(cause.getMessage());
+                    sb.append(errorCause.getMessage());
                     message = sb.toString();
                 }
                 statusLabel.append(message);
@@ -108,9 +108,9 @@ public class MobileEngageFragment extends Fragment {
                     String id = customerId.getText().toString();
                     Emarsys.setCustomer(id, new CompletionListener() {
                         @Override
-                        public void onCompleted(@Nullable Throwable cause) {
-                            completionListener.onCompleted(cause);
-                            if (cause != null) {
+                        public void onCompleted(@Nullable Throwable errorCause) {
+                            completionListener.onCompleted(errorCause);
+                            if (errorCause != null) {
                                 ((MainActivity) getActivity()).updateBadgeCount();
                             }
                         }

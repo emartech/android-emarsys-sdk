@@ -13,11 +13,11 @@ public class Try<T> {
     }
 
     private final T result;
-    private final Throwable cause;
+    private final Throwable errorCause;
 
-    public Try(T result, Throwable cause) {
+    public Try(T result, Throwable errorCause) {
         this.result = result;
-        this.cause = cause;
+        this.errorCause = errorCause;
     }
 
     @Nullable
@@ -26,7 +26,7 @@ public class Try<T> {
     }
 
     @Nullable
-    public Throwable getCause() {
-        return cause;
+    public Throwable getErrorCause() {
+        return errorCause;
     }
 }

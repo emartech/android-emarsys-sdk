@@ -40,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
                 if (position == 1) {
                     Emarsys.Inbox.resetBadgeCount(new CompletionListener() {
                         @Override
-                        public void onCompleted(@Nullable Throwable cause) {
-                            if (cause != null) {
+                        public void onCompleted(@Nullable Throwable errorCause) {
+                            if (errorCause != null) {
                                 updateBadgeCount();
                             }
                         }

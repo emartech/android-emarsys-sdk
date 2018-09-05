@@ -89,8 +89,8 @@ public class NotificationInboxFragment extends Fragment {
                     updateList(inboxStatus.getNotifications());
                     statusLabel.append("Success");
                 }
-                if (result.getCause() != null) {
-                    Throwable cause = result.getCause();
+                if (result.getErrorCause() != null) {
+                    Throwable cause = result.getErrorCause();
                     Log.e(TAG, "Error happened: " + cause.getMessage());
                     statusLabel.append(cause.getMessage());
                 }
