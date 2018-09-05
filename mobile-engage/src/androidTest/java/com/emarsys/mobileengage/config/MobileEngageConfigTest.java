@@ -3,11 +3,11 @@ package com.emarsys.mobileengage.config;
 import android.app.Application;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
-import com.emarsys.mobileengage.experimental.FlipperFeature;
-import com.emarsys.mobileengage.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.testUtil.ApplicationTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 

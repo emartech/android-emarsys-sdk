@@ -14,6 +14,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.content.ContextCompat;
 
+import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.FileUtils;
@@ -21,8 +22,7 @@ import com.emarsys.core.util.ImageUtils;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.core.validate.JsonObjectValidator;
 import com.emarsys.mobileengage.config.OreoConfig;
-import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
-import com.emarsys.mobileengage.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.inbox.InboxParseUtils;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.util.AndroidVersionUtils;
@@ -207,7 +207,7 @@ public class MessagingServiceUtils {
         HashMap<String, String> preloadedRemoteMessageData = new HashMap<>(remoteMessageData);
         if (inAppDescriptor != null
                 && AndroidVersionUtils.isKitKatOrAbove()
-                && MobileEngageExperimental.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
+                && ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
             try {
                 JSONObject ems = new JSONObject(preloadedRemoteMessageData.get("ems"));
                 ems.put("inapp", inAppDescriptor);
@@ -248,7 +248,7 @@ public class MessagingServiceUtils {
 
     static void cacheNotification(Map<String, String> remoteMessageData) {
         Assert.notNull(remoteMessageData, "RemoteMessageData must not be null!");
-        boolean isUserCentric = MobileEngageExperimental.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX);
+        boolean isUserCentric = ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX);
         notificationCache.cache(InboxParseUtils.parseNotificationFromPushMessage(remoteMessageData, isUserCentric));
     }
 

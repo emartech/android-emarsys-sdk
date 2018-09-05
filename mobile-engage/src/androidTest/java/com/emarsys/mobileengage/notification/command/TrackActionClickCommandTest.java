@@ -1,8 +1,8 @@
 package com.emarsys.mobileengage.notification.command;
 
+import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
-import com.emarsys.mobileengage.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -60,14 +60,14 @@ public class TrackActionClickCommandTest {
 
     @Test
     public void testRun_sendsInternalCustomEvent_ifInAppIsEnabled() {
-        MobileEngageExperimental.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
+        ExperimentalFeatures.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
 
         verifyTrackInternalCustomEventIsCalled();
     }
 
     @Test
     public void testRun_sendsInternalCustomEvent_ifInboxV2IsEnabled() {
-        MobileEngageExperimental.enableFeature(MobileEngageFeature.USER_CENTRIC_INBOX);
+        ExperimentalFeatures.enableFeature(MobileEngageFeature.USER_CENTRIC_INBOX);
 
         verifyTrackInternalCustomEventIsCalled();
     }

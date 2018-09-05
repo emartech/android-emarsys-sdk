@@ -19,6 +19,8 @@ android {
 group = 'com.emarsys.mobileengage.api'
 
 dependencies {
+    implementation project(':core-api')
+
     implementation Libs.support_annotations
 
     androidTestImplementation project(':testUtils')

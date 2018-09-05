@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.experimental;
 
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;

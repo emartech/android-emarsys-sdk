@@ -8,6 +8,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.emarsys.core.activity.CurrentActivityWatchdog;
+import com.emarsys.core.experimental.ExperimentalFeatures;
+import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
@@ -15,8 +17,6 @@ import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.di.DefaultDependencyContainer;
 import com.emarsys.mobileengage.di.DependencyContainer;
 import com.emarsys.mobileengage.di.DependencyInjection;
-import com.emarsys.mobileengage.experimental.FlipperFeature;
-import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxResultListener;
 import com.emarsys.mobileengage.inbox.ResetBadgeCountResultListener;
@@ -81,7 +81,7 @@ public class MobileEngage {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Argument: %s", config);
 
         for (FlipperFeature feature : config.getExperimentalFeatures()) {
-            MobileEngageExperimental.enableFeature(feature);
+            ExperimentalFeatures.enableFeature(feature);
         }
 
         MobileEngage.config = config;

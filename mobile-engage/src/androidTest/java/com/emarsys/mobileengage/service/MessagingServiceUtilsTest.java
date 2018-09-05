@@ -14,10 +14,11 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
+import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.mobileengage.config.OreoConfig;
-import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
-import com.emarsys.mobileengage.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.experimental.MobileEngageExperimentalFeatures;
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
@@ -94,11 +95,11 @@ public class MessagingServiceUtilsTest {
         enabledOreoConfig = new OreoConfig(true, "name", "description");
         disabledOreoConfig = new OreoConfig(false);
 
-        MobileEngageExperimental.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
+        ExperimentalFeatures.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
     }
 
     @After
-    public void tearDown() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    public void tearDown() {
         ExperimentalTestUtils.resetExperimentalFeatures();
     }
 

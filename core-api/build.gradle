@@ -1,15 +1,11 @@
-apply from: 'version.gradle'
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion Config.targetApiLevel
     defaultConfig {
         minSdkVersion Config.minApiLevel
         targetSdkVersion Config.targetApiLevel
-        versionCode gitVersionCode
-        versionName gitVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -20,21 +16,8 @@ android {
     }
 }
 
-group = 'com.emarsys'
-version = gitVersionName
+group = 'com.emarsys.core.api'
 
 dependencies {
-    api project(':core-api')
-    api project(':mobile-engage-api')
-    api project(':predict-api')
-
-    implementation project(':core')
-    implementation project(':mobile-engage')
-    implementation project(':predict')
-
-    implementation Libs.support_annotations
-
     androidTestImplementation project(':testUtils')
 }
-
-apply from: 'maven.gradle'

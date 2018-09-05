@@ -23,6 +23,7 @@ group = 'com.emarsys.mobile-engage'
 
 dependencies {
     implementation project(':core')
+    implementation project(':core-api')
     implementation project(':mobile-engage-api')
     api Libs.support_appcompat
     api Libs.support_annotations

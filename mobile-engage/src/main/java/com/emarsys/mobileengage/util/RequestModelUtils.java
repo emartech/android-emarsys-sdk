@@ -1,12 +1,12 @@
 package com.emarsys.mobileengage.util;
 
+import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
-import com.emarsys.mobileengage.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ public class RequestModelUtils {
     public static RequestModel createLastMobileActivity(RequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null");
         RequestModel result;
-        if (MobileEngageExperimental.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
+        if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
             result = createInternalCustomEvent(
                     "last_mobile_activity",
                     null,

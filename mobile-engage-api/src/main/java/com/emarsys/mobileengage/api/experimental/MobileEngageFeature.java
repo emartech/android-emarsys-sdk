@@ -1,4 +1,6 @@
-package com.emarsys.mobileengage.experimental;
+package com.emarsys.mobileengage.api.experimental;
+
+import com.emarsys.core.api.experimental.FlipperFeature;
 
 import java.util.Locale;
 
@@ -10,4 +12,5 @@ public enum MobileEngageFeature implements FlipperFeature {
     public String getName() {
         return name().toLowerCase(Locale.US);
     }
+
 }

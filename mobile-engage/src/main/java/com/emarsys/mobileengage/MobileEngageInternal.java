@@ -6,14 +6,14 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
-import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
-import com.emarsys.mobileengage.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestModelUtils;
@@ -138,7 +138,7 @@ public class MobileEngageInternal {
 
     @NonNull
     public String trackCustomEvent(@NonNull String eventName, @Nullable Map<String, String> eventAttributes) {
-        if (MobileEngageExperimental.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
+        if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
             return trackCustomEvent_V3(eventName, eventAttributes);
         } else {
             return trackCustomEvent_V2(eventName, eventAttributes);
@@ -237,7 +237,7 @@ public class MobileEngageInternal {
     @NonNull
     private String handleMessageOpen(String messageId) {
         if (messageId != null) {
-            if (MobileEngageExperimental.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
+            if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
                 return handleMessageOpen_V3(messageId);
             } else {
                 return handleMessageOpen_V2(messageId);
@@ -277,7 +277,7 @@ public class MobileEngageInternal {
     private boolean shouldDoAppLogin(Integer storedHashCode, int currentHashCode, MeIdStorage meIdStorage) {
         boolean result = storedHashCode == null || currentHashCode != storedHashCode;
 
-        if (MobileEngageExperimental.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
+        if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
             result = result || meIdStorage.get() == null;
         }
 

@@ -9,6 +9,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -17,8 +18,8 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
-import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
-import com.emarsys.mobileengage.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.experimental.MobileEngageExperimentalFeatures;
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
@@ -93,7 +94,7 @@ public class MobileEngageInternalTest {
 
     @Before
     public void init() {
-        MobileEngageExperimental.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
+        ExperimentalFeatures.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
 
         manager = mock(RequestManager.class);
         coreCompletionHandler = mock(MobileEngageCoreCompletionHandler.class);
@@ -648,7 +649,7 @@ public class MobileEngageInternalTest {
 
     @Test
     public void testTrackMessageOpen_requestManagerCalledWithCorrectRequestModelWhenUsingV3() throws Exception {
-        MobileEngageExperimental.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
+        ExperimentalFeatures.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
 
         Intent intent = getTestIntent();
 

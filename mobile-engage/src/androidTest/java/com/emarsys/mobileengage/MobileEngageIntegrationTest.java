@@ -10,7 +10,7 @@ import android.support.test.InstrumentationRegistry;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.di.DependencyInjection;
-import com.emarsys.mobileengage.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.fake.FakeStatusListener;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.storage.AppLoginStorage;

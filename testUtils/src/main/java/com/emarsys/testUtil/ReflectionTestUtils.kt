@@ -24,4 +24,12 @@ object ReflectionTestUtils {
         return constructor.newInstance(*args) as T
     }
 
+    @JvmStatic
+    fun invokeStaticMethod(type: Class<*>, methodName: String, vararg parameters: Any) {
+        val parameterTypes = parameters.map { it::class.javaPrimitiveType }.toTypedArray()
+        val method = type.getDeclaredMethod(methodName, *parameterTypes)
+        method.isAccessible = true
+        method.invoke(null, *parameters)
+    }
+
 }

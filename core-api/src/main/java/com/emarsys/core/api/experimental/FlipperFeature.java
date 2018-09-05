@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.experimental;
+package com.emarsys.core.api.experimental;
 
 public interface FlipperFeature {
 

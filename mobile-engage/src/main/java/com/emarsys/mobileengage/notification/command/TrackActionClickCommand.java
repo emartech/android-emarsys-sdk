@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.notification.command;
 
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
+import com.emarsys.mobileengage.experimental.MobileEngageExperimentalFeatures;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,7 @@ public class TrackActionClickCommand implements Runnable {
 
     @Override
     public void run() {
-        if (MobileEngageExperimental.isV3Enabled()) {
+        if (MobileEngageExperimentalFeatures.isV3Enabled()) {
             Map<String, String> payload = new HashMap<>();
             payload.put("button_id", buttonId);
             payload.put("title", title);

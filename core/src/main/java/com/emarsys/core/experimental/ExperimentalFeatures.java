@@ -1,18 +1,16 @@
-package com.emarsys.mobileengage.experimental;
+package com.emarsys.core.experimental;
+
+import com.emarsys.core.api.experimental.FlipperFeature;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class MobileEngageExperimental {
+public class ExperimentalFeatures {
 
     static Set<String> enabledFeatures = new HashSet<>();
 
     public static boolean isFeatureEnabled(FlipperFeature feature) {
         return enabledFeatures.contains(feature.getName());
-    }
-
-    public static boolean isV3Enabled() {
-        return isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING) || isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX);
     }
 
     public static void enableFeature(FlipperFeature feature) {

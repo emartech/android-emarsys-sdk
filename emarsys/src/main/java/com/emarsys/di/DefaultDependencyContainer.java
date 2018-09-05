@@ -17,6 +17,7 @@ import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.log.LogRepository;
 import com.emarsys.core.database.trigger.TriggerKey;
+import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -36,8 +37,8 @@ import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
-import com.emarsys.mobileengage.experimental.MobileEngageExperimental;
-import com.emarsys.mobileengage.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.experimental.MobileEngageExperimentalFeatures;
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.iam.DoNotDisturbProvider;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.InAppStartAction;
@@ -227,7 +228,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
         RequestModelRepository requestModelRepository = new RequestModelRepository(coreDbHelper);
-        if (MobileEngageExperimental.isV3Enabled()) {
+        if (MobileEngageExperimentalFeatures.isV3Enabled()) {
             return new RequestRepositoryProxy(
                     deviceInfo,
                     requestModelRepository,
@@ -248,7 +249,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
                 requestContext
         );
         inboxInternal = new InboxInternalProvider().provideInboxInternal(
-                MobileEngageExperimental.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX),
+                ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX),
                 requestManager,
                 restClient,
                 requestContext,
@@ -270,7 +271,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
 
     private void initializeActivityLifecycleWatchdog() {
         ActivityLifecycleAction[] applicationStartActions = null;
-        if (MobileEngageExperimental.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
+        if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
             applicationStartActions = new ActivityLifecycleAction[]{
                     new InAppStartAction(mobileEngageInternal)
             };
@@ -300,13 +301,13 @@ public class DefaultDependencyContainer implements DependencyContainer {
     private void initializeResponseHandlers() {
         List<AbstractResponseHandler> responseHandlers = new ArrayList<>();
 
-        if (MobileEngageExperimental.isV3Enabled()) {
+        if (MobileEngageExperimentalFeatures.isV3Enabled()) {
             responseHandlers.add(new MeIdResponseHandler(
                     meIdStorage,
                     meIdSignatureStorage));
         }
 
-        if (MobileEngageExperimental.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
+        if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
             responseHandlers.add(new InAppMessageResponseHandler(
                     inAppPresenter,
                     logRepositoryProxy,

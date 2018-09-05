@@ -14,6 +14,7 @@ import com.emarsys.Emarsys;
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 
 import org.json.JSONObject;
 
@@ -31,6 +32,7 @@ public class SampleApplication extends Application implements EventHandler, Noti
                 .credentials("14C19-A121F", "PaNkfOD90AVpYimMBuZopCpm8OWCrREu")
                 .enableDefaultChannel("default", "here is a description")
                 .inAppEventHandler(this)
+                .enableExperimentalFeatures(MobileEngageFeature.IN_APP_MESSAGING, MobileEngageFeature.USER_CENTRIC_INBOX)
                 .notificationEventHandler(this)
                 .build();
 
