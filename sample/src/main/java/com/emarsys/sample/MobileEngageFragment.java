@@ -5,6 +5,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,21 +18,19 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.emarsys.mobileengage.MobileEngage;
-import com.emarsys.mobileengage.MobileEngageException;
-import com.emarsys.mobileengage.MobileEngageStatusListener;
+import com.emarsys.Emarsys;
+import com.emarsys.mobileengage.api.MobileEngageException;
+import com.emarsys.result.CompletionListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-public class MobileEngageFragment extends Fragment implements MobileEngageStatusListener {
+public class MobileEngageFragment extends Fragment {
     private static final String TAG = "MobileEngageFragment";
 
     private Button appLogingAnonymous;
@@ -42,7 +41,7 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
     private Button pushToken;
 
     private EditText applicationId;
-    private EditText applicationSecret;
+    private EditText customerId;
     private EditText eventName;
     private EditText eventAttributes;
     private EditText messageId;
@@ -51,20 +50,32 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
 
     private Switch doNotDisturb;
 
-    private String requestId;
-
-    private List<String> requestList;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_mobile_engage, container, false);
 
-        MobileEngage.setStatusListener(this);
-
-        requestList = new ArrayList<>();
-
+        final CompletionListener completionListener = new CompletionListener() {
+            @Override
+            public void onCompleted(@Nullable Throwable cause) {
+                String message;
+                if (cause == null) {
+                    message = "OK";
+                    Log.i(TAG, message);
+                } else {
+                    Log.e(TAG, cause.getMessage(), cause);
+                    StringBuilder sb = new StringBuilder();
+                    if (cause instanceof MobileEngageException) {
+                        MobileEngageException mee = (MobileEngageException) cause;
+                        sb.append(mee.getStatusCode());
+                        sb.append(" - ");
+                    }
+                    sb.append(cause.getMessage());
+                    message = sb.toString();
+                }
+                statusLabel.append(message);
+            }
+        };
         statusLabel = root.findViewById(R.id.mobileEngageStatusLabel);
-
 
         appLogingAnonymous = root.findViewById(R.id.appLoginAnonymous);
         appLogin = root.findViewById(R.id.appLogin);
@@ -74,7 +85,7 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
         pushToken = root.findViewById(R.id.pushToken);
 
         applicationId = root.findViewById(R.id.contactFieldId);
-        applicationSecret = root.findViewById(R.id.contactFieldValue);
+        customerId = root.findViewById(R.id.contactFieldValue);
         eventName = root.findViewById(R.id.eventName);
         eventAttributes = root.findViewById(R.id.eventAttributes);
         messageId = root.findViewById(R.id.messageId);
@@ -84,8 +95,8 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
         appLogingAnonymous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String requestId = MobileEngage.appLogin();
-                handleRequestSent("Anonymous login: ", requestId);
+                Emarsys.setCustomer("");
+                handleRequestSent("Anonymous login: ");
             }
         });
 
@@ -94,10 +105,17 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
             public void onClick(View v) {
                 String contactFieldId = applicationId.getText().toString();
                 if (!contactFieldId.isEmpty()) {
-                    int id = Integer.parseInt(contactFieldId);
-                    String secret = applicationSecret.getText().toString();
-                    requestId = MobileEngage.appLogin(id, secret);
-                    handleRequestSent("Login: ", requestId);
+                    String id = customerId.getText().toString();
+                    Emarsys.setCustomer(id, new CompletionListener() {
+                        @Override
+                        public void onCompleted(@Nullable Throwable cause) {
+                            completionListener.onCompleted(cause);
+                            if (cause != null) {
+                                ((MainActivity) getActivity()).updateBadgeCount();
+                            }
+                        }
+                    });
+                    handleRequestSent("Login: ");
                 }
             }
         });
@@ -105,8 +123,8 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
         appLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String requestId = MobileEngage.appLogout();
-                handleRequestSent("Logout: ", requestId);
+                Emarsys.clearCustomer(completionListener);
+                handleRequestSent("Logout: ");
             }
         });
 
@@ -131,8 +149,8 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
                     }
                 }
 
-                String requestId = MobileEngage.trackCustomEvent(name, attributes);
-                handleRequestSent("Custom event: ", requestId);
+                Emarsys.trackCustomEvent(name, attributes, completionListener);
+                handleRequestSent("Custom event: ");
             }
         });
 
@@ -145,15 +163,19 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
                 payload.putString("key1", "value1");
                 payload.putString("u", String.format("{\"sid\": \"%s\"}", id));
                 intent.putExtra("payload", payload);
-                String requestId = MobileEngage.trackMessageOpen(intent);
-                handleRequestSent("Message open: ", requestId);
+                Emarsys.Push.trackMessageOpen(intent, completionListener);
+                handleRequestSent("Message open: ");
             }
         });
 
         doNotDisturb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                MobileEngage.InApp.setPaused(isChecked);
+                if (isChecked) {
+                    Emarsys.InApp.pause();
+                } else {
+                    Emarsys.InApp.resume();
+                }
             }
         });
 
@@ -178,39 +200,7 @@ public class MobileEngageFragment extends Fragment implements MobileEngageStatus
         return root;
     }
 
-    private void handleRequestSent(String title, String id) {
+    private void handleRequestSent(String title) {
         statusLabel.setText(title);
-        requestList.add(id);
-    }
-
-    private void handleResponse(String message, String id) {
-        if (requestList.contains(id)) {
-            statusLabel.append(message);
-            requestList.remove(id);
-        } else {
-            Log.i(TAG, "Non user initiated request arrived! With ID: "+id);
-        }
-    }
-
-    @Override
-    public void onStatusLog(String id, String message) {
-        Log.i(TAG, message);
-        handleResponse("OK", id);
-        if (id.equals(requestId)) {
-            ((MainActivity) getActivity()).updateBadgeCount();
-        }
-    }
-
-    @Override
-    public void onError(String id, Exception e) {
-        Log.e(TAG, e.getMessage(), e);
-        StringBuilder sb = new StringBuilder();
-        if (e instanceof MobileEngageException) {
-            MobileEngageException mee = (MobileEngageException) e;
-            sb.append(mee.getStatusCode());
-            sb.append(" - ");
-        }
-        sb.append(e.getMessage());
-        handleResponse(sb.toString(), id);
     }
 }

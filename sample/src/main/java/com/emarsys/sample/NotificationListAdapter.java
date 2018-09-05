@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.emarsys.mobileengage.inbox.model.Notification;
+import com.emarsys.mobileengage.api.inbox.Notification;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;

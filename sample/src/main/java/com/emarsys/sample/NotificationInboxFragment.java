@@ -2,6 +2,7 @@ package com.emarsys.sample;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,10 +13,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.emarsys.mobileengage.MobileEngage;
-import com.emarsys.mobileengage.inbox.InboxResultListener;
-import com.emarsys.mobileengage.inbox.model.Notification;
-import com.emarsys.mobileengage.inbox.model.NotificationInboxStatus;
+import com.emarsys.Emarsys;
+import com.emarsys.mobileengage.api.inbox.Notification;
+import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
+import com.emarsys.result.ResultListener;
+import com.emarsys.result.Try;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,23 +73,27 @@ public class NotificationInboxFragment extends Fragment {
 
     private void loadNotifications() {
         statusLabel.setText("Loading notifications: ");
-        MobileEngage.Inbox.fetchNotifications(new InboxResultListener<NotificationInboxStatus>() {
+
+        Emarsys.Inbox.fetchNotifications(new ResultListener<Try<NotificationInboxStatus>>() {
             @Override
-            public void onSuccess(NotificationInboxStatus result) {
-                Log.i(TAG, "Badge count: " + result.getBadgeCount());
-                for (Notification notification : result.getNotifications()) {
-                    Log.i(TAG, "Notification: " + notification.getTitle());
+            public void onResult(@NonNull Try<NotificationInboxStatus> result) {
+
+                if (result.getResult() != null) {
+                    NotificationInboxStatus inboxStatus = result.getResult();
+                    Log.i(TAG, "Badge count: " + inboxStatus.getBadgeCount());
+
+                    for (Notification notification : inboxStatus.getNotifications()) {
+                        Log.i(TAG, "Notification: " + notification.getTitle());
+                    }
+
+                    updateList(inboxStatus.getNotifications());
+                    statusLabel.append("Success");
                 }
-
-
-                updateList(result.getNotifications());
-                statusLabel.append("Success");
-            }
-
-            @Override
-            public void onError(Exception cause) {
-                Log.e(TAG, "Error happened: " + cause.getMessage());
-                statusLabel.append(cause.getMessage());
+                if (result.getCause() != null) {
+                    Throwable cause = result.getCause();
+                    Log.e(TAG, "Error happened: " + cause.getMessage());
+                    statusLabel.append(cause.getMessage());
+                }
             }
         });
     }

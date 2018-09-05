@@ -10,11 +10,10 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.emarsys.mobileengage.MobileEngage;
+import com.emarsys.Emarsys;
+import com.emarsys.config.EmarsysConfig;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
-import com.emarsys.mobileengage.experimental.MobileEngageFeature;
 
 import org.json.JSONObject;
 
@@ -25,22 +24,19 @@ public class SampleApplication extends Application implements EventHandler, Noti
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i(TAG, "Emarsys SDK version: " + com.emarsys.mobileengage.BuildConfig.VERSION_NAME);
-        MobileEngageConfig config = new MobileEngageConfig.Builder()
+        Log.i(TAG, "Emarsys SDK version: " + com.emarsys.BuildConfig.VERSION_NAME);
+
+        EmarsysConfig config = new EmarsysConfig.Builder()
                 .application(this)
                 .credentials("14C19-A121F", "PaNkfOD90AVpYimMBuZopCpm8OWCrREu")
                 .enableDefaultChannel("default", "here is a description")
-                .enableExperimentalFeatures(
-                        MobileEngageFeature.IN_APP_MESSAGING,
-                        MobileEngageFeature.USER_CENTRIC_INBOX
-                )
                 .setDefaultInAppEventHandler(this)
                 .setNotificationEventHandler(this)
                 .build();
 
         createNotificationChannels();
 
-        MobileEngage.setup(config);
+        Emarsys.setup(config);
     }
 
     private void createNotificationChannels() {

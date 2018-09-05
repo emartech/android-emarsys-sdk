@@ -1,14 +1,17 @@
 package com.emarsys.sample;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
-import com.emarsys.mobileengage.MobileEngage;
-import com.emarsys.mobileengage.inbox.InboxResultListener;
-import com.emarsys.mobileengage.inbox.ResetBadgeCountResultListener;
-import com.emarsys.mobileengage.inbox.model.NotificationInboxStatus;
+import com.emarsys.Emarsys;
+import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
+import com.emarsys.result.CompletionListener;
+import com.emarsys.result.ResultListener;
+import com.emarsys.result.Try;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -35,15 +38,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 if (position == 1) {
-                    MobileEngage.Inbox.resetBadgeCount(new ResetBadgeCountResultListener() {
+                    Emarsys.Inbox.resetBadgeCount(new CompletionListener() {
                         @Override
-                        public void onSuccess() {
-                            updateBadgeCount();
-                        }
-
-                        @Override
-                        public void onError(Exception cause) {
-
+                        public void onCompleted(@Nullable Throwable cause) {
+                            if (cause != null) {
+                                updateBadgeCount();
+                            }
                         }
                     });
                 }
@@ -60,16 +60,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void updateBadgeCount() {
-        MobileEngage.Inbox.fetchNotifications(new InboxResultListener<NotificationInboxStatus>() {
+        Emarsys.Inbox.fetchNotifications(new ResultListener<Try<NotificationInboxStatus>>() {
             @Override
-            public void onSuccess(NotificationInboxStatus result) {
-                adapter.setBadgeCount(result.getBadgeCount());
-                ((NotificationInboxFragment) adapter.getItem(1)).updateList(result.getNotifications());
-            }
-
-            @Override
-            public void onError(Exception cause) {
-
+            public void onResult(@NonNull Try<NotificationInboxStatus> result) {
+                NotificationInboxStatus inboxStatus = result.getResult();
+                if (inboxStatus != null) {
+                    adapter.setBadgeCount(inboxStatus.getBadgeCount());
+                    ((NotificationInboxFragment) adapter.getItem(1)).updateList(inboxStatus.getNotifications());
+                }
             }
         });
     }
