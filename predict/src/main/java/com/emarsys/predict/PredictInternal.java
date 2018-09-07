@@ -12,8 +12,10 @@ import java.util.List;
 
 public class PredictInternal {
 
+    public static final String COMMAND_CART = "cart";
     private static final String COMMAND_VIEW = "view";
 
+    public static final String TYPE_CART = "predict_cart";
     private static final String TYPE_ITEM_VIEW = "predict_item_view";
 
     private final UUIDProvider uuidProvider;
@@ -38,6 +40,15 @@ public class PredictInternal {
     }
 
     public void trackCart(List<CartItem> items) {
+        Assert.notNull(items, "Items must not be null!");
+        Assert.elementsNotNull(items, "Item elements must not be null!");
+
+        ShardModel itemViewShard = new ShardModel.Builder(timestampProvider, uuidProvider)
+                .payloadEntry(COMMAND_CART, items)
+                .type(TYPE_CART)
+                .build();
+
+        requestManager.submit(itemViewShard);
     }
 
     public void trackPurchase(String orderId, List<CartItem> items) {
