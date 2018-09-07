@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.mockito.ArgumentCaptor;
 
-import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -109,7 +108,12 @@ public class RequestManagerTest {
                 .headers(headers)
                 .build();
 
-        shardModel = new ShardModel("shard_id", "shard_type", new HashMap<String, Serializable>(), 0, Long.MAX_VALUE);
+        shardModel = new ShardModel(
+                "shard_id",
+                "shard_type",
+                new HashMap<String, Object>(),
+                0,
+                Long.MAX_VALUE);
     }
 
     @After

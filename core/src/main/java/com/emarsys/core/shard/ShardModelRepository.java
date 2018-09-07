@@ -46,9 +46,10 @@ public class ShardModelRepository extends AbstractSqliteRepository<ShardModel> {
         String id = cursor.getString(cursor.getColumnIndex(SHARD_COLUMN_ID));
         String type = cursor.getString(cursor.getColumnIndex(SHARD_COLUMN_TYPE));
 
-        Map<String, Serializable> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
         try {
-            data = (Map<String, Serializable>) SerializationUtils.blobToSerializable(cursor.getBlob(cursor.getColumnIndex(SHARD_COLUMN_DATA)));
+            data = (Map<String, Object>) SerializationUtils
+                    .blobToSerializable(cursor.getBlob(cursor.getColumnIndex(SHARD_COLUMN_DATA)));
         } catch (SerializationException | ClassCastException e) {
             EMSLogger.log(CoreTopic.UTIL, "Exception: %s", e);
         }

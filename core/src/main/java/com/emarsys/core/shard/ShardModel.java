@@ -1,18 +1,20 @@
 package com.emarsys.core.shard;
 
+import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.util.Assert;
 
-import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ShardModel {
     final private String id;
     final private String type;
-    final private Map<String, Serializable> data;
+    final private Map<String, Object> data;
     final private long timestamp;
     final private long ttl;
 
-    public ShardModel(String id, String type, Map<String, Serializable> data, long timestamp, long ttl) {
+    public ShardModel(String id, String type, Map<String, Object> data, long timestamp, long ttl) {
         Assert.notNull(type, "Type must not be null!");
         Assert.notNull(data, "Data must not be null!");
         Assert.notNull(id, "ID must not be null!");
@@ -31,7 +33,7 @@ public class ShardModel {
         return type;
     }
 
-    public Map<String, Serializable> getData() {
+    public Map<String, Object> getData() {
         return data;
     }
 
@@ -77,4 +79,41 @@ public class ShardModel {
                 ", ttl=" + ttl +
                 '}';
     }
+
+    public static class Builder {
+        private String id;
+        private String type;
+        private Map<String, Object> payload;
+        private long timestamp;
+        private long ttl;
+
+        public Builder(TimestampProvider timestampProvider, UUIDProvider uuidProvider) {
+            Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
+            Assert.notNull(uuidProvider, "UuidProvider must not be null!");
+            timestamp = timestampProvider.provideTimestamp();
+            ttl = Long.MAX_VALUE;
+            id = uuidProvider.provideId();
+            payload = new HashMap<>();
+        }
+
+        public Builder type(String type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder ttl(Long ttl) {
+            this.ttl = ttl;
+            return this;
+        }
+
+        public Builder payloadEntry(String key, Object value) {
+            this.payload.put(key, value);
+            return this;
+        }
+
+        public ShardModel build() {
+            return new ShardModel(id, type, payload, timestamp, ttl);
+        }
+    }
+
 }

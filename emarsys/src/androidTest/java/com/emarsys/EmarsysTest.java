@@ -4,6 +4,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.predict.PredictInternal;
+import com.emarsys.testUtil.RandomTestUtils;
 import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -49,7 +50,7 @@ public class EmarsysTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSetCustomer_customerIdMustNotBeNull() {
+    public void testSetCustomer_customerId_mustNotBeNull() {
         Emarsys.setCustomer(null);
     }
 
@@ -72,7 +73,21 @@ public class EmarsysTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testTrackCustomEvent_eventNameMustNotBeNull() {
+    public void testTrackCustomEvent_eventName_mustNotBeNull() {
         Emarsys.trackCustomEvent(null, new HashMap<String, String>());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_testTrackItemView_itemViewId_mustNotBeNull() {
+        Emarsys.Predict.trackItemView(null);
+    }
+
+    @Test
+    public void testTrackItemView_delegatesTo_predictInternal() {
+        String itemId = RandomTestUtils.randomString();
+
+        Emarsys.Predict.trackItemView(itemId);
+
+        verify(mockPredictInternal).trackItemView(itemId);
     }
 }
