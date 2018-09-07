@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.notification.command.AppEventCommand;
 import com.emarsys.mobileengage.notification.command.CompositeCommand;
 import com.emarsys.mobileengage.notification.command.CustomEventCommand;
@@ -41,22 +42,24 @@ public class NotificationCommandFactoryTest {
     private NotificationCommandFactory factory;
     private Context context;
     private MobileEngageInternal mobileEngageInternal;
+    private NotificationEventHandler notificationEventHandler;
 
     @Before
     public void setUp() {
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();
         mobileEngageInternal = mock(MobileEngageInternal.class);
-        factory = new NotificationCommandFactory(context, mobileEngageInternal);
+        notificationEventHandler = mock(NotificationEventHandler.class);
+        factory = new NotificationCommandFactory(context, mobileEngageInternal, notificationEventHandler);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_context_shouldNotBeNull() {
-        new NotificationCommandFactory(null, mobileEngageInternal);
+        new NotificationCommandFactory(null, mobileEngageInternal, notificationEventHandler);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_mobileEngageInternal_shouldNotBeNull() {
-        new NotificationCommandFactory(context, null);
+        new NotificationCommandFactory(context, null, notificationEventHandler);
     }
 
     @Test
@@ -110,6 +113,15 @@ public class NotificationCommandFactoryTest {
 
         JSONObject payload = command.getPayload();
         assertEquals("payloadValue", payload.getString("payloadKey"));
+    }
+
+    @Test
+    public void testCreateNotificationCommand_shouldCreateAppEvent_withCorrectNotificationEventHandler() throws JSONException {
+        Intent intent = createAppEventIntent();
+        AppEventCommand command = extractCommandFromComposite(intent, 2);
+
+        NotificationEventHandler handler = command.getNotificationEventHandler();
+        assertEquals(notificationEventHandler, handler);
     }
 
     @Test

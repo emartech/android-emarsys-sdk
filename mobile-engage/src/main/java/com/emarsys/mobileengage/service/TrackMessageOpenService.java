@@ -29,7 +29,8 @@ public class TrackMessageOpenService extends Service {
 
             NotificationActionUtils.handleAction(intent, new NotificationCommandFactory(
                     this,
-                    container.getMobileEngageInternal()));
+                    container.getMobileEngageInternal(),
+                    container.getNotificationEventHandler()));
 
             MobileEngage.trackMessageOpen(intent);
         }

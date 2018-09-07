@@ -34,6 +34,7 @@ import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
@@ -81,6 +82,8 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
     private Handler coreSdkHandler;
     private RequestContext requestContext;
     private MobileEngageCoreCompletionHandler completionHandler;
+    private InAppPresenter inAppPresenter;
+    private NotificationEventHandler notificationEventHandler;
 
     private Handler uiHandler;
     private TimestampProvider timestampProvider;
@@ -98,7 +101,6 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
     private Repository<Map<String, Object>, SqlSpecification> logRepositoryProxy;
     private Application application;
     private ActivityLifecycleWatchdog activityLifecycleWatchdog;
-    private InAppPresenter inAppPresenter;
     private UUIDProvider uuidProvider;
     private KeyValueStore sharedPrefsKeyStore;
 
@@ -155,6 +157,11 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
         return inAppPresenter;
     }
 
+    @Override
+    public NotificationEventHandler getNotificationEventHandler() {
+        return notificationEventHandler;
+    }
+
     private void initializeDependencies(EmarsysConfig config) {
         application = config.getApplication();
 
@@ -175,7 +182,6 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
         shardModelRepository = new ShardModelRepository(coreDbHelper);
 
         buttonClickedRepository = new ButtonClickedRepository(mobileEngageDbHelper);
-        displayedIamRepository = new DisplayedIamRepository(mobileEngageDbHelper);
         completionHandler = new MobileEngageCoreCompletionHandler(new MobileEngageStatusListener() {
             @Override
             public void onError(String id, Exception cause) {
@@ -226,6 +232,7 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
 
         SharedPreferences prefs = application.getSharedPreferences(EMARSYS_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
+        notificationEventHandler = config.getNotificationEventHandler();
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {

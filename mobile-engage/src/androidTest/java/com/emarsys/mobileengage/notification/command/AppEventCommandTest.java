@@ -1,22 +1,17 @@
 package com.emarsys.mobileengage.notification.command;
 
-import android.app.Application;
 import android.content.Context;
-import android.os.Handler;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.di.DependencyInjection;
-import com.emarsys.mobileengage.MobileEngage;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
-import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,29 +36,16 @@ public class AppEventCommandTest {
         applicationContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
 
         notificationHandler = mock(NotificationEventHandler.class);
-        config = new MobileEngageConfig.Builder()
-                .application((Application) applicationContext)
-                .credentials("EMSEC-B103E", "RM1ZSuX8mgRBhQIgOsf6m8bn/bMQLAIb")
-                .setNotificationEventHandler(notificationHandler)
-                .disableDefaultChannel()
-                .build();
-        MobileEngage.setup(config);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        DependencyInjection.tearDown();
-        closeMobileEngage();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_shouldThrowException_whenThereIsNoContext() {
-        new AppEventCommand(null, "", mock(JSONObject.class));
+        new AppEventCommand(null, notificationHandler, "", mock(JSONObject.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_shouldThrowException_whenThereIsNoEventName() {
-        new AppEventCommand(applicationContext, null, mock(JSONObject.class));
+        new AppEventCommand(applicationContext, notificationHandler, null, mock(JSONObject.class));
     }
 
     @Test
@@ -71,7 +53,7 @@ public class AppEventCommandTest {
         String name = "nameOfTheEvent";
         JSONObject payload = new JSONObject()
                 .put("payloadKey", "payloadValue");
-        new AppEventCommand(applicationContext, name, payload).run();
+        new AppEventCommand(applicationContext, notificationHandler, name, payload).run();
 
         verify(notificationHandler).handleEvent(applicationContext, name, payload);
     }
@@ -79,31 +61,17 @@ public class AppEventCommandTest {
     @Test
     public void testRun_invokeHandleEventMethod_onNotificationEventHandler_whenThereIsNoPayload() throws JSONException {
         String name = "nameOfTheEvent";
-        new AppEventCommand(applicationContext, name, null).run();
+        new AppEventCommand(applicationContext, notificationHandler, name, null).run();
 
         verify(notificationHandler).handleEvent(applicationContext, name, null);
     }
 
     @Test
-    public void testRun_shouldIgnoreHandler_ifNull() throws Exception {
-        closeMobileEngage();
-
-        config = new MobileEngageConfig.Builder()
-                .application((Application) applicationContext)
-                .credentials("EMSEC-B103E", "RM1ZSuX8mgRBhQIgOsf6m8bn/bMQLAIb")
-                .disableDefaultChannel()
-                .build();
-        MobileEngage.setup(config);
-
+    public void testRun_shouldIgnoreHandler_ifNull() {
         try {
-            new AppEventCommand(applicationContext, "", null).run();
+            new AppEventCommand(applicationContext, notificationHandler, "", null).run();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
-    }
-
-    private void closeMobileEngage() throws Exception {
-        Handler coreSdkHandler = ReflectionTestUtils.getStaticField(MobileEngage.class, "coreSdkHandler");
-        coreSdkHandler.getLooper().quit();
     }
 }

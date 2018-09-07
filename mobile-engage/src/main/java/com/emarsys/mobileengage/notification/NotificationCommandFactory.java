@@ -8,6 +8,7 @@ import android.os.Bundle;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.JsonUtils;
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.notification.command.AppEventCommand;
 import com.emarsys.mobileengage.notification.command.CompositeCommand;
 import com.emarsys.mobileengage.notification.command.CustomEventCommand;
@@ -27,12 +28,17 @@ public class NotificationCommandFactory {
 
     private Context context;
     private MobileEngageInternal mobileEngageInternal;
+    private NotificationEventHandler notificationEventHandler;
 
-    public NotificationCommandFactory(Context context, MobileEngageInternal mobileEngageInternal) {
+    public NotificationCommandFactory(
+            Context context,
+            MobileEngageInternal mobileEngageInternal,
+            NotificationEventHandler notificationEventHandler) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(mobileEngageInternal, "MobileEngageInternal must not be null!");
         this.context = context;
         this.mobileEngageInternal = mobileEngageInternal;
+        this.notificationEventHandler = notificationEventHandler;
     }
 
     public Runnable createNotificationCommand(Intent intent) {
@@ -58,7 +64,11 @@ public class NotificationCommandFactory {
                         result = new CompositeCommand(Arrays.asList(
                                 trackActionClickCommand,
                                 new HideNotificationShadeCommand(context),
-                                new AppEventCommand(context, name, payload)));
+                                new AppEventCommand(
+                                        context,
+                                        notificationEventHandler,
+                                        name,
+                                        payload)));
                     }
                     if ("OpenExternalUrl".equals(type)) {
                         Uri link = Uri.parse(action.getString("url"));

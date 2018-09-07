@@ -4,6 +4,7 @@ import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.inbox.InboxInternal;
@@ -21,4 +22,6 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
     RequestContext getRequestContext();
 
     InAppPresenter getInAppPresenter();
+
+    NotificationEventHandler getNotificationEventHandler();
 }
