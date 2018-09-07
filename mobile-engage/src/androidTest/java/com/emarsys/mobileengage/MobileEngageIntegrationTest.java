@@ -7,12 +7,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.mobileengage.api.EventHandler;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
-import com.emarsys.mobileengage.di.DependencyInjection;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
-import com.emarsys.mobileengage.fake.FakeStatusListener;
 import com.emarsys.mobileengage.api.inbox.Notification;
+import com.emarsys.mobileengage.config.MobileEngageConfig;
+import com.emarsys.mobileengage.fake.FakeStatusListener;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;

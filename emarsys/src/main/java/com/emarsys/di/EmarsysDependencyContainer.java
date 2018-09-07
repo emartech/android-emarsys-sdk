@@ -34,11 +34,12 @@ import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.mobileengage.experimental.MobileEngageExperimentalFeatures;
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.iam.DoNotDisturbProvider;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.InAppStartAction;
@@ -61,6 +62,7 @@ import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.predict.PredictInternal;
+import com.emarsys.predict.di.PredictDependencyContainer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,7 +70,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultDependencyContainer implements DependencyContainer {
+public class EmarsysDependencyContainer implements MobileEngageDependencyContainer, PredictDependencyContainer {
 
     private static final String EMARSYS_SHARED_PREFERENCES_NAME = "emarsys_shared_preferences";
 
@@ -100,7 +102,7 @@ public class DefaultDependencyContainer implements DependencyContainer {
     private UUIDProvider uuidProvider;
     private KeyValueStore sharedPrefsKeyStore;
 
-    public DefaultDependencyContainer(EmarsysConfig emarsysConfig) {
+    public EmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeDependencies(emarsysConfig);
         initializeInstances();
         initializeInAppPresenter();

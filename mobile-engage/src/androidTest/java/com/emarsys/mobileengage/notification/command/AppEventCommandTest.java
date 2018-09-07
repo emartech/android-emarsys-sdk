@@ -5,10 +5,10 @@ import android.content.Context;
 import android.os.Handler;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.mobileengage.MobileEngage;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
-import com.emarsys.mobileengage.di.DependencyInjection;
 import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 

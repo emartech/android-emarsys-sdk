@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.di;
+package com.emarsys.core.di;
 
 import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -20,12 +20,12 @@ public class DependencyInjectionTest {
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
-    public void init() throws Exception {
+    public void init() {
         ReflectionTestUtils.setStaticField(DependencyInjection.class, "container", null);
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         ReflectionTestUtils.setStaticField(DependencyInjection.class, "container", null);
     }
 

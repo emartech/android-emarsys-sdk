@@ -4,9 +4,10 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
+import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.MobileEngage;
-import com.emarsys.mobileengage.di.DependencyInjection;
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.mobileengage.notification.NotificationCommandFactory;
 import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 
@@ -20,13 +21,15 @@ public class TrackMessageOpenService extends Service {
 
         if (intent != null) {
 
-            PushToInAppUtils.handlePreloadedInAppMessage(intent, DependencyInjection.getContainer());
+            MobileEngageDependencyContainer container = DependencyInjection.getContainer();
+
+            PushToInAppUtils.handlePreloadedInAppMessage(intent, container);
 
             MessagingServiceUtils.dismissNotification(this, intent);
 
             NotificationActionUtils.handleAction(intent, new NotificationCommandFactory(
                     this,
-                    DependencyInjection.getContainer().getMobileEngageInternal()));
+                    container.getMobileEngageInternal()));
 
             MobileEngage.trackMessageOpen(intent);
         }

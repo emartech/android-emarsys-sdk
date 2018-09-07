@@ -9,9 +9,9 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
+import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.util.FileUtils;
-import com.emarsys.mobileengage.di.DependencyContainer;
-import com.emarsys.mobileengage.di.DependencyInjection;
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.PushToInAppAction;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -42,7 +42,7 @@ public class PushToInAppUtilsTest {
 
     private static final String URL = "https://www.google.com";
 
-    private DependencyContainer dependencyContainer;
+    private MobileEngageDependencyContainer dependencyContainer;
     private ActivityLifecycleWatchdog activityLifecycleWatchdog;
     private Handler coreSdkHandler;
 
@@ -54,7 +54,7 @@ public class PushToInAppUtilsTest {
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
         activityLifecycleWatchdog = mock(ActivityLifecycleWatchdog.class);
 
-        dependencyContainer = mock(DependencyContainer.class);
+        dependencyContainer = mock(MobileEngageDependencyContainer.class);
         when(dependencyContainer.getActivityLifecycleWatchdog()).thenReturn(activityLifecycleWatchdog);
         when(dependencyContainer.getInAppPresenter()).thenReturn(mock(InAppPresenter.class));
         when(dependencyContainer.getCoreSdkHandler()).thenReturn(coreSdkHandler);

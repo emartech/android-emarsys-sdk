@@ -1,4 +1,4 @@
-package com.emarsys.di;
+package com.emarsys.core.di;
 
 public class DependencyInjection {
 
@@ -14,12 +14,12 @@ public class DependencyInjection {
         container = null;
     }
 
-    public static DependencyContainer getContainer() {
+    public static <T extends DependencyContainer> T getContainer() {
         if (container == null) {
             throw new IllegalStateException("DependencyInjection must be setup before accessing container!");
         }
 
-        return container;
+        return (T)container;
     }
 
 }

@@ -3,14 +3,14 @@ package com.emarsys.mobileengage;
 import android.app.Application;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.mobileengage.api.EventHandler;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
-import com.emarsys.mobileengage.di.DependencyInjection;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.api.inbox.Notification;
+import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.fake.FakeInboxResultListener;
 import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener;
 import com.emarsys.mobileengage.fake.FakeStatusListener;
-import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.ConnectionTestUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;

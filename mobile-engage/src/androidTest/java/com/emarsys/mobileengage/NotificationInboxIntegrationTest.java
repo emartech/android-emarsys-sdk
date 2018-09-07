@@ -3,8 +3,8 @@ package com.emarsys.mobileengage;
 import android.app.Application;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
-import com.emarsys.mobileengage.di.DependencyInjection;
 import com.emarsys.mobileengage.fake.FakeInboxResultListener;
 import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener;
 import com.emarsys.mobileengage.fake.FakeStatusListener;

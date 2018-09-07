@@ -8,20 +8,19 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.emarsys.core.activity.CurrentActivityWatchdog;
-import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.api.experimental.FlipperFeature;
+import com.emarsys.core.di.DependencyInjection;
+import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.EMSLogger;
+import com.emarsys.mobileengage.api.inbox.Notification;
+import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
-import com.emarsys.mobileengage.di.DefaultDependencyContainer;
-import com.emarsys.mobileengage.di.DependencyContainer;
-import com.emarsys.mobileengage.di.DependencyInjection;
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxResultListener;
 import com.emarsys.mobileengage.inbox.ResetBadgeCountResultListener;
-import com.emarsys.mobileengage.api.inbox.Notification;
-import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 
 import java.util.Map;
@@ -35,7 +34,7 @@ public class MobileEngage {
     static Handler coreSdkHandler;
     static MobileEngageConfig config;
     static RequestContext requestContext;
-    private static DependencyContainer container;
+    private static MobileEngageDependencyContainer container;
 
     public static class Inbox {
 
@@ -87,7 +86,6 @@ public class MobileEngage {
         MobileEngage.config = config;
         Application application = config.getApplication();
 
-        DependencyInjection.setup(new DefaultDependencyContainer(config));
         container = DependencyInjection.getContainer();
 
         initializeFields();

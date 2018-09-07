@@ -6,10 +6,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.emarsys.config.EmarsysConfig;
+import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.util.Assert;
-import com.emarsys.di.DefaultDependencyContainer;
-import com.emarsys.di.DependencyContainer;
-import com.emarsys.di.DependencyInjection;
+import com.emarsys.di.EmarsysDependencyContainer;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.inbox.Notification;
@@ -27,12 +26,12 @@ public class Emarsys {
 
     private static MobileEngageInternal mobileEngageInternal;
     private static PredictInternal predictInternal;
-    private static DependencyContainer container;
+    private static EmarsysDependencyContainer container;
 
     public static void setup(@NonNull EmarsysConfig config) {
         Assert.notNull(config, "Config must not be null!");
 
-        DependencyInjection.setup(new DefaultDependencyContainer(config));
+        DependencyInjection.setup(new EmarsysDependencyContainer(config));
         container = DependencyInjection.getContainer();
         initializeFields();
     }

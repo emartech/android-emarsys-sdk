@@ -5,7 +5,7 @@ import android.os.Bundle;
 
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.FileUtils;
-import com.emarsys.mobileengage.di.DependencyContainer;
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.mobileengage.iam.PushToInAppAction;
 
 import org.json.JSONException;
@@ -15,7 +15,7 @@ import java.io.File;
 
 public class PushToInAppUtils {
 
-    public static void handlePreloadedInAppMessage(Intent intent, final DependencyContainer dependencyContainer) {
+    public static void handlePreloadedInAppMessage(Intent intent, final MobileEngageDependencyContainer dependencyContainer) {
         Assert.notNull(intent, "Intent must not be null!");
         Assert.notNull(dependencyContainer, "DependencyContainer must not be null!");
 
@@ -57,7 +57,7 @@ public class PushToInAppUtils {
         }
     }
 
-    private static void scheduleInAppDisplay(String campaignId, String html, DependencyContainer container) {
+    private static void scheduleInAppDisplay(String campaignId, String html, MobileEngageDependencyContainer container) {
         PushToInAppAction pushToInAppAction = new PushToInAppAction(container.getInAppPresenter(), campaignId, html);
         container.getActivityLifecycleWatchdog().addTriggerOnActivityAction(pushToInAppAction);
     }

@@ -12,19 +12,20 @@ import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.api.experimental.FlipperFeature;
+import com.emarsys.core.di.DependencyContainer;
+import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
-import com.emarsys.mobileengage.di.DefaultDependencyContainer;
-import com.emarsys.mobileengage.di.DependencyContainer;
-import com.emarsys.mobileengage.di.DependencyInjection;
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.fake.FakeRequestManager;
 import com.emarsys.mobileengage.fake.FakeStatusListener;
 import com.emarsys.mobileengage.iam.InAppStartAction;
@@ -34,7 +35,6 @@ import com.emarsys.mobileengage.inbox.InboxInternal_V1;
 import com.emarsys.mobileengage.inbox.InboxInternal_V2;
 import com.emarsys.mobileengage.inbox.InboxResultListener;
 import com.emarsys.mobileengage.inbox.ResetBadgeCountResultListener;
-import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.responsehandler.AbstractResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
@@ -152,7 +152,7 @@ public class MobileEngageTest {
 
         container = ReflectionTestUtils.getStaticField(DependencyInjection.class, "container");
         Assert.assertNotNull(container);
-        Assert.assertEquals(DefaultDependencyContainer.class, container.getClass());
+        Assert.assertEquals(MobileEngageDependencyContainer.class, container.getClass());
     }
 
     @Test
