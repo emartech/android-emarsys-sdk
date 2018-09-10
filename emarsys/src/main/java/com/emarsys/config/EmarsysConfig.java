@@ -17,39 +17,47 @@ public class EmarsysConfig {
     private final Application application;
     private final String applicationCode;
     private final String applicationPassword;
+    private final int contactFieldId;
+    private final String predictMerchantId;
     private final boolean idlingResourceEnabled;
     private final OreoConfig oreoConfig;
     private final EventHandler defaultInAppEventHandler;
     private final NotificationEventHandler notificationEventHandler;
-    private final FlipperFeature[] flipperFeatures;
+    private final FlipperFeature[] experimentalFeatures;
 
     EmarsysConfig(Application application,
                   String applicationCode,
                   String applicationPassword,
+                  Integer contactFieldId,
+                  String predictMerchantId,
                   boolean idlingResourceEnabled,
                   OreoConfig oreoConfig,
                   EventHandler defaultInAppEventHandler,
                   NotificationEventHandler notificationEventHandler,
-                  FlipperFeature[] enabledFeatures) {
+                  FlipperFeature[] experimentalFeatures) {
         Assert.notNull(application, "Application must not be null");
         Assert.notNull(applicationCode, "ApplicationCode must not be null");
         Assert.notNull(applicationPassword, "ApplicationPassword must not be null");
+        Assert.notNull(contactFieldId, "ContactFieldId must not be null");
+        Assert.notNull(predictMerchantId, "PredictMerchantId must not be null");
         Assert.notNull(oreoConfig, "OreoConfig must not be null");
         validate(oreoConfig);
-        Assert.notNull(enabledFeatures, "EnabledFeatures must not be null");
+        Assert.notNull(experimentalFeatures, "ExperimentalFeatures must not be null");
 
-        if (Arrays.asList(enabledFeatures).contains(MobileEngageFeature.IN_APP_MESSAGING)) {
+        if (Arrays.asList(experimentalFeatures).contains(MobileEngageFeature.IN_APP_MESSAGING)) {
             Assert.notNull(defaultInAppEventHandler, "DefaultInAppMessageHandler must not be null");
         }
 
         this.application = application;
         this.applicationCode = applicationCode;
         this.applicationPassword = applicationPassword;
+        this.contactFieldId = contactFieldId;
+        this.predictMerchantId = predictMerchantId;
         this.idlingResourceEnabled = idlingResourceEnabled;
         this.oreoConfig = oreoConfig;
         this.defaultInAppEventHandler = defaultInAppEventHandler;
         this.notificationEventHandler = notificationEventHandler;
-        this.flipperFeatures = enabledFeatures;
+        this.experimentalFeatures = experimentalFeatures;
     }
 
     public Application getApplication() {
@@ -62,6 +70,14 @@ public class EmarsysConfig {
 
     public String getApplicationPassword() {
         return applicationPassword;
+    }
+
+    public int getContactFieldId() {
+        return contactFieldId;
+    }
+
+    public String getPredictMerchantId() {
+        return predictMerchantId;
     }
 
     public boolean isIdlingResourceEnabled() {
@@ -81,7 +97,7 @@ public class EmarsysConfig {
     }
 
     public FlipperFeature[] getExperimentalFeatures() {
-        return flipperFeatures;
+        return experimentalFeatures;
     }
 
     private void validate(OreoConfig oreoConfig) {
@@ -96,22 +112,25 @@ public class EmarsysConfig {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        EmarsysConfig that = (EmarsysConfig) o;
+        EmarsysConfig config = (EmarsysConfig) o;
 
-        if (idlingResourceEnabled != that.idlingResourceEnabled) return false;
-        if (application != null ? !application.equals(that.application) : that.application != null)
+        if (contactFieldId != config.contactFieldId) return false;
+        if (idlingResourceEnabled != config.idlingResourceEnabled) return false;
+        if (application != null ? !application.equals(config.application) : config.application != null)
             return false;
-        if (applicationCode != null ? !applicationCode.equals(that.applicationCode) : that.applicationCode != null)
+        if (applicationCode != null ? !applicationCode.equals(config.applicationCode) : config.applicationCode != null)
             return false;
-        if (applicationPassword != null ? !applicationPassword.equals(that.applicationPassword) : that.applicationPassword != null)
+        if (applicationPassword != null ? !applicationPassword.equals(config.applicationPassword) : config.applicationPassword != null)
             return false;
-        if (oreoConfig != null ? !oreoConfig.equals(that.oreoConfig) : that.oreoConfig != null)
+        if (predictMerchantId != null ? !predictMerchantId.equals(config.predictMerchantId) : config.predictMerchantId != null)
             return false;
-        if (defaultInAppEventHandler != null ? !defaultInAppEventHandler.equals(that.defaultInAppEventHandler) : that.defaultInAppEventHandler != null)
+        if (oreoConfig != null ? !oreoConfig.equals(config.oreoConfig) : config.oreoConfig != null)
             return false;
-        if (notificationEventHandler != null ? !notificationEventHandler.equals(that.notificationEventHandler) : that.notificationEventHandler != null)
+        if (defaultInAppEventHandler != null ? !defaultInAppEventHandler.equals(config.defaultInAppEventHandler) : config.defaultInAppEventHandler != null)
             return false;
-        return Arrays.equals(flipperFeatures, that.flipperFeatures);
+        if (notificationEventHandler != null ? !notificationEventHandler.equals(config.notificationEventHandler) : config.notificationEventHandler != null)
+            return false;
+        return Arrays.equals(experimentalFeatures, config.experimentalFeatures);
     }
 
     @Override
@@ -119,11 +138,13 @@ public class EmarsysConfig {
         int result = application != null ? application.hashCode() : 0;
         result = 31 * result + (applicationCode != null ? applicationCode.hashCode() : 0);
         result = 31 * result + (applicationPassword != null ? applicationPassword.hashCode() : 0);
+        result = 31 * result + contactFieldId;
+        result = 31 * result + (predictMerchantId != null ? predictMerchantId.hashCode() : 0);
         result = 31 * result + (idlingResourceEnabled ? 1 : 0);
         result = 31 * result + (oreoConfig != null ? oreoConfig.hashCode() : 0);
         result = 31 * result + (defaultInAppEventHandler != null ? defaultInAppEventHandler.hashCode() : 0);
         result = 31 * result + (notificationEventHandler != null ? notificationEventHandler.hashCode() : 0);
-        result = 31 * result + Arrays.hashCode(flipperFeatures);
+        result = 31 * result + Arrays.hashCode(experimentalFeatures);
         return result;
     }
 
@@ -133,11 +154,13 @@ public class EmarsysConfig {
                 "application=" + application +
                 ", applicationCode='" + applicationCode + '\'' +
                 ", applicationPassword='" + applicationPassword + '\'' +
+                ", contactFieldId=" + contactFieldId +
+                ", predictMerchantId='" + predictMerchantId + '\'' +
                 ", idlingResourceEnabled=" + idlingResourceEnabled +
                 ", oreoConfig=" + oreoConfig +
                 ", defaultInAppEventHandler=" + defaultInAppEventHandler +
                 ", notificationEventHandler=" + notificationEventHandler +
-                ", flipperFeatures=" + Arrays.toString(flipperFeatures) +
+                ", experimentalFeatures=" + Arrays.toString(experimentalFeatures) +
                 '}';
     }
 
@@ -145,6 +168,8 @@ public class EmarsysConfig {
         private Application application;
         private String applicationCode;
         private String applicationPassword;
+        private Integer contactFieldId;
+        private String predictMerchantId;
         private boolean idlingResourceEnabled;
         private OreoConfig oreoConfig;
         private EventHandler defaultInAppEventHandler;
@@ -156,6 +181,8 @@ public class EmarsysConfig {
             application = baseConfig.getApplication();
             applicationCode = baseConfig.getApplicationCode();
             applicationPassword = baseConfig.getApplicationPassword();
+            contactFieldId = baseConfig.getContactFieldId();
+            predictMerchantId = baseConfig.getPredictMerchantId();
             idlingResourceEnabled = baseConfig.isIdlingResourceEnabled();
             oreoConfig = baseConfig.getOreoConfig();
             defaultInAppEventHandler = baseConfig.getDefaultInAppEventHandler();
@@ -169,10 +196,20 @@ public class EmarsysConfig {
             return this;
         }
 
-        public Builder credentials(@NonNull String applicationCode,
-                                   @NonNull String applicationPassword) {
+        public Builder mobileEngageCredentials(@NonNull String applicationCode,
+                                               @NonNull String applicationPassword) {
             this.applicationCode = applicationCode;
             this.applicationPassword = applicationPassword;
+            return this;
+        }
+
+        public Builder contactFieldId(int contactFieldId) {
+            this.contactFieldId = contactFieldId;
+            return this;
+        }
+
+        public Builder predictMerchantId(String predictMerchantId) {
+            this.predictMerchantId = predictMerchantId;
             return this;
         }
 
@@ -213,6 +250,8 @@ public class EmarsysConfig {
                     application,
                     applicationCode,
                     applicationPassword,
+                    contactFieldId,
+                    predictMerchantId,
                     idlingResourceEnabled,
                     oreoConfig,
                     defaultInAppEventHandler,
