@@ -18,6 +18,7 @@ import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -31,6 +32,7 @@ import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
+@Ignore
 public class InboxV2IntegrationTest {
 
     private CountDownLatch latch;
