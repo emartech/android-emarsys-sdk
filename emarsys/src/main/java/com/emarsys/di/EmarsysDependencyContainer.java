@@ -275,7 +275,7 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
                 }
         );
         deepLinkInternal = new DeepLinkInternal(requestManager, requestContext);
-        predictInternal = new PredictInternal(sharedPrefsKeyStore);
+        predictInternal = new PredictInternal(sharedPrefsKeyStore,requestManager, uuidProvider, timestampProvider);
     }
 
     private void initializeActivityLifecycleWatchdog() {
