@@ -36,6 +36,7 @@ import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.config.OreoConfig;
 import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
@@ -84,6 +85,7 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
     private MobileEngageCoreCompletionHandler completionHandler;
     private InAppPresenter inAppPresenter;
     private NotificationEventHandler notificationEventHandler;
+    private OreoConfig oreoConfig;
 
     private Handler uiHandler;
     private TimestampProvider timestampProvider;
@@ -162,8 +164,14 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
         return notificationEventHandler;
     }
 
+    @Override
+    public OreoConfig getOreoConfig() {
+        return oreoConfig;
+    }
+
     private void initializeDependencies(EmarsysConfig config) {
         application = config.getApplication();
+        oreoConfig = config.getOreoConfig();
 
         uiHandler = new Handler(Looper.getMainLooper());
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
@@ -182,6 +190,7 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
         shardModelRepository = new ShardModelRepository(coreDbHelper);
 
         buttonClickedRepository = new ButtonClickedRepository(mobileEngageDbHelper);
+        displayedIamRepository = new DisplayedIamRepository(mobileEngageDbHelper);
         completionHandler = new MobileEngageCoreCompletionHandler(new MobileEngageStatusListener() {
             @Override
             public void onError(String id, Exception cause) {
@@ -275,7 +284,7 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
                 }
         );
         deepLinkInternal = new DeepLinkInternal(requestManager, requestContext);
-        predictInternal = new PredictInternal(sharedPrefsKeyStore,requestManager, uuidProvider, timestampProvider);
+        predictInternal = new PredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);
     }
 
     private void initializeActivityLifecycleWatchdog() {

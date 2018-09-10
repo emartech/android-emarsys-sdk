@@ -8,6 +8,7 @@ import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.config.OreoConfig;
 
 import java.util.Arrays;
 
