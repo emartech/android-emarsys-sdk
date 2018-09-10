@@ -108,6 +108,7 @@ public class EmarsysConfigTest {
                 defaultNotificationEventHandler,
                 features);
     }
+
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_merchantIdShouldNotBeNull() {
         new EmarsysConfig(
@@ -151,6 +152,21 @@ public class EmarsysConfigTest {
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_featuresList_shouldNotContainNullElements() {
+        new EmarsysConfig(
+                application,
+                APP_ID,
+                APP_PASSWORD,
+                CONTACT_FIELD_ID,
+                MERCHANT_ID,
+                true,
+                mockOreoConfig,
+                defaultInAppEventHandler,
+                defaultNotificationEventHandler,
+                new FlipperFeature[]{mock(FlipperFeature.class), null});
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -264,7 +280,7 @@ public class EmarsysConfigTest {
                     .disableDefaultChannel()
                     .build();
         } catch (IllegalArgumentException e) {
-            fail("Should not fail with: "+ e.getMessage());
+            fail("Should not fail with: " + e.getMessage());
         }
     }
 

@@ -43,6 +43,7 @@ public class EmarsysConfig {
         Assert.notNull(oreoConfig, "OreoConfig must not be null");
         validate(oreoConfig);
         Assert.notNull(experimentalFeatures, "ExperimentalFeatures must not be null");
+        Assert.elementsNotNull(experimentalFeatures, "ExperimentalFeatures must not contain null elements!");
 
         if (Arrays.asList(experimentalFeatures).contains(MobileEngageFeature.IN_APP_MESSAGING)) {
             Assert.notNull(defaultInAppEventHandler, "DefaultInAppMessageHandler must not be null");
