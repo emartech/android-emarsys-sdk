@@ -208,7 +208,7 @@ public class EmarsysConfig {
             return this;
         }
 
-        public Builder predictMerchantId(String predictMerchantId) {
+        public Builder predictMerchantId(@NonNull String predictMerchantId) {
             this.predictMerchantId = predictMerchantId;
             return this;
         }
@@ -218,7 +218,7 @@ public class EmarsysConfig {
             return this;
         }
 
-        public Builder enableDefaultChannel(String name, String description) {
+        public Builder enableDefaultChannel(@NonNull String name, @NonNull String description) {
             this.oreoConfig = new OreoConfig(true, name, description);
             return this;
         }
@@ -228,7 +228,7 @@ public class EmarsysConfig {
             return this;
         }
 
-        public Builder enableExperimentalFeatures(FlipperFeature... experimentalFeatures) {
+        public Builder enableExperimentalFeatures(@NonNull FlipperFeature... experimentalFeatures) {
             this.experimentalFeatures = experimentalFeatures;
             return this;
         }
