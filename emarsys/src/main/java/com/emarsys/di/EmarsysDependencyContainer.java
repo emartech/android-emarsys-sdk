@@ -226,10 +226,10 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
                 worker,
                 restClient);
 
-
         requestContext = new RequestContext(
                 config.getApplicationCode(),
                 config.getApplicationPassword(),
+                config.getContactFieldId(),
                 deviceInfo,
                 appLoginStorage,
                 meIdStorage,

@@ -68,6 +68,7 @@ public class RequestHeaderUtilsTest {
         debugRequestContext = new RequestContext(
                 APPLICATION_CODE,
                 APPLICATION_PASSWORD,
+                1,
                 debugDeviceInfo,
                 mock(AppLoginStorage.class),
                 meIdStorage,
@@ -81,6 +82,7 @@ public class RequestHeaderUtilsTest {
         releaseRequestContext = new RequestContext(
                 APPLICATION_CODE,
                 APPLICATION_PASSWORD,
+                1,
                 releaseDeviceInfo,
                 mock(AppLoginStorage.class),
                 meIdStorage,
@@ -132,6 +134,7 @@ public class RequestHeaderUtilsTest {
         RequestContext requestContext = new RequestContext(
                 APPLICATION_CODE,
                 APPLICATION_PASSWORD,
+                1,
                 mock(DeviceInfo.class),
                 mock(AppLoginStorage.class),
                 meIdStorage,

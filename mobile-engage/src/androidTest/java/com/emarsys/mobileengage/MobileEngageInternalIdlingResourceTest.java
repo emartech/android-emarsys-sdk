@@ -87,6 +87,7 @@ public class MobileEngageInternalIdlingResourceTest {
                 new RequestContext(
                         "applicationCode",
                         "applicationPassword",
+                        1,
                         mock(DeviceInfo.class),
                         mock(AppLoginStorage.class),
                         meIdStorage,

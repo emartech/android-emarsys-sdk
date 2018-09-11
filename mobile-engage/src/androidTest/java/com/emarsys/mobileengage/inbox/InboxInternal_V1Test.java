@@ -12,15 +12,15 @@ import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
-import com.emarsys.mobileengage.api.MobileEngageException;
 import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.api.MobileEngageException;
+import com.emarsys.mobileengage.api.inbox.Notification;
+import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.fake.FakeInboxResultListener;
 import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener;
 import com.emarsys.mobileengage.fake.FakeRestClient;
-import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
-import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
@@ -103,6 +103,7 @@ public class InboxInternal_V1Test {
         requestContext = new RequestContext(
                 APPLICATION_ID,
                 "applicationPassword",
+                1,
                 deviceInfo,
                 new AppLoginStorage(application),
                 mock(MeIdStorage.class),

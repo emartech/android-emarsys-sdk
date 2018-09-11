@@ -10,9 +10,8 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
-import com.emarsys.mobileengage.experimental.MobileEngageExperimentalFeatures;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
@@ -67,6 +66,7 @@ public class RequestModelUtilsTest {
         requestContext = new RequestContext(
                 APPLICATION_CODE,
                 APPLICATION_PASSWORD,
+                1,
                 new DeviceInfo(InstrumentationRegistry.getContext()),
                 mock(AppLoginStorage.class),
                 meIdStorage,

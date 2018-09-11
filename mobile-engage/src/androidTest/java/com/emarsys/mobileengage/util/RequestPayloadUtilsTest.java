@@ -59,6 +59,7 @@ public class RequestPayloadUtilsTest {
         requestContext = new RequestContext(
                 APPLICATION_CODE,
                 APPLICATION_PASSWORD,
+                1,
                 new DeviceInfo(InstrumentationRegistry.getContext()),
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),

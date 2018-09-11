@@ -59,6 +59,7 @@ public class DeepLinkInternalTest {
         requestContext = new RequestContext(
                 "",
                 "",
+                1,
                 mock(DeviceInfo.class),
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),

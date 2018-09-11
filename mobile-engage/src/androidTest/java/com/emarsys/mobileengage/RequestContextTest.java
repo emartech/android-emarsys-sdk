@@ -16,6 +16,8 @@ import static org.mockito.Mockito.mock;
 
 public class RequestContextTest {
 
+    int contactFieldId = 2;
+
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
@@ -24,6 +26,7 @@ public class RequestContextTest {
         new RequestContext(
                 null,
                 "",
+                contactFieldId,
                 mock(DeviceInfo.class),
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),
@@ -37,6 +40,7 @@ public class RequestContextTest {
         new RequestContext(
                 "",
                 null,
+                contactFieldId,
                 mock(DeviceInfo.class),
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),
@@ -50,6 +54,7 @@ public class RequestContextTest {
         new RequestContext(
                 "",
                 "",
+                contactFieldId,
                 null,
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),
@@ -63,6 +68,7 @@ public class RequestContextTest {
         new RequestContext(
                 "",
                 "",
+                contactFieldId,
                 mock(DeviceInfo.class),
                 null,
                 mock(MeIdStorage.class),
@@ -76,6 +82,7 @@ public class RequestContextTest {
         new RequestContext(
                 "",
                 "",
+                contactFieldId,
                 mock(DeviceInfo.class),
                 mock(AppLoginStorage.class),
                 null,
@@ -89,6 +96,7 @@ public class RequestContextTest {
         new RequestContext(
                 "",
                 "",
+                contactFieldId,
                 mock(DeviceInfo.class),
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),
@@ -102,6 +110,7 @@ public class RequestContextTest {
         new RequestContext(
                 "",
                 "",
+                contactFieldId,
                 mock(DeviceInfo.class),
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),
@@ -115,6 +124,7 @@ public class RequestContextTest {
         new RequestContext(
                 "",
                 "",
+                contactFieldId,
                 mock(DeviceInfo.class),
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),

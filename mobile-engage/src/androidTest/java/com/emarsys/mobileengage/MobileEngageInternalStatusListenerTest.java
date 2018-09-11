@@ -123,6 +123,7 @@ public class MobileEngageInternalStatusListenerTest {
         requestContext = new RequestContext(
                 APPLICATION_ID,
                 APPLICATION_PASSWORD,
+                1,
                 mock(DeviceInfo.class),
                 new AppLoginStorage(context),
                 meIdStorage,

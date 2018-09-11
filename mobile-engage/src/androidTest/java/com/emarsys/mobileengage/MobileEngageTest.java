@@ -458,6 +458,7 @@ public class MobileEngageTest {
                 new RequestContext(
                         APPLICATION_CODE,
                         APPLICATION_PASSWORD,
+                        1,
                         mock(DeviceInfo.class),
                         new AppLoginStorage(application),
                         mock(MeIdStorage.class),

@@ -14,6 +14,7 @@ import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 public class RequestContext {
     private final String applicationCode;
     private final String applicationPassword;
+    private final int contactFieldId;
     private final DeviceInfo deviceInfo;
     private final AppLoginStorage appLoginStorage;
     private final MeIdStorage meIdStorage;
@@ -25,6 +26,7 @@ public class RequestContext {
     public RequestContext(
             String applicationCode,
             String applicationPassword,
+            int contactFieldId,
             DeviceInfo deviceInfo,
             AppLoginStorage appLoginStorage,
             MeIdStorage meIdStorage,
@@ -41,6 +43,7 @@ public class RequestContext {
         Assert.notNull(uuidProvider, "UUIDProvider must not be null!");
         this.applicationCode = applicationCode;
         this.applicationPassword = applicationPassword;
+        this.contactFieldId = contactFieldId;
         this.deviceInfo = deviceInfo;
         this.appLoginStorage = appLoginStorage;
         this.meIdStorage = meIdStorage;
@@ -55,6 +58,10 @@ public class RequestContext {
 
     public String getApplicationPassword() {
         return applicationPassword;
+    }
+
+    public int getContactFieldId() {
+        return contactFieldId;
     }
 
     public DeviceInfo getDeviceInfo() {
@@ -95,6 +102,7 @@ public class RequestContext {
         return "RequestContext{" +
                 "applicationCode='" + applicationCode + '\'' +
                 ", applicationPassword='" + applicationPassword + '\'' +
+                ", contactFieldId=" + contactFieldId +
                 ", deviceInfo=" + deviceInfo +
                 ", appLoginStorage=" + appLoginStorage +
                 ", meIdStorage=" + meIdStorage +

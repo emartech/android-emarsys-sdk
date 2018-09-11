@@ -67,6 +67,7 @@ public class DeepLinkInternalIdlingResourceTest {
         RequestContext requestContext = new RequestContext(
                 "user",
                 "pass",
+                1,
                 mock(DeviceInfo.class),
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),
