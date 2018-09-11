@@ -39,7 +39,7 @@ public class Emarsys {
     public static void setCustomer(@NonNull String customerId) {
         Assert.notNull(customerId, "CustomerId must not be null!");
 
-        mobileEngageInternal.appLogin(3, customerId);
+        mobileEngageInternal.appLogin(customerId);
         predictInternal.setCustomer(customerId);
     }
 

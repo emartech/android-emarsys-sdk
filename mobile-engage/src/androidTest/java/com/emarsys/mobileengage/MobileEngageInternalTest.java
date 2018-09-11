@@ -60,6 +60,7 @@ public class MobileEngageInternalTest {
     private static final String INTERNAL = "internal";
     private static final String CUSTOM = "custom";
     public static final String REQUEST_ID = "REQUEST_ID";
+    public static final int CONTACT_FIELD_ID = Integer.MAX_VALUE;
 
     private static String APPLICATION_ID = "user";
     private static String APPLICATION_PASSWORD = "pass";
@@ -121,7 +122,7 @@ public class MobileEngageInternalTest {
         requestContext = new RequestContext(
                 APPLICATION_ID,
                 APPLICATION_PASSWORD,
-                1,
+                CONTACT_FIELD_ID,
                 deviceInfo,
                 appLoginStorage,
                 meIdStorage,
@@ -145,7 +146,7 @@ public class MobileEngageInternalTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         meIdStorage.remove();
         meIdSignatureStorage.remove();
         ExperimentalTestUtils.resetExperimentalFeatures();
@@ -211,6 +212,34 @@ public class MobileEngageInternalTest {
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
         mobileEngage.appLogin(contactFieldId, contactFieldValue);
+
+        verify(manager).submit(captor.capture());
+
+        RequestModel result = captor.getValue();
+        assertRequestModels(expected, result);
+    }
+
+    @Test
+    public void testAppLogin_withContactFieldValue_returnsRequestModelId() {
+        meIdStorage.remove();
+        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
+
+        String result = mobileEngage.appLogin("value");
+
+        verify(manager).submit(captor.capture());
+
+        assertEquals(captor.getValue().getId(), result);
+    }
+
+    @Test
+    public void testAppLogin_withContactFieldValue_requestManagerCalledWithCorrectRequestModel() {
+        meIdStorage.remove();
+        String contactFieldValue = "value";
+        RequestModel expected = createLoginRequestModel(new AppLoginParameters(CONTACT_FIELD_ID, contactFieldValue));
+
+        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
+
+        mobileEngage.appLogin(contactFieldValue);
 
         verify(manager).submit(captor.capture());
 

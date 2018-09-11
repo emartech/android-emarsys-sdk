@@ -33,7 +33,7 @@ public class EmarsysTest {
     private PredictInternal mockPredictInternal;
 
     @Before
-    public void init() throws Exception {
+    public void init() {
         mockMobileEngageInternal = mock(MobileEngageInternal.class);
         mockPredictInternal = mock(PredictInternal.class);
 
@@ -42,7 +42,7 @@ public class EmarsysTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         ReflectionTestUtils.setStaticField(Emarsys.class, "mobileEngageInternal", null);
         ReflectionTestUtils.setStaticField(Emarsys.class, "predictInternal", null);
     }
@@ -63,7 +63,7 @@ public class EmarsysTest {
 
         Emarsys.setCustomer(customerId);
 
-        verify(mockMobileEngageInternal).appLogin(3, customerId);
+        verify(mockMobileEngageInternal).appLogin(customerId);
     }
 
     @Test
