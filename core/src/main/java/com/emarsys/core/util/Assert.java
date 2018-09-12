@@ -39,4 +39,14 @@ public final class Assert {
             throw new IllegalArgumentException(message);
         }
     }
+
+    public static void notEmpty(List<?> list, String message) {
+        notNull(list, null);
+        if (list.size() == 0) {
+            if (message == null) {
+                message = "Argument must not be empty!";
+            }
+            throw new IllegalArgumentException(message);
+        }
+    }
 }

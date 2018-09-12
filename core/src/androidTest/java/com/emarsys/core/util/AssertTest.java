@@ -143,7 +143,7 @@ public class AssertTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testNotEmpty_array_shouldNotAcceptNull() {
-        Assert.notEmpty(null, "message");
+        Assert.notEmpty((Object[]) null, "message");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -176,6 +176,47 @@ public class AssertTest {
     public void testNotEmpty_array_shouldNotThrowException_whenArrayHasItems() {
         try {
             Assert.notEmpty(new Object[]{"a", 3, Math.PI}, null);
+        } catch (Exception e) {
+            fail("testElementsNotNull should not throw expection when object is not null: " + e.getMessage());
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNotEmpty_list_shouldNotAcceptNull() {
+        Assert.notEmpty((List)null, "message");
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNotEmpty_list_shouldThrowException_whenArrayIsEmpty() {
+        Assert.notEmpty(new ArrayList(), "");
+    }
+
+    @Test
+    public void testNotEmpty_list_shouldThrowException_whenArrayIsEmpty_withSpecifiedMessage() {
+        String message = "message";
+        try {
+            Assert.notEmpty(new ArrayList(), message);
+            fail("Should throw exception");
+        } catch (IllegalArgumentException iae) {
+            assertEquals(message, iae.getMessage());
+        }
+    }
+
+    @Test
+    public void testNotEmpty_list_shouldThrowException_whenArrayIsEmpty_withDefaultMessage() {
+        try {
+            Assert.notEmpty(new ArrayList(), null);
+            fail("Should throw exception");
+        } catch (IllegalArgumentException iae) {
+            assertEquals("Argument must not be empty!", iae.getMessage());
+        }
+    }
+
+    @Test
+    public void testNotEmpty_list_shouldNotThrowException_whenArrayHasItems() {
+        try {
+            Assert.notEmpty(Arrays.asList("a", 3, Math.PI), null);
         } catch (Exception e) {
             fail("testElementsNotNull should not throw expection when object is not null: " + e.getMessage());
         }
