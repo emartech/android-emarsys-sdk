@@ -7,13 +7,11 @@ import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.util.CartItemUtils;
 
 import java.util.List;
 
 public class PredictInternal {
-
-    public static final String COMMAND_CART = "cart";
-    private static final String COMMAND_VIEW = "view";
 
     public static final String TYPE_CART = "predict_cart";
     private static final String TYPE_ITEM_VIEW = "predict_item_view";
@@ -44,8 +42,9 @@ public class PredictInternal {
         Assert.elementsNotNull(items, "Item elements must not be null!");
 
         ShardModel itemViewShard = new ShardModel.Builder(timestampProvider, uuidProvider)
-                .payloadEntry(COMMAND_CART, items)
                 .type(TYPE_CART)
+                .payloadEntry("cv", "1")
+                .payloadEntry("ca", CartItemUtils.cartItemsToQueryParam(items))
                 .build();
 
         requestManager.submit(itemViewShard);
@@ -58,8 +57,8 @@ public class PredictInternal {
         Assert.notNull(itemId, "ItemId must not be null!");
 
         ShardModel itemViewShard = new ShardModel.Builder(timestampProvider, uuidProvider)
-                .payloadEntry(COMMAND_VIEW, itemId)
                 .type(TYPE_ITEM_VIEW)
+                .payloadEntry("v", "i:" + itemId)
                 .build();
 
         requestManager.submit(itemViewShard);

@@ -86,20 +86,20 @@ class PredictInternalTest {
     }
 
     @Test
-    fun testTrackCart_shouldCallRequestManagerWithCorrectShardModel() {
+    fun testTrackCart_shouldCallRequestManager_withCorrectShardModel() {
         val expectedShardModel =
                 ShardModel(mockUuidProvider.provideId(),
                         "predict_cart",
-                        mapOf("cart" to listOf(
-                                PredictCartItem("itemId1", 200.0, 100.0),
-                                PredictCartItem("itemId2", 200.0, 100.0)
-                        )),
+                        mapOf(
+                                "cv" to "1",
+                                "ca" to "i:itemId1,p:200.0,q:100.0|i:itemId2,p:201.0,q:101.0"
+                        ),
                         mockTimestampProvider.provideTimestamp(),
                         TTL)
 
         predictInternal.trackCart(listOf(
                 PredictCartItem("itemId1", 200.0, 100.0),
-                PredictCartItem("itemId2", 200.0, 100.0)
+                PredictCartItem("itemId2", 201.0, 101.0)
         ))
 
         verify(mockRequestManager).submit(expectedShardModel)
@@ -111,15 +111,17 @@ class PredictInternalTest {
     }
 
     @Test
-    fun testTrackItemView_shouldCallRequestManagerWithCorrectShardModel() {
-        val expectedShardModel =
-                ShardModel(mockUuidProvider.provideId(),
-                        "predict_item_view",
-                        mapOf("view" to "itemId"),
-                        mockTimestampProvider.provideTimestamp(),
-                        TTL)
+    fun testTrackItemView_shouldCallRequestManager_withCorrectShardModel() {
+        val itemId = "itemId"
 
-        predictInternal.trackItemView("itemId")
+        val expectedShardModel = ShardModel(
+                mockUuidProvider.provideId(),
+                "predict_item_view",
+                mapOf("v" to "i:$itemId"),
+                mockTimestampProvider.provideTimestamp(),
+                TTL)
+
+        predictInternal.trackItemView(itemId)
 
         verify(mockRequestManager).submit(expectedShardModel)
     }
