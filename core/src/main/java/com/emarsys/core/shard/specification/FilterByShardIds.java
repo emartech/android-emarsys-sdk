@@ -6,6 +6,7 @@ import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.DatabaseUtil;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class FilterByShardIds implements SqlSpecification {
@@ -37,4 +38,21 @@ public class FilterByShardIds implements SqlSpecification {
         return args;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FilterByShardIds that = (FilterByShardIds) o;
+
+        if (!Arrays.equals(args, that.args)) return false;
+        return sql != null ? sql.equals(that.sql) : that.sql == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(args);
+        result = 31 * result + (sql != null ? sql.hashCode() : 0);
+        return result;
+    }
 }
