@@ -6,6 +6,7 @@ import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
+import com.emarsys.core.shard.specification.FilterByShardIds
 import com.emarsys.core.shard.specification.FilterByShardType
 import org.junit.Before
 import org.junit.Test
@@ -54,17 +55,64 @@ class PredictShardTriggerTest {
 
     @Test
     fun testRun_submitsCorrectRequestModels_toRequestManager() {
+        val (requestModel1, requestModel2, requestModel3) = setupMocks().requests
+
+        trigger.run()
+
+        Mockito.inOrder(manager).run {
+            verify(manager).submit(requestModel1)
+            verify(manager).submit(requestModel2)
+            verify(manager).submit(requestModel3)
+            verifyNoMoreInteractions(manager)
+        }
+    }
+
+    @Test
+    fun testRun_removesHandledShards_fromDatabase() {
+        val (shards, requests) = setupMocks()
+        val (shard1, shard2, shard3) = shards
+        val (requestModel1, requestModel2, requestModel3) = requests
+
+        trigger.run()
+
+        Mockito.inOrder(manager, repository).run {
+            this.verify(repository).query(FilterByShardType("predict_%"))
+            this.verify(manager, Mockito.timeout(50)).submit(requestModel1)
+            this.verify(repository).remove(FilterByShardIds(listOf(shard1)))
+            this.verify(manager, Mockito.timeout(50)).submit(requestModel2)
+            this.verify(repository).remove(FilterByShardIds(listOf(shard2)))
+            this.verify(manager, Mockito.timeout(50)).submit(requestModel3)
+            this.verify(repository).remove(FilterByShardIds(listOf(shard3)))
+            this.verifyNoMoreInteractions()
+        }
+
+    }
+
+    @Test
+    fun testRun_doesNothing_whenQueryReturns_emptyList() {
+        `when`(repository.query(FilterByShardType("predict_%"))).thenReturn(listOf())
+
+        trigger.run()
+
+        verify(repository).query(FilterByShardType("predict_%"))
+        verifyNoMoreInteractions(repository)
+        verifyZeroInteractions(chunker)
+        verifyZeroInteractions(merger)
+        verifyZeroInteractions(manager)
+    }
+
+    private fun setupMocks(): MockObjects {
         val shard1 = mock(ShardModel::class.java)
         val shard2 = mock(ShardModel::class.java)
         val shard3 = mock(ShardModel::class.java)
+
+        val shards = listOf(shard1, shard2, shard3)
 
         val requestModel1 = mock(RequestModel::class.java)
         val requestModel2 = mock(RequestModel::class.java)
         val requestModel3 = mock(RequestModel::class.java)
 
         val requestModels = listOf(requestModel1, requestModel2, requestModel3)
-
-        val shards = listOf(shard1, shard2, shard3)
 
         val chunkedShards = shards.map { listOf(it) }
 
@@ -76,14 +124,9 @@ class PredictShardTriggerTest {
             `when`(merger.map(chunkedShardList)).thenReturn(requestModels[i])
         }
 
-        trigger.run()
-
-        Mockito.inOrder(manager).run {
-            verify(manager).submit(requestModel1)
-            verify(manager).submit(requestModel2)
-            verify(manager).submit(requestModel3)
-        }
-        verifyNoMoreInteractions(manager)
+        return MockObjects(shards, requestModels)
     }
+
+    private data class MockObjects(val shards: List<ShardModel>, val requests: List<RequestModel>)
 
 }

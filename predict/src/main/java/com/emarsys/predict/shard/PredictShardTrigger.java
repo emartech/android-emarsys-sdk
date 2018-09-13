@@ -6,6 +6,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.shard.ShardModel;
+import com.emarsys.core.shard.specification.FilterByShardIds;
 import com.emarsys.core.shard.specification.FilterByShardType;
 import com.emarsys.core.util.Assert;
 
@@ -37,10 +38,13 @@ public class PredictShardTrigger implements Runnable {
     @Override
     public void run() {
         List<ShardModel> shards = repository.query(new FilterByShardType("predict_%"));
-        List<List<ShardModel>> chunks = chunker.map(shards);
+        if (!shards.isEmpty()) {
+            List<List<ShardModel>> chunks = chunker.map(shards);
 
-        for (List<ShardModel> chunk : chunks) {
-            requestManager.submit(merger.map(chunk));
+            for (List<ShardModel> chunk : chunks) {
+                requestManager.submit(merger.map(chunk));
+                repository.remove(new FilterByShardIds(chunk));
+            }
         }
     }
 
