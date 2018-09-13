@@ -41,7 +41,7 @@ class PredictShardListMergerTest {
 
         shard1 = ShardModel("id1", "type1", mapOf("q1" to 1, "q2" to "b"), 100, 100)
         shard2 = ShardModel("id2", "type2", mapOf("q3" to "c"), 110, 100)
-        shard3 = ShardModel("id3", "type3", mapOf("q4" to "a b c", "q5" to "i:id"), 120, 100)
+        shard3 = ShardModel("id3", "type3", mapOf("<>," to "\"`;/?:^%#@&=\$+{}<>,| "), 120, 100)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -109,7 +109,7 @@ class PredictShardListMergerTest {
     @Test
     fun testMap_withUrlEncoded_queryParams() {
         val expectedRequestModel = RequestModel(
-                "https://recommender.scarabresearch.com/merchants/merchantId555?cp=1&q4=a%20b%20c&q5=i%3Aid",
+                "https://recommender.scarabresearch.com/merchants/merchantId555?cp=1&%3C%3E%2C=%22%60%3B%2F%3F%3A%5E%25%23%40%26%3D%24%2B%7B%7D%3C%3E%2C%7C%20",
                 RequestMethod.GET,
                 null,
                 mapOf(),
