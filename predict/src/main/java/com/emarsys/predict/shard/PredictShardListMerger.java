@@ -41,7 +41,6 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
         return new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(createUrl(shards))
                 .method(RequestMethod.GET)
-                .ttl(getTtl(shards, timestampProvider))
                 .build();
     }
 
@@ -62,24 +61,10 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
     private Map<String, Object> mergeShardData(List<ShardModel> shards) {
         Map<String, Object> result = new LinkedHashMap<>();
 
-        for(ShardModel shard : shards) {
+        for (ShardModel shard : shards) {
             result.putAll(shard.getData());
         }
 
         return result;
-    }
-
-    private long getTtl(List<ShardModel> shards, TimestampProvider timestampProvider) {
-        long now = timestampProvider.provideTimestamp();
-        long ttl = Long.MAX_VALUE;
-
-        for (ShardModel shard : shards) {
-            long currentTtl = shard.getTtl() - (now - shard.getTimestamp());
-            if (currentTtl < ttl) {
-                ttl = currentTtl;
-            }
-        }
-
-        return ttl;
     }
 }

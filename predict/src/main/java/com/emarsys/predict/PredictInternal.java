@@ -16,8 +16,6 @@ public class PredictInternal {
     private static final String TYPE_CART = "predict_cart";
     private static final String TYPE_ITEM_VIEW = "predict_item_view";
 
-    private static final long TTL = 20 * 60 * 1000;
-
     private final UUIDProvider uuidProvider;
     private final TimestampProvider timestampProvider;
     private final KeyValueStore keyValueStore;
@@ -47,7 +45,6 @@ public class PredictInternal {
                 .type(TYPE_CART)
                 .payloadEntry("cv", "1")
                 .payloadEntry("ca", CartItemUtils.cartItemsToQueryParam(items))
-                .ttl(TTL)
                 .build();
 
         requestManager.submit(itemViewShard);
@@ -62,7 +59,6 @@ public class PredictInternal {
         ShardModel itemViewShard = new ShardModel.Builder(timestampProvider, uuidProvider)
                 .type(TYPE_ITEM_VIEW)
                 .payloadEntry("v", "i:" + itemId)
-                .ttl(TTL)
                 .build();
 
         requestManager.submit(itemViewShard);

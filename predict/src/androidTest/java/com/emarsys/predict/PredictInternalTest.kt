@@ -15,7 +15,7 @@ import org.mockito.Mockito.*
 class PredictInternalTest {
 
     companion object {
-        const val TTL = 20 * 60 * 1000L
+        const val TTL = Long.MAX_VALUE
     }
 
     @Rule

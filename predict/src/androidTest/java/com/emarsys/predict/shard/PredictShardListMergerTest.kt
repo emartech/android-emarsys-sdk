@@ -16,6 +16,7 @@ class PredictShardListMergerTest {
     companion object {
         const val ID = "id"
         const val TIMESTAMP = 125L
+        const val TTL = Long.MAX_VALUE
     }
 
     lateinit var merger: PredictShardListMerger
@@ -39,8 +40,8 @@ class PredictShardListMergerTest {
         `when`(uuidProvider.provideId()).thenReturn(ID)
 
         shard1 = ShardModel("id1", "type1", mapOf("q1" to 1, "q2" to "b"), 100, 100)
-        shard2 = ShardModel("id2", "type2", mapOf("q3" to "c"), 120, 50)
-        shard3 = ShardModel("id3", "type3", mapOf("q4" to "a b c", "q5" to "i:id"), 100, 80)
+        shard2 = ShardModel("id2", "type2", mapOf("q3" to "c"), 110, 100)
+        shard3 = ShardModel("id3", "type3", mapOf("q4" to "a b c", "q5" to "i:id"), 120, 100)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -85,7 +86,7 @@ class PredictShardListMergerTest {
                 null,
                 mapOf(),
                 TIMESTAMP,
-                75,
+                TTL,
                 ID
         )
         assertEquals(expectedRequestModel, merger.map(listOf(shard1)))
@@ -99,7 +100,7 @@ class PredictShardListMergerTest {
                 null,
                 mapOf(),
                 TIMESTAMP,
-                45,
+                TTL,
                 ID
         )
         assertEquals(expectedRequestModel, merger.map(listOf(shard1, shard2)))
@@ -113,7 +114,7 @@ class PredictShardListMergerTest {
                 null,
                 mapOf(),
                 TIMESTAMP,
-                55,
+                TTL,
                 ID
         )
         assertEquals(expectedRequestModel, merger.map(listOf(shard3)))
