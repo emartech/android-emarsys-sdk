@@ -61,6 +61,8 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
     private Map<String, Object> mergeShardData(List<ShardModel> shards) {
         Map<String, Object> result = new LinkedHashMap<>();
 
+        result.put("cp", 1);
+
         for (ShardModel shard : shards) {
             result.putAll(shard.getData());
         }

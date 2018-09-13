@@ -81,7 +81,7 @@ class PredictShardListMergerTest {
     @Test
     fun testMap_singletonList() {
         val expectedRequestModel = RequestModel(
-                "https://recommender.scarabresearch.com/merchants/merchantId555?q1=1&q2=b",
+                "https://recommender.scarabresearch.com/merchants/merchantId555?cp=1&q1=1&q2=b",
                 RequestMethod.GET,
                 null,
                 mapOf(),
@@ -95,7 +95,7 @@ class PredictShardListMergerTest {
     @Test
     fun testMap_multipleShards() {
         val expectedRequestModel = RequestModel(
-                "https://recommender.scarabresearch.com/merchants/merchantId555?q1=1&q2=b&q3=c",
+                "https://recommender.scarabresearch.com/merchants/merchantId555?cp=1&q1=1&q2=b&q3=c",
                 RequestMethod.GET,
                 null,
                 mapOf(),
@@ -109,7 +109,7 @@ class PredictShardListMergerTest {
     @Test
     fun testMap_withUrlEncoded_queryParams() {
         val expectedRequestModel = RequestModel(
-                "https://recommender.scarabresearch.com/merchants/merchantId555?q4=a%20b%20c&q5=i%3Aid",
+                "https://recommender.scarabresearch.com/merchants/merchantId555?cp=1&q4=a%20b%20c&q5=i%3Aid",
                 RequestMethod.GET,
                 null,
                 mapOf(),
