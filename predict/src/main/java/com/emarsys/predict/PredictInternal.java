@@ -41,13 +41,13 @@ public class PredictInternal {
         Assert.notNull(items, "Items must not be null!");
         Assert.elementsNotNull(items, "Item elements must not be null!");
 
-        ShardModel itemViewShard = new ShardModel.Builder(timestampProvider, uuidProvider)
+        ShardModel shard = new ShardModel.Builder(timestampProvider, uuidProvider)
                 .type(TYPE_CART)
-                .payloadEntry("cv", "1")
+                .payloadEntry("cv", 1)
                 .payloadEntry("ca", CartItemUtils.cartItemsToQueryParam(items))
                 .build();
 
-        requestManager.submit(itemViewShard);
+        requestManager.submit(shard);
     }
 
     public void trackPurchase(String orderId, List<CartItem> items) {
@@ -56,12 +56,12 @@ public class PredictInternal {
     public void trackItemView(String itemId) {
         Assert.notNull(itemId, "ItemId must not be null!");
 
-        ShardModel itemViewShard = new ShardModel.Builder(timestampProvider, uuidProvider)
+        ShardModel shard = new ShardModel.Builder(timestampProvider, uuidProvider)
                 .type(TYPE_ITEM_VIEW)
                 .payloadEntry("v", "i:" + itemId)
                 .build();
 
-        requestManager.submit(itemViewShard);
+        requestManager.submit(shard);
     }
 
     public void trackCategoryView(String categoryPath) {

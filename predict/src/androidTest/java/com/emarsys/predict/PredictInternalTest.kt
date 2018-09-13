@@ -91,7 +91,7 @@ class PredictInternalTest {
                 ShardModel(mockUuidProvider.provideId(),
                         "predict_cart",
                         mapOf(
-                                "cv" to "1",
+                                "cv" to 1,
                                 "ca" to "i:itemId1,p:200.0,q:100.0|i:itemId2,p:201.0,q:101.0"
                         ),
                         mockTimestampProvider.provideTimestamp(),
