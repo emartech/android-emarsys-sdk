@@ -12,6 +12,7 @@ import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionWatchDog;
+import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
@@ -65,6 +66,9 @@ import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.di.PredictDependencyContainer;
+import com.emarsys.predict.shard.PredictShardListChunker;
+import com.emarsys.predict.shard.PredictShardListMerger;
+import com.emarsys.predict.shard.PredictShardTrigger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,6 +90,8 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
     private InAppPresenter inAppPresenter;
     private NotificationEventHandler notificationEventHandler;
     private OreoConfig oreoConfig;
+    private CoreSQLiteDatabase coreDatabase;
+    private Runnable predictShardTrigger;
 
     private Handler uiHandler;
     private TimestampProvider timestampProvider;
@@ -135,6 +141,11 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
     }
 
     @Override
+    public Runnable getPredictShardTrigger() {
+        return predictShardTrigger;
+    }
+
+    @Override
     public Handler getCoreSdkHandler() {
         return coreSdkHandler;
     }
@@ -152,6 +163,11 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
     @Override
     public ActivityLifecycleWatchdog getActivityLifecycleWatchdog() {
         return activityLifecycleWatchdog;
+    }
+
+    @Override
+    public CoreSQLiteDatabase getCoreSQLiteDatabase() {
+        return coreDatabase;
     }
 
     @Override
@@ -184,6 +200,7 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
         deviceInfo = new DeviceInfo(application);
 
         CoreDbHelper coreDbHelper = new CoreDbHelper(application, new HashMap<TriggerKey, List<Runnable>>());
+        coreDatabase = coreDbHelper.getWritableCoreDatabase();
         MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(application, new HashMap<TriggerKey, List<Runnable>>());
 
         requestModelRepository = createRequestModelRepository(coreDbHelper);
@@ -242,6 +259,12 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
         SharedPreferences prefs = application.getSharedPreferences(EMARSYS_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
         notificationEventHandler = config.getNotificationEventHandler();
+
+        predictShardTrigger = new PredictShardTrigger(
+                shardModelRepository,
+                new PredictShardListChunker(),
+                new PredictShardListMerger(config.getPredictMerchantId(), timestampProvider, uuidProvider),
+                requestManager);
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {

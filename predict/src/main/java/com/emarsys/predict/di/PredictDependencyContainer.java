@@ -7,4 +7,6 @@ public interface PredictDependencyContainer extends DependencyContainer {
 
     PredictInternal getPredictInternal();
 
+    Runnable getPredictShardTrigger();
+
 }

@@ -6,6 +6,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.emarsys.config.EmarsysConfig;
+import com.emarsys.core.database.DatabaseContract;
+import com.emarsys.core.database.trigger.TriggerEvent;
+import com.emarsys.core.database.trigger.TriggerType;
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.util.Assert;
 import com.emarsys.di.EmarsysDependencyContainer;
@@ -34,6 +37,12 @@ public class Emarsys {
         DependencyInjection.setup(new EmarsysDependencyContainer(config));
         container = DependencyInjection.getContainer();
         initializeFields();
+
+        container.getCoreSQLiteDatabase().registerTrigger(
+                DatabaseContract.SHARD_TABLE_NAME,
+                TriggerType.AFTER,
+                TriggerEvent.INSERT,
+                container.getPredictShardTrigger());
     }
 
     public static void setCustomer(@NonNull String customerId) {
