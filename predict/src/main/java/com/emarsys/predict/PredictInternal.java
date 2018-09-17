@@ -37,7 +37,7 @@ public class PredictInternal {
         keyValueStore.putString("predict_customerId", customerId);
     }
 
-    public void trackCart(List<CartItem> items) {
+    public String trackCart(List<CartItem> items) {
         Assert.notNull(items, "Items must not be null!");
         Assert.elementsNotNull(items, "Item elements must not be null!");
 
@@ -48,12 +48,14 @@ public class PredictInternal {
                 .build();
 
         requestManager.submit(shard);
+        return shard.getId();
     }
 
-    public void trackPurchase(String orderId, List<CartItem> items) {
+    public String trackPurchase(String orderId, List<CartItem> items) {
+        return null;
     }
 
-    public void trackItemView(String itemId) {
+    public String trackItemView(String itemId) {
         Assert.notNull(itemId, "ItemId must not be null!");
 
         ShardModel shard = new ShardModel.Builder(timestampProvider, uuidProvider)
@@ -62,12 +64,15 @@ public class PredictInternal {
                 .build();
 
         requestManager.submit(shard);
+        return shard.getId();
     }
 
-    public void trackCategoryView(String categoryPath) {
+    public String trackCategoryView(String categoryPath) {
+        return null;
     }
 
-    public void trackSearchTerm(String term) {
+    public String trackSearchTerm(String term) {
+        return null;
     }
 
 }

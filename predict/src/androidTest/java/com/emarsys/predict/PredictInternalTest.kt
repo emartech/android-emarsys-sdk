@@ -7,6 +7,7 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.testUtil.TimeoutUtils
+import junit.framework.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -16,6 +17,7 @@ class PredictInternalTest {
 
     companion object {
         const val TTL = Long.MAX_VALUE
+        const val ID = "id"
     }
 
     @Rule
@@ -36,7 +38,7 @@ class PredictInternalTest {
         mockUuidProvider = mock(UUIDProvider::class.java)
 
         `when`(mockTimestampProvider.provideTimestamp()).thenReturn(1L)
-        `when`(mockUuidProvider.provideId()).thenReturn("id")
+        `when`(mockUuidProvider.provideId()).thenReturn(ID)
 
         predictInternal = PredictInternal(mockKeyValueStore, mockRequestManager, mockUuidProvider, mockTimestampProvider)
     }
@@ -86,6 +88,11 @@ class PredictInternalTest {
     }
 
     @Test
+    fun testTrackCart_returnsShardId() {
+        Assert.assertEquals(ID, predictInternal.trackCart(listOf()))
+    }
+
+    @Test
     fun testTrackCart_shouldCallRequestManager_withCorrectShardModel() {
         val expectedShardModel =
                 ShardModel(mockUuidProvider.provideId(),
@@ -108,6 +115,11 @@ class PredictInternalTest {
     @Test(expected = IllegalArgumentException::class)
     fun testTrackItemView_itemId_mustNotBeNull() {
         predictInternal.trackItemView(null)
+    }
+
+    @Test
+    fun testTrackItemView_returnsShardId() {
+        Assert.assertEquals(ID, predictInternal.trackItemView("itemId"))
     }
 
     @Test
