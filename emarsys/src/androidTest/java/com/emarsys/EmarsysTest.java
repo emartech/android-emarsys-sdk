@@ -152,6 +152,20 @@ public class EmarsysTest {
         verify(mockPredictInternal).trackItemView(itemId);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_testTrackCategoryView_categoryPath_mustNotBeNull() {
+        Emarsys.Predict.trackCategoryView(null);
+    }
+
+    @Test
+    public void testTrackCategoryView_delegatesTo_predictInternal() {
+        String categoryPath = RandomTestUtils.randomString();
+
+        Emarsys.Predict.trackCategoryView(categoryPath);
+
+        verify(mockPredictInternal).trackCategoryView(categoryPath);
+    }
+
     private CartItem createItem(final String id, final double price, final double quantity) {
         return new CartItem() {
             @Override

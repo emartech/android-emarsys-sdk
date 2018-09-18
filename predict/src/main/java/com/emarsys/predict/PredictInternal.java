@@ -18,6 +18,7 @@ public class PredictInternal {
 
     private static final String TYPE_CART = "predict_cart";
     private static final String TYPE_ITEM_VIEW = "predict_item_view";
+    private static final String TYPE_CATEGORY_VIEW = "predict_category_view";
 
     private final UUIDProvider uuidProvider;
     private final TimestampProvider timestampProvider;
@@ -71,7 +72,15 @@ public class PredictInternal {
     }
 
     public String trackCategoryView(String categoryPath) {
-        return null;
+        Assert.notNull(categoryPath, "CategoryPath must not be null!");
+
+        ShardModel shard = new ShardModel.Builder(timestampProvider, uuidProvider)
+                .type(TYPE_CATEGORY_VIEW)
+                .payloadEntry("vc", categoryPath)
+                .build();
+
+        requestManager.submit(shard);
+        return shard.getId();
     }
 
     public String trackSearchTerm(String term) {

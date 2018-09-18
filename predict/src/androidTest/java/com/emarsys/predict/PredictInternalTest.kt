@@ -17,7 +17,9 @@ class PredictInternalTest {
 
     companion object {
         const val TTL = Long.MAX_VALUE
-        const val ID = "id"
+        const val TIMESTAMP = 100000L
+        const val ID1 = "id1"
+        const val ID2 = "id2"
     }
 
     @Rule
@@ -37,8 +39,8 @@ class PredictInternalTest {
         mockTimestampProvider = mock(TimestampProvider::class.java)
         mockUuidProvider = mock(UUIDProvider::class.java)
 
-        `when`(mockTimestampProvider.provideTimestamp()).thenReturn(1L)
-        `when`(mockUuidProvider.provideId()).thenReturn(ID)
+        `when`(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
+        `when`(mockUuidProvider.provideId()).thenReturn(ID1, ID2)
 
         predictInternal = PredictInternal(mockKeyValueStore, mockRequestManager, mockUuidProvider, mockTimestampProvider)
     }
@@ -89,19 +91,19 @@ class PredictInternalTest {
 
     @Test
     fun testTrackCart_returnsShardId() {
-        Assert.assertEquals(ID, predictInternal.trackCart(listOf()))
+        Assert.assertEquals(ID1, predictInternal.trackCart(listOf()))
     }
 
     @Test
     fun testTrackCart_shouldCallRequestManager_withCorrectShardModel() {
         val expectedShardModel =
-                ShardModel(mockUuidProvider.provideId(),
+                ShardModel(ID1,
                         "predict_cart",
                         mapOf(
                                 "cv" to 1,
                                 "ca" to "i:itemId1,p:200.0,q:100.0|i:itemId2,p:201.0,q:101.0"
                         ),
-                        mockTimestampProvider.provideTimestamp(),
+                        TIMESTAMP,
                         TTL)
 
         predictInternal.trackCart(listOf(
@@ -119,7 +121,7 @@ class PredictInternalTest {
 
     @Test
     fun testTrackItemView_returnsShardId() {
-        Assert.assertEquals(ID, predictInternal.trackItemView("itemId"))
+        Assert.assertEquals(ID1, predictInternal.trackItemView("itemId"))
     }
 
     @Test
@@ -127,13 +129,39 @@ class PredictInternalTest {
         val itemId = "itemId"
 
         val expectedShardModel = ShardModel(
-                mockUuidProvider.provideId(),
+                ID1,
                 "predict_item_view",
                 mapOf("v" to "i:$itemId"),
-                mockTimestampProvider.provideTimestamp(),
+                TIMESTAMP,
                 TTL)
 
         predictInternal.trackItemView(itemId)
+
+        verify(mockRequestManager).submit(expectedShardModel)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testTrackCategoryView_categoryPath_mustNotBeNull() {
+        predictInternal.trackCategoryView(null)
+    }
+
+    @Test
+    fun testTrackCategoryView_returnsShardId() {
+        Assert.assertEquals(ID1, predictInternal.trackCategoryView("categoryPath"))
+    }
+
+    @Test
+    fun testTrackCategoryView_shouldCallRequestManager_withCorrectShardModel() {
+        val categoryPath = "categoryPath"
+
+        val expectedShardModel = ShardModel(
+                ID1,
+                "predict_category_view",
+                mapOf("vc" to categoryPath),
+                TIMESTAMP,
+                TTL)
+
+        predictInternal.trackCategoryView(categoryPath)
 
         verify(mockRequestManager).submit(expectedShardModel)
     }

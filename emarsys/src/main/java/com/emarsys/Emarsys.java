@@ -158,6 +158,9 @@ public class Emarsys {
         }
 
         public static void trackCategoryView(@NonNull String categoryPath) {
+            Assert.notNull(categoryPath, "CategoryPath must not be null!");
+
+            predictInternal.trackCategoryView(categoryPath);
         }
 
         public static void trackSearchTerm(@NonNull String term) {
