@@ -60,6 +60,8 @@ dependencies {
 
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     androidTestImplementation project(':testUtils')
+    androidTestImplementation project(path: ':core')
+    androidTestImplementation project(path: ':mobile-engage')
 }
 
 apply plugin: 'com.google.gms.google-services'

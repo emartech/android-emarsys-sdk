@@ -2,8 +2,8 @@ package com.emarsys.sample.testutils;
 
 import android.os.Handler;
 
+import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.mobileengage.MobileEngage;
-import com.emarsys.mobileengage.di.DependencyInjection;
 import com.emarsys.sample.SampleApplication;
 
 import java.lang.reflect.Field;

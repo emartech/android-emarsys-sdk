@@ -8,10 +8,12 @@ import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.emarsys.Emarsys;
+import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.mobileengage.MobileEngage;
+import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.MobileEngageUtils;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
-import com.emarsys.mobileengage.di.DependencyInjection;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -53,7 +55,7 @@ public class MainActivityUITest {
         MobileEngageConfig config = new MobileEngageConfig.Builder()
                 .from(MobileEngage.getConfig())
                 .enableIdlingResource(true)
-                .statusListener(fragment)
+                .statusListener((MobileEngageStatusListener) fragment)
                 .build();
         MobileEngage.setup(config);
 
