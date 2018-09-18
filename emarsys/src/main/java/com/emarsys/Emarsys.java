@@ -149,6 +149,11 @@ public class Emarsys {
         }
 
         public static void trackPurchase(@NonNull String orderId, @NonNull List<CartItem> items) {
+            Assert.notNull(orderId, "OrderId must not be null!");
+            Assert.notNull(items, "Items must not be null!");
+            Assert.elementsNotNull(items, "Item elements must not be null!");
+
+            predictInternal.trackPurchase(orderId, items);
         }
 
         public static void trackItemView(@NonNull String itemId) {

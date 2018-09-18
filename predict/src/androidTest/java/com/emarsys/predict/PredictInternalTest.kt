@@ -5,6 +5,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
+import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Assert
@@ -110,6 +111,54 @@ class PredictInternalTest {
                 PredictCartItem("itemId1", 200.0, 100.0),
                 PredictCartItem("itemId2", 201.0, 101.0)
         ))
+
+        verify(mockRequestManager).submit(expectedShardModel)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testTrackPurchase_orderId_mustNotBeNull() {
+        predictInternal.trackPurchase(null, listOf())
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testTrackPurchase_items_mustNotBeNull() {
+        predictInternal.trackPurchase("orderId", null)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testTrackPurchase_itemElements_mustNotBeNull() {
+        predictInternal.trackPurchase("orderId", listOf(
+                mock(CartItem::class.java),
+                null,
+                mock(CartItem::class.java)
+        ))
+    }
+
+    @Test
+    fun testTrackPurchase_returnsShardId() {
+        Assert.assertEquals(ID1, predictInternal.trackPurchase("orderId", listOf()))
+    }
+
+    @Test
+    fun testTrackPurchase_shouldCallRequestManager_withCorrectShardModel() {
+        val orderId = "orderId"
+
+        val expectedShardModel =
+                ShardModel(ID1,
+                        "predict_purchase",
+                        mapOf(
+                                "oi" to orderId,
+                                "co" to "i:itemId1,p:200.0,q:100.0|i:itemId2,p:201.0,q:101.0"
+                        ),
+                        TIMESTAMP,
+                        TTL)
+
+        predictInternal.trackPurchase(
+                orderId,
+                listOf(
+                        PredictCartItem("itemId1", 200.0, 100.0),
+                        PredictCartItem("itemId2", 201.0, 101.0)
+                ))
 
         verify(mockRequestManager).submit(expectedShardModel)
     }

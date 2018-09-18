@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -122,12 +123,15 @@ public class EmarsysTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testPredict_testTrackCart_itemElements_mustNotBeNull() {
-        Emarsys.Predict.trackCart(Arrays.<CartItem>asList(null, null));
+    public void testPredict_trackCart_itemElements_mustNotBeNull() {
+        Emarsys.Predict.trackCart(Arrays.asList(
+                mock(CartItem.class),
+                null,
+                mock(CartItem.class)));
     }
 
     @Test
-    public void testTrackCart_delegatesTo_predictInternal() {
+    public void testPredict_trackCart_delegatesTo_predictInternal() {
         List<CartItem> itemList = Arrays.asList(
                 createItem("itemId0", 200.0, 100.0),
                 createItem("itemId1", 201.0, 101.0),
@@ -136,6 +140,39 @@ public class EmarsysTest {
         Emarsys.Predict.trackCart(itemList);
 
         verify(mockPredictInternal).trackCart(itemList);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_trackPurchase_orderIdMustNotBeNull() {
+        Emarsys.Predict.trackPurchase(null, new ArrayList<CartItem>());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_trackPurchase_itemsMustNotBeNull() {
+        Emarsys.Predict.trackPurchase("id", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_trackPurchase_itemElements_mustNotBeNull() {
+        Emarsys.Predict.trackPurchase("id", Arrays.asList(
+                mock(CartItem.class),
+                null,
+                mock(CartItem.class)
+        ));
+    }
+
+    @Test
+    public void testPredict_trackPurchase_delegatesTo_predictInternal() {
+        String orderId = "id";
+
+        List<CartItem> itemList = Arrays.asList(
+                createItem("itemId0", 200.0, 100.0),
+                createItem("itemId1", 201.0, 101.0),
+                createItem("itemId2", 202.0, 102.0));
+
+        Emarsys.Predict.trackPurchase(orderId, itemList);
+
+        verify(mockPredictInternal).trackPurchase(orderId, itemList);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -17,6 +17,7 @@ public class PredictInternal {
     public static final String CUSTOMER_ID_KEY = "predict_customer_id";
 
     private static final String TYPE_CART = "predict_cart";
+    private static final String TYPE_PURCHASE = "predict_purchase";
     private static final String TYPE_ITEM_VIEW = "predict_item_view";
     private static final String TYPE_CATEGORY_VIEW = "predict_category_view";
 
@@ -56,7 +57,18 @@ public class PredictInternal {
     }
 
     public String trackPurchase(String orderId, List<CartItem> items) {
-        return null;
+        Assert.notNull(orderId, "OrderId must not be null!");
+        Assert.notNull(items, "Items must not be null!");
+        Assert.elementsNotNull(items, "Item elements must not be null!");
+
+        ShardModel shard = new ShardModel.Builder(timestampProvider, uuidProvider)
+                .type(TYPE_PURCHASE)
+                .payloadEntry("oi", orderId)
+                .payloadEntry("co", CartItemUtils.cartItemsToQueryParam(items))
+                .build();
+
+        requestManager.submit(shard);
+        return shard.getId();
     }
 
     public String trackItemView(String itemId) {
