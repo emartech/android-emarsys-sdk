@@ -13,7 +13,8 @@ import java.util.List;
 
 public class PredictInternal {
 
-    public static final String VISITOR_ID = "predict_visitor_id";
+    public static final String VISITOR_ID_KEY = "predict_visitor_id";
+    public static final String CUSTOMER_ID_KEY = "predict_customer_id";
 
     private static final String TYPE_CART = "predict_cart";
     private static final String TYPE_ITEM_VIEW = "predict_item_view";
@@ -36,7 +37,7 @@ public class PredictInternal {
 
     public void setCustomer(String customerId) {
         Assert.notNull(customerId, "CustomerId must not be null!");
-        keyValueStore.putString("predict_customerId", customerId);
+        keyValueStore.putString(CUSTOMER_ID_KEY, customerId);
     }
 
     public String trackCart(List<CartItem> items) {

@@ -6,7 +6,7 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.`when`
@@ -19,6 +19,7 @@ class PredictShardListMergerTest {
         const val TIMESTAMP = 125L
         const val TTL = Long.MAX_VALUE
         const val VISITOR_ID = "888999888"
+        const val CUSTOMER_ID = "12345"
     }
 
     lateinit var merger: PredictShardListMerger
@@ -135,6 +136,39 @@ class PredictShardListMergerTest {
 
         val expectedRequestModel = RequestModel(
                 "https://recommender.scarabresearch.com/merchants/merchantId555?cp=1&vi=888999888&q3=c",
+                RequestMethod.GET,
+                null,
+                mapOf(),
+                TIMESTAMP,
+                TTL,
+                ID
+        )
+        assertEquals(expectedRequestModel, merger.map(listOf(shard2)))
+    }
+
+    @Test
+    fun testMap_withCustomerIdPresent() {
+        `when`(store.getString("predict_customer_id")).thenReturn(CUSTOMER_ID)
+
+        val expectedRequestModel = RequestModel(
+                "https://recommender.scarabresearch.com/merchants/merchantId555?cp=1&ci=12345&q3=c",
+                RequestMethod.GET,
+                null,
+                mapOf(),
+                TIMESTAMP,
+                TTL,
+                ID
+        )
+        assertEquals(expectedRequestModel, merger.map(listOf(shard2)))
+    }
+
+    @Test
+    fun testMap_withBoth_visitorIdAndCustomerIdPresent() {
+        `when`(store.getString("predict_visitor_id")).thenReturn(VISITOR_ID)
+        `when`(store.getString("predict_customer_id")).thenReturn(CUSTOMER_ID)
+
+        val expectedRequestModel = RequestModel(
+                "https://recommender.scarabresearch.com/merchants/merchantId555?cp=1&vi=888999888&ci=12345&q3=c",
                 RequestMethod.GET,
                 null,
                 mapOf(),

@@ -70,17 +70,26 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
     private Map<String, Object> mergeShardData(List<ShardModel> shards) {
         Map<String, Object> result = new LinkedHashMap<>();
 
-        result.put("cp", 1);
-
-        String visitorId = keyValueStore.getString(PredictInternal.VISITOR_ID);
-        if (visitorId != null) {
-            result.put("vi", visitorId);
-        }
+        insertBaseParameters(result);
 
         for (ShardModel shard : shards) {
             result.putAll(shard.getData());
         }
 
         return result;
+    }
+
+    private void insertBaseParameters(Map<String, Object> result) {
+        result.put("cp", 1);
+
+        String visitorId = keyValueStore.getString(PredictInternal.VISITOR_ID_KEY);
+        if (visitorId != null) {
+            result.put("vi", visitorId);
+        }
+
+        String customerId = keyValueStore.getString(PredictInternal.CUSTOMER_ID_KEY);
+        if (customerId != null) {
+            result.put("ci", customerId);
+        }
     }
 }

@@ -7,7 +7,7 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.testUtil.TimeoutUtils
-import junit.framework.Assert
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -74,7 +74,7 @@ class PredictInternalTest {
 
         predictInternal.setCustomer(customerId)
 
-        verify(mockKeyValueStore).putString("predict_customerId", customerId)
+        verify(mockKeyValueStore).putString("predict_customer_id", customerId)
     }
 
     @Test(expected = IllegalArgumentException::class)
