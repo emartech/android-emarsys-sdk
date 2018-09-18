@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,7 +22,6 @@ import android.widget.Toast;
 import com.emarsys.Emarsys;
 import com.emarsys.mobileengage.api.MobileEngageException;
 import com.emarsys.result.CompletionListener;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +29,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class MobileEngageFragment extends Fragment {
     private static final String TAG = "MobileEngageFragment";
@@ -182,7 +184,7 @@ public class MobileEngageFragment extends Fragment {
         pushToken.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String pushToken = FirebaseInstanceId.getInstance().getToken();
+                String pushToken = loadPushTokenFromSharedPreferences();
                 ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
                 String toastMessage = pushToken;
                 if (clipboard != null) {
@@ -198,6 +200,11 @@ public class MobileEngageFragment extends Fragment {
         });
 
         return root;
+    }
+
+    private String loadPushTokenFromSharedPreferences() {
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("sample", MODE_PRIVATE);
+        return sharedPreferences.getString("push_token", "<null>");
     }
 
     private void handleRequestSent(String title) {

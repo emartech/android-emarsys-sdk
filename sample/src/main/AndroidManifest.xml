@@ -31,15 +31,9 @@
         </activity>
 
         <service
-            android:name="com.emarsys.mobileengage.service.MobileEngageMessagingService">
+            android:name="com.emarsys.sample.SampleMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
-        </service>
-
-        <service
-            android:name="com.emarsys.mobileengage.service.MobileEngageInstanceIdService">
-            <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>

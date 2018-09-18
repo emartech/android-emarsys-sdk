@@ -60,9 +60,9 @@ public class NotificationListAdapter extends RecyclerView.Adapter<NotificationLi
 
         String imageUrl = notification.getCustomData().get("image");
         if (imageUrl != null) {
-            Picasso.with(holder.context).load(imageUrl).into(holder.imageView);
+            Picasso.get().load(imageUrl).into(holder.imageView);
         } else {
-            Picasso.with(holder.context).load(R.drawable.ic_image_black).into(holder.imageView);
+            Picasso.get().load(R.drawable.ic_image_black).into(holder.imageView);
         }
     }
 

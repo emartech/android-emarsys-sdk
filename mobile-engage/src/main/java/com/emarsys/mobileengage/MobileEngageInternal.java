@@ -75,7 +75,7 @@ public class MobileEngageInternal {
         return pushToken;
     }
 
-    void setPushToken(@NonNull String pushToken) {
+    public void setPushToken(@NonNull String pushToken) {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Argument: %s", pushToken);
         this.pushToken = pushToken;
         if (requestContext.getAppLoginParameters() != null) {

@@ -1,18 +1,19 @@
 object Versions {
-    const val kotlin_version = "1.2.51"
+    const val kotlin_version = "1.2.70"
     const val mockito_version = "2.18.3"
-    const val kluent_version = "1.40"
+    const val kluent_version = "1.41"
     const val espresso_version = "3.0.2"
-    const val firebase_version = "11.4.2"
+    const val firebase_core_version = "16.0.3"
+    const val firebase_messaging_version = "17.3.1"
     const val hamcrest_version = "1.3"
     const val support_test_version = "1.0.2"
-    const val support_library = "26.0.2"
+    const val support_library = "27.1.1"
 }
 
 object Libs {
     val support_annotations = "com.android.support:support-annotations:${Versions.support_library}"
-    val firebase_core = "com.google.firebase:firebase-core:${Versions.firebase_version}"
-    val firebase_messaging = "com.google.firebase:firebase-messaging:${Versions.firebase_version}"
+    val firebase_core = "com.google.firebase:firebase-core:${Versions.firebase_core_version}"
+    val firebase_messaging = "com.google.firebase:firebase-messaging:${Versions.firebase_messaging_version}"
     val espresso_idling_resources = "com.android.support.test.espresso:espresso-idling-resource:${Versions.espresso_version}"
     val support_appcompat = "com.android.support:appcompat-v7:${Versions.support_library}"
 }

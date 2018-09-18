@@ -30,6 +30,8 @@ public class SampleApplication extends Application implements EventHandler, Noti
         EmarsysConfig config = new EmarsysConfig.Builder()
                 .application(this)
                 .mobileEngageCredentials("14C19-A121F", "PaNkfOD90AVpYimMBuZopCpm8OWCrREu")
+                .contactFieldId(3)
+                .predictMerchantId("merchantId")
                 .enableDefaultChannel("default", "here is a description")
                 .inAppEventHandler(this)
                 .enableExperimentalFeatures(MobileEngageFeature.IN_APP_MESSAGING, MobileEngageFeature.USER_CENTRIC_INBOX)

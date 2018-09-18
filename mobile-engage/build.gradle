@@ -25,11 +25,11 @@ dependencies {
     implementation project(':core')
     implementation project(':core-api')
     implementation project(':mobile-engage-api')
-    api Libs.support_appcompat
-    api Libs.support_annotations
-    api Libs.firebase_core
-    api Libs.firebase_messaging
-    api Libs.espresso_idling_resources
+    implementation Libs.support_appcompat
+    implementation Libs.support_annotations
+    api Libs.firebase_core, { exclude group: 'com.android.support' }
+    api Libs.firebase_messaging, { exclude group: 'com.android.support' }
+    api Libs.espresso_idling_resources, { exclude group: 'com.android.support' }
 
     androidTestImplementation project(':testUtils')
 }

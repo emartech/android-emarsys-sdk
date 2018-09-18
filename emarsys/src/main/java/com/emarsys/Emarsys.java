@@ -90,7 +90,7 @@ public class Emarsys {
         }
 
         public static void setPushToken(@NonNull String pushToken) {
-
+            mobileEngageInternal.setPushToken(pushToken);
         }
     }
 
