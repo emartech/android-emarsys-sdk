@@ -8,7 +8,9 @@ import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.shard.ShardModel;
+import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
+import com.emarsys.predict.PredictInternal;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,15 +21,22 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
     private static final String PREDICT_BASE_URL = "https://recommender.scarabresearch.com/merchants";
 
     private final String merchantId;
+    private final KeyValueStore keyValueStore;
     private final UUIDProvider uuidProvider;
     private final TimestampProvider timestampProvider;
 
-    public PredictShardListMerger(String merchantId, TimestampProvider timestampProvider, UUIDProvider uuidProvider) {
+    public PredictShardListMerger(
+            String merchantId,
+            KeyValueStore keyValueStore,
+            TimestampProvider timestampProvider,
+            UUIDProvider uuidProvider) {
         Assert.notNull(merchantId, "MerchantId must not be null!");
+        Assert.notNull(keyValueStore, "KeyValueStore must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(uuidProvider, "UuidProvider must not be null!");
 
         this.merchantId = merchantId;
+        this.keyValueStore = keyValueStore;
         this.uuidProvider = uuidProvider;
         this.timestampProvider = timestampProvider;
     }
@@ -62,6 +71,11 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
         Map<String, Object> result = new LinkedHashMap<>();
 
         result.put("cp", 1);
+
+        String visitorId = keyValueStore.getString(PredictInternal.VISITOR_ID);
+        if (visitorId != null) {
+            result.put("vi", visitorId);
+        }
 
         for (ShardModel shard : shards) {
             result.putAll(shard.getData());

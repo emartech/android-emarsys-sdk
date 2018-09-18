@@ -5,6 +5,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
+import com.emarsys.core.storage.KeyValueStore
 import junit.framework.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -17,11 +18,13 @@ class PredictShardListMergerTest {
         const val ID = "id"
         const val TIMESTAMP = 125L
         const val TTL = Long.MAX_VALUE
+        const val VISITOR_ID = "888999888"
     }
 
     lateinit var merger: PredictShardListMerger
 
     lateinit var merchantId: String
+    lateinit var store: KeyValueStore
     lateinit var timestampProvider: TimestampProvider
     lateinit var uuidProvider: UUIDProvider
 
@@ -32,10 +35,11 @@ class PredictShardListMergerTest {
     @Before
     fun init() {
         merchantId = "merchantId555"
+        store = mock(KeyValueStore::class.java)
         timestampProvider = mock(TimestampProvider::class.java)
         uuidProvider = mock(UUIDProvider::class.java)
 
-        merger = PredictShardListMerger(merchantId, timestampProvider, uuidProvider)
+        merger = PredictShardListMerger(merchantId, store, timestampProvider, uuidProvider)
         `when`(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
         `when`(uuidProvider.provideId()).thenReturn(ID)
 
@@ -46,17 +50,22 @@ class PredictShardListMergerTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_merchantId_mustNotBeNull() {
-        PredictShardListMerger(null, timestampProvider, uuidProvider)
+        PredictShardListMerger(null, store, timestampProvider, uuidProvider)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_keyValueStore_mustNotBeNull() {
+        PredictShardListMerger(merchantId, null, timestampProvider, uuidProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_timestampProvider_mustNotBeNull() {
-        PredictShardListMerger(merchantId, null, uuidProvider)
+        PredictShardListMerger(merchantId,  store,null, uuidProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_uuidProvider_mustNotBeNull() {
-        PredictShardListMerger(merchantId, timestampProvider, null)
+        PredictShardListMerger(merchantId, store, timestampProvider, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -118,6 +127,22 @@ class PredictShardListMergerTest {
                 ID
         )
         assertEquals(expectedRequestModel, merger.map(listOf(shard3)))
+    }
+
+    @Test
+    fun testMap_withVisitorIdPresent() {
+        `when`(store.getString("predict_visitor_id")).thenReturn(VISITOR_ID)
+
+        val expectedRequestModel = RequestModel(
+                "https://recommender.scarabresearch.com/merchants/merchantId555?cp=1&vi=888999888&q3=c",
+                RequestMethod.GET,
+                null,
+                mapOf(),
+                TIMESTAMP,
+                TTL,
+                ID
+        )
+        assertEquals(expectedRequestModel, merger.map(listOf(shard2)))
     }
 
 }

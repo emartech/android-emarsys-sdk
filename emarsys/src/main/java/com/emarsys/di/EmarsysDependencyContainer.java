@@ -263,7 +263,11 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
         predictShardTrigger = new PredictShardTrigger(
                 shardModelRepository,
                 new PredictShardListChunker(),
-                new PredictShardListMerger(config.getPredictMerchantId(), timestampProvider, uuidProvider),
+                new PredictShardListMerger(
+                        config.getPredictMerchantId(),
+                        sharedPrefsKeyStore,
+                        timestampProvider,
+                        uuidProvider),
                 requestManager);
     }
 

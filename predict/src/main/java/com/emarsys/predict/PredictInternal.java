@@ -13,6 +13,8 @@ import java.util.List;
 
 public class PredictInternal {
 
+    public static final String VISITOR_ID = "predict_visitor_id";
+
     private static final String TYPE_CART = "predict_cart";
     private static final String TYPE_ITEM_VIEW = "predict_item_view";
 
