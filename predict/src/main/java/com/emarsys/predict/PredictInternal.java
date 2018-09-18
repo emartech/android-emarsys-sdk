@@ -20,6 +20,7 @@ public class PredictInternal {
     private static final String TYPE_PURCHASE = "predict_purchase";
     private static final String TYPE_ITEM_VIEW = "predict_item_view";
     private static final String TYPE_CATEGORY_VIEW = "predict_category_view";
+    private static final String TYPE_SEARCH_TERM = "predict_search_term";
 
     private final UUIDProvider uuidProvider;
     private final TimestampProvider timestampProvider;
@@ -95,8 +96,16 @@ public class PredictInternal {
         return shard.getId();
     }
 
-    public String trackSearchTerm(String term) {
-        return null;
+    public String trackSearchTerm(String searchTerm) {
+        Assert.notNull(searchTerm, "SearchTerm must not be null!");
+
+        ShardModel shard = new ShardModel.Builder(timestampProvider, uuidProvider)
+                .type(TYPE_SEARCH_TERM)
+                .payloadEntry("q", searchTerm)
+                .build();
+
+        requestManager.submit(shard);
+        return shard.getId();
     }
 
 }

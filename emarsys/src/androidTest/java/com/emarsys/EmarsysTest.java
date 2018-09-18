@@ -181,7 +181,7 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testTrackItemView_delegatesTo_predictInternal() {
+    public void testPredict_trackItemView_delegatesTo_predictInternal() {
         String itemId = RandomTestUtils.randomString();
 
         Emarsys.Predict.trackItemView(itemId);
@@ -195,12 +195,26 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testTrackCategoryView_delegatesTo_predictInternal() {
+    public void testPredict_trackCategoryView_delegatesTo_predictInternal() {
         String categoryPath = RandomTestUtils.randomString();
 
         Emarsys.Predict.trackCategoryView(categoryPath);
 
         verify(mockPredictInternal).trackCategoryView(categoryPath);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_trackSearchTerm_searchTerm_mustNotBeNull() {
+        Emarsys.Predict.trackSearchTerm(null);
+    }
+
+    @Test
+    public void testPredict_trackSearchTerm_delegatesTo_predictInternal() {
+        String searchTerm = RandomTestUtils.randomString();
+
+        Emarsys.Predict.trackSearchTerm(searchTerm);
+
+        verify(mockPredictInternal).trackSearchTerm(searchTerm);
     }
 
     private CartItem createItem(final String id, final double price, final double quantity) {

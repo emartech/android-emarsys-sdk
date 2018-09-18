@@ -215,4 +215,30 @@ class PredictInternalTest {
         verify(mockRequestManager).submit(expectedShardModel)
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun testTrackSearchTerm_searchTerm_mustNotBeNull() {
+        predictInternal.trackSearchTerm(null)
+    }
+
+    @Test
+    fun testTrackSearchTerm_returnsShardId() {
+        Assert.assertEquals(ID1, predictInternal.trackSearchTerm("searchTerm"))
+    }
+
+    @Test
+    fun testTrackSearchTerm_shouldCallRequestManager_withCorrectShardModel() {
+        val searchTerm = "searchTerm"
+
+        val expectedShardModel = ShardModel(
+                ID1,
+                "predict_search_term",
+                mapOf("q" to searchTerm),
+                TIMESTAMP,
+                TTL)
+
+        predictInternal.trackSearchTerm(searchTerm)
+
+        verify(mockRequestManager).submit(expectedShardModel)
+    }
+
 }
