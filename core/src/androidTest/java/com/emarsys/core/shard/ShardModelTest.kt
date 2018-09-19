@@ -3,12 +3,12 @@ package com.emarsys.core.shard;
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockito_kotlin.whenever
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
-import kotlin.test.assertEquals
 
 class ShardModelTest {
 
@@ -33,8 +33,8 @@ class ShardModelTest {
         payload = createPayload()
         timestampProvider = mock(TimestampProvider::class.java)
         uuidProvider = mock(UUIDProvider::class.java)
-        whenever(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
-        whenever(uuidProvider.provideId()).thenReturn(UUID)
+        `when`(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
+        `when`(uuidProvider.provideId()).thenReturn(UUID)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -101,7 +101,7 @@ class ShardModelTest {
                 .type("")
                 .build()
 
-        assertEquals(mapOf(), shardModel.data)
+        assertEquals(mapOf<String, Any>(), shardModel.data)
     }
 
     @Test

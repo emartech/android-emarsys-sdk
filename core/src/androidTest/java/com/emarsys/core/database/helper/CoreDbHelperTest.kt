@@ -5,9 +5,8 @@ import android.database.sqlite.SQLiteDatabase
 import android.support.test.InstrumentationRegistry
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldEqualTo
+import junit.framework.Assert
+
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -42,7 +41,7 @@ class CoreDbHelperTest {
         val cursor = dbHelper.readableCoreDatabase.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table'", null)
         cursor.use {
             it.moveToFirst()
-            it.getInt(0) shouldEqualTo 0
+            Assert.assertEquals(0, it.getInt(0))
         }
     }
 
@@ -60,8 +59,7 @@ class CoreDbHelperTest {
         )
 
         val actualColumns = getTableColumns(db, "request")
-
-        actualColumns shouldEqual expectedColumns
+        Assert.assertEquals(expectedColumns, actualColumns)
     }
 
     @Test
@@ -82,7 +80,7 @@ class CoreDbHelperTest {
 
         val actualColumns = getTableColumns(db, "request")
 
-        actualColumns shouldEqual expectedColumns
+        Assert.assertEquals(expectedColumns, actualColumns)
     }
 
     @Test
@@ -111,8 +109,8 @@ class CoreDbHelperTest {
         val actualRequestColumns = getTableColumns(db, "request")
         val actualShardColumns = getTableColumns(db, "shard")
 
-        actualRequestColumns shouldEqual expectedRequestColumns
-        actualShardColumns shouldEqual expectedShardColumns
+        Assert.assertEquals(expectedRequestColumns, actualRequestColumns)
+        Assert.assertEquals(expectedShardColumns, actualShardColumns)
     }
 
     @Test
@@ -120,7 +118,8 @@ class CoreDbHelperTest {
         initializeDatabaseWithVersion(3)
 
         val indexedColumns = getIndexedColumnsOnTable(db, "request")
-        indexedColumns.size shouldEqualTo 0
+
+        Assert.assertEquals(0, indexedColumns.size)
     }
 
     @Test
@@ -128,9 +127,9 @@ class CoreDbHelperTest {
         initializeDatabaseWithVersion(3)
 
         val indexedColumns = getIndexedColumnsOnTable(db, "shard")
-        indexedColumns.size shouldEqualTo 2
-        indexedColumns shouldContain "shard_id"
-        indexedColumns shouldContain "type"
+        Assert.assertEquals(2, indexedColumns.size)
+        Assert.assertTrue(indexedColumns.contains("shard_id"))
+        Assert.assertTrue(indexedColumns.contains("type"))
     }
 
     @Test
@@ -146,8 +145,8 @@ class CoreDbHelperTest {
         val actualRequestColumns = getTableColumns(db, "request")
         val actualShardColumns = getTableColumns(db, "shard")
 
-        actualRequestColumns shouldEqual expectedRequestColumns
-        actualShardColumns shouldEqual expectedShardColumns
+        Assert.assertEquals(expectedRequestColumns, actualRequestColumns)
+        Assert.assertEquals(expectedShardColumns, actualShardColumns)
     }
 
     private fun getTableColumns(db: SQLiteDatabase, tableName: String): Set<ColumnInfo> {

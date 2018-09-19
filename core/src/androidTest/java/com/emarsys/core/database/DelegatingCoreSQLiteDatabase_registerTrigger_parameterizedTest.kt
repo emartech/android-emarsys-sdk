@@ -8,15 +8,13 @@ import com.emarsys.core.database.trigger.TriggerKey
 import com.emarsys.core.database.trigger.TriggerType
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyZeroInteractions
-import junit.framework.Assert
+import junit.framework.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import org.mockito.Mockito.mock
+import org.mockito.Mockito.*
 
 @RunWith(Parameterized::class)
 class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
@@ -120,7 +118,7 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
                             },
                             Runnable {
                                 db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
-                                    Assert.assertEquals(0, it.count)
+                                    assertEquals(0, it.count)
                                 }
                                 mockRunnable.run()
                             },
@@ -136,7 +134,7 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
                             },
                             Runnable {
                                 db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
-                                    Assert.assertEquals(1, it.count)
+                                    assertEquals(1, it.count)
                                 }
                                 mockRunnable.run()
                             },
@@ -152,7 +150,7 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
                             },
                             Runnable {
                                 db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
-                                    Assert.assertEquals(1, it.count)
+                                    assertEquals(1, it.count)
                                 }
                                 mockRunnable.run()
                             },
@@ -168,7 +166,7 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
                             },
                             Runnable {
                                 db.backingDatabase.rawQuery("SELECT * FROM $TABLE_NAME", emptyArray()).let {
-                                    Assert.assertEquals(0, it.count)
+                                    assertEquals(0, it.count)
                                 }
                                 mockRunnable.run()
                             },

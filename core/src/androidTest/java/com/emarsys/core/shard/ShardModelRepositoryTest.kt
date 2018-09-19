@@ -9,14 +9,12 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockito_kotlin.whenever
-import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldEqualTo
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import java.io.Serializable
 
@@ -63,32 +61,32 @@ class ShardModelRepositoryTest {
     @Test
     fun testContentValuesFromItem() {
         val result = repository.contentValuesFromItem(shardModel)
-        shardModel.id shouldBeEqualTo result.getAsString(SHARD_COLUMN_ID)
-        shardModel.type shouldBeEqualTo result.getAsString(SHARD_COLUMN_TYPE)
-        serializableToBlob(shardModel.data) shouldEqual result.getAsByteArray(SHARD_COLUMN_DATA)
-        shardModel.timestamp shouldEqualTo result.getAsLong(SHARD_COLUMN_TIMESTAMP)
-        shardModel.ttl shouldEqualTo result.getAsLong(SHARD_COLUMN_TTL)
+        Assert.assertEquals(shardModel.id, result.getAsString(SHARD_COLUMN_ID))
+        Assert.assertEquals(shardModel.type, result.getAsString(SHARD_COLUMN_TYPE))
+        Assert.assertArrayEquals(serializableToBlob(shardModel.data), result.getAsByteArray(SHARD_COLUMN_DATA))
+        Assert.assertEquals(shardModel.timestamp, result.getAsLong(SHARD_COLUMN_TIMESTAMP))
+        Assert.assertEquals(shardModel.ttl, result.getAsLong(SHARD_COLUMN_TTL))
     }
 
     @Test
     fun testItemFromCursor() {
         val cursor = mock(Cursor::class.java)
 
-        whenever(cursor.getColumnIndex(SHARD_COLUMN_ID)).thenReturn(0)
-        whenever(cursor.getString(0)).thenReturn(SHARD_ID)
+        `when`(cursor.getColumnIndex(SHARD_COLUMN_ID)).thenReturn(0)
+        `when`(cursor.getString(0)).thenReturn(SHARD_ID)
 
-        whenever(cursor.getColumnIndex(SHARD_COLUMN_TYPE)).thenReturn(1)
-        whenever(cursor.getString(1)).thenReturn(TYPE)
+        `when`(cursor.getColumnIndex(SHARD_COLUMN_TYPE)).thenReturn(1)
+        `when`(cursor.getString(1)).thenReturn(TYPE)
 
-        whenever(cursor.getColumnIndex(SHARD_COLUMN_DATA)).thenReturn(2)
-        whenever(cursor.getBlob(2)).thenReturn(serializableToBlob(payload))
+        `when`(cursor.getColumnIndex(SHARD_COLUMN_DATA)).thenReturn(2)
+        `when`(cursor.getBlob(2)).thenReturn(serializableToBlob(payload))
 
-        whenever(cursor.getColumnIndex(SHARD_COLUMN_TIMESTAMP)).thenReturn(3)
-        whenever(cursor.getLong(3)).thenReturn(TIMESTAMP)
+        `when`(cursor.getColumnIndex(SHARD_COLUMN_TIMESTAMP)).thenReturn(3)
+        `when`(cursor.getLong(3)).thenReturn(TIMESTAMP)
 
-        whenever(cursor.getColumnIndex(SHARD_COLUMN_TTL)).thenReturn(4)
-        whenever(cursor.getLong(4)).thenReturn(TTL)
+        `when`(cursor.getColumnIndex(SHARD_COLUMN_TTL)).thenReturn(4)
+        `when`(cursor.getLong(4)).thenReturn(TTL)
 
-        shardModel shouldEqual repository.itemFromCursor(cursor)
+        Assert.assertEquals(shardModel, repository.itemFromCursor(cursor))
     }
 }

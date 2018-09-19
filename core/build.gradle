@@ -22,5 +22,4 @@ dependencies {
     implementation project(':core-api')
 
     androidTestImplementation project(':testUtils')
-    androidTestImplementation TestLibs.kluent
 }

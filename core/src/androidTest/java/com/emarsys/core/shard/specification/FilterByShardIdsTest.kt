@@ -9,7 +9,7 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import org.amshove.kluent.shouldEqual
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -56,7 +56,7 @@ class FilterByShardIdsTest {
         shardModelRepository.remove(FilterByShardIds(deletionShardList))
 
         val resultShardList = shardModelRepository.query(QueryAll("shard"))
-        resultShardList shouldEqual expectedShardList
+        assertEquals(expectedShardList, resultShardList)
     }
 
     @Test
@@ -65,7 +65,7 @@ class FilterByShardIdsTest {
         shardModelRepository.remove(FilterByShardIds(listOf()))
 
         val resultShardList = shardModelRepository.query(QueryAll("shard"))
-        resultShardList shouldEqual originalShardList
+        assertEquals(originalShardList, resultShardList)
     }
 
 }

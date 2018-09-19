@@ -1,10 +1,8 @@
 package com.emarsys.core.validate;
 
 import android.support.test.runner.AndroidJUnit4
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldNotEqual
 import org.json.JSONObject
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,7 +28,7 @@ class JsonObjectValidatorTest {
     @Test
     fun testFrom_shouldReturnValidator() {
         val validator = JsonObjectValidator.from(mock(JSONObject::class.java))
-        validator shouldNotEqual null
+        Assert.assertNotEquals(null, validator)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -42,8 +40,7 @@ class JsonObjectValidatorTest {
     fun testHasField_returnsTheSameInstance() {
         val validator1 = JsonObjectValidator.from(mock(JSONObject::class.java))
         val validator2 = validator1.hasField("field")
-
-        validator1 shouldBe validator2
+        Assert.assertSame(validator1, validator2)
     }
 
     @Test
@@ -52,8 +49,7 @@ class JsonObjectValidatorTest {
                 .from(JSONObject())
                 .hasField("timestamp")
                 .validate()
-
-        errors shouldEqual listOf("Missing field: 'timestamp'")
+        Assert.assertEquals(listOf("Missing field: 'timestamp'"), errors)
     }
 
     @Test
@@ -65,10 +61,10 @@ class JsonObjectValidatorTest {
                 .hasField("key2")
                 .validate()
 
-        errors shouldEqual listOf(
+        Assert.assertEquals(listOf(
                 "Missing field: 'timestamp'",
                 "Missing field: 'title'"
-        )
+        ), errors)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -85,8 +81,7 @@ class JsonObjectValidatorTest {
     fun testHasFieldAndType_returnsTheSameInstance() {
         val validator1 = JsonObjectValidator.from(mock(JSONObject::class.java))
         val validator2 = validator1.hasFieldWithType("field", Any::class.java)
-
-        validator1 shouldBe validator2
+        Assert.assertSame(validator1, validator2)
     }
 
     @Test
@@ -97,7 +92,7 @@ class JsonObjectValidatorTest {
                 .hasFieldWithType("timestamp", type)
                 .validate()
 
-        errors shouldEqual listOf("Missing field: 'timestamp' with type: $type")
+        Assert.assertEquals(listOf("Missing field: 'timestamp' with type: $type"), errors)
     }
 
     @Test
@@ -107,9 +102,8 @@ class JsonObjectValidatorTest {
                 .from(json)
                 .hasFieldWithType("key2", type)
                 .validate()
-
-        errors.size shouldEqual 1
-        errors shouldEqual listOf("Type mismatch for key: 'key2', expected type: $type, but was: ${java.lang.Double::class.java}")
+        Assert.assertEquals(1, errors.size)
+        Assert.assertEquals(listOf("Type mismatch for key: 'key2', expected type: $type, but was: ${java.lang.Double::class.java}"), errors)
     }
 
     @Test
@@ -123,10 +117,10 @@ class JsonObjectValidatorTest {
                 .hasFieldWithType("body", java.lang.String::class.java)
                 .validate()
 
-        errors shouldEqual listOf(
+        Assert.assertEquals(listOf(
                 "Type mismatch for key: 'key1', expected type: ${java.lang.Integer::class.java}, but was: ${java.lang.String::class.java}",
                 "Missing field: 'title'",
                 "Missing field: 'body' with type: ${java.lang.String::class.java}"
-        )
+        ), errors)
     }
 }
