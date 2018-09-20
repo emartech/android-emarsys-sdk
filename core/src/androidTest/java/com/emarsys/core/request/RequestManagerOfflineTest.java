@@ -44,6 +44,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class RequestManagerOfflineTest {
@@ -74,7 +75,7 @@ public class RequestManagerOfflineTest {
 
     @Before
     public void setup() {
-        DatabaseTestUtils.deleteCoreDatabase();
+        assertTrue(DatabaseTestUtils.deleteCoreDatabase());
 
         uiHandler = new Handler(Looper.getMainLooper());
     }
