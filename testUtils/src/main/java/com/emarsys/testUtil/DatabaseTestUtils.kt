@@ -9,13 +9,13 @@ object DatabaseTestUtils {
     val EMARSYS_MOBILE_ENGAGE_DB = "EmarsysMobileEngage.db"
 
     @JvmStatic
-    fun deleteCoreDatabase() {
-        InstrumentationRegistry.getContext().deleteDatabase(EMARSYS_CORE_QUEUE_DB)
+    fun deleteCoreDatabase(): Boolean {
+        return InstrumentationRegistry.getContext().deleteDatabase(EMARSYS_CORE_QUEUE_DB)
     }
 
     @JvmStatic
-    fun deleteMobileEngageDatabase() {
-        InstrumentationRegistry.getContext().deleteDatabase(EMARSYS_MOBILE_ENGAGE_DB)
+    fun deleteMobileEngageDatabase(): Boolean {
+        return InstrumentationRegistry.getContext().deleteDatabase(EMARSYS_MOBILE_ENGAGE_DB)
     }
 
     @JvmStatic
