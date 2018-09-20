@@ -1,7 +1,6 @@
-package com.emarsys.mobileengage.testUtil;
+package com.emarsys.testUtil;
 
 import com.emarsys.core.experimental.ExperimentalFeatures;
-import com.emarsys.testUtil.ReflectionTestUtils;
 
 public class ExperimentalTestUtils {
 

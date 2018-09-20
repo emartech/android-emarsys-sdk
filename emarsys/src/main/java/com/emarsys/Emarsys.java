@@ -6,10 +6,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.emarsys.config.EmarsysConfig;
+import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.trigger.TriggerEvent;
 import com.emarsys.core.database.trigger.TriggerType;
 import com.emarsys.core.di.DependencyInjection;
+import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.util.Assert;
 import com.emarsys.di.EmarsysDependencyContainer;
 import com.emarsys.mobileengage.MobileEngageInternal;
@@ -27,12 +29,17 @@ import java.util.Map;
 
 public class Emarsys {
 
+    private static EmarsysDependencyContainer container;
+
     private static MobileEngageInternal mobileEngageInternal;
     private static PredictInternal predictInternal;
-    private static EmarsysDependencyContainer container;
 
     public static void setup(@NonNull EmarsysConfig config) {
         Assert.notNull(config, "Config must not be null!");
+
+        for (FlipperFeature feature : config.getExperimentalFeatures()) {
+            ExperimentalFeatures.enableFeature(feature);
+        }
 
         DependencyInjection.setup(new EmarsysDependencyContainer(config));
         container = DependencyInjection.getContainer();

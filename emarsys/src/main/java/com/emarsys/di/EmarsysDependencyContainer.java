@@ -66,6 +66,7 @@ import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.di.PredictDependencyContainer;
+import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.predict.shard.PredictShardListChunker;
 import com.emarsys.predict.shard.PredictShardListMerger;
 import com.emarsys.predict.shard.PredictShardTrigger;
@@ -203,11 +204,12 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
         coreDatabase = coreDbHelper.getWritableCoreDatabase();
         MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(application, new HashMap<TriggerKey, List<Runnable>>());
 
+        buttonClickedRepository = new ButtonClickedRepository(mobileEngageDbHelper);
+        displayedIamRepository = new DisplayedIamRepository(mobileEngageDbHelper);
+
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
 
-        buttonClickedRepository = new ButtonClickedRepository(mobileEngageDbHelper);
-        displayedIamRepository = new DisplayedIamRepository(mobileEngageDbHelper);
         completionHandler = new MobileEngageCoreCompletionHandler(new MobileEngageStatusListener() {
             @Override
             public void onError(String id, Exception cause) {
@@ -345,6 +347,8 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
 
     private void initializeResponseHandlers() {
         List<AbstractResponseHandler> responseHandlers = new ArrayList<>();
+
+        responseHandlers.add(new VisitorIdResponseHandler(sharedPrefsKeyStore));
 
         if (MobileEngageExperimentalFeatures.isV3Enabled()) {
             responseHandlers.add(new MeIdResponseHandler(

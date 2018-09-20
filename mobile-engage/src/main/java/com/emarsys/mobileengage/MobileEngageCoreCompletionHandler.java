@@ -40,6 +40,10 @@ public class MobileEngageCoreCompletionHandler implements CoreCompletionHandler 
         this.responseHandlers.addAll(additionalResponseHandlers);
     }
 
+    public List<AbstractResponseHandler> getResponseHandlers() {
+        return responseHandlers;
+    }
+
     @Override
     public void onSuccess(final String id, final ResponseModel responseModel) {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Argument: %s", responseModel);

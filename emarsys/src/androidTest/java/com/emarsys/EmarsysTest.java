@@ -1,24 +1,39 @@
 package com.emarsys;
 
+import android.app.Activity;
 import android.app.Application;
+import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.config.EmarsysConfig;
+import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.trigger.TriggerEvent;
 import com.emarsys.core.database.trigger.TriggerType;
+import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.di.EmarsysDependencyContainer;
+import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
+import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
+import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.predict.shard.PredictShardTrigger;
+import com.emarsys.testUtil.CollectionTestUtils;
+import com.emarsys.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.RandomTestUtils;
 import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
+import org.json.JSONObject;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,19 +45,35 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
 public class EmarsysTest {
 
-    @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
+    static {
+        cacheMocks();
+    }
+
+    private static final String APPLICATION_CODE = "56789876";
+    private static final String APPLICATION_PASSWORD = "secret";
+    private static final int CONTACT_FIELD_ID = 3;
+    private static final String MERCHANT_ID = "merchantId";
 
     private MobileEngageInternal mockMobileEngageInternal;
     private PredictInternal mockPredictInternal;
     private Application application;
+    private EmarsysConfig baseConfig;
+    private EmarsysConfig userCentricInboxConfig;
+    private EmarsysConfig inAppConfig;
+    private EmarsysConfig inAppAndInboxConfig;
+
+    @Rule
+    public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     public void init() {
@@ -50,19 +81,120 @@ public class EmarsysTest {
         mockPredictInternal = mock(PredictInternal.class);
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
 
+        baseConfig = createConfigWithFlippers();
+        userCentricInboxConfig = createConfigWithFlippers(MobileEngageFeature.USER_CENTRIC_INBOX);
+        inAppConfig = createConfigWithFlippers(MobileEngageFeature.IN_APP_MESSAGING);
+        inAppAndInboxConfig = createConfigWithFlippers(
+                MobileEngageFeature.IN_APP_MESSAGING,
+                MobileEngageFeature.USER_CENTRIC_INBOX);
+
         ReflectionTestUtils.setStaticField(Emarsys.class, "mobileEngageInternal", mockMobileEngageInternal);
         ReflectionTestUtils.setStaticField(Emarsys.class, "predictInternal", mockPredictInternal);
     }
 
     @After
     public void tearDown() {
-        ReflectionTestUtils.setStaticField(Emarsys.class, "mobileEngageInternal", null);
-        ReflectionTestUtils.setStaticField(Emarsys.class, "predictInternal", null);
+        resetEmarsysStaticFields();
+        DependencyInjection.tearDown();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSetup_config_mustNotBeNull() {
         Emarsys.setup(null);
+    }
+
+    @Test
+    public void testSetup_initializesDependencyInjectionContainer() {
+        resetEmarsysStaticFields();
+
+        DependencyContainer container = ReflectionTestUtils.getStaticField(DependencyInjection.class, "container");
+        Assert.assertNull(container);
+
+        Emarsys.setup(baseConfig);
+
+        container = ReflectionTestUtils.getStaticField(DependencyInjection.class, "container");
+        Assert.assertNotNull(container);
+        Assert.assertEquals(EmarsysDependencyContainer.class, container.getClass());
+    }
+
+    @Test
+    public void testSetup_initializes_mobileEngageInstance() {
+        resetEmarsysStaticFields();
+
+        Emarsys.setup(baseConfig);
+
+        assertNotNull(ReflectionTestUtils.getStaticField(Emarsys.class, "mobileEngageInternal"));
+    }
+
+    @Test
+    public void testSetup_initializes_predictInstance() {
+        resetEmarsysStaticFields();
+
+        Emarsys.setup(baseConfig);
+
+        assertNotNull(ReflectionTestUtils.getStaticField(Emarsys.class, "predictInternal"));
+    }
+
+    @Test
+    public void testSetup_initializesCoreCompletionHandler_withNoFlippers() {
+        ExperimentalTestUtils.resetExperimentalFeatures();
+
+        Emarsys.setup(inAppConfig);
+
+        MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
+                .<EmarsysDependencyContainer>getContainer()
+                .getCoreCompletionHandler();
+
+        assertNotNull(coreCompletionHandler);
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), VisitorIdResponseHandler.class));
+    }
+
+    @Test
+    public void testSetup_initializesCoreCompletionHandler_whenInAppIsOn() {
+        ExperimentalTestUtils.resetExperimentalFeatures();
+
+        Emarsys.setup(inAppConfig);
+
+        MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
+                .<EmarsysDependencyContainer>getContainer()
+                .getCoreCompletionHandler();
+
+        assertNotNull(coreCompletionHandler);
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), VisitorIdResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MeIdResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppMessageResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppCleanUpResponseHandler.class));
+    }
+
+    @Test
+    public void testSetup_initializesCoreCompletionHandler_whenUserCentricInboxIsOn() {
+        ExperimentalTestUtils.resetExperimentalFeatures();
+
+        Emarsys.setup(userCentricInboxConfig);
+
+        MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
+                .<EmarsysDependencyContainer>getContainer()
+                .getCoreCompletionHandler();
+
+        assertNotNull(coreCompletionHandler);
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), VisitorIdResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MeIdResponseHandler.class));
+        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppMessageResponseHandler.class));
+        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppCleanUpResponseHandler.class));
+    }
+
+    @Test
+    public void testSetup_initializesCoreCompletionHandler_withMeIdResponseHandler_onlyOnce_whenBothUserCentricInboxAndInAppIsOn() {
+        ExperimentalTestUtils.resetExperimentalFeatures();
+
+        Emarsys.setup(inAppAndInboxConfig);
+
+        MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
+                .<EmarsysDependencyContainer>getContainer()
+                .getCoreCompletionHandler();
+
+        assertNotNull(coreCompletionHandler);
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MeIdResponseHandler.class));
     }
 
     @Test
@@ -234,5 +366,34 @@ public class EmarsysTest {
                 return quantity;
             }
         };
+    }
+
+    private EmarsysConfig createConfigWithFlippers(FlipperFeature... experimentalFeatures) {
+        return new EmarsysConfig.Builder()
+                .application(spy(application))
+                .mobileEngageCredentials(APPLICATION_CODE, APPLICATION_PASSWORD)
+                .predictMerchantId(MERCHANT_ID)
+                .contactFieldId(CONTACT_FIELD_ID)
+                .disableDefaultChannel()
+                .enableExperimentalFeatures(experimentalFeatures)
+                .inAppEventHandler(new EventHandler() {
+                    @Override
+                    public void handleEvent(String eventName, JSONObject payload) {
+
+                    }
+                })
+                .build();
+    }
+
+    private void resetEmarsysStaticFields() {
+        ReflectionTestUtils.setStaticField(Emarsys.class, "mobileEngageInternal", null);
+        ReflectionTestUtils.setStaticField(Emarsys.class, "predictInternal", null);
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private static void cacheMocks() {
+        mock(Application.class);
+        mock(Activity.class);
+        mock(Intent.class);
     }
 }
