@@ -13,6 +13,8 @@ import java.util.List;
 
 public class PredictInternal {
 
+    public static final String BASE_URL = "https://recommender.scarabresearch.com/merchants";
+
     public static final String VISITOR_ID_KEY = "predict_visitor_id";
     public static final String CUSTOMER_ID_KEY = "predict_customer_id";
 

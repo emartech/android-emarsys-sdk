@@ -18,8 +18,6 @@ import java.util.Map;
 
 public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestModel> {
 
-    private static final String PREDICT_BASE_URL = "https://recommender.scarabresearch.com/merchants";
-
     private final String merchantId;
     private final KeyValueStore keyValueStore;
     private final UUIDProvider uuidProvider;
@@ -56,7 +54,7 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
     private String createUrl(List<ShardModel> shards) {
         Map<String, Object> shardData = mergeShardData(shards);
 
-        Uri.Builder uriBuilder = Uri.parse(PREDICT_BASE_URL)
+        Uri.Builder uriBuilder = Uri.parse(PredictInternal.BASE_URL)
                 .buildUpon()
                 .appendPath(merchantId);
 
