@@ -5,12 +5,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.support.test.InstrumentationRegistry
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import junit.framework.Assert
-
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 
 class CoreDbHelperTest {
 

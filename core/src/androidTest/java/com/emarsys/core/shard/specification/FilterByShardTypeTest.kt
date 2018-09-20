@@ -6,8 +6,8 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import junit.framework.Assert.assertEquals
 import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

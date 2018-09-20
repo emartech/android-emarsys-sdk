@@ -1,6 +1,5 @@
-package com.emarsys.mobileengage.responsehandler;
+package com.emarsys.core.response;
 
-import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 
 public abstract class AbstractResponseHandler {

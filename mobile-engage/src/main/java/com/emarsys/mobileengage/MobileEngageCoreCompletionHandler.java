@@ -1,11 +1,11 @@
 package com.emarsys.mobileengage;
 
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.api.MobileEngageException;
-import com.emarsys.mobileengage.responsehandler.AbstractResponseHandler;
 import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 
 import java.lang.ref.WeakReference;

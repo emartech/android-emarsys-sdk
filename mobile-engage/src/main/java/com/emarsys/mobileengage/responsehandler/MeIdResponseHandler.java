@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.responsehandler;
 
+import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;

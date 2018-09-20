@@ -6,7 +6,7 @@ import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerKey
 import com.emarsys.core.database.trigger.TriggerType
 import com.emarsys.testUtil.TimeoutUtils
-import junit.framework.Assert
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

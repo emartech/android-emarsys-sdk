@@ -1,7 +1,7 @@
 package com.emarsys.predict.shard
 
 import com.emarsys.core.shard.ShardModel
-import junit.framework.Assert.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito

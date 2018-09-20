@@ -5,8 +5,9 @@ import android.os.Build;
 
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
-import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.response.AbstractResponseHandler;
+import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.iam.InAppPresenter;
