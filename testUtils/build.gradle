@@ -23,6 +23,7 @@ group = 'com.emarsys.testUtil'
 
 dependencies {
     api TestLibs.kotlin
+    api TestLibs.kotlin_test
     api TestLibs.mockito_android
     api TestLibs.support_test_runner
     api TestLibs.support_test_rules
