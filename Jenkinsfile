@@ -13,17 +13,12 @@ node('master') {
                     build job: 'android-core-sdk'
                 }
 
-                stage(' ') {
-                    def tasks = [
-                            'mobile-engage': {
-                                build job: 'android-mobile-engage-sdk'
-                            },
-                            'predict'      : {
-                                build job: 'android-predict-sdk'
-                            },
-                            'failFast'     : false
-                    ]
-                    parallel tasks
+                stage('mobile-engage') {
+                    build job: 'android-mobile-engage-sdk'
+                }
+
+                stage('predict') {
+                    build job: 'android-predict-sdk'
                 }
 
                 stage('emarsys') {
