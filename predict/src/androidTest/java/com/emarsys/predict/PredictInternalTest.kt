@@ -80,6 +80,20 @@ class PredictInternalTest {
         verify(mockKeyValueStore).putString("predict_customer_id", customerId)
     }
 
+    @Test
+    fun testClearCustomer_shouldRemove_customerIdFromKeyValueStore() {
+        predictInternal.clearCustomer()
+
+        verify(mockKeyValueStore).remove("predict_customer_id")
+    }
+
+    @Test
+    fun testClearCustomer_shouldRemove_visitorIdFromKeyValueStore() {
+        predictInternal.clearCustomer()
+
+        verify(mockKeyValueStore).remove("predict_visitor_id")
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun testTrackCart_items_mustNotBeNull() {
         predictInternal.trackCart(null)

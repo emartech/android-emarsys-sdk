@@ -45,6 +45,11 @@ public class PredictInternal {
         keyValueStore.putString(CUSTOMER_ID_KEY, customerId);
     }
 
+    public void clearCustomer() {
+        keyValueStore.remove(CUSTOMER_ID_KEY);
+        keyValueStore.remove(VISITOR_ID_KEY);
+    }
+
     public String trackCart(List<CartItem> items) {
         Assert.notNull(items, "Items must not be null!");
         Assert.elementsNotNull(items, "Item elements must not be null!");
@@ -109,5 +114,4 @@ public class PredictInternal {
         requestManager.submit(shard);
         return shard.getId();
     }
-
 }

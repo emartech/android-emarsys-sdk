@@ -65,7 +65,8 @@ public class Emarsys {
     }
 
     public static void clearCustomer() {
-
+        mobileEngageInternal.appLogout();
+        predictInternal.clearCustomer();
     }
 
     public static void clearCustomer(@NonNull CompletionListener resultListener) {

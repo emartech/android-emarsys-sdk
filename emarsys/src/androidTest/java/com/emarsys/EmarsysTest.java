@@ -139,7 +139,7 @@ public class EmarsysTest {
     public void testSetup_initializesCoreCompletionHandler_withNoFlippers() {
         ExperimentalTestUtils.resetExperimentalFeatures();
 
-        Emarsys.setup(inAppConfig);
+        Emarsys.setup(baseConfig);
 
         MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
                 .<EmarsysDependencyContainer>getContainer()
@@ -147,6 +147,9 @@ public class EmarsysTest {
 
         assertNotNull(coreCompletionHandler);
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), VisitorIdResponseHandler.class));
+        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MeIdResponseHandler.class));
+        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppMessageResponseHandler.class));
+        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppCleanUpResponseHandler.class));
     }
 
     @Test
@@ -227,7 +230,7 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testSetCustomer_delegatesTo_mobileEngageInternalAppLogin() {
+    public void testSetCustomer_delegatesTo_mobileEngageInternal() {
         String customerId = "customerId";
 
         Emarsys.setCustomer(customerId);
@@ -236,12 +239,26 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testSetCustomer_delegatesTo_predictInternalSetCustomer() {
+    public void testSetCustomer_delegatesTo_predictInternal() {
         String customerId = "customerId";
 
         Emarsys.setCustomer(customerId);
 
         verify(mockPredictInternal).setCustomer(customerId);
+    }
+
+    @Test
+    public void testClearCustomer_delegatesTo_mobileEngageInternal() {
+        Emarsys.clearCustomer();
+
+        verify(mockMobileEngageInternal).appLogout();
+    }
+
+    @Test
+    public void testClearCustomer_delegatesTo_predictInternal() {
+        Emarsys.clearCustomer();
+
+        verify(mockPredictInternal).clearCustomer();
     }
 
     @Test(expected = IllegalArgumentException.class)
