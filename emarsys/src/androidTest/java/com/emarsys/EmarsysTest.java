@@ -13,7 +13,9 @@ import com.emarsys.core.database.trigger.TriggerEvent;
 import com.emarsys.core.database.trigger.TriggerType;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
-import com.emarsys.di.EmarsysDependencyContainer;
+import com.emarsys.di.DefaultDependencyContainer;
+import com.emarsys.di.EmarysDependencyContainer;
+import com.emarsys.di.FakeDependencyContainer;
 import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
@@ -28,7 +30,6 @@ import com.emarsys.predict.shard.PredictShardTrigger;
 import com.emarsys.testUtil.CollectionTestUtils;
 import com.emarsys.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.RandomTestUtils;
-import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.json.JSONObject;
@@ -50,7 +51,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
 public class EmarsysTest {
@@ -66,7 +66,11 @@ public class EmarsysTest {
 
     private MobileEngageInternal mockMobileEngageInternal;
     private PredictInternal mockPredictInternal;
+    private CoreSQLiteDatabase mockCoreDatabase;
+    private Runnable mockPredictShardTrigger;
+
     private Application application;
+
     private EmarsysConfig baseConfig;
     private EmarsysConfig userCentricInboxConfig;
     private EmarsysConfig inAppConfig;
@@ -77,9 +81,12 @@ public class EmarsysTest {
 
     @Before
     public void init() {
+        application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
+
         mockMobileEngageInternal = mock(MobileEngageInternal.class);
         mockPredictInternal = mock(PredictInternal.class);
-        application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
+        mockCoreDatabase = mock(CoreSQLiteDatabase.class);
+        mockPredictShardTrigger = mock(PredictShardTrigger.class);
 
         baseConfig = createConfigWithFlippers();
         userCentricInboxConfig = createConfigWithFlippers(MobileEngageFeature.USER_CENTRIC_INBOX);
@@ -88,13 +95,25 @@ public class EmarsysTest {
                 MobileEngageFeature.IN_APP_MESSAGING,
                 MobileEngageFeature.USER_CENTRIC_INBOX);
 
-        ReflectionTestUtils.setStaticField(Emarsys.class, "mobileEngageInternal", mockMobileEngageInternal);
-        ReflectionTestUtils.setStaticField(Emarsys.class, "predictInternal", mockPredictInternal);
+        DependencyInjection.setup(new FakeDependencyContainer(
+                null,
+                null,
+                mockCoreDatabase,
+                mockMobileEngageInternal,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                mockPredictInternal,
+                mockPredictShardTrigger
+        ));
     }
 
     @After
     public void tearDown() {
-        resetEmarsysStaticFields();
         DependencyInjection.tearDown();
     }
 
@@ -105,44 +124,41 @@ public class EmarsysTest {
 
     @Test
     public void testSetup_initializesDependencyInjectionContainer() {
-        resetEmarsysStaticFields();
-
-        DependencyContainer container = ReflectionTestUtils.getStaticField(DependencyInjection.class, "container");
-        Assert.assertNull(container);
+        DependencyInjection.tearDown();
 
         Emarsys.setup(baseConfig);
 
-        container = ReflectionTestUtils.getStaticField(DependencyInjection.class, "container");
-        Assert.assertNotNull(container);
-        Assert.assertEquals(EmarsysDependencyContainer.class, container.getClass());
+        DependencyContainer container = DependencyInjection.getContainer();
+        Assert.assertEquals(DefaultDependencyContainer.class, container.getClass());
     }
 
     @Test
     public void testSetup_initializes_mobileEngageInstance() {
-        resetEmarsysStaticFields();
+        DependencyInjection.tearDown();
 
         Emarsys.setup(baseConfig);
 
-        assertNotNull(ReflectionTestUtils.getStaticField(Emarsys.class, "mobileEngageInternal"));
+        assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getMobileEngageInternal());
     }
 
     @Test
     public void testSetup_initializes_predictInstance() {
-        resetEmarsysStaticFields();
+        DependencyInjection.tearDown();
 
         Emarsys.setup(baseConfig);
 
-        assertNotNull(ReflectionTestUtils.getStaticField(Emarsys.class, "predictInternal"));
+        assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getPredictInternal());
     }
 
     @Test
     public void testSetup_initializesCoreCompletionHandler_withNoFlippers() {
+        DependencyInjection.tearDown();
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         Emarsys.setup(baseConfig);
 
         MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
-                .<EmarsysDependencyContainer>getContainer()
+                .<DefaultDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
         assertNotNull(coreCompletionHandler);
@@ -154,12 +170,13 @@ public class EmarsysTest {
 
     @Test
     public void testSetup_initializesCoreCompletionHandler_whenInAppIsOn() {
+        DependencyInjection.tearDown();
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         Emarsys.setup(inAppConfig);
 
         MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
-                .<EmarsysDependencyContainer>getContainer()
+                .<DefaultDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
         assertNotNull(coreCompletionHandler);
@@ -171,12 +188,13 @@ public class EmarsysTest {
 
     @Test
     public void testSetup_initializesCoreCompletionHandler_whenUserCentricInboxIsOn() {
+        DependencyInjection.tearDown();
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         Emarsys.setup(userCentricInboxConfig);
 
         MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
-                .<EmarsysDependencyContainer>getContainer()
+                .<DefaultDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
         assertNotNull(coreCompletionHandler);
@@ -188,12 +206,13 @@ public class EmarsysTest {
 
     @Test
     public void testSetup_initializesCoreCompletionHandler_withMeIdResponseHandler_onlyOnce_whenBothUserCentricInboxAndInAppIsOn() {
+        DependencyInjection.tearDown();
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         Emarsys.setup(inAppAndInboxConfig);
 
         MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
-                .<EmarsysDependencyContainer>getContainer()
+                .<DefaultDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
         assertNotNull(coreCompletionHandler);
@@ -201,28 +220,11 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testSetup_registersPredictTigger() {
-        EmarsysDependencyContainer container = mock(EmarsysDependencyContainer.class);
-        CoreSQLiteDatabase coreDB = mock(CoreSQLiteDatabase.class);
-        Runnable trigger = mock(PredictShardTrigger.class);
+    public void testSetup_registersPredictTrigger() {
+        Emarsys.setup(baseConfig);
 
-        when(container.getCoreSQLiteDatabase()).thenReturn(coreDB);
-        when(container.getPredictShardTrigger()).thenReturn(trigger);
-
-        DependencyInjection.setup(container);
-
-        EmarsysConfig config = new EmarsysConfig.Builder()
-                .mobileEngageCredentials("", "")
-                .contactFieldId(1)
-                .predictMerchantId("")
-                .disableDefaultChannel()
-                .application(application).build();
-
-        Emarsys.setup(config);
-
-        verify(coreDB).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, trigger);
+        verify(mockCoreDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockPredictShardTrigger);
     }
-
 
     @Test(expected = IllegalArgumentException.class)
     public void testSetCustomer_customerId_mustNotBeNull() {
@@ -400,11 +402,6 @@ public class EmarsysTest {
                     }
                 })
                 .build();
-    }
-
-    private void resetEmarsysStaticFields() {
-        ReflectionTestUtils.setStaticField(Emarsys.class, "mobileEngageInternal", null);
-        ReflectionTestUtils.setStaticField(Emarsys.class, "predictInternal", null);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

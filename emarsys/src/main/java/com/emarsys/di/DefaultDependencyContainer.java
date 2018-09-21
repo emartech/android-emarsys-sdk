@@ -77,7 +77,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EmarsysDependencyContainer implements MobileEngageDependencyContainer, PredictDependencyContainer {
+public class DefaultDependencyContainer implements EmarysDependencyContainer {
 
     private static final String EMARSYS_SHARED_PREFERENCES_NAME = "emarsys_shared_preferences";
 
@@ -113,7 +113,7 @@ public class EmarsysDependencyContainer implements MobileEngageDependencyContain
     private UUIDProvider uuidProvider;
     private KeyValueStore sharedPrefsKeyStore;
 
-    public EmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
+    public DefaultDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeDependencies(emarsysConfig);
         initializeInstances();
         initializeInAppPresenter();

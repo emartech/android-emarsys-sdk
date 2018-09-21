@@ -13,7 +13,8 @@ import com.emarsys.core.database.trigger.TriggerType;
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.util.Assert;
-import com.emarsys.di.EmarsysDependencyContainer;
+import com.emarsys.di.DefaultDependencyContainer;
+import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.inbox.Notification;
@@ -29,11 +30,6 @@ import java.util.Map;
 
 public class Emarsys {
 
-    private static EmarsysDependencyContainer container;
-
-    private static MobileEngageInternal mobileEngageInternal;
-    private static PredictInternal predictInternal;
-
     public static void setup(@NonNull EmarsysConfig config) {
         Assert.notNull(config, "Config must not be null!");
 
@@ -41,22 +37,20 @@ public class Emarsys {
             ExperimentalFeatures.enableFeature(feature);
         }
 
-        DependencyInjection.setup(new EmarsysDependencyContainer(config));
-        container = DependencyInjection.getContainer();
-        initializeFields();
+        DependencyInjection.setup(new DefaultDependencyContainer(config));
 
-        container.getCoreSQLiteDatabase().registerTrigger(
+        getContainer().getCoreSQLiteDatabase().registerTrigger(
                 DatabaseContract.SHARD_TABLE_NAME,
                 TriggerType.AFTER,
                 TriggerEvent.INSERT,
-                container.getPredictShardTrigger());
+                getContainer().getPredictShardTrigger());
     }
 
     public static void setCustomer(@NonNull String customerId) {
         Assert.notNull(customerId, "CustomerId must not be null!");
 
-        mobileEngageInternal.appLogin(customerId);
-        predictInternal.setCustomer(customerId);
+        getMobileEngageInternal().appLogin(customerId);
+        getPredictInternal().setCustomer(customerId);
     }
 
     public static void setCustomer(
@@ -65,8 +59,8 @@ public class Emarsys {
     }
 
     public static void clearCustomer() {
-        mobileEngageInternal.appLogout();
-        predictInternal.clearCustomer();
+        getMobileEngageInternal().appLogout();
+        getPredictInternal().clearCustomer();
     }
 
     public static void clearCustomer(@NonNull CompletionListener resultListener) {
@@ -89,16 +83,16 @@ public class Emarsys {
     }
 
     public static class Push {
+
         public static void trackMessageOpen(@NonNull Intent intent) {
         }
-
         public static void trackMessageOpen(
                 @NonNull Intent intent,
                 @NonNull CompletionListener resultListener) {
         }
 
         public static void setPushToken(@NonNull String pushToken) {
-            mobileEngageInternal.setPushToken(pushToken);
+            getMobileEngageInternal().setPushToken(pushToken);
         }
     }
 
@@ -127,7 +121,6 @@ public class Emarsys {
         public static void purgeNotificationCache() {
 
         }
-
     }
 
     public static class InApp {
@@ -144,7 +137,6 @@ public class Emarsys {
 
         public static void setEventHandler(@NonNull EventHandler eventHandler) {
         }
-
     }
 
     public static class Predict {
@@ -153,7 +145,7 @@ public class Emarsys {
             Assert.notNull(items, "Items must not be null!");
             Assert.elementsNotNull(items, "Item elements must not be null!");
 
-            predictInternal.trackCart(items);
+            getPredictInternal().trackCart(items);
         }
 
         public static void trackPurchase(@NonNull String orderId, @NonNull List<CartItem> items) {
@@ -161,32 +153,38 @@ public class Emarsys {
             Assert.notNull(items, "Items must not be null!");
             Assert.elementsNotNull(items, "Item elements must not be null!");
 
-            predictInternal.trackPurchase(orderId, items);
+            getPredictInternal().trackPurchase(orderId, items);
         }
 
         public static void trackItemView(@NonNull String itemId) {
             Assert.notNull(itemId, "ItemId must not be null!");
 
-            predictInternal.trackItemView(itemId);
+            getPredictInternal().trackItemView(itemId);
         }
 
         public static void trackCategoryView(@NonNull String categoryPath) {
             Assert.notNull(categoryPath, "CategoryPath must not be null!");
 
-            predictInternal.trackCategoryView(categoryPath);
+            getPredictInternal().trackCategoryView(categoryPath);
         }
 
         public static void trackSearchTerm(@NonNull String searchTerm) {
             Assert.notNull(searchTerm, "SearchTerm must not be null!");
 
-            predictInternal.trackSearchTerm(searchTerm);
+            getPredictInternal().trackSearchTerm(searchTerm);
         }
 
     }
 
-    private static void initializeFields() {
-        mobileEngageInternal = container.getMobileEngageInternal();
-        predictInternal = container.getPredictInternal();
+    private static EmarysDependencyContainer getContainer() {
+        return DependencyInjection.getContainer();
     }
 
+    private static MobileEngageInternal getMobileEngageInternal() {
+        return getContainer().getMobileEngageInternal();
+    }
+
+    private static PredictInternal getPredictInternal() {
+        return getContainer().getPredictInternal();
+    }
 }
