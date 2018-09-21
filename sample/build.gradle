@@ -26,6 +26,11 @@ android {
             }
         }
     }
+    buildTypes {
+        debug {
+            multiDexEnabled true
+        }
+    }
 }
 
 buildscript {
