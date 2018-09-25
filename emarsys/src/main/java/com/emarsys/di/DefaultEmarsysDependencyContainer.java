@@ -42,7 +42,6 @@ import com.emarsys.mobileengage.config.OreoConfig;
 import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
-import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.mobileengage.experimental.MobileEngageExperimentalFeatures;
 import com.emarsys.mobileengage.iam.DoNotDisturbProvider;
 import com.emarsys.mobileengage.iam.InAppPresenter;
@@ -65,7 +64,6 @@ import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.predict.PredictInternal;
-import com.emarsys.predict.di.PredictDependencyContainer;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.predict.shard.PredictShardListChunker;
 import com.emarsys.predict.shard.PredictShardListMerger;
@@ -77,7 +75,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultDependencyContainer implements EmarysDependencyContainer {
+public class DefaultEmarsysDependencyContainer implements EmarysDependencyContainer {
 
     private static final String EMARSYS_SHARED_PREFERENCES_NAME = "emarsys_shared_preferences";
 
@@ -113,7 +111,7 @@ public class DefaultDependencyContainer implements EmarysDependencyContainer {
     private UUIDProvider uuidProvider;
     private KeyValueStore sharedPrefsKeyStore;
 
-    public DefaultDependencyContainer(EmarsysConfig emarsysConfig) {
+    public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeDependencies(emarsysConfig);
         initializeInstances();
         initializeInAppPresenter();

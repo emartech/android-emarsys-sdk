@@ -13,7 +13,7 @@ import com.emarsys.core.database.trigger.TriggerEvent;
 import com.emarsys.core.database.trigger.TriggerType;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
-import com.emarsys.di.DefaultDependencyContainer;
+import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.di.FakeDependencyContainer;
 import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
@@ -129,7 +129,7 @@ public class EmarsysTest {
         Emarsys.setup(baseConfig);
 
         DependencyContainer container = DependencyInjection.getContainer();
-        Assert.assertEquals(DefaultDependencyContainer.class, container.getClass());
+        Assert.assertEquals(DefaultEmarsysDependencyContainer.class, container.getClass());
     }
 
     @Test
@@ -158,7 +158,7 @@ public class EmarsysTest {
         Emarsys.setup(baseConfig);
 
         MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
-                .<DefaultDependencyContainer>getContainer()
+                .<DefaultEmarsysDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
         assertNotNull(coreCompletionHandler);
@@ -176,7 +176,7 @@ public class EmarsysTest {
         Emarsys.setup(inAppConfig);
 
         MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
-                .<DefaultDependencyContainer>getContainer()
+                .<DefaultEmarsysDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
         assertNotNull(coreCompletionHandler);
@@ -194,7 +194,7 @@ public class EmarsysTest {
         Emarsys.setup(userCentricInboxConfig);
 
         MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
-                .<DefaultDependencyContainer>getContainer()
+                .<DefaultEmarsysDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
         assertNotNull(coreCompletionHandler);
@@ -212,7 +212,7 @@ public class EmarsysTest {
         Emarsys.setup(inAppAndInboxConfig);
 
         MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
-                .<DefaultDependencyContainer>getContainer()
+                .<DefaultEmarsysDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
         assertNotNull(coreCompletionHandler);

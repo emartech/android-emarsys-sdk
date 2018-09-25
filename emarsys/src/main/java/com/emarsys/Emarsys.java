@@ -13,7 +13,7 @@ import com.emarsys.core.database.trigger.TriggerType;
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.util.Assert;
-import com.emarsys.di.DefaultDependencyContainer;
+import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
@@ -37,7 +37,7 @@ public class Emarsys {
             ExperimentalFeatures.enableFeature(feature);
         }
 
-        DependencyInjection.setup(new DefaultDependencyContainer(config));
+        DependencyInjection.setup(new DefaultEmarsysDependencyContainer(config));
 
         getContainer().getCoreSQLiteDatabase().registerTrigger(
                 DatabaseContract.SHARD_TABLE_NAME,
