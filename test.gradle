@@ -1,0 +1,8 @@
+android {
+    buildTypes {
+        debug {
+            multiDexKeepProguard file("$rootDir/proguard-multidex-rules.pro")
+            multiDexEnabled true
+        }
+    }
+}

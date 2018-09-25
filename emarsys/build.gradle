@@ -2,6 +2,7 @@ apply from: 'version.gradle'
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.github.dcendents.android-maven'
+apply from: '../test.gradle'
 
 android {
     compileSdkVersion Config.targetApiLevel
@@ -16,9 +17,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        debug {
-            multiDexEnabled true
         }
     }
 }

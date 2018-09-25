@@ -3,7 +3,9 @@
     android:versionCode="1"
     android:versionName="1.0">
 
-    <application android:label="emarsys-mobile-engage-android-test">
+    <application
+        android:name="android.support.multidex.MultiDexApplication"
+        android:label="emarsys-mobile-engage-android-test">
         <activity android:name=".fake.FakeActivity" />
     </application>
 
