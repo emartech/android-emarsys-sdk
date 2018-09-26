@@ -1,5 +1,5 @@
 object Versions {
-    const val kotlin_version = "1.2.70"
+    const val kotlin_version = "1.2.71"
     const val kotlin_test_version = "3.1.10"
     const val mockito_version = "2.18.3"
     const val espresso_version = "3.0.2"
