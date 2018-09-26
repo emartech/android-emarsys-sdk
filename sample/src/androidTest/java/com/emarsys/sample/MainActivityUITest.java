@@ -6,7 +6,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.rule.ActivityTestRule;
-import android.support.test.rule.DisableOnAndroidDebug;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.core.di.DependencyInjection;
@@ -16,17 +15,16 @@ import com.emarsys.mobileengage.MobileEngageUtils;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
+import com.emarsys.sample.testutils.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
-import java.util.concurrent.TimeUnit;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -40,7 +38,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 public class MainActivityUITest {
 
     @Rule
-    public TestRule timeout = new DisableOnAndroidDebug(new Timeout(30,TimeUnit.SECONDS));
+    public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Rule
     public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<>(MainActivity.class);
