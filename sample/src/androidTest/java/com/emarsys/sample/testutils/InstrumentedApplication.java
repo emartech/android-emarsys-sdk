@@ -1,6 +1,8 @@
 package com.emarsys.sample.testutils;
 
+import android.content.Context;
 import android.os.Handler;
+import android.support.multidex.MultiDex;
 
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.mobileengage.MobileEngage;
@@ -9,6 +11,13 @@ import com.emarsys.sample.SampleApplication;
 import java.lang.reflect.Field;
 
 public class InstrumentedApplication extends SampleApplication {
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
