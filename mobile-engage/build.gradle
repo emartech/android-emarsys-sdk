@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 apply from: '../test.gradle'
 
 android {
+    buildToolsVersion Versions.buildToolsVersion
     compileSdkVersion Config.targetApiLevel
     defaultConfig {
         minSdkVersion Config.minApiLevel

@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply from: '../test.gradle'
 
 android {
+    buildToolsVersion Versions.buildToolsVersion
     compileSdkVersion Config.targetApiLevel
     defaultConfig {
         applicationId "com.emarsys.sample"
@@ -64,7 +65,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:17.3.1'
     implementation 'com.google.firebase:firebase-core:16.0.3'
     implementation 'com.squareup.picasso:picasso:2.71828', {
-        exclude group:'com.android.support'
+        exclude group: 'com.android.support'
     }
 
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

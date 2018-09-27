@@ -8,6 +8,7 @@ object Versions {
     const val hamcrest_version = "1.3"
     const val support_test_version = "1.0.2"
     const val support_library = "27.1.1"
+    const val buildToolsVersion = "28.0.3"
 }
 
 object Libs {

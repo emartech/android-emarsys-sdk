@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply from: '../test.gradle'
 
 android {
+    buildToolsVersion Versions.buildToolsVersion
     compileSdkVersion Config.targetApiLevel
     defaultConfig {
         minSdkVersion Config.minApiLevel
