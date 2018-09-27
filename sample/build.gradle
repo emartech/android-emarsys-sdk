@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply from: '../test.gradle'
 
 android {
     buildToolsVersion Versions.buildToolsVersion
@@ -30,6 +29,7 @@ android {
     }
     buildTypes {
         debug {
+            multiDexKeepProguard file("proguard-multidex-rules.pro")
             multiDexEnabled true
         }
     }

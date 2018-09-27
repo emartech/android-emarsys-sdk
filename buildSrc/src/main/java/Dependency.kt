@@ -9,6 +9,7 @@ object Versions {
     const val support_test_version = "1.0.2"
     const val support_library = "27.1.1"
     const val buildToolsVersion = "28.0.3"
+    const val multiDexVersion = "1.0.3"
 }
 
 object Libs {
@@ -29,4 +30,5 @@ object TestLibs {
     val hamcrest_core = "org.hamcrest:hamcrest-core:${Versions.hamcrest_version}"
     val hamcrest_integration = "org.hamcrest:hamcrest-integration:${Versions.hamcrest_version}"
     val hamcrest_library = "org.hamcrest:hamcrest-library:${Versions.hamcrest_version}"
+    val multiDex = "com.android.support:multidex-instrumentation:${Versions.multiDexVersion}"
 }

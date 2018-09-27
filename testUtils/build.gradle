@@ -33,4 +33,5 @@ dependencies {
     api TestLibs.hamcrest_core
     api TestLibs.hamcrest_integration
     api TestLibs.hamcrest_library
+    api TestLibs.multiDex
 }
