@@ -14,11 +14,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.emarsys.Emarsys;
+import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
-import com.emarsys.result.ResultListener;
-import com.emarsys.result.Try;
-
 
 import java.util.ArrayList;
 import java.util.List;

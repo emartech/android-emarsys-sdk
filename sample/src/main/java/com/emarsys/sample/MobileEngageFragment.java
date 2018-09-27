@@ -20,8 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.emarsys.Emarsys;
+import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.mobileengage.api.MobileEngageException;
-import com.emarsys.result.CompletionListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;

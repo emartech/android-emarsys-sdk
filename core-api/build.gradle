@@ -21,5 +21,7 @@ android {
 group = 'com.emarsys.core.api'
 
 dependencies {
+    api Libs.support_annotations
+
     androidTestImplementation project(':testUtils')
 }

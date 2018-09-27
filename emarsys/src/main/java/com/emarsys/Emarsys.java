@@ -7,6 +7,9 @@ import android.support.annotation.Nullable;
 
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.api.experimental.FlipperFeature;
+import com.emarsys.core.api.result.CompletionListener;
+import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.trigger.TriggerEvent;
 import com.emarsys.core.database.trigger.TriggerType;
@@ -21,9 +24,6 @@ import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.api.model.CartItem;
-import com.emarsys.result.CompletionListener;
-import com.emarsys.result.ResultListener;
-import com.emarsys.result.Try;
 
 import java.util.List;
 import java.util.Map;

@@ -8,10 +8,10 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.emarsys.Emarsys;
+import com.emarsys.core.api.result.CompletionListener;
+import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
-import com.emarsys.result.CompletionListener;
-import com.emarsys.result.ResultListener;
-import com.emarsys.result.Try;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";

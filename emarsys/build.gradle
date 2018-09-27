@@ -34,8 +34,6 @@ dependencies {
     implementation project(':mobile-engage')
     implementation project(':predict')
 
-    implementation Libs.support_annotations
-
     androidTestImplementation project(':testUtils')
 }
 

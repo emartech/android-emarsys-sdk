@@ -1,4 +1,4 @@
-package com.emarsys.result;
+package com.emarsys.core.api.result;
 
 import android.support.annotation.NonNull;
 
