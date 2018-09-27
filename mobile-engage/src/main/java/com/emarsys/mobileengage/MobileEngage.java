@@ -40,7 +40,6 @@ public class MobileEngage {
 
         public static void fetchNotifications(@NonNull InboxResultListener<NotificationInboxStatus> resultListener) {
             Assert.notNull(resultListener, "ResultListener must not be null!");
-            inboxInstance.fetchNotifications(resultListener);
         }
 
         public static void resetBadgeCount() {
@@ -48,11 +47,10 @@ public class MobileEngage {
         }
 
         public static void resetBadgeCount(@Nullable ResetBadgeCountResultListener resultListener) {
-            inboxInstance.resetBadgeCount(resultListener);
         }
 
         public static String trackMessageOpen(Notification message) {
-            return inboxInstance.trackMessageOpen(message);
+            return null;
         }
 
         public static void purgeNotificationCache() {

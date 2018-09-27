@@ -21,7 +21,6 @@ import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
-import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
@@ -34,8 +33,6 @@ import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestReposito
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternal_V1;
 import com.emarsys.mobileengage.inbox.InboxInternal_V2;
-import com.emarsys.mobileengage.inbox.InboxResultListener;
-import com.emarsys.mobileengage.inbox.ResetBadgeCountResultListener;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
@@ -63,7 +60,6 @@ import org.mockito.ArgumentCaptor;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -542,13 +538,6 @@ public class MobileEngageTest {
     }
 
     @Test
-    public void testTrackMessageOpen_message_callsInternal() {
-        Notification message = new Notification("id", "sid", "title", null, new HashMap<String, String>(), new JSONObject(), 7200, new Date().getTime());
-        MobileEngage.Inbox.trackMessageOpen(message);
-        verify(inboxInternal).trackMessageOpen(message);
-    }
-
-    @Test
     public void testTrackDeepLinkOpen_callsInternal() {
         Intent intent = mock(Intent.class);
         Activity activity = mock(Activity.class, RETURNS_DEEP_STUBS);
@@ -596,20 +585,6 @@ public class MobileEngageTest {
     @Test(expected = IllegalArgumentException.class)
     public void testFetchNotifications_whenListenerIsNull() {
         MobileEngage.Inbox.fetchNotifications(null);
-    }
-
-    @Test
-    public void testFetchNotifications_callsInternal() {
-        InboxResultListener inboxListenerMock = mock(InboxResultListener.class);
-        MobileEngage.Inbox.fetchNotifications(inboxListenerMock);
-        verify(inboxInternal).fetchNotifications(inboxListenerMock);
-    }
-
-    @Test
-    public void testResetBadgeCount_callsInternal() {
-        ResetBadgeCountResultListener listener = mock(ResetBadgeCountResultListener.class);
-        MobileEngage.Inbox.resetBadgeCount(listener);
-        verify(inboxInternal).resetBadgeCount(listener);
     }
 
     @Test

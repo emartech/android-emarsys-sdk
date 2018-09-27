@@ -4,6 +4,9 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.api.result.CompletionListener;
+import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestMethod;
@@ -11,11 +14,11 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.EMSLogger;
-import com.emarsys.mobileengage.api.MobileEngageException;
 import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.api.MobileEngageException;
 import com.emarsys.mobileengage.api.inbox.Notification;
-import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
+import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
@@ -52,7 +55,7 @@ public class InboxInternal_V1 implements InboxInternal {
     }
 
     @Override
-    public void fetchNotifications(final InboxResultListener<NotificationInboxStatus> resultListener) {
+    public void fetchNotifications(final ResultListener<Try<NotificationInboxStatus>> resultListener) {
         Assert.notNull(resultListener, "ResultListener should not be null!");
         EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", resultListener);
 
@@ -62,13 +65,13 @@ public class InboxInternal_V1 implements InboxInternal {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    resultListener.onError(new NotificationInboxException("AppLogin must be called before calling fetchNotifications!"));
+                    resultListener.onResult(Try.failure(new NotificationInboxException("AppLogin must be called before calling fetchNotifications!")));
                 }
             });
         }
     }
 
-    private void handleFetchRequest(final InboxResultListener<NotificationInboxStatus> resultListener) {
+    private void handleFetchRequest(final ResultListener<Try<NotificationInboxStatus>> resultListener) {
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(INBOX_FETCH_V1)
                 .headers(createBaseHeaders(requestContext))
@@ -81,37 +84,37 @@ public class InboxInternal_V1 implements InboxInternal {
                 EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
                 NotificationInboxStatus status = InboxParseUtils.parseNotificationInboxStatus(responseModel.getBody());
                 NotificationInboxStatus resultStatus = new NotificationInboxStatus(cache.merge(status.getNotifications()), status.getBadgeCount());
-                resultListener.onSuccess(resultStatus);
+                resultListener.onResult(Try.success(resultStatus));
             }
 
             @Override
             public void onError(String id, ResponseModel responseModel) {
                 EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
-                resultListener.onError(new MobileEngageException(
+                resultListener.onResult(Try.failure(new MobileEngageException(
                         responseModel.getStatusCode(),
                         responseModel.getMessage(),
-                        responseModel.getBody()));
+                        responseModel.getBody())));
             }
 
             @Override
             public void onError(String id, Exception cause) {
                 EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, cause %s", id, cause);
-                resultListener.onError(cause);
+                resultListener.onResult(Try.failure(cause));
             }
         });
     }
 
     @Override
-    public void resetBadgeCount(final ResetBadgeCountResultListener listener) {
-        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", listener);
+    public void resetBadgeCount(final CompletionListener resultListener) {
+        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", resultListener);
         if (requestContext.getAppLoginParameters() != null && requestContext.getAppLoginParameters().hasCredentials()) {
-            handleResetRequest(listener);
+            handleResetRequest(resultListener);
         } else {
-            if (listener != null) {
+            if (resultListener != null) {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        listener.onError(new NotificationInboxException("AppLogin must be called before calling fetchNotifications!"));
+                        resultListener.onCompleted(new NotificationInboxException("AppLogin must be called before calling fetchNotifications!"));
                     }
                 });
             }
@@ -119,7 +122,7 @@ public class InboxInternal_V1 implements InboxInternal {
     }
 
     @Override
-    public String trackMessageOpen(Notification message) {
+    public String trackNotificationOpen(Notification message, CompletionListener resultListener) {
         EMSLogger.log(MobileEngageTopic.INBOX, "Argument: %s", message);
 
         Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
@@ -140,7 +143,7 @@ public class InboxInternal_V1 implements InboxInternal {
 
     }
 
-    private void handleResetRequest(final ResetBadgeCountResultListener listener) {
+    private void handleResetRequest(final CompletionListener resultListener) {
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(INBOX_RESET_BADGE_COUNT_V1)
                 .headers(createBaseHeaders(requestContext))
@@ -151,16 +154,16 @@ public class InboxInternal_V1 implements InboxInternal {
             @Override
             public void onSuccess(String id, ResponseModel responseModel) {
                 EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
-                if (listener != null) {
-                    listener.onSuccess();
+                if (resultListener != null) {
+                    resultListener.onCompleted(null);
                 }
             }
 
             @Override
             public void onError(String id, ResponseModel responseModel) {
                 EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
-                if (listener != null) {
-                    listener.onError(new MobileEngageException(
+                if (resultListener != null) {
+                    resultListener.onCompleted(new MobileEngageException(
                             responseModel.getStatusCode(),
                             responseModel.getMessage(),
                             responseModel.getBody()));
@@ -170,8 +173,8 @@ public class InboxInternal_V1 implements InboxInternal {
             @Override
             public void onError(String id, Exception cause) {
                 EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, cause %s", id, cause);
-                if (listener != null) {
-                    listener.onError(cause);
+                if (resultListener != null) {
+                    resultListener.onCompleted(cause);
                 }
             }
         });

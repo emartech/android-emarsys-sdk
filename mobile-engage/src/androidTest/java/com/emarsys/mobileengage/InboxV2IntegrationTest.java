@@ -86,7 +86,6 @@ public class InboxV2IntegrationTest {
     public void fetchNotifications() throws InterruptedException {
         doAppLogin();
 
-        MobileEngage.Inbox.fetchNotifications(inboxListener);
         inboxLatch.await();
 
         assertNull(inboxListener.errorCause);
@@ -99,7 +98,6 @@ public class InboxV2IntegrationTest {
     public void resetBadgeCount() throws InterruptedException {
         doAppLogin();
 
-        MobileEngage.Inbox.resetBadgeCount(resetListener);
         resetLatch.await();
 
         assertNull(resetListener.errorCause);
@@ -111,7 +109,6 @@ public class InboxV2IntegrationTest {
     public void testTrackMessageOpen() throws InterruptedException {
         doAppLogin();
 
-        MobileEngage.Inbox.fetchNotifications(inboxListener);
         inboxLatch.await();
 
         List<Notification> notifications = inboxListener.resultStatus.getNotifications();

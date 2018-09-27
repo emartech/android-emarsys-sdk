@@ -2,13 +2,14 @@ package com.emarsys.mobileengage.fake;
 
 import android.os.Looper;
 
-import com.emarsys.mobileengage.inbox.InboxResultListener;
+import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 
 import java.util.concurrent.CountDownLatch;
 
 
-public class FakeInboxResultListener implements InboxResultListener<NotificationInboxStatus> {
+public class FakeInboxResultListener implements ResultListener<Try<NotificationInboxStatus>> {
 
     public enum Mode {
         MAIN_THREAD, ALL_THREAD
@@ -16,7 +17,7 @@ public class FakeInboxResultListener implements InboxResultListener<Notification
 
     public int successCount;
     public NotificationInboxStatus resultStatus;
-    public Exception errorCause;
+    public Throwable errorCause;
     public int errorCount;
     public CountDownLatch latch;
     public Mode mode;
@@ -31,7 +32,16 @@ public class FakeInboxResultListener implements InboxResultListener<Notification
     }
 
     @Override
-    public void onSuccess(NotificationInboxStatus result) {
+    public void onResult(Try<NotificationInboxStatus> result) {
+        if (result.getResult() != null) {
+            onSuccess(result.getResult());
+        }
+        if (result.getErrorCause() != null) {
+            onError(result.getErrorCause());
+        }
+    }
+
+    private void onSuccess(NotificationInboxStatus result) {
         if (mode == Mode.MAIN_THREAD && onMainThread()) {
             handleSuccess(result);
         } else if (mode == Mode.ALL_THREAD) {
@@ -39,8 +49,7 @@ public class FakeInboxResultListener implements InboxResultListener<Notification
         }
     }
 
-    @Override
-    public void onError(Exception cause) {
+    private void onError(Throwable cause) {
         if (mode == Mode.MAIN_THREAD && onMainThread()) {
             handleError(cause);
         } else if (mode == Mode.ALL_THREAD) {
@@ -56,7 +65,7 @@ public class FakeInboxResultListener implements InboxResultListener<Notification
         }
     }
 
-    private void handleError(Exception cause) {
+    private void handleError(Throwable cause) {
         errorCount++;
         errorCause = cause;
         if (latch != null) {

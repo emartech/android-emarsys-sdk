@@ -297,18 +297,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX),
                 requestManager,
                 restClient,
-                requestContext,
-                new MobileEngageStatusListener() {
-                    @Override
-                    public void onError(String id, Exception cause) {
-
-                    }
-
-                    @Override
-                    public void onStatusLog(String id, String log) {
-
-                    }
-                }
+                requestContext
         );
         deepLinkInternal = new DeepLinkInternal(requestManager, requestContext);
         predictInternal = new PredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);

@@ -2,18 +2,19 @@ package com.emarsys.mobileengage.fake;
 
 import android.os.Looper;
 
-import com.emarsys.mobileengage.inbox.ResetBadgeCountResultListener;
+import com.emarsys.core.api.result.CompletionListener;
 
 import java.util.concurrent.CountDownLatch;
 
-public class FakeResetBadgeCountResultListener implements ResetBadgeCountResultListener {
+public class FakeResetBadgeCountResultListener implements CompletionListener {
+
 
     public enum Mode {
         MAIN_THREAD, ALL_THREAD
     }
 
     public int successCount;
-    public Exception errorCause;
+    public Throwable errorCause;
     public int errorCount;
     public CountDownLatch latch;
     public Mode mode;
@@ -28,7 +29,15 @@ public class FakeResetBadgeCountResultListener implements ResetBadgeCountResultL
     }
 
     @Override
-    public void onSuccess() {
+    public void onCompleted(Throwable errorCause) {
+        if (errorCause != null) {
+            onError(errorCause);
+        } else {
+            onSuccess();
+        }
+    }
+
+    private void onSuccess() {
         if (mode == Mode.MAIN_THREAD && onMainThread()) {
             handleSuccess();
         } else if (mode == Mode.ALL_THREAD) {
@@ -36,8 +45,7 @@ public class FakeResetBadgeCountResultListener implements ResetBadgeCountResultL
         }
     }
 
-    @Override
-    public void onError(Exception cause) {
+    private void onError(Throwable cause) {
         if (mode == Mode.MAIN_THREAD && onMainThread()) {
             handleError(cause);
         } else if (mode == Mode.ALL_THREAD) {
@@ -52,7 +60,7 @@ public class FakeResetBadgeCountResultListener implements ResetBadgeCountResultL
         }
     }
 
-    private void handleError(Exception cause) {
+    private void handleError(Throwable cause) {
         errorCount++;
         errorCause = cause;
         if (latch != null) {

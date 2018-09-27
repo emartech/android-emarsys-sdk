@@ -5,6 +5,9 @@ import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.api.result.CompletionListener;
+import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -59,8 +62,8 @@ public class InboxInternal_V1Test {
     public static final long TIMESTAMP = 100_000;
     private static List<Notification> notificationList;
 
-    private InboxResultListener<NotificationInboxStatus> resultListenerMock;
-    private ResetBadgeCountResultListener resetListenerMock;
+    private ResultListener<Try<NotificationInboxStatus>> resultListenerMock;
+    private CompletionListener resetListenerMock;
     private Map<String, String> defaultHeaders;
     private RequestManager manager;
     private CountDownLatch latch;
@@ -117,8 +120,8 @@ public class InboxInternal_V1Test {
 
         inbox = new InboxInternal_V1(manager, restClient, requestContext);
 
-        resultListenerMock = mock(InboxResultListener.class);
-        resetListenerMock = mock(ResetBadgeCountResultListener.class);
+        resultListenerMock = mock(ResultListener.class);
+        resetListenerMock = mock(CompletionListener.class);
         appLoginParameters_withCredentials = new AppLoginParameters(30, "value");
         appLoginParameters_noCredentials = new AppLoginParameters();
         appLoginParameters_missing = null;
@@ -600,7 +603,7 @@ public class InboxInternal_V1Test {
     }
 
     @Test
-    public void testTrackMessageOpen_requestManagerCalledWithCorrectRequestModel() throws Exception {
+    public void testTrackNotificationOpen_requestManagerCalledWithCorrectRequestModel() throws Exception {
         Notification message = new Notification("id1", "sid1", "title", null, new HashMap<String, String>(), new JSONObject(), 7200, new Date().getTime());
 
         Map<String, Object> payload = new HashMap<>();
@@ -617,7 +620,7 @@ public class InboxInternal_V1Test {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        inbox.trackMessageOpen(message);
+        inbox.trackNotificationOpen(message, null);
 
         verify(manager).submit(captor.capture());
 
@@ -628,11 +631,11 @@ public class InboxInternal_V1Test {
     }
 
     @Test
-    public void trackMessageOpen_returnsWithRequestId() {
+    public void testTrackNotificationOpen_returnsWithRequestId() {
         Notification message = new Notification("id1", "sid1", "title", null, new HashMap<String, String>(), new JSONObject(), 7200, new Date().getTime());
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = inbox.trackMessageOpen(message);
+        String result = inbox.trackNotificationOpen(message, null);
 
         verify(manager).submit(captor.capture());
 
@@ -640,13 +643,13 @@ public class InboxInternal_V1Test {
     }
 
     @Test
-    public void trackMessageOpen_containsCredentials_fromApploginParameters() {
+    public void testTrackNotificationOpen_containsCredentials_fromApploginParameters() {
         int contactFieldId = 3;
         String contactFieldValue = "test@test.com";
         requestContext.setAppLoginParameters(new AppLoginParameters(contactFieldId, contactFieldValue));
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        inbox.trackMessageOpen(mock(Notification.class));
+        inbox.trackNotificationOpen(mock(Notification.class), null);
         verify(manager).submit(captor.capture());
 
         Map<String, Object> payload = captor.getValue().getPayload();

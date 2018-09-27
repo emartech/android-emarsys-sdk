@@ -73,7 +73,6 @@ public class NotificationInboxIntegrationTest {
         MobileEngage.appLogin(3, "test@test.com");
         latch.await();
 
-        MobileEngage.Inbox.fetchNotifications(inboxListener);
         inboxLatch.await();
 
         assertNull(inboxListener.errorCause);
@@ -87,7 +86,6 @@ public class NotificationInboxIntegrationTest {
         MobileEngage.appLogin(3, "test@test.com");
         latch.await();
 
-        MobileEngage.Inbox.resetBadgeCount(resetListener);
         resetLatch.await();
 
         assertNull(resetListener.errorCause);
