@@ -10,7 +10,6 @@ import android.support.test.runner.AndroidJUnit4;
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
-import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
@@ -39,7 +38,6 @@ import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.testUtil.CurrentActivityWatchdogTestUtils;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.CollectionTestUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
@@ -70,7 +68,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.atLeastOnce;
@@ -130,7 +127,6 @@ public class MobileEngageTest {
         MobileEngage.completionHandler = coreCompletionHandler;
         MobileEngage.requestContext = requestContext;
 
-        CurrentActivityWatchdogTestUtils.resetCurrentActivityWatchdog();
     }
 
     @After
@@ -316,19 +312,6 @@ public class MobileEngageTest {
         MobileEngage.setup(baseConfig);
 
         assertNotNull(MobileEngage.deepLinkInstance);
-    }
-
-    @Test
-    public void testSetup_registers_currentActivityWatchDog() throws Exception {
-        CurrentActivityWatchdogTestUtils.resetCurrentActivityWatchdog();
-
-        MobileEngage.setup(baseConfig);
-
-        try {
-            CurrentActivityWatchdog.getCurrentActivity();
-        } catch (Exception e) {
-            fail("getCurrentActivity should not fail: " + e.getMessage());
-        }
     }
 
     @Test

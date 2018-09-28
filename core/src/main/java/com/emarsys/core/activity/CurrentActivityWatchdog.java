@@ -4,32 +4,32 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 
+import com.emarsys.core.util.Assert;
+
+import java.lang.ref.WeakReference;
+
 
 public class CurrentActivityWatchdog implements Application.ActivityLifecycleCallbacks {
 
-    static boolean isRegistered;
-    static Activity currentActivity;
+    private WeakReference<Activity> currentActivityWeakReference;
 
-    public static void registerApplication(Application application) {
-        if (!isRegistered) {
-            application.registerActivityLifecycleCallbacks(new CurrentActivityWatchdog());
-            isRegistered = true;
+    public CurrentActivityWatchdog(Application application) {
+        Assert.notNull(application, "Application must not be null!");
+        application.registerActivityLifecycleCallbacks(this);
+    }
+
+    public Activity getCurrentActivity() {
+        Activity activity = null;
+        if (currentActivityWeakReference != null) {
+            activity = currentActivityWeakReference.get();
         }
+        return activity;
     }
 
-    public static Activity getCurrentActivity() {
-        if (!isRegistered) {
-            throw new IllegalStateException("The application must be registered before calling getCurrentActivity!");
+    public void reset() {
+        if (currentActivityWeakReference != null) {
+            currentActivityWeakReference.clear();
         }
-        return currentActivity;
-    }
-
-    static void reset() {
-        isRegistered = false;
-        currentActivity = null;
-    }
-
-    CurrentActivityWatchdog() {
     }
 
     @Override
@@ -44,13 +44,13 @@ public class CurrentActivityWatchdog implements Application.ActivityLifecycleCal
 
     @Override
     public void onActivityResumed(Activity activity) {
-        currentActivity = activity;
+        currentActivityWeakReference = new WeakReference<>(activity);
     }
 
     @Override
     public void onActivityPaused(Activity activity) {
-        if (currentActivity == activity) {
-            currentActivity = null;
+        if (currentActivityWeakReference != null && currentActivityWeakReference.get() == activity) {
+            currentActivityWeakReference.clear();
         }
     }
 

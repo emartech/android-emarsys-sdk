@@ -10,6 +10,7 @@ import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
+import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionWatchDog;
 import com.emarsys.core.database.CoreSQLiteDatabase;
@@ -108,6 +109,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private Repository<Map<String, Object>, SqlSpecification> logRepositoryProxy;
     private Application application;
     private ActivityLifecycleWatchdog activityLifecycleWatchdog;
+    private CurrentActivityWatchdog currentActivityWatchdog;
     private UUIDProvider uuidProvider;
     private KeyValueStore sharedPrefsKeyStore;
 
@@ -197,6 +199,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         meIdStorage = new MeIdStorage(application);
         meIdSignatureStorage = new MeIdSignatureStorage(application);
         deviceInfo = new DeviceInfo(application);
+        currentActivityWatchdog = new CurrentActivityWatchdog(application);
 
         CoreDbHelper coreDbHelper = new CoreDbHelper(application, new HashMap<TriggerKey, List<Runnable>>());
         coreDatabase = coreDbHelper.getWritableCoreDatabase();
@@ -329,7 +332,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 buttonClickedRepository,
                 displayedIamRepository,
                 timestampProvider,
-                mobileEngageInternal);
+                mobileEngageInternal,
+                currentActivityWatchdog);
     }
 
     private void initializeResponseHandlers() {

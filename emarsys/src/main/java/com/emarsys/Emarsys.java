@@ -37,6 +37,7 @@ public class Emarsys {
         for (FlipperFeature feature : config.getExperimentalFeatures()) {
             ExperimentalFeatures.enableFeature(feature);
         }
+        InApp.resume();
 
         DependencyInjection.setup(new DefaultEmarsysDependencyContainer(config));
 
@@ -135,14 +136,18 @@ public class Emarsys {
 
     public static class InApp {
 
+        private static boolean enabled;
+
         public static void pause() {
+            InApp.enabled = false;
         }
 
         public static void resume() {
+            InApp.enabled = true;
         }
 
         public static boolean isPaused() {
-            return false;
+            return !InApp.enabled;
         }
 
         public static void setEventHandler(@NonNull EventHandler eventHandler) {

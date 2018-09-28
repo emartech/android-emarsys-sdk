@@ -52,7 +52,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -232,6 +234,17 @@ public class EmarsysTest {
         Emarsys.setup(baseConfig);
 
         verify(mockCoreDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockPredictShardTrigger);
+    }
+
+    @Test
+    public void testSetup_initializesInAppPaused_withFalse() {
+        Emarsys.InApp.pause();
+
+        assertTrue(Emarsys.InApp.isPaused());
+
+        Emarsys.setup(baseConfig);
+
+        assertFalse(Emarsys.InApp.isPaused());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -452,6 +465,27 @@ public class EmarsysTest {
         Emarsys.Inbox.trackNotificationOpen(notification, resultListener);
 
         verify(mockInboxInternal).trackNotificationOpen(notification, resultListener);
+    }
+
+    @Test
+    public void testInApp_pause_shouldDisableInAppFeature() {
+        Emarsys.InApp.resume();
+
+        assertFalse(Emarsys.InApp.isPaused());
+
+        Emarsys.InApp.pause();
+
+        assertTrue(Emarsys.InApp.isPaused());
+    }
+
+    @Test
+    public void testInApp_resume_shouldEnableInAppFeature() {
+        Emarsys.InApp.pause();
+        assertTrue(Emarsys.InApp.isPaused());
+
+        Emarsys.InApp.resume();
+
+        assertFalse(Emarsys.InApp.isPaused());
     }
 
     private CartItem createItem(final String id, final double price, final double quantity) {

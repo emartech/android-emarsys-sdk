@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.iam.jsbridge;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
@@ -30,8 +31,6 @@ import org.junit.rules.TestRule;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,6 +55,7 @@ public class IamJsBridgeTest {
         mock(WebView.class);
         mock(Handler.class);
         mock(Activity.class);
+        mock(Application.class);
     }
 
     private static final String CAMPAIGN_ID = "555666777";
@@ -67,6 +67,7 @@ public class IamJsBridgeTest {
     private Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
     private Handler coreSdkHandler;
     private MobileEngageInternal mobileEngageInternal;
+    private CurrentActivityWatchdog currentActivityWatchdog;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -85,13 +86,14 @@ public class IamJsBridgeTest {
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
 
         mobileEngageInternal = mock(MobileEngageInternal.class);
-
+        currentActivityWatchdog = mock(CurrentActivityWatchdog.class);
         jsBridge = new IamJsBridge(
                 inAppMessageHandlerProvider,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
-                mobileEngageInternal);
+                mobileEngageInternal,
+                currentActivityWatchdog);
         webView = mock(WebView.class);
         jsBridge.setWebView(webView);
     }
@@ -99,7 +101,7 @@ public class IamJsBridgeTest {
     @After
     public void tearDown() throws Exception {
         coreSdkHandler.getLooper().quit();
-        resetActivityWatchdog();
+        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -109,7 +111,8 @@ public class IamJsBridgeTest {
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
-                mobileEngageInternal);
+                mobileEngageInternal,
+                currentActivityWatchdog);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -119,7 +122,8 @@ public class IamJsBridgeTest {
                 null,
                 CAMPAIGN_ID,
                 coreSdkHandler,
-                mobileEngageInternal);
+                mobileEngageInternal,
+                currentActivityWatchdog);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -129,7 +133,8 @@ public class IamJsBridgeTest {
                 buttonClickedRepository,
                 null,
                 coreSdkHandler,
-                mobileEngageInternal);
+                mobileEngageInternal,
+                currentActivityWatchdog);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -139,7 +144,8 @@ public class IamJsBridgeTest {
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 null,
-                mobileEngageInternal);
+                mobileEngageInternal,
+                currentActivityWatchdog);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -149,6 +155,18 @@ public class IamJsBridgeTest {
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
+                null,
+                currentActivityWatchdog);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_currentActivityWatchdog_shouldNotAcceptNull() {
+        new IamJsBridge(
+                inAppMessageHandlerProvider,
+                buttonClickedRepository,
+                CAMPAIGN_ID,
+                coreSdkHandler,
+                mobileEngageInternal,
                 null);
     }
 
@@ -285,7 +303,8 @@ public class IamJsBridgeTest {
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
-                mobileEngageInternal);
+                mobileEngageInternal,
+                currentActivityWatchdog);
         jsBridge.triggerAppEvent(json.toString());
     }
 
@@ -305,7 +324,8 @@ public class IamJsBridgeTest {
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
-                mobileEngageInternal);
+                mobileEngageInternal,
+                currentActivityWatchdog);
         jsBridge.setWebView(webView);
         jsBridge.triggerAppEvent(json.toString());
 
@@ -418,7 +438,7 @@ public class IamJsBridgeTest {
     public void testOpenExternalLink_shouldStartActivity_withViewIntent() throws Exception {
         Activity activity = mock(Activity.class);
         when(activity.getPackageManager()).thenReturn(activityRule.getActivity().getPackageManager());
-        initializeActivityWatchdog(activity, true);
+        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(activity);
 
         String id = "12346789";
         String url = "https://emarsys.com";
@@ -438,7 +458,7 @@ public class IamJsBridgeTest {
     public void testOpenExternalLink_shouldStartActivity_onMainThread() throws Exception {
         Activity activity = mock(Activity.class);
         when(activity.getPackageManager()).thenReturn(activityRule.getActivity().getPackageManager());
-        initializeActivityWatchdog(activity, true);
+        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(activity);
 
         ThreadSpy threadSpy = new ThreadSpy();
         doAnswer(threadSpy).when(activity).startActivity(any(Intent.class));
@@ -455,7 +475,7 @@ public class IamJsBridgeTest {
     public void testOpenExternalLink_shouldInvokeCallback_onSuccess() throws Exception {
         Activity activity = mock(Activity.class);
         when(activity.getPackageManager()).thenReturn(activityRule.getActivity().getPackageManager());
-        initializeActivityWatchdog(activity, true);
+        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(activity);
 
         String id = "12346789";
         String url = "https://emarsys.com";
@@ -485,7 +505,7 @@ public class IamJsBridgeTest {
 
     @Test
     public void testOpenExternalLink_shouldInvokeCallback_whenActivityIsNull() throws Exception {
-        initializeActivityWatchdog(null, true);
+        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(null);
 
         String id = "12346789";
         JSONObject json = new JSONObject().put("id", id).put("url", "https://emarsys.com");
@@ -501,7 +521,7 @@ public class IamJsBridgeTest {
 
     @Test
     public void testOpenExternalLink_shouldInvokeCallback_whenIntentCannotBeResoled() throws Exception {
-        initializeActivityWatchdog(activityRule.getActivity(), true);
+        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(activityRule.getActivity());
 
         String id = "12346789";
         JSONObject json = new JSONObject().put("id", id).put("url", "This is not a valid url!");
@@ -538,24 +558,7 @@ public class IamJsBridgeTest {
         IamDialog iamDialog = mock(IamDialog.class);
         when(activity.getFragmentManager().findFragmentByTag(IamDialog.TAG)).thenReturn(iamDialog);
 
-        initializeActivityWatchdog(activity, true);
-
+        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(activity);
         return iamDialog;
-    }
-
-    private void initializeActivityWatchdog(Activity activity, boolean isRegistered) throws Exception {
-        Field currentActivityField = CurrentActivityWatchdog.class.getDeclaredField("currentActivity");
-        currentActivityField.setAccessible(true);
-        currentActivityField.set(null, activity);
-
-        Field isRegisteredField = CurrentActivityWatchdog.class.getDeclaredField("isRegistered");
-        isRegisteredField.setAccessible(true);
-        isRegisteredField.set(null, isRegistered);
-    }
-
-    private void resetActivityWatchdog() throws Exception {
-        Method resetMethod = CurrentActivityWatchdog.class.getDeclaredMethod("reset");
-        resetMethod.setAccessible(true);
-        resetMethod.invoke(null);
     }
 }

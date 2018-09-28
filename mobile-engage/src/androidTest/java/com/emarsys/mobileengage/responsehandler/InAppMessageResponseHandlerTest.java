@@ -4,6 +4,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.test.filters.SdkSuppress;
 
+import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.database.repository.log.LogRepository;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.RequestModel;
@@ -72,7 +73,8 @@ public class InAppMessageResponseHandlerTest {
                 mock(ButtonClickedRepository.class),
                 mock(DisplayedIamRepository.class),
                 mock(TimestampProvider.class),
-                mock(MobileEngageInternal.class));
+                mock(MobileEngageInternal.class),
+                mock(CurrentActivityWatchdog.class));
 
         handler = new InAppMessageResponseHandler(presenter,
                 mock(LogRepository.class),

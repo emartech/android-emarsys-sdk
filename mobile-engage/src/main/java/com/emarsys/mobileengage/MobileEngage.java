@@ -1,13 +1,11 @@
 package com.emarsys.mobileengage;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.experimental.ExperimentalFeatures;
@@ -82,15 +80,12 @@ public class MobileEngage {
         }
 
         MobileEngage.config = config;
-        Application application = config.getApplication();
 
         container = DependencyInjection.getContainer();
 
         initializeFields();
 
         initializeInApp();
-
-        registerWatchdogs(application);
 
         MobileEngageUtils.setup(config);
     }
@@ -154,11 +149,6 @@ public class MobileEngage {
 
     private static void initializeInApp() {
         InApp.setPaused(false);
-    }
-
-    private static void registerWatchdogs(Application application) {
-        CurrentActivityWatchdog.registerApplication(application);
-        application.registerActivityLifecycleCallbacks(container.getActivityLifecycleWatchdog());
     }
 
 }

@@ -16,7 +16,6 @@ import static junit.framework.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class CurrentActivityWatchdogTest {
 
@@ -35,67 +34,51 @@ public class CurrentActivityWatchdogTest {
 
     @Before
     public void init() {
-        CurrentActivityWatchdog.reset();
-
-        watchdog = new CurrentActivityWatchdog();
         application = mock(Application.class);
+        watchdog = new CurrentActivityWatchdog(application);
         activity = mock(Activity.class);
         nextActivity = mock(Activity.class);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_application_shouldNotBeNull() {
+        new CurrentActivityWatchdog(null);
+    }
+
     @Test
     public void testRegisterApplication_shouldRegisterForLifecycleCallbacks() {
-        CurrentActivityWatchdog.registerApplication(application);
+        application = mock(Application.class);
+        new CurrentActivityWatchdog(application);
 
         verify(application).registerActivityLifecycleCallbacks(any(CurrentActivityWatchdog.class));
     }
 
     @Test
-    public void testRegisterApplication_shouldDoNothing_whenAlreadyRegistered() {
-        CurrentActivityWatchdog.registerApplication(application);
-
-        Application secondApplication = mock(Application.class);
-        CurrentActivityWatchdog.registerApplication(secondApplication);
-        verifyZeroInteractions(secondApplication);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testGetCurrentActivity_shouldFail_ifWatchdogWasNotRegisteredBeforehand() {
-        CurrentActivityWatchdog.getCurrentActivity();
-    }
-
-    @Test
     public void testGetCurrentActivity_shouldStoreTheActivity_whenCallingOnResumed() {
-        CurrentActivityWatchdog.registerApplication(application);
         watchdog.onActivityResumed(activity);
 
-        assertEquals(activity, CurrentActivityWatchdog.getCurrentActivity());
+        assertEquals(activity, watchdog.getCurrentActivity());
     }
 
     @Test
     public void testGetCurrentActivity_newerActivity_shouldOverride_thePrevious() {
-        CurrentActivityWatchdog.registerApplication(application);
-
         watchdog.onActivityResumed(activity);
         watchdog.onActivityResumed(nextActivity);
         watchdog.onActivityPaused(activity);
 
-        assertEquals(nextActivity, CurrentActivityWatchdog.getCurrentActivity());
+        assertEquals(nextActivity, watchdog.getCurrentActivity());
     }
 
     @Test
     public void testGetCurrentActivity_shouldReturnNull_whenCurrentActivityPauses_andThereIsNoNextActivity() {
-        CurrentActivityWatchdog.registerApplication(application);
-
         watchdog.onActivityResumed(activity);
         watchdog.onActivityPaused(activity);
 
-        assertNull(CurrentActivityWatchdog.getCurrentActivity());
+        assertNull(watchdog.getCurrentActivity());
     }
 
     @Test
     public void testGetCurrentActivity_otherLifecycleCallbacks_shouldBeIgnored() {
-        CurrentActivityWatchdog.registerApplication(application);
         Bundle bundle = new Bundle();
 
         watchdog.onActivityCreated(activity, bundle);
@@ -104,6 +87,6 @@ public class CurrentActivityWatchdogTest {
         watchdog.onActivitySaveInstanceState(activity, bundle);
         watchdog.onActivityDestroyed(activity);
 
-        assertNull(CurrentActivityWatchdog.getCurrentActivity());
+        assertNull(watchdog.getCurrentActivity());
     }
 }

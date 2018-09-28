@@ -29,6 +29,7 @@ import java.util.Arrays;
 
 public class InAppPresenter {
 
+    private final CurrentActivityWatchdog currentActivityWatchdog;
     private Handler coreSdkHandler;
     private IamWebViewProvider webViewProvider;
     private InAppMessageHandlerProvider messageHandlerProvider;
@@ -46,7 +47,8 @@ public class InAppPresenter {
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             Repository<DisplayedIam, SqlSpecification> displayedIamRepository,
             TimestampProvider timestampProvider,
-            MobileEngageInternal mobileEngageInternal) {
+            MobileEngageInternal mobileEngageInternal,
+            CurrentActivityWatchdog currentActivityWatchdog) {
         Assert.notNull(webViewProvider, "WebViewProvider must not be null!");
         Assert.notNull(messageHandlerProvider, "MessageHandlerProvider must not be null!");
         Assert.notNull(dialogProvider, "DialogProvider must not be null!");
@@ -55,6 +57,7 @@ public class InAppPresenter {
         Assert.notNull(displayedIamRepository, "DisplayedIamRepository must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(mobileEngageInternal, "MobileEngageInternal must not be null!");
+        Assert.notNull(currentActivityWatchdog, "CurrentActivityWatchdog must not be null!");
         this.webViewProvider = webViewProvider;
         this.messageHandlerProvider = messageHandlerProvider;
         this.dialogProvider = dialogProvider;
@@ -63,6 +66,7 @@ public class InAppPresenter {
         this.displayedIamRepository = displayedIamRepository;
         this.timestampProvider = timestampProvider;
         this.mobileEngageInternal = mobileEngageInternal;
+        this.currentActivityWatchdog = currentActivityWatchdog;
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -75,11 +79,12 @@ public class InAppPresenter {
                 buttonClickedRepository,
                 id,
                 coreSdkHandler,
-                mobileEngageInternal);
+                mobileEngageInternal,
+                currentActivityWatchdog);
         webViewProvider.loadMessageAsync(html, jsBridge, new MessageLoadedListener() {
             @Override
             public void onMessageLoaded() {
-                Activity currentActivity = CurrentActivityWatchdog.getCurrentActivity();
+                Activity currentActivity = currentActivityWatchdog.getCurrentActivity();
                 if (currentActivity != null) {
                     FragmentManager fragmentManager = currentActivity.getFragmentManager();
                     Fragment fragment = fragmentManager.findFragmentByTag(IamDialog.TAG);

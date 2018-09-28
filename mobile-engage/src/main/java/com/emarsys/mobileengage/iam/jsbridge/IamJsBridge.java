@@ -33,6 +33,7 @@ import java.util.Map;
 
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class IamJsBridge {
+    private final CurrentActivityWatchdog currentActivityWatchdog;
     private InAppMessageHandlerProvider messageHandlerProvider;
     private WebView webView;
     private Handler uiHandler;
@@ -46,18 +47,21 @@ public class IamJsBridge {
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             String campaignId,
             Handler coreSdkHandler,
-            MobileEngageInternal mobileEngageInternal) {
+            MobileEngageInternal mobileEngageInternal,
+            CurrentActivityWatchdog currentActivityWatchdog) {
         Assert.notNull(messageHandlerProvider, "MessageHandlerProvider must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
         Assert.notNull(campaignId, "CampaignId must not be null!");
         Assert.notNull(coreSdkHandler, "CoreSdkHandler must not be null!");
         Assert.notNull(mobileEngageInternal, "MobileEngageInternal must not be null!");
+        Assert.notNull(currentActivityWatchdog, "CurrentActivityWatchdog must not be null!");
         this.messageHandlerProvider = messageHandlerProvider;
         this.uiHandler = new Handler(Looper.getMainLooper());
         this.buttonClickedRepository = buttonClickedRepository;
         this.campaignId = campaignId;
         this.coreSdkHandler = coreSdkHandler;
         this.mobileEngageInternal = mobileEngageInternal;
+        this.currentActivityWatchdog = currentActivityWatchdog;
     }
 
     public void setWebView(WebView webView) {
@@ -69,7 +73,7 @@ public class IamJsBridge {
         uiHandler.post(new Runnable() {
             @Override
             public void run() {
-                Activity currentActivity = CurrentActivityWatchdog.getCurrentActivity();
+                Activity currentActivity = currentActivityWatchdog.getCurrentActivity();
                 if (currentActivity != null) {
                     Fragment fragment = currentActivity.getFragmentManager().findFragmentByTag(IamDialog.TAG);
                     if (fragment instanceof DialogFragment) {
@@ -128,7 +132,7 @@ public class IamJsBridge {
         handleJsBridgeEvent(jsonString, "url", uiHandler, new JsBridgeEventAction() {
             @Override
             public JSONObject execute(String property, JSONObject json) throws Exception {
-                Activity activity = CurrentActivityWatchdog.getCurrentActivity();
+                Activity activity = currentActivityWatchdog.getCurrentActivity();
                 if (activity != null) {
                     Uri link = Uri.parse(property);
                     Intent intent = new Intent(Intent.ACTION_VIEW, link);

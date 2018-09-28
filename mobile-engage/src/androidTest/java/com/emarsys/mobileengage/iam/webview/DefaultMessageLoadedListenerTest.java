@@ -1,16 +1,17 @@
 package com.emarsys.mobileengage.iam.webview;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.support.test.filters.SdkSuppress;
 
+import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
-import com.emarsys.mobileengage.testUtil.CurrentActivityWatchdogTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
@@ -41,6 +42,7 @@ public class DefaultMessageLoadedListenerTest {
         mock(FragmentManager.class);
         mock(Fragment.class);
         mock(IamDialog.class);
+        mock(Application.class);
     }
 
     private FragmentManager fragmentManager;
@@ -49,6 +51,7 @@ public class DefaultMessageLoadedListenerTest {
     private Repository<Map<String, Object>, SqlSpecification> logRepositoryMock;
     private TimestampProvider timestampProvider;
     private ResponseModel responseModel;
+    private CurrentActivityWatchdog currentActivityWatchdog;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -56,11 +59,11 @@ public class DefaultMessageLoadedListenerTest {
     @Before
     @SuppressWarnings("unchecked")
     public void init() throws Exception {
-
+        currentActivityWatchdog = mock(CurrentActivityWatchdog.class);
         Activity currentActivity = mock(Activity.class);
         fragmentManager = mock(FragmentManager.class);
         when(currentActivity.getFragmentManager()).thenReturn(fragmentManager);
-        CurrentActivityWatchdogTestUtils.setActivityWatchdogState(currentActivity);
+        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(currentActivity);
         dialog = mock(IamDialog.class);
 
         logRepositoryMock = mock(Repository.class);
@@ -71,32 +74,37 @@ public class DefaultMessageLoadedListenerTest {
         when(responseModel.getTimestamp()).thenReturn(TIMESTAMP_START);
         when(responseModel.getRequestModel().getId()).thenReturn(REQUEST_ID);
 
-        listener = new DefaultMessageLoadedListener(dialog, logRepositoryMock, responseModel, timestampProvider);
+        listener = new DefaultMessageLoadedListener(dialog, logRepositoryMock, responseModel, timestampProvider, currentActivityWatchdog);
     }
 
     @After
     public void tearDown() throws Exception {
-        CurrentActivityWatchdogTestUtils.resetCurrentActivityWatchdog();
+        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_iamDialog_shouldNotBeNull() {
-        new DefaultMessageLoadedListener(null, logRepositoryMock, responseModel, timestampProvider);
+        new DefaultMessageLoadedListener(null, logRepositoryMock, responseModel, timestampProvider, currentActivityWatchdog);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_logRepository_shouldNotBeNull() {
-        new DefaultMessageLoadedListener(dialog, null, responseModel, timestampProvider);
+        new DefaultMessageLoadedListener(dialog, null, responseModel, timestampProvider, currentActivityWatchdog);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_responseModel_shouldNotBeNull() {
-        new DefaultMessageLoadedListener(dialog, logRepositoryMock, null, timestampProvider);
+        new DefaultMessageLoadedListener(dialog, logRepositoryMock, null, timestampProvider, currentActivityWatchdog);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_timestampProvider_shouldNotBeNull() {
-        new DefaultMessageLoadedListener(dialog, logRepositoryMock, responseModel, null);
+        new DefaultMessageLoadedListener(dialog, logRepositoryMock, responseModel, null, currentActivityWatchdog);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_currentActivityWatchdog_shouldNotBeNull() {
+        new DefaultMessageLoadedListener(dialog, logRepositoryMock, responseModel, timestampProvider, null);
     }
 
     @Test
@@ -108,7 +116,7 @@ public class DefaultMessageLoadedListenerTest {
 
     @Test
     public void testOnMessageLoaded_shouldNotShowDialog_whenThereIsNoAvailableActivity() throws Exception {
-        CurrentActivityWatchdogTestUtils.setActivityWatchdogState(null);
+        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(null);
 
         listener.onMessageLoaded();
 
