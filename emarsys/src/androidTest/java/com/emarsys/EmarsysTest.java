@@ -8,6 +8,9 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.api.experimental.FlipperFeature;
+import com.emarsys.core.api.result.CompletionListener;
+import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.trigger.TriggerEvent;
 import com.emarsys.core.database.trigger.TriggerType;
@@ -20,6 +23,9 @@ import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
+import com.emarsys.mobileengage.api.inbox.Notification;
+import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
+import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
@@ -66,6 +72,7 @@ public class EmarsysTest {
 
     private MobileEngageInternal mockMobileEngageInternal;
     private PredictInternal mockPredictInternal;
+    private InboxInternal mockInboxInternal;
     private CoreSQLiteDatabase mockCoreDatabase;
     private Runnable mockPredictShardTrigger;
 
@@ -85,6 +92,7 @@ public class EmarsysTest {
 
         mockMobileEngageInternal = mock(MobileEngageInternal.class);
         mockPredictInternal = mock(PredictInternal.class);
+        mockInboxInternal = mock(InboxInternal.class);
         mockCoreDatabase = mock(CoreSQLiteDatabase.class);
         mockPredictShardTrigger = mock(PredictShardTrigger.class);
 
@@ -100,7 +108,7 @@ public class EmarsysTest {
                 null,
                 mockCoreDatabase,
                 mockMobileEngageInternal,
-                null,
+                mockInboxInternal,
                 null,
                 null,
                 null,
@@ -366,6 +374,84 @@ public class EmarsysTest {
         Emarsys.Predict.trackSearchTerm(searchTerm);
 
         verify(mockPredictInternal).trackSearchTerm(searchTerm);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInbox_fetchNotifications_resultListener_mustNotBeNull() {
+        Emarsys.Inbox.fetchNotifications(null);
+    }
+
+    @Test
+    public void testInbox_fetchNotifications_delegatesTo_inboxInternal() {
+        ResultListener<Try<NotificationInboxStatus>> resultListener = new ResultListener<Try<NotificationInboxStatus>>() {
+            @Override
+            public void onResult(Try<NotificationInboxStatus> result) {
+            }
+        };
+
+        Emarsys.Inbox.fetchNotifications(resultListener);
+        verify(mockInboxInternal).fetchNotifications(resultListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInbox_trackNotificationOpen_notification_mustNotBeNull() {
+        Emarsys.Inbox.trackNotificationOpen(null);
+    }
+
+    @Test
+    public void testInbox_trackNotificationOpen_delegatesTo_inboxInternal() {
+        Notification notification = mock(Notification.class);
+
+        Emarsys.Inbox.trackNotificationOpen(notification);
+        verify(mockInboxInternal).trackNotificationOpen(notification, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInbox_trackNotificationOpen_notification_resultListener_notification_mustNotBeNull() {
+        Emarsys.Inbox.trackNotificationOpen(null, mock(CompletionListener.class));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInbox_trackNotificationOpen_notification_resultListener_resultListener_mustNotBeNull() {
+        Emarsys.Inbox.trackNotificationOpen(mock(Notification.class), null);
+    }
+
+    @Test
+    public void testInbox_resetBadgeCount_delegatesTo_inboxInternal() {
+        Emarsys.Inbox.resetBadgeCount();
+
+        verify(mockInboxInternal).resetBadgeCount(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInbox_resetBadgeCount_withCompletionListener_resultListener_mustNotBeNull() {
+        Emarsys.Inbox.resetBadgeCount(null);
+    }
+
+    @Test
+    public void testInbox_resetBadgeCount_withCompletionListener_delegatesTo_inboxInternal() {
+        CompletionListener mockResultListener = mock(CompletionListener.class);
+
+        Emarsys.Inbox.resetBadgeCount(mockResultListener);
+
+        verify(mockInboxInternal).resetBadgeCount(mockResultListener);
+    }
+
+    @Test
+    public void testInbox_purgeNotificationCache_delegatesTo_inboxInternal() {
+        Emarsys.Inbox.purgeNotificationCache();
+
+        verify(mockInboxInternal).purgeNotificationCache();
+    }
+
+    @Test
+    public void testInbox_trackNotificationOpen_notification_resultListener_delegatesTo_inboxInternal() {
+        Notification notification = mock(Notification.class);
+        CompletionListener resultListener = mock(CompletionListener.class);
+
+        Emarsys.Inbox.trackNotificationOpen(notification, resultListener);
+
+        verify(mockInboxInternal).trackNotificationOpen(notification, resultListener);
     }
 
     private CartItem createItem(final String id, final double price, final double quantity) {
