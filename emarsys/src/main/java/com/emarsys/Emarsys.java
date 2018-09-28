@@ -106,17 +106,17 @@ public class Emarsys {
             getInboxInternal().fetchNotifications(resultListener);
         }
 
-        public static String trackNotificationOpen(@NonNull Notification message) {
+        public static void trackNotificationOpen(@NonNull Notification message) {
             Assert.notNull(message, "Message must not be null!");
-            return getInboxInternal().trackNotificationOpen(message, null);
+            getInboxInternal().trackNotificationOpen(message, null);
         }
 
-        public static String trackNotificationOpen(
+        public static void trackNotificationOpen(
                 @NonNull Notification message,
                 @NonNull CompletionListener resultListener) {
             Assert.notNull(message, "Message must not be null!");
             Assert.notNull(resultListener, "ResultListener must not be null!");
-            return getInboxInternal().trackNotificationOpen(message, resultListener);
+            getInboxInternal().trackNotificationOpen(message, resultListener);
         }
 
         public static void resetBadgeCount() {

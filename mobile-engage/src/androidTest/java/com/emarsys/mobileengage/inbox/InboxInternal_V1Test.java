@@ -631,18 +631,6 @@ public class InboxInternal_V1Test {
     }
 
     @Test
-    public void testTrackNotificationOpen_returnsWithRequestId() {
-        Notification message = new Notification("id1", "sid1", "title", null, new HashMap<String, String>(), new JSONObject(), 7200, new Date().getTime());
-        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
-
-        String result = inbox.trackNotificationOpen(message, null);
-
-        verify(manager).submit(captor.capture());
-
-        Assert.assertEquals(captor.getValue().getId(), result);
-    }
-
-    @Test
     public void testTrackNotificationOpen_containsCredentials_fromApploginParameters() {
         int contactFieldId = 3;
         String contactFieldValue = "test@test.com";

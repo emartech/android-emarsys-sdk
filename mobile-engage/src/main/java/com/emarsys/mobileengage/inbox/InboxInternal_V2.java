@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static com.emarsys.mobileengage.endpoint.Endpoint.INBOX_RESET_BADGE_COUNT_V2;
 
@@ -200,9 +199,8 @@ public class InboxInternal_V2 implements InboxInternal {
     }
 
     @Override
-    public String trackNotificationOpen(Notification message, final CompletionListener resultListener) {
+    public void trackNotificationOpen(Notification message, final CompletionListener resultListener) {
         final Exception exception = validateNotification(message);
-        String requestId;
 
         if (exception == null) {
             Map<String, String> attributes = new HashMap<>();
@@ -213,9 +211,7 @@ public class InboxInternal_V2 implements InboxInternal {
                     attributes,
                     requestContext);
             manager.submit(requestModel);
-            requestId = requestModel.getId();
         } else {
-            final String uuid = UUID.randomUUID().toString();
             if (resultListener != null) {
                 mainHandler.post(new Runnable() {
                     @Override
@@ -224,9 +220,7 @@ public class InboxInternal_V2 implements InboxInternal {
                     }
                 });
             }
-            requestId = uuid;
         }
-        return requestId;
     }
 
     @Override

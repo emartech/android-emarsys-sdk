@@ -740,17 +740,6 @@ public class InboxInternal_V2Test {
     }
 
     @Test
-    public void testTrackMessageOpen_returnsRequestModelId() {
-        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
-
-        String result = inbox.trackNotificationOpen(notification, null);
-
-        verify(manager).submit(captor.capture());
-
-        assertEquals(captor.getValue().getId(), result);
-    }
-
-    @Test
     public void testTrackMessageOpen_withMissing_id() throws InterruptedException {
         Notification notification = new Notification(
                 null,

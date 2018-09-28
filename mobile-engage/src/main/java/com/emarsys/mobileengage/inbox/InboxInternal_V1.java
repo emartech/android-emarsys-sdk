@@ -122,7 +122,7 @@ public class InboxInternal_V1 implements InboxInternal {
     }
 
     @Override
-    public String trackNotificationOpen(Notification message, CompletionListener resultListener) {
+    public void trackNotificationOpen(Notification message, CompletionListener resultListener) {
         EMSLogger.log(MobileEngageTopic.INBOX, "Argument: %s", message);
 
         Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
@@ -135,7 +135,6 @@ public class InboxInternal_V1 implements InboxInternal {
                 .build();
 
         manager.submit(model);
-        return model.getId();
     }
 
     @Override

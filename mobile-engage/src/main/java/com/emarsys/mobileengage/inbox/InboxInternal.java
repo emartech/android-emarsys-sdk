@@ -11,7 +11,7 @@ public interface InboxInternal {
 
     void resetBadgeCount(CompletionListener resultListener);
 
-    String trackNotificationOpen(Notification message, CompletionListener resultListener);
+    void trackNotificationOpen(Notification message, CompletionListener resultListener);
 
     void purgeNotificationCache();
 }
