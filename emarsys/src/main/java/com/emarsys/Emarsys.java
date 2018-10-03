@@ -107,9 +107,9 @@ public class Emarsys {
             getInboxInternal().fetchNotifications(resultListener);
         }
 
-        public static void trackNotificationOpen(@NonNull Notification message) {
-            Assert.notNull(message, "Message must not be null!");
-            getInboxInternal().trackNotificationOpen(message, null);
+        public static void trackNotificationOpen(@NonNull Notification notification) {
+            Assert.notNull(notification, "Notification must not be null!");
+            getInboxInternal().trackNotificationOpen(notification, null);
         }
 
         public static void trackNotificationOpen(

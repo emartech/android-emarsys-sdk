@@ -707,8 +707,13 @@ public class InboxInternal_V2Test {
         Assert.assertEquals(0, listener3.resultStatus.getBadgeCount());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testTrackNotificationOpen_notification_mustNotBeNull() {
+        inbox.trackNotificationOpen(null, mock(CompletionListener.class));
+    }
+
     @Test
-    public void testTrackMessageOpen_requestManagerCalled_withCorrectRequestModel() {
+    public void testTrackNotificationOpen_requestManagerCalled_withCorrectRequestModel() {
         Map<String, String> eventAttributes = new HashMap<>();
         eventAttributes.put("message_id", MESSAGE_ID);
         eventAttributes.put("sid", SID);
@@ -740,7 +745,7 @@ public class InboxInternal_V2Test {
     }
 
     @Test
-    public void testTrackMessageOpen_withMissing_id() throws InterruptedException {
+    public void testTrackNotificationOpen_withMissing_id() throws InterruptedException {
         Notification notification = new Notification(
                 null,
                 "sid",
@@ -762,7 +767,7 @@ public class InboxInternal_V2Test {
     }
 
     @Test
-    public void testTrackMessageOpen_withMissing_sid() throws InterruptedException {
+    public void testTrackNotificationOpen_withMissing_sid() throws InterruptedException {
         Notification notification = new Notification(
                 "id",
                 null,
@@ -785,7 +790,7 @@ public class InboxInternal_V2Test {
     }
 
     @Test
-    public void testTrackMessageOpen_withMissing_id_sid() {
+    public void testTrackNotificationOpen_withMissing_id_sid() {
         Notification notification = new Notification(
                 null,
                 null,

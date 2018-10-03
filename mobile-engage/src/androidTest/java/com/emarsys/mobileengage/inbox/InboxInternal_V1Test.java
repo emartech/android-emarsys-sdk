@@ -602,6 +602,11 @@ public class InboxInternal_V1Test {
         }
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testTrackNotificationOpen_notification_mustNotBeNull() {
+        inbox.trackNotificationOpen(null, mock(CompletionListener.class));
+    }
+
     @Test
     public void testTrackNotificationOpen_requestManagerCalledWithCorrectRequestModel() throws Exception {
         Notification message = new Notification("id1", "sid1", "title", null, new HashMap<String, String>(), new JSONObject(), 7200, new Date().getTime());

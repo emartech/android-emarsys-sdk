@@ -56,8 +56,8 @@ public class InboxInternal_V1 implements InboxInternal {
 
     @Override
     public void fetchNotifications(final ResultListener<Try<NotificationInboxStatus>> resultListener) {
-        Assert.notNull(resultListener, "ResultListener should not be null!");
         EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", resultListener);
+        Assert.notNull(resultListener, "ResultListener should not be null!");
 
         if (requestContext.getAppLoginParameters() != null && requestContext.getAppLoginParameters().hasCredentials()) {
             handleFetchRequest(resultListener);
@@ -107,6 +107,7 @@ public class InboxInternal_V1 implements InboxInternal {
     @Override
     public void resetBadgeCount(final CompletionListener resultListener) {
         EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", resultListener);
+
         if (requestContext.getAppLoginParameters() != null && requestContext.getAppLoginParameters().hasCredentials()) {
             handleResetRequest(resultListener);
         } else {
@@ -122,12 +123,13 @@ public class InboxInternal_V1 implements InboxInternal {
     }
 
     @Override
-    public void trackNotificationOpen(Notification message, CompletionListener resultListener) {
-        EMSLogger.log(MobileEngageTopic.INBOX, "Argument: %s", message);
+    public void trackNotificationOpen(Notification notification, CompletionListener resultListener) {
+        EMSLogger.log(MobileEngageTopic.INBOX, "Argument: %s", notification);
+        Assert.notNull(notification, "Notification must not be null!");
 
         Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
         payload.put("source", "inbox");
-        payload.put("sid", message.getSid());
+        payload.put("sid", notification.getSid());
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(RequestUrlUtils.createEventUrl_V2("message_open"))
                 .payload(payload)
@@ -139,7 +141,7 @@ public class InboxInternal_V1 implements InboxInternal {
 
     @Override
     public void purgeNotificationCache() {
-
+        EMSLogger.log(MobileEngageTopic.INBOX, "Called");
     }
 
     private void handleResetRequest(final CompletionListener resultListener) {

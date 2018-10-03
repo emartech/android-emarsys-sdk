@@ -68,8 +68,8 @@ public class InboxInternal_V2 implements InboxInternal {
 
     @Override
     public void fetchNotifications(final ResultListener<Try<NotificationInboxStatus>> resultListener) {
-        Assert.notNull(resultListener, "ResultListener should not be null!");
         EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", resultListener);
+        Assert.notNull(resultListener, "ResultListener should not be null!");
 
         if (requestInProgress) {
             queuedResultListeners.add(resultListener);
@@ -147,6 +147,7 @@ public class InboxInternal_V2 implements InboxInternal {
     @Override
     public void resetBadgeCount(final CompletionListener resultListener) {
         EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", resultListener);
+
         String meId = requestContext.getMeIdStorage().get();
         if (meId != null) {
             RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
@@ -199,13 +200,16 @@ public class InboxInternal_V2 implements InboxInternal {
     }
 
     @Override
-    public void trackNotificationOpen(Notification message, final CompletionListener resultListener) {
-        final Exception exception = validateNotification(message);
+    public void trackNotificationOpen(Notification notification, final CompletionListener resultListener) {
+        EMSLogger.log(MobileEngageTopic.INBOX, "Argument: %s", notification);
+        Assert.notNull(notification, "Notification must not be null!");
+
+        final Exception exception = validateNotification(notification);
 
         if (exception == null) {
             Map<String, String> attributes = new HashMap<>();
-            attributes.put("message_id", message.getId());
-            attributes.put("sid", message.getSid());
+            attributes.put("message_id", notification.getId());
+            attributes.put("sid", notification.getSid());
             RequestModel requestModel = RequestModelUtils.createInternalCustomEvent(
                     "inbox:open",
                     attributes,
@@ -225,6 +229,8 @@ public class InboxInternal_V2 implements InboxInternal {
 
     @Override
     public void purgeNotificationCache() {
+        EMSLogger.log(MobileEngageTopic.INBOX, "Called");
+
         if (oneMinutePassedSince(purgeTime)) {
             lastNotificationInboxStatus = null;
             purgeTime = requestContext.getTimestampProvider().provideTimestamp();
