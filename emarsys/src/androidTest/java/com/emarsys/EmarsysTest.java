@@ -430,6 +430,16 @@ public class EmarsysTest {
     }
 
     @Test
+    public void testInbox_trackNotificationOpen_notification_resultListener_delegatesTo_inboxInternal() {
+        Notification notification = mock(Notification.class);
+        CompletionListener resultListener = mock(CompletionListener.class);
+
+        Emarsys.Inbox.trackNotificationOpen(notification, resultListener);
+
+        verify(mockInboxInternal).trackNotificationOpen(notification, resultListener);
+    }
+
+    @Test
     public void testInbox_resetBadgeCount_delegatesTo_inboxInternal() {
         Emarsys.Inbox.resetBadgeCount();
 
@@ -455,16 +465,6 @@ public class EmarsysTest {
         Emarsys.Inbox.purgeNotificationCache();
 
         verify(mockInboxInternal).purgeNotificationCache();
-    }
-
-    @Test
-    public void testInbox_trackNotificationOpen_notification_resultListener_delegatesTo_inboxInternal() {
-        Notification notification = mock(Notification.class);
-        CompletionListener resultListener = mock(CompletionListener.class);
-
-        Emarsys.Inbox.trackNotificationOpen(notification, resultListener);
-
-        verify(mockInboxInternal).trackNotificationOpen(notification, resultListener);
     }
 
     @Test
