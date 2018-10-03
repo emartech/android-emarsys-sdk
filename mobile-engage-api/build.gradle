@@ -23,7 +23,11 @@ group = 'com.emarsys.mobileengage.api'
 dependencies {
     implementation project(':core-api')
 
-    implementation Libs.support_annotations
+    api Libs.support_annotations
+    api Libs.support_appcompat
+    api Libs.firebase_core, { exclude group: 'com.android.support' }
+    api Libs.firebase_messaging, { exclude group: 'com.android.support' }
+    api Libs.espresso_idling_resources, { exclude group: 'com.android.support' }
 
     androidTestImplementation project(':testUtils')
 }
