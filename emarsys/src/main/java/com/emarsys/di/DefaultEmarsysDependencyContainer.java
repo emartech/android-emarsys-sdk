@@ -12,6 +12,7 @@ import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
+import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.connection.ConnectionWatchDog;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.helper.CoreDbHelper;
@@ -237,7 +238,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 new IamMetricsLogHandler(new HashMap<String, Map<String, Object>>())
         );
         logRepositoryProxy = new LogRepositoryProxy(logRepository, logHandlers);
-        restClient = new RestClient(logRepositoryProxy, timestampProvider);
+        restClient = new RestClient(logRepositoryProxy, new ConnectionProvider(), timestampProvider);
 
         ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(application, coreSdkHandler);
         Worker worker = new DefaultWorker(

@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
+import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.connection.ConnectionWatchDog;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.Repository;
@@ -61,6 +62,7 @@ public class RequestManagerDennaTest {
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
+    @SuppressWarnings("unchecked")
     public void init() {
         DatabaseTestUtils.deleteCoreDatabase();
 
@@ -78,7 +80,7 @@ public class RequestManagerDennaTest {
 
         latch = new CountDownLatch(1);
         handler = new FakeCompletionHandler(latch);
-        RestClient restClient = new RestClient(mock(Repository.class), mock(TimestampProvider.class));
+        RestClient restClient = new RestClient(mock(Repository.class), new ConnectionProvider(), mock(TimestampProvider.class));
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, coreSdkHandler, handler, restClient);
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();

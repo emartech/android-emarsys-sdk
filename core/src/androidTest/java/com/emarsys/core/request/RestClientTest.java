@@ -2,6 +2,7 @@ package com.emarsys.core.request;
 
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.fake.FakeCompletionHandler;
@@ -30,10 +31,12 @@ public class RestClientTest {
     private RestClient client;
     private CountDownLatch latch;
 
-    @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
     private Repository<Map<String, Object>, SqlSpecification> logRepository;
     private TimestampProvider timestampProvider;
+    private ConnectionProvider connectionProvider;
+
+    @Rule
+    public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     @SuppressWarnings("unchecked")
@@ -42,19 +45,24 @@ public class RestClientTest {
 
         logRepository = mock(Repository.class);
         timestampProvider = mock(TimestampProvider.class);
-
-        client = new RestClient(logRepository, timestampProvider);
+        connectionProvider = new ConnectionProvider();
+        client = new RestClient(logRepository, connectionProvider, timestampProvider);
         latch = new CountDownLatch(1);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_logRepositoryMustNotBeNull() {
-        new RestClient(null, timestampProvider);
+    public void testConstructor_logRepository_mustNotBeNull() {
+        new RestClient(null,connectionProvider,  timestampProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_timestampProviderMustNotBeNull() {
-        new RestClient(logRepository, null);
+    public void testConstructor_connectionProvider_mustNotBeNull() {
+        new RestClient(logRepository,null,  timestampProvider);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_timestampProvider_mustNotBeNull() {
+        new RestClient(logRepository, connectionProvider,null);
     }
 
     @Test

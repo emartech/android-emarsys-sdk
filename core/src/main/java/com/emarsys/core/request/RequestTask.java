@@ -3,12 +3,13 @@ package com.emarsys.core.request;
 import android.os.AsyncTask;
 
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.JsonUtils;
 import com.emarsys.core.util.log.CoreTopic;
@@ -31,6 +32,7 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
 
     private final RequestModel requestModel;
     private final CoreCompletionHandler handler;
+    private final ConnectionProvider connectionProvider;
     private Repository<Map<String, Object>, SqlSpecification> logRepository;
     private TimestampProvider timestampProvider;
 
@@ -40,14 +42,17 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
     public RequestTask(
             RequestModel requestModel,
             CoreCompletionHandler handler,
+            ConnectionProvider connectionProvider,
             Repository<Map<String, Object>, SqlSpecification> logRepository,
             TimestampProvider timestampProvider) {
         Assert.notNull(requestModel, "RequestModel must not be null!");
         Assert.notNull(handler, "CoreCompletionHandler must not be null!");
+        Assert.notNull(connectionProvider, "ConnectionProvider must not be null!");
         Assert.notNull(logRepository, "LogRepository must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         this.requestModel = requestModel;
         this.handler = handler;
+        this.connectionProvider = connectionProvider;
         this.logRepository = logRepository;
         this.timestampProvider = timestampProvider;
     }
@@ -61,7 +66,7 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
 
         HttpsURLConnection connection = null;
         try {
-            connection = (HttpsURLConnection) requestModel.getUrl().openConnection();
+            connection = connectionProvider.provideConnection(requestModel);
             initializeConnection(connection, requestModel);
             connection.setConnectTimeout(20_000);
             connection.connect();
@@ -69,8 +74,8 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
             responseModel = readResponse(connection);
 
             logMetric("networking_time", dbEnd, responseModel.getTimestamp());
-        } catch (IOException ioe) {
-            exception = ioe;
+        } catch (Exception e) {
+            exception = e;
         } finally {
             if (connection != null) {
                 connection.disconnect();
