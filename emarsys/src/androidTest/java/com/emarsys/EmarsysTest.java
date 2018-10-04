@@ -3,6 +3,7 @@ package com.emarsys;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
+import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -14,6 +15,7 @@ import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
 import com.emarsys.core.api.result.Try;
+import com.emarsys.core.concurrency.CoreSdkHandler;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.trigger.TriggerEvent;
 import com.emarsys.core.database.trigger.TriggerType;
@@ -79,6 +81,7 @@ public class EmarsysTest {
     private static final int CONTACT_FIELD_ID = 3;
     private static final String MERCHANT_ID = "merchantId";
 
+    private CoreSdkHandler mockCoreSdkHandler;
     private ActivityLifecycleWatchdog activityLifecycleWatchdog;
     private CurrentActivityWatchdog currentActivityWatchdog;
     private MobileEngageInternal mockMobileEngageInternal;
@@ -101,6 +104,7 @@ public class EmarsysTest {
     public void init() {
         application = spy((Application) InstrumentationRegistry.getTargetContext().getApplicationContext());
 
+        mockCoreSdkHandler = mock(CoreSdkHandler.class);
         activityLifecycleWatchdog = mock(ActivityLifecycleWatchdog.class);
         currentActivityWatchdog = mock(CurrentActivityWatchdog.class);
         mockMobileEngageInternal = mock(MobileEngageInternal.class);
@@ -117,7 +121,7 @@ public class EmarsysTest {
                 MobileEngageFeature.USER_CENTRIC_INBOX);
 
         DependencyInjection.setup(new FakeDependencyContainer(
-                null,
+                mockCoreSdkHandler,
                 activityLifecycleWatchdog,
                 currentActivityWatchdog,
                 mockCoreDatabase,
@@ -136,6 +140,10 @@ public class EmarsysTest {
 
     @After
     public void tearDown() {
+        Looper looper = DependencyInjection.getContainer().getCoreSdkHandler().getLooper();
+        if (looper != null) {
+            looper.quit();
+        }
         DependencyInjection.tearDown();
     }
 
