@@ -20,6 +20,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.log.LogRepository;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.experimental.ExperimentalFeatures;
+import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -112,6 +113,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private CurrentActivityWatchdog currentActivityWatchdog;
     private UUIDProvider uuidProvider;
     private KeyValueStore sharedPrefsKeyStore;
+    private CurrentActivityProvider currentActivityProvider;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeDependencies(emarsysConfig);
@@ -167,6 +169,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
+    public CurrentActivityWatchdog getCurrentActivityWatchdog() {
+        return currentActivityWatchdog;
+    }
+
+    @Override
     public CoreSQLiteDatabase getCoreSQLiteDatabase() {
         return coreDatabase;
     }
@@ -199,7 +206,9 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         meIdStorage = new MeIdStorage(application);
         meIdSignatureStorage = new MeIdSignatureStorage(application);
         deviceInfo = new DeviceInfo(application);
-        currentActivityWatchdog = new CurrentActivityWatchdog(application);
+
+        currentActivityProvider = new CurrentActivityProvider();
+        currentActivityWatchdog = new CurrentActivityWatchdog(currentActivityProvider);
 
         CoreDbHelper coreDbHelper = new CoreDbHelper(application, new HashMap<TriggerKey, List<Runnable>>());
         coreDatabase = coreDbHelper.getWritableCoreDatabase();
@@ -333,7 +342,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 displayedIamRepository,
                 timestampProvider,
                 mobileEngageInternal,
-                currentActivityWatchdog);
+                currentActivityProvider);
     }
 
     private void initializeResponseHandlers() {

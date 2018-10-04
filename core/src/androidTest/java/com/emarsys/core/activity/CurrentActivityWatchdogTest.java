@@ -1,63 +1,58 @@
 package com.emarsys.core.activity;
 
 import android.app.Activity;
-import android.app.Application;
 import android.os.Bundle;
 
+import com.emarsys.core.provider.Property;
+import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.testUtil.TimeoutUtils;
+
+import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class CurrentActivityWatchdogTest {
 
     static {
-        mock(Application.class);
         mock(Activity.class);
     }
 
     private CurrentActivityWatchdog watchdog;
-    private Application application;
     private Activity activity;
     private Activity nextActivity;
+    private Property<Activity> activityProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
+    @SuppressWarnings("unchecked")
     public void init() {
-        application = mock(Application.class);
-        watchdog = new CurrentActivityWatchdog(application);
+        activityProvider = mock(Property.class);
+        watchdog = new CurrentActivityWatchdog(activityProvider);
         activity = mock(Activity.class);
         nextActivity = mock(Activity.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_application_shouldNotBeNull() {
+    public void testConstructor_activityProvider_shouldNotBeNull() {
         new CurrentActivityWatchdog(null);
-    }
-
-    @Test
-    public void testRegisterApplication_shouldRegisterForLifecycleCallbacks() {
-        application = mock(Application.class);
-        new CurrentActivityWatchdog(application);
-
-        verify(application).registerActivityLifecycleCallbacks(any(CurrentActivityWatchdog.class));
     }
 
     @Test
     public void testGetCurrentActivity_shouldStoreTheActivity_whenCallingOnResumed() {
         watchdog.onActivityResumed(activity);
 
-        assertEquals(activity, watchdog.getCurrentActivity());
+        verify(activityProvider).set(activity);
     }
 
     @Test
@@ -66,15 +61,20 @@ public class CurrentActivityWatchdogTest {
         watchdog.onActivityResumed(nextActivity);
         watchdog.onActivityPaused(activity);
 
-        assertEquals(nextActivity, watchdog.getCurrentActivity());
+        InOrder inOrder = Mockito.inOrder(activityProvider);
+        inOrder.verify(activityProvider).set(activity);
+        inOrder.verify(activityProvider).set(nextActivity);
     }
 
     @Test
     public void testGetCurrentActivity_shouldReturnNull_whenCurrentActivityPauses_andThereIsNoNextActivity() {
+        activityProvider = new CurrentActivityProvider();
+        watchdog = new CurrentActivityWatchdog(activityProvider);
+
         watchdog.onActivityResumed(activity);
         watchdog.onActivityPaused(activity);
 
-        assertNull(watchdog.getCurrentActivity());
+        Assert.assertEquals(null, activityProvider.get());
     }
 
     @Test
@@ -87,6 +87,6 @@ public class CurrentActivityWatchdogTest {
         watchdog.onActivitySaveInstanceState(activity, bundle);
         watchdog.onActivityDestroyed(activity);
 
-        assertNull(watchdog.getCurrentActivity());
+        verifyZeroInteractions(activityProvider);
     }
 }

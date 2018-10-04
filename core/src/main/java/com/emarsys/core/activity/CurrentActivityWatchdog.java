@@ -4,32 +4,17 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 
+import com.emarsys.core.provider.Property;
 import com.emarsys.core.util.Assert;
-
-import java.lang.ref.WeakReference;
 
 
 public class CurrentActivityWatchdog implements Application.ActivityLifecycleCallbacks {
 
-    private WeakReference<Activity> currentActivityWeakReference;
+    private Property<Activity> currentActivityProvider;
 
-    public CurrentActivityWatchdog(Application application) {
-        Assert.notNull(application, "Application must not be null!");
-        application.registerActivityLifecycleCallbacks(this);
-    }
-
-    public Activity getCurrentActivity() {
-        Activity activity = null;
-        if (currentActivityWeakReference != null) {
-            activity = currentActivityWeakReference.get();
-        }
-        return activity;
-    }
-
-    public void reset() {
-        if (currentActivityWeakReference != null) {
-            currentActivityWeakReference.clear();
-        }
+    public CurrentActivityWatchdog(Property<Activity> currentActivityProvider) {
+        Assert.notNull(currentActivityProvider, "CurrentActivityProvider must not be null!");
+        this.currentActivityProvider = currentActivityProvider;
     }
 
     @Override
@@ -44,13 +29,13 @@ public class CurrentActivityWatchdog implements Application.ActivityLifecycleCal
 
     @Override
     public void onActivityResumed(Activity activity) {
-        currentActivityWeakReference = new WeakReference<>(activity);
+        currentActivityProvider.set(activity);
     }
 
     @Override
     public void onActivityPaused(Activity activity) {
-        if (currentActivityWeakReference != null && currentActivityWeakReference.get() == activity) {
-            currentActivityWeakReference.clear();
+        if (currentActivityProvider.get() == activity) {
+            currentActivityProvider.set(null);
         }
     }
 

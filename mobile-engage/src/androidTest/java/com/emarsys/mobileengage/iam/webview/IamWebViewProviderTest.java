@@ -8,7 +8,7 @@ import android.support.test.filters.SdkSuppress;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
-import com.emarsys.core.activity.CurrentActivityWatchdog;
+import com.emarsys.core.provider.Gettable;
 import com.emarsys.mobileengage.MobileEngage;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
@@ -33,6 +33,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 class TestJSInterface extends IamJsBridge {
+
+    @SuppressWarnings("unchecked")
     public TestJSInterface() {
         super(
                 mock(InAppMessageHandlerProvider.class),
@@ -40,7 +42,7 @@ class TestJSInterface extends IamJsBridge {
                 "123",
                 mock(Handler.class),
                 mock(MobileEngageInternal.class),
-                mock(CurrentActivityWatchdog.class));
+                mock(Gettable.class));
     }
 
     @JavascriptInterface

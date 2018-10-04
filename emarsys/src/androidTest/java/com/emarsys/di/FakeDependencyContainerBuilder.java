@@ -3,6 +3,7 @@ package com.emarsys.di;
 import android.os.Handler;
 
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
+import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
@@ -17,6 +18,7 @@ import com.emarsys.predict.PredictInternal;
 public class FakeDependencyContainerBuilder {
     private Handler coreSdkHandler;
     private ActivityLifecycleWatchdog activityLifecycleWatchdog;
+    private CurrentActivityWatchdog currentActivityWatchdog;
     private CoreSQLiteDatabase coreSQLiteDatabase;
     private MobileEngageInternal mobileEngageInternal;
     private InboxInternal inboxInternal;
@@ -36,6 +38,11 @@ public class FakeDependencyContainerBuilder {
 
     public FakeDependencyContainerBuilder setActivityLifecycleWatchdog(ActivityLifecycleWatchdog activityLifecycleWatchdog) {
         this.activityLifecycleWatchdog = activityLifecycleWatchdog;
+        return this;
+    }
+
+    public FakeDependencyContainerBuilder setCurrentActivityWatchdog(CurrentActivityWatchdog currentActivityWatchdog) {
+        this.currentActivityWatchdog = currentActivityWatchdog;
         return this;
     }
 
@@ -95,6 +102,6 @@ public class FakeDependencyContainerBuilder {
     }
 
     public FakeDependencyContainer build() {
-        return new FakeDependencyContainer(coreSdkHandler, activityLifecycleWatchdog, coreSQLiteDatabase, mobileEngageInternal, inboxInternal, deepLinkInternal, completionHandler, requestContext, inAppPresenter, notificationEventHandler, oreoConfig, predictInternal, predictShardTrigger);
+        return new FakeDependencyContainer(coreSdkHandler, activityLifecycleWatchdog, currentActivityWatchdog, coreSQLiteDatabase, mobileEngageInternal, inboxInternal, deepLinkInternal, completionHandler, requestContext, inAppPresenter, notificationEventHandler, oreoConfig, predictInternal, predictShardTrigger);
     }
 }

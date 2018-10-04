@@ -9,10 +9,10 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.webkit.WebView;
 
-import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.provider.Gettable;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.fake.FakeActivity;
@@ -67,7 +67,7 @@ public class IamJsBridgeTest {
     private Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
     private Handler coreSdkHandler;
     private MobileEngageInternal mobileEngageInternal;
-    private CurrentActivityWatchdog currentActivityWatchdog;
+    private Gettable<Activity> currentActivityProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -77,7 +77,7 @@ public class IamJsBridgeTest {
 
     @Before
     @SuppressWarnings("unchecked")
-    public void setUp() throws Exception {
+    public void setUp() {
         inAppEventHandler = mock(EventHandler.class);
         inAppMessageHandlerProvider = mock(InAppMessageHandlerProvider.class);
         when(inAppMessageHandlerProvider.provideHandler()).thenReturn(inAppEventHandler);
@@ -86,22 +86,21 @@ public class IamJsBridgeTest {
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
 
         mobileEngageInternal = mock(MobileEngageInternal.class);
-        currentActivityWatchdog = mock(CurrentActivityWatchdog.class);
+        currentActivityProvider = mock(Gettable.class);
         jsBridge = new IamJsBridge(
                 inAppMessageHandlerProvider,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
                 mobileEngageInternal,
-                currentActivityWatchdog);
+                currentActivityProvider);
         webView = mock(WebView.class);
         jsBridge.setWebView(webView);
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         coreSdkHandler.getLooper().quit();
-        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -112,7 +111,7 @@ public class IamJsBridgeTest {
                 CAMPAIGN_ID,
                 coreSdkHandler,
                 mobileEngageInternal,
-                currentActivityWatchdog);
+                currentActivityProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -123,7 +122,7 @@ public class IamJsBridgeTest {
                 CAMPAIGN_ID,
                 coreSdkHandler,
                 mobileEngageInternal,
-                currentActivityWatchdog);
+                currentActivityProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -134,7 +133,7 @@ public class IamJsBridgeTest {
                 null,
                 coreSdkHandler,
                 mobileEngageInternal,
-                currentActivityWatchdog);
+                currentActivityProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -145,7 +144,7 @@ public class IamJsBridgeTest {
                 CAMPAIGN_ID,
                 null,
                 mobileEngageInternal,
-                currentActivityWatchdog);
+                currentActivityProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -156,11 +155,11 @@ public class IamJsBridgeTest {
                 CAMPAIGN_ID,
                 coreSdkHandler,
                 null,
-                currentActivityWatchdog);
+                currentActivityProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_currentActivityWatchdog_shouldNotAcceptNull() {
+    public void testConstructor_currentActivityProvider_shouldNotAcceptNull() {
         new IamJsBridge(
                 inAppMessageHandlerProvider,
                 buttonClickedRepository,
@@ -171,14 +170,14 @@ public class IamJsBridgeTest {
     }
 
     @Test
-    public void testClose_shouldInvokeCloseOnTheDialogOfTheMessageHandler() throws Exception {
+    public void testClose_shouldInvokeCloseOnTheDialogOfTheMessageHandler() {
         IamDialog iamDialog = initializeActivityWatchdogWithIamDialog();
         jsBridge.close("");
         verify(iamDialog, Mockito.timeout(1000)).dismiss();
     }
 
     @Test
-    public void testClose_calledOnMainThread() throws Exception {
+    public void testClose_calledOnMainThread() {
         IamDialog iamDialog = initializeActivityWatchdogWithIamDialog();
         ThreadSpy threadSpy = new ThreadSpy();
         doAnswer(threadSpy).when(iamDialog).dismiss();
@@ -304,12 +303,12 @@ public class IamJsBridgeTest {
                 CAMPAIGN_ID,
                 coreSdkHandler,
                 mobileEngageInternal,
-                currentActivityWatchdog);
+                currentActivityProvider);
         jsBridge.triggerAppEvent(json.toString());
     }
 
     @Test
-    public void testTriggerAppEvent_inAppMessageHandler_calledOnMainThread() throws JSONException, InterruptedException {
+    public void testTriggerAppEvent_inAppMessageHandler_calledOnMainThread() throws JSONException {
         JSONObject json = new JSONObject().put("name", "eventName").put("id", "123456789");
         ThreadSpy threadSpy = new ThreadSpy();
 
@@ -325,7 +324,7 @@ public class IamJsBridgeTest {
                 CAMPAIGN_ID,
                 coreSdkHandler,
                 mobileEngageInternal,
-                currentActivityWatchdog);
+                currentActivityProvider);
         jsBridge.setWebView(webView);
         jsBridge.triggerAppEvent(json.toString());
 
@@ -395,7 +394,7 @@ public class IamJsBridgeTest {
     }
 
     @Test
-    public void testButtonClicked_shouldCallAddOnRepository_onCoreSDKThread() throws JSONException, InterruptedException {
+    public void testButtonClicked_shouldCallAddOnRepository_onCoreSDKThread() throws JSONException {
         ThreadSpy threadSpy = new ThreadSpy();
         doAnswer(threadSpy).when(buttonClickedRepository).add(any(ButtonClicked.class));
 
@@ -438,7 +437,7 @@ public class IamJsBridgeTest {
     public void testOpenExternalLink_shouldStartActivity_withViewIntent() throws Exception {
         Activity activity = mock(Activity.class);
         when(activity.getPackageManager()).thenReturn(activityRule.getActivity().getPackageManager());
-        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(activity);
+        when(currentActivityProvider.get()).thenReturn(activity);
 
         String id = "12346789";
         String url = "https://emarsys.com";
@@ -458,7 +457,7 @@ public class IamJsBridgeTest {
     public void testOpenExternalLink_shouldStartActivity_onMainThread() throws Exception {
         Activity activity = mock(Activity.class);
         when(activity.getPackageManager()).thenReturn(activityRule.getActivity().getPackageManager());
-        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(activity);
+        when(currentActivityProvider.get()).thenReturn(activity);
 
         ThreadSpy threadSpy = new ThreadSpy();
         doAnswer(threadSpy).when(activity).startActivity(any(Intent.class));
@@ -475,7 +474,7 @@ public class IamJsBridgeTest {
     public void testOpenExternalLink_shouldInvokeCallback_onSuccess() throws Exception {
         Activity activity = mock(Activity.class);
         when(activity.getPackageManager()).thenReturn(activityRule.getActivity().getPackageManager());
-        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(activity);
+        when(currentActivityProvider.get()).thenReturn(activity);
 
         String id = "12346789";
         String url = "https://emarsys.com";
@@ -505,8 +504,6 @@ public class IamJsBridgeTest {
 
     @Test
     public void testOpenExternalLink_shouldInvokeCallback_whenActivityIsNull() throws Exception {
-        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(null);
-
         String id = "12346789";
         JSONObject json = new JSONObject().put("id", id).put("url", "https://emarsys.com");
 
@@ -521,7 +518,7 @@ public class IamJsBridgeTest {
 
     @Test
     public void testOpenExternalLink_shouldInvokeCallback_whenIntentCannotBeResoled() throws Exception {
-        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(activityRule.getActivity());
+        when(currentActivityProvider.get()).thenReturn(activityRule.getActivity());
 
         String id = "12346789";
         JSONObject json = new JSONObject().put("id", id).put("url", "This is not a valid url!");
@@ -553,12 +550,12 @@ public class IamJsBridgeTest {
         verify(webView, Mockito.timeout(1000)).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", json), null);
     }
 
-    private IamDialog initializeActivityWatchdogWithIamDialog() throws Exception {
+    private IamDialog initializeActivityWatchdogWithIamDialog() {
         Activity activity = mock(Activity.class, Mockito.RETURNS_DEEP_STUBS);
         IamDialog iamDialog = mock(IamDialog.class);
         when(activity.getFragmentManager().findFragmentByTag(IamDialog.TAG)).thenReturn(iamDialog);
 
-        when(currentActivityWatchdog.getCurrentActivity()).thenReturn(activity);
+        when(currentActivityProvider.get()).thenReturn(activity);
         return iamDialog;
     }
 }

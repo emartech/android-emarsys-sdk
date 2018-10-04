@@ -7,6 +7,9 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.config.EmarsysConfig;
+import com.emarsys.core.activity.ActivityLifecycleAction;
+import com.emarsys.core.activity.ActivityLifecycleWatchdog;
+import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
@@ -25,6 +28,8 @@ import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
+import com.emarsys.mobileengage.deeplink.DeepLinkAction;
+import com.emarsys.mobileengage.iam.InAppStartAction;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
@@ -46,6 +51,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +64,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(AndroidJUnit4.class)
@@ -72,6 +79,8 @@ public class EmarsysTest {
     private static final int CONTACT_FIELD_ID = 3;
     private static final String MERCHANT_ID = "merchantId";
 
+    private ActivityLifecycleWatchdog activityLifecycleWatchdog;
+    private CurrentActivityWatchdog currentActivityWatchdog;
     private MobileEngageInternal mockMobileEngageInternal;
     private PredictInternal mockPredictInternal;
     private InboxInternal mockInboxInternal;
@@ -90,8 +99,10 @@ public class EmarsysTest {
 
     @Before
     public void init() {
-        application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
+        application = spy((Application) InstrumentationRegistry.getTargetContext().getApplicationContext());
 
+        activityLifecycleWatchdog = mock(ActivityLifecycleWatchdog.class);
+        currentActivityWatchdog = mock(CurrentActivityWatchdog.class);
         mockMobileEngageInternal = mock(MobileEngageInternal.class);
         mockPredictInternal = mock(PredictInternal.class);
         mockInboxInternal = mock(InboxInternal.class);
@@ -107,7 +118,8 @@ public class EmarsysTest {
 
         DependencyInjection.setup(new FakeDependencyContainer(
                 null,
-                null,
+                activityLifecycleWatchdog,
+                currentActivityWatchdog,
                 mockCoreDatabase,
                 mockMobileEngageInternal,
                 mockInboxInternal,
@@ -245,6 +257,48 @@ public class EmarsysTest {
         Emarsys.setup(baseConfig);
 
         assertFalse(Emarsys.InApp.isPaused());
+    }
+
+    @Test
+    public void testSetup_registers_activityLifecycleWatchdog() {
+        Emarsys.setup(baseConfig);
+
+        verify(application).registerActivityLifecycleCallbacks(activityLifecycleWatchdog);
+    }
+
+    @Test
+    public void testSetup_registers_activityLifecycleWatchdog_withInAppStartAction() {
+        DependencyInjection.tearDown();
+
+        ArgumentCaptor<ActivityLifecycleWatchdog> captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog.class);
+
+        Emarsys.setup(inAppConfig);
+
+        verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture());
+        ActivityLifecycleAction[] actions = CollectionTestUtils.getElementByType(captor.getAllValues(), ActivityLifecycleWatchdog.class).getApplicationStartActions();
+
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(actions, InAppStartAction.class));
+    }
+
+    @Test
+    public void testSetup_registers_activityLifecycleWatchdog_withDeepLinkAction() {
+        DependencyInjection.tearDown();
+
+        ArgumentCaptor<ActivityLifecycleWatchdog> captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog.class);
+
+        Emarsys.setup(baseConfig);
+
+        verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture());
+        ActivityLifecycleAction[] actions = CollectionTestUtils.getElementByType(captor.getAllValues(), ActivityLifecycleWatchdog.class).getActivityCreatedActions();
+
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(actions, DeepLinkAction.class));
+    }
+
+    @Test
+    public void testSetup_registers_currentActivityWatchDog() {
+        Emarsys.setup(baseConfig);
+
+        verify(application).registerActivityLifecycleCallbacks(currentActivityWatchdog);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -509,7 +563,7 @@ public class EmarsysTest {
 
     private EmarsysConfig createConfigWithFlippers(FlipperFeature... experimentalFeatures) {
         return new EmarsysConfig.Builder()
-                .application(spy(application))
+                .application(application)
                 .mobileEngageCredentials(APPLICATION_CODE, APPLICATION_PASSWORD)
                 .predictMerchantId(MERCHANT_ID)
                 .contactFieldId(CONTACT_FIELD_ID)

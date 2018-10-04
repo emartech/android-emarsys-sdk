@@ -41,6 +41,8 @@ public class Emarsys {
 
         DependencyInjection.setup(new DefaultEmarsysDependencyContainer(config));
 
+        registerWatchDogs(config);
+
         getContainer().getCoreSQLiteDatabase().registerTrigger(
                 DatabaseContract.SHARD_TABLE_NAME,
                 TriggerType.AFTER,
@@ -205,5 +207,10 @@ public class Emarsys {
 
     private static PredictInternal getPredictInternal() {
         return getContainer().getPredictInternal();
+    }
+
+    private static void registerWatchDogs(EmarsysConfig config) {
+        config.getApplication().registerActivityLifecycleCallbacks(getContainer().getActivityLifecycleWatchdog());
+        config.getApplication().registerActivityLifecycleCallbacks(getContainer().getCurrentActivityWatchdog());
     }
 }

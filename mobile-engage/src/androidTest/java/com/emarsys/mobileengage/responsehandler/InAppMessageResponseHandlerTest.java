@@ -4,8 +4,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.test.filters.SdkSuppress;
 
-import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.database.repository.log.LogRepository;
+import com.emarsys.core.provider.Gettable;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
@@ -58,6 +58,7 @@ public class InAppMessageResponseHandlerTest {
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
+    @SuppressWarnings("unchecked")
     public void init() {
         webViewProvider = mock(IamWebViewProvider.class);
 
@@ -74,7 +75,7 @@ public class InAppMessageResponseHandlerTest {
                 mock(DisplayedIamRepository.class),
                 mock(TimestampProvider.class),
                 mock(MobileEngageInternal.class),
-                mock(CurrentActivityWatchdog.class));
+                mock(Gettable.class));
 
         handler = new InAppMessageResponseHandler(presenter,
                 mock(LogRepository.class),
