@@ -30,13 +30,20 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name="com.emarsys.sample.SampleMessagingService">
+        <service android:name="com.emarsys.service.EmarsysMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <!--If you have non-Emarsys related Push use cases,-->
+        <!--register your own service instead of EmarsysMessagingService.-->
+        <!--For a reference implementation, please take a look at com.emarsys.sample.CustomMessagingService-->
+        <!--<service android:name=".CustomMessagingService">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.google.firebase.MESSAGING_EVENT" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->
 
         <meta-data
             android:name="com.emarsys.mobileengage.small_notification_icon"

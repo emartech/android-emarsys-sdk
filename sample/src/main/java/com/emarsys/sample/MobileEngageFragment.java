@@ -4,8 +4,8 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -22,6 +22,11 @@ import android.widget.Toast;
 import com.emarsys.Emarsys;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.mobileengage.api.MobileEngageException;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdService;
+import com.google.firebase.iid.InstanceIdResult;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,17 +35,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import static android.content.Context.MODE_PRIVATE;
-
 public class MobileEngageFragment extends Fragment {
     private static final String TAG = "MobileEngageFragment";
-
-    private Button appLogingAnonymous;
-    private Button appLogin;
-    private Button appLogout;
-    private Button customEvent;
-    private Button messageOpen;
-    private Button pushToken;
 
     private EditText applicationId;
     private EditText customerId;
@@ -49,8 +45,6 @@ public class MobileEngageFragment extends Fragment {
     private EditText messageId;
 
     private TextView statusLabel;
-
-    private Switch doNotDisturb;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,22 +73,13 @@ public class MobileEngageFragment extends Fragment {
         };
         statusLabel = root.findViewById(R.id.mobileEngageStatusLabel);
 
-        appLogingAnonymous = root.findViewById(R.id.appLoginAnonymous);
-        appLogin = root.findViewById(R.id.appLogin);
-        appLogout = root.findViewById(R.id.appLogout);
-        customEvent = root.findViewById(R.id.customEvent);
-        messageOpen = root.findViewById(R.id.messageOpen);
-        pushToken = root.findViewById(R.id.pushToken);
-
         applicationId = root.findViewById(R.id.contactFieldId);
         customerId = root.findViewById(R.id.contactFieldValue);
         eventName = root.findViewById(R.id.eventName);
         eventAttributes = root.findViewById(R.id.eventAttributes);
         messageId = root.findViewById(R.id.messageId);
 
-        doNotDisturb = root.findViewById(R.id.doNotDisturb);
-
-        appLogingAnonymous.setOnClickListener(new View.OnClickListener() {
+        root.findViewById(R.id.appLoginAnonymous).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Emarsys.setCustomer("");
@@ -102,7 +87,7 @@ public class MobileEngageFragment extends Fragment {
             }
         });
 
-        appLogin.setOnClickListener(new View.OnClickListener() {
+        root.findViewById(R.id.appLogin).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String contactFieldId = applicationId.getText().toString();
@@ -122,7 +107,7 @@ public class MobileEngageFragment extends Fragment {
             }
         });
 
-        appLogout.setOnClickListener(new View.OnClickListener() {
+        root.findViewById(R.id.appLogout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Emarsys.clearCustomer(completionListener);
@@ -130,7 +115,7 @@ public class MobileEngageFragment extends Fragment {
             }
         });
 
-        customEvent.setOnClickListener(new View.OnClickListener() {
+        root.findViewById(R.id.customEvent).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String name = eventName.getText().toString();
@@ -156,7 +141,7 @@ public class MobileEngageFragment extends Fragment {
             }
         });
 
-        messageOpen.setOnClickListener(new View.OnClickListener() {
+        root.findViewById(R.id.messageOpen).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
@@ -170,7 +155,7 @@ public class MobileEngageFragment extends Fragment {
             }
         });
 
-        doNotDisturb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        root.<Switch>findViewById(R.id.doNotDisturb).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -181,30 +166,33 @@ public class MobileEngageFragment extends Fragment {
             }
         });
 
-        pushToken.setOnClickListener(new View.OnClickListener() {
+        root.findViewById(R.id.pushToken).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                String pushToken = loadPushTokenFromSharedPreferences();
-                ClipboardManager clipboard = (ClipboardManager) v.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                String toastMessage = pushToken;
-                if (clipboard != null) {
-                    ClipData clip = ClipData.newPlainText("pushtoken", pushToken);
-                    clipboard.setPrimaryClip(clip);
-                    toastMessage = "Copied: " + toastMessage;
-                }
-                Toast.makeText(
-                        v.getContext(),
-                        toastMessage,
-                        Toast.LENGTH_LONG).show();
+            public void onClick(final View view) {
+                FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(
+                        getActivity(),
+                        new OnCompleteListener<InstanceIdResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                                ClipboardManager clipboard = (ClipboardManager) view.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                                String pushToken = task.getResult().getToken();
+                                String toastMessage = pushToken;
+                                if (clipboard != null) {
+                                    ClipData clip = ClipData.newPlainText("pushtoken", pushToken);
+                                    clipboard.setPrimaryClip(clip);
+                                    toastMessage = "Copied: " + toastMessage;
+                                }
+                                Toast.makeText(
+                                        view.getContext(),
+                                        toastMessage,
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        }
+                );
             }
         });
 
         return root;
-    }
-
-    private String loadPushTokenFromSharedPreferences() {
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences("sample", MODE_PRIVATE);
-        return sharedPreferences.getString("push_token", "<null>");
     }
 
     private void handleRequestSent(String title) {
