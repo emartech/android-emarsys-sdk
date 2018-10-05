@@ -19,7 +19,6 @@ import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
 import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction;
 import com.emarsys.mobileengage.iam.dialog.action.SendDisplayedIamAction;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge;
-import com.emarsys.mobileengage.iam.jsbridge.InAppMessageHandlerProvider;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
@@ -32,7 +31,7 @@ public class InAppPresenter {
     private final Gettable<Activity> currentActivityProvider;
     private Handler coreSdkHandler;
     private IamWebViewProvider webViewProvider;
-    private InAppMessageHandlerProvider messageHandlerProvider;
+    private InAppInternal inAppInternal;
     private IamDialogProvider dialogProvider;
     private Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
     private Repository<DisplayedIam, SqlSpecification> displayedIamRepository;
@@ -42,7 +41,7 @@ public class InAppPresenter {
     public InAppPresenter(
             Handler coreSdkHandler,
             IamWebViewProvider webViewProvider,
-            InAppMessageHandlerProvider messageHandlerProvider,
+            InAppInternal inAppInternal,
             IamDialogProvider dialogProvider,
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             Repository<DisplayedIam, SqlSpecification> displayedIamRepository,
@@ -50,7 +49,7 @@ public class InAppPresenter {
             MobileEngageInternal mobileEngageInternal,
             Gettable<Activity> currentActivityProvider) {
         Assert.notNull(webViewProvider, "WebViewProvider must not be null!");
-        Assert.notNull(messageHandlerProvider, "MessageHandlerProvider must not be null!");
+        Assert.notNull(inAppInternal, "InAppInternal must not be null!");
         Assert.notNull(dialogProvider, "DialogProvider must not be null!");
         Assert.notNull(coreSdkHandler, "CoreSdkHandler must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickRepository must not be null!");
@@ -59,7 +58,7 @@ public class InAppPresenter {
         Assert.notNull(mobileEngageInternal, "MobileEngageInternal must not be null!");
         Assert.notNull(currentActivityProvider, "CurrentActivityProvider must not be null!");
         this.webViewProvider = webViewProvider;
-        this.messageHandlerProvider = messageHandlerProvider;
+        this.inAppInternal = inAppInternal;
         this.dialogProvider = dialogProvider;
         this.coreSdkHandler = coreSdkHandler;
         this.buttonClickedRepository = buttonClickedRepository;
@@ -75,7 +74,7 @@ public class InAppPresenter {
         setupDialogWithActions(iamDialog);
 
         IamJsBridge jsBridge = new IamJsBridge(
-                messageHandlerProvider,
+                inAppInternal,
                 buttonClickedRepository,
                 id,
                 coreSdkHandler,

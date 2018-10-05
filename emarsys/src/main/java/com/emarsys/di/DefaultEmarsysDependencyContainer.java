@@ -47,10 +47,10 @@ import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.experimental.MobileEngageExperimentalFeatures;
 import com.emarsys.mobileengage.iam.DoNotDisturbProvider;
+import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.InAppStartAction;
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider;
-import com.emarsys.mobileengage.iam.jsbridge.InAppMessageHandlerProvider;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy;
@@ -84,6 +84,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
     private MobileEngageInternal mobileEngageInternal;
     private InboxInternal inboxInternal;
+    private InAppInternal inAppInternal;
     private DeepLinkInternal deepLinkInternal;
     private PredictInternal predictInternal;
     private Handler coreSdkHandler;
@@ -132,6 +133,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     @Override
     public InboxInternal getInboxInternal() {
         return inboxInternal;
+    }
+
+    @Override
+    public InAppInternal getInAppInternal() {
+        return inAppInternal;
     }
 
     @Override
@@ -312,6 +318,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 restClient,
                 requestContext
         );
+        inAppInternal = new InAppInternal();
         deepLinkInternal = new DeepLinkInternal(requestManager, requestContext);
         predictInternal = new PredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);
     }
@@ -337,7 +344,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         inAppPresenter = new InAppPresenter(
                 coreSdkHandler,
                 new IamWebViewProvider(),
-                new InAppMessageHandlerProvider(),
+                inAppInternal,
                 new IamDialogProvider(),
                 buttonClickedRepository,
                 displayedIamRepository,

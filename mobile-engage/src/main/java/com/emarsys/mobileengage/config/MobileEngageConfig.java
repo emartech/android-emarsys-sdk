@@ -87,10 +87,6 @@ public class MobileEngageConfig {
         return oreoConfig;
     }
 
-    public EventHandler getDefaultInAppEventHandler() {
-        return defaultInAppEventHandler;
-    }
-
     public NotificationEventHandler getNotificationEventHandler() {
         return notificationEventHandler;
     }
@@ -179,7 +175,6 @@ public class MobileEngageConfig {
             statusListener = baseConfig.getStatusListener();
             idlingResourceEnabled = baseConfig.isIdlingResourceEnabled();
             oreoConfig = baseConfig.getOreoConfig();
-            defaultInAppEventHandler = baseConfig.getDefaultInAppEventHandler();
             notificationEventHandler = baseConfig.getNotificationEventHandler();
             experimentalFeatures = baseConfig.getExperimentalFeatures();
             return this;

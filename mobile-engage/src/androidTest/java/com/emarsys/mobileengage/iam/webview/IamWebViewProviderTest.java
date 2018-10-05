@@ -13,9 +13,9 @@ import com.emarsys.mobileengage.MobileEngage;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener;
+import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge;
-import com.emarsys.mobileengage.iam.jsbridge.InAppMessageHandlerProvider;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -37,7 +37,7 @@ class TestJSInterface extends IamJsBridge {
     @SuppressWarnings("unchecked")
     public TestJSInterface() {
         super(
-                mock(InAppMessageHandlerProvider.class),
+                mock(InAppInternal.class),
                 mock(ButtonClickedRepository.class),
                 "123",
                 mock(Handler.class),

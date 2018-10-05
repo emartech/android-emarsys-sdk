@@ -7,6 +7,7 @@ import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.config.OreoConfig;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
+import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 
@@ -15,6 +16,8 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
     MobileEngageInternal getMobileEngageInternal();
 
     InboxInternal getInboxInternal();
+
+    InAppInternal getInAppInternal();
 
     DeepLinkInternal getDeepLinkInternal();
 

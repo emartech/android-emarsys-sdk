@@ -22,6 +22,7 @@ import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
+import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.api.model.CartItem;
@@ -37,17 +38,14 @@ public class Emarsys {
         for (FlipperFeature feature : config.getExperimentalFeatures()) {
             ExperimentalFeatures.enableFeature(feature);
         }
-        InApp.resume();
 
         DependencyInjection.setup(new DefaultEmarsysDependencyContainer(config));
 
+        initializeInAppInternal(config);
+
         registerWatchDogs(config);
 
-        getContainer().getCoreSQLiteDatabase().registerTrigger(
-                DatabaseContract.SHARD_TABLE_NAME,
-                TriggerType.AFTER,
-                TriggerEvent.INSERT,
-                getContainer().getPredictShardTrigger());
+        registerDatabaseTriggers();
     }
 
     public static void setCustomer(@NonNull String customerId) {
@@ -138,21 +136,22 @@ public class Emarsys {
 
     public static class InApp {
 
-        private static boolean enabled;
-
         public static void pause() {
-            InApp.enabled = false;
+            getInAppInternal().pause();
         }
 
         public static void resume() {
-            InApp.enabled = true;
+            getInAppInternal().resume();
         }
 
         public static boolean isPaused() {
-            return !InApp.enabled;
+            return getInAppInternal().isPaused();
         }
 
         public static void setEventHandler(@NonNull EventHandler eventHandler) {
+            Assert.notNull(eventHandler, "EventHandler must not be null!");
+
+            getInAppInternal().setEventHandler(eventHandler);
         }
     }
 
@@ -190,7 +189,6 @@ public class Emarsys {
 
             getPredictInternal().trackSearchTerm(searchTerm);
         }
-
     }
 
     private static EmarysDependencyContainer getContainer() {
@@ -205,12 +203,32 @@ public class Emarsys {
         return getContainer().getInboxInternal();
     }
 
+    private static InAppInternal getInAppInternal() {
+        return getContainer().getInAppInternal();
+    }
+
     private static PredictInternal getPredictInternal() {
         return getContainer().getPredictInternal();
+    }
+
+    private static void initializeInAppInternal(@NonNull EmarsysConfig config) {
+        EventHandler inAppEventHandler = config.getInAppEventHandler();
+
+        if (inAppEventHandler != null) {
+            getInAppInternal().setEventHandler(inAppEventHandler);
+        }
     }
 
     private static void registerWatchDogs(EmarsysConfig config) {
         config.getApplication().registerActivityLifecycleCallbacks(getContainer().getActivityLifecycleWatchdog());
         config.getApplication().registerActivityLifecycleCallbacks(getContainer().getCurrentActivityWatchdog());
+    }
+
+    private static void registerDatabaseTriggers() {
+        getContainer().getCoreSQLiteDatabase().registerTrigger(
+                DatabaseContract.SHARD_TABLE_NAME,
+                TriggerType.AFTER,
+                TriggerEvent.INSERT,
+                getContainer().getPredictShardTrigger());
     }
 }

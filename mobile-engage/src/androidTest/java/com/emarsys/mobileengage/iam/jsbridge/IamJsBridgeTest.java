@@ -16,6 +16,7 @@ import com.emarsys.core.provider.Gettable;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.fake.FakeActivity;
+import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -62,7 +63,7 @@ public class IamJsBridgeTest {
 
     private IamJsBridge jsBridge;
     private EventHandler inAppEventHandler;
-    private InAppMessageHandlerProvider inAppMessageHandlerProvider;
+    private InAppInternal inAppInternal;
     private WebView webView;
     private Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
     private Handler coreSdkHandler;
@@ -79,8 +80,8 @@ public class IamJsBridgeTest {
     @SuppressWarnings("unchecked")
     public void setUp() {
         inAppEventHandler = mock(EventHandler.class);
-        inAppMessageHandlerProvider = mock(InAppMessageHandlerProvider.class);
-        when(inAppMessageHandlerProvider.provideHandler()).thenReturn(inAppEventHandler);
+        inAppInternal = mock(InAppInternal.class);
+        when(inAppInternal.getEventHandler()).thenReturn(inAppEventHandler);
 
         buttonClickedRepository = mock(Repository.class);
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
@@ -88,7 +89,7 @@ public class IamJsBridgeTest {
         mobileEngageInternal = mock(MobileEngageInternal.class);
         currentActivityProvider = mock(Gettable.class);
         jsBridge = new IamJsBridge(
-                inAppMessageHandlerProvider,
+                inAppInternal,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
@@ -104,7 +105,7 @@ public class IamJsBridgeTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_messageHandlerProvider_shouldNotAcceptNull() {
+    public void testConstructor_inAppInternal_shouldNotAcceptNull() {
         new IamJsBridge(
                 null,
                 buttonClickedRepository,
@@ -117,7 +118,7 @@ public class IamJsBridgeTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_buttonClickedRepository_shouldNotAcceptNull() {
         new IamJsBridge(
-                inAppMessageHandlerProvider,
+                inAppInternal,
                 null,
                 CAMPAIGN_ID,
                 coreSdkHandler,
@@ -128,7 +129,7 @@ public class IamJsBridgeTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_campaignId_shouldNotAcceptNull() {
         new IamJsBridge(
-                inAppMessageHandlerProvider,
+                inAppInternal,
                 buttonClickedRepository,
                 null,
                 coreSdkHandler,
@@ -139,7 +140,7 @@ public class IamJsBridgeTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_coreSdkHandler_shouldNotAcceptNull() {
         new IamJsBridge(
-                inAppMessageHandlerProvider,
+                inAppInternal,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 null,
@@ -150,7 +151,7 @@ public class IamJsBridgeTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_mobileEngageInternal_shouldNotAcceptNull() {
         new IamJsBridge(
-                inAppMessageHandlerProvider,
+                inAppInternal,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
@@ -161,7 +162,7 @@ public class IamJsBridgeTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_currentActivityProvider_shouldNotAcceptNull() {
         new IamJsBridge(
-                inAppMessageHandlerProvider,
+                inAppInternal,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
@@ -294,11 +295,11 @@ public class IamJsBridgeTest {
     public void testTriggerAppEvent_shouldNotThrowException_whenInAppMessageHandle_isNotSet() throws JSONException {
         JSONObject json = new JSONObject().put("name", "eventName").put("id", "123456789");
 
-        InAppMessageHandlerProvider messageHandlerProvider = mock(InAppMessageHandlerProvider.class);
-        when(messageHandlerProvider.provideHandler()).thenReturn(null);
+        InAppInternal inAppInternal = mock(InAppInternal.class);
+        when(inAppInternal.getEventHandler()).thenReturn(null);
 
         IamJsBridge jsBridge = new IamJsBridge(
-                messageHandlerProvider,
+                inAppInternal,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
@@ -315,11 +316,11 @@ public class IamJsBridgeTest {
         EventHandler messageHandler = mock(EventHandler.class);
         doAnswer(threadSpy).when(messageHandler).handleEvent("eventName", null);
 
-        InAppMessageHandlerProvider messageHandlerProvider = mock(InAppMessageHandlerProvider.class);
-        when(messageHandlerProvider.provideHandler()).thenReturn(messageHandler);
+        InAppInternal inAppInternal = mock(InAppInternal.class);
+        when(inAppInternal.getEventHandler()).thenReturn(messageHandler);
 
         IamJsBridge jsBridge = new IamJsBridge(
-                messageHandlerProvider,
+                inAppInternal,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,

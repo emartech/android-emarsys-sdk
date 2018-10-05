@@ -10,6 +10,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider;
@@ -17,7 +18,6 @@ import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
 import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction;
 import com.emarsys.mobileengage.iam.dialog.action.SendDisplayedIamAction;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge;
-import com.emarsys.mobileengage.iam.jsbridge.InAppMessageHandlerProvider;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
@@ -69,7 +69,7 @@ public class InAppMessageResponseHandlerTest {
         presenter = new InAppPresenter(
                 mock(Handler.class),
                 webViewProvider,
-                mock(InAppMessageHandlerProvider.class),
+                mock(InAppInternal.class),
                 dialogProvider,
                 mock(ButtonClickedRepository.class),
                 mock(DisplayedIamRepository.class),
@@ -77,7 +77,8 @@ public class InAppMessageResponseHandlerTest {
                 mock(MobileEngageInternal.class),
                 mock(Gettable.class));
 
-        handler = new InAppMessageResponseHandler(presenter,
+        handler = new InAppMessageResponseHandler(
+                presenter,
                 mock(LogRepository.class),
                 mock(TimestampProvider.class));
     }

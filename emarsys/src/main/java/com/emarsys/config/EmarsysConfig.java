@@ -3,10 +3,10 @@ package com.emarsys.config;
 import android.app.Application;
 import android.support.annotation.NonNull;
 
+import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
-import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.config.OreoConfig;
 
@@ -21,7 +21,7 @@ public class EmarsysConfig {
     private final String predictMerchantId;
     private final boolean idlingResourceEnabled;
     private final OreoConfig oreoConfig;
-    private final EventHandler defaultInAppEventHandler;
+    private final EventHandler inAppEventHandler;
     private final NotificationEventHandler notificationEventHandler;
     private final FlipperFeature[] experimentalFeatures;
 
@@ -32,7 +32,7 @@ public class EmarsysConfig {
                   String predictMerchantId,
                   boolean idlingResourceEnabled,
                   OreoConfig oreoConfig,
-                  EventHandler defaultInAppEventHandler,
+                  EventHandler inAppEventHandler,
                   NotificationEventHandler notificationEventHandler,
                   FlipperFeature[] experimentalFeatures) {
         Assert.notNull(application, "Application must not be null");
@@ -46,7 +46,7 @@ public class EmarsysConfig {
         Assert.elementsNotNull(experimentalFeatures, "ExperimentalFeatures must not contain null elements!");
 
         if (Arrays.asList(experimentalFeatures).contains(MobileEngageFeature.IN_APP_MESSAGING)) {
-            Assert.notNull(defaultInAppEventHandler, "DefaultInAppMessageHandler must not be null");
+            Assert.notNull(inAppEventHandler, "DefaultInAppMessageHandler must not be null");
         }
 
         this.application = application;
@@ -56,7 +56,7 @@ public class EmarsysConfig {
         this.predictMerchantId = predictMerchantId;
         this.idlingResourceEnabled = idlingResourceEnabled;
         this.oreoConfig = oreoConfig;
-        this.defaultInAppEventHandler = defaultInAppEventHandler;
+        this.inAppEventHandler = inAppEventHandler;
         this.notificationEventHandler = notificationEventHandler;
         this.experimentalFeatures = experimentalFeatures;
     }
@@ -89,8 +89,8 @@ public class EmarsysConfig {
         return oreoConfig;
     }
 
-    public EventHandler getDefaultInAppEventHandler() {
-        return defaultInAppEventHandler;
+    public EventHandler getInAppEventHandler() {
+        return inAppEventHandler;
     }
 
     public NotificationEventHandler getNotificationEventHandler() {
@@ -127,7 +127,7 @@ public class EmarsysConfig {
             return false;
         if (oreoConfig != null ? !oreoConfig.equals(config.oreoConfig) : config.oreoConfig != null)
             return false;
-        if (defaultInAppEventHandler != null ? !defaultInAppEventHandler.equals(config.defaultInAppEventHandler) : config.defaultInAppEventHandler != null)
+        if (inAppEventHandler != null ? !inAppEventHandler.equals(config.inAppEventHandler) : config.inAppEventHandler != null)
             return false;
         if (notificationEventHandler != null ? !notificationEventHandler.equals(config.notificationEventHandler) : config.notificationEventHandler != null)
             return false;
@@ -143,7 +143,7 @@ public class EmarsysConfig {
         result = 31 * result + (predictMerchantId != null ? predictMerchantId.hashCode() : 0);
         result = 31 * result + (idlingResourceEnabled ? 1 : 0);
         result = 31 * result + (oreoConfig != null ? oreoConfig.hashCode() : 0);
-        result = 31 * result + (defaultInAppEventHandler != null ? defaultInAppEventHandler.hashCode() : 0);
+        result = 31 * result + (inAppEventHandler != null ? inAppEventHandler.hashCode() : 0);
         result = 31 * result + (notificationEventHandler != null ? notificationEventHandler.hashCode() : 0);
         result = 31 * result + Arrays.hashCode(experimentalFeatures);
         return result;
@@ -159,7 +159,7 @@ public class EmarsysConfig {
                 ", predictMerchantId='" + predictMerchantId + '\'' +
                 ", idlingResourceEnabled=" + idlingResourceEnabled +
                 ", oreoConfig=" + oreoConfig +
-                ", defaultInAppEventHandler=" + defaultInAppEventHandler +
+                ", inAppEventHandler=" + inAppEventHandler +
                 ", notificationEventHandler=" + notificationEventHandler +
                 ", experimentalFeatures=" + Arrays.toString(experimentalFeatures) +
                 '}';
@@ -186,7 +186,7 @@ public class EmarsysConfig {
             predictMerchantId = baseConfig.getPredictMerchantId();
             idlingResourceEnabled = baseConfig.isIdlingResourceEnabled();
             oreoConfig = baseConfig.getOreoConfig();
-            defaultInAppEventHandler = baseConfig.getDefaultInAppEventHandler();
+            defaultInAppEventHandler = baseConfig.getInAppEventHandler();
             notificationEventHandler = baseConfig.getNotificationEventHandler();
             experimentalFeatures = baseConfig.getExperimentalFeatures();
             return this;

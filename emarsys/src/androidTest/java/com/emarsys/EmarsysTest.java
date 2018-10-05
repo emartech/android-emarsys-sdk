@@ -31,6 +31,7 @@ import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
+import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppStartAction;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
@@ -45,7 +46,6 @@ import com.emarsys.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.RandomTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -62,12 +62,13 @@ import java.util.List;
 
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
 public class EmarsysTest {
@@ -87,6 +88,8 @@ public class EmarsysTest {
     private MobileEngageInternal mockMobileEngageInternal;
     private PredictInternal mockPredictInternal;
     private InboxInternal mockInboxInternal;
+    private InAppInternal mockInAppInternal;
+    private EventHandler inappEventHandler;
     private CoreSQLiteDatabase mockCoreDatabase;
     private Runnable mockPredictShardTrigger;
 
@@ -108,10 +111,13 @@ public class EmarsysTest {
         activityLifecycleWatchdog = mock(ActivityLifecycleWatchdog.class);
         currentActivityWatchdog = mock(CurrentActivityWatchdog.class);
         mockMobileEngageInternal = mock(MobileEngageInternal.class);
-        mockPredictInternal = mock(PredictInternal.class);
         mockInboxInternal = mock(InboxInternal.class);
+        mockInAppInternal = mock(InAppInternal.class);
+        mockPredictInternal = mock(PredictInternal.class);
         mockCoreDatabase = mock(CoreSQLiteDatabase.class);
         mockPredictShardTrigger = mock(PredictShardTrigger.class);
+
+        inappEventHandler = mock(EventHandler.class);
 
         baseConfig = createConfigWithFlippers();
         userCentricInboxConfig = createConfigWithFlippers(MobileEngageFeature.USER_CENTRIC_INBOX);
@@ -127,6 +133,7 @@ public class EmarsysTest {
                 mockCoreDatabase,
                 mockMobileEngageInternal,
                 mockInboxInternal,
+                mockInAppInternal,
                 null,
                 null,
                 null,
@@ -257,17 +264,6 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testSetup_initializesInAppPaused_withFalse() {
-        Emarsys.InApp.pause();
-
-        assertTrue(Emarsys.InApp.isPaused());
-
-        Emarsys.setup(baseConfig);
-
-        assertFalse(Emarsys.InApp.isPaused());
-    }
-
-    @Test
     public void testSetup_registers_activityLifecycleWatchdog() {
         Emarsys.setup(baseConfig);
 
@@ -307,6 +303,20 @@ public class EmarsysTest {
         Emarsys.setup(baseConfig);
 
         verify(application).registerActivityLifecycleCallbacks(currentActivityWatchdog);
+    }
+
+    @Test
+    public void testSetup_setsInAppEventHandler_whenProvidedInConfig() {
+        Emarsys.setup(inAppConfig);
+
+        verify(mockInAppInternal).setEventHandler(inappEventHandler);
+    }
+
+    @Test
+    public void testSetup_doesNotSetInAppEventHandler_whenMissingFromConfig() {
+        Emarsys.setup(baseConfig);
+
+        verifyZeroInteractions(mockInAppInternal);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -530,24 +540,41 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testInApp_pause_shouldDisableInAppFeature() {
-        Emarsys.InApp.resume();
-
-        assertFalse(Emarsys.InApp.isPaused());
-
+    public void testInApp_pause_delegatesToInternal() {
         Emarsys.InApp.pause();
 
-        assertTrue(Emarsys.InApp.isPaused());
+        verify(mockInAppInternal).pause();
     }
 
     @Test
-    public void testInApp_resume_shouldEnableInAppFeature() {
-        Emarsys.InApp.pause();
-        assertTrue(Emarsys.InApp.isPaused());
-
+    public void testInApp_resume_delegatesToInternal() {
         Emarsys.InApp.resume();
 
-        assertFalse(Emarsys.InApp.isPaused());
+        verify(mockInAppInternal).resume();
+    }
+
+    @Test
+    public void testInApp_isPaused_delegatesToInternal() {
+        when(mockInAppInternal.isPaused()).thenReturn(true);
+
+        boolean result = Emarsys.InApp.isPaused();
+
+        verify(mockInAppInternal).isPaused();
+        assertTrue(result);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInApp_setEventHandler_eventHandler_mustNotBeNull() {
+        Emarsys.InApp.setEventHandler(null);
+    }
+
+    @Test
+    public void testInApp_setEventHandler_delegatesToInternal() {
+        EventHandler eventHandler = mock(EventHandler.class);
+
+        Emarsys.InApp.setEventHandler(eventHandler);
+
+        verify(mockInAppInternal).setEventHandler(eventHandler);
     }
 
     private CartItem createItem(final String id, final double price, final double quantity) {
@@ -570,20 +597,19 @@ public class EmarsysTest {
     }
 
     private EmarsysConfig createConfigWithFlippers(FlipperFeature... experimentalFeatures) {
-        return new EmarsysConfig.Builder()
+        EmarsysConfig.Builder builder = new EmarsysConfig.Builder()
                 .application(application)
                 .mobileEngageCredentials(APPLICATION_CODE, APPLICATION_PASSWORD)
                 .predictMerchantId(MERCHANT_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .disableDefaultChannel()
-                .enableExperimentalFeatures(experimentalFeatures)
-                .inAppEventHandler(new EventHandler() {
-                    @Override
-                    public void handleEvent(String eventName, JSONObject payload) {
+                .enableExperimentalFeatures(experimentalFeatures);
 
-                    }
-                })
-                .build();
+        if(Arrays.asList(experimentalFeatures).contains(MobileEngageFeature.IN_APP_MESSAGING)){
+                builder.inAppEventHandler(inappEventHandler);
+        }
+
+        return builder.build();
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

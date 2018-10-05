@@ -20,6 +20,7 @@ import com.emarsys.core.util.JsonUtils;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.util.log.MobileEngageTopic;
@@ -34,7 +35,7 @@ import java.util.Map;
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class IamJsBridge {
     private final Gettable<Activity> currentActivityProvider;
-    private InAppMessageHandlerProvider messageHandlerProvider;
+    private InAppInternal inAppInternal;
     private WebView webView;
     private Handler uiHandler;
     private Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
@@ -43,19 +44,19 @@ public class IamJsBridge {
     private MobileEngageInternal mobileEngageInternal;
 
     public IamJsBridge(
-            InAppMessageHandlerProvider messageHandlerProvider,
+            InAppInternal inAppInternal,
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             String campaignId,
             Handler coreSdkHandler,
             MobileEngageInternal mobileEngageInternal,
             Gettable<Activity> currentActivityProvider) {
-        Assert.notNull(messageHandlerProvider, "MessageHandlerProvider must not be null!");
+        Assert.notNull(inAppInternal, "InAppInternal must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
         Assert.notNull(campaignId, "CampaignId must not be null!");
         Assert.notNull(coreSdkHandler, "CoreSdkHandler must not be null!");
         Assert.notNull(mobileEngageInternal, "MobileEngageInternal must not be null!");
         Assert.notNull(currentActivityProvider, "CurrentActivityProvider must not be null!");
-        this.messageHandlerProvider = messageHandlerProvider;
+        this.inAppInternal = inAppInternal;
         this.uiHandler = new Handler(Looper.getMainLooper());
         this.buttonClickedRepository = buttonClickedRepository;
         this.campaignId = campaignId;
@@ -86,7 +87,7 @@ public class IamJsBridge {
 
     @JavascriptInterface
     public void triggerAppEvent(final String jsonString) {
-        final EventHandler inAppEventHandler = messageHandlerProvider.provideHandler();
+        final EventHandler inAppEventHandler = inAppInternal.getEventHandler();
         if (inAppEventHandler != null) {
             handleJsBridgeEvent(jsonString, "name", uiHandler, new JsBridgeEventAction() {
                 @Override

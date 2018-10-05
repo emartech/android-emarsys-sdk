@@ -11,6 +11,7 @@ import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.config.OreoConfig;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
+import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.predict.PredictInternal;
@@ -22,6 +23,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final CoreSQLiteDatabase coreSQLiteDatabase;
     private final MobileEngageInternal mobileEngageInternal;
     private final InboxInternal inboxInternal;
+    private final InAppInternal inAppInternal;
     private final DeepLinkInternal deepLinkInternal;
     private final MobileEngageCoreCompletionHandler completionHandler;
     private final RequestContext requestContext;
@@ -38,6 +40,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             CoreSQLiteDatabase coreSQLiteDatabase,
             MobileEngageInternal mobileEngageInternal,
             InboxInternal inboxInternal,
+            InAppInternal inAppInternal,
             DeepLinkInternal deepLinkInternal,
             MobileEngageCoreCompletionHandler completionHandler,
             RequestContext requestContext,
@@ -52,6 +55,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
         this.coreSQLiteDatabase = coreSQLiteDatabase;
         this.mobileEngageInternal = mobileEngageInternal;
         this.inboxInternal = inboxInternal;
+        this.inAppInternal = inAppInternal;
         this.deepLinkInternal = deepLinkInternal;
         this.completionHandler = completionHandler;
         this.requestContext = requestContext;
@@ -90,6 +94,11 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     @Override
     public InboxInternal getInboxInternal() {
         return inboxInternal;
+    }
+
+    @Override
+    public InAppInternal getInAppInternal() {
+        return inAppInternal;
     }
 
     @Override
