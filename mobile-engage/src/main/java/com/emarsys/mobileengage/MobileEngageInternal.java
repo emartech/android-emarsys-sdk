@@ -3,8 +3,6 @@ package com.emarsys.mobileengage;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.request.RequestManager;
@@ -70,12 +68,12 @@ public class MobileEngageInternal {
         return requestContext;
     }
 
-    @Nullable
+
     String getPushToken() {
         return pushToken;
     }
 
-    public void setPushToken(@NonNull String pushToken) {
+    public void setPushToken(String pushToken) {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Argument: %s", pushToken);
         this.pushToken = pushToken;
         if (requestContext.getAppLoginParameters() != null) {
@@ -83,24 +81,24 @@ public class MobileEngageInternal {
         }
     }
 
-    @NonNull
-    public String appLogin(@NonNull String contactFieldValue) {
+
+    public String appLogin(String contactFieldValue) {
         return appLogin(requestContext.getContactFieldId(), contactFieldValue);
     }
 
-    @NonNull
-    public String appLogin(int contactFieldId, @NonNull String contactFieldValue) {
+
+    public String appLogin(int contactFieldId, String contactFieldValue) {
         requestContext.setAppLoginParameters(new AppLoginParameters(contactFieldId, contactFieldValue));
         return sendAppLogin();
     }
 
-    @NonNull
+
     public String appLogin() {
         requestContext.setAppLoginParameters(new AppLoginParameters());
         return sendAppLogin();
     }
 
-    @NonNull
+
     String sendAppLogin() {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Called");
 
@@ -122,7 +120,7 @@ public class MobileEngageInternal {
         return model.getId();
     }
 
-    @NonNull
+
     public String appLogout() {
         requestContext.setAppLoginParameters(null);
 
@@ -141,8 +139,8 @@ public class MobileEngageInternal {
         return model.getId();
     }
 
-    @NonNull
-    public String trackCustomEvent(@NonNull String eventName, @Nullable Map<String, String> eventAttributes) {
+
+    public String trackCustomEvent(String eventName, Map<String, String> eventAttributes) {
         if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
             return trackCustomEvent_V3(eventName, eventAttributes);
         } else {
@@ -150,8 +148,8 @@ public class MobileEngageInternal {
         }
     }
 
-    @NonNull
-    String trackCustomEvent_V2(@NonNull String eventName, @Nullable Map<String, String> eventAttributes) {
+
+    String trackCustomEvent_V2(String eventName, Map<String, String> eventAttributes) {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Arguments: eventName %s, eventAttributes %s", eventName, eventAttributes);
 
         Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
@@ -169,8 +167,8 @@ public class MobileEngageInternal {
         return model.getId();
     }
 
-    @NonNull
-    String trackCustomEvent_V3(@NonNull String eventName, @Nullable Map<String, String> eventAttributes) {
+
+    String trackCustomEvent_V3(String eventName, Map<String, String> eventAttributes) {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Arguments: eventName %s, eventAttributes %s", eventName, eventAttributes);
 
         Map<String, Object> event = new HashMap<>();
@@ -197,8 +195,8 @@ public class MobileEngageInternal {
         return model.getId();
     }
 
-    @NonNull
-    public String trackInternalCustomEvent(@NonNull String eventName, @Nullable Map<String, String> eventAttributes) {
+
+    public String trackInternalCustomEvent(String eventName, Map<String, String> eventAttributes) {
         Assert.notNull(eventName, "EventName must not be null!");
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Arguments: eventName %s, eventAttributes %s", eventName, eventAttributes);
 
@@ -216,7 +214,7 @@ public class MobileEngageInternal {
         }
     }
 
-    @NonNull
+
     public String trackMessageOpen(Intent intent) {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Argument: %s", intent);
 
@@ -239,7 +237,7 @@ public class MobileEngageInternal {
         return sid;
     }
 
-    @NonNull
+
     private String handleMessageOpen(String messageId) {
         if (messageId != null) {
             if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
