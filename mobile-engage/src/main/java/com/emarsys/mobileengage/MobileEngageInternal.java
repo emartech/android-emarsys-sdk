@@ -217,6 +217,7 @@ public class MobileEngageInternal {
 
     public String trackMessageOpen(Intent intent) {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Argument: %s", intent);
+        Assert.notNull(intent, "Intent must not be null!");
 
         String messageId = getMessageId(intent);
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "MessageId %s", messageId);

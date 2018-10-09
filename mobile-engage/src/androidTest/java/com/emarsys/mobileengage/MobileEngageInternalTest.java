@@ -652,8 +652,13 @@ public class MobileEngageInternalTest {
         verify(manager, times(0)).submit(any(RequestModel.class));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testTrackMessageOpen_intent_mustNotBeNull() {
+        mobileEngage.trackMessageOpen(null);
+    }
+
     @Test
-    public void testTrackMessageOpen_requestManagerCalledWithCorrectRequestModelWhenUsingV2() throws Exception {
+    public void testTrackMessageOpen_requestManagerCalledWithCorrectRequestModelWhenUsingV2() {
         ExperimentalTestUtils.resetExperimentalFeatures();
         Intent intent = getTestIntent();
 

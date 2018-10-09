@@ -31,6 +31,7 @@ import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
+import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppStartAction;
 import com.emarsys.mobileengage.inbox.InboxInternal;
@@ -89,6 +90,7 @@ public class EmarsysTest {
     private PredictInternal mockPredictInternal;
     private InboxInternal mockInboxInternal;
     private InAppInternal mockInAppInternal;
+    private DeepLinkInternal mockDeepLinkInternal;
     private EventHandler inappEventHandler;
     private CoreSQLiteDatabase mockCoreDatabase;
     private Runnable mockPredictShardTrigger;
@@ -113,6 +115,7 @@ public class EmarsysTest {
         mockMobileEngageInternal = mock(MobileEngageInternal.class);
         mockInboxInternal = mock(InboxInternal.class);
         mockInAppInternal = mock(InAppInternal.class);
+        mockDeepLinkInternal = mock(DeepLinkInternal.class);
         mockPredictInternal = mock(PredictInternal.class);
         mockCoreDatabase = mock(CoreSQLiteDatabase.class);
         mockPredictShardTrigger = mock(PredictShardTrigger.class);
@@ -134,7 +137,7 @@ public class EmarsysTest {
                 mockMobileEngageInternal,
                 mockInboxInternal,
                 mockInAppInternal,
-                null,
+                mockDeepLinkInternal,
                 null,
                 null,
                 null,
@@ -357,12 +360,70 @@ public class EmarsysTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void testTrackDeepLink_activity_mustNotBeNull() {
+        Emarsys.trackDeepLink(null, mock(Intent.class));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testTrackDeepLink_intent_mustNotBeNull() {
+        Emarsys.trackDeepLink(mock(Activity.class), null);
+    }
+
+    @Test
+    public void testTrackDeepLink_delegatesTo_deepLinkInternal() {
+        Activity mockActivity = mock(Activity.class);
+        Intent mockIntent = mock(Intent.class);
+
+        Emarsys.trackDeepLink(mockActivity, mockIntent);
+
+        verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, mockIntent);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void testTrackCustomEvent_eventName_mustNotBeNull() {
         Emarsys.trackCustomEvent(null, new HashMap<String, String>());
     }
 
+    @Test
+    public void testTrackCustomEvent_delegatesTo_mobileEngageInternal() {
+        String eventName = "eventName";
+        HashMap<String, String> eventAttributes = new HashMap<>();
+
+        Emarsys.trackCustomEvent(eventName, eventAttributes);
+
+        verify(mockMobileEngageInternal).trackCustomEvent(eventName, eventAttributes);
+    }
+
     @Test(expected = IllegalArgumentException.class)
-    public void testPredict_testTrackCart_items_mustNotBeNull() {
+    public void testPush_trackMessageOpen_intent_mustNotBeNull() {
+        Emarsys.Push.trackMessageOpen(null);
+    }
+
+    @Test
+    public void testPush_trackMessageOpen_delegatesTo_mobileEngageInternal() {
+        Intent intent = mock(Intent.class);
+
+        Emarsys.Push.trackMessageOpen(intent);
+
+        verify(mockMobileEngageInternal).trackMessageOpen(intent);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPush_setPushToken_token_mustNotBeNull() {
+        Emarsys.Push.setPushToken(null);
+    }
+    
+    @Test
+    public void testPush_setPushToken_delegatesTo_mobileEngageInternal() {
+        String pushToken = "pushToken";
+
+        Emarsys.Push.setPushToken(pushToken);
+
+        verify(mockMobileEngageInternal).setPushToken(pushToken);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_trackCart_items_mustNotBeNull() {
         Emarsys.Predict.trackCart(null);
     }
 
@@ -605,8 +666,8 @@ public class EmarsysTest {
                 .disableDefaultChannel()
                 .enableExperimentalFeatures(experimentalFeatures);
 
-        if(Arrays.asList(experimentalFeatures).contains(MobileEngageFeature.IN_APP_MESSAGING)){
-                builder.inAppEventHandler(inappEventHandler);
+        if (Arrays.asList(experimentalFeatures).contains(MobileEngageFeature.IN_APP_MESSAGING)) {
+            builder.inAppEventHandler(inappEventHandler);
         }
 
         return builder.build();

@@ -22,6 +22,7 @@ import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
+import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.predict.PredictInternal;
@@ -69,13 +70,18 @@ public class Emarsys {
     }
 
     public static void trackDeepLink(@NonNull Activity activity, @NonNull Intent intent) {
+        Assert.notNull(activity, "Activity must not be null!");
+        Assert.notNull(intent, "Intent must not be null!");
 
+        getDeepLinkInternal().trackDeepLinkOpen(activity, intent);
     }
 
     public static void trackCustomEvent(
             @NonNull String eventName,
             @Nullable Map<String, String> eventAttributes) {
         Assert.notNull(eventName, "EventName must not be null!");
+
+        getMobileEngageInternal().trackCustomEvent(eventName, eventAttributes);
     }
 
     public static void trackCustomEvent(
@@ -87,6 +93,9 @@ public class Emarsys {
     public static class Push {
 
         public static void trackMessageOpen(@NonNull Intent intent) {
+            Assert.notNull(intent, "Intent must not be null!");
+
+            getMobileEngageInternal().trackMessageOpen(intent);
         }
 
         public static void trackMessageOpen(
@@ -95,6 +104,8 @@ public class Emarsys {
         }
 
         public static void setPushToken(@NonNull String pushToken) {
+            Assert.notNull(pushToken, "PushToken must not be null!");
+
             getMobileEngageInternal().setPushToken(pushToken);
         }
     }
@@ -205,6 +216,10 @@ public class Emarsys {
 
     private static InAppInternal getInAppInternal() {
         return getContainer().getInAppInternal();
+    }
+
+    private static DeepLinkInternal getDeepLinkInternal() {
+        return getContainer().getDeepLinkInternal();
     }
 
     private static PredictInternal getPredictInternal() {
