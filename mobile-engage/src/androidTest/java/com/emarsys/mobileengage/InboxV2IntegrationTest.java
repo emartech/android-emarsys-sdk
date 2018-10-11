@@ -117,7 +117,7 @@ public class InboxV2IntegrationTest {
 
         latch = new CountDownLatch(1);
         listener = new FakeStatusListener(latch, FakeStatusListener.Mode.MAIN_THREAD);
-        MobileEngage.setStatusListener(listener);
+//        MobileEngage.setStatusListener(listener);
 
         MobileEngage.Inbox.trackMessageOpen(notifications.get(0));
         latch.await();

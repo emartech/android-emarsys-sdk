@@ -5,7 +5,7 @@ import android.os.Handler;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.database.CoreSQLiteDatabase;
-import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
+import com.emarsys.core.DefaultCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
@@ -25,7 +25,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final InboxInternal inboxInternal;
     private final InAppInternal inAppInternal;
     private final DeepLinkInternal deepLinkInternal;
-    private final MobileEngageCoreCompletionHandler completionHandler;
+    private final DefaultCompletionHandler completionHandler;
     private final RequestContext requestContext;
     private final InAppPresenter inAppPresenter;
     private final NotificationEventHandler notificationEventHandler;
@@ -42,7 +42,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             InboxInternal inboxInternal,
             InAppInternal inAppInternal,
             DeepLinkInternal deepLinkInternal,
-            MobileEngageCoreCompletionHandler completionHandler,
+            DefaultCompletionHandler completionHandler,
             RequestContext requestContext,
             InAppPresenter inAppPresenter,
             NotificationEventHandler notificationEventHandler,
@@ -107,7 +107,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     }
 
     @Override
-    public MobileEngageCoreCompletionHandler getCoreCompletionHandler() {
+    public DefaultCompletionHandler getCoreCompletionHandler() {
         return completionHandler;
     }
 

@@ -24,7 +24,7 @@ import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.di.FakeDependencyContainer;
-import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
+import com.emarsys.core.DefaultCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
@@ -197,7 +197,7 @@ public class EmarsysTest {
 
         Emarsys.setup(baseConfig);
 
-        MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
+        DefaultCompletionHandler coreCompletionHandler = DependencyInjection
                 .<DefaultEmarsysDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
@@ -215,7 +215,7 @@ public class EmarsysTest {
 
         Emarsys.setup(inAppConfig);
 
-        MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
+        DefaultCompletionHandler coreCompletionHandler = DependencyInjection
                 .<DefaultEmarsysDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
@@ -233,7 +233,7 @@ public class EmarsysTest {
 
         Emarsys.setup(userCentricInboxConfig);
 
-        MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
+        DefaultCompletionHandler coreCompletionHandler = DependencyInjection
                 .<DefaultEmarsysDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
@@ -251,7 +251,7 @@ public class EmarsysTest {
 
         Emarsys.setup(inAppAndInboxConfig);
 
-        MobileEngageCoreCompletionHandler coreCompletionHandler = DependencyInjection
+        DefaultCompletionHandler coreCompletionHandler = DependencyInjection
                 .<DefaultEmarsysDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 

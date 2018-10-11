@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.MobileEngageStatusListener;
+import com.emarsys.core.StatusListener;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
@@ -18,7 +18,7 @@ public class MobileEngageConfig {
     private final Application application;
     private final String applicationCode;
     private final String applicationPassword;
-    private final MobileEngageStatusListener statusListener;
+    private final StatusListener statusListener;
     private final boolean isDebugMode;
     private final boolean idlingResourceEnabled;
     private final OreoConfig oreoConfig;
@@ -29,7 +29,7 @@ public class MobileEngageConfig {
     MobileEngageConfig(Application application,
                        String applicationCode,
                        String applicationPassword,
-                       MobileEngageStatusListener statusListener,
+                       StatusListener statusListener,
                        boolean isDebugMode,
                        boolean idlingResourceEnabled,
                        OreoConfig oreoConfig,
@@ -71,7 +71,7 @@ public class MobileEngageConfig {
         return applicationPassword;
     }
 
-    public MobileEngageStatusListener getStatusListener() {
+    public StatusListener getStatusListener() {
         return statusListener;
     }
 
@@ -160,7 +160,7 @@ public class MobileEngageConfig {
         private Application application;
         private String applicationCode;
         private String applicationPassword;
-        private MobileEngageStatusListener statusListener;
+        private StatusListener statusListener;
         private boolean idlingResourceEnabled;
         private OreoConfig oreoConfig;
         private EventHandler defaultInAppEventHandler;
@@ -192,7 +192,7 @@ public class MobileEngageConfig {
             return this;
         }
 
-        public Builder statusListener(@NonNull MobileEngageStatusListener statusListener) {
+        public Builder statusListener(@NonNull StatusListener statusListener) {
             this.statusListener = statusListener;
             return this;
         }

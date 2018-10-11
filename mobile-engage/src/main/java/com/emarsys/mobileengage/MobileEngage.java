@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.emarsys.core.DefaultCompletionHandler;
+import com.emarsys.core.StatusListener;
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.experimental.ExperimentalFeatures;
@@ -28,7 +30,7 @@ public class MobileEngage {
     static MobileEngageInternal instance;
     static InboxInternal inboxInstance;
     static DeepLinkInternal deepLinkInstance;
-    static MobileEngageCoreCompletionHandler completionHandler;
+    static DefaultCompletionHandler completionHandler;
     static Handler coreSdkHandler;
     static MobileEngageConfig config;
     static RequestContext requestContext;
@@ -97,10 +99,6 @@ public class MobileEngage {
 
     public static void setPushToken(@NonNull String pushToken) {
         instance.setPushToken(pushToken);
-    }
-
-    public static void setStatusListener(@NonNull MobileEngageStatusListener listener) {
-        completionHandler.setStatusListener(listener);
     }
 
     @NonNull

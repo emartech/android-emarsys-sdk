@@ -35,9 +35,9 @@ import com.emarsys.core.storage.DefaultKeyValueStore;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
-import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
+import com.emarsys.core.DefaultCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.MobileEngageStatusListener;
+import com.emarsys.core.StatusListener;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
@@ -89,7 +89,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private PredictInternal predictInternal;
     private Handler coreSdkHandler;
     private RequestContext requestContext;
-    private MobileEngageCoreCompletionHandler completionHandler;
+    private DefaultCompletionHandler completionHandler;
     private InAppPresenter inAppPresenter;
     private NotificationEventHandler notificationEventHandler;
     private OreoConfig oreoConfig;
@@ -166,7 +166,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
-    public MobileEngageCoreCompletionHandler getCoreCompletionHandler() {
+    public DefaultCompletionHandler getCoreCompletionHandler() {
         return completionHandler;
     }
 
@@ -227,7 +227,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
 
-        completionHandler = new MobileEngageCoreCompletionHandler(new MobileEngageStatusListener() {
+        completionHandler = new DefaultCompletionHandler(new StatusListener() {
             @Override
             public void onError(String id, Exception cause) {
 

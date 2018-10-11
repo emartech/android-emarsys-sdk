@@ -6,14 +6,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.DefaultCompletionHandler;
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.StatusListener;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
-import com.emarsys.mobileengage.api.MobileEngageException;
+import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.mobileengage.fake.FakeRequestManager;
 import com.emarsys.mobileengage.fake.FakeStatusListener;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
@@ -47,9 +49,9 @@ public class MobileEngageInternalStatusListenerTest {
     private static final int CONTACT_FIELD_ID = 3456;
     public static final String CONTACT_FIELD_VALUE = "value";
 
-    private MobileEngageCoreCompletionHandler completionHandler;
+    private DefaultCompletionHandler completionHandler;
     private MobileEngageInternal mobileEngage;
-    private MobileEngageStatusListener statusListener;
+    private StatusListener statusListener;
     private FakeStatusListener mainThreadStatusListener;
     private Map<String, String> authHeader;
     private RequestManager manager;
@@ -80,8 +82,8 @@ public class MobileEngageInternalStatusListenerTest {
 
         manager = mock(RequestManager.class);
         latch = new CountDownLatch(1);
-        statusListener = mock(MobileEngageStatusListener.class);
-        completionHandler = new MobileEngageCoreCompletionHandler(new ArrayList<AbstractResponseHandler>(), statusListener) {
+        statusListener = mock(StatusListener.class);
+        completionHandler = new DefaultCompletionHandler(new ArrayList<AbstractResponseHandler>(), statusListener) {
             @Override
             public void onSuccess(String id, ResponseModel responseModel) {
                 mainThreadStatusListener.onStatusLog(id, responseModel.getMessage());
@@ -89,7 +91,7 @@ public class MobileEngageInternalStatusListenerTest {
 
             @Override
             public void onError(String id, ResponseModel responseModel) {
-                Exception exception = new MobileEngageException(
+                Exception exception = new ResponseErrorException(
                         responseModel.getStatusCode(),
                         responseModel.getMessage(),
                         responseModel.getBody());
@@ -103,7 +105,7 @@ public class MobileEngageInternalStatusListenerTest {
         };
         succeedingManager = new FakeRequestManager(SUCCESS, latch, completionHandler);
         failingManager = new FakeRequestManager(FAILURE, latch, completionHandler);
-        statusListener = mock(MobileEngageStatusListener.class);
+        statusListener = mock(StatusListener.class);
         mainThreadStatusListener = new FakeStatusListener(latch);
         mobileEngageWith(mainThreadStatusListener, succeedingManager);
     }
@@ -113,7 +115,7 @@ public class MobileEngageInternalStatusListenerTest {
         coreSdkHandler.getLooper().quit();
     }
 
-    private void mobileEngageWith(MobileEngageStatusListener statusListener, RequestManager requestManager) {
+    private void mobileEngageWith(StatusListener statusListener, RequestManager requestManager) {
         MeIdStorage meIdStorage = mock(MeIdStorage.class);
         when(meIdStorage.get()).thenReturn("meId");
         MeIdSignatureStorage meIdSignatureStorage = mock(MeIdSignatureStorage.class);

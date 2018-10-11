@@ -2,11 +2,11 @@ package com.emarsys.mobileengage.fake;
 
 import android.os.Looper;
 
-import com.emarsys.mobileengage.MobileEngageStatusListener;
+import com.emarsys.core.StatusListener;
 
 import java.util.concurrent.CountDownLatch;
 
-public class FakeStatusListener implements MobileEngageStatusListener {
+public class FakeStatusListener implements StatusListener {
 
     public enum Mode {
         MAIN_THREAD, ALL_THREAD

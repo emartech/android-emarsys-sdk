@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
@@ -20,12 +19,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.emarsys.Emarsys;
+import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.core.api.result.CompletionListener;
-import com.emarsys.mobileengage.api.MobileEngageException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.google.firebase.iid.InstanceIdResult;
 
 import org.json.JSONException;
@@ -60,8 +58,8 @@ public class MobileEngageFragment extends Fragment {
                 } else {
                     Log.e(TAG, errorCause.getMessage(), errorCause);
                     StringBuilder sb = new StringBuilder();
-                    if (errorCause instanceof MobileEngageException) {
-                        MobileEngageException mee = (MobileEngageException) errorCause;
+                    if (errorCause instanceof ResponseErrorException) {
+                        ResponseErrorException mee = (ResponseErrorException) errorCause;
                         sb.append(mee.getStatusCode());
                         sb.append(" - ");
                     }

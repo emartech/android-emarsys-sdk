@@ -10,7 +10,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.mobileengage.MobileEngage;
-import com.emarsys.mobileengage.MobileEngageStatusListener;
+import com.emarsys.core.StatusListener;
 import com.emarsys.mobileengage.MobileEngageUtils;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
@@ -54,7 +54,7 @@ public class MainActivityUITest {
         MobileEngageConfig config = new MobileEngageConfig.Builder()
                 .from(MobileEngage.getConfig())
                 .enableIdlingResource(true)
-                .statusListener((MobileEngageStatusListener) fragment)
+                .statusListener((StatusListener) fragment)
                 .build();
         MobileEngage.setup(config);
 

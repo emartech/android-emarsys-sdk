@@ -16,7 +16,7 @@ import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.api.MobileEngageException;
+import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.endpoint.Endpoint;
@@ -120,7 +120,7 @@ public class InboxInternal_V2 implements InboxInternal {
                     public void onError(String id, ResponseModel responseModel) {
                         EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
 
-                        this.onError(id, new MobileEngageException(
+                        this.onError(id, new ResponseErrorException(
                                 responseModel.getStatusCode(),
                                 responseModel.getMessage(),
                                 responseModel.getBody()));
@@ -172,7 +172,7 @@ public class InboxInternal_V2 implements InboxInternal {
                 public void onError(String id, ResponseModel responseModel) {
                     EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
                     if (resultListener != null) {
-                        resultListener.onCompleted(new MobileEngageException(
+                        resultListener.onCompleted(new ResponseErrorException(
                                 responseModel.getStatusCode(),
                                 responseModel.getMessage(),
                                 responseModel.getBody()));

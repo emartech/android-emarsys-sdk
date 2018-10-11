@@ -5,6 +5,7 @@ import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
 import com.emarsys.core.api.result.Try;
@@ -16,7 +17,6 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.api.MobileEngageException;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
@@ -273,12 +273,12 @@ public class InboxInternal_V1Test {
 
         latch.await();
 
-        MobileEngageException expectedException = new MobileEngageException(
+        ResponseErrorException expectedException = new ResponseErrorException(
                 responseModel.getStatusCode(),
                 responseModel.getMessage(),
                 responseModel.getBody());
 
-        MobileEngageException resultException = (MobileEngageException) listener.errorCause;
+        ResponseErrorException resultException = (ResponseErrorException) listener.errorCause;
         Assert.assertEquals(expectedException.getStatusCode(), resultException.getStatusCode());
         Assert.assertEquals(expectedException.getMessage(), resultException.getMessage());
         Assert.assertEquals(expectedException.getBody(), resultException.getBody());
@@ -449,12 +449,12 @@ public class InboxInternal_V1Test {
 
         latch.await();
 
-        MobileEngageException expectedException = new MobileEngageException(
+        ResponseErrorException expectedException = new ResponseErrorException(
                 responseModel.getStatusCode(),
                 responseModel.getMessage(),
                 responseModel.getBody());
 
-        MobileEngageException resultException = (MobileEngageException) listener.errorCause;
+        ResponseErrorException resultException = (ResponseErrorException) listener.errorCause;
         Assert.assertEquals(expectedException.getStatusCode(), resultException.getStatusCode());
         Assert.assertEquals(expectedException.getMessage(), resultException.getMessage());
         Assert.assertEquals(expectedException.getBody(), resultException.getBody());

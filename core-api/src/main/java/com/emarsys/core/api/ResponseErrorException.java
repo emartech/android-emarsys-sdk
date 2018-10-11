@@ -1,11 +1,11 @@
-package com.emarsys.mobileengage.api;
+package com.emarsys.core.api;
 
-public class MobileEngageException extends Exception {
+public class ResponseErrorException extends Exception {
     private final int statusCode;
     private final String statusMessage;
     private final String body;
 
-    public MobileEngageException(int statusCode, String statusMessage, String body) {
+    public ResponseErrorException(int statusCode, String statusMessage, String body) {
         super(statusMessage);
         this.statusCode = statusCode;
         this.statusMessage = statusMessage;
@@ -29,7 +29,7 @@ public class MobileEngageException extends Exception {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MobileEngageException that = (MobileEngageException) o;
+        ResponseErrorException that = (ResponseErrorException) o;
 
         if (statusCode != that.statusCode) return false;
         if (statusMessage != null ? !statusMessage.equals(that.statusMessage) : that.statusMessage != null)
@@ -47,7 +47,7 @@ public class MobileEngageException extends Exception {
 
     @Override
     public String toString() {
-        return "MobileEngageException{" +
+        return "ResponseErrorException{" +
                 "statusCode=" + statusCode +
                 ", statusMessage='" + statusMessage + '\'' +
                 ", body='" + body + '\'' +

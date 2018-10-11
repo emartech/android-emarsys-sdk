@@ -2,6 +2,7 @@ package com.emarsys.mobileengage.inbox;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
 import com.emarsys.core.api.result.Try;
@@ -14,7 +15,6 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.api.MobileEngageException;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.fake.FakeInboxResultListener;
@@ -333,12 +333,12 @@ public class InboxInternal_V2Test {
 
         latch.await();
 
-        MobileEngageException expectedException = new MobileEngageException(
+        ResponseErrorException expectedException = new ResponseErrorException(
                 responseModel.getStatusCode(),
                 responseModel.getMessage(),
                 responseModel.getBody());
 
-        MobileEngageException resultException = (MobileEngageException) listener.errorCause;
+        ResponseErrorException resultException = (ResponseErrorException) listener.errorCause;
         Assert.assertEquals(expectedException.getStatusCode(), resultException.getStatusCode());
         Assert.assertEquals(expectedException.getMessage(), resultException.getMessage());
         Assert.assertEquals(expectedException.getBody(), resultException.getBody());
@@ -460,7 +460,7 @@ public class InboxInternal_V2Test {
         latch1.await();
         latch2.await();
 
-        MobileEngageException expected = createExceptionFrom(response1);
+        ResponseErrorException expected = createExceptionFrom(response1);
         Assert.assertEquals(expected, listener1.errorCause);
         Assert.assertEquals(expected, listener2.errorCause);
     }
@@ -630,12 +630,12 @@ public class InboxInternal_V2Test {
 
         latch.await();
 
-        MobileEngageException expectedException = new MobileEngageException(
+        ResponseErrorException expectedException = new ResponseErrorException(
                 responseModel.getStatusCode(),
                 responseModel.getMessage(),
                 responseModel.getBody());
 
-        MobileEngageException resultException = (MobileEngageException) listener.errorCause;
+        ResponseErrorException resultException = (ResponseErrorException) listener.errorCause;
         Assert.assertEquals(expectedException.getStatusCode(), resultException.getStatusCode());
         Assert.assertEquals(expectedException.getMessage(), resultException.getMessage());
         Assert.assertEquals(expectedException.getBody(), resultException.getBody());
@@ -946,8 +946,8 @@ public class InboxInternal_V2Test {
         return createNotificationStatusResponse(notificationStrings);
     }
 
-    private MobileEngageException createExceptionFrom(ResponseModel responseModel) {
-        return new MobileEngageException(
+    private ResponseErrorException createExceptionFrom(ResponseModel responseModel) {
+        return new ResponseErrorException(
                 responseModel.getStatusCode(),
                 responseModel.getMessage(),
                 responseModel.getBody());

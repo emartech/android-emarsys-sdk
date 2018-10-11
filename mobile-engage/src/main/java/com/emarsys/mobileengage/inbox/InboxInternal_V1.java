@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
 import com.emarsys.core.api.result.Try;
@@ -15,7 +16,6 @@ import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.api.MobileEngageException;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
@@ -90,7 +90,7 @@ public class InboxInternal_V1 implements InboxInternal {
             @Override
             public void onError(String id, ResponseModel responseModel) {
                 EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
-                resultListener.onResult(Try.failure(new MobileEngageException(
+                resultListener.onResult(Try.failure(new ResponseErrorException(
                         responseModel.getStatusCode(),
                         responseModel.getMessage(),
                         responseModel.getBody())));
@@ -164,7 +164,7 @@ public class InboxInternal_V1 implements InboxInternal {
             public void onError(String id, ResponseModel responseModel) {
                 EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
                 if (resultListener != null) {
-                    resultListener.onCompleted(new MobileEngageException(
+                    resultListener.onCompleted(new ResponseErrorException(
                             responseModel.getStatusCode(),
                             responseModel.getMessage(),
                             responseModel.getBody()));

@@ -1,5 +1,7 @@
-package com.emarsys.mobileengage;
+package com.emarsys.core;
 
+import com.emarsys.core.DefaultCompletionHandler;
+import com.emarsys.core.StatusListener;
 import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -16,7 +18,7 @@ import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class MobileEngageCoreCompletionHandlerTest {
+public class DefaultCompletionHandlerTest {
 
     private AbstractResponseHandler abstractResponseHandler1;
     private AbstractResponseHandler abstractResponseHandler2;
@@ -34,12 +36,12 @@ public class MobileEngageCoreCompletionHandlerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_handlersShouldNotBeNull() {
-        new MobileEngageCoreCompletionHandler(null, mock(MobileEngageStatusListener.class));
+        new DefaultCompletionHandler(null, mock(StatusListener.class));
     }
 
     @Test
     public void testOnSuccess_shouldCallProcessResponseOnTheHandlers() throws Exception {
-        MobileEngageCoreCompletionHandler coreCompletionHandler = new MobileEngageCoreCompletionHandler(handlers, null);
+        DefaultCompletionHandler coreCompletionHandler = new DefaultCompletionHandler(handlers, null);
         ResponseModel responseModel = mock(ResponseModel.class);
 
         coreCompletionHandler.onSuccess("", responseModel);
@@ -50,7 +52,7 @@ public class MobileEngageCoreCompletionHandlerTest {
 
     @Test
     public void testAddResponseHandlers() {
-        MobileEngageCoreCompletionHandler coreCompletionHandler = new MobileEngageCoreCompletionHandler(null);
+        DefaultCompletionHandler coreCompletionHandler = new DefaultCompletionHandler(null);
         coreCompletionHandler.addResponseHandlers(handlers);
 
         assertEquals(handlers, coreCompletionHandler.responseHandlers);

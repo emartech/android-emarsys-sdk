@@ -1,38 +1,37 @@
-package com.emarsys.mobileengage;
+package com.emarsys.core;
 
-import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
+import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
-import com.emarsys.mobileengage.api.MobileEngageException;
-import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MobileEngageCoreCompletionHandler implements CoreCompletionHandler {
+public class DefaultCompletionHandler implements CoreCompletionHandler {
 
-    WeakReference<MobileEngageStatusListener> weakStatusListener;
+    WeakReference<StatusListener> weakStatusListener;
     List<AbstractResponseHandler> responseHandlers;
 
-    public MobileEngageCoreCompletionHandler(List<AbstractResponseHandler> responseHandlers, MobileEngageStatusListener listener) {
+    public DefaultCompletionHandler(List<AbstractResponseHandler> responseHandlers, StatusListener listener) {
         Assert.notNull(responseHandlers, "ResponseHandlers must not be null!");
         this.responseHandlers = responseHandlers;
         this.weakStatusListener = new WeakReference<>(listener);
     }
 
-    public MobileEngageCoreCompletionHandler(MobileEngageStatusListener listener) {
+    public DefaultCompletionHandler(StatusListener listener) {
         this(new ArrayList<AbstractResponseHandler>(), listener);
     }
 
-    MobileEngageStatusListener getStatusListener() {
+    StatusListener getStatusListener() {
         return weakStatusListener.get();
     }
 
-    void setStatusListener(MobileEngageStatusListener listener) {
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Argument: %s", listener);
+    void setStatusListener(StatusListener listener) {
+        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", listener);
         this.weakStatusListener = new WeakReference<>(listener);
     }
 
@@ -46,19 +45,18 @@ public class MobileEngageCoreCompletionHandler implements CoreCompletionHandler 
 
     @Override
     public void onSuccess(final String id, final ResponseModel responseModel) {
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Argument: %s", responseModel);
+        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", responseModel);
 
         for (AbstractResponseHandler responseHandler : responseHandlers) {
             responseHandler.processResponse(responseModel);
         }
 
-        MobileEngageStatusListener listener = getStatusListener();
+        StatusListener listener = getStatusListener();
         if (listener != null) {
-            EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Notifying statusListener");
+            EMSLogger.log(CoreTopic.NETWORKING, "Notifying statusListener");
             listener.onStatusLog(id, responseModel.getMessage());
         }
 
-        MobileEngageUtils.decrementIdlingResource();
     }
 
     @Override
@@ -68,7 +66,7 @@ public class MobileEngageCoreCompletionHandler implements CoreCompletionHandler 
 
     @Override
     public void onError(final String id, final ResponseModel responseModel) {
-        Exception exception = new MobileEngageException(
+        Exception exception = new ResponseErrorException(
                 responseModel.getStatusCode(),
                 responseModel.getMessage(),
                 responseModel.getBody());
@@ -76,12 +74,11 @@ public class MobileEngageCoreCompletionHandler implements CoreCompletionHandler 
     }
 
     private void handleOnError(String id, Exception cause) {
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Argument: %s", cause);
-        MobileEngageStatusListener listener = getStatusListener();
+        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", cause);
+        StatusListener listener = getStatusListener();
         if (listener != null) {
-            EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Notifying statusListener");
+            EMSLogger.log(CoreTopic.NETWORKING, "Notifying statusListener");
             listener.onError(id, cause);
         }
-        MobileEngageUtils.decrementIdlingResource();
     }
 }
