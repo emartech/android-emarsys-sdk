@@ -10,7 +10,6 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.core.DefaultCompletionHandler;
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.StatusListener;
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
@@ -74,7 +73,6 @@ public class MobileEngageInternalTest {
     private static String ME_ID = "ASD123";
     private static String ME_ID_SIGNATURE = "sig";
 
-    private StatusListener statusListener;
     private DefaultCompletionHandler coreCompletionHandler;
     private Map<String, String> defaultHeaders;
     private MobileEngageConfig baseConfig;
@@ -105,11 +103,11 @@ public class MobileEngageInternalTest {
         appLoginStorage = new AppLoginStorage(application);
         appLoginStorage.remove();
 
-        statusListener = mock(StatusListener.class);
+//        statusListener = mock(StatusListener.class);
         baseConfig = new MobileEngageConfig.Builder()
                 .application(application)
                 .credentials(APPLICATION_ID, APPLICATION_PASSWORD)
-                .statusListener(statusListener)
+//                .statusListener(statusListener)
                 .disableDefaultChannel()
                 .build();
 

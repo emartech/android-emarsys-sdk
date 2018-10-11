@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.config.EmarsysConfig;
+import com.emarsys.core.DefaultCompletionHandler;
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
@@ -35,9 +36,7 @@ import com.emarsys.core.storage.DefaultKeyValueStore;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
-import com.emarsys.core.DefaultCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.core.StatusListener;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
@@ -227,17 +226,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
 
-        completionHandler = new DefaultCompletionHandler(new StatusListener() {
-            @Override
-            public void onError(String id, Exception cause) {
-
-            }
-
-            @Override
-            public void onStatusLog(String id, String log) {
-
-            }
-        });
+        completionHandler = new DefaultCompletionHandler(new ArrayList<AbstractResponseHandler>());
 
         Repository<Map<String, Object>, SqlSpecification> logRepository = new LogRepository(application);
         List<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>> logHandlers = Arrays.<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>>asList(

@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.emarsys.core.DefaultCompletionHandler;
-import com.emarsys.core.StatusListener;
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.experimental.ExperimentalFeatures;

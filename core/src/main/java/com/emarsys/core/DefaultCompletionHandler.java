@@ -7,32 +7,15 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultCompletionHandler implements CoreCompletionHandler {
 
-    WeakReference<StatusListener> weakStatusListener;
     List<AbstractResponseHandler> responseHandlers;
 
-    public DefaultCompletionHandler(List<AbstractResponseHandler> responseHandlers, StatusListener listener) {
+    public DefaultCompletionHandler(List<AbstractResponseHandler> responseHandlers) {
         Assert.notNull(responseHandlers, "ResponseHandlers must not be null!");
         this.responseHandlers = responseHandlers;
-        this.weakStatusListener = new WeakReference<>(listener);
-    }
-
-    public DefaultCompletionHandler(StatusListener listener) {
-        this(new ArrayList<AbstractResponseHandler>(), listener);
-    }
-
-    StatusListener getStatusListener() {
-        return weakStatusListener.get();
-    }
-
-    void setStatusListener(StatusListener listener) {
-        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", listener);
-        this.weakStatusListener = new WeakReference<>(listener);
     }
 
     public void addResponseHandlers(List<AbstractResponseHandler> additionalResponseHandlers) {
@@ -49,12 +32,6 @@ public class DefaultCompletionHandler implements CoreCompletionHandler {
 
         for (AbstractResponseHandler responseHandler : responseHandlers) {
             responseHandler.processResponse(responseModel);
-        }
-
-        StatusListener listener = getStatusListener();
-        if (listener != null) {
-            EMSLogger.log(CoreTopic.NETWORKING, "Notifying statusListener");
-            listener.onStatusLog(id, responseModel.getMessage());
         }
 
     }
@@ -75,10 +52,5 @@ public class DefaultCompletionHandler implements CoreCompletionHandler {
 
     private void handleOnError(String id, Exception cause) {
         EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", cause);
-        StatusListener listener = getStatusListener();
-        if (listener != null) {
-            EMSLogger.log(CoreTopic.NETWORKING, "Notifying statusListener");
-            listener.onError(id, cause);
-        }
     }
 }
