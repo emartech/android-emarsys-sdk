@@ -8,6 +8,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.config.EmarsysConfig;
+import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
@@ -24,7 +25,6 @@ import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.di.FakeDependencyContainer;
-import com.emarsys.core.DefaultCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
@@ -197,7 +197,7 @@ public class EmarsysTest {
 
         Emarsys.setup(baseConfig);
 
-        DefaultCompletionHandler coreCompletionHandler = DependencyInjection
+        DefaultCoreCompletionHandler coreCompletionHandler = DependencyInjection
                 .<DefaultEmarsysDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
@@ -215,7 +215,7 @@ public class EmarsysTest {
 
         Emarsys.setup(inAppConfig);
 
-        DefaultCompletionHandler coreCompletionHandler = DependencyInjection
+        DefaultCoreCompletionHandler coreCompletionHandler = DependencyInjection
                 .<DefaultEmarsysDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
@@ -233,7 +233,7 @@ public class EmarsysTest {
 
         Emarsys.setup(userCentricInboxConfig);
 
-        DefaultCompletionHandler coreCompletionHandler = DependencyInjection
+        DefaultCoreCompletionHandler coreCompletionHandler = DependencyInjection
                 .<DefaultEmarsysDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 
@@ -251,7 +251,7 @@ public class EmarsysTest {
 
         Emarsys.setup(inAppAndInboxConfig);
 
-        DefaultCompletionHandler coreCompletionHandler = DependencyInjection
+        DefaultCoreCompletionHandler coreCompletionHandler = DependencyInjection
                 .<DefaultEmarsysDependencyContainer>getContainer()
                 .getCoreCompletionHandler();
 

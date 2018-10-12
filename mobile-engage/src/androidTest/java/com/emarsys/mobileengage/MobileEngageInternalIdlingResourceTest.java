@@ -8,8 +8,9 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.core.CoreCompletionHandler;
-import com.emarsys.core.DefaultCompletionHandler;
+import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
@@ -72,8 +73,8 @@ public class MobileEngageInternalIdlingResourceTest {
 
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
 
-        coreCompletionHandler = new DefaultCompletionHandler(
-                new ArrayList<AbstractResponseHandler>());
+        coreCompletionHandler = new DefaultCoreCompletionHandler(
+                new ArrayList<AbstractResponseHandler>(), new HashMap<String, CompletionListener>());
 
         MeIdStorage meIdStorage = mock(MeIdStorage.class);
         when(meIdStorage.get()).thenReturn("meId");
@@ -85,7 +86,7 @@ public class MobileEngageInternalIdlingResourceTest {
         mobileEngage = new MobileEngageInternal(
                 mock(RequestManager.class),
                 mock(Handler.class),
-                mock(DefaultCompletionHandler.class),
+                mock(DefaultCoreCompletionHandler.class),
                 new RequestContext(
                         "applicationCode",
                         "applicationPassword",

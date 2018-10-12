@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
-import com.emarsys.core.DefaultCompletionHandler;
+import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
@@ -36,14 +36,14 @@ public class MobileEngageInternal {
 
     String pushToken;
     final RequestManager manager;
-    final DefaultCompletionHandler coreCompletionHandler;
+    final DefaultCoreCompletionHandler coreCompletionHandler;
     final Handler uiHandler;
     final RequestContext requestContext;
 
     public MobileEngageInternal(
             RequestManager manager,
             Handler uiHandler,
-            DefaultCompletionHandler coreCompletionHandler,
+            DefaultCoreCompletionHandler coreCompletionHandler,
             RequestContext requestContext
     ) {
         Assert.notNull(manager, "Manager must not be null!");

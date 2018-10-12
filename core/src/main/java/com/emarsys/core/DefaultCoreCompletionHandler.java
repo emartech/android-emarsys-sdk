@@ -12,12 +12,12 @@ import com.emarsys.core.util.log.EMSLogger;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultCompletionHandler implements CoreCompletionHandler {
+public class DefaultCoreCompletionHandler implements CoreCompletionHandler {
 
     private final Map<String, CompletionListener> completionListenerMap;
     List<AbstractResponseHandler> responseHandlers;
 
-    public DefaultCompletionHandler(List<AbstractResponseHandler> responseHandlers, Map<String, CompletionListener> completionListenerMap) {
+    public DefaultCoreCompletionHandler(List<AbstractResponseHandler> responseHandlers, Map<String, CompletionListener> completionListenerMap) {
         Assert.notNull(responseHandlers, "ResponseHandlers must not be null!");
         Assert.notNull(completionListenerMap, "CompletionListenerMap must not be null!");
         this.responseHandlers = responseHandlers;
@@ -34,7 +34,9 @@ public class DefaultCompletionHandler implements CoreCompletionHandler {
 
     public void registerCompletionListener(RequestModel model, CompletionListener listener) {
         Assert.notNull(model, "RequestModel must not be null!");
-        this.completionListenerMap.put(model.getId(), listener);
+        if (listener != null) {
+            this.completionListenerMap.put(model.getId(), listener);
+        }
     }
 
     @Override
@@ -44,36 +46,35 @@ public class DefaultCompletionHandler implements CoreCompletionHandler {
         for (AbstractResponseHandler responseHandler : responseHandlers) {
             responseHandler.processResponse(responseModel);
         }
-        final CompletionListener listener = completionListenerMap.get(id);
-        if (listener != null) {
-            listener.onCompleted(null);
-        }
+
+        callCompletionListener(id, null);
     }
 
     @Override
     public void onError(final String id, final Exception cause) {
-        handleOnError(id, cause);
-        final CompletionListener listener = completionListenerMap.get(id);
-        if (listener != null) {
-            listener.onCompleted(cause);
-        }
+        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", cause);
+
+        callCompletionListener(id, cause);
     }
 
     @Override
     public void onError(final String id, final ResponseModel responseModel) {
+        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", responseModel);
+
         Exception exception = new ResponseErrorException(
                 responseModel.getStatusCode(),
                 responseModel.getMessage(),
                 responseModel.getBody());
-        handleOnError(id, exception);
 
+        callCompletionListener(id, exception);
+    }
+
+    private void callCompletionListener(String id, Exception cause) {
         final CompletionListener listener = completionListenerMap.get(id);
         if (listener != null) {
-            listener.onCompleted(exception);
+            listener.onCompleted(cause);
+            completionListenerMap.remove(id);
         }
     }
 
-    private void handleOnError(String id, Exception cause) {
-        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", cause);
-    }
 }

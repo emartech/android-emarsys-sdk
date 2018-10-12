@@ -6,7 +6,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.emarsys.core.DefaultCompletionHandler;
+import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.experimental.ExperimentalFeatures;
@@ -29,7 +29,7 @@ public class MobileEngage {
     static MobileEngageInternal instance;
     static InboxInternal inboxInstance;
     static DeepLinkInternal deepLinkInstance;
-    static DefaultCompletionHandler completionHandler;
+    static DefaultCoreCompletionHandler completionHandler;
     static Handler coreSdkHandler;
     static MobileEngageConfig config;
     static RequestContext requestContext;

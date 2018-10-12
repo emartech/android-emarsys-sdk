@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.emarsys.core.DefaultCompletionHandler;
+import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
@@ -73,7 +73,7 @@ public class MobileEngageInternalTest {
     private static String ME_ID = "ASD123";
     private static String ME_ID_SIGNATURE = "sig";
 
-    private DefaultCompletionHandler coreCompletionHandler;
+    private DefaultCoreCompletionHandler coreCompletionHandler;
     private Map<String, String> defaultHeaders;
     private MobileEngageConfig baseConfig;
     private RequestManager manager;
@@ -97,7 +97,7 @@ public class MobileEngageInternalTest {
         ExperimentalFeatures.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
 
         manager = mock(RequestManager.class);
-        coreCompletionHandler = mock(DefaultCompletionHandler.class);
+        coreCompletionHandler = mock(DefaultCoreCompletionHandler.class);
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
         deviceInfo = new DeviceInfo(application);
         appLoginStorage = new AppLoginStorage(application);

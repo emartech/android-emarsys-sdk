@@ -7,11 +7,12 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.config.EmarsysConfig;
-import com.emarsys.core.DefaultCompletionHandler;
+import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
+import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.connection.ConnectionWatchDog;
@@ -88,7 +89,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private PredictInternal predictInternal;
     private Handler coreSdkHandler;
     private RequestContext requestContext;
-    private DefaultCompletionHandler completionHandler;
+    private DefaultCoreCompletionHandler completionHandler;
     private InAppPresenter inAppPresenter;
     private NotificationEventHandler notificationEventHandler;
     private OreoConfig oreoConfig;
@@ -165,7 +166,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
-    public DefaultCompletionHandler getCoreCompletionHandler() {
+    public DefaultCoreCompletionHandler getCoreCompletionHandler() {
         return completionHandler;
     }
 
@@ -226,7 +227,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
 
-        completionHandler = new DefaultCompletionHandler(new ArrayList<AbstractResponseHandler>());
+        completionHandler = new DefaultCoreCompletionHandler(new ArrayList<AbstractResponseHandler>(), new HashMap<String, CompletionListener>());
 
         Repository<Map<String, Object>, SqlSpecification> logRepository = new LogRepository(application);
         List<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>> logHandlers = Arrays.<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>>asList(
