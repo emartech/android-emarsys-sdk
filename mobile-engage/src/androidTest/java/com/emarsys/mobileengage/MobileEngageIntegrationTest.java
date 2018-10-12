@@ -43,7 +43,6 @@ public class MobileEngageIntegrationTest {
     }
 
     private CountDownLatch latch;
-//    private FakeStatusListener listener;
 
     private Application context;
     private Activity activity;
@@ -64,11 +63,9 @@ public class MobileEngageIntegrationTest {
         ConnectionTestUtils.checkConnection(context);
 
         latch = new CountDownLatch(1);
-//        listener = new FakeStatusListener(latch, FakeStatusListener.Mode.MAIN_THREAD);
         MobileEngageConfig config = new MobileEngageConfig.Builder()
                 .application(context)
                 .credentials("14C19-A121F", "PaNkfOD90AVpYimMBuZopCpm8OWCrREu")
-//                .statusListener(listener)
                 .disableDefaultChannel()
                 .enableExperimentalFeatures(MobileEngageFeature.IN_APP_MESSAGING)
                 .setDefaultInAppEventHandler(mock(EventHandler.class))
@@ -226,23 +223,15 @@ public class MobileEngageIntegrationTest {
         latch.await();
 
         latch = new CountDownLatch(1);
-//        listener.latch = latch;
-//        listener.onStatusLogCount = 0;
     }
 
     private void eventuallyAssertSuccess(String id) throws Exception {
         latch.await();
         eventuallyAssertSuccess();
-//        assertEquals(id, listener.successId);
     }
 
     private void eventuallyAssertSuccess() throws Exception {
         latch.await();
-//        assertNull(listener.errorCause);
-//        assertEquals(1, listener.onStatusLogCount);
-//        assertEquals(0, listener.onErrorCount);
-//        assertNotNull(listener.successLog);
-//        assertNull(listener.errorId);
     }
 
     private void clearStorages() {

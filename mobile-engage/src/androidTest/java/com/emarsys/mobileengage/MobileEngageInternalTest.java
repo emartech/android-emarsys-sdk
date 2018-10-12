@@ -18,7 +18,6 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
@@ -75,7 +74,6 @@ public class MobileEngageInternalTest {
 
     private DefaultCoreCompletionHandler coreCompletionHandler;
     private Map<String, String> defaultHeaders;
-    private MobileEngageConfig baseConfig;
     private RequestManager manager;
     private Application application;
     private DeviceInfo deviceInfo;
@@ -102,15 +100,6 @@ public class MobileEngageInternalTest {
         deviceInfo = new DeviceInfo(application);
         appLoginStorage = new AppLoginStorage(application);
         appLoginStorage.remove();
-
-//        statusListener = mock(StatusListener.class);
-        baseConfig = new MobileEngageConfig.Builder()
-                .application(application)
-                .credentials(APPLICATION_ID, APPLICATION_PASSWORD)
-//                .statusListener(statusListener)
-                .disableDefaultChannel()
-                .build();
-
 
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
