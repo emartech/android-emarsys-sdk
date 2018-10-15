@@ -6,7 +6,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.whenever
+import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
@@ -36,6 +36,7 @@ class DefaultCoreCompletionHandlerTest {
     var timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
+    @Suppress("UNCHECKED_CAST")
     fun init() {
         abstractResponseHandler1 = mock(AbstractResponseHandler::class.java)
         abstractResponseHandler2 = mock(AbstractResponseHandler::class.java)

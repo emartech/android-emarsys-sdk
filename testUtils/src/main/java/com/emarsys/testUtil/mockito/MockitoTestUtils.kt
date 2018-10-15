@@ -3,5 +3,9 @@ package com.emarsys.testUtil.mockito
 import org.mockito.Mockito.`when`
 import org.mockito.stubbing.OngoingStubbing
 
+object MockitoTestUtils {
 
-fun <T>whenever(mock:T): OngoingStubbing<T> = `when`(mock)
+    @JvmStatic
+    fun <T> whenever(mock: T): OngoingStubbing<T> = `when`(mock)
+
+}
