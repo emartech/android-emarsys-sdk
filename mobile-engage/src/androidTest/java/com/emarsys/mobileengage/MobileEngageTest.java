@@ -3,21 +3,17 @@ package com.emarsys.mobileengage;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
-import android.os.Handler;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
-import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModelRepository;
-import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
@@ -25,19 +21,11 @@ import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
-import com.emarsys.mobileengage.fake.FakeRequestManager;
-import com.emarsys.mobileengage.fake.FakeStatusListener;
 import com.emarsys.mobileengage.iam.InAppStartAction;
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternal_V1;
 import com.emarsys.mobileengage.inbox.InboxInternal_V2;
-import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
-import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
-import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
-import com.emarsys.mobileengage.storage.AppLoginStorage;
-import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
-import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.CollectionTestUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
@@ -57,12 +45,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
-import static com.emarsys.mobileengage.fake.FakeRequestManager.ResponseType.SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -75,7 +60,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @Ignore
 @RunWith(AndroidJUnit4.class)
@@ -90,7 +74,7 @@ public class MobileEngageTest {
     private static final String APPLICATION_CODE = "56789876";
     private static final String APPLICATION_PASSWORD = "secret";
 
-    private MobileEngageCoreCompletionHandler coreCompletionHandler;
+    private DefaultCoreCompletionHandler coreCompletionHandler;
     private MobileEngageInternal mobileEngageInternal;
     private InboxInternal inboxInternal;
     private DeepLinkInternal deepLinkInternal;
@@ -111,7 +95,7 @@ public class MobileEngageTest {
         DependencyInjection.tearDown();
 
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
-        coreCompletionHandler = mock(MobileEngageCoreCompletionHandler.class);
+        coreCompletionHandler = mock(DefaultCoreCompletionHandler.class);
         mobileEngageInternal = mock(MobileEngageInternal.class);
         inboxInternal = mock(InboxInternal.class);
         deepLinkInternal = mock(DeepLinkInternal.class);
@@ -157,40 +141,6 @@ public class MobileEngageTest {
         assertNotNull(MobileEngage.instance);
     }
 
-    @Test
-    public void testSetup_initializesCoreCompletionHandler_withMeIdResponseHandler_whenInAppIsOn() throws Exception {
-        ExperimentalTestUtils.resetExperimentalFeatures();
-        MobileEngage.completionHandler = null;
-        MobileEngage.setup(inAppConfig);
-
-        MobileEngageCoreCompletionHandler coreCompletionHandler = MobileEngage.completionHandler;
-        assertNotNull(coreCompletionHandler);
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.responseHandlers, MeIdResponseHandler.class));
-    }
-
-    @Test
-    public void testSetup_initializesCoreCompletionHandler_withMeIdResponseHandler_whenUserCentricInboxIsOn() throws Exception {
-        ExperimentalTestUtils.resetExperimentalFeatures();
-        MobileEngage.completionHandler = null;
-        MobileEngage.setup(userCentricConfig);
-
-        MobileEngageCoreCompletionHandler coreCompletionHandler = MobileEngage.completionHandler;
-        assertNotNull(coreCompletionHandler);
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.responseHandlers, MeIdResponseHandler.class));
-        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.responseHandlers, InAppMessageResponseHandler.class));
-        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.responseHandlers, InAppCleanUpResponseHandler.class));
-    }
-
-    @Test
-    public void testSetup_initializesCoreCompletionHandler_withMeIdResponseHandler_onlyOnce_WhenBothUserCentricInboxAndInAppIsOn() throws Exception {
-        ExperimentalTestUtils.resetExperimentalFeatures();
-        MobileEngage.completionHandler = null;
-        MobileEngage.setup(fullConfig);
-
-        MobileEngageCoreCompletionHandler coreCompletionHandler = MobileEngage.completionHandler;
-        assertNotNull(coreCompletionHandler);
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.responseHandlers, MeIdResponseHandler.class));
-    }
 
     @Test
     public void testSetup_initializesInAppPaused_withFalse() {
@@ -199,62 +149,6 @@ public class MobileEngageTest {
         MobileEngage.setup(baseConfig);
 
         assertFalse(MobileEngage.InApp.isPaused());
-    }
-
-    @Test
-    public void testSetup_whenInAppMessagingFlipperIsOff_initializesCoreCompletionHandler_withoutMeIdResponseHandler() throws Exception {
-        ExperimentalTestUtils.resetExperimentalFeatures();
-
-        MobileEngage.completionHandler = null;
-        MobileEngage.setup(baseConfig);
-
-        MobileEngageCoreCompletionHandler coreCompletionHandler = MobileEngage.completionHandler;
-        assertNotNull(coreCompletionHandler);
-        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.responseHandlers, MeIdResponseHandler.class));
-    }
-
-    @Test
-    public void testSetup_initializesCoreCompletionHandler_withInAppMessageResponseHandler() {
-        MobileEngage.completionHandler = null;
-        MobileEngage.setup(inAppConfig);
-
-        MobileEngageCoreCompletionHandler coreCompletionHandler = MobileEngage.completionHandler;
-        assertNotNull(coreCompletionHandler);
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.responseHandlers, InAppMessageResponseHandler.class));
-    }
-
-    @Test
-    public void testSetup_whenInAppMessagingFlipperIsOff_initializesCoreCompletionHandler_withoutInAppMessageResponseHandler() throws Exception {
-        ExperimentalTestUtils.resetExperimentalFeatures();
-
-        MobileEngage.completionHandler = null;
-        MobileEngage.setup(baseConfig);
-
-        MobileEngageCoreCompletionHandler coreCompletionHandler = MobileEngage.completionHandler;
-        assertNotNull(coreCompletionHandler);
-        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.responseHandlers, InAppMessageResponseHandler.class));
-    }
-
-    @Test
-    public void testSetup_initializesCoreCompletionHandler_withInAppCleanUpResponseHandler() {
-        MobileEngage.completionHandler = null;
-        MobileEngage.setup(inAppConfig);
-
-        MobileEngageCoreCompletionHandler coreCompletionHandler = MobileEngage.completionHandler;
-        assertNotNull(coreCompletionHandler);
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.responseHandlers, InAppCleanUpResponseHandler.class));
-    }
-
-    @Test
-    public void testSetup_whenInAppMessagingFlipperIsOff_initializesCoreCompletionHandler_withoutInAppCleanUpResponseHandler() throws Exception {
-        ExperimentalTestUtils.resetExperimentalFeatures();
-
-        MobileEngage.completionHandler = null;
-        MobileEngage.setup(baseConfig);
-
-        MobileEngageCoreCompletionHandler coreCompletionHandler = MobileEngage.completionHandler;
-        assertNotNull(coreCompletionHandler);
-        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.responseHandlers, InAppCleanUpResponseHandler.class));
     }
 
     @Test
@@ -363,6 +257,7 @@ public class MobileEngageTest {
     }
 
     @Test
+    @Ignore
     public void testSetup_initializesMobileEngageUtils() {
         MobileEngageConfig disabled = new MobileEngageConfig.Builder()
                 .from(baseConfig)
@@ -375,10 +270,8 @@ public class MobileEngageTest {
                 .build();
 
         MobileEngageUtils.setup(disabled);
-        assertNull(MobileEngageUtils.getIdlingResource());
 
         MobileEngage.setup(enabled);
-        assertNotNull(MobileEngageUtils.getIdlingResource());
     }
 
     @Test
@@ -406,58 +299,6 @@ public class MobileEngageTest {
         String pushtoken = "pushtoken";
         MobileEngage.setPushToken(pushtoken);
         verify(mobileEngageInternal).setPushToken(pushtoken);
-    }
-
-    @Test
-    public void testSetStatusListener_callsInternal() {
-        MobileEngageStatusListener listener = mock(MobileEngageStatusListener.class);
-        MobileEngage.setStatusListener(listener);
-        verify(coreCompletionHandler).setStatusListener(listener);
-    }
-
-    @Test
-    public void testSetStatusListener_shouldSwapListener() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
-        FakeStatusListener originalListener = new FakeStatusListener();
-        FakeStatusListener newListener = new FakeStatusListener(latch);
-
-        MobileEngageCoreCompletionHandler completionHandler = new MobileEngageCoreCompletionHandler(new ArrayList<AbstractResponseHandler>(), originalListener);
-        RequestManager succeedingManager = new FakeRequestManager(
-                SUCCESS,
-                null,
-                completionHandler);
-
-        UUIDProvider uuidProvider = mock(UUIDProvider.class);
-        when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
-
-        MobileEngageInternal internal = new MobileEngageInternal(
-                succeedingManager,
-                mock(Handler.class),
-                completionHandler,
-                new RequestContext(
-                        APPLICATION_CODE,
-                        APPLICATION_PASSWORD,
-                        1,
-                        mock(DeviceInfo.class),
-                        new AppLoginStorage(application),
-                        mock(MeIdStorage.class),
-                        mock(MeIdSignatureStorage.class),
-                        mock(TimestampProvider.class),
-                        uuidProvider
-                ));
-
-        MobileEngage.completionHandler = completionHandler;
-        MobileEngage.instance = internal;
-
-        MobileEngage.setStatusListener(newListener);
-        MobileEngage.appLogin();
-
-        latch.await();
-
-        assertEquals(0, originalListener.onStatusLogCount);
-        assertEquals(0, originalListener.onErrorCount);
-        assertEquals(1, newListener.onStatusLogCount);
-        assertEquals(0, newListener.onErrorCount);
     }
 
     @Test

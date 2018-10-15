@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.di;
 
+import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.di.DependencyContainer;
-import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
@@ -21,7 +21,7 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
 
     DeepLinkInternal getDeepLinkInternal();
 
-    MobileEngageCoreCompletionHandler getCoreCompletionHandler();
+    DefaultCoreCompletionHandler getCoreCompletionHandler();
 
     RequestContext getRequestContext();
 

@@ -7,10 +7,12 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.config.EmarsysConfig;
+import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
+import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.connection.ConnectionWatchDog;
@@ -35,9 +37,7 @@ import com.emarsys.core.storage.DefaultKeyValueStore;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
-import com.emarsys.mobileengage.MobileEngageCoreCompletionHandler;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
@@ -89,7 +89,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private PredictInternal predictInternal;
     private Handler coreSdkHandler;
     private RequestContext requestContext;
-    private MobileEngageCoreCompletionHandler completionHandler;
+    private DefaultCoreCompletionHandler completionHandler;
     private InAppPresenter inAppPresenter;
     private NotificationEventHandler notificationEventHandler;
     private OreoConfig oreoConfig;
@@ -166,7 +166,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
-    public MobileEngageCoreCompletionHandler getCoreCompletionHandler() {
+    public DefaultCoreCompletionHandler getCoreCompletionHandler() {
         return completionHandler;
     }
 
@@ -227,17 +227,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
 
-        completionHandler = new MobileEngageCoreCompletionHandler(new MobileEngageStatusListener() {
-            @Override
-            public void onError(String id, Exception cause) {
-
-            }
-
-            @Override
-            public void onStatusLog(String id, String log) {
-
-            }
-        });
+        completionHandler = new DefaultCoreCompletionHandler(new ArrayList<AbstractResponseHandler>(), new HashMap<String, CompletionListener>());
 
         Repository<Map<String, Object>, SqlSpecification> logRepository = new LogRepository(application);
         List<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>> logHandlers = Arrays.<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>>asList(

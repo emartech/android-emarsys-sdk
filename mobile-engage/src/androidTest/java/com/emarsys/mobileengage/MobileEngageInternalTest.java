@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
@@ -17,7 +18,6 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
@@ -72,10 +72,8 @@ public class MobileEngageInternalTest {
     private static String ME_ID = "ASD123";
     private static String ME_ID_SIGNATURE = "sig";
 
-    private MobileEngageStatusListener statusListener;
-    private MobileEngageCoreCompletionHandler coreCompletionHandler;
+    private DefaultCoreCompletionHandler coreCompletionHandler;
     private Map<String, String> defaultHeaders;
-    private MobileEngageConfig baseConfig;
     private RequestManager manager;
     private Application application;
     private DeviceInfo deviceInfo;
@@ -97,20 +95,11 @@ public class MobileEngageInternalTest {
         ExperimentalFeatures.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
 
         manager = mock(RequestManager.class);
-        coreCompletionHandler = mock(MobileEngageCoreCompletionHandler.class);
+        coreCompletionHandler = mock(DefaultCoreCompletionHandler.class);
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
         deviceInfo = new DeviceInfo(application);
         appLoginStorage = new AppLoginStorage(application);
         appLoginStorage.remove();
-
-        statusListener = mock(MobileEngageStatusListener.class);
-        baseConfig = new MobileEngageConfig.Builder()
-                .application(application)
-                .credentials(APPLICATION_ID, APPLICATION_PASSWORD)
-                .statusListener(statusListener)
-                .disableDefaultChannel()
-                .build();
-
 
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);

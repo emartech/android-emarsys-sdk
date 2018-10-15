@@ -10,7 +10,6 @@ import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.fake.FakeInboxResultListener;
 import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener;
-import com.emarsys.mobileengage.fake.FakeStatusListener;
 import com.emarsys.mobileengage.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.ConnectionTestUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
@@ -38,7 +37,6 @@ public class InboxV2IntegrationTest {
     private CountDownLatch latch;
     private CountDownLatch inboxLatch;
     private CountDownLatch resetLatch;
-    private FakeStatusListener listener;
     private FakeInboxResultListener inboxListener;
     private FakeResetBadgeCountResultListener resetListener;
 
@@ -57,11 +55,9 @@ public class InboxV2IntegrationTest {
         ConnectionTestUtils.checkConnection(context);
 
         latch = new CountDownLatch(1);
-        listener = new FakeStatusListener(latch, FakeStatusListener.Mode.MAIN_THREAD);
         MobileEngageConfig config = new MobileEngageConfig.Builder()
                 .application(context)
                 .credentials("14C19-A121F", "PaNkfOD90AVpYimMBuZopCpm8OWCrREu")
-                .statusListener(listener)
                 .disableDefaultChannel()
                 .enableExperimentalFeatures(MobileEngageFeature.USER_CENTRIC_INBOX)
                 .setDefaultInAppEventHandler(mock(EventHandler.class))
@@ -116,15 +112,9 @@ public class InboxV2IntegrationTest {
         assertTrue(notifications.size() > 0);
 
         latch = new CountDownLatch(1);
-        listener = new FakeStatusListener(latch, FakeStatusListener.Mode.MAIN_THREAD);
-        MobileEngage.setStatusListener(listener);
 
         MobileEngage.Inbox.trackMessageOpen(notifications.get(0));
         latch.await();
-
-        assertNull(listener.errorCause);
-        assertEquals(1, listener.onStatusLogCount);
-        assertEquals(0, listener.onErrorCount);
     }
 
     private void doAppLogin() throws InterruptedException {

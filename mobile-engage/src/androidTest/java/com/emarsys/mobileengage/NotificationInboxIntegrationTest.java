@@ -7,7 +7,6 @@ import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.fake.FakeInboxResultListener;
 import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener;
-import com.emarsys.mobileengage.fake.FakeStatusListener;
 import com.emarsys.testUtil.ConnectionTestUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -31,7 +30,6 @@ public class NotificationInboxIntegrationTest {
     private CountDownLatch latch;
     private CountDownLatch inboxLatch;
     private CountDownLatch resetLatch;
-    private FakeStatusListener listener;
     private FakeInboxResultListener inboxListener;
     private FakeResetBadgeCountResultListener resetListener;
 
@@ -48,11 +46,9 @@ public class NotificationInboxIntegrationTest {
         ConnectionTestUtils.checkConnection(context);
 
         latch = new CountDownLatch(1);
-        listener = new FakeStatusListener(latch, FakeStatusListener.Mode.MAIN_THREAD);
         MobileEngageConfig config = new MobileEngageConfig.Builder()
                 .application(context)
                 .credentials("14C19-A121F", "PaNkfOD90AVpYimMBuZopCpm8OWCrREu")
-                .statusListener(listener)
                 .disableDefaultChannel()
                 .build();
         MobileEngage.setup(config);

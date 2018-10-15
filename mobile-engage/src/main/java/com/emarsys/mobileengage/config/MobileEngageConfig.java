@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.MobileEngageStatusListener;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
@@ -18,7 +17,6 @@ public class MobileEngageConfig {
     private final Application application;
     private final String applicationCode;
     private final String applicationPassword;
-    private final MobileEngageStatusListener statusListener;
     private final boolean isDebugMode;
     private final boolean idlingResourceEnabled;
     private final OreoConfig oreoConfig;
@@ -29,7 +27,6 @@ public class MobileEngageConfig {
     MobileEngageConfig(Application application,
                        String applicationCode,
                        String applicationPassword,
-                       MobileEngageStatusListener statusListener,
                        boolean isDebugMode,
                        boolean idlingResourceEnabled,
                        OreoConfig oreoConfig,
@@ -50,7 +47,6 @@ public class MobileEngageConfig {
         this.application = application;
         this.applicationCode = applicationCode;
         this.applicationPassword = applicationPassword;
-        this.statusListener = statusListener;
         this.isDebugMode = isDebugMode;
         this.idlingResourceEnabled = idlingResourceEnabled;
         this.oreoConfig = oreoConfig;
@@ -69,10 +65,6 @@ public class MobileEngageConfig {
 
     public String getApplicationPassword() {
         return applicationPassword;
-    }
-
-    public MobileEngageStatusListener getStatusListener() {
-        return statusListener;
     }
 
     public boolean isIdlingResourceEnabled() {
@@ -117,8 +109,6 @@ public class MobileEngageConfig {
             return false;
         if (applicationPassword != null ? !applicationPassword.equals(that.applicationPassword) : that.applicationPassword != null)
             return false;
-        if (statusListener != null ? !statusListener.equals(that.statusListener) : that.statusListener != null)
-            return false;
         if (oreoConfig != null ? !oreoConfig.equals(that.oreoConfig) : that.oreoConfig != null)
             return false;
         if (defaultInAppEventHandler != null ? !defaultInAppEventHandler.equals(that.defaultInAppEventHandler) : that.defaultInAppEventHandler != null)
@@ -134,7 +124,6 @@ public class MobileEngageConfig {
         int result = application != null ? application.hashCode() : 0;
         result = 31 * result + (applicationCode != null ? applicationCode.hashCode() : 0);
         result = 31 * result + (applicationPassword != null ? applicationPassword.hashCode() : 0);
-        result = 31 * result + (statusListener != null ? statusListener.hashCode() : 0);
         result = 31 * result + (isDebugMode ? 1 : 0);
         result = 31 * result + (idlingResourceEnabled ? 1 : 0);
         result = 31 * result + (oreoConfig != null ? oreoConfig.hashCode() : 0);
@@ -148,7 +137,6 @@ public class MobileEngageConfig {
                 "application=" + application +
                 ", applicationCode='" + applicationCode + '\'' +
                 ", applicationPassword='" + applicationPassword + '\'' +
-                ", statusListener=" + statusListener +
                 ", isDebugMode=" + isDebugMode +
                 ", idlingResourceEnabled=" + idlingResourceEnabled +
                 ", oreoConfig=" + oreoConfig +
@@ -160,7 +148,6 @@ public class MobileEngageConfig {
         private Application application;
         private String applicationCode;
         private String applicationPassword;
-        private MobileEngageStatusListener statusListener;
         private boolean idlingResourceEnabled;
         private OreoConfig oreoConfig;
         private EventHandler defaultInAppEventHandler;
@@ -172,7 +159,6 @@ public class MobileEngageConfig {
             application = baseConfig.getApplication();
             applicationCode = baseConfig.getApplicationCode();
             applicationPassword = baseConfig.getApplicationPassword();
-            statusListener = baseConfig.getStatusListener();
             idlingResourceEnabled = baseConfig.isIdlingResourceEnabled();
             oreoConfig = baseConfig.getOreoConfig();
             notificationEventHandler = baseConfig.getNotificationEventHandler();
@@ -189,11 +175,6 @@ public class MobileEngageConfig {
                                    @NonNull String applicationPassword) {
             this.applicationCode = applicationCode;
             this.applicationPassword = applicationPassword;
-            return this;
-        }
-
-        public Builder statusListener(@NonNull MobileEngageStatusListener statusListener) {
-            this.statusListener = statusListener;
             return this;
         }
 
@@ -236,7 +217,6 @@ public class MobileEngageConfig {
                     application,
                     applicationCode,
                     applicationPassword,
-                    statusListener,
                     isDebuggable,
                     idlingResourceEnabled,
                     oreoConfig,
