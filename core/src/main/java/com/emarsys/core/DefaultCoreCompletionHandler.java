@@ -12,8 +12,7 @@ import com.emarsys.core.util.log.EMSLogger;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultCoreCompletionHandler implements CoreCompletionHandler {
-
+public class DefaultCoreCompletionHandler implements CoreCompletionHandler, Registry<RequestModel,CompletionListener> {
     private final Map<String, CompletionListener> completionListenerMap;
     List<AbstractResponseHandler> responseHandlers;
 
@@ -32,7 +31,7 @@ public class DefaultCoreCompletionHandler implements CoreCompletionHandler {
         return responseHandlers;
     }
 
-    public void registerCompletionListener(RequestModel model, CompletionListener listener) {
+    public void register(RequestModel model, CompletionListener listener) {
         Assert.notNull(model, "RequestModel must not be null!");
         if (listener != null) {
             this.completionListenerMap.put(model.getId(), listener);

@@ -70,27 +70,27 @@ class DefaultCoreCompletionHandlerTest {
         val completionListenerMap = mutableMapOf<String, CompletionListener>()
         val coreCompletionHandler = DefaultCoreCompletionHandler(listOf(), completionListenerMap)
         val callback = mock(CompletionListener::class.java)
-        coreCompletionHandler.registerCompletionListener(mockRequestModel, callback)
+        coreCompletionHandler.register(mockRequestModel, callback)
 
         completionListenerMap[REQUEST_ID] shouldBe callback
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testRegisterCompletionListener_requestModel_shouldNotBeNull() {
-        coreCompletionHandler.registerCompletionListener(null, mock(CompletionListener::class.java))
+        coreCompletionHandler.register(null, mock(CompletionListener::class.java))
     }
 
     @Test
     fun testRegisterCompletionListener_withNullCompletionListener() {
         val coreCompletionHandler = DefaultCoreCompletionHandler(listOf(), mockMap)
-        coreCompletionHandler.registerCompletionListener(mockRequestModel, null)
+        coreCompletionHandler.register(mockRequestModel, null)
         verifyZeroInteractions(mockMap)
     }
 
     @Test
     fun testOnSuccess_callsRegisteredCompletionListener() {
         val listener = mock(CompletionListener::class.java)
-        coreCompletionHandler.registerCompletionListener(mockRequestModel, listener)
+        coreCompletionHandler.register(mockRequestModel, listener)
 
         coreCompletionHandler.onSuccess(REQUEST_ID, null)
 
@@ -115,8 +115,8 @@ class DefaultCoreCompletionHandlerTest {
         val listener1 = mock(CompletionListener::class.java)
         val listener2 = mock(CompletionListener::class.java)
 
-        coreCompletionHandler.registerCompletionListener(requestModel1, listener1)
-        coreCompletionHandler.registerCompletionListener(requestModel2, listener2)
+        coreCompletionHandler.register(requestModel1, listener1)
+        coreCompletionHandler.register(requestModel2, listener2)
 
         coreCompletionHandler.onSuccess("id1", null)
 
@@ -145,7 +145,7 @@ class DefaultCoreCompletionHandlerTest {
     fun testOnError_withException_callsRegisteredCompletionListener() {
         val listener = mock(CompletionListener::class.java)
 
-        coreCompletionHandler.registerCompletionListener(mockRequestModel, listener)
+        coreCompletionHandler.register(mockRequestModel, listener)
 
         coreCompletionHandler.onError(REQUEST_ID, responseErrorException)
 
@@ -182,7 +182,7 @@ class DefaultCoreCompletionHandlerTest {
     fun testOnError_withResponseModel_callsRegisteredCompletionListener() {
         val listener = mock(CompletionListener::class.java)
 
-        coreCompletionHandler.registerCompletionListener(mockRequestModel, listener)
+        coreCompletionHandler.register(mockRequestModel, listener)
 
         val responseModel = createResponseModel(STATUS_CODE, MESSAGE, BODY)
         coreCompletionHandler.onError(REQUEST_ID, responseModel)
@@ -222,9 +222,9 @@ class DefaultCoreCompletionHandlerTest {
         val listener2 = mock(CompletionListener::class.java)
         val listener3 = mock(CompletionListener::class.java)
 
-        coreCompletionHandler.registerCompletionListener(createRequestModelMock("id_1"), listener1)
-        coreCompletionHandler.registerCompletionListener(createRequestModelMock("id_2"), listener2)
-        coreCompletionHandler.registerCompletionListener(createRequestModelMock("id_3"), listener3)
+        coreCompletionHandler.register(createRequestModelMock("id_1"), listener1)
+        coreCompletionHandler.register(createRequestModelMock("id_2"), listener2)
+        coreCompletionHandler.register(createRequestModelMock("id_3"), listener3)
 
         coreCompletionHandler.onSuccess("id_1", createResponseModel(200, "", ""))
         coreCompletionHandler.onSuccess("id_1", createResponseModel(200, "", ""))
