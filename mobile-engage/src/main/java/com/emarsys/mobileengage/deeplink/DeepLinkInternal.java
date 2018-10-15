@@ -9,7 +9,6 @@ import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.MobileEngageUtils;
 import com.emarsys.mobileengage.RequestContext;
 
 import java.util.HashMap;
@@ -50,7 +49,6 @@ public class DeepLinkInternal {
                         .payload(payload)
                         .build();
 
-                MobileEngageUtils.incrementIdlingResource();
                 intentFromActivity.putExtra(EMS_DEEP_LINK_TRACKED_KEY, true);
                 manager.submit(model);
             }

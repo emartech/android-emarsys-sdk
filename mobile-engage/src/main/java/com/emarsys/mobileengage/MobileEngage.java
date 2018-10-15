@@ -87,8 +87,6 @@ public class MobileEngage {
         initializeFields();
 
         initializeInApp();
-
-        MobileEngageUtils.setup(config);
     }
 
     @NonNull

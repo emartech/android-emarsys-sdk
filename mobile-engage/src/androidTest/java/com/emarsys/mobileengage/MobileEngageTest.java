@@ -269,8 +269,6 @@ public class MobileEngageTest {
                 .enableIdlingResource(true)
                 .build();
 
-        MobileEngageUtils.setup(disabled);
-
         MobileEngage.setup(enabled);
     }
 

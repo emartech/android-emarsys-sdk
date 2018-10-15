@@ -116,7 +116,6 @@ public class MobileEngageInternal {
             requestContext.getAppLoginStorage().set(currentHashCode);
         }
 
-        MobileEngageUtils.incrementIdlingResource();
         manager.submit(model);
         return model.getId();
     }
@@ -133,7 +132,6 @@ public class MobileEngageInternal {
                 .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
-        MobileEngageUtils.incrementIdlingResource();
         manager.submit(model);
         requestContext.getMeIdStorage().remove();
         requestContext.getAppLoginStorage().remove();
@@ -163,7 +161,6 @@ public class MobileEngageInternal {
                 .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
-        MobileEngageUtils.incrementIdlingResource();
         manager.submit(model);
         return model.getId();
     }
@@ -191,7 +188,6 @@ public class MobileEngageInternal {
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .build();
 
-        MobileEngageUtils.incrementIdlingResource();
         manager.submit(model);
         return model.getId();
     }
@@ -207,7 +203,6 @@ public class MobileEngageInternal {
                     eventAttributes,
                     requestContext);
 
-            MobileEngageUtils.incrementIdlingResource();
             manager.submit(model);
             return model.getId();
         } else {
@@ -268,7 +263,6 @@ public class MobileEngageInternal {
                 .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
-        MobileEngageUtils.incrementIdlingResource();
         manager.submit(model);
         return model.getId();
     }
