@@ -40,7 +40,7 @@ public class EmarsysConfig {
         Assert.notNull(applicationPassword, "ApplicationPassword must not be null");
         Assert.notNull(contactFieldId, "ContactFieldId must not be null");
         Assert.notNull(predictMerchantId, "PredictMerchantId must not be null");
-        Assert.notNull(oreoConfig, "OreoConfig must not be null");
+        Assert.notNull(oreoConfig, "OreoConfig must not be null! Did you forget to enable/disable defaultChannel in EmarsysConfig?");
         validate(oreoConfig);
         Assert.notNull(experimentalFeatures, "ExperimentalFeatures must not be null");
         Assert.elementsNotNull(experimentalFeatures, "ExperimentalFeatures must not contain null elements!");
