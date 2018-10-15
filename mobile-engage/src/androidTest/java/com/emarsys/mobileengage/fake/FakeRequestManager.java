@@ -4,6 +4,8 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.Registry;
+import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.RestClient;
@@ -32,14 +34,20 @@ public class FakeRequestManager extends RequestManager {
             ResponseType responseType,
             CountDownLatch latch,
             CoreCompletionHandler coreCompletionHandler) {
-        super(new Handler(Looper.getMainLooper()), mock(Repository.class), mock(Repository.class), mock(Worker.class), mock(RestClient.class));
+        super(
+                new Handler(Looper.getMainLooper()),
+                mock(Repository.class),
+                mock(Repository.class),
+                mock(Worker.class),
+                mock(RestClient.class),
+                mock(Registry.class));
         this.coreCompletionHandler = coreCompletionHandler;
         this.responseType = responseType;
         this.latch = latch;
     }
 
     @Override
-    public void submit(final RequestModel model) {
+    public void submit(final RequestModel model, CompletionListener callback) {
         new Thread(new Runnable() {
             @Override
             public void run() {

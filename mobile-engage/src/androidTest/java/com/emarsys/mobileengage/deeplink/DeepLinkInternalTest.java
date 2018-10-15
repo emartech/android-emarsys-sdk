@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -29,6 +30,8 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -82,7 +85,7 @@ public class DeepLinkInternalTest {
     }
 
     @Test
-    public void testTrackDeepLink_requestManagerCalledWithCorrectRequestModel() {
+    public void testTrackDeepLink_requestManagerCalled_withCorrectRequestModel() {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://demo-mobileengage.emarsys.net/something?fancy_url=1&ems_dl=1_2_3_4_5"));
 
         Map<String, Object> payload = new HashMap<>();
@@ -100,12 +103,23 @@ public class DeepLinkInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        deepLinkInternal.trackDeepLinkOpen(mockActivity, intent);
+        deepLinkInternal.trackDeepLinkOpen(mockActivity, intent, null);
 
-        verify(manager).submit(captor.capture());
+        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
 
         RequestModel result = captor.getValue();
         assertRequestModels(expected, result);
+    }
+
+    @Test
+    public void testTrackDeepLink_requestManagerCalled_withCorrectCompletionHandler() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://demo-mobileengage.emarsys.net/something?fancy_url=1&ems_dl=1_2_3_4_5"));
+
+        CompletionListener completionListener = mock(CompletionListener.class);
+
+        deepLinkInternal.trackDeepLinkOpen(mockActivity, intent, completionListener);
+
+        verify(manager).submit(any(RequestModel.class), eq(completionListener));
     }
 
     @Test
@@ -115,7 +129,7 @@ public class DeepLinkInternalTest {
 
         Intent currentIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://demo-mobileengage.emarsys.net/something?fancy_url=1&ems_dl=1_2_3_4_5"));
 
-        deepLinkInternal.trackDeepLinkOpen(mockActivity, currentIntent);
+        deepLinkInternal.trackDeepLinkOpen(mockActivity, currentIntent, null);
 
         verify(originalIntent).putExtra("ems_deep_link_tracked", true);
     }
@@ -128,27 +142,27 @@ public class DeepLinkInternalTest {
 
         Intent currentIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://demo-mobileengage.emarsys.net/something?fancy_url=1&ems_dl=1_2_3_4_5"));
 
-        deepLinkInternal.trackDeepLinkOpen(mockActivity, currentIntent);
+        deepLinkInternal.trackDeepLinkOpen(mockActivity, currentIntent, null);
 
-        verify(manager, times(0)).submit(any(RequestModel.class));
+        verify(manager, times(0)).submit(any(RequestModel.class), (CompletionListener)isNull());
     }
 
     @Test
     public void testTrackDeepLink_doesNotCallRequestManager_whenDataIsNull() {
         Intent intent = new Intent();
 
-        deepLinkInternal.trackDeepLinkOpen(mockActivity, intent);
+        deepLinkInternal.trackDeepLinkOpen(mockActivity, intent, null);
 
-        verify(manager, times(0)).submit(any(RequestModel.class));
+        verify(manager, times(0)).submit(any(RequestModel.class), (CompletionListener)isNull());
     }
 
     @Test
     public void testTrackDeepLink_doesNotCallRequestManager_whenUriDoesNotContainEmsDlQueryParameter() {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://demo-mobileengage.emarsys.net/something?fancy_url=1&other=1_2_3_4_5"));
 
-        deepLinkInternal.trackDeepLinkOpen(mockActivity, intent);
+        deepLinkInternal.trackDeepLinkOpen(mockActivity, intent, null);
 
-        verify(manager, times(0)).submit(any(RequestModel.class));
+        verify(manager, times(0)).submit(any(RequestModel.class), (CompletionListener)isNull());
     }
 
     private void assertRequestModels(RequestModel expected, RequestModel result) {

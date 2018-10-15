@@ -333,7 +333,7 @@ public class MobileEngageTest {
     @Test
     public void testAppLogout_callsInternalMobileEngage() {
         MobileEngage.appLogout();
-        verify(mobileEngageInternal).appLogout();
+        verify(mobileEngageInternal).appLogout(null);
     }
 
     @Test
@@ -349,14 +349,14 @@ public class MobileEngageTest {
     public void testTrackCustomEvent_callsInternal() {
         Map<String, String> attributes = mock(Map.class);
         MobileEngage.trackCustomEvent("event", attributes);
-        verify(mobileEngageInternal).trackCustomEvent("event", attributes);
+        verify(mobileEngageInternal).trackCustomEvent("event", attributes, null);
     }
 
     @Test
     public void testTrackMessageOpen_intent_callsInternal() {
         Intent intent = mock(Intent.class);
         MobileEngage.trackMessageOpen(intent);
-        verify(mobileEngageInternal).trackMessageOpen(intent);
+        verify(mobileEngageInternal).trackMessageOpen(intent, null);
     }
 
     @Test
@@ -366,7 +366,7 @@ public class MobileEngageTest {
 
         MobileEngage.trackDeepLink(activity, intent);
 
-        verify(deepLinkInternal).trackDeepLinkOpen(activity, intent);
+        verify(deepLinkInternal).trackDeepLinkOpen(activity, intent, null);
     }
 
     @Test(expected = IllegalArgumentException.class)

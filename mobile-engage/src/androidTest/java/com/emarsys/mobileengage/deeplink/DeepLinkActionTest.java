@@ -48,7 +48,7 @@ public class DeepLinkActionTest {
 
         action.execute(activity);
 
-        verify(deepLinkInternal).trackDeepLinkOpen(activity, intent);
+        verify(deepLinkInternal).trackDeepLinkOpen(activity, intent, null);
     }
 
     @Test

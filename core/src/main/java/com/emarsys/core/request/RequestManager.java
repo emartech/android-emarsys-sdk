@@ -3,6 +3,8 @@ package com.emarsys.core.request;
 import android.os.Handler;
 
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.Registry;
+import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.request.factory.DefaultRunnableFactory;
@@ -27,20 +29,29 @@ public class RequestManager {
     RunnableFactory runnableFactory;
     private Repository<RequestModel, SqlSpecification> requestRepository;
     private Repository<ShardModel, SqlSpecification> shardRepository;
+    private Registry<RequestModel, CompletionListener> callbackRegistry;
 
-    public RequestManager(Handler coreSDKHandler, Repository<RequestModel, SqlSpecification> requestRepository, Repository<ShardModel, SqlSpecification> shardRepository, Worker worker, RestClient restClient) {
+    public RequestManager(
+            Handler coreSDKHandler,
+            Repository<RequestModel, SqlSpecification> requestRepository,
+            Repository<ShardModel, SqlSpecification> shardRepository,
+            Worker worker,
+            RestClient restClient,
+            Registry<RequestModel, CompletionListener> callbackRegistry) {
         Assert.notNull(coreSDKHandler, "CoreSDKHandler must not be null!");
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(shardRepository, "ShardRepository must not be null!");
         Assert.notNull(worker, "Worker must not be null!");
         Assert.notNull(restClient, "RestClient must not be null!");
+        Assert.notNull(callbackRegistry, "CallbackRegistry must not be null!");
         defaultHeaders = new HashMap<>();
         this.requestRepository = requestRepository;
         this.shardRepository = shardRepository;
         this.coreSDKHandler = coreSDKHandler;
         this.worker = worker;
         this.restClient = restClient;
-        runnableFactory = new DefaultRunnableFactory();
+        this.runnableFactory = new DefaultRunnableFactory();
+        this.callbackRegistry = callbackRegistry;
     }
 
     public void setDefaultHeaders(Map<String, String> defaultHeaders) {
@@ -48,7 +59,7 @@ public class RequestManager {
         this.defaultHeaders = defaultHeaders;
     }
 
-    public void submit(final RequestModel model) {
+    public void submit(final RequestModel model, final CompletionListener callback) {
         Assert.notNull(model, "RequestModel must not be null!");
         EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", model);
 
@@ -57,6 +68,7 @@ public class RequestManager {
             public void run() {
                 injectDefaultHeaders(model);
                 requestRepository.add(model);
+                callbackRegistry.register(model, callback);
                 worker.run();
             }
         }));

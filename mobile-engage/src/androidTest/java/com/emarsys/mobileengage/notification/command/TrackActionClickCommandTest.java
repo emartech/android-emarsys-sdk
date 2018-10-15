@@ -82,7 +82,7 @@ public class TrackActionClickCommandTest {
         Map<String, String> payload = new HashMap<>();
         payload.put("button_id", buttonId);
         payload.put("title", title);
-        verify(internalMock).trackInternalCustomEvent("richNotification:actionClicked", payload);
+        verify(internalMock).trackInternalCustomEvent("richNotification:actionClicked", payload, null);
     }
 
 }

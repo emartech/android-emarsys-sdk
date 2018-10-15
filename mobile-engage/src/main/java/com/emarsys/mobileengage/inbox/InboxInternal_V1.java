@@ -136,7 +136,7 @@ public class InboxInternal_V1 implements InboxInternal {
                 .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
-        manager.submit(model);
+        manager.submit(model, null);
     }
 
     @Override

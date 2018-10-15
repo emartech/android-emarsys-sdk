@@ -5,6 +5,7 @@ import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.emarsys.core.Registry;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionState;
 import com.emarsys.core.database.DatabaseContract;
@@ -45,6 +46,7 @@ import java.util.concurrent.CountDownLatch;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 @RunWith(AndroidJUnit4.class)
 public class RequestManagerOfflineTest {
@@ -235,6 +237,7 @@ public class RequestManagerOfflineTest {
         assertRequestTableEmpty();
     }
 
+    @SuppressWarnings("unchecked")
     private void prepareTestCaseAndWait() throws InterruptedException {
         watchDogLatch = new CountDownLatch(watchDogCountDown);
         watchDog = new FakeConnectionWatchDog(watchDogLatch, connectionStates);
@@ -253,13 +256,13 @@ public class RequestManagerOfflineTest {
 
         worker = new DefaultWorker(requestRepository, watchDog, uiHandler, coreSdkHandler, completionHandler, fakeRestClient);
 
-        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, fakeRestClient);
+        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, fakeRestClient, mock(Registry.class));
 
         uiHandler.post(new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < requestModels.length; ++i) {
-                    manager.submit(requestModels[i]);
+                    manager.submit(requestModels[i], null);
                 }
             }
         });

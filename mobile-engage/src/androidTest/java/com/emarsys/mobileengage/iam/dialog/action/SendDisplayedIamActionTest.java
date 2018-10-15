@@ -2,6 +2,7 @@ package com.emarsys.mobileengage.iam.dialog.action;
 
 import android.os.Handler;
 
+import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -75,14 +77,20 @@ public class SendDisplayedIamActionTest {
         Map<String, String> attributes = new HashMap<>();
         attributes.put("message_id", CAMPAIGN_ID);
 
-        verify(mobileEngageInternal, Mockito.timeout(500)).trackInternalCustomEvent(eventName, attributes);
+        verify(mobileEngageInternal, Mockito.timeout(500)).trackInternalCustomEvent(
+                eventName,
+                attributes,
+                null);
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testExecute_callsRequestManager_onCoreSdkThread() throws InterruptedException {
+    public void testExecute_callsRequestManager_onCoreSdkThread() {
         ThreadSpy threadSpy = new ThreadSpy();
-        doAnswer(threadSpy).when(mobileEngageInternal).trackInternalCustomEvent(any(String.class), any(Map.class));
+        doAnswer(threadSpy).when(mobileEngageInternal).trackInternalCustomEvent(
+                any(String.class),
+                any(Map.class),
+                (CompletionListener)isNull());
 
         action.execute(CAMPAIGN_ID);
 

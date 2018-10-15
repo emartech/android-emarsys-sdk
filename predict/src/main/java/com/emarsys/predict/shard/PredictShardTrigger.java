@@ -42,7 +42,7 @@ public class PredictShardTrigger implements Runnable {
             List<List<ShardModel>> chunks = chunker.map(shards);
 
             for (List<ShardModel> chunk : chunks) {
-                requestManager.submit(merger.map(chunk));
+                requestManager.submit(merger.map(chunk), null);
                 repository.remove(new FilterByShardIds(chunk));
             }
         }

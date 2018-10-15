@@ -96,6 +96,7 @@ public class EmarsysTest {
     private Runnable mockPredictShardTrigger;
 
     private Application application;
+    private CompletionListener completionListener;
 
     private EmarsysConfig baseConfig;
     private EmarsysConfig userCentricInboxConfig;
@@ -108,6 +109,8 @@ public class EmarsysTest {
     @Before
     public void init() {
         application = spy((Application) InstrumentationRegistry.getTargetContext().getApplicationContext());
+
+        completionListener = mock(CompletionListener.class);
 
         mockCoreSdkHandler = mock(CoreSdkHandler.class);
         activityLifecycleWatchdog = mock(ActivityLifecycleWatchdog.class);
@@ -333,7 +336,16 @@ public class EmarsysTest {
 
         Emarsys.setCustomer(customerId);
 
-        verify(mockMobileEngageInternal).appLogin(customerId);
+        verify(mockMobileEngageInternal).appLogin(customerId, null);
+    }
+
+    @Test
+    public void testSetCustomer_completionListener_delegatesToMobileEngageInternal() {
+        String customerId = "customerId";
+
+        Emarsys.setCustomer(customerId, completionListener);
+
+        verify(mockMobileEngageInternal).appLogin(customerId, completionListener);
     }
 
     @Test
@@ -349,7 +361,14 @@ public class EmarsysTest {
     public void testClearCustomer_delegatesTo_mobileEngageInternal() {
         Emarsys.clearCustomer();
 
-        verify(mockMobileEngageInternal).appLogout();
+        verify(mockMobileEngageInternal).appLogout(null);
+    }
+
+    @Test
+    public void testClearCustomer_completionListener_delegatesTo_mobileEngageInternal() {
+        Emarsys.clearCustomer(completionListener);
+
+        verify(mockMobileEngageInternal).appLogout(completionListener);
     }
 
     @Test
@@ -376,7 +395,17 @@ public class EmarsysTest {
 
         Emarsys.trackDeepLink(mockActivity, mockIntent);
 
-        verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, mockIntent);
+        verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, mockIntent, null);
+    }
+
+    @Test
+    public void testTrackDeepLink_completionListener_delegatesTo_deepLinkInternal() {
+        Activity mockActivity = mock(Activity.class);
+        Intent mockIntent = mock(Intent.class);
+
+        Emarsys.trackDeepLink(mockActivity, mockIntent, completionListener);
+
+        verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, mockIntent, completionListener);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -391,7 +420,17 @@ public class EmarsysTest {
 
         Emarsys.trackCustomEvent(eventName, eventAttributes);
 
-        verify(mockMobileEngageInternal).trackCustomEvent(eventName, eventAttributes);
+        verify(mockMobileEngageInternal).trackCustomEvent(eventName, eventAttributes, null);
+    }
+
+    @Test
+    public void testTrackCustomEvent_completionListener_delegatesTo_mobileEngageInternal() {
+        String eventName = "eventName";
+        HashMap<String, String> eventAttributes = new HashMap<>();
+
+        Emarsys.trackCustomEvent(eventName, eventAttributes, completionListener);
+
+        verify(mockMobileEngageInternal).trackCustomEvent(eventName, eventAttributes, completionListener);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -405,7 +444,16 @@ public class EmarsysTest {
 
         Emarsys.Push.trackMessageOpen(intent);
 
-        verify(mockMobileEngageInternal).trackMessageOpen(intent);
+        verify(mockMobileEngageInternal).trackMessageOpen(intent, null);
+    }
+
+    @Test
+    public void testPush_trackMessageOpen_completionListener_delegatesTo_mobileEngageInternal() {
+        Intent intent = mock(Intent.class);
+
+        Emarsys.Push.trackMessageOpen(intent, completionListener);
+
+        verify(mockMobileEngageInternal).trackMessageOpen(intent, completionListener);
     }
 
     @Test(expected = IllegalArgumentException.class)

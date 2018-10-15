@@ -106,7 +106,7 @@ public class IamJsBridge {
             @Override
             public JSONObject execute(String property, JSONObject json) throws Exception {
                 Map<String, String> attributes = extractAttributes(json);
-                String eventId = mobileEngageInternal.trackCustomEvent(property, attributes);
+                String eventId = mobileEngageInternal.trackCustomEvent(property, attributes, null);
                 return new JSONObject().put("meEventId", eventId);
             }
         });
@@ -122,7 +122,7 @@ public class IamJsBridge {
                 Map<String, String> attributes = new HashMap<>();
                 attributes.put("message_id", campaignId);
                 attributes.put("button_id", property);
-                mobileEngageInternal.trackInternalCustomEvent(eventName, attributes);
+                mobileEngageInternal.trackInternalCustomEvent(eventName, attributes, null);
                 return null;
             }
         });

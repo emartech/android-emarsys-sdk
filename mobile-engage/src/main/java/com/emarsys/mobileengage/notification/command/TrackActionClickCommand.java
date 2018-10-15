@@ -28,7 +28,7 @@ public class TrackActionClickCommand implements Runnable {
             Map<String, String> payload = new HashMap<>();
             payload.put("button_id", buttonId);
             payload.put("title", title);
-            mobileEngageInternal.trackInternalCustomEvent("richNotification:actionClicked", payload);
+            mobileEngageInternal.trackInternalCustomEvent("richNotification:actionClicked", payload, null);
         }
     }
 

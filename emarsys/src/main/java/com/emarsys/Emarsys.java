@@ -50,57 +50,65 @@ public class Emarsys {
     }
 
     public static void setCustomer(@NonNull String customerId) {
-        Assert.notNull(customerId, "CustomerId must not be null!");
-
-        getMobileEngageInternal().appLogin(customerId);
-        getPredictInternal().setCustomer(customerId);
+        setCustomer(customerId, null);
     }
 
     public static void setCustomer(
             @NonNull String customerId,
-            @NonNull CompletionListener resultListener) {
+            @NonNull CompletionListener completionListener) {
+        Assert.notNull(customerId, "CustomerId must not be null!");
+
+        getMobileEngageInternal().appLogin(customerId, completionListener);
+        getPredictInternal().setCustomer(customerId);
     }
 
     public static void clearCustomer() {
-        getMobileEngageInternal().appLogout();
+        clearCustomer(null);
+    }
+
+    public static void clearCustomer(@NonNull CompletionListener completionListener) {
+        getMobileEngageInternal().appLogout(completionListener);
         getPredictInternal().clearCustomer();
     }
 
-    public static void clearCustomer(@NonNull CompletionListener resultListener) {
+    public static void trackDeepLink(@NonNull Activity activity, @NonNull Intent intent) {
+        trackDeepLink(activity, intent, null);
     }
 
-    public static void trackDeepLink(@NonNull Activity activity, @NonNull Intent intent) {
+    public static void trackDeepLink(@NonNull Activity activity, @NonNull Intent intent, CompletionListener completionListener) {
         Assert.notNull(activity, "Activity must not be null!");
         Assert.notNull(intent, "Intent must not be null!");
 
-        getDeepLinkInternal().trackDeepLinkOpen(activity, intent);
+        getDeepLinkInternal().trackDeepLinkOpen(activity, intent, completionListener);
     }
 
     public static void trackCustomEvent(
             @NonNull String eventName,
             @Nullable Map<String, String> eventAttributes) {
-        Assert.notNull(eventName, "EventName must not be null!");
-
-        getMobileEngageInternal().trackCustomEvent(eventName, eventAttributes);
+        trackCustomEvent(eventName, eventAttributes, null);
     }
 
     public static void trackCustomEvent(
             @NonNull String eventName,
             @Nullable Map<String, String> eventAttributes,
-            @NonNull CompletionListener resultListener) {
+            @NonNull CompletionListener completionListener) {
+        Assert.notNull(eventName, "EventName must not be null!");
+
+        getMobileEngageInternal().trackCustomEvent(eventName, eventAttributes, completionListener);
     }
 
     public static class Push {
 
         public static void trackMessageOpen(@NonNull Intent intent) {
-            Assert.notNull(intent, "Intent must not be null!");
-
-            getMobileEngageInternal().trackMessageOpen(intent);
+            trackMessageOpen(intent, null);
         }
 
         public static void trackMessageOpen(
                 @NonNull Intent intent,
-                @NonNull CompletionListener resultListener) {
+                @NonNull CompletionListener completionListener) {
+            Assert.notNull(intent, "Intent must not be null!");
+
+            getMobileEngageInternal().trackMessageOpen(intent, completionListener);
         }
 
         public static void setPushToken(@NonNull String pushToken) {

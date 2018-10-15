@@ -22,6 +22,7 @@ group = 'com.emarsys.predict'
 
 dependencies {
     implementation project(':core')
+    implementation project(':core-api')
     implementation project(':predict-api')
 
     androidTestImplementation project(':testUtils')

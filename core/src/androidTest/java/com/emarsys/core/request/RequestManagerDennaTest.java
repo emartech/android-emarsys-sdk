@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.Registry;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.connection.ConnectionWatchDog;
@@ -50,7 +51,7 @@ public class RequestManagerDennaTest {
     private Map<String, String> headers;
     private RequestModel model;
     private CountDownLatch latch;
-    private FakeCompletionHandler handler;
+    private FakeCompletionHandler fakeCompletionHandler;
     private CoreSdkHandlerProvider provider;
     private Handler coreSdkHandler;
     private Handler uiHandler;
@@ -79,12 +80,12 @@ public class RequestManagerDennaTest {
         Repository<ShardModel, SqlSpecification> shardRepository = new ShardModelRepository(coreDbHelper);
 
         latch = new CountDownLatch(1);
-        handler = new FakeCompletionHandler(latch);
+        fakeCompletionHandler = new FakeCompletionHandler(latch);
         RestClient restClient = new RestClient(mock(Repository.class), new ConnectionProvider(), mock(TimestampProvider.class));
-        worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, coreSdkHandler, handler, restClient);
+        worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, coreSdkHandler, fakeCompletionHandler, restClient);
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
-        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClient);
+        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClient, mock(Registry.class));
         headers = new HashMap<>();
         headers.put("accept", "application/json");
         headers.put("content", "application/x-www-form-urlencoded");
@@ -100,15 +101,15 @@ public class RequestManagerDennaTest {
     @Test
     public void testGet() throws Exception {
         model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO_URL).method(RequestMethod.GET).headers(headers).build();
-        manager.submit(model);
+        manager.submit(model, null);
         latch.await();
 
-        assertEquals(null, handler.getException());
-        assertEquals(0, handler.getOnErrorCount());
-        assertEquals(1, handler.getOnSuccessCount());
-        assertEquals(200, handler.getSuccessResponseModel().getStatusCode());
+        assertEquals(null, fakeCompletionHandler.getException());
+        assertEquals(0, fakeCompletionHandler.getOnErrorCount());
+        assertEquals(1, fakeCompletionHandler.getOnSuccessCount());
+        assertEquals(200, fakeCompletionHandler.getSuccessResponseModel().getStatusCode());
 
-        JSONObject responseJson = new JSONObject(handler.getSuccessResponseModel().getBody());
+        JSONObject responseJson = new JSONObject(fakeCompletionHandler.getSuccessResponseModel().getBody());
         JSONObject headers = (JSONObject) responseJson.get("headers");
 
         assertEquals("value1", headers.get("Header1"));
@@ -133,15 +134,15 @@ public class RequestManagerDennaTest {
         payload.put("deepKey", deepPayload);
 
         model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO_URL).method(RequestMethod.POST).headers(headers).payload(payload).build();
-        manager.submit(model);
+        manager.submit(model, null);
         latch.await();
 
-        assertEquals(null, handler.getException());
-        assertEquals(0, handler.getOnErrorCount());
-        assertEquals(1, handler.getOnSuccessCount());
-        assertEquals(200, handler.getSuccessResponseModel().getStatusCode());
+        assertEquals(null, fakeCompletionHandler.getException());
+        assertEquals(0, fakeCompletionHandler.getOnErrorCount());
+        assertEquals(1, fakeCompletionHandler.getOnSuccessCount());
+        assertEquals(200, fakeCompletionHandler.getSuccessResponseModel().getStatusCode());
 
-        JSONObject responseJson = new JSONObject(handler.getSuccessResponseModel().getBody());
+        JSONObject responseJson = new JSONObject(fakeCompletionHandler.getSuccessResponseModel().getBody());
         JSONObject headers = responseJson.getJSONObject("headers");
         JSONObject body = responseJson.getJSONObject("body");
 
@@ -163,15 +164,15 @@ public class RequestManagerDennaTest {
     @Test
     public void testDelete() throws Exception {
         model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO_URL).method(RequestMethod.DELETE).headers(headers).build();
-        manager.submit(model);
+        manager.submit(model, null);
         latch.await();
 
-        assertEquals(null, handler.getException());
-        assertEquals(0, handler.getOnErrorCount());
-        assertEquals(1, handler.getOnSuccessCount());
-        assertEquals(200, handler.getSuccessResponseModel().getStatusCode());
+        assertEquals(null, fakeCompletionHandler.getException());
+        assertEquals(0, fakeCompletionHandler.getOnErrorCount());
+        assertEquals(1, fakeCompletionHandler.getOnSuccessCount());
+        assertEquals(200, fakeCompletionHandler.getSuccessResponseModel().getStatusCode());
 
-        JSONObject responseJson = new JSONObject(handler.getSuccessResponseModel().getBody());
+        JSONObject responseJson = new JSONObject(fakeCompletionHandler.getSuccessResponseModel().getBody());
         JSONObject headers = responseJson.getJSONObject("headers");
 
         assertEquals("value1", headers.get("Header1"));

@@ -9,6 +9,7 @@ import android.support.test.filters.SdkSuppress;
 import android.support.test.rule.ActivityTestRule;
 import android.webkit.WebView;
 
+import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
@@ -42,6 +43,7 @@ import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -227,7 +229,7 @@ public class IamJsBridgeTest {
 
         jsBridge.triggerMEEvent(json.toString());
 
-        verify(mobileEngageInternal, Mockito.timeout(1000)).trackCustomEvent("eventName", eventAttributes);
+        verify(mobileEngageInternal, Mockito.timeout(1000)).trackCustomEvent("eventName", eventAttributes, null);
     }
 
     @Test
@@ -239,14 +241,17 @@ public class IamJsBridgeTest {
 
         jsBridge.triggerMEEvent(json.toString());
 
-        verify(mobileEngageInternal, Mockito.timeout(1000)).trackCustomEvent("eventName", null);
+        verify(mobileEngageInternal, Mockito.timeout(1000)).trackCustomEvent("eventName", null, null);
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testTriggerMeEvent_shouldCallMobileEngageInternal_onCoreSDKThread() throws JSONException, InterruptedException {
         ThreadSpy threadSpy = new ThreadSpy();
-        doAnswer(threadSpy).when(mobileEngageInternal).trackCustomEvent(any(String.class), nullable(Map.class));
+        doAnswer(threadSpy).when(mobileEngageInternal).trackCustomEvent(
+                any(String.class),
+                nullable(Map.class),
+                (CompletionListener)isNull());
 
         String id = "12346789";
         String eventName = "eventName";
@@ -279,7 +284,10 @@ public class IamJsBridgeTest {
         JSONObject json = new JSONObject().put("id", id).put("name", "value");
 
         String requestId = "eventId";
-        when(mobileEngageInternal.trackCustomEvent(any(String.class), nullable(Map.class))).thenReturn(requestId);
+        when(mobileEngageInternal.trackCustomEvent(
+                any(String.class),
+                nullable(Map.class),
+                (CompletionListener)isNull())).thenReturn(requestId);
 
         jsBridge.triggerMEEvent(json.toString());
 
@@ -391,7 +399,7 @@ public class IamJsBridgeTest {
 
         jsBridge.buttonClicked(json.toString());
 
-        verify(mobileEngageInternal, Mockito.timeout(1000)).trackInternalCustomEvent("inapp:click", attributes);
+        verify(mobileEngageInternal, Mockito.timeout(1000)).trackInternalCustomEvent("inapp:click", attributes, null);
     }
 
     @Test

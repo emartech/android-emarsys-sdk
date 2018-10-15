@@ -32,7 +32,7 @@ public class SendDisplayedIamAction implements OnDialogShownAction {
                 attributes.put("message_id", campaignId);
 
                 String eventName = "inapp:viewed";
-                mobileEngageInternal.trackInternalCustomEvent(eventName, attributes);
+                mobileEngageInternal.trackInternalCustomEvent(eventName, attributes, null);
             }
         });
     }

@@ -5,6 +5,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.Registry;
+import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.connection.ConnectionWatchDog;
@@ -63,6 +65,7 @@ public class RequestManagerTest {
     private TimestampProvider timestampProvider;
     private UUIDProvider uuidProvider;
     private RestClient restClientMock;
+    private Registry<RequestModel, CompletionListener> callbackRegistry;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -87,12 +90,14 @@ public class RequestManagerTest {
 
         shardRepository = mock(Repository.class);
 
+        callbackRegistry = mock(Registry.class);
+
         completionHandlerLatch = new CountDownLatch(1);
         handler = new FakeCompletionHandler(completionHandlerLatch);
         RestClient restClient = new RestClient(mock(Repository.class), new ConnectionProvider(), mock(TimestampProvider.class));
         restClientMock = mock(RestClient.class);
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, coreSdkHandler, handler, restClient);
-        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClientMock);
+        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClientMock, callbackRegistry);
 
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
@@ -124,27 +129,32 @@ public class RequestManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_coreSdkHandlerShouldNotBeNull() {
-        new RequestManager(null, requestRepository, shardRepository, worker, restClientMock);
+        new RequestManager(null, requestRepository, shardRepository, worker, restClientMock, callbackRegistry);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestRepositoryShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, null, shardRepository, worker, restClientMock);
+        new RequestManager(coreSdkHandler, null, shardRepository, worker, restClientMock, callbackRegistry);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_shardRepositoryShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, null, worker, restClientMock);
+        new RequestManager(coreSdkHandler, requestRepository, null, worker, restClientMock, callbackRegistry);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_workerShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, shardRepository, null, restClientMock);
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, null, restClientMock, callbackRegistry);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_restClientShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, null);
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, null, callbackRegistry);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_registryShouldNotBeNull() {
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClientMock, null);
     }
 
     @Test
@@ -194,7 +204,7 @@ public class RequestManagerTest {
     @Test
     public void testSubmit_withRequestModel_shouldCallInjectDefaultHeaders() throws InterruptedException {
         RequestManager managerSpy = spy(manager);
-        managerSpy.submit(requestModel);
+        managerSpy.submit(requestModel, null);
 
         runnableFactoryLatch.await();
 
@@ -203,7 +213,7 @@ public class RequestManagerTest {
 
     @Test
     public void testSubmit_shouldAddRequestModelToQueue() throws InterruptedException {
-        manager.submit(requestModel);
+        manager.submit(requestModel, null);
 
         runnableFactoryLatch.await();
 
@@ -215,7 +225,7 @@ public class RequestManagerTest {
         Worker worker = mock(Worker.class);
         manager.worker = worker;
 
-        manager.submit(requestModel);
+        manager.submit(requestModel, null);
 
         runnableFactoryLatch.await();
 
@@ -235,7 +245,7 @@ public class RequestManagerTest {
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
         manager.setDefaultHeaders(defaultHeaders);
-        manager.submit(requestModel);
+        manager.submit(requestModel, null);
 
         runnableFactoryLatch.await();
 
@@ -250,7 +260,7 @@ public class RequestManagerTest {
         FakeRunnableFactory fakeRunnableFactory = new FakeRunnableFactory(runnableFactoryLatch, true);
         manager.runnableFactory = fakeRunnableFactory;
 
-        manager.submit(requestModel);
+        manager.submit(requestModel, null);
 
         runnableFactoryLatch.await();
 
@@ -260,7 +270,7 @@ public class RequestManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSubmit_requestModelShouldNotBeNull() {
-        manager.submit((RequestModel) null);
+        manager.submit((RequestModel) null, null);
     }
 
 
@@ -274,12 +284,30 @@ public class RequestManagerTest {
                 Collections.<RequestModel>emptyList()
         );
 
-        manager.submit(requestModel);
+        manager.submit(requestModel, null);
 
         completionHandlerLatch.await();
         assertEquals(requestModel.getId(), handler.getSuccessId());
         assertEquals(1, handler.getOnSuccessCount());
         assertEquals(0, handler.getOnErrorCount());
+    }
+
+    @Test
+    public void testSubmit_withRequestModel_shouldRegisterCallbackToRegistry() throws InterruptedException{
+        CompletionListener completionListener = mock(CompletionListener.class);
+
+        manager.submit(requestModel, completionListener);
+        runnableFactoryLatch.await();
+
+        verify(callbackRegistry).register(requestModel, completionListener);
+    }
+
+    @Test
+    public void testSubmit_withRequestModel_shouldRegister_null_ToRegistryAsWell() throws InterruptedException{
+        manager.submit(requestModel, null);
+        runnableFactoryLatch.await();
+
+        verify(callbackRegistry).register(requestModel, null);
     }
 
     @Test
@@ -301,7 +329,7 @@ public class RequestManagerTest {
                 Collections.<RequestModel>emptyList()
         );
 
-        manager.submit(requestModel);
+        manager.submit(requestModel, null);
 
         completionHandlerLatch.await();
 
@@ -323,7 +351,7 @@ public class RequestManagerTest {
                 Collections.<RequestModel>emptyList()
         );
 
-        manager.submit(requestModel);
+        manager.submit(requestModel, null);
 
         completionHandlerLatch.await();
 

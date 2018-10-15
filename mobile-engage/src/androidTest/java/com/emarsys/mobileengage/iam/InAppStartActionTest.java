@@ -56,7 +56,7 @@ public class InAppStartActionTest {
     public void testExecute_callsMobileEngageInternal() {
         startAction.execute(null);
 
-        verify(mobileEngageInternal).trackInternalCustomEvent("app:start", null);
+        verify(mobileEngageInternal).trackInternalCustomEvent("app:start", null, null);
     }
 
 }

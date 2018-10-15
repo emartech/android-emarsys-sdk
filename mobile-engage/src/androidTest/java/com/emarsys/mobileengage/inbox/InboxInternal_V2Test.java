@@ -51,6 +51,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -739,7 +740,7 @@ public class InboxInternal_V2Test {
 
         inbox.trackNotificationOpen(notification, null);
 
-        verify(manager).submit(captor.capture());
+        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
 
         RequestModelTestUtils.assertEqualsRequestModels(expected, captor.getValue());
     }

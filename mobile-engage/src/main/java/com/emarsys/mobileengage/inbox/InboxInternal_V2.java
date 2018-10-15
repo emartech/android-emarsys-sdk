@@ -5,6 +5,7 @@ import android.os.Looper;
 import android.text.TextUtils;
 
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
 import com.emarsys.core.api.result.Try;
@@ -16,7 +17,6 @@ import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.endpoint.Endpoint;
@@ -214,7 +214,7 @@ public class InboxInternal_V2 implements InboxInternal {
                     "inbox:open",
                     attributes,
                     requestContext);
-            manager.submit(requestModel);
+            manager.submit(requestModel, null);
         } else {
             if (resultListener != null) {
                 mainHandler.post(new Runnable() {

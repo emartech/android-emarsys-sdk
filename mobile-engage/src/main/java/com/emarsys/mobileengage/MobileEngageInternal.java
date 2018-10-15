@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import com.emarsys.core.DefaultCoreCompletionHandler;
+import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
@@ -78,29 +79,26 @@ public class MobileEngageInternal {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Argument: %s", pushToken);
         this.pushToken = pushToken;
         if (requestContext.getAppLoginParameters() != null) {
-            sendAppLogin();
+            sendAppLogin(null);
         }
     }
 
-
-    public String appLogin(String contactFieldValue) {
-        return appLogin(requestContext.getContactFieldId(), contactFieldValue);
+    public String appLogin(String contactFieldValue, CompletionListener completionListener) {
+        requestContext.setAppLoginParameters(new AppLoginParameters(requestContext.getContactFieldId(), contactFieldValue));
+        return sendAppLogin(completionListener);
     }
-
 
     public String appLogin(int contactFieldId, String contactFieldValue) {
         requestContext.setAppLoginParameters(new AppLoginParameters(contactFieldId, contactFieldValue));
-        return sendAppLogin();
+        return sendAppLogin(null);
     }
-
 
     public String appLogin() {
         requestContext.setAppLoginParameters(new AppLoginParameters());
-        return sendAppLogin();
+        return sendAppLogin(null);
     }
 
-
-    String sendAppLogin() {
+    String sendAppLogin(CompletionListener completionListener) {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Called");
 
         RequestModel model = RequestModelUtils.createAppLogin_V2(
@@ -116,12 +114,11 @@ public class MobileEngageInternal {
             requestContext.getAppLoginStorage().set(currentHashCode);
         }
 
-        manager.submit(model);
+        manager.submit(model, completionListener);
         return model.getId();
     }
 
-
-    public String appLogout() {
+    public String appLogout(CompletionListener completionListener) {
         requestContext.setAppLoginParameters(null);
 
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Called");
@@ -132,23 +129,21 @@ public class MobileEngageInternal {
                 .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
-        manager.submit(model);
+        manager.submit(model, completionListener);
         requestContext.getMeIdStorage().remove();
         requestContext.getAppLoginStorage().remove();
         return model.getId();
     }
 
-
-    public String trackCustomEvent(String eventName, Map<String, String> eventAttributes) {
+    public String trackCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
         if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
-            return trackCustomEvent_V3(eventName, eventAttributes);
+            return trackCustomEvent_V3(eventName, eventAttributes, completionListener);
         } else {
-            return trackCustomEvent_V2(eventName, eventAttributes);
+            return trackCustomEvent_V2(eventName, eventAttributes, completionListener);
         }
     }
 
-
-    String trackCustomEvent_V2(String eventName, Map<String, String> eventAttributes) {
+    private String trackCustomEvent_V2(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Arguments: eventName %s, eventAttributes %s", eventName, eventAttributes);
 
         Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
@@ -161,12 +156,11 @@ public class MobileEngageInternal {
                 .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
-        manager.submit(model);
+        manager.submit(model, completionListener);
         return model.getId();
     }
 
-
-    String trackCustomEvent_V3(String eventName, Map<String, String> eventAttributes) {
+    private String trackCustomEvent_V3(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Arguments: eventName %s, eventAttributes %s", eventName, eventAttributes);
 
         Map<String, Object> event = new HashMap<>();
@@ -188,12 +182,14 @@ public class MobileEngageInternal {
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .build();
 
-        manager.submit(model);
+        manager.submit(model, completionListener);
         return model.getId();
     }
 
-
-    public String trackInternalCustomEvent(String eventName, Map<String, String> eventAttributes) {
+    public String trackInternalCustomEvent(
+            String eventName,
+            Map<String, String> eventAttributes,
+            CompletionListener completionListener) {
         Assert.notNull(eventName, "EventName must not be null!");
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Arguments: eventName %s, eventAttributes %s", eventName, eventAttributes);
 
@@ -203,22 +199,21 @@ public class MobileEngageInternal {
                     eventAttributes,
                     requestContext);
 
-            manager.submit(model);
+            manager.submit(model, completionListener);
             return model.getId();
         } else {
             return requestContext.getUUIDProvider().provideId();
         }
     }
 
-
-    public String trackMessageOpen(Intent intent) {
+    public String trackMessageOpen(Intent intent, CompletionListener completionListener) {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Argument: %s", intent);
         Assert.notNull(intent, "Intent must not be null!");
 
         String messageId = getMessageId(intent);
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "MessageId %s", messageId);
 
-        return handleMessageOpen(messageId);
+        return handleMessageOpen(messageId, completionListener);
     }
 
     String getMessageId(Intent intent) {
@@ -235,12 +230,12 @@ public class MobileEngageInternal {
     }
 
 
-    private String handleMessageOpen(String messageId) {
+    private String handleMessageOpen(String messageId, CompletionListener completionListener) {
         if (messageId != null) {
             if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
-                return handleMessageOpen_V3(messageId);
+                return handleMessageOpen_V3(messageId, completionListener);
             } else {
-                return handleMessageOpen_V2(messageId);
+                return handleMessageOpen_V2(messageId, completionListener);
             }
         } else {
             final String uuid = requestContext.getUUIDProvider().provideId();
@@ -254,7 +249,7 @@ public class MobileEngageInternal {
         }
     }
 
-    private String handleMessageOpen_V2(String messageId) {
+    private String handleMessageOpen_V2(String messageId, CompletionListener completionListener) {
         Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
         payload.put("sid", messageId);
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
@@ -263,14 +258,14 @@ public class MobileEngageInternal {
                 .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
-        manager.submit(model);
+        manager.submit(model, completionListener);
         return model.getId();
     }
 
-    private String handleMessageOpen_V3(String messageId) {
+    private String handleMessageOpen_V3(String messageId, CompletionListener completionListener) {
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put("sid", messageId);
-        return trackInternalCustomEvent("message_open", attributes);
+        return trackInternalCustomEvent("message_open", attributes, completionListener);
     }
 
     private boolean shouldDoAppLogin(Integer storedHashCode, int currentHashCode, MeIdStorage meIdStorage) {

@@ -51,6 +51,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static com.emarsys.mobileengage.fake.FakeInboxResultListener.Mode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -627,7 +628,7 @@ public class InboxInternal_V1Test {
 
         inbox.trackNotificationOpen(message, null);
 
-        verify(manager).submit(captor.capture());
+        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
 
         RequestModel result = captor.getValue();
         Assert.assertEquals(expected.getUrl(), result.getUrl());
@@ -643,7 +644,7 @@ public class InboxInternal_V1Test {
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
         inbox.trackNotificationOpen(mock(Notification.class), null);
-        verify(manager).submit(captor.capture());
+        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
 
         Map<String, Object> payload = captor.getValue().getPayload();
         Assert.assertEquals(payload.get("contact_field_id"), contactFieldId);

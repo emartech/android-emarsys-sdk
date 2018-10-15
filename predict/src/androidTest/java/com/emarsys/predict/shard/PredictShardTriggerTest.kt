@@ -60,9 +60,9 @@ class PredictShardTriggerTest {
         trigger.run()
 
         Mockito.inOrder(manager).run {
-            verify(manager).submit(requestModel1)
-            verify(manager).submit(requestModel2)
-            verify(manager).submit(requestModel3)
+            verify(manager).submit(requestModel1, null)
+            verify(manager).submit(requestModel2, null)
+            verify(manager).submit(requestModel3, null)
             verifyNoMoreInteractions(manager)
         }
     }
@@ -77,11 +77,11 @@ class PredictShardTriggerTest {
 
         Mockito.inOrder(manager, repository).run {
             this.verify(repository).query(FilterByShardType("predict_%"))
-            this.verify(manager, Mockito.timeout(50)).submit(requestModel1)
+            this.verify(manager, Mockito.timeout(50)).submit(requestModel1, null)
             this.verify(repository).remove(FilterByShardIds(listOf(shard1)))
-            this.verify(manager, Mockito.timeout(50)).submit(requestModel2)
+            this.verify(manager, Mockito.timeout(50)).submit(requestModel2, null)
             this.verify(repository).remove(FilterByShardIds(listOf(shard2)))
-            this.verify(manager, Mockito.timeout(50)).submit(requestModel3)
+            this.verify(manager, Mockito.timeout(50)).submit(requestModel3, null)
             this.verify(repository).remove(FilterByShardIds(listOf(shard3)))
             this.verifyNoMoreInteractions()
         }

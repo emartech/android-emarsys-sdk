@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 
+import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
@@ -30,7 +31,7 @@ public class DeepLinkInternal {
         this.requestContext = requestContext;
     }
 
-    public void trackDeepLinkOpen(Activity activity, Intent intent) {
+    public void trackDeepLinkOpen(Activity activity, Intent intent, CompletionListener completionListener) {
         Uri uri = intent.getData();
         Intent intentFromActivity = activity.getIntent();
         boolean isLinkTracked = intentFromActivity.getBooleanExtra(EMS_DEEP_LINK_TRACKED_KEY, false);
@@ -50,7 +51,7 @@ public class DeepLinkInternal {
                         .build();
 
                 intentFromActivity.putExtra(EMS_DEEP_LINK_TRACKED_KEY, true);
-                manager.submit(model);
+                manager.submit(model, completionListener);
             }
         }
     }

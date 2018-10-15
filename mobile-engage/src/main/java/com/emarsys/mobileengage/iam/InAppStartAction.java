@@ -17,6 +17,6 @@ public class InAppStartAction implements ActivityLifecycleAction {
 
     @Override
     public void execute(Activity activity) {
-        mobileEngageInternal.trackInternalCustomEvent("app:start", null);
+        mobileEngageInternal.trackInternalCustomEvent("app:start", null, null);
     }
 }

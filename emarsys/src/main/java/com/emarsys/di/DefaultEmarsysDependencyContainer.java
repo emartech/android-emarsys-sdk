@@ -250,7 +250,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 requestModelRepository,
                 shardModelRepository,
                 worker,
-                restClient);
+                restClient,
+                completionHandler);
 
         requestContext = new RequestContext(
                 config.getApplicationCode(),

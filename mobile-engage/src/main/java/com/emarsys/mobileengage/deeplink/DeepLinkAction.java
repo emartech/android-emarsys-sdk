@@ -17,7 +17,7 @@ public class DeepLinkAction implements ActivityLifecycleAction {
     @Override
     public void execute(Activity activity) {
         if (activity != null && activity.getIntent() != null) {
-            deepLinkInternal.trackDeepLinkOpen(activity, activity.getIntent());
+            deepLinkInternal.trackDeepLinkOpen(activity, activity.getIntent(), null);
         }
     }
 

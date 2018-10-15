@@ -111,26 +111,26 @@ public class MobileEngage {
 
     @NonNull
     public static String appLogout() {
-        return instance.appLogout();
+        return instance.appLogout(null);
     }
 
     @NonNull
     public static String trackCustomEvent(@NonNull String eventName, @Nullable Map<String, String> eventAttributes) {
         Assert.notNull(eventName, "EventName must not be null!");
-        return instance.trackCustomEvent(eventName, eventAttributes);
+        return instance.trackCustomEvent(eventName, eventAttributes, null);
     }
 
     @NonNull
     public static String trackMessageOpen(@NonNull Intent intent) {
         Assert.notNull(intent, "Intent must not be null!");
-        return instance.trackMessageOpen(intent);
+        return instance.trackMessageOpen(intent, null);
     }
 
     public static void trackDeepLink(@NonNull Activity activity, @NonNull Intent intent) {
         Assert.notNull(activity, "Activity must not be null!");
         Assert.notNull(activity.getIntent(), "Intent from Activity must not be null!");
         Assert.notNull(intent, "Intent must not be null!");
-        deepLinkInstance.trackDeepLinkOpen(activity, intent);
+        deepLinkInstance.trackDeepLinkOpen(activity, intent, null);
     }
 
     private static void initializeFields() {

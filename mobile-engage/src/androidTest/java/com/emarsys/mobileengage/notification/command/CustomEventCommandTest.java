@@ -54,7 +54,7 @@ public class CustomEventCommandTest {
         Runnable customEventCommand = new CustomEventCommand(EVENT_NAME, eventAttributes);
         customEventCommand.run();
 
-        verify(mock).trackCustomEvent(EVENT_NAME, eventAttributes);
+        verify(mock).trackCustomEvent(EVENT_NAME, eventAttributes, null);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class CustomEventCommandTest {
         Runnable customEventCommand = new CustomEventCommand(EVENT_NAME, null);
         customEventCommand.run();
 
-        verify(mock).trackCustomEvent(EVENT_NAME, null);
+        verify(mock).trackCustomEvent(EVENT_NAME, null, null);
     }
 
 }
