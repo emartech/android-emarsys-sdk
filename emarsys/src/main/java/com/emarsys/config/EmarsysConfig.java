@@ -46,7 +46,7 @@ public class EmarsysConfig {
         Assert.elementsNotNull(experimentalFeatures, "ExperimentalFeatures must not contain null elements!");
 
         if (Arrays.asList(experimentalFeatures).contains(MobileEngageFeature.IN_APP_MESSAGING)) {
-            Assert.notNull(inAppEventHandler, "DefaultInAppMessageHandler must not be null");
+            Assert.notNull(inAppEventHandler, "InAppMessageHandler must not be null");
         }
 
         this.application = application;

@@ -3,9 +3,9 @@ package com.emarsys.config;
 import android.app.Application;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
-import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.config.OreoConfig;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -13,7 +13,6 @@ import com.emarsys.testUtil.TimeoutUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 
 import static org.junit.Assert.assertEquals;
@@ -33,9 +32,6 @@ public class EmarsysConfigTest {
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void init() {
@@ -254,11 +250,8 @@ public class EmarsysConfigTest {
         assertEquals(expected, result);
     }
 
-    @Test
-    public void testBuilder_whenInAppMessagingFlipperIsOn_DefaultInAppMessageHandlerIsRequired() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("DefaultInAppMessageHandler must not be null");
-
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuilder_whenInAppMessagingFlipperIsOn_defaultInAppMessageHandlerIsRequired() {
         new EmarsysConfig.Builder()
                 .application(application)
                 .mobileEngageCredentials(APP_ID, APP_PASSWORD)
@@ -270,7 +263,7 @@ public class EmarsysConfigTest {
     }
 
     @Test
-    public void testBuilder_whenInAppMessagingFlipperIsOff_DefaultInAppMessageHandlerIsNotRequired() {
+    public void testBuilder_whenInAppMessagingFlipperIsOff_defaultInAppMessageHandlerIsNotRequired() {
         try {
             new EmarsysConfig.Builder()
                     .application(application)

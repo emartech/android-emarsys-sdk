@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.emarsys">
 
-    <application android:name="android.support.multidex.MultiDexApplication" />
+    <application android:name="android.support.multidex.MultiDexApplication" >
+        <activity android:name=".testUtil.fake.FakeActivity"/>
+    </application>
 
 </manifest>

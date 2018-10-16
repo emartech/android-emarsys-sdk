@@ -16,10 +16,9 @@ import android.support.v4.content.ContextCompat;
 
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.resource.MetaDataReader;
-import com.emarsys.mobileengage.config.OreoConfig;
-import com.emarsys.mobileengage.experimental.MobileEngageExperimentalFeatures;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.api.inbox.Notification;
+import com.emarsys.mobileengage.config.OreoConfig;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.ReflectionTestUtils;

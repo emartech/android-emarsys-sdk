@@ -13,10 +13,10 @@ import android.webkit.WebView;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
-import com.emarsys.mobileengage.fake.FakeActivity;
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.testUtil.TimeoutUtils;
+import com.emarsys.testUtil.fake.FakeActivity;
 
 import org.junit.After;
 import org.junit.Before;

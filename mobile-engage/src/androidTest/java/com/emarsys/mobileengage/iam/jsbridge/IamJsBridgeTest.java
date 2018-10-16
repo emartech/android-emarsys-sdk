@@ -16,11 +16,11 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.Gettable;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
-import com.emarsys.mobileengage.fake.FakeActivity;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.testUtil.TimeoutUtils;
+import com.emarsys.testUtil.fake.FakeActivity;
 import com.emarsys.testUtil.mockito.ThreadSpy;
 
 import org.json.JSONException;
