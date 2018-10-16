@@ -105,17 +105,17 @@ public class InboxInternal_V1 implements InboxInternal {
     }
 
     @Override
-    public void resetBadgeCount(final CompletionListener resultListener) {
-        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", resultListener);
+    public void resetBadgeCount(final CompletionListener completionListener) {
+        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", completionListener);
 
         if (requestContext.getAppLoginParameters() != null && requestContext.getAppLoginParameters().hasCredentials()) {
-            handleResetRequest(resultListener);
+            handleResetRequest(completionListener);
         } else {
-            if (resultListener != null) {
+            if (completionListener != null) {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        resultListener.onCompleted(new NotificationInboxException("AppLogin must be called before calling fetchNotifications!"));
+                        completionListener.onCompleted(new NotificationInboxException("AppLogin must be called before calling fetchNotifications!"));
                     }
                 });
             }
@@ -123,7 +123,7 @@ public class InboxInternal_V1 implements InboxInternal {
     }
 
     @Override
-    public void trackNotificationOpen(Notification notification, CompletionListener resultListener) {
+    public void trackNotificationOpen(Notification notification, CompletionListener completionListener) {
         EMSLogger.log(MobileEngageTopic.INBOX, "Argument: %s", notification);
         Assert.notNull(notification, "Notification must not be null!");
 
@@ -136,7 +136,7 @@ public class InboxInternal_V1 implements InboxInternal {
                 .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
                 .build();
 
-        manager.submit(model, null);
+        manager.submit(model, completionListener);
     }
 
     @Override

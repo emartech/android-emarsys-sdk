@@ -9,9 +9,9 @@ import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 public interface InboxInternal {
     void fetchNotifications(ResultListener<Try<NotificationInboxStatus>> resultListener);
 
-    void resetBadgeCount(CompletionListener resultListener);
+    void resetBadgeCount(CompletionListener completionListener);
 
-    void trackNotificationOpen(Notification notification, CompletionListener resultListener);
+    void trackNotificationOpen(Notification notification, CompletionListener completionListener);
 
     void purgeNotificationCache();
 }

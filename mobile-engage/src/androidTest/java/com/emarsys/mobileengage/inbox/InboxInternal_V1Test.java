@@ -51,6 +51,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static com.emarsys.mobileengage.fake.FakeInboxResultListener.Mode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -634,6 +635,25 @@ public class InboxInternal_V1Test {
         Assert.assertEquals(expected.getUrl(), result.getUrl());
         Assert.assertEquals(expected.getMethod(), result.getMethod());
         Assert.assertEquals(expected.getPayload(), result.getPayload());
+    }
+
+    @Test
+    public void testTrackNotificationOpen_requestManagerCalledWithCorrectCompletionListener() {
+        Notification message = new Notification(
+                "id1",
+                "sid1",
+                "title",
+                null,
+                new HashMap<String, String>(),
+                new JSONObject(),
+                7200,
+                new Date().getTime());
+
+        CompletionListener completionListener = mock(CompletionListener.class);
+
+        inbox.trackNotificationOpen(message, completionListener);
+
+        verify(manager).submit(any(RequestModel.class), eq(completionListener));
     }
 
     @Test

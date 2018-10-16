@@ -51,6 +51,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -740,13 +741,22 @@ public class InboxInternal_V2Test {
 
         inbox.trackNotificationOpen(notification, null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModelTestUtils.assertEqualsRequestModels(expected, captor.getValue());
     }
 
     @Test
-    public void testTrackNotificationOpen_withMissing_id() throws InterruptedException {
+    public void testTrackNotificationOpen_requestManagerCalled_withCorrectCompletionListener() {
+        CompletionListener completionListener = mock(CompletionListener.class);
+
+        inbox.trackNotificationOpen(notification, completionListener);
+
+        verify(manager).submit(any(RequestModel.class), eq(completionListener));
+    }
+
+    @Test
+    public void testTrackNotificationOpen_withMissing_id() {
         Notification notification = new Notification(
                 null,
                 "sid",
@@ -768,7 +778,7 @@ public class InboxInternal_V2Test {
     }
 
     @Test
-    public void testTrackNotificationOpen_withMissing_sid() throws InterruptedException {
+    public void testTrackNotificationOpen_withMissing_sid() {
         Notification notification = new Notification(
                 "id",
                 null,

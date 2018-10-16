@@ -145,8 +145,8 @@ public class InboxInternal_V2 implements InboxInternal {
     }
 
     @Override
-    public void resetBadgeCount(final CompletionListener resultListener) {
-        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", resultListener);
+    public void resetBadgeCount(final CompletionListener completionListener) {
+        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", completionListener);
 
         String meId = requestContext.getMeIdStorage().get();
         if (meId != null) {
@@ -163,16 +163,16 @@ public class InboxInternal_V2 implements InboxInternal {
                     if (lastNotificationInboxStatus != null) {
                         lastNotificationInboxStatus = new NotificationInboxStatus(lastNotificationInboxStatus.getNotifications(), 0);
                     }
-                    if (resultListener != null) {
-                        resultListener.onCompleted(null);
+                    if (completionListener != null) {
+                        completionListener.onCompleted(null);
                     }
                 }
 
                 @Override
                 public void onError(String id, ResponseModel responseModel) {
                     EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
-                    if (resultListener != null) {
-                        resultListener.onCompleted(new ResponseErrorException(
+                    if (completionListener != null) {
+                        completionListener.onCompleted(new ResponseErrorException(
                                 responseModel.getStatusCode(),
                                 responseModel.getMessage(),
                                 responseModel.getBody()));
@@ -182,17 +182,17 @@ public class InboxInternal_V2 implements InboxInternal {
                 @Override
                 public void onError(String id, Exception cause) {
                     EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, cause %s", id, cause);
-                    if (resultListener != null) {
-                        resultListener.onCompleted(cause);
+                    if (completionListener != null) {
+                        completionListener.onCompleted(cause);
                     }
                 }
             });
         } else {
-            if (resultListener != null) {
+            if (completionListener != null) {
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        resultListener.onCompleted(new NotificationInboxException("AppLogin must be called before calling fetchNotifications!"));
+                        completionListener.onCompleted(new NotificationInboxException("AppLogin must be called before calling fetchNotifications!"));
                     }
                 });
             }
@@ -200,7 +200,7 @@ public class InboxInternal_V2 implements InboxInternal {
     }
 
     @Override
-    public void trackNotificationOpen(Notification notification, final CompletionListener resultListener) {
+    public void trackNotificationOpen(Notification notification, final CompletionListener completionListener) {
         EMSLogger.log(MobileEngageTopic.INBOX, "Argument: %s", notification);
         Assert.notNull(notification, "Notification must not be null!");
 
@@ -214,13 +214,13 @@ public class InboxInternal_V2 implements InboxInternal {
                     "inbox:open",
                     attributes,
                     requestContext);
-            manager.submit(requestModel, null);
+            manager.submit(requestModel, completionListener);
         } else {
-            if (resultListener != null) {
+            if (completionListener != null) {
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        resultListener.onCompleted(exception);
+                        completionListener.onCompleted(exception);
                     }
                 });
             }
