@@ -26,7 +26,7 @@ import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestReposito
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternal_V1;
 import com.emarsys.mobileengage.inbox.InboxInternal_V2;
-import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
+import com.emarsys.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.CollectionTestUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.ReflectionTestUtils;

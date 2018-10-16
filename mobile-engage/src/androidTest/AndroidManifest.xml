@@ -6,7 +6,7 @@
     <application
         android:name="android.support.multidex.MultiDexApplication"
         android:label="emarsys-mobile-engage-android-test">
-        <activity android:name=".fake.FakeActivity" />
+        <activity android:name="com.emarsys.testUtil.fake.FakeActivity" />
     </application>
 
 </manifest>

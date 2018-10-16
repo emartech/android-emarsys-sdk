@@ -15,7 +15,7 @@ import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.testUtil.ExperimentalTestUtils;
+import com.emarsys.testUtil.ExperimentalTestUtils;
 import com.emarsys.mobileengage.testUtil.RequestModelTestUtils;
 import com.emarsys.mobileengage.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
