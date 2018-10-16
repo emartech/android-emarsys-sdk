@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
@@ -28,6 +29,7 @@ import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestModelUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
 import com.emarsys.testUtil.TimeoutUtils;
+import com.emarsys.testUtil.mockito.ThreadSpy;
 
 import org.junit.After;
 import org.junit.Before;
@@ -36,6 +38,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,6 +53,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -81,7 +85,7 @@ public class MobileEngageInternalTest {
     private Application application;
     private DeviceInfo deviceInfo;
     private AppLoginStorage appLoginStorage;
-    private MobileEngageInternal mobileEngage;
+    private MobileEngageInternal mobileEngageInternal;
     private MeIdStorage meIdStorage;
     private MeIdSignatureStorage meIdSignatureStorage;
     private AppLoginParameters appLoginParameters;
@@ -124,9 +128,9 @@ public class MobileEngageInternalTest {
 
         defaultHeaders = RequestHeaderUtils.createDefaultHeaders(requestContext);
 
-        mobileEngage = new MobileEngageInternal(
+        mobileEngageInternal = new MobileEngageInternal(
                 manager,
-                mock(Handler.class),
+                new Handler(Looper.getMainLooper()),
                 coreCompletionHandler,
                 requestContext);
 
@@ -174,9 +178,9 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.appLogin();
+        mobileEngageInternal.appLogin();
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModel result = captor.getValue();
         assertRequestModels(expected, result);
@@ -187,9 +191,9 @@ public class MobileEngageInternalTest {
         meIdStorage.remove();
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngage.appLogin();
+        String result = mobileEngageInternal.appLogin();
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         assertEquals(captor.getValue().getId(), result);
     }
@@ -203,9 +207,9 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.appLogin(contactFieldId, contactFieldValue);
+        mobileEngageInternal.appLogin(contactFieldId, contactFieldValue);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModel result = captor.getValue();
         assertRequestModels(expected, result);
@@ -216,9 +220,9 @@ public class MobileEngageInternalTest {
         meIdStorage.remove();
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngage.appLogin("value", null);
+        String result = mobileEngageInternal.appLogin("value", null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         assertEquals(captor.getValue().getId(), result);
     }
@@ -231,9 +235,9 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.appLogin(contactFieldValue, null);
+        mobileEngageInternal.appLogin(contactFieldValue, null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModel result = captor.getValue();
         assertRequestModels(expected, result);
@@ -246,7 +250,7 @@ public class MobileEngageInternalTest {
 
         CompletionListener completionListener = mock(CompletionListener.class);
 
-        mobileEngage.appLogin(contactFieldValue, completionListener);
+        mobileEngageInternal.appLogin(contactFieldValue, completionListener);
 
         verify(manager).submit(any(RequestModel.class), eq(completionListener));
     }
@@ -256,9 +260,9 @@ public class MobileEngageInternalTest {
         meIdStorage.remove();
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngage.appLogin(5, "value");
+        String result = mobileEngageInternal.appLogin(5, "value");
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         assertEquals(captor.getValue().getId(), result);
     }
@@ -318,23 +322,23 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.appLogin(appLoginParameters.getContactFieldId(), appLoginParameters.getContactFieldValue());
+        mobileEngageInternal.appLogin(appLoginParameters.getContactFieldId(), appLoginParameters.getContactFieldValue());
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
         RequestModel requestModel = captor.getValue();
         assertRequestModels(createLoginRequestModel(appLoginParameters), requestModel);
 
         clearInvocations(manager);
 
-        mobileEngage.appLogout(null);
+        mobileEngageInternal.appLogout(null);
 
         clearInvocations(manager);
 
         captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.appLogin(appLoginParameters.getContactFieldId(), appLoginParameters.getContactFieldValue());
+        mobileEngageInternal.appLogin(appLoginParameters.getContactFieldId(), appLoginParameters.getContactFieldValue());
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
         requestModel = captor.getValue();
         assertRequestModels(createLoginRequestModel(appLoginParameters), requestModel);
     }
@@ -436,9 +440,9 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.appLogout(null);
+        mobileEngageInternal.appLogout(null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModel result = captor.getValue();
         assertRequestModels(expected, result);
@@ -448,7 +452,7 @@ public class MobileEngageInternalTest {
     public void testAppLogout_requestManagerCalledWithCompletionListener() {
         CompletionListener completionListener = mock(CompletionListener.class);
 
-        mobileEngage.appLogout(completionListener);
+        mobileEngageInternal.appLogout(completionListener);
 
         verify(manager).submit(any(RequestModel.class), eq(completionListener));
     }
@@ -457,9 +461,9 @@ public class MobileEngageInternalTest {
     public void testAppLogout_returnsRequestModelId() {
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngage.appLogout(null);
+        String result = mobileEngageInternal.appLogout(null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         assertEquals(captor.getValue().getId(), result);
     }
@@ -469,7 +473,7 @@ public class MobileEngageInternalTest {
         MeIdStorage storage = new MeIdStorage(application);
         storage.set("testMeID");
 
-        mobileEngage.appLogout(null);
+        mobileEngageInternal.appLogout(null);
         assertEquals(storage.get(), null);
     }
 
@@ -478,7 +482,7 @@ public class MobileEngageInternalTest {
         AppLoginStorage storage = new AppLoginStorage(application);
         storage.set(42);
 
-        mobileEngage.appLogout(null);
+        mobileEngageInternal.appLogout(null);
         assertEquals(storage.get(), null);
     }
 
@@ -501,9 +505,9 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.trackCustomEvent(eventName, eventAttributes, null);
+        mobileEngageInternal.trackCustomEvent(eventName, eventAttributes, null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModel result = captor.getValue();
 
@@ -516,7 +520,7 @@ public class MobileEngageInternalTest {
 
         CompletionListener completionListener = mock(CompletionListener.class);
 
-        mobileEngage.trackCustomEvent(eventName, null, completionListener);
+        mobileEngageInternal.trackCustomEvent(eventName, null, completionListener);
 
         verify(manager).submit(any(RequestModel.class), eq(completionListener));
     }
@@ -525,9 +529,9 @@ public class MobileEngageInternalTest {
     public void testTrackCustomEvent_V3_returnsRequestModelId() {
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngage.trackCustomEvent("event", new HashMap<String, String>(), null);
+        String result = mobileEngageInternal.trackCustomEvent("event", new HashMap<String, String>(), null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         assertEquals(captor.getValue().getId(), result);
     }
@@ -551,9 +555,9 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.trackCustomEvent(eventName, eventAttributes, null);
+        mobileEngageInternal.trackCustomEvent(eventName, eventAttributes, null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModel result = captor.getValue();
 
@@ -569,7 +573,7 @@ public class MobileEngageInternalTest {
 
         CompletionListener completionListener = mock(CompletionListener.class);
 
-        mobileEngage.trackCustomEvent(eventName, null, completionListener);
+        mobileEngageInternal.trackCustomEvent(eventName, null, completionListener);
 
         verify(manager).submit(any(RequestModel.class), eq(completionListener));
     }
@@ -583,8 +587,8 @@ public class MobileEngageInternalTest {
         requestContext.setAppLoginParameters(new AppLoginParameters(contactFieldId, contactFieldValue));
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.trackCustomEvent("customEvent", null, null);
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        mobileEngageInternal.trackCustomEvent("customEvent", null, null);
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         Map<String, Object> payload = captor.getValue().getPayload();
         assertEquals(payload.get("contact_field_id"), contactFieldId);
@@ -597,16 +601,16 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngage.trackCustomEvent("event", new HashMap<String, String>(), null);
+        String result = mobileEngageInternal.trackCustomEvent("event", new HashMap<String, String>(), null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         assertEquals(captor.getValue().getId(), result);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testTrackInternalCustomEvent_eventName_mustNotBeNull() {
-        mobileEngage.trackInternalCustomEvent(null, new HashMap<String, String>(), null);
+        mobileEngageInternal.trackInternalCustomEvent(null, new HashMap<String, String>(), null);
     }
 
     @Test
@@ -628,9 +632,9 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.trackInternalCustomEvent(eventName, eventAttributes, null);
+        mobileEngageInternal.trackInternalCustomEvent(eventName, eventAttributes, null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModel result = captor.getValue();
 
@@ -654,9 +658,9 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.trackInternalCustomEvent(eventName, null, null);
+        mobileEngageInternal.trackInternalCustomEvent(eventName, null, null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModel result = captor.getValue();
 
@@ -667,9 +671,9 @@ public class MobileEngageInternalTest {
     public void testTrackInternalCustomEvent_returnsRequestModelId() {
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngage.trackInternalCustomEvent("event", new HashMap<String, String>(), null);
+        String result = mobileEngageInternal.trackInternalCustomEvent("event", new HashMap<String, String>(), null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         assertEquals(captor.getValue().getId(), result);
     }
@@ -677,22 +681,22 @@ public class MobileEngageInternalTest {
     @Test
     public void testTrackInternalCustomEvent_requestManagerNotCalled_whenMeIdIsUnavailable() {
         meIdStorage.remove();
-        mobileEngage.trackInternalCustomEvent("event", new HashMap<String, String>(), null);
+        mobileEngageInternal.trackInternalCustomEvent("event", new HashMap<String, String>(), null);
 
-        verify(manager, times(0)).submit(any(RequestModel.class), (CompletionListener)isNull());
+        verify(manager, times(0)).submit(any(RequestModel.class), (CompletionListener) isNull());
     }
 
     @Test
     public void testTrackInternalCustomEvent_requestManagerNotCalled_whenMeIdSignatureIsUnavailable() {
         meIdSignatureStorage.remove();
-        mobileEngage.trackInternalCustomEvent("event", new HashMap<String, String>(), null);
+        mobileEngageInternal.trackInternalCustomEvent("event", new HashMap<String, String>(), null);
 
-        verify(manager, times(0)).submit(any(RequestModel.class), (CompletionListener)isNull());
+        verify(manager, times(0)).submit(any(RequestModel.class), (CompletionListener) isNull());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testTrackMessageOpen_intent_mustNotBeNull() {
-        mobileEngage.trackMessageOpen(null, null);
+        mobileEngageInternal.trackMessageOpen(null, null);
     }
 
     @Test
@@ -711,9 +715,9 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.trackMessageOpen(intent, null);
+        mobileEngageInternal.trackMessageOpen(intent, null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModel result = captor.getValue();
         assertRequestModels(expected, result);
@@ -729,7 +733,7 @@ public class MobileEngageInternalTest {
 
         CompletionListener completionListener = mock(CompletionListener.class);
 
-        mobileEngage.trackMessageOpen(intent, completionListener);
+        mobileEngageInternal.trackMessageOpen(intent, completionListener);
 
         verify(manager).submit(any(RequestModel.class), eq(completionListener));
     }
@@ -746,9 +750,9 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.trackMessageOpen(intent, null);
+        mobileEngageInternal.trackMessageOpen(intent, null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModel result = captor.getValue();
         RequestModel expected = new RequestModel(
@@ -770,7 +774,7 @@ public class MobileEngageInternalTest {
 
         CompletionListener completionListener = mock(CompletionListener.class);
 
-        mobileEngage.trackMessageOpen(intent, completionListener);
+        mobileEngageInternal.trackMessageOpen(intent, completionListener);
 
         verify(manager).submit(any(RequestModel.class), eq(completionListener));
     }
@@ -781,9 +785,9 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngage.trackMessageOpen(intent, null);
+        String result = mobileEngageInternal.trackMessageOpen(intent, null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         assertEquals(captor.getValue().getId(), result);
     }
@@ -798,8 +802,8 @@ public class MobileEngageInternalTest {
         requestContext.setAppLoginParameters(new AppLoginParameters(contactFieldId, contactFieldValue));
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngage.trackMessageOpen(intent, null);
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        mobileEngageInternal.trackMessageOpen(intent, null);
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         Map<String, Object> payload = captor.getValue().getPayload();
         assertEquals(contactFieldId, payload.get("contact_field_id"));
@@ -807,43 +811,98 @@ public class MobileEngageInternalTest {
     }
 
     @Test
-    public void testGetMessageId_shouldReturnNullWithEmptyIntent() {
-        String result = mobileEngage.getMessageId(new Intent());
+    public void testTrackMessageOpen_withEmptyIntent_shouldCallCompletionListener_withIllegalArgumentException() {
+        CompletionListener completionListener = mock(CompletionListener.class);
+
+        mobileEngageInternal.trackMessageOpen(new Intent(), completionListener);
+
+        verify(completionListener, Mockito.timeout(100)).onCompleted(any(IllegalArgumentException.class));
+    }
+
+    @Test
+    public void testTrackMessageOpen_withEmptyIntent_shouldCallCompletionListener_onMainThread() {
+        CompletionListener completionListener = mock(CompletionListener.class);
+        ThreadSpy threadSpy = new ThreadSpy();
+        doAnswer(threadSpy).when(completionListener).onCompleted(any(Throwable.class));
+
+        mobileEngageInternal.trackMessageOpen(new Intent(), completionListener);
+
+        threadSpy.verifyCalledOnMainThread();
+    }
+
+    @Test
+    public void testGetMessageId_shouldReturnNull_withEmptyIntent() {
+        String result = mobileEngageInternal.getMessageId(new Intent());
         assertNull(result);
     }
 
     @Test
-    public void testGetMessageId_shoudReturnTheCorrectSIDValue() throws Exception {
+    public void testGetMessageId_shouldReturnNull_withMissingUParam() {
+        Intent intent = new Intent();
+        Bundle bundlePayload = new Bundle();
+        bundlePayload.putString("key1", "value1");
+        intent.putExtra("payload", bundlePayload);
+        String result = mobileEngageInternal.getMessageId(intent);
+        assertNull(result);
+    }
+
+    @Test
+    public void testGetMessageId_shouldReturnNull_withMissingSIDParam() {
+        Intent intent = new Intent();
+        Bundle bundlePayload = new Bundle();
+        bundlePayload.putString("key1", "value1");
+        bundlePayload.putString("u", "{}");
+        intent.putExtra("payload", bundlePayload);
+        String result = mobileEngageInternal.getMessageId(intent);
+        assertNull(result);
+    }
+
+
+    @Test
+    public void testGetMessageId_shouldReturnNull_withInvalidJson() {
+        Intent intent = new Intent();
+        Bundle bundlePayload = new Bundle();
+        bundlePayload.putString("key1", "value1");
+        bundlePayload.putString("u", "{invalidJson}");
+        intent.putExtra("payload", bundlePayload);
+        String result = mobileEngageInternal.getMessageId(intent);
+        assertNull(result);
+    }
+
+
+
+    @Test
+    public void testGetMessageId_shouldReturnTheCorrectSIDValue() throws Exception {
         Intent intent = getTestIntent();
-        String result = mobileEngage.getMessageId(intent);
+        String result = mobileEngageInternal.getMessageId(intent);
         assertEquals("+43c_lODSmXqCvdOz", result);
     }
 
     @Test
     public void testSetPushToken_whenAppLoginParameters_isEmpty() {
-        MobileEngageInternal spy = spy(mobileEngage);
+        MobileEngageInternal spy = spy(mobileEngageInternal);
 
         requestContext.setAppLoginParameters(new AppLoginParameters());
         spy.setPushToken("123456789");
 
-        verify(spy).sendAppLogin((CompletionListener)isNull());
+        verify(spy).sendAppLogin((CompletionListener) isNull());
     }
 
     @Test
     public void testSetPushToken_whenAppLoginParameters_hasCredentials() {
         int contactFieldId = 12;
         String contactFieldValue = "asdf";
-        MobileEngageInternal spy = spy(mobileEngage);
+        MobileEngageInternal spy = spy(mobileEngageInternal);
 
         requestContext.setAppLoginParameters(new AppLoginParameters(contactFieldId, contactFieldValue));
         spy.setPushToken("123456789");
 
-        verify(spy).sendAppLogin((CompletionListener)isNull());
+        verify(spy).sendAppLogin((CompletionListener) isNull());
     }
 
     @Test
     public void testSetPushToken_doesNotCallAppLogins_whenApploginParameters_isNull() {
-        MobileEngageInternal spy = spy(mobileEngage);
+        MobileEngageInternal spy = spy(mobileEngageInternal);
 
         requestContext.setAppLoginParameters(null);
         spy.setPushToken("123456789");
@@ -913,16 +972,16 @@ public class MobileEngageInternalTest {
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
         meIdStorage.set(firstMeId);
-        mobileEngage.appLogin(firstAppLoginParameter.getContactFieldId(), firstAppLoginParameter.getContactFieldValue());
+        mobileEngageInternal.appLogin(firstAppLoginParameter.getContactFieldId(), firstAppLoginParameter.getContactFieldValue());
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
         RequestModel requestModel = captor.getValue();
         assertRequestModels(firstExpectedRequestModel, requestModel);
 
         clearInvocations(manager);
 
         if (shouldReinstantiateMobileEngage) {
-            mobileEngage = new MobileEngageInternal(
+            mobileEngageInternal = new MobileEngageInternal(
                     manager,
                     mock(Handler.class),
                     coreCompletionHandler,
@@ -933,9 +992,9 @@ public class MobileEngageInternalTest {
 
         requestContext.setAppLoginParameters(secondAppLoginParameter);
         meIdStorage.set(secondMeId);
-        mobileEngage.appLogin(secondAppLoginParameter.getContactFieldId(), secondAppLoginParameter.getContactFieldValue());
+        mobileEngageInternal.appLogin(secondAppLoginParameter.getContactFieldId(), secondAppLoginParameter.getContactFieldValue());
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
         requestModel = captor.getValue();
         assertRequestModels(secondExpectedRequestModel, requestModel);
     }
@@ -966,7 +1025,7 @@ public class MobileEngageInternalTest {
         payload.put("os_version", deviceInfo.getOsVersion());
         payload.put("ems_sdk", MOBILEENGAGE_SDK_VERSION);
 
-        String pushToken = mobileEngage.getPushToken();
+        String pushToken = mobileEngageInternal.getPushToken();
         if (pushToken == null) {
             payload.put("push_token", false);
         } else {

@@ -11,6 +11,7 @@ import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.TimestampUtils;
+import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
@@ -221,16 +222,18 @@ public class MobileEngageInternal {
         Bundle payload = intent.getBundleExtra("payload");
         if (payload != null) {
             String customData = payload.getString("u");
-            try {
-                sid = new JSONObject(customData).getString("sid");
-            } catch (JSONException e) {
+            if (customData != null) {
+                try {
+                    sid = new JSONObject(customData).getString("sid");
+                } catch (JSONException e) {
+                }
             }
         }
         return sid;
     }
 
 
-    private String handleMessageOpen(String messageId, CompletionListener completionListener) {
+    private String handleMessageOpen(String messageId, final CompletionListener completionListener) {
         if (messageId != null) {
             if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
                 return handleMessageOpen_V3(messageId, completionListener);
@@ -242,7 +245,9 @@ public class MobileEngageInternal {
             uiHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    coreCompletionHandler.onError(uuid, new IllegalArgumentException("No messageId found!"));
+                         Throwable cause = new IllegalArgumentException("No messageId found!");
+                         EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", cause);
+                         completionListener.onCompleted(cause);
                 }
             });
             return uuid;
