@@ -5,9 +5,14 @@ import android.database.sqlite.SQLiteDatabase
 import android.support.test.InstrumentationRegistry
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.TimeoutUtils
+import io.kotlintest.shouldBe
 import org.junit.*
 
 class CoreDbHelperTest {
+
+    companion object {
+        const val LATEST_DB_VERSION = 4
+    }
 
     @Rule
     @JvmField
@@ -29,6 +34,11 @@ class CoreDbHelperTest {
     @After
     fun tearDown() {
         db.close()
+    }
+
+    @Test
+    fun testDbVersion_shouldBeTheLatest() {
+        LATEST_DB_VERSION shouldBe CoreDbHelper.DATABASE_VERSION
     }
 
     @Test
@@ -109,39 +119,98 @@ class CoreDbHelperTest {
     }
 
     @Test
-    fun testOnCreate_shouldNotAddIndexesToRequestTable_V3() {
+    fun testOnUpgrade_from_3_to_4() {
         initializeDatabaseWithVersion(3)
 
-        val indexedColumns = getIndexedColumnsOnTable(db, "request")
+        dbHelper.onUpgrade(db, 3, 4)
 
-        Assert.assertEquals(0, indexedColumns.size)
+        val expectedRequestColumns = setOf(
+                ColumnInfo("request_id", "TEXT"),
+                ColumnInfo("method", "TEXT"),
+                ColumnInfo("url", "TEXT"),
+                ColumnInfo("headers", "BLOB"),
+                ColumnInfo("payload", "BLOB"),
+                ColumnInfo("timestamp", "INTEGER"),
+                ColumnInfo("ttl", "INTEGER", defaultValue = Long.MAX_VALUE.toString())
+        )
+
+        val expectedShardColumns = setOf(
+                ColumnInfo("type", "TEXT"),
+                ColumnInfo("shard_id", "TEXT"),
+                ColumnInfo("data", "BLOB"),
+                ColumnInfo("timestamp", "INTEGER"),
+                ColumnInfo("ttl", "INTEGER")
+        )
+
+        val expectedDisplayedIamColumns = setOf(
+                ColumnInfo("campaign_id", "TEXT"),
+                ColumnInfo("timestamp", "INTEGER")
+        )
+
+        val expectedButtonClickedColumns = setOf(
+                ColumnInfo("campaign_id", "TEXT"),
+                ColumnInfo("button_id", "TEXT"),
+                ColumnInfo("timestamp", "INTEGER")
+        )
+        val actualRequestColumns = getTableColumns(db, "request")
+        val actualShardColumns = getTableColumns(db, "shard")
+        val actualDisplayedIamColumns = getTableColumns(db, "displayed_iam")
+        val actualButtonClickedColumns = getTableColumns(db, "button_clicked")
+
+        Assert.assertEquals(expectedRequestColumns, actualRequestColumns)
+        Assert.assertEquals(expectedShardColumns, actualShardColumns)
+        Assert.assertEquals(expectedDisplayedIamColumns, actualDisplayedIamColumns)
+        Assert.assertEquals(expectedButtonClickedColumns, actualButtonClickedColumns)
     }
 
     @Test
-    fun testOnCreate_createsIndexOnShardId_and_Type_database_V3() {
-        initializeDatabaseWithVersion(3)
+    fun testOnCreate_indices_withLatestVersion() {
+        initializeDatabaseWithVersion(LATEST_DB_VERSION)
 
-        val indexedColumns = getIndexedColumnsOnTable(db, "shard")
-        Assert.assertEquals(2, indexedColumns.size)
-        Assert.assertTrue(indexedColumns.contains("shard_id"))
-        Assert.assertTrue(indexedColumns.contains("type"))
+        "request".let {
+            val indexedColumns = getIndexedColumnsOnTable(db, it)
+            Assert.assertEquals(0, indexedColumns.size)
+        }
+
+        "shard".let {
+            val indexedColumns = getIndexedColumnsOnTable(db, it)
+            Assert.assertEquals(2, indexedColumns.size)
+            Assert.assertTrue(indexedColumns.contains("shard_id"))
+            Assert.assertTrue(indexedColumns.contains("type"))
+        }
+
+        "displayed_iam".let {
+            val indexedColumns = getIndexedColumnsOnTable(db, it)
+            Assert.assertEquals(0, indexedColumns.size)
+        }
+
+        "button_clicked".let {
+            val indexedColumns = getIndexedColumnsOnTable(db, it)
+            Assert.assertEquals(0, indexedColumns.size)
+        }
     }
 
     @Test
-    fun testOnCreate_withDbVersion_V3() {
-        initializeDatabaseWithVersion(3)
+    fun testOnCreate_withLatestVersion() {
+        initializeDatabaseWithVersion(LATEST_DB_VERSION)
 
         val expectedRequestColumns = getTableColumns(db, "request")
         val expectedShardColumns = getTableColumns(db, "shard")
+        val expectedDisplayedIamColumns = getTableColumns(db, "displayed_iam")
+        val expectedButtonClickedColumns = getTableColumns(db, "button_clicked")
 
         DatabaseTestUtils.dropAllTables(db)
         dbHelper.onCreate(db)
 
         val actualRequestColumns = getTableColumns(db, "request")
         val actualShardColumns = getTableColumns(db, "shard")
+        val actualDisplayedIamColumns = getTableColumns(db, "displayed_iam")
+        val actualButtonClickedColumns = getTableColumns(db, "button_clicked")
 
         Assert.assertEquals(expectedRequestColumns, actualRequestColumns)
         Assert.assertEquals(expectedShardColumns, actualShardColumns)
+        Assert.assertEquals(expectedDisplayedIamColumns, actualDisplayedIamColumns)
+        Assert.assertEquals(expectedButtonClickedColumns, actualButtonClickedColumns)
     }
 
     private fun getTableColumns(db: SQLiteDatabase, tableName: String): Set<ColumnInfo> {

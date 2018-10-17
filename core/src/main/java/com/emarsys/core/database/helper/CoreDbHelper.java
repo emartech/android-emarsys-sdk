@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 public class CoreDbHelper extends AbstractDbHelper {
-    public static final int DATABASE_VERSION = 3;
-    public static final String DATABASE_NAME = "EmarsysCoreQueue.db";
+    public static final int DATABASE_VERSION = 4;
+    public static final String DATABASE_NAME = "EmarsysCore.db";
 
     public CoreDbHelper(Context context, Map<TriggerKey, List<Runnable>> triggerMap) {
         super(context, DATABASE_NAME, DATABASE_VERSION, triggerMap);

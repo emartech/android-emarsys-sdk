@@ -7,6 +7,8 @@ public final class DatabaseContract {
 
     public static final String REQUEST_TABLE_NAME = "request";
     public static final String SHARD_TABLE_NAME = "shard";
+    public static final String DISPLAYED_IAM_TABLE_NAME = "displayed_iam";
+    public static final String BUTTON_CLICKED_TABLE_NAME = "button_clicked";
 
     public static final String REQUEST_COLUMN_NAME_REQUEST_ID = "request_id";
     public static final String REQUEST_COLUMN_NAME_METHOD = "method";
@@ -22,6 +24,13 @@ public final class DatabaseContract {
     public static final String SHARD_COLUMN_TIMESTAMP = "timestamp";
     public static final String SHARD_COLUMN_TTL = "ttl";
 
+    public static final String DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID = "campaign_id";
+    public static final String DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP = "timestamp";
+
+    public static final String BUTTON_CLICKED_COLUMN_NAME_CAMPAIGN_ID = "campaign_id";
+    public static final String BUTTON_CLICKED_COLUMN_NAME_BUTTON_ID = "button_id";
+    public static final String BUTTON_CLICKED_COLUMN_NAME_TIMESTAMP = "timestamp";
+
     public static final String[] UPGRADE_TO_1 = {
             "CREATE TABLE IF NOT EXISTS request (" +
                     "request_id TEXT," +
@@ -36,7 +45,7 @@ public final class DatabaseContract {
             "ALTER TABLE request ADD COLUMN ttl INTEGER DEFAULT " + Long.MAX_VALUE + ";"
     };
 
-    private static final String UPGRADE_TO_3_CREATE_TABLE =
+    private static final String UPGRADE_TO_3_CREATE_TABLE_SHARD =
             "CREATE TABLE IF NOT EXISTS shard (" +
                     "shard_id TEXT," +
                     "type TEXT," +
@@ -48,14 +57,31 @@ public final class DatabaseContract {
 
 
     public static final String[] UPGRADE_TO_3 = {
-            UPGRADE_TO_3_CREATE_TABLE,
+            UPGRADE_TO_3_CREATE_TABLE_SHARD,
             UPGRADE_TO_3_ADD_INDEX_TO_ID,
             UPGRADE_TO_3_ADD_INDEX_TO_TYPE
+    };
+
+    private static final String UPGRADE_TO_4_CREATE_TABLE_DISPLAYED_IAM =
+            "CREATE TABLE IF NOT EXISTS displayed_iam (" +
+                    "campaign_id TEXT," +
+                    "timestamp INTEGER);";
+
+    private static final String UPGRADE_TO_4_CREATE_TABLE_BUTTON_CLICKED  =
+            "CREATE TABLE IF NOT EXISTS button_clicked (" +
+                    "campaign_id TEXT," +
+                    "button_id TEXT," +
+                    "timestamp INTEGER);";
+
+    public static final String[] UPGRADE_TO_4 = {
+            UPGRADE_TO_4_CREATE_TABLE_DISPLAYED_IAM,
+            UPGRADE_TO_4_CREATE_TABLE_BUTTON_CLICKED
     };
 
     public static final String[][] MIGRATION = {
             UPGRADE_TO_1,
             UPGRADE_TO_2,
-            UPGRADE_TO_3
+            UPGRADE_TO_3,
+            UPGRADE_TO_4
     };
 }
