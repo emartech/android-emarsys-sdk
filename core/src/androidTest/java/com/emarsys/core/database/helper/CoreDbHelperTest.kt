@@ -5,8 +5,12 @@ import android.database.sqlite.SQLiteDatabase
 import android.support.test.InstrumentationRegistry
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.TimeoutUtils
+import io.kotlintest.matchers.collections.shouldContain
 import io.kotlintest.shouldBe
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 
 class CoreDbHelperTest {
 
@@ -46,7 +50,7 @@ class CoreDbHelperTest {
         val cursor = dbHelper.readableCoreDatabase.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type='table'", null)
         cursor.use {
             it.moveToFirst()
-            Assert.assertEquals(0, it.getInt(0))
+            it.getInt(0) shouldBe 0
         }
     }
 
@@ -64,7 +68,8 @@ class CoreDbHelperTest {
         )
 
         val actualColumns = getTableColumns(db, "request")
-        Assert.assertEquals(expectedColumns, actualColumns)
+
+        actualColumns shouldBe expectedColumns
     }
 
     @Test
@@ -85,7 +90,7 @@ class CoreDbHelperTest {
 
         val actualColumns = getTableColumns(db, "request")
 
-        Assert.assertEquals(expectedColumns, actualColumns)
+        actualColumns shouldBe expectedColumns
     }
 
     @Test
@@ -114,8 +119,8 @@ class CoreDbHelperTest {
         val actualRequestColumns = getTableColumns(db, "request")
         val actualShardColumns = getTableColumns(db, "shard")
 
-        Assert.assertEquals(expectedRequestColumns, actualRequestColumns)
-        Assert.assertEquals(expectedShardColumns, actualShardColumns)
+        actualRequestColumns shouldBe expectedRequestColumns
+        actualShardColumns shouldBe expectedShardColumns
     }
 
     @Test
@@ -157,10 +162,10 @@ class CoreDbHelperTest {
         val actualDisplayedIamColumns = getTableColumns(db, "displayed_iam")
         val actualButtonClickedColumns = getTableColumns(db, "button_clicked")
 
-        Assert.assertEquals(expectedRequestColumns, actualRequestColumns)
-        Assert.assertEquals(expectedShardColumns, actualShardColumns)
-        Assert.assertEquals(expectedDisplayedIamColumns, actualDisplayedIamColumns)
-        Assert.assertEquals(expectedButtonClickedColumns, actualButtonClickedColumns)
+        actualRequestColumns shouldBe expectedRequestColumns
+        actualShardColumns shouldBe expectedShardColumns
+        actualDisplayedIamColumns shouldBe expectedDisplayedIamColumns
+        actualButtonClickedColumns shouldBe expectedButtonClickedColumns
     }
 
     @Test
@@ -169,24 +174,28 @@ class CoreDbHelperTest {
 
         "request".let {
             val indexedColumns = getIndexedColumnsOnTable(db, it)
-            Assert.assertEquals(0, indexedColumns.size)
+
+            indexedColumns.size shouldBe 0
         }
 
         "shard".let {
             val indexedColumns = getIndexedColumnsOnTable(db, it)
-            Assert.assertEquals(2, indexedColumns.size)
-            Assert.assertTrue(indexedColumns.contains("shard_id"))
-            Assert.assertTrue(indexedColumns.contains("type"))
+
+            indexedColumns.size shouldBe 2
+            indexedColumns shouldContain "shard_id"
+            indexedColumns shouldContain "type"
         }
 
         "displayed_iam".let {
             val indexedColumns = getIndexedColumnsOnTable(db, it)
-            Assert.assertEquals(0, indexedColumns.size)
+
+            indexedColumns.size shouldBe 0
         }
 
         "button_clicked".let {
             val indexedColumns = getIndexedColumnsOnTable(db, it)
-            Assert.assertEquals(0, indexedColumns.size)
+
+            indexedColumns.size shouldBe 0
         }
     }
 
@@ -207,10 +216,10 @@ class CoreDbHelperTest {
         val actualDisplayedIamColumns = getTableColumns(db, "displayed_iam")
         val actualButtonClickedColumns = getTableColumns(db, "button_clicked")
 
-        Assert.assertEquals(expectedRequestColumns, actualRequestColumns)
-        Assert.assertEquals(expectedShardColumns, actualShardColumns)
-        Assert.assertEquals(expectedDisplayedIamColumns, actualDisplayedIamColumns)
-        Assert.assertEquals(expectedButtonClickedColumns, actualButtonClickedColumns)
+        actualRequestColumns shouldBe expectedRequestColumns
+        actualShardColumns shouldBe expectedShardColumns
+        actualDisplayedIamColumns shouldBe expectedDisplayedIamColumns
+        actualButtonClickedColumns shouldBe expectedButtonClickedColumns
     }
 
     private fun getTableColumns(db: SQLiteDatabase, tableName: String): Set<ColumnInfo> {
