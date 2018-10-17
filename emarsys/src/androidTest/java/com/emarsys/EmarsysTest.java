@@ -22,6 +22,8 @@ import com.emarsys.core.database.trigger.TriggerEvent;
 import com.emarsys.core.database.trigger.TriggerType;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
+import com.emarsys.core.request.RequestManager;
+import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.di.FakeDependencyContainer;
@@ -34,7 +36,10 @@ import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppStartAction;
+import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy;
 import com.emarsys.mobileengage.inbox.InboxInternal;
+import com.emarsys.mobileengage.inbox.InboxInternal_V1;
+import com.emarsys.mobileengage.inbox.InboxInternal_V2;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
@@ -45,6 +50,7 @@ import com.emarsys.predict.shard.PredictShardTrigger;
 import com.emarsys.testUtil.CollectionTestUtils;
 import com.emarsys.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.RandomTestUtils;
+import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
@@ -185,12 +191,110 @@ public class EmarsysTest {
     }
 
     @Test
+    public void testSetup_initializes_inboxInstance_V1() {
+        DependencyInjection.tearDown();
+        ExperimentalTestUtils.resetExperimentalFeatures();
+
+        Emarsys.setup(baseConfig);
+
+        InboxInternal inboxInternal = DependencyInjection.<EmarysDependencyContainer>getContainer().getInboxInternal();
+        assertNotNull(inboxInternal);
+        assertEquals(InboxInternal_V1.class, inboxInternal.getClass());
+    }
+
+    @Test
+    public void testSetup_initializes_inboxInstance_V2() {
+        DependencyInjection.tearDown();
+        ExperimentalTestUtils.resetExperimentalFeatures();
+
+        Emarsys.setup(userCentricInboxConfig);
+
+        InboxInternal inboxInternal = DependencyInjection.<EmarysDependencyContainer>getContainer().getInboxInternal();
+        assertNotNull(inboxInternal);
+        assertEquals(InboxInternal_V2.class, inboxInternal.getClass());
+    }
+
+    @Test
+    public void testSetup_initializes_deepLinkInstance() {
+        DependencyInjection.tearDown();
+        ExperimentalTestUtils.resetExperimentalFeatures();
+
+        Emarsys.setup(baseConfig);
+
+        assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getDeepLinkInternal());
+    }
+
+    @Test
     public void testSetup_initializes_predictInstance() {
         DependencyInjection.tearDown();
 
         Emarsys.setup(baseConfig);
 
         assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getPredictInternal());
+    }
+
+    @Test
+    public void testSetup_initializesRequestManager_withPlainRequestModelRepository_withNoFlippers() {
+        DependencyInjection.tearDown();
+        ExperimentalTestUtils.resetExperimentalFeatures();
+
+        Emarsys.setup(baseConfig);
+
+        RequestManager requestManager = ReflectionTestUtils.getField(
+                DependencyInjection.<DefaultEmarsysDependencyContainer>getContainer(),
+                "requestManager");
+        Object repository = ReflectionTestUtils.getField(
+                requestManager,
+                "requestRepository");
+        assertEquals(RequestModelRepository.class, repository.getClass());
+    }
+
+    @Test
+    public void testSetup_initializesRequestManager_withRequestModelRepositoryProxy_withInAppFlipper() {
+        DependencyInjection.tearDown();
+        ExperimentalTestUtils.resetExperimentalFeatures();
+
+        Emarsys.setup(inAppConfig);
+
+        RequestManager requestManager = ReflectionTestUtils.getField(
+                DependencyInjection.<DefaultEmarsysDependencyContainer>getContainer(),
+                "requestManager");
+        Object repository = ReflectionTestUtils.getField(
+                requestManager,
+                "requestRepository");
+        assertEquals(RequestRepositoryProxy.class, repository.getClass());
+    }
+
+    @Test
+    public void testSetup_initializesRequestManager_withRequestModelRepositoryProxy_withInboxFlipper() {
+        DependencyInjection.tearDown();
+        ExperimentalTestUtils.resetExperimentalFeatures();
+
+        Emarsys.setup(userCentricInboxConfig);
+
+        RequestManager requestManager = ReflectionTestUtils.getField(
+                DependencyInjection.<DefaultEmarsysDependencyContainer>getContainer(),
+                "requestManager");
+        Object repository = ReflectionTestUtils.getField(
+                requestManager,
+                "requestRepository");
+        assertEquals(RequestRepositoryProxy.class, repository.getClass());
+    }
+
+    @Test
+    public void testSetup_initializesRequestManager_withRequestModelRepositoryProxy_withBothInboxAndInAppFlippers() {
+        DependencyInjection.tearDown();
+        ExperimentalTestUtils.resetExperimentalFeatures();
+
+        Emarsys.setup(inAppAndInboxConfig);
+
+        RequestManager requestManager = ReflectionTestUtils.getField(
+                DependencyInjection.<DefaultEmarsysDependencyContainer>getContainer(),
+                "requestManager");
+        Object repository = ReflectionTestUtils.getField(
+                requestManager,
+                "requestRepository");
+        assertEquals(RequestRepositoryProxy.class, repository.getClass());
     }
 
     @Test

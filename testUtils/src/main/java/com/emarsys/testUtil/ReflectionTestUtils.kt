@@ -18,6 +18,14 @@ object ReflectionTestUtils {
     }
 
     @JvmStatic
+    fun <T> getField(instance: Any, fieldName: String): T? {
+        val field = instance::class.java.getDeclaredField(fieldName)
+        field.isAccessible = true
+        val result = field.get(instance)
+        return result as T?
+    }
+
+    @JvmStatic
     fun <T> instantiate(type: Class<*>, constructorIndex: Int, vararg args: Any): T {
         val constructor = type.declaredConstructors[constructorIndex]
         constructor.isAccessible = true
