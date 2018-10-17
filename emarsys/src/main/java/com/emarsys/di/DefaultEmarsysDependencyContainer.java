@@ -164,6 +164,9 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
     @Override
     public DefaultCoreCompletionHandler getCoreCompletionHandler() {
+        if (completionHandler == null) {
+            completionHandler = new DefaultCoreCompletionHandler(new ArrayList<AbstractResponseHandler>(), new HashMap<String, CompletionListener>());
+        }
         return completionHandler;
     }
 
@@ -225,8 +228,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
 
-        completionHandler = new DefaultCoreCompletionHandler(new ArrayList<AbstractResponseHandler>(), new HashMap<String, CompletionListener>());
-
         Repository<Map<String, Object>, SqlSpecification> logRepository = new LogRepository(application);
         List<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>> logHandlers = Arrays.<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>>asList(
                 new IamMetricsLogHandler(new HashMap<String, Map<String, Object>>())
@@ -240,7 +241,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 connectionWatchDog,
                 uiHandler,
                 coreSdkHandler,
-                completionHandler,
+                getCoreCompletionHandler(),
                 restClient);
 
         requestManager = new RequestManager(
@@ -249,7 +250,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 shardModelRepository,
                 worker,
                 restClient,
-                completionHandler);
+                getCoreCompletionHandler());
 
         requestContext = new RequestContext(
                 config.getApplicationCode(),
@@ -281,7 +282,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         mobileEngageInternal = new MobileEngageInternal(
                 requestManager,
                 uiHandler,
-                completionHandler,
+                getCoreCompletionHandler(),
                 requestContext
         );
         inboxInternal = new InboxInternalProvider().provideInboxInternal(
@@ -363,6 +364,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
             ));
         }
 
-        completionHandler.addResponseHandlers(responseHandlers);
+        getCoreCompletionHandler().addResponseHandlers(responseHandlers);
     }
 }
