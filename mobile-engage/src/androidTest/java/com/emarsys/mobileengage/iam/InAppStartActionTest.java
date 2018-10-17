@@ -32,7 +32,6 @@ public class InAppStartActionTest {
     @SuppressWarnings("unchecked")
     public void init() {
         DatabaseTestUtils.deleteCoreDatabase();
-        DatabaseTestUtils.deleteMobileEngageDatabase();
         SharedPrefsUtils.deleteMobileEngageSharedPrefs();
 
         mobileEngageInternal = mock(MobileEngageInternal.class);

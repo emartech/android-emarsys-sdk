@@ -3,27 +3,28 @@ package com.emarsys.mobileengage.iam.model.displayediam;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import com.emarsys.core.database.DatabaseContract;
+import com.emarsys.core.database.helper.DbHelper;
 import com.emarsys.core.database.repository.AbstractSqliteRepository;
-import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 
 public class DisplayedIamRepository extends AbstractSqliteRepository<DisplayedIam> {
 
-    public DisplayedIamRepository(MobileEngageDbHelper dbHelper) {
-        super(DisplayedIamContract.TABLE_NAME, dbHelper);
+    public DisplayedIamRepository(DbHelper dbHelper) {
+        super(DatabaseContract.DISPLAYED_IAM_TABLE_NAME, dbHelper);
     }
 
     @Override
     protected ContentValues contentValuesFromItem(DisplayedIam item) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DisplayedIamContract.COLUMN_NAME_CAMPAIGN_ID, item.getCampaignId());
-        contentValues.put(DisplayedIamContract.COLUMN_NAME_TIMESTAMP, item.getTimestamp());
+        contentValues.put(DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID, item.getCampaignId());
+        contentValues.put(DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP, item.getTimestamp());
         return contentValues;
     }
 
     @Override
     protected DisplayedIam itemFromCursor(Cursor cursor) {
-        String campaignId = cursor.getString(cursor.getColumnIndex(DisplayedIamContract.COLUMN_NAME_CAMPAIGN_ID));
-        long timestamp = cursor.getLong(cursor.getColumnIndex(DisplayedIamContract.COLUMN_NAME_TIMESTAMP));
+        String campaignId = cursor.getString(cursor.getColumnIndex(DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID));
+        long timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP));
         return new DisplayedIam(campaignId, timestamp);
     }
 

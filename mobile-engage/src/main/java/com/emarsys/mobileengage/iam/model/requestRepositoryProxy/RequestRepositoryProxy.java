@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.iam.model.requestRepositoryProxy;
 
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.QueryAll;
@@ -12,9 +13,7 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.endpoint.Endpoint;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
-import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedContract;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
-import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamContract;
 import com.emarsys.mobileengage.util.RequestModelUtils;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
 
@@ -128,8 +127,8 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
 
         return RequestPayloadUtils.createCompositeRequestModelPayload(
                 events,
-                iamRepository.query(new QueryAll(DisplayedIamContract.TABLE_NAME)),
-                buttonClickedRepository.query(new QueryAll(ButtonClickedContract.TABLE_NAME)),
+                iamRepository.query(new QueryAll(DatabaseContract.DISPLAYED_IAM_TABLE_NAME)),
+                buttonClickedRepository.query(new QueryAll(DatabaseContract.BUTTON_CLICKED_TABLE_NAME)),
                 deviceInfo,
                 inAppInternal.isPaused()
         );

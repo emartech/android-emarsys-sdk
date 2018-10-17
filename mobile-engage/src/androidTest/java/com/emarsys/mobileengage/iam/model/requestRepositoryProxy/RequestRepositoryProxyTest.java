@@ -6,6 +6,7 @@ import android.support.test.InstrumentationRegistry;
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
+import com.emarsys.core.database.helper.DbHelper;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.QueryAll;
@@ -18,7 +19,6 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.request.model.specification.QueryNewestRequestModel;
 import com.emarsys.core.util.TimestampUtils;
-import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
@@ -80,7 +80,6 @@ public class RequestRepositoryProxyTest {
     @SuppressWarnings("unchecked")
     public void init() {
         DatabaseTestUtils.deleteCoreDatabase();
-        DatabaseTestUtils.deleteMobileEngageDatabase();
 
         Context context = InstrumentationRegistry.getTargetContext();
 
@@ -91,12 +90,11 @@ public class RequestRepositoryProxyTest {
         mockDisplayedIamRepository = mock(Repository.class);
         mockButtonClickedRepository = mock(Repository.class);
 
-        CoreDbHelper coreDbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
-        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
+        DbHelper dbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
 
-        requestModelRepository = new RequestModelRepository(coreDbHelper);
-        displayedIamRepository = new DisplayedIamRepository(mobileEngageDbHelper);
-        buttonClickedRepository = new ButtonClickedRepository(mobileEngageDbHelper);
+        requestModelRepository = new RequestModelRepository(dbHelper);
+        displayedIamRepository = new DisplayedIamRepository(dbHelper);
+        buttonClickedRepository = new ButtonClickedRepository(dbHelper);
 
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);

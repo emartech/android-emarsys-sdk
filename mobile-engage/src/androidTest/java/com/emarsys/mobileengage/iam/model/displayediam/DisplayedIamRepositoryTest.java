@@ -6,8 +6,9 @@ import android.database.Cursor;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 
+import com.emarsys.core.database.helper.CoreDbHelper;
+import com.emarsys.core.database.helper.DbHelper;
 import com.emarsys.core.database.trigger.TriggerKey;
-import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -23,8 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
-import static com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamContract.COLUMN_NAME_CAMPAIGN_ID;
-import static com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamContract.COLUMN_NAME_TIMESTAMP;
+import static com.emarsys.core.database.DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID;
+import static com.emarsys.core.database.DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,19 +44,19 @@ public class DisplayedIamRepositoryTest {
 
     @Before
     public void init() {
-        DatabaseTestUtils.deleteMobileEngageDatabase();
+        DatabaseTestUtils.deleteCoreDatabase();
 
         Context context = InstrumentationRegistry.getContext();
-        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
-        iamRepository = new DisplayedIamRepository(mobileEngageDbHelper);
+        DbHelper dbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
+        iamRepository = new DisplayedIamRepository(dbHelper);
         displayedIam1 = new DisplayedIam("campaign1", new Date().getTime());
     }
 
     @Test
     public void testContentValuesFromItem() {
         ContentValues expected = new ContentValues();
-        expected.put(COLUMN_NAME_CAMPAIGN_ID, displayedIam1.getCampaignId());
-        expected.put(COLUMN_NAME_TIMESTAMP, displayedIam1.getTimestamp());
+        expected.put(DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID, displayedIam1.getCampaignId());
+        expected.put(DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP, displayedIam1.getTimestamp());
 
         ContentValues result = iamRepository.contentValuesFromItem(displayedIam1);
 
@@ -66,9 +67,9 @@ public class DisplayedIamRepositoryTest {
     public void testItemFromCursor() {
         Cursor cursor = mock(Cursor.class);
 
-        when(cursor.getColumnIndex(COLUMN_NAME_CAMPAIGN_ID)).thenReturn(0);
+        when(cursor.getColumnIndex(DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID)).thenReturn(0);
         when(cursor.getString(0)).thenReturn(displayedIam1.getCampaignId());
-        when(cursor.getColumnIndex(COLUMN_NAME_TIMESTAMP)).thenReturn(1);
+        when(cursor.getColumnIndex(DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP)).thenReturn(1);
         when(cursor.getLong(1)).thenReturn(displayedIam1.getTimestamp());
 
         DisplayedIam result = iamRepository.itemFromCursor(cursor);

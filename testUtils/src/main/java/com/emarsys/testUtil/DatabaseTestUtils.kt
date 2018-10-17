@@ -5,17 +5,9 @@ import android.support.test.InstrumentationRegistry
 
 object DatabaseTestUtils {
 
-    val EMARSYS_CORE_QUEUE_DB = "EmarsysCoreQueue.db"
-    val EMARSYS_MOBILE_ENGAGE_DB = "EmarsysMobileEngage.db"
-
     @JvmStatic
     fun deleteCoreDatabase(): Boolean {
-        return InstrumentationRegistry.getContext().deleteDatabase(EMARSYS_CORE_QUEUE_DB)
-    }
-
-    @JvmStatic
-    fun deleteMobileEngageDatabase(): Boolean {
-        return InstrumentationRegistry.getContext().deleteDatabase(EMARSYS_MOBILE_ENGAGE_DB)
+        return InstrumentationRegistry.getContext().deleteDatabase("EmarsysCore.db")
     }
 
     @JvmStatic

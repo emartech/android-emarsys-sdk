@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import com.emarsys.core.database.DatabaseContract;
-import com.emarsys.core.database.helper.CoreDbHelper;
+import com.emarsys.core.database.helper.DbHelper;
 import com.emarsys.core.database.repository.AbstractSqliteRepository;
 import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
@@ -25,7 +25,7 @@ import static com.emarsys.core.util.serialization.SerializationUtils.serializabl
 
 public class RequestModelRepository extends AbstractSqliteRepository<RequestModel> {
 
-    public RequestModelRepository(CoreDbHelper coreDbHelper) {
+    public RequestModelRepository(DbHelper coreDbHelper) {
         super(DatabaseContract.REQUEST_TABLE_NAME, coreDbHelper);
     }
 

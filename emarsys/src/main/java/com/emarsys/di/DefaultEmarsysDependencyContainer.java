@@ -42,7 +42,6 @@ import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.config.OreoConfig;
-import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.experimental.MobileEngageExperimentalFeatures;
@@ -220,10 +219,9 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         CoreDbHelper coreDbHelper = new CoreDbHelper(application, new HashMap<TriggerKey, List<Runnable>>());
         coreDatabase = coreDbHelper.getWritableCoreDatabase();
-        MobileEngageDbHelper mobileEngageDbHelper = new MobileEngageDbHelper(application, new HashMap<TriggerKey, List<Runnable>>());
 
-        buttonClickedRepository = new ButtonClickedRepository(mobileEngageDbHelper);
-        displayedIamRepository = new DisplayedIamRepository(mobileEngageDbHelper);
+        buttonClickedRepository = new ButtonClickedRepository(coreDbHelper);
+        displayedIamRepository = new DisplayedIamRepository(coreDbHelper);
 
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
