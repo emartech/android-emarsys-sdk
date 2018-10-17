@@ -76,7 +76,7 @@ public class IamDialog extends DialogFragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.mobile_engage_in_app_message, container, false);
 
-        webView = new IamWebViewProvider().provideWebView();
+        webView = new IamWebViewProvider(getActivity().getApplicationContext()).provideWebView();
         webViewContainer = v.findViewById(R.id.mobileEngageInAppMessageContainer);
 
         return v;

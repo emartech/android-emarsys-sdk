@@ -6,7 +6,6 @@ import android.os.IBinder;
 
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.util.log.EMSLogger;
-import com.emarsys.mobileengage.MobileEngage;
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.mobileengage.notification.NotificationCommandFactory;
 import com.emarsys.mobileengage.util.log.MobileEngageTopic;
@@ -32,7 +31,7 @@ public class TrackMessageOpenService extends Service {
                     container.getMobileEngageInternal(),
                     container.getNotificationEventHandler()));
 
-            MobileEngage.trackMessageOpen(intent);
+            container.getMobileEngageInternal().trackMessageOpen(intent, null);
         }
         stopSelf(startId);
         return START_NOT_STICKY;

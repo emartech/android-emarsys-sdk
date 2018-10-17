@@ -5,7 +5,6 @@ import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;
@@ -25,7 +24,6 @@ public class AppEventCommandTest {
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
-    private MobileEngageConfig config;
     private Context applicationContext;
     private NotificationEventHandler notificationHandler;
 

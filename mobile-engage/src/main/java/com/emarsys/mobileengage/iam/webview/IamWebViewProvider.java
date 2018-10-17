@@ -10,12 +10,18 @@ import android.support.annotation.RequiresApi;
 import android.webkit.WebView;
 
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.MobileEngage;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge;
 
 public class IamWebViewProvider {
 
     static WebView webView;
+
+    private final Context context;
+
+    public IamWebViewProvider(Context context) {
+        Assert.notNull(context, "Context must not be null!");
+        this.context = context;
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void loadMessageAsync(final String html, final IamJsBridge jsBridge, final MessageLoadedListener messageLoadedListener) {
@@ -27,7 +33,6 @@ public class IamWebViewProvider {
             @SuppressLint({"JavascriptInterface", "AddJavascriptInterface"})
             @Override
             public void run() {
-                Context context = MobileEngage.getConfig().getApplication();
                 webView = new WebView(context);
 
                 jsBridge.setWebView(webView);

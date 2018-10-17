@@ -46,7 +46,6 @@ import com.emarsys.mobileengage.database.MobileEngageDbHelper;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.experimental.MobileEngageExperimentalFeatures;
-import com.emarsys.mobileengage.iam.DoNotDisturbProvider;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.InAppStartAction;
@@ -98,7 +97,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
     private Handler uiHandler;
     private TimestampProvider timestampProvider;
-    private DoNotDisturbProvider doNotDisturbProvider;
     private AppLoginStorage appLoginStorage;
     private MeIdStorage meIdStorage;
     private MeIdSignatureStorage meIdSignatureStorage;
@@ -119,8 +117,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeDependencies(emarsysConfig);
-        initializeInstances();
-        initializeInAppPresenter();
+        initializeInAppPresenter(emarsysConfig);
         initializeResponseHandlers();
         initializeActivityLifecycleWatchdog();
     }
@@ -204,11 +201,12 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         application = config.getApplication();
         oreoConfig = config.getOreoConfig();
 
+        inAppInternal = new InAppInternal();
+
         uiHandler = new Handler(Looper.getMainLooper());
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
-        doNotDisturbProvider = new DoNotDisturbProvider();
         appLoginStorage = new AppLoginStorage(application);
         meIdStorage = new MeIdStorage(application);
         meIdSignatureStorage = new MeIdSignatureStorage(application);
@@ -279,24 +277,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                         timestampProvider,
                         uuidProvider),
                 requestManager);
-    }
 
-    private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
-        RequestModelRepository requestModelRepository = new RequestModelRepository(coreDbHelper);
-        if (MobileEngageExperimentalFeatures.isV3Enabled()) {
-            return new RequestRepositoryProxy(
-                    deviceInfo,
-                    requestModelRepository,
-                    displayedIamRepository,
-                    buttonClickedRepository,
-                    timestampProvider,
-                    doNotDisturbProvider);
-        } else {
-            return requestModelRepository;
-        }
-    }
-
-    private void initializeInstances() {
         mobileEngageInternal = new MobileEngageInternal(
                 requestManager,
                 uiHandler,
@@ -309,9 +290,24 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 restClient,
                 requestContext
         );
-        inAppInternal = new InAppInternal();
+
         deepLinkInternal = new DeepLinkInternal(requestManager, requestContext);
         predictInternal = new PredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);
+    }
+
+    private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
+        RequestModelRepository requestModelRepository = new RequestModelRepository(coreDbHelper);
+        if (MobileEngageExperimentalFeatures.isV3Enabled()) {
+            return new RequestRepositoryProxy(
+                    deviceInfo,
+                    requestModelRepository,
+                    displayedIamRepository,
+                    buttonClickedRepository,
+                    timestampProvider,
+                    inAppInternal);
+        } else {
+            return requestModelRepository;
+        }
     }
 
     private void initializeActivityLifecycleWatchdog() {
@@ -331,10 +327,10 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 activityCreatedActions);
     }
 
-    private void initializeInAppPresenter() {
+    private void initializeInAppPresenter(EmarsysConfig emarsysConfig) {
         inAppPresenter = new InAppPresenter(
                 coreSdkHandler,
-                new IamWebViewProvider(),
+                new IamWebViewProvider(emarsysConfig.getApplication()),
                 inAppInternal,
                 new IamDialogProvider(),
                 buttonClickedRepository,

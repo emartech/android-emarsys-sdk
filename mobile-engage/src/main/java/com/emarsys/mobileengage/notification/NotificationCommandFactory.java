@@ -90,7 +90,7 @@ public class NotificationCommandFactory {
                         }
                         result = new CompositeCommand(Arrays.asList(
                                 trackActionClickCommand,
-                                new CustomEventCommand(name, eventAttribute)));
+                                new CustomEventCommand(mobileEngageInternal, name, eventAttribute)));
                     }
                 } catch (JSONException ignored) {
                 }

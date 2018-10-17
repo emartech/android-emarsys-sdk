@@ -1,30 +1,22 @@
 package com.emarsys.sample;
 
 import android.content.Context;
-import android.os.Handler;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.Espresso;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.emarsys.core.di.DependencyInjection;
-import com.emarsys.mobileengage.MobileEngage;
-import com.emarsys.core.StatusListener;
-import com.emarsys.mobileengage.MobileEngageUtils;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.sample.testutils.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-
-import java.lang.reflect.Field;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -46,37 +38,19 @@ public class MainActivityUITest {
     @Before
     public void init() {
         Context context = InstrumentationRegistry.getTargetContext();
-        MobileEngageFragment fragment = ((MobileEngageFragment) ((MainPagerAdapter) mActivityRule.getActivity().viewPager.getAdapter()).getItem(0));
-
         new MeIdStorage(context).remove();
         new AppLoginStorage(context).remove();
-
-        MobileEngageConfig config = new MobileEngageConfig.Builder()
-                .from(MobileEngage.getConfig())
-                .enableIdlingResource(true)
-                .statusListener((StatusListener) fragment)
-                .build();
-        MobileEngage.setup(config);
-
-        Espresso.registerIdlingResources(MobileEngageUtils.getIdlingResource());
     }
 
     @After
-    public void tearDown() throws NoSuchFieldException, IllegalAccessException {
+    public void tearDown() {
         Context targetContext = InstrumentationRegistry.getTargetContext();
         new MeIdStorage(targetContext).remove();
         new AppLoginStorage(targetContext).remove();
-
-        Espresso.unregisterIdlingResources(MobileEngageUtils.getIdlingResource());
-
-        Field handlerField = MobileEngage.class.getDeclaredField("coreSdkHandler");
-        handlerField.setAccessible(true);
-        Handler handler = (Handler) handlerField.get(null);
-        handler.getLooper().quit();
-        DependencyInjection.tearDown();
     }
 
     @Test
+    @Ignore
     public void testAnonymousLogin() {
         onView(ViewMatchers.withId(R.id.appLoginAnonymous)).perform(scrollTo(), click());
         onView(withId(R.id.mobileEngageStatusLabel)).check(matches(withText("Anonymous login: OK")));

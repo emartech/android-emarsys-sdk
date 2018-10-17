@@ -9,7 +9,6 @@ import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.util.HeaderUtils;
 import com.emarsys.mobileengage.BuildConfig;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
@@ -52,9 +51,6 @@ public class RequestHeaderUtilsTest {
         meIdStorage.set(meId);
         MeIdSignatureStorage meIdSignatureStorage = new MeIdSignatureStorage(context);
         meIdSignatureStorage.set(meIdSignature);
-
-        MobileEngageConfig config = mock(MobileEngageConfig.class);
-        when(config.getApplicationCode()).thenReturn(APPLICATION_CODE);
 
         UUIDProvider uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
@@ -121,9 +117,6 @@ public class RequestHeaderUtilsTest {
         meIdStorage.set(meId);
         MeIdSignatureStorage meIdSignatureStorage = new MeIdSignatureStorage(context);
         meIdSignatureStorage.set(meIdSignature);
-
-        MobileEngageConfig config = mock(MobileEngageConfig.class);
-        when(config.getApplicationCode()).thenReturn(APPLICATION_CODE);
 
         UUIDProvider uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");

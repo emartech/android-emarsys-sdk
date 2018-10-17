@@ -4,13 +4,13 @@ import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.QueryAll;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.FilterByUrlPattern;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.endpoint.Endpoint;
-import com.emarsys.mobileengage.iam.DoNotDisturbProvider;
+import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedContract;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
@@ -32,7 +32,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private final Repository<DisplayedIam, SqlSpecification> iamRepository;
     private final Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
     private final TimestampProvider timestampProvider;
-    private final DoNotDisturbProvider doNotDisturbProvider;
+    private final InAppInternal inAppInternal;
 
     public RequestRepositoryProxy(
             DeviceInfo deviceInfo,
@@ -40,19 +40,19 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
             Repository<DisplayedIam, SqlSpecification> iamRepository,
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             TimestampProvider timestampProvider,
-            DoNotDisturbProvider doNotDisturbProvider) {
+            InAppInternal inAppInternal) {
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(iamRepository, "IamRepository must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
-        Assert.notNull(doNotDisturbProvider, "DoNotDisturbProvider must not be null!");
+        Assert.notNull(inAppInternal, "InAppInternal must not be null!");
         this.deviceInfo = deviceInfo;
         this.requestRepository = requestRepository;
         this.iamRepository = iamRepository;
         this.buttonClickedRepository = buttonClickedRepository;
         this.timestampProvider = timestampProvider;
-        this.doNotDisturbProvider = doNotDisturbProvider;
+        this.inAppInternal = inAppInternal;
     }
 
     @Override
@@ -131,7 +131,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
                 iamRepository.query(new QueryAll(DisplayedIamContract.TABLE_NAME)),
                 buttonClickedRepository.query(new QueryAll(ButtonClickedContract.TABLE_NAME)),
                 deviceInfo,
-                doNotDisturbProvider.isPaused()
+                inAppInternal.isPaused()
         );
     }
 

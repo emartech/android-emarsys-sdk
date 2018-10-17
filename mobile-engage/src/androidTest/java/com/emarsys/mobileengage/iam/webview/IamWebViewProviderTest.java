@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.iam.webview;
 
-import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.test.InstrumentationRegistry;
@@ -9,9 +8,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import com.emarsys.core.provider.Gettable;
-import com.emarsys.mobileengage.MobileEngage;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.config.MobileEngageConfig;
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
@@ -24,7 +21,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import java.lang.reflect.Field;
 import java.util.concurrent.CountDownLatch;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
@@ -82,16 +78,20 @@ public class IamWebViewProviderTest {
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
-    public void init() throws NoSuchFieldException, IllegalAccessException {
-        injectMobileEngageConfig();
+    public void init() {
         IamWebViewProvider.webView = null;
 
-        provider = new IamWebViewProvider();
+        provider = new IamWebViewProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
         listener = mock(MessageLoadedListener.class);
 
         handler = new Handler(Looper.getMainLooper());
         latch = new CountDownLatch(1);
         dummyJsBridge = new TestJSInterface();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_context_mustNotBeNull() {
+        new IamWebViewProvider(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -138,17 +138,5 @@ public class IamWebViewProviderTest {
         latch.await();
 
         assertEquals(IamWebViewProvider.webView, provider.provideWebView());
-    }
-
-    private void injectMobileEngageConfig() throws NoSuchFieldException, IllegalAccessException {
-        MobileEngageConfig config = new MobileEngageConfig.Builder()
-                .application((Application) InstrumentationRegistry.getContext().getApplicationContext())
-                .credentials("code", "pwd")
-                .disableDefaultChannel()
-                .build();
-
-        Field configField = MobileEngage.class.getDeclaredField("config");
-        configField.setAccessible(true);
-        configField.set(null, config);
     }
 }
