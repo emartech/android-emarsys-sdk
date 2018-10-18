@@ -45,7 +45,7 @@ public class SampleApplication extends Application implements EventHandler, Noti
 
     private void createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= 26) {
-            createNotificationChannel("ems_sample_news", "News", "News and updates go into this channel", NotificationManager.IMPORTANCE_DEFAULT);
+            createNotificationChannel("ems_sample_news", "News", "News and updates go into this channel", NotificationManager.IMPORTANCE_HIGH);
             createNotificationChannel("ems_sample_messages", "Messages", "Important messages go into this channel", NotificationManager.IMPORTANCE_HIGH);
         }
     }
