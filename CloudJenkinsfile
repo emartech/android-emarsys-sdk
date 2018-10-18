@@ -1,0 +1,58 @@
+@Library(['android-pipeline', 'general-pipeline']) _
+
+properties([
+        parameters([
+                booleanParam(
+                        name: 'DEVELOPMENT_MODE',
+                        description: 'Use local sdk module as dependency',
+                        defaultValue: true)])])
+
+node('master') {
+    def envs = params.DEVELOPMENT_MODE ? ['DEVELOPMENT_MODE=true'] : []
+
+    withEnv(envs) {
+        timeout(30) {
+            withSlack channel: 'jenkins', {
+                stage('init') {
+                    deleteDir()
+                    git url: 'git@github.com:emartech/android-emarsys-sdk.git', branch: 'master'
+                }
+
+                stage('build') {
+                    sh "./gradlew assembleAndroidTest"
+                }
+
+                stage('tests') {
+                    def app = "--app 'sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk'"
+                    def path = "build/outputs/apk/androidTest/debug"
+                    def devices = [
+                            "--device model=g3,version=19,locale=en,orientation=portrait",
+                            "--device model=hwALE-H,version=21,locale=en,orientation=portrait",
+                            "--device model=j1acevelte,version=22,locale=en,orientation=portrait",
+                            "--device model=j7xelte,version=23,locale=en,orientation=portrait",
+                            "--device model=a5y17lte,version=24,locale=en,orientation=portrait",
+                            "--device model=OnePlus5,version=26,locale=en,orientation=portrait",
+                            "--device model=sailfish,version=27,locale=en,orientation=portrait",
+                            "--device model=walleye,version=28,locale=en,orientation=portrait"
+                    ]
+                    def createTask = { module ->
+                        return {
+                            sh "gcloud firebase test android run --type instrumentation --test '$module/$path/$module-debug-androidTest.apk' $app ${devices.join(' ')} --timeout 90s --quiet --project ems-mobile-sdk"
+                        }
+                    }
+                    def tasks = [
+                            'core'             : createTask('core'),
+                            'core-api'         : createTask('core-api'),
+                            'mobile-engage'    : createTask('mobile-engage'),
+                            'mobile-engage-api': createTask('mobile-engage-api'),
+                            'predict'          : createTask('predict'),
+                            'predict-api'      : createTask('predict-api'),
+                            'failFast'         : false
+                    ]
+                    parallel tasks
+                }
+            }
+        }
+    }
+}
+
