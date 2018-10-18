@@ -197,6 +197,20 @@ class PredictIntegrationTest {
         testTrackSearchTerm()
     }
 
+    @Test
+    fun testMultipleInvocationsWithSetCustomer() {
+        Emarsys.setCustomer("test@test.com")
+        testTrackCart()
+        latch = CountDownLatch(1)
+        testTrackPurchase()
+        latch = CountDownLatch(1)
+        testTrackCategoryView()
+        latch = CountDownLatch(1)
+        testTrackItemView()
+        latch = CountDownLatch(1)
+        testTrackSearchTerm()
+    }
+
     private fun eventuallyAssertSuccess() {
         latch.await()
         errorCause shouldBe null
