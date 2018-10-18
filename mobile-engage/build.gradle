@@ -7,6 +7,8 @@ android {
     defaultConfig {
         minSdkVersion Config.minApiLevel
         targetSdkVersion Config.targetApiLevel
+        versionCode gitVersionCode
+        versionName gitVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "ME_BASE_V2_URL", System.env.ME_BASEV2_URL ?: project.ME_BASE_V2_URL
         buildConfigField "String", "ME_BASE_V3_URL", System.env.ME_BASE_V3_URL ?: project.ME_BASE_V3_URL

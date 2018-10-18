@@ -1,3 +1,6 @@
+enableFeaturePreview('IMPROVED_POM_SUPPORT')
+rootProject.name = "emarsys-sdk"
+
 include ':testUtils'
 include ':core-api'
 include ':core'

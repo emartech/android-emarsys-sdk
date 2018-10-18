@@ -7,6 +7,8 @@ android {
         applicationId "com.emarsys.sample"
         minSdkVersion Config.minApiLevel
         targetSdkVersion Config.targetApiLevel
+        versionCode gitVersionCode
+        versionName gitVersionName
         testInstrumentationRunner "com.emarsys.sample.testutils.SampleAppTestRunner"
     }
 

@@ -1,4 +1,3 @@
-apply from: 'version.gradle'
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.github.dcendents.android-maven'
@@ -23,7 +22,6 @@ android {
 }
 
 group = 'com.emarsys'
-version = gitVersionName
 
 dependencies {
     api project(':core-api')

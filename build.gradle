@@ -1,4 +1,5 @@
 apply from: 'dev.gradle'
+apply from: 'version.gradle'
 apply plugin: "com.github.ben-manes.versions"
 apply plugin: "com.vanniktech.dependency.graph.generator"
 
@@ -22,6 +23,7 @@ allprojects {
         jcenter()
         google()
     }
+    version = gitVersionName
 }
 
 task clean(type: Delete) {

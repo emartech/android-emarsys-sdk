@@ -8,6 +8,8 @@ android {
     defaultConfig {
         minSdkVersion Config.minApiLevel
         targetSdkVersion Config.targetApiLevel
+        versionCode gitVersionCode
+        versionName gitVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
