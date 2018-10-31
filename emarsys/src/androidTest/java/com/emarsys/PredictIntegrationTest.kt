@@ -114,9 +114,9 @@ class PredictIntegrationTest {
     @Test
     fun testTrackCart() {
         val cartItems = listOf(
-                PredictCartItem("item1", 1.1, 10.0),
-                PredictCartItem("item2", 2.2, 20.0),
-                PredictCartItem("item3", 3.3, 30.0)
+                PredictCartItem("2168", 1.1, 10.0),
+                PredictCartItem("2200", 2.2, 20.0),
+                PredictCartItem("2509", 3.3, 30.0)
         )
 
         responseModelMatches = {
@@ -131,9 +131,9 @@ class PredictIntegrationTest {
     @Test
     fun testTrackPurchase() {
         val cartItems = listOf(
-                PredictCartItem("item1", 1.1, 10.0),
-                PredictCartItem("item2", 2.2, 20.0),
-                PredictCartItem("item3", 3.3, 30.0)
+                PredictCartItem("2168", 1.1, 10.0),
+                PredictCartItem("2200", 2.2, 20.0),
+                PredictCartItem("2509", 3.3, 30.0)
         )
 
         val orderId = "orderId_1234567892345678"
@@ -150,7 +150,7 @@ class PredictIntegrationTest {
 
     @Test
     fun testTrackItemView() {
-        val itemId = "itemId123456789"
+        val itemId = "2168"
         responseModelMatches = {
             it.baseUrl.contains(itemId)
         }
@@ -200,15 +200,7 @@ class PredictIntegrationTest {
     @Test
     fun testMultipleInvocationsWithSetCustomer() {
         Emarsys.setCustomer("test@test.com")
-        testTrackCart()
-        latch = CountDownLatch(1)
-        testTrackPurchase()
-        latch = CountDownLatch(1)
-        testTrackCategoryView()
-        latch = CountDownLatch(1)
-        testTrackItemView()
-        latch = CountDownLatch(1)
-        testTrackSearchTerm()
+        testMultipleInvocations()
     }
 
     private fun eventuallyAssertSuccess() {
