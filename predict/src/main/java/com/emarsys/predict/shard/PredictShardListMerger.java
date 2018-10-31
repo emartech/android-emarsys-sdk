@@ -2,6 +2,7 @@ package com.emarsys.predict.shard;
 
 import android.net.Uri;
 
+import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.Mapper;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
@@ -12,6 +13,7 @@ import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
 import com.emarsys.predict.PredictInternal;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,21 +24,25 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
     private final KeyValueStore keyValueStore;
     private final UUIDProvider uuidProvider;
     private final TimestampProvider timestampProvider;
+    private final Map<String, String> headers;
 
     public PredictShardListMerger(
             String merchantId,
             KeyValueStore keyValueStore,
             TimestampProvider timestampProvider,
-            UUIDProvider uuidProvider) {
+            UUIDProvider uuidProvider,
+            DeviceInfo deviceInfo) {
         Assert.notNull(merchantId, "MerchantId must not be null!");
         Assert.notNull(keyValueStore, "KeyValueStore must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(uuidProvider, "UuidProvider must not be null!");
+        Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
 
         this.merchantId = merchantId;
         this.keyValueStore = keyValueStore;
         this.uuidProvider = uuidProvider;
         this.timestampProvider = timestampProvider;
+        this.headers = initializeHeaders(deviceInfo);
     }
 
     @Override
@@ -48,6 +54,7 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
         return new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(createUrl(shards))
                 .method(RequestMethod.GET)
+                .headers(headers)
                 .build();
     }
 
@@ -89,5 +96,11 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
         if (customerId != null) {
             result.put("ci", customerId);
         }
+    }
+
+    private Map<String, String> initializeHeaders(DeviceInfo deviceInfo) {
+        Map<String, String> result = new HashMap<>();
+        result.put("User-Agent", "EmarsysPredictSDK|osversion:" + deviceInfo.getOsVersion() + "|platform:" + deviceInfo.getPlatform());
+        return result;
     }
 }

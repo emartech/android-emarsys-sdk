@@ -274,7 +274,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                         config.getPredictMerchantId(),
                         sharedPrefsKeyStore,
                         timestampProvider,
-                        uuidProvider),
+                        uuidProvider,
+                        deviceInfo),
                 requestManager);
 
         mobileEngageInternal = new MobileEngageInternal(
