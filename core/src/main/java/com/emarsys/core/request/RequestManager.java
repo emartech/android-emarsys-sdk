@@ -91,6 +91,9 @@ public class RequestManager {
     }
 
     public void submitNow(RequestModel requestModel, CoreCompletionHandler completionHandler) {
+        Assert.notNull(requestModel, "RequestModel must not be null!");
+        Assert.notNull(completionHandler, "CompletionHandler must not be null!");
+
         restClient.execute(requestModel, completionHandler);
     }
 

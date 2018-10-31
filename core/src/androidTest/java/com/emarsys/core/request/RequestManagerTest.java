@@ -310,6 +310,16 @@ public class RequestManagerTest {
         verify(callbackRegistry).register(requestModel, null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testSubmitNow_requestModel_mustNotBeNull() {
+        manager.submitNow(null, handler);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSubmitNow_completionHandler_mustNotBeNull() {
+        manager.submitNow(requestModel, null);
+    }
+
     @Test
     public void testSubmitNow_shouldCallRestClientsExecuteWithGivenParameters() {
         manager.submitNow(requestModel, handler);
