@@ -100,7 +100,7 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
 
     private Map<String, String> initializeHeaders(DeviceInfo deviceInfo) {
         Map<String, String> result = new HashMap<>();
-        result.put("User-Agent", "EmarsysPredictSDK|osversion:" + deviceInfo.getOsVersion() + "|platform:" + deviceInfo.getPlatform());
+        result.put("User-Agent", "EmarsysSDK|osversion:" + deviceInfo.getOsVersion() + "|platform:" + deviceInfo.getPlatform());
         return result;
     }
 }
