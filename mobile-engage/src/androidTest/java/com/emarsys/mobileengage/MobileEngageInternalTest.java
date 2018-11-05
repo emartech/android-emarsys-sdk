@@ -24,10 +24,10 @@ import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.testUtil.ExperimentalTestUtils;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestModelUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 import com.emarsys.testUtil.mockito.ThreadSpy;
 
@@ -740,7 +740,7 @@ public class MobileEngageInternalTest {
 
     @Test
     public void testTrackMessageOpen_requestManagerCalledWithCorrectRequestModelWhenUsingV3() throws Exception {
-        ExperimentalFeatures.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
+        ExperimentalFeatures.enableFeature(MobileEngageFeature.TRACK_MESSAGE_OPEN_V3);
 
         Intent intent = getTestIntent();
 

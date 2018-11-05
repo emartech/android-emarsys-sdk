@@ -232,10 +232,9 @@ public class MobileEngageInternal {
         return sid;
     }
 
-
     private String handleMessageOpen(String messageId, final CompletionListener completionListener) {
         if (messageId != null) {
-            if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
+            if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.TRACK_MESSAGE_OPEN_V3)) {
                 return handleMessageOpen_V3(messageId, completionListener);
             } else {
                 return handleMessageOpen_V2(messageId, completionListener);

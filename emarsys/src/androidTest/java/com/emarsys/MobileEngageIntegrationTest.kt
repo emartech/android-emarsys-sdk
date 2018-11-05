@@ -11,6 +11,7 @@ import com.emarsys.core.di.DependencyInjection
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature.IN_APP_MESSAGING
+import com.emarsys.mobileengage.api.experimental.MobileEngageFeature.TRACK_MESSAGE_OPEN_V3
 import com.emarsys.mobileengage.storage.AppLoginStorage
 import com.emarsys.mobileengage.storage.MeIdStorage
 import com.emarsys.testUtil.ConnectionTestUtils
@@ -211,7 +212,7 @@ class MobileEngageIntegrationTest {
         tearDown()
         EmarsysConfig.Builder()
                 .from(baseConfig)
-                .enableExperimentalFeatures(IN_APP_MESSAGING)
+                .enableExperimentalFeatures(IN_APP_MESSAGING, TRACK_MESSAGE_OPEN_V3)
                 .inAppEventHandler(mock(EventHandler::class.java))
                 .build()
                 .let(this::setup)
