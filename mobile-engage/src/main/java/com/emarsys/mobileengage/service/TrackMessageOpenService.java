@@ -26,12 +26,13 @@ public class TrackMessageOpenService extends Service {
 
             MessagingServiceUtils.dismissNotification(this, intent);
 
+            container.getMobileEngageInternal().trackMessageOpen(intent, null);
+
             NotificationActionUtils.handleAction(intent, new NotificationCommandFactory(
                     this,
                     container.getMobileEngageInternal(),
                     container.getNotificationEventHandler()));
 
-            container.getMobileEngageInternal().trackMessageOpen(intent, null);
         }
         stopSelf(startId);
         return START_NOT_STICKY;
