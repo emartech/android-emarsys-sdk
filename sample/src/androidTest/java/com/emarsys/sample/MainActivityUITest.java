@@ -12,7 +12,6 @@ import com.emarsys.sample.testutils.TimeoutUtils;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -50,7 +49,6 @@ public class MainActivityUITest {
     }
 
     @Test
-    @Ignore
     public void testAnonymousLogin() {
         onView(ViewMatchers.withId(R.id.appLoginAnonymous)).perform(scrollTo(), click());
         onView(withId(R.id.mobileEngageStatusLabel)).check(matches(withText("Anonymous login: OK")));
