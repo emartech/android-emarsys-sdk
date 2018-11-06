@@ -96,6 +96,13 @@ class MobileEngageIntegrationTest {
     }
 
     @Test
+    fun testSetAnonymousCustomer() {
+        Emarsys.setAnonymousCustomer(
+                this::eventuallyStoreResult
+        ).also(this::eventuallyAssertSuccess)
+    }
+
+    @Test
     fun testSetCustomer() {
         Emarsys.setCustomer(
                 "test@test.com",
