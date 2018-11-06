@@ -54,20 +54,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/appLoginAnonymous" />
 
             <EditText
-                android:id="@+id/contactFieldId"
-                android:layout_width="@dimen/inputWidth"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
-                android:hint="@string/contactFieldId"
-                android:inputType="number"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/sep1" />
-
-            <EditText
                 android:id="@+id/contactFieldValue"
                 android:layout_width="@dimen/inputWidth"
                 android:layout_height="wrap_content"
@@ -79,7 +65,7 @@
                 android:hint="@string/contactFieldValue"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/contactFieldId" />
+                app:layout_constraintTop_toBottomOf="@+id/sep1" />
 
             <Button
                 android:id="@+id/appLogin"

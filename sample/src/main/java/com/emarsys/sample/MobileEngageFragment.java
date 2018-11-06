@@ -36,8 +36,7 @@ import java.util.Map;
 public class MobileEngageFragment extends Fragment {
     private static final String TAG = "MobileEngageFragment";
 
-    private EditText applicationId;
-    private EditText customerId;
+    private EditText contactFieldValue;
     private EditText eventName;
     private EditText eventAttributes;
     private EditText messageId;
@@ -71,8 +70,7 @@ public class MobileEngageFragment extends Fragment {
         };
         statusLabel = root.findViewById(R.id.mobileEngageStatusLabel);
 
-        applicationId = root.findViewById(R.id.contactFieldId);
-        customerId = root.findViewById(R.id.contactFieldValue);
+        contactFieldValue = root.findViewById(R.id.contactFieldValue);
         eventName = root.findViewById(R.id.eventName);
         eventAttributes = root.findViewById(R.id.eventAttributes);
         messageId = root.findViewById(R.id.messageId);
@@ -80,7 +78,7 @@ public class MobileEngageFragment extends Fragment {
         root.findViewById(R.id.appLoginAnonymous).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Emarsys.setCustomer("");
+                Emarsys.setAnonymousCustomer(completionListener);
                 handleRequestSent("Anonymous login: ");
             }
         });
@@ -88,9 +86,7 @@ public class MobileEngageFragment extends Fragment {
         root.findViewById(R.id.appLogin).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String contactFieldId = applicationId.getText().toString();
-                if (!contactFieldId.isEmpty()) {
-                    String id = customerId.getText().toString();
+                    String id = contactFieldValue.getText().toString();
                     Emarsys.setCustomer(id, new CompletionListener() {
                         @Override
                         public void onCompleted(@Nullable Throwable errorCause) {
@@ -101,7 +97,6 @@ public class MobileEngageFragment extends Fragment {
                         }
                     });
                     handleRequestSent("Login: ");
-                }
             }
         });
 

@@ -93,7 +93,6 @@ public class MainActivityUITest {
     }
 
     private void login() {
-        onView(withId(R.id.contactFieldId)).perform(scrollTo(), typeText("3"));
         onView(withId(R.id.contactFieldValue)).perform(scrollTo(), typeText("test@test.com"));
         onView(withId(R.id.appLogin)).perform(scrollTo(), click());
     }
