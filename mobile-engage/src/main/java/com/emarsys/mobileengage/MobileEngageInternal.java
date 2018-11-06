@@ -84,6 +84,11 @@ public class MobileEngageInternal {
         }
     }
 
+    public String appLogin(CompletionListener completionListener) {
+        requestContext.setAppLoginParameters(new AppLoginParameters());
+        return sendAppLogin(completionListener);
+    }
+
     public String appLogin(String contactFieldValue, CompletionListener completionListener) {
         requestContext.setAppLoginParameters(new AppLoginParameters(requestContext.getContactFieldId(), contactFieldValue));
         return sendAppLogin(completionListener);

@@ -462,6 +462,20 @@ public class EmarsysTest {
     }
 
     @Test
+    public void testSetAnonymousCustomer_delegatesToMobileEngageInternal() {
+        Emarsys.setAnonymousCustomer();
+
+        verify(mockMobileEngageInternal).appLogin(null);
+    }
+
+    @Test
+    public void testSetAnonymousCustomer_completionListener_delegatesToMobileEngageInternal() {
+        Emarsys.setAnonymousCustomer(completionListener);
+
+        verify(mockMobileEngageInternal).appLogin(completionListener);
+    }
+
+    @Test
     public void testClearCustomer_delegatesTo_mobileEngageInternal() {
         Emarsys.clearCustomer();
 

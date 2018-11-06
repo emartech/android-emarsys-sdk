@@ -93,6 +93,7 @@ public class MobileEngageInternalTest {
     private RequestContext requestContext;
     private TimestampProvider timestampProvider;
     private UUIDProvider uuidProvider;
+    private CompletionListener mockCompletionListener;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -100,6 +101,8 @@ public class MobileEngageInternalTest {
     @Before
     public void init() {
         ExperimentalFeatures.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
+
+        mockCompletionListener = mock(CompletionListener.class);
 
         manager = mock(RequestManager.class);
         coreCompletionHandler = mock(DefaultCoreCompletionHandler.class);
@@ -178,12 +181,47 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngageInternal.appLogin();
+        mobileEngageInternal.appLogin(null);
 
         verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModel result = captor.getValue();
         assertRequestModels(expected, result);
+    }
+
+    @Test
+    public void testAppLogin_anonymous_requestManagerCalledWithCorrectCompletionHandler() {
+        meIdStorage.remove();
+
+        CompletionListener completionListener = mock(CompletionListener.class);
+
+        mobileEngageInternal.appLogin(completionListener);
+
+        verify(manager).submit(any(RequestModel.class), eq(completionListener));
+    }
+
+    @Test
+    public void testAppLogin_anonymous_shouldSetAppLoginParametersOnRequestContext() {
+        final RequestContext requestContext = mock(RequestContext.class, RETURNS_DEEP_STUBS);
+        when(requestContext.getApplicationCode()).thenReturn(APPLICATION_ID);
+        when(requestContext.getApplicationPassword()).thenReturn(APPLICATION_PASSWORD);
+        when(requestContext.getUUIDProvider()).thenReturn(uuidProvider);
+
+        MobileEngageInternal internal = new MobileEngageInternal(
+                manager,
+                mock(Handler.class),
+                coreCompletionHandler,
+                requestContext);
+
+        internal.appLogin(mockCompletionListener);
+
+        ArgumentCaptor<AppLoginParameters> captor = ArgumentCaptor.forClass(AppLoginParameters.class);
+        verify(requestContext).setAppLoginParameters(captor.capture());
+
+        AppLoginParameters actualParameters = captor.getValue();
+        AppLoginParameters expectedParameters = new AppLoginParameters();
+
+        assertEquals(expectedParameters, actualParameters);
     }
 
     @Test
@@ -191,36 +229,7 @@ public class MobileEngageInternalTest {
         meIdStorage.remove();
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngageInternal.appLogin();
-
-        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
-
-        assertEquals(captor.getValue().getId(), result);
-    }
-
-    @Test
-    public void testAppLogin_withApploginParameters_requestManagerCalledWithCorrectRequestModel() {
-        meIdStorage.remove();
-        int contactFieldId = 3;
-        String contactFieldValue = "value";
-        RequestModel expected = createLoginRequestModel(new AppLoginParameters(contactFieldId, contactFieldValue));
-
-        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
-
-        mobileEngageInternal.appLogin(contactFieldId, contactFieldValue);
-
-        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
-
-        RequestModel result = captor.getValue();
-        assertRequestModels(expected, result);
-    }
-
-    @Test
-    public void testAppLogin_withContactFieldValue_returnsRequestModelId() {
-        meIdStorage.remove();
-        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
-
-        String result = mobileEngageInternal.appLogin("value", null);
+        String result = mobileEngageInternal.appLogin(null);
 
         verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
@@ -244,6 +253,18 @@ public class MobileEngageInternalTest {
     }
 
     @Test
+    public void testAppLogin_withContactFieldValue_returnsRequestModelId() {
+        meIdStorage.remove();
+        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
+
+        String result = mobileEngageInternal.appLogin("value", null);
+
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
+
+        assertEquals(captor.getValue().getId(), result);
+    }
+
+    @Test
     public void testAppLogin_withContactFieldValue_requestManagerCalledWithCorrectCompletionHandler() {
         meIdStorage.remove();
         String contactFieldValue = "value";
@@ -256,23 +277,12 @@ public class MobileEngageInternalTest {
     }
 
     @Test
-    public void testAppLogin_returnsRequestModelId() {
-        meIdStorage.remove();
-        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
-
-        String result = mobileEngageInternal.appLogin(5, "value");
-
-        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
-
-        assertEquals(captor.getValue().getId(), result);
-    }
-
-    @Test
     public void testAppLogin_shouldSetAppLoginParametersOnRequestContext() {
         final RequestContext requestContext = mock(RequestContext.class, RETURNS_DEEP_STUBS);
         when(requestContext.getApplicationCode()).thenReturn(APPLICATION_ID);
         when(requestContext.getApplicationPassword()).thenReturn(APPLICATION_PASSWORD);
         when(requestContext.getUUIDProvider()).thenReturn(uuidProvider);
+        when(requestContext.getContactFieldId()).thenReturn(CONTACT_FIELD_ID);
 
         MobileEngageInternal internal = new MobileEngageInternal(
                 manager,
@@ -280,16 +290,16 @@ public class MobileEngageInternalTest {
                 coreCompletionHandler,
                 requestContext);
 
-        final int contactFieldId = 3;
         final String contactFieldValue = "email@address.com";
-        internal.appLogin(contactFieldId, contactFieldValue);
+        internal.appLogin(contactFieldValue, mockCompletionListener);
 
         ArgumentCaptor<AppLoginParameters> captor = ArgumentCaptor.forClass(AppLoginParameters.class);
         verify(requestContext).setAppLoginParameters(captor.capture());
 
-        final AppLoginParameters appLoginParameters = captor.getValue();
-        assertEquals(contactFieldId, appLoginParameters.getContactFieldId());
-        assertEquals(contactFieldValue, appLoginParameters.getContactFieldValue());
+        AppLoginParameters actualParameters = captor.getValue();
+        AppLoginParameters expectedParameters = new AppLoginParameters(CONTACT_FIELD_ID, contactFieldValue);
+
+        assertEquals(expectedParameters, actualParameters);
     }
 
     @Test
@@ -868,7 +878,6 @@ public class MobileEngageInternalTest {
         String result = mobileEngageInternal.getMessageId(intent);
         assertNull(result);
     }
-
 
 
     @Test

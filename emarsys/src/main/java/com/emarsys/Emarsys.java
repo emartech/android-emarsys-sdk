@@ -62,6 +62,14 @@ public class Emarsys {
         getPredictInternal().setCustomer(customerId);
     }
 
+    public static void setAnonymousCustomer() {
+        setAnonymousCustomer(null);
+    }
+
+    public static void setAnonymousCustomer(@NonNull CompletionListener completionListener) {
+        getMobileEngageInternal().appLogin(completionListener);
+    }
+
     public static void clearCustomer() {
         clearCustomer(null);
     }
