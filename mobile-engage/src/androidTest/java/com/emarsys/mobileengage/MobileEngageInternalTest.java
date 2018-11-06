@@ -332,9 +332,9 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngageInternal.appLogin(appLoginParameters.getContactFieldId(), appLoginParameters.getContactFieldValue());
+        mobileEngageInternal.appLogin(appLoginParameters.getContactFieldValue(), mockCompletionListener);
 
-        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
+        verify(manager).submit(captor.capture(), eq(mockCompletionListener));
         RequestModel requestModel = captor.getValue();
         assertRequestModels(createLoginRequestModel(appLoginParameters), requestModel);
 
@@ -346,9 +346,9 @@ public class MobileEngageInternalTest {
 
         captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngageInternal.appLogin(appLoginParameters.getContactFieldId(), appLoginParameters.getContactFieldValue());
+        mobileEngageInternal.appLogin(appLoginParameters.getContactFieldValue(), mockCompletionListener);
 
-        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
+        verify(manager).submit(captor.capture(), eq(mockCompletionListener));
         requestModel = captor.getValue();
         assertRequestModels(createLoginRequestModel(appLoginParameters), requestModel);
     }
@@ -981,9 +981,9 @@ public class MobileEngageInternalTest {
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
         meIdStorage.set(firstMeId);
-        mobileEngageInternal.appLogin(firstAppLoginParameter.getContactFieldId(), firstAppLoginParameter.getContactFieldValue());
+        mobileEngageInternal.appLogin(firstAppLoginParameter.getContactFieldValue(), mockCompletionListener);
 
-        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
+        verify(manager).submit(captor.capture(), eq(mockCompletionListener));
         RequestModel requestModel = captor.getValue();
         assertRequestModels(firstExpectedRequestModel, requestModel);
 
@@ -1001,9 +1001,9 @@ public class MobileEngageInternalTest {
 
         requestContext.setAppLoginParameters(secondAppLoginParameter);
         meIdStorage.set(secondMeId);
-        mobileEngageInternal.appLogin(secondAppLoginParameter.getContactFieldId(), secondAppLoginParameter.getContactFieldValue());
+        mobileEngageInternal.appLogin(secondAppLoginParameter.getContactFieldValue(), mockCompletionListener);
 
-        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
+        verify(manager).submit(captor.capture(), eq(mockCompletionListener));
         requestModel = captor.getValue();
         assertRequestModels(secondExpectedRequestModel, requestModel);
     }
@@ -1046,7 +1046,7 @@ public class MobileEngageInternalTest {
 
     private RequestModel createLoginRequestModel(AppLoginParameters appLoginParameters) {
         Map<String, Object> payload = injectLoginPayload(createBasePayload());
-        payload.put("contact_field_id", appLoginParameters.getContactFieldId());
+        payload.put("contact_field_id", CONTACT_FIELD_ID);
         payload.put("contact_field_value", appLoginParameters.getContactFieldValue());
         return new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(ENDPOINT_LOGIN)
@@ -1057,7 +1057,7 @@ public class MobileEngageInternalTest {
 
     private RequestModel createLastMobileActivityRequestModel(AppLoginParameters appLoginParameters) {
         Map<String, Object> payload = createBasePayload();
-        payload.put("contact_field_id", appLoginParameters.getContactFieldId());
+        payload.put("contact_field_id", CONTACT_FIELD_ID);
         payload.put("contact_field_value", appLoginParameters.getContactFieldValue());
         return new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(ENDPOINT_LAST_MOBILE_ACTIVITY)

@@ -94,16 +94,6 @@ public class MobileEngageInternal {
         return sendAppLogin(completionListener);
     }
 
-    public String appLogin(int contactFieldId, String contactFieldValue) {
-        requestContext.setAppLoginParameters(new AppLoginParameters(contactFieldId, contactFieldValue));
-        return sendAppLogin(null);
-    }
-
-    public String appLogin() {
-        requestContext.setAppLoginParameters(new AppLoginParameters());
-        return sendAppLogin(null);
-    }
-
     String sendAppLogin(CompletionListener completionListener) {
         EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Called");
 
