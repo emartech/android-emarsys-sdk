@@ -1,8 +1,6 @@
 package com.emarsys
 
 import android.app.Application
-import android.support.test.InstrumentationRegistry
-import android.support.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.di.DependencyInjection
@@ -130,8 +128,8 @@ class InboxV1IntegrationTest {
     }
 
     private fun <T> eventuallyStoreResultInProperty(setter: KMutableProperty0.Setter<T>): (T)-> Unit{
-        setter.isAccessible = true
         return {
+            setter.isAccessible = true
             setter(it)
             latch.countDown()
         }
