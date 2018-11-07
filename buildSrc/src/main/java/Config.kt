@@ -1,4 +1,4 @@
 object Config {
     const val minApiLevel = 14
-    const val targetApiLevel = 26
+    const val targetApiLevel = 28
 }
