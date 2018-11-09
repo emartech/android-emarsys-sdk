@@ -59,7 +59,7 @@ class QueryAllTest {
         )
         expectedList.forEach(repository::add)
 
-        val resultList = repository.query(QueryAll("shard"))
+        val resultList = repository.query(specification)
 
         assertEquals(expectedList, resultList)
     }
