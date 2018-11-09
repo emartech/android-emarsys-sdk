@@ -6,8 +6,7 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
+import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -37,12 +36,12 @@ class FilterByShardTypeTest {
 
     @Test
     fun testGetSqlString() {
-        assertEquals("SELECT * FROM shard WHERE type LIKE ? ORDER BY ROWID ASC;", specification.sql)
+        specification.sql shouldBe "SELECT * FROM shard WHERE type LIKE ? ORDER BY ROWID ASC;"
     }
 
     @Test
     fun testGetArgsString() {
-        assertArrayEquals(arrayOf(TYPE), specification.args)
+        specification.args shouldBe arrayOf(TYPE)
     }
 
     @Test
@@ -62,6 +61,6 @@ class FilterByShardTypeTest {
 
         val expectedList = shardList.filter { x -> (x.type == "button_click") }
 
-        assertEquals(expectedList, resultList)
+        resultList shouldBe expectedList
     }
 }
