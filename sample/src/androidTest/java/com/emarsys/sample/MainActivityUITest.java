@@ -1,13 +1,9 @@
 package com.emarsys.sample;
 
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.emarsys.mobileengage.storage.AppLoginStorage;
-import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.sample.testutils.TimeoutUtils;
 
 import org.junit.After;
@@ -36,16 +32,12 @@ public class MainActivityUITest {
 
     @Before
     public void init() {
-        Context context = InstrumentationRegistry.getTargetContext();
-        new MeIdStorage(context).remove();
-        new AppLoginStorage(context).remove();
+        logout();
     }
 
     @After
     public void tearDown() {
-        Context targetContext = InstrumentationRegistry.getTargetContext();
-        new MeIdStorage(targetContext).remove();
-        new AppLoginStorage(targetContext).remove();
+        logout();
     }
 
     @Test
@@ -88,12 +80,16 @@ public class MainActivityUITest {
 
     @Test
     public void testLogout() {
-        onView(withId(R.id.appLogout)).perform(scrollTo(), click());
+        logout();
         onView(withId(R.id.mobileEngageStatusLabel)).check(matches(withText("Logout: OK")));
     }
 
     private void login() {
         onView(withId(R.id.contactFieldValue)).perform(scrollTo(), typeText("test@test.com"));
         onView(withId(R.id.appLogin)).perform(scrollTo(), click());
+    }
+
+    private void logout() {
+        onView(withId(R.id.appLogout)).perform(scrollTo(), click());
     }
 }
