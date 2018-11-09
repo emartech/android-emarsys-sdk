@@ -7,17 +7,17 @@ object Versions {
     const val firebase_messaging_version = "17.3.4"
     const val hamcrest_version = "1.3"
     const val support_test_version = "1.0.2"
-    const val support_library = "27.1.1"
+    const val support_library = "28.0.0"
     const val buildToolsVersion = "28.0.3"
     const val multiDexVersion = "1.0.3"
 }
 
 object Libs {
     val support_annotations = "com.android.support:support-annotations:${Versions.support_library}"
+    val support_appcompat = "com.android.support:appcompat-v7:${Versions.support_library}"
     val firebase_core = "com.google.firebase:firebase-core:${Versions.firebase_core_version}"
     val firebase_messaging = "com.google.firebase:firebase-messaging:${Versions.firebase_messaging_version}"
     val espresso_idling_resources = "com.android.support.test.espresso:espresso-idling-resource:${Versions.espresso_version}"
-    val support_appcompat = "com.android.support:appcompat-v7:${Versions.support_library}"
 }
 
 object TestLibs {
