@@ -1,0 +1,79 @@
+ext.modules = [':core-api', ':core', ':mobile-engage-api', ':mobile-engage', ':predict-api', ':predict', ':emarsys']
+
+modules.each {
+    project(it) {
+        apply plugin: 'com.android.library'
+        android {
+            buildToolsVersion Versions.buildToolsVersion
+            compileSdkVersion Config.targetApiLevel
+            defaultConfig {
+                minSdkVersion Config.minApiLevel
+                targetSdkVersion Config.targetApiLevel
+                versionCode gitVersionCode
+                versionName gitVersionName
+                testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+            }
+            buildTypes {
+                release {
+                    minifyEnabled false
+                    proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+                }
+            }
+        }
+
+        apply plugin: 'digital.wup.android-maven-publish'
+        apply plugin: 'com.jfrog.bintray'
+
+        task sourcesJar(type: Jar) {
+            from android.sourceSets.main.java.srcDirs
+            classifier = 'sources'
+        }
+
+        task javadoc(type: Javadoc) {
+            source = android.sourceSets.main.java.srcDirs
+            classpath += project.files(android.getBootClasspath().join(File.pathSeparator)) + configurations.compile
+            failOnError false
+        }
+
+        task javadocJar(type: Jar, dependsOn: javadoc) {
+            classifier = 'javadoc'
+            from javadoc.destinationDir
+        }
+
+        publishing {
+            publications {
+                "$project.name"(MavenPublication) {
+                    groupId = group
+                    artifactId = project.name
+
+                    from components.android
+                    artifact sourcesJar
+                    artifact javadocJar
+                }
+            }
+        }
+
+        bintray {
+            user = System.env.BINTRAY_USER
+            key = System.env.BINTRAY_API_KEY
+            publications = ["$project.name"]
+            publish = true
+            override = true
+            pkg {
+                repo = 'android'
+                name = project.name
+                desc = project.name.replace('-', ' ').split(' ').collect{it.capitalize()}.join(' ')
+                websiteUrl = 'https://github.com/emartech/android-emarsys-sdk'
+                vcsUrl = 'https://github.com/emartech/android-emarsys-sdk.git'
+                licenses = ['MPL-2.0']
+                publicDownloadNumbers = true
+            }
+        }
+    }
+}
+
+task release {
+    modules.each {
+        dependsOn project(it).tasks.getByName("bintrayUpload")
+    }
+}

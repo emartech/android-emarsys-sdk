@@ -10,8 +10,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'digital.wup:android-maven-publish:3.6.2'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$Versions.kotlin_version"
         classpath "com.github.ben-manes:gradle-versions-plugin:0.20.0"
         classpath "com.vanniktech:gradle-dependency-graph-generator-plugin:0.5.0"
@@ -25,6 +25,8 @@ allprojects {
     }
     version = gitVersionName
 }
+
+apply from: 'release.gradle'
 
 task clean(type: Delete) {
     delete rootProject.buildDir
