@@ -1,24 +1,5 @@
-apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply from: '../test.gradle'
-
-android {
-    buildToolsVersion Versions.buildToolsVersion
-    compileSdkVersion Config.targetApiLevel
-    defaultConfig {
-        minSdkVersion Config.minApiLevel
-        targetSdkVersion Config.targetApiLevel
-        versionCode gitVersionCode
-        versionName gitVersionName
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-}
 
 group = 'com.emarsys.predict'
 
