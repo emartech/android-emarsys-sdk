@@ -17,7 +17,7 @@ import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
-import com.emarsys.core.request.model.specification.QueryNewestRequestModel;
+import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
@@ -197,7 +197,7 @@ public class RequestRepositoryProxyTest {
 
         List<RequestModel> expected = Collections.singletonList(firstRequestModel);
 
-        assertEquals(expected, compositeRepository.query(new QueryNewestRequestModel()));
+        assertEquals(expected, compositeRepository.query(new QueryLatestRequestModel()));
     }
 
     @Test

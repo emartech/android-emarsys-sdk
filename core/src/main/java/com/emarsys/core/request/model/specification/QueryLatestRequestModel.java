@@ -1,11 +1,11 @@
 package com.emarsys.core.request.model.specification;
 
-import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.DatabaseContract;
+import com.emarsys.core.database.repository.SqlSpecification;
 
-public class QueryNewestRequestModel implements SqlSpecification {
+public class QueryLatestRequestModel implements SqlSpecification {
 
-    public QueryNewestRequestModel() {
+    public QueryLatestRequestModel() {
     }
 
     @Override

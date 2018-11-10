@@ -18,7 +18,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.request.model.specification.QueryNewestRequestModel;
+import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
@@ -279,7 +279,7 @@ public class RequestManagerTest {
     public void testSubmit_withRequestModel_Success() throws Exception {
         when(connectionWatchDog.isConnected()).thenReturn(true, false);
         when(requestRepository.isEmpty()).thenReturn(false, false, true);
-        when(requestRepository.query(any(QueryNewestRequestModel.class))).thenReturn(
+        when(requestRepository.query(any(QueryLatestRequestModel.class))).thenReturn(
                 Collections.singletonList(requestModel),
                 Collections.<RequestModel>emptyList()
         );
@@ -334,7 +334,7 @@ public class RequestManagerTest {
 
         when(connectionWatchDog.isConnected()).thenReturn(true, false);
         when(requestRepository.isEmpty()).thenReturn(false, false, true);
-        when(requestRepository.query(any(QueryNewestRequestModel.class))).thenReturn(
+        when(requestRepository.query(any(QueryLatestRequestModel.class))).thenReturn(
                 Collections.singletonList(requestModel),
                 Collections.<RequestModel>emptyList()
         );
@@ -356,7 +356,7 @@ public class RequestManagerTest {
 
         when(connectionWatchDog.isConnected()).thenReturn(true, false);
         when(requestRepository.isEmpty()).thenReturn(false, false, true);
-        when(requestRepository.query(any(QueryNewestRequestModel.class))).thenReturn(
+        when(requestRepository.query(any(QueryLatestRequestModel.class))).thenReturn(
                 Collections.singletonList(requestModel),
                 Collections.<RequestModel>emptyList()
         );

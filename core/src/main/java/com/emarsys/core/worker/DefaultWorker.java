@@ -1,7 +1,6 @@
 package com.emarsys.core.worker;
 
 import android.os.Handler;
-import android.os.Looper;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.connection.ConnectionChangeListener;
@@ -13,7 +12,7 @@ import com.emarsys.core.request.RequestExpiredException;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.FilterByRequestId;
-import com.emarsys.core.request.model.specification.QueryNewestRequestModel;
+import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
@@ -98,7 +97,7 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
 
     private RequestModel findFirstNonExpiredModel() {
         while (!requestRepository.isEmpty()) {
-            List<RequestModel> result = requestRepository.query(new QueryNewestRequestModel());
+            List<RequestModel> result = requestRepository.query(new QueryLatestRequestModel());
             if (!result.isEmpty()) {
                 RequestModel model = result.get(0);
                 if (isExpired(model)) {

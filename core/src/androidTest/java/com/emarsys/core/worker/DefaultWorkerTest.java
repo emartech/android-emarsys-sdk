@@ -12,7 +12,7 @@ import com.emarsys.core.fake.FakeCompletionHandler;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.request.model.specification.QueryNewestRequestModel;
+import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
 import com.emarsys.core.testUtil.RequestModelTestUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -227,7 +227,7 @@ public class DefaultWorkerTest {
     public void testRun_expiration_shouldPopExpiredRequestModels() {
         worker = spy(this.worker);
 
-        when(requestRepository.query(any(QueryNewestRequestModel.class)))
+        when(requestRepository.query(any(QueryLatestRequestModel.class)))
                 .thenReturn(
                         Collections.singletonList(expiredModel1),
                         Collections.singletonList(expiredModel2),
@@ -251,7 +251,7 @@ public class DefaultWorkerTest {
         CountDownLatch latch = new CountDownLatch(2);
         worker.coreCompletionHandler = spy(new FakeCompletionHandler(latch));
 
-        when(requestRepository.query(any(QueryNewestRequestModel.class)))
+        when(requestRepository.query(any(QueryLatestRequestModel.class)))
                 .thenReturn(
                         Collections.singletonList(expiredModel1),
                         Collections.singletonList(expiredModel2),
@@ -275,7 +275,7 @@ public class DefaultWorkerTest {
     public void testRun_expiration_whenOnlyExpiredModelsWereInQueue() {
         worker = spy(this.worker);
 
-        when(worker.requestRepository.query(any(QueryNewestRequestModel.class)))
+        when(worker.requestRepository.query(any(QueryLatestRequestModel.class)))
                 .thenReturn(
                         Collections.singletonList(expiredModel1),
                         Collections.singletonList(expiredModel2)

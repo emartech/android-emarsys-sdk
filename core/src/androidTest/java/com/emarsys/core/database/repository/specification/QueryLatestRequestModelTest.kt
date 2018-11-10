@@ -6,7 +6,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
-import com.emarsys.core.request.model.specification.QueryNewestRequestModel
+import com.emarsys.core.request.model.specification.QueryLatestRequestModel
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
@@ -14,18 +14,18 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class QueryNewestRequestModelTest {
+class QueryLatestRequestModelTest {
 
     @Rule
     @JvmField
     val timeout = TimeoutUtils.timeoutRule
 
-    private lateinit var specification: QueryNewestRequestModel
+    private lateinit var specification: QueryLatestRequestModel
 
     @Before
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
-        specification = QueryNewestRequestModel()
+        specification = QueryLatestRequestModel()
     }
 
     @Test
@@ -43,7 +43,7 @@ class QueryNewestRequestModelTest {
 
     @Test
     fun testQueryUsingQueryNewestRequestModel() {
-        specification = QueryNewestRequestModel()
+        specification = QueryLatestRequestModel()
         val timestampProvider = TimestampProvider()
         val uuidProvider = UUIDProvider()
 
