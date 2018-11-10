@@ -61,6 +61,7 @@ class QueryNewestRequestModelTest {
 
         val resultList = repository.query(specification)
 
+        resultList.size shouldBe 1
         resultList[0] shouldBe expectedRequestModel
     }
 }
