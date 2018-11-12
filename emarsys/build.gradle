@@ -1,8 +1,3 @@
-apply plugin: 'kotlin-android'
-apply from: '../test.gradle'
-
-group = 'com.emarsys'
-
 dependencies {
     api project(':core-api')
     api project(':mobile-engage-api')

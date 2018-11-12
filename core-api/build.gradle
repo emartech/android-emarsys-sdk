@@ -1,8 +1,3 @@
-apply plugin: 'kotlin-android'
-apply from: '../test.gradle'
-
-group = 'com.emarsys.core.api'
-
 dependencies {
     api Libs.support_annotations
 
