@@ -15,10 +15,10 @@ buildscript {
     }
 }
 
-apply from: 'dev.gradle'
-apply from: 'version.gradle'
-apply from: 'common.gradle'
-apply from: 'release.gradle'
+apply from: 'gradle/dev.gradle'
+apply from: 'gradle/version.gradle'
+apply from: 'gradle/common.gradle'
+apply from: 'gradle/release.gradle'
 apply plugin: "com.github.ben-manes.versions"
 apply plugin: "com.vanniktech.dependency.graph.generator"
 
