@@ -4,7 +4,7 @@ import android.content.Context
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
 import com.emarsys.core.database.helper.CoreDbHelper
-import com.emarsys.core.database.repository.specification.QueryAll
+import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
@@ -55,7 +55,7 @@ class FilterByShardIdsTest {
 
         shardModelRepository.remove(FilterByShardIds(deletionShardList))
 
-        val resultShardList = shardModelRepository.query(QueryAll("shard"))
+        val resultShardList = shardModelRepository.query(Everything())
         assertEquals(expectedShardList, resultShardList)
     }
 
@@ -64,7 +64,7 @@ class FilterByShardIdsTest {
         originalShardList.forEach(shardModelRepository::add)
         shardModelRepository.remove(FilterByShardIds(listOf()))
 
-        val resultShardList = shardModelRepository.query(QueryAll("shard"))
+        val resultShardList = shardModelRepository.query(Everything())
         assertEquals(originalShardList, resultShardList)
     }
 

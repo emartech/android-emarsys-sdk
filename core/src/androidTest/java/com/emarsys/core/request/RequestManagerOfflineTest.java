@@ -8,11 +8,10 @@ import android.support.test.runner.AndroidJUnit4;
 import com.emarsys.core.Registry;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionState;
-import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
-import com.emarsys.core.database.repository.specification.QueryAll;
+import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.fake.FakeCompletionHandler;
 import com.emarsys.core.fake.FakeConnectionWatchDog;
@@ -289,6 +288,6 @@ public class RequestManagerOfflineTest {
     }
 
     private void assertRequestTableEmpty() {
-        assertEquals(new ArrayList<RequestModel>(), requestRepository.query(new QueryAll(DatabaseContract.REQUEST_TABLE_NAME)));
+        assertEquals(new ArrayList<RequestModel>(), requestRepository.query(new Everything()));
     }
 }

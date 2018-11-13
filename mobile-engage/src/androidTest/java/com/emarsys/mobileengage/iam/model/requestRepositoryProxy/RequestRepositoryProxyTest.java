@@ -4,12 +4,11 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.helper.DbHelper;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
-import com.emarsys.core.database.repository.specification.QueryAll;
+import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
@@ -265,7 +264,7 @@ public class RequestRepositoryProxyTest {
                 expectedComposite,
                 request3);
 
-        assertEquals(expected, compositeRepository.query(new QueryAll(DatabaseContract.REQUEST_TABLE_NAME)));
+        assertEquals(expected, compositeRepository.query(new Everything()));
     }
 
     @Test
@@ -332,7 +331,7 @@ public class RequestRepositoryProxyTest {
 
         List<RequestModel> expected = Collections.singletonList(expectedComposite);
 
-        assertEquals(expected, compositeRepository.query(new QueryAll(DatabaseContract.REQUEST_TABLE_NAME)));
+        assertEquals(expected, compositeRepository.query(new Everything()));
 
     }
 
@@ -425,7 +424,7 @@ public class RequestRepositoryProxyTest {
                 expectedComposite,
                 request3);
 
-        assertEquals(expected, compositeRepository.query(new QueryAll(DatabaseContract.REQUEST_TABLE_NAME)));
+        assertEquals(expected, compositeRepository.query(new Everything()));
     }
 
     @Test
@@ -436,7 +435,7 @@ public class RequestRepositoryProxyTest {
         final RequestModel customEvent1 = customEvent_V3(900, "event1");
         requestModelRepository.add(customEvent1);
 
-        List<RequestModel> result = compositeRepository.query(new QueryAll(DatabaseContract.REQUEST_TABLE_NAME));
+        List<RequestModel> result = compositeRepository.query(new Everything());
         Map<String, Object> payload = result.get(0).getPayload();
 
         assertTrue((Boolean) payload.get("dnd"));
@@ -450,7 +449,7 @@ public class RequestRepositoryProxyTest {
         final RequestModel customEvent1 = customEvent_V3(900, "event1");
         requestModelRepository.add(customEvent1);
 
-        List<RequestModel> result = compositeRepository.query(new QueryAll(DatabaseContract.REQUEST_TABLE_NAME));
+        List<RequestModel> result = compositeRepository.query(new Everything());
         Map<String, Object> payload = result.get(0).getPayload();
 
         assertNull(payload.get("dnd"));

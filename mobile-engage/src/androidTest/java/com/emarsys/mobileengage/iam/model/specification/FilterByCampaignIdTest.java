@@ -6,7 +6,7 @@ import android.support.test.InstrumentationRegistry;
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.helper.DbHelper;
-import com.emarsys.core.database.repository.specification.QueryAll;
+import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
@@ -57,7 +57,7 @@ public class FilterByCampaignIdTest {
 
         displayedIamRepository.remove(new FilterByCampaignId("campaign2"));
 
-        List<DisplayedIam> result = displayedIamRepository.query(new QueryAll(DatabaseContract.DISPLAYED_IAM_TABLE_NAME));
+        List<DisplayedIam> result = displayedIamRepository.query(new Everything());
         List<DisplayedIam> expected = Arrays.asList(iam1, iam3);
 
         assertEquals(expected, result);
@@ -77,7 +77,7 @@ public class FilterByCampaignIdTest {
 
         displayedIamRepository.remove(new FilterByCampaignId("campaign1", "campaign2"));
 
-        List<DisplayedIam> result = displayedIamRepository.query(new QueryAll(DatabaseContract.DISPLAYED_IAM_TABLE_NAME));
+        List<DisplayedIam> result = displayedIamRepository.query(new Everything());
         List<DisplayedIam> expected = Arrays.asList(iam3, iam4);
 
         assertEquals(expected, result);
@@ -97,7 +97,7 @@ public class FilterByCampaignIdTest {
 
         displayedIamRepository.remove(new FilterByCampaignId());
 
-        List<DisplayedIam> result = displayedIamRepository.query(new QueryAll(DatabaseContract.DISPLAYED_IAM_TABLE_NAME));
+        List<DisplayedIam> result = displayedIamRepository.query(new Everything());
         List<DisplayedIam> expected = Arrays.asList(iam1, iam2, iam3, iam4);
 
         assertEquals(expected, result);
@@ -115,7 +115,7 @@ public class FilterByCampaignIdTest {
 
         buttonClickedRepository.remove(new FilterByCampaignId("campaign2"));
 
-        List<ButtonClicked> result = buttonClickedRepository.query(new QueryAll(DatabaseContract.BUTTON_CLICKED_TABLE_NAME));
+        List<ButtonClicked> result = buttonClickedRepository.query(new Everything());
         List<ButtonClicked> expected = Arrays.asList(btn1, btn2);
 
         assertEquals(expected, result);
@@ -135,7 +135,7 @@ public class FilterByCampaignIdTest {
 
         buttonClickedRepository.remove(new FilterByCampaignId("campaign1", "campaign2"));
 
-        List<ButtonClicked> result = buttonClickedRepository.query(new QueryAll(DatabaseContract.BUTTON_CLICKED_TABLE_NAME));
+        List<ButtonClicked> result = buttonClickedRepository.query(new Everything());
         List<ButtonClicked> expected = Collections.singletonList(btn4);
 
         assertEquals(expected, result);
@@ -153,7 +153,7 @@ public class FilterByCampaignIdTest {
 
         buttonClickedRepository.remove(new FilterByCampaignId());
 
-        List<ButtonClicked> result = buttonClickedRepository.query(new QueryAll(DatabaseContract.BUTTON_CLICKED_TABLE_NAME));
+        List<ButtonClicked> result = buttonClickedRepository.query(new Everything());
         List<ButtonClicked> expected = Arrays.asList(btn1, btn2, btn3);
 
         assertEquals(expected, result);

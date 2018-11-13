@@ -1,10 +1,9 @@
 package com.emarsys.mobileengage.iam.model.requestRepositoryProxy;
 
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
-import com.emarsys.core.database.repository.specification.QueryAll;
+import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
@@ -127,8 +126,8 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
 
         return RequestPayloadUtils.createCompositeRequestModelPayload(
                 events,
-                iamRepository.query(new QueryAll(DatabaseContract.DISPLAYED_IAM_TABLE_NAME)),
-                buttonClickedRepository.query(new QueryAll(DatabaseContract.BUTTON_CLICKED_TABLE_NAME)),
+                iamRepository.query(new Everything()),
+                buttonClickedRepository.query(new Everything()),
                 deviceInfo,
                 inAppInternal.isPaused()
         );

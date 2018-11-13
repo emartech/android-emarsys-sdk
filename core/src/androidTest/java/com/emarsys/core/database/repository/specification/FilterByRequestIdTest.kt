@@ -1,7 +1,6 @@
 package com.emarsys.core.database.repository.specification
 
 import android.support.test.InstrumentationRegistry
-import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -56,7 +55,7 @@ class FilterByRequestIdTest {
 
         repository.remove(FilterByRequestId(requestModel2))
 
-        val actual = repository.query(QueryAll(DatabaseContract.REQUEST_TABLE_NAME))
+        val actual = repository.query(Everything())
 
         actual shouldBe expected
     }
@@ -78,7 +77,7 @@ class FilterByRequestIdTest {
 
         repository.remove(FilterByRequestId(composite))
 
-        val actual = repository.query(QueryAll(DatabaseContract.REQUEST_TABLE_NAME))
+        val actual = repository.query(Everything())
 
         actual shouldBe expected
     }

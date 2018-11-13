@@ -8,7 +8,7 @@ import android.support.test.InstrumentationRegistry;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
-import com.emarsys.core.database.repository.specification.QueryAll;
+import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -125,7 +125,7 @@ public class RequestModelRepositoryTest {
     public void testQuery_shouldFallBack_toEmptyMap_shouldDeserializationFail() throws JSONException {
         initializeDatabaseWithCorrectAndIncorrectData();
 
-        List<RequestModel> result = repository.query(new QueryAll(DatabaseContract.REQUEST_TABLE_NAME));
+        List<RequestModel> result = repository.query(new Everything());
 
         RequestModel model1 = new RequestModel(URL_EMARSYS, RequestMethod.POST, new HashMap<String, Object>(), new HashMap<String, String>(), 100, 300, "id1");
         RequestModel model2 = new RequestModel(URL_EMARSYS, RequestMethod.POST, createAttribute(), new HashMap<String, String>(), 100, 300, "id2");
