@@ -39,6 +39,20 @@ public class DelegatingCoreSQLiteDatabase implements CoreSQLiteDatabase {
     }
 
     @Override
+    public Cursor query(
+            boolean distinct,
+            String table,
+            String[] columns,
+            String selection,
+            String[] selectionArgs,
+            String groupBy,
+            String having,
+            String orderBy,
+            String limit) {
+        return database.query(distinct, table, columns, selection, selectionArgs, groupBy, having, orderBy, limit);
+    }
+
+    @Override
     public void execSQL(String sql) {
         database.execSQL(sql);
     }

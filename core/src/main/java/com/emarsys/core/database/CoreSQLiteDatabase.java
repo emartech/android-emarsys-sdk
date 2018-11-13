@@ -13,6 +13,17 @@ public interface CoreSQLiteDatabase {
 
     Cursor rawQuery(String sql, String[] selectionArgs);
 
+    Cursor query(
+            boolean distinct,
+            String table,
+            String[] columns,
+            String selection,
+            String[] selectionArgs,
+            String groupBy,
+            String having,
+            String orderBy,
+            String limit);
+
     void execSQL(String sql);
 
     long insert(String table, String nullColumnHack, ContentValues values);
