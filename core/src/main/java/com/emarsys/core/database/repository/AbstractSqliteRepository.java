@@ -27,7 +27,7 @@ public abstract class AbstractSqliteRepository<T> implements Repository<T, SqlSp
     protected abstract T itemFromCursor(Cursor cursor);
 
     @Override
-    final public void add(T item) {
+    public void add(T item) {
         Assert.notNull(item, "Item must not be null!");
 
         ContentValues contentValues = contentValuesFromItem(item);
@@ -40,19 +40,27 @@ public abstract class AbstractSqliteRepository<T> implements Repository<T, SqlSp
     }
 
     @Override
-    final public List<T> query(SqlSpecification specification) {
+    public List<T> query(SqlSpecification specification) {
         Assert.notNull(specification, "Specification must not be null!");
 
         CoreSQLiteDatabase database = dbHelper.getReadableCoreDatabase();
-        Cursor cursor = database.rawQuery(
+        Cursor cursor = database.query(
+                specification.isDistinct(),
+                tableName,
+                specification.getColumns(),
                 specification.getSelection(),
-                specification.getSelectionArgs());
+                specification.getSelectionArgs(),
+                specification.getGroupBy(),
+                specification.getHaving(),
+                specification.getOrderBy(),
+                specification.getLimit()
+        );
 
         return mapCursorToResultList(cursor);
     }
 
     @Override
-    final public void remove(SqlSpecification specification) {
+    public void remove(SqlSpecification specification) {
         Assert.notNull(specification, "Specification must not be null!");
 
         CoreSQLiteDatabase database = dbHelper.getWritableCoreDatabase();
