@@ -3,7 +3,6 @@ package com.emarsys.mobileengage.iam.model.specification;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 
-import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.helper.DbHelper;
 import com.emarsys.core.database.repository.specification.Everything;
@@ -46,7 +45,23 @@ public class FilterByCampaignIdTest {
     }
 
     @Test
-    public void testExecution_displayedIam_shouldDeleteIam() {
+    public void testQuery_displayedIam() {
+        DisplayedIam iam1 = new DisplayedIam("campaign1", 10L);
+        DisplayedIam iam2 = new DisplayedIam("campaign2", 20L);
+        DisplayedIam iam3 = new DisplayedIam("campaign3", 30L);
+
+        displayedIamRepository.add(iam1);
+        displayedIamRepository.add(iam2);
+        displayedIamRepository.add(iam3);
+
+        List<DisplayedIam> result = displayedIamRepository.query(new FilterByCampaignId("campaign2", "campaign3"));
+        List<DisplayedIam> expected = Arrays.asList(iam2, iam3);
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testDelete_displayedIam_shouldDeleteIam() {
         DisplayedIam iam1 = new DisplayedIam("campaign1", 10L);
         DisplayedIam iam2 = new DisplayedIam("campaign2", 20L);
         DisplayedIam iam3 = new DisplayedIam("campaign3", 30L);
@@ -64,7 +79,7 @@ public class FilterByCampaignIdTest {
     }
 
     @Test
-    public void testExecution_displayedIam_shouldDelete_multipleIams() {
+    public void testDelete_displayedIam_shouldDelete_multipleIams() {
         DisplayedIam iam1 = new DisplayedIam("campaign1", 10L);
         DisplayedIam iam2 = new DisplayedIam("campaign2", 20L);
         DisplayedIam iam3 = new DisplayedIam("campaign3", 30L);
@@ -84,7 +99,7 @@ public class FilterByCampaignIdTest {
     }
 
     @Test
-    public void testExecution_displayedIam_withEmptyIdArray() {
+    public void testDelete_displayedIam_withEmptyIdArray() {
         DisplayedIam iam1 = new DisplayedIam("campaign1", 10L);
         DisplayedIam iam2 = new DisplayedIam("campaign2", 20L);
         DisplayedIam iam3 = new DisplayedIam("campaign3", 30L);
@@ -104,7 +119,23 @@ public class FilterByCampaignIdTest {
     }
 
     @Test
-    public void testExecution_buttonClicked_shouldDeleteIam() {
+    public void testQuery_buttonClicked() {
+        ButtonClicked btn1 = new ButtonClicked("campaign1", "button1", 10L);
+        ButtonClicked btn2 = new ButtonClicked("campaign1", "button3", 10L);
+        ButtonClicked btn3 = new ButtonClicked("campaign2", "button10", 10L);
+
+        buttonClickedRepository.add(btn1);
+        buttonClickedRepository.add(btn2);
+        buttonClickedRepository.add(btn3);
+
+        List<ButtonClicked> result = buttonClickedRepository.query(new FilterByCampaignId("campaign1"));
+        List<ButtonClicked> expected = Arrays.asList(btn1, btn2);
+
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testDelete_buttonClicked_shouldDeleteIam() {
         ButtonClicked btn1 = new ButtonClicked("campaign1", "button1", 10L);
         ButtonClicked btn2 = new ButtonClicked("campaign1", "button3", 10L);
         ButtonClicked btn3 = new ButtonClicked("campaign2", "button10", 10L);
@@ -122,7 +153,7 @@ public class FilterByCampaignIdTest {
     }
 
     @Test
-    public void testExecution_buttonClicked_shouldDelete_multipleIams() {
+    public void testDelete_buttonClicked_shouldDelete_multipleIams() {
         ButtonClicked btn1 = new ButtonClicked("campaign1", "button1", 10L);
         ButtonClicked btn2 = new ButtonClicked("campaign1", "button3", 10L);
         ButtonClicked btn3 = new ButtonClicked("campaign2", "button10", 10L);
@@ -142,7 +173,7 @@ public class FilterByCampaignIdTest {
     }
 
     @Test
-    public void testExecution_buttonClicked_withEmptyIdArray() {
+    public void testDelete_buttonClicked_withEmptyIdArray() {
         ButtonClicked btn1 = new ButtonClicked("campaign1", "button1", 10L);
         ButtonClicked btn2 = new ButtonClicked("campaign1", "button3", 10L);
         ButtonClicked btn3 = new ButtonClicked("campaign2", "button10", 10L);
