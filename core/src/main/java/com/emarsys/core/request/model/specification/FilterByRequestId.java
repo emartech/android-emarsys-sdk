@@ -1,12 +1,12 @@
 package com.emarsys.core.request.model.specification;
 
 import com.emarsys.core.database.DatabaseContract;
-import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.database.repository.AbstractSqlSpecification;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.DatabaseUtil;
 
-public class FilterByRequestId implements SqlSpecification {
+public class FilterByRequestId extends AbstractSqlSpecification {
 
     private final String[] args;
     private final String sql;
@@ -17,12 +17,12 @@ public class FilterByRequestId implements SqlSpecification {
     }
 
     @Override
-    public String getSql() {
+    public String getSelection() {
         return sql;
     }
 
     @Override
-    public String[] getArgs() {
+    public String[] getSelectionArgs() {
         return args;
     }
 

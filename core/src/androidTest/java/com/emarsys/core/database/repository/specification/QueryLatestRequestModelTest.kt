@@ -31,14 +31,14 @@ class QueryLatestRequestModelTest {
     @Test
     fun testGetSql() {
         val expected = "SELECT * FROM request ORDER BY ROWID ASC LIMIT 1;"
-        val result = specification.sql
+        val result = specification.selection
 
         result shouldBe expected
     }
 
     @Test
     fun testGetArgs() {
-        specification.args shouldBe null
+        specification.selectionArgs shouldBe null
     }
 
     @Test

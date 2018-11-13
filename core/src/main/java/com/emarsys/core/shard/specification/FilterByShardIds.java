@@ -1,7 +1,7 @@
 package com.emarsys.core.shard.specification;
 
 import com.emarsys.core.database.DatabaseContract;
-import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.database.repository.AbstractSqlSpecification;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.DatabaseUtil;
@@ -9,7 +9,7 @@ import com.emarsys.core.util.DatabaseUtil;
 import java.util.Arrays;
 import java.util.List;
 
-public class FilterByShardIds implements SqlSpecification {
+public class FilterByShardIds extends AbstractSqlSpecification {
 
     private final String[] args;
     private final String sql;
@@ -21,12 +21,12 @@ public class FilterByShardIds implements SqlSpecification {
     }
 
     @Override
-    public String getSql() {
+    public String getSelection() {
         return sql;
     }
 
     @Override
-    public String[] getArgs() {
+    public String[] getSelectionArgs() {
         return args;
     }
 

@@ -136,8 +136,8 @@ public class AbstractSqliteRepositoryTest {
     @Test
     public void testQuery_shouldReturnCorrectResult() {
         SqlSpecification specification = mock(SqlSpecification.class);
-        when(specification.getSql()).thenReturn("sql statement");
-        when(specification.getArgs()).thenReturn(new String[]{"a", "b", "c"});
+        when(specification.getSelection()).thenReturn("sql statement");
+        when(specification.getSelectionArgs()).thenReturn(new String[]{"a", "b", "c"});
 
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(true);
@@ -154,15 +154,15 @@ public class AbstractSqliteRepositoryTest {
         List<Object> expected = Arrays.asList(item1, item2, item3);
         List<Object> result = repository.query(specification);
 
-        verify(dbMock).rawQuery(specification.getSql(), specification.getArgs());
+        verify(dbMock).rawQuery(specification.getSelection(), specification.getSelectionArgs());
         assertEquals(expected, result);
     }
 
     @Test
     public void testQuery_shouldReturnCorrectResult_whenCursorIsEmpty() {
         SqlSpecification specification = mock(SqlSpecification.class);
-        when(specification.getSql()).thenReturn("dummy");
-        when(specification.getArgs()).thenReturn(new String[]{"value"});
+        when(specification.getSelection()).thenReturn("dummy");
+        when(specification.getSelectionArgs()).thenReturn(new String[]{"value"});
 
         Cursor cursor = mock(Cursor.class);
         when(cursor.moveToFirst()).thenReturn(false);
@@ -178,13 +178,13 @@ public class AbstractSqliteRepositoryTest {
     @Test
     public void testRemove_shouldDeleteSpecifiedRow() {
         SqlSpecification specification = mock(SqlSpecification.class);
-        when(specification.getSql()).thenReturn("sql statement");
-        when(specification.getArgs()).thenReturn(new String[]{"a", "b", "c"});
+        when(specification.getSelection()).thenReturn("sql statement");
+        when(specification.getSelectionArgs()).thenReturn(new String[]{"a", "b", "c"});
 
         repository.remove(specification);
 
         verify(dbMock).beginTransaction();
-        verify(dbMock).delete(TABLE_NAME, specification.getSql(), specification.getArgs());
+        verify(dbMock).delete(TABLE_NAME, specification.getSelection(), specification.getSelectionArgs());
         verify(dbMock).setTransactionSuccessful();
         verify(dbMock).endTransaction();
     }

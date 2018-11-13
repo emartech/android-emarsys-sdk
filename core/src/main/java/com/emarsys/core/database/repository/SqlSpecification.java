@@ -2,8 +2,20 @@ package com.emarsys.core.database.repository;
 
 public interface SqlSpecification {
 
-    String getSql();
+    boolean isDistinct();
 
-    String[] getArgs();
+    String[] getColumns();
+
+    String getSelection();
+
+    String[] getSelectionArgs();
+
+    String getGroupBy();
+
+    String getHaving();
+
+    String getOrderBy();
+
+    String getLimit();
 
 }

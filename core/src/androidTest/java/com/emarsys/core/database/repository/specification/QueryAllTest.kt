@@ -34,14 +34,14 @@ class QueryAllTest {
     @Test
     fun testGetSql() {
         val expected = "SELECT * FROM table;"
-        val result = specification.sql
+        val result = specification.selection
 
         assertEquals(expected, result)
     }
 
     @Test
     fun testGetArgs() {
-        assertNull(specification.args)
+        assertNull(specification.selectionArgs)
     }
 
     @Test

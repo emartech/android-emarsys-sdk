@@ -45,8 +45,8 @@ public abstract class AbstractSqliteRepository<T> implements Repository<T, SqlSp
 
         CoreSQLiteDatabase database = dbHelper.getReadableCoreDatabase();
         Cursor cursor = database.rawQuery(
-                specification.getSql(),
-                specification.getArgs());
+                specification.getSelection(),
+                specification.getSelectionArgs());
 
         return mapCursorToResultList(cursor);
     }
@@ -59,8 +59,8 @@ public abstract class AbstractSqliteRepository<T> implements Repository<T, SqlSp
         database.beginTransaction();
         database.delete(
                 tableName,
-                specification.getSql(),
-                specification.getArgs());
+                specification.getSelection(),
+                specification.getSelectionArgs());
         database.setTransactionSuccessful();
         database.endTransaction();
     }

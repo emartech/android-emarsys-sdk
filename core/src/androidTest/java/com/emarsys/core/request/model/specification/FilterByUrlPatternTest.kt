@@ -35,12 +35,12 @@ class FilterByUrlPatternTest {
 
     @Test
     fun testGetSql() {
-        specification.sql shouldBe "SELECT * FROM request WHERE url LIKE ?;"
+        specification.selection shouldBe "SELECT * FROM request WHERE url LIKE ?;"
     }
 
     @Test
     fun testGetArs() {
-        specification.args shouldBe arrayOf(pattern)
+        specification.selectionArgs shouldBe arrayOf(pattern)
     }
 
     @Test

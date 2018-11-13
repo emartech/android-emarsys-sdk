@@ -114,7 +114,7 @@ public class CoreCompletionHandlerMiddlewareTest {
 
         verify(requestRepository).remove(captor.capture());
         FilterByRequestId filter = captor.getValue();
-        assertEquals(expectedModel.getRequestModel().getId(), filter.getArgs()[0]);
+        assertEquals(expectedModel.getRequestModel().getId(), filter.getSelectionArgs()[0]);
 
         verify(coreCompletionHandler).onSuccess(expectedId, expectedModel);
     }
@@ -179,7 +179,7 @@ public class CoreCompletionHandlerMiddlewareTest {
 
         verify(requestRepository).remove(captor.capture());
         FilterByRequestId filter = captor.getValue();
-        assertEquals(expectedModel.getRequestModel().getId(), filter.getArgs()[0]);
+        assertEquals(expectedModel.getRequestModel().getId(), filter.getSelectionArgs()[0]);
         verify(coreCompletionHandler).onError(expectedId, expectedModel);
 
         verify(worker).unlock();

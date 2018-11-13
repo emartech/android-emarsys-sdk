@@ -1,10 +1,10 @@
 package com.emarsys.mobileengage.iam.model.specification;
 
-import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.database.repository.AbstractSqlSpecification;
 
 import java.util.Arrays;
 
-public class FilterByCampaignId implements SqlSpecification {
+public class FilterByCampaignId extends AbstractSqlSpecification {
 
     private final String[] campaignIds;
     private final String sql;
@@ -15,12 +15,12 @@ public class FilterByCampaignId implements SqlSpecification {
     }
 
     @Override
-    public String getSql() {
+    public String getSelection() {
         return sql;
     }
 
     @Override
-    public String[] getArgs() {
+    public String[] getSelectionArgs() {
         return campaignIds;
     }
 

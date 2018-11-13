@@ -36,12 +36,12 @@ class FilterByShardTypeTest {
 
     @Test
     fun testGetSqlString() {
-        specification.sql shouldBe "SELECT * FROM shard WHERE type LIKE ? ORDER BY ROWID ASC;"
+        specification.selection shouldBe "SELECT * FROM shard WHERE type LIKE ? ORDER BY ROWID ASC;"
     }
 
     @Test
     fun testGetArgsString() {
-        specification.args shouldBe arrayOf(TYPE)
+        specification.selectionArgs shouldBe arrayOf(TYPE)
     }
 
     @Test
