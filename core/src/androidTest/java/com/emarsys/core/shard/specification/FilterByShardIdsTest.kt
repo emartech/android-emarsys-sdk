@@ -9,7 +9,7 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Assert.assertEquals
+import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -18,9 +18,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FilterByShardIdsTest {
 
-    lateinit var context: Context
-    lateinit var originalShardList: List<ShardModel>
-    lateinit var shardModelRepository: ShardModelRepository
+    private lateinit var context: Context
+    private lateinit var originalShardList: List<ShardModel>
+    private lateinit var shardModelRepository: ShardModelRepository
 
     @Rule
     @JvmField
@@ -56,7 +56,8 @@ class FilterByShardIdsTest {
         shardModelRepository.remove(FilterByShardIds(deletionShardList))
 
         val resultShardList = shardModelRepository.query(Everything())
-        assertEquals(expectedShardList, resultShardList)
+
+        resultShardList shouldBe expectedShardList
     }
 
     @Test
@@ -65,7 +66,19 @@ class FilterByShardIdsTest {
         shardModelRepository.remove(FilterByShardIds(listOf()))
 
         val resultShardList = shardModelRepository.query(Everything())
-        assertEquals(originalShardList, resultShardList)
+
+        resultShardList shouldBe originalShardList
+    }
+
+    @Test
+    fun testQueryRows() {
+        val deletionShardList = originalShardList.subList(2, 4)
+        val expectedShardList = originalShardList - deletionShardList
+        originalShardList.forEach(shardModelRepository::add)
+
+        val result = shardModelRepository.query(FilterByShardIds(listOf(originalShardList[0], originalShardList[1])))
+
+        result shouldBe expectedShardList
     }
 
 }
