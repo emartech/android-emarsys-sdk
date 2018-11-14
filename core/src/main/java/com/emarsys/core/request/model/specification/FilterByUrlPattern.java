@@ -15,7 +15,7 @@ public class FilterByUrlPattern extends AbstractSqlSpecification {
 
     @Override
     public String getSelection() {
-        return "SELECT * FROM " + DatabaseContract.REQUEST_TABLE_NAME + " WHERE " + DatabaseContract.REQUEST_COLUMN_NAME_URL + " LIKE ?;";
+        return DatabaseContract.REQUEST_COLUMN_NAME_URL + " LIKE ?";
     }
 
     @Override

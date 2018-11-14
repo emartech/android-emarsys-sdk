@@ -6,6 +6,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
+import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.matchers.collections.shouldContainAll
 import io.kotlintest.shouldBe
@@ -24,23 +25,28 @@ class FilterByUrlPatternTest {
 
     @Before
     fun init() {
+        DatabaseTestUtils.deleteCoreDatabase()
         pattern = "root/___/_%/event"
         specification = FilterByUrlPattern(pattern)
+    }
+
+    @Test
+    fun testSpecification() {
+        with(FilterByUrlPattern(pattern)) {
+            isDistinct shouldBe false
+            columns shouldBe null
+            selection shouldBe "url LIKE ?"
+            selectionArgs shouldBe arrayOf(pattern)
+            groupBy shouldBe null
+            having shouldBe null
+            orderBy shouldBe null
+            limit shouldBe null
+        }
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_patternMustNotBeNull() {
         FilterByUrlPattern(null)
-    }
-
-    @Test
-    fun testGetSql() {
-        specification.selection shouldBe "SELECT * FROM request WHERE url LIKE ?;"
-    }
-
-    @Test
-    fun testGetArs() {
-        specification.selectionArgs shouldBe arrayOf(pattern)
     }
 
     @Test
