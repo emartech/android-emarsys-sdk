@@ -16,7 +16,12 @@ public class FilterByShardType extends AbstractSqlSpecification {
 
     @Override
     public String getSelection() {
-        return "SELECT * FROM " + DatabaseContract.SHARD_TABLE_NAME + " WHERE " + DatabaseContract.SHARD_COLUMN_TYPE + " LIKE ? ORDER BY ROWID ASC;";
+        return DatabaseContract.SHARD_COLUMN_TYPE + " LIKE ?";
+    }
+
+    @Override
+    public String getOrderBy() {
+        return "ROWID ASC";
     }
 
     @Override

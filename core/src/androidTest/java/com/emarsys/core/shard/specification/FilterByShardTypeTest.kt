@@ -2,6 +2,7 @@ package com.emarsys.core.shard.specification
 
 import android.support.test.InstrumentationRegistry
 import com.emarsys.core.database.helper.CoreDbHelper
+import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
@@ -22,11 +23,22 @@ class FilterByShardTypeTest {
     }
 
     private lateinit var specification: FilterByShardType
-
+    private lateinit var shardList: MutableList<ShardModel>
+    private lateinit var repository: ShardModelRepository
     @Before
     fun setUp() {
         DatabaseTestUtils.deleteCoreDatabase()
         specification = FilterByShardType(TYPE)
+        val context = InstrumentationRegistry.getTargetContext().applicationContext
+        val coreDbHelper = CoreDbHelper(context, mapOf())
+        repository = ShardModelRepository(coreDbHelper)
+        shardList = mutableListOf(
+                ShardModel("a1", "button_click", mapOf(), 0, 0),
+                ShardModel("a2", "button_click", mapOf(), 0, 0),
+                ShardModel("a2", "button_click", mapOf("key" to 22, "key2" to "value"), 0, 0),
+                ShardModel("a4", "not_button_click", mapOf("key" to 11, "key2" to "asdasd"), 0, 0)
+        )
+        shardList.forEach(repository::add)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -35,31 +47,35 @@ class FilterByShardTypeTest {
     }
 
     @Test
-    fun testGetSqlString() {
-        specification.selection shouldBe "SELECT * FROM shard WHERE type LIKE ? ORDER BY ROWID ASC;"
-    }
-
-    @Test
-    fun testGetArgsString() {
-        specification.selectionArgs shouldBe arrayOf(TYPE)
+    fun testSpecification() {
+        with(FilterByShardType(TYPE)) {
+            isDistinct shouldBe false
+            columns shouldBe null
+            selection shouldBe "type LIKE ?"
+            selectionArgs shouldBe arrayOf(TYPE)
+            groupBy shouldBe null
+            having shouldBe null
+            orderBy shouldBe "ROWID ASC"
+            limit shouldBe null
+        }
     }
 
     @Test
     fun testQueryUsingFilterByShardType() {
-        val context = InstrumentationRegistry.getTargetContext().applicationContext
-        val coreDbHelper = CoreDbHelper(context, mapOf())
-        val repository = ShardModelRepository(coreDbHelper)
-        val shardList = mutableListOf(
-                ShardModel("a1", "button_click", mapOf(), 0, 0),
-                ShardModel("a2", "button_click", mapOf(), 0, 0),
-                ShardModel("a2", "button_click", mapOf("key" to 22, "key2" to "value"), 0, 0),
-                ShardModel("a4", "not_button_click", mapOf("key" to 11, "key2" to "asdasd"), 0, 0)
-        )
-        shardList.forEach(repository::add)
+        val expectedList = shardList.filter { x -> (x.type == "button_click") }
 
         val resultList = repository.query(FilterByShardType("button_click"))
 
-        val expectedList = shardList.filter { x -> (x.type == "button_click") }
+        resultList shouldBe expectedList
+    }
+
+    @Test
+    fun testDeleteUsingFilterByShardType() {
+        val expectedList = shardList.filterNot { x -> (x.type == "button_click") }
+
+        repository.remove(FilterByShardType("button_click"))
+
+        val resultList = repository.query(Everything())
 
         resultList shouldBe expectedList
     }
