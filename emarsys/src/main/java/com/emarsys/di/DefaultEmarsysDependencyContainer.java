@@ -287,7 +287,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         inboxInternal = new InboxInternalProvider().provideInboxInternal(
                 ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX),
                 requestManager,
-                restClient,
                 requestContext
         );
 

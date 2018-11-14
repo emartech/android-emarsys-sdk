@@ -1,11 +1,15 @@
 package com.emarsys.mobileengage.inbox;
 
+import android.os.Handler;
+
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.Registry;
 import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
 import com.emarsys.core.api.result.Try;
+import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -14,6 +18,7 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.TimestampUtils;
+import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
@@ -70,7 +75,6 @@ public class InboxInternal_V2Test {
 
     private InboxInternal inbox;
     private RequestManager manager;
-    private RestClient restClient;
     private MeIdStorage meIdStorage;
     private MeIdSignatureStorage meIdSignatureStorage;
     private ResultListener<Try<NotificationInboxStatus>> resultListener;
@@ -138,7 +142,6 @@ public class InboxInternal_V2Test {
         latch = new CountDownLatch(1);
 
         manager = mock(RequestManager.class);
-        restClient = mock(RestClient.class);
 
         meIdStorage = mock(MeIdStorage.class);
         when(meIdStorage.get()).thenReturn(ME_ID);
@@ -162,7 +165,7 @@ public class InboxInternal_V2Test {
                 timestampProvider,
                 uuidProvider);
 
-        inbox = new InboxInternal_V2(manager, restClient, requestContext);
+        inbox = new InboxInternal_V2(manager, requestContext);
 
         resultListener = mock(ResultListener.class);
         resetListenerMock = mock(CompletionListener.class);
@@ -186,17 +189,12 @@ public class InboxInternal_V2Test {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestManager_shouldNotBeNull() {
-        inbox = new InboxInternal_V2(null, restClient, requestContext);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_restClient_shouldNotBeNull() {
-        inbox = new InboxInternal_V2(manager, null, requestContext);
+        inbox = new InboxInternal_V2(null, requestContext);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestContext_shouldNotBeNull() {
-        inbox = new InboxInternal_V2(manager, restClient, null);
+        inbox = new InboxInternal_V2(manager, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -205,7 +203,7 @@ public class InboxInternal_V2Test {
     }
 
     @Test
-    public void testFetchNotifications_shouldMakeRequest_viaRestClient() {
+    public void testFetchNotifications_shouldMakeRequest_viaRequestManager_submitNow() {
         RequestModel expected = createRequestModel(
                 "https://me-inbox.eservice.emarsys.net/api/v1/notifications/" + ME_ID,
                 RequestMethod.GET);
@@ -213,7 +211,7 @@ public class InboxInternal_V2Test {
         inbox.fetchNotifications(resultListener);
 
         ArgumentCaptor<RequestModel> requestCaptor = ArgumentCaptor.forClass(RequestModel.class);
-        verify(restClient).execute(requestCaptor.capture(), any(CoreCompletionHandler.class));
+        verify(manager).submitNow(requestCaptor.capture(), any(CoreCompletionHandler.class));
 
         RequestModel requestModel = requestCaptor.getValue();
         Assert.assertNotNull(requestModel.getId());
@@ -226,8 +224,7 @@ public class InboxInternal_V2Test {
     @Test
     public void testFetchNotifications_listener_success() throws Exception {
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS),
+                requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext
         );
 
@@ -243,8 +240,7 @@ public class InboxInternal_V2Test {
     @Test
     public void testFetchNotifications_listener_success_shouldBeCalledOnMainThread() throws InterruptedException {
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS),
+                requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext
         );
 
@@ -264,8 +260,7 @@ public class InboxInternal_V2Test {
         }
 
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS),
+                requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext
         );
 
@@ -286,8 +281,7 @@ public class InboxInternal_V2Test {
     public void testFetchNotifications_listener_failureWithException() throws InterruptedException {
         Exception expectedException = new Exception("FakeRestClientException");
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(expectedException),
+                requestManagerWithRestClient(new FakeRestClient(expectedException)),
                 requestContext
         );
 
@@ -304,8 +298,7 @@ public class InboxInternal_V2Test {
     public void testFetchNotifications_listener_failureWithException_shouldBeCalledOnMainThread() throws InterruptedException {
         Exception expectedException = new Exception("FakeRestClientException");
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(expectedException),
+                requestManagerWithRestClient(new FakeRestClient(expectedException)),
                 requestContext
         );
 
@@ -325,8 +318,7 @@ public class InboxInternal_V2Test {
                 .requestModel(mock(RequestModel.class))
                 .build();
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL),
+                requestManagerWithRestClient(new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
                 requestContext
         );
 
@@ -355,8 +347,7 @@ public class InboxInternal_V2Test {
                 .requestModel(mock(RequestModel.class))
                 .build();
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL),
+                requestManagerWithRestClient(new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
                 requestContext
         );
 
@@ -388,8 +379,7 @@ public class InboxInternal_V2Test {
         responses.add(createNotificationStatusResponse(Collections.singletonList(NOTIFICATION_STRING_2)));
 
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
+                requestManagerWithRestClient(new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS)),
                 requestContext
         );
 
@@ -415,8 +405,7 @@ public class InboxInternal_V2Test {
         responses.add(createNotificationStatusResponse(Collections.singletonList(NOTIFICATION_STRING_2)));
 
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
+                requestManagerWithRestClient(new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS)),
                 requestContext
         );
 
@@ -445,8 +434,7 @@ public class InboxInternal_V2Test {
         responses.add(response2);
 
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(responses, FakeRestClient.Mode.ERROR_RESPONSE_MODEL),
+                requestManagerWithRestClient(new FakeRestClient(responses, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
                 requestContext
         );
 
@@ -476,8 +464,7 @@ public class InboxInternal_V2Test {
         exceptions.add(exception2);
 
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(exceptions),
+                requestManagerWithRestClient(new FakeRestClient(exceptions)),
                 requestContext
         );
 
@@ -508,8 +495,7 @@ public class InboxInternal_V2Test {
         when(timestampProvider.provideTimestamp()).thenReturn(0L, 0L, 60_001L, 60_001L);
 
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
+                requestManagerWithRestClient(new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS)),
                 requestContext
         );
 
@@ -529,7 +515,7 @@ public class InboxInternal_V2Test {
     }
 
     @Test
-    public void testResetBadgeCount_shouldMakeRequest_viaRestClient() {
+    public void testResetBadgeCount_shouldMakeRequest_viaRequestManager_submitNow() {
         RequestModel expected = createRequestModel(
                 "https://me-inbox.eservice.emarsys.net/api/v1/notifications/" + ME_ID + "/count",
                 RequestMethod.DELETE);
@@ -537,7 +523,7 @@ public class InboxInternal_V2Test {
         inbox.resetBadgeCount(resetListenerMock);
 
         ArgumentCaptor<RequestModel> requestCaptor = ArgumentCaptor.forClass(RequestModel.class);
-        verify(restClient).execute(requestCaptor.capture(), any(CoreCompletionHandler.class));
+        verify(manager).submitNow(requestCaptor.capture(), any(CoreCompletionHandler.class));
 
         RequestModel requestModel = requestCaptor.getValue();
         Assert.assertNotNull(requestModel.getId());
@@ -550,8 +536,7 @@ public class InboxInternal_V2Test {
     @Test
     public void testResetBadgeCount_listener_success() throws InterruptedException {
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(mock(ResponseModel.class), FakeRestClient.Mode.SUCCESS),
+                requestManagerWithRestClient(new FakeRestClient(mock(ResponseModel.class), FakeRestClient.Mode.SUCCESS)),
                 requestContext
         );
 
@@ -566,8 +551,7 @@ public class InboxInternal_V2Test {
     @Test
     public void testResetBadgeCount_listener_success_shouldBeCalledOnMainThread() throws InterruptedException {
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(mock(ResponseModel.class), FakeRestClient.Mode.SUCCESS),
+                requestManagerWithRestClient(new FakeRestClient(mock(ResponseModel.class), FakeRestClient.Mode.SUCCESS)),
                 requestContext
         );
 
@@ -583,8 +567,7 @@ public class InboxInternal_V2Test {
     public void testResetBadgeCount_listener_failureWithException() throws InterruptedException {
         Exception expectedException = new Exception("FakeRestClientException");
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(expectedException),
+                requestManagerWithRestClient(new FakeRestClient(expectedException)),
                 requestContext
         );
 
@@ -601,8 +584,7 @@ public class InboxInternal_V2Test {
     public void testResetBadgeCount_listener_failureWithException_shouldBeCalledOnMainThread() throws InterruptedException {
         Exception expectedException = new Exception("FakeRestClientException");
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(expectedException),
+                requestManagerWithRestClient(new FakeRestClient(expectedException)),
                 requestContext
         );
 
@@ -622,8 +604,7 @@ public class InboxInternal_V2Test {
                 .requestModel(mock(RequestModel.class))
                 .build();
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL),
+                requestManagerWithRestClient(new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
                 requestContext
         );
 
@@ -652,8 +633,7 @@ public class InboxInternal_V2Test {
                 .requestModel(mock(RequestModel.class))
                 .build();
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL),
+                requestManagerWithRestClient(new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
                 requestContext
         );
 
@@ -686,8 +666,7 @@ public class InboxInternal_V2Test {
         responses.add(createNotificationStatusResponse(Collections.singletonList(NOTIFICATION_STRING_2)));
 
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
+                requestManagerWithRestClient(new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS)),
                 requestContext
         );
 
@@ -832,8 +811,7 @@ public class InboxInternal_V2Test {
         responses.add(notificationStatusResponse2);
 
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
+                requestManagerWithRestClient(new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS)),
                 requestContext
         );
 
@@ -864,8 +842,7 @@ public class InboxInternal_V2Test {
         responses.add(notificationStatusResponse3);
 
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
+                requestManagerWithRestClient(new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS)),
                 requestContext
         );
 
@@ -906,8 +883,7 @@ public class InboxInternal_V2Test {
                 100_000L, 100_001L, 100_002L, 100_003L, 200_000L, 200_001L, 200_002L);
 
         inbox = new InboxInternal_V2(
-                manager,
-                new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS),
+                requestManagerWithRestClient(new FakeRestClient(responses, FakeRestClient.Mode.SUCCESS)),
                 requestContext
         );
 
@@ -1044,6 +1020,17 @@ public class InboxInternal_V2Test {
         Field cacheField = NotificationCache.class.getDeclaredField("internalCache");
         cacheField.setAccessible(true);
         ((List) cacheField.get(null)).clear();
+    }
+
+    @SuppressWarnings("unchecked")
+    private RequestManager requestManagerWithRestClient(RestClient restClient) {
+        return new RequestManager(
+                mock(Handler.class),
+                mock(Repository.class),
+                mock(Repository.class),
+                mock(Worker.class),
+                restClient,
+                mock(Registry.class));
     }
 
 }
