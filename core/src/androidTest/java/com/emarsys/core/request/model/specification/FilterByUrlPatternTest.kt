@@ -2,6 +2,7 @@ package com.emarsys.core.request.model.specification
 
 import android.support.test.InstrumentationRegistry
 import com.emarsys.core.database.helper.CoreDbHelper
+import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
@@ -22,12 +23,21 @@ class FilterByUrlPatternTest {
 
     private lateinit var specification: FilterByUrlPattern
     private lateinit var pattern: String
+    private lateinit var repository: RequestModelRepository
+    private lateinit var timestampProvider: TimestampProvider
+    private lateinit var uuidProvider: UUIDProvider
 
     @Before
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
         pattern = "root/___/_%/event"
         specification = FilterByUrlPattern(pattern)
+        timestampProvider = TimestampProvider()
+        uuidProvider = UUIDProvider()
+
+        val context = InstrumentationRegistry.getTargetContext().applicationContext
+        val coreDbHelper = CoreDbHelper(context, mapOf())
+        repository = RequestModelRepository(coreDbHelper)
     }
 
     @Test
@@ -52,12 +62,6 @@ class FilterByUrlPatternTest {
     @Test
     fun testQueryUsingFilterByUrlPattern() {
         specification = FilterByUrlPattern("https://emarsys.com/%")
-        val timestampProvider = TimestampProvider()
-        val uuidProvider = UUIDProvider()
-
-        val context = InstrumentationRegistry.getTargetContext().applicationContext
-        val coreDbHelper = CoreDbHelper(context, mapOf())
-        val repository = RequestModelRepository(coreDbHelper)
 
         val expectedRequestModel = RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/1").build()
         val requestModel1 = RequestModel.Builder(timestampProvider, uuidProvider).url("https://google.com/2").build()
@@ -71,5 +75,24 @@ class FilterByUrlPatternTest {
 
         resultList.size shouldBe 2
         resultList.shouldContainAll(expectedRequestModel, expectedRequestModel2)
+    }
+
+    @Test
+    fun testDeleteUsingFilterByUrlPattern() {
+        specification = FilterByUrlPattern("https://emarsys.com/%")
+
+        val requestModel1 = RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/1").build()
+        val expectedRequestModel = RequestModel.Builder(timestampProvider, uuidProvider).url("https://google.com/2").build()
+        val requestModel2 = RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/3").build()
+
+        repository.add(requestModel1)
+        repository.add(expectedRequestModel)
+        repository.add(requestModel2)
+        repository.remove(specification)
+
+        val resultList = repository.query(Everything())
+
+        resultList.size shouldBe 1
+        resultList shouldBe listOf(expectedRequestModel)
     }
 }
