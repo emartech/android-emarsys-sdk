@@ -25,8 +25,6 @@ import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -115,18 +113,16 @@ public class DeviceInfoTest {
     }
 
     @Test
-    public void testIsDebugMode_withDebugApplication() throws PackageManager.NameNotFoundException {
+    public void testIsDebugMode_withDebugApplication() {
         Application mockDebugContext = ApplicationTestUtils.getApplicationDebug();
-        when(mockDebugContext.getPackageManager().getPackageInfo(anyString(), anyInt())).thenReturn(new PackageInfo());
 
         DeviceInfo debugDeviceInfo = new DeviceInfo(mockDebugContext);
         assertTrue(debugDeviceInfo.isDebugMode());
     }
 
     @Test
-    public void testIsDebugMode_withReleaseApplication() throws PackageManager.NameNotFoundException {
+    public void testIsDebugMode_withReleaseApplication() {
         Application mockReleaseContext = ApplicationTestUtils.getApplicationRelease();
-        when(mockReleaseContext.getPackageManager().getPackageInfo(anyString(), anyInt())).thenReturn(new PackageInfo());
 
         DeviceInfo releaseDeviceInfo = new DeviceInfo(mockReleaseContext);
         assertFalse(releaseDeviceInfo.isDebugMode());

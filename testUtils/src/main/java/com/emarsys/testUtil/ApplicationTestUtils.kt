@@ -2,30 +2,22 @@ package com.emarsys.testUtil
 
 import android.app.Application
 import android.content.pm.ApplicationInfo
-import org.mockito.Mockito
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
+import android.support.test.InstrumentationRegistry
+import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import org.mockito.Mockito.spy
 
 object ApplicationTestUtils {
 
     @JvmStatic
     val applicationDebug: Application
-    get() {
-        val applicationDebug = mock(Application::class.java, Mockito.RETURNS_DEEP_STUBS)
-        val info = ApplicationInfo()
-        info.flags = ApplicationInfo.FLAG_DEBUGGABLE
-        `when`(applicationDebug.applicationInfo).thenReturn(info)
-        return applicationDebug
-    }
+        get() = getApplication { flags = ApplicationInfo.FLAG_DEBUGGABLE }
 
     @JvmStatic
     val applicationRelease: Application
-    get() {
-        val applicationRelease = mock(Application::class.java, Mockito.RETURNS_DEEP_STUBS)
-        val info = ApplicationInfo()
-        info.flags = 0
-        `when`(applicationRelease.applicationInfo).thenReturn(info)
-        return applicationRelease
+        get() = getApplication { flags = 0 }
+
+    private fun getApplication(init: ApplicationInfo.() -> Unit) = (spy(InstrumentationRegistry.getTargetContext().applicationContext) as Application).also {
+        whenever(it.applicationInfo).thenReturn(ApplicationInfo().apply(init))
     }
 
 }
