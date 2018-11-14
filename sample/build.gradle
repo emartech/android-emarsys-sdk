@@ -13,7 +13,10 @@ android {
         versionName gitVersionName
         testInstrumentationRunner "com.emarsys.sample.testutils.SampleAppTestRunner"
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     if (project.devConfig.releaseSampleApp || System.env.DEVELOPMENT_MODE) {
         signingConfigs {
             release {

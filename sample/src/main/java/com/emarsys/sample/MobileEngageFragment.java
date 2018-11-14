@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class MobileEngageFragment extends Fragment {
+public class MobileEngageFragment extends BaseFragment {
     private static final String TAG = "MobileEngageFragment";
 
     private EditText contactFieldValue;
@@ -42,6 +41,11 @@ public class MobileEngageFragment extends Fragment {
     private EditText messageId;
 
     private TextView statusLabel;
+
+    @Override
+    public String getName() {
+        return "Mobile Engage";
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -86,17 +90,17 @@ public class MobileEngageFragment extends Fragment {
         root.findViewById(R.id.appLogin).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    String id = contactFieldValue.getText().toString();
-                    Emarsys.setCustomer(id, new CompletionListener() {
-                        @Override
-                        public void onCompleted(@Nullable Throwable errorCause) {
-                            completionListener.onCompleted(errorCause);
-                            if (errorCause != null) {
-                                ((MainActivity) getActivity()).updateBadgeCount();
-                            }
+                String id = contactFieldValue.getText().toString();
+                Emarsys.setCustomer(id, new CompletionListener() {
+                    @Override
+                    public void onCompleted(@Nullable Throwable errorCause) {
+                        completionListener.onCompleted(errorCause);
+                        if (errorCause != null) {
+                            ((MainActivity) getActivity()).updateBadgeCount();
                         }
-                    });
-                    handleRequestSent("Login: ");
+                    }
+                });
+                handleRequestSent("Login: ");
             }
         });
 

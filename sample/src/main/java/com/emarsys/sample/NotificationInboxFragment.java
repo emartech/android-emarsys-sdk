@@ -3,7 +3,6 @@ package com.emarsys.sample;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -24,12 +23,17 @@ import java.util.List;
 
 import static android.support.v7.widget.RecyclerView.LayoutManager;
 
-public class NotificationInboxFragment extends Fragment {
+public class NotificationInboxFragment extends BaseFragment {
     private static final String TAG = "InboxFragment";
     private List<Notification> notifications = new ArrayList<>();
     private NotificationListAdapter notificationListAdapter;
     private Context context;
     private TextView statusLabel;
+
+    @Override
+    public String getName() {
+        return "Inbox";
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -14,4 +14,12 @@
     <string name="refresh">Refresh</string>
     <string name="do_not_disturb">Do not disturb</string>
     <string name="get_push_token">Get PushToken</string>
+    <string name="item_view_id">itemId</string>
+    <string name="track_item_view">track ItemView</string>
+    <string name="category_view">categoryView</string>
+    <string name="track_category_view">track CategoryView</string>
+    <string name="search_term">searchTerm</string>
+    <string name="track_search_term">track SearchTerm</string>
+    <string name="track_cart_items">track cart items</string>
+    <string name="track_purchase">track purchase</string>
 </resources>
