@@ -29,16 +29,17 @@ class QueryLatestRequestModelTest {
     }
 
     @Test
-    fun testGetSql() {
-        val expected = "SELECT * FROM request ORDER BY ROWID ASC LIMIT 1;"
-        val result = specification.selection
-
-        result shouldBe expected
-    }
-
-    @Test
-    fun testGetArgs() {
-        specification.selectionArgs shouldBe null
+    fun testSpecification() {
+        with(QueryLatestRequestModel()) {
+            isDistinct shouldBe false
+            columns shouldBe null
+            selection shouldBe null
+            selectionArgs shouldBe null
+            groupBy shouldBe null
+            having shouldBe null
+            orderBy shouldBe "ROWID ASC"
+            limit shouldBe "1"
+        }
     }
 
     @Test
