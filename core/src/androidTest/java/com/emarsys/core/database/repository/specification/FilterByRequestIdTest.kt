@@ -43,15 +43,15 @@ class FilterByRequestIdTest {
         val coreDbHelper = CoreDbHelper(InstrumentationRegistry.getTargetContext(), HashMap())
         repository = RequestModelRepository(coreDbHelper)
 
-        repository.add(requestModel3)
-        repository.add(requestModel4)
         repository.add(requestModel1)
         repository.add(requestModel2)
+        repository.add(requestModel3)
+        repository.add(requestModel4)
     }
 
     @Test
-    fun testExecution_withRequestModel() {
-        val expected = Arrays.asList<RequestModel>(requestModel1, requestModel3, requestModel4)
+    fun testDelete_withRequestModel() {
+        val expected = arrayOf(requestModel1, requestModel3, requestModel4)
 
         repository.remove(FilterByRequestId(requestModel2))
 
@@ -61,8 +61,8 @@ class FilterByRequestIdTest {
     }
 
     @Test
-    fun testExecution_withCompositeRequestModel() {
-        val expected = Arrays.asList(requestModel2)
+    fun testDelete_withCompositeRequestModel() {
+        val expected = arrayOf(requestModel2)
 
         val originalRequestIds = arrayOf(requestModel1.id, requestModel3.id, requestModel4.id)
 
@@ -80,6 +80,15 @@ class FilterByRequestIdTest {
         val actual = repository.query(Everything())
 
         actual shouldBe expected
+    }
+
+    @Test
+    fun testQuery_withRequestModel() {
+        val expected = arrayOf(requestModel2)
+
+        val result = repository.query(FilterByRequestId(requestModel2))
+
+        result shouldBe expected
     }
 
 }
