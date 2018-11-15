@@ -6,7 +6,7 @@
     <string name="customevent">track custom event</string>
     <string name="messageopen">track message open</string>
     <string name="contactFieldId">contactFieldId</string>
-    <string name="contactFieldValue">contactFieldValue</string>
+    <string name="contactFieldValue">test@test.com</string>
     <string name="eventname">eventName</string>
     <string name="messageId">messageId</string>
     <string name="eventattributes">eventAttributes</string>
@@ -22,4 +22,10 @@
     <string name="track_search_term">track SearchTerm</string>
     <string name="track_cart_items">track cart items</string>
     <string name="track_purchase">track purchase</string>
+    <string name="item_view_title">Item View</string>
+    <string name="cart_and_purchase_title">Cart and Purchase</string>
+    <string name="search_term_title">Search Term</string>
+    <string name="category_view_title">Category View</string>
+    <string name="contact_identification">Contact identification</string>
+    <string name="order_id">order id</string>
 </resources>
