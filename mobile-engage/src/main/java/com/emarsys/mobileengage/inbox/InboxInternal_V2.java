@@ -10,7 +10,6 @@ import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
 import com.emarsys.core.api.result.Try;
 import com.emarsys.core.request.RequestManager;
-import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
@@ -35,7 +34,6 @@ import static com.emarsys.mobileengage.endpoint.Endpoint.INBOX_RESET_BADGE_COUNT
 public class InboxInternal_V2 implements InboxInternal {
 
     private Handler mainHandler;
-    private RestClient client;
     private NotificationCache cache;
     private RequestContext requestContext;
     private RequestManager manager;
@@ -47,14 +45,11 @@ public class InboxInternal_V2 implements InboxInternal {
 
     public InboxInternal_V2(
             RequestManager requestManager,
-            RestClient restClient,
             RequestContext requestContext) {
         Assert.notNull(requestManager, "RequestManager must not be null!");
-        Assert.notNull(restClient, "RestClient must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
         EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: requestContext %s, requestManager %s", requestContext, requestManager);
 
-        this.client = restClient;
         this.mainHandler = new Handler(Looper.getMainLooper());
         this.cache = new NotificationCache();
         this.manager = requestManager;
@@ -97,7 +92,7 @@ public class InboxInternal_V2 implements InboxInternal {
                         .method(RequestMethod.GET)
                         .build();
 
-                client.execute(model, new CoreCompletionHandler() {
+                manager.submitNow(model, new CoreCompletionHandler() {
                     @Override
                     public void onSuccess(String id, ResponseModel responseModel) {
                         EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
@@ -156,7 +151,7 @@ public class InboxInternal_V2 implements InboxInternal {
                     .method(RequestMethod.DELETE)
                     .build();
 
-            client.execute(model, new CoreCompletionHandler() {
+            manager.submitNow(model, new CoreCompletionHandler() {
                 @Override
                 public void onSuccess(String id, ResponseModel responseModel) {
                     EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);

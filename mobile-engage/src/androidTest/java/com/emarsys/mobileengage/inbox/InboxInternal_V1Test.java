@@ -1,14 +1,17 @@
 package com.emarsys.mobileengage.inbox;
 
 import android.app.Application;
+import android.os.Handler;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.Registry;
 import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
 import com.emarsys.core.api.result.Try;
+import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -16,6 +19,7 @@ import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
+import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
@@ -77,7 +81,6 @@ public class InboxInternal_V1Test {
 
     private Application application;
     private NotificationCache cache;
-    private RestClient restClient;
     private DeviceInfo deviceInfo;
     private RequestContext requestContext;
     private UUIDProvider uuidProvider;
@@ -92,7 +95,6 @@ public class InboxInternal_V1Test {
         latch = new CountDownLatch(1);
 
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
-
 
         manager = mock(RequestManager.class);
 
@@ -118,9 +120,8 @@ public class InboxInternal_V1Test {
         );
 
         defaultHeaders = RequestHeaderUtils.createDefaultHeaders(requestContext);
-        restClient = mock(RestClient.class);
 
-        inbox = new InboxInternal_V1(manager, restClient, requestContext);
+        inbox = new InboxInternal_V1(manager, requestContext);
 
         resultListenerMock = mock(ResultListener.class);
         resetListenerMock = mock(CompletionListener.class);
@@ -137,17 +138,12 @@ public class InboxInternal_V1Test {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestManager_shouldNotBeNull() {
-        new InboxInternal_V1(null, restClient, requestContext);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_restClient_shouldNotBeNull() {
-        new InboxInternal_V1(manager, null, requestContext);
+        new InboxInternal_V1(null, requestContext);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestContext_shouldNotBeNull() {
-        new InboxInternal_V1(manager, restClient, null);
+        new InboxInternal_V1(manager, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -156,17 +152,14 @@ public class InboxInternal_V1Test {
     }
 
     @Test
-    public void testFetchNotifications_shouldMakeRequest_viaRestClient() {
+    public void testFetchNotifications_shouldMakeRequest_viaRequestManager_submitNow() {
         RequestModel expected = createRequestModel("https://me-inbox.eservice.emarsys.net/api/notifications", RequestMethod.GET);
-
-        RestClient mockRestClient = mock(RestClient.class);
-        inbox.client = mockRestClient;
 
         requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
         inbox.fetchNotifications(resultListenerMock);
 
         ArgumentCaptor<RequestModel> requestCaptor = ArgumentCaptor.forClass(RequestModel.class);
-        verify(mockRestClient).execute(requestCaptor.capture(), any(CoreCompletionHandler.class));
+        verify(manager).submitNow(requestCaptor.capture(), any(CoreCompletionHandler.class));
 
         RequestModel requestModel = requestCaptor.getValue();
         Assert.assertNotNull(requestModel.getId());
@@ -180,7 +173,10 @@ public class InboxInternal_V1Test {
     public void testFetchNotifications_listener_success() throws InterruptedException {
         requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
 
-        inbox.client = new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS);
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
+                requestContext
+        );
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch);
         inbox.fetchNotifications(listener);
@@ -195,7 +191,10 @@ public class InboxInternal_V1Test {
     public void testFetchNotifications_listener_success_shouldBeCalledOnMainThread() throws InterruptedException {
         requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
 
-        inbox.client = new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS);
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
+                requestContext
+        );
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch, Mode.MAIN_THREAD);
         inbox.fetchNotifications(listener);
@@ -214,7 +213,10 @@ public class InboxInternal_V1Test {
 
         requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
 
-        inbox.client = new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS);
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
+                requestContext
+        );
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch, Mode.MAIN_THREAD);
         inbox.fetchNotifications(listener);
@@ -234,7 +236,10 @@ public class InboxInternal_V1Test {
         requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
 
         Exception expectedException = new Exception("FakeRestClientException");
-        inbox.client = new FakeRestClient(expectedException);
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(expectedException)),
+                requestContext
+        );
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch);
         inbox.fetchNotifications(listener);
@@ -249,7 +254,10 @@ public class InboxInternal_V1Test {
     public void testFetchNotifications_listener_failureWithException_shouldBeCalledOnMainThread() throws InterruptedException {
         requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
 
-        inbox.client = new FakeRestClient(new Exception());
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(new Exception())),
+                requestContext
+        );
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch, Mode.MAIN_THREAD);
         inbox.fetchNotifications(listener);
@@ -268,7 +276,11 @@ public class InboxInternal_V1Test {
                 .message("Bad request")
                 .requestModel(mock(RequestModel.class))
                 .build();
-        inbox.client = new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL);
+
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
+                requestContext
+        );
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch);
         inbox.fetchNotifications(listener);
@@ -296,7 +308,10 @@ public class InboxInternal_V1Test {
                 .message("Bad request")
                 .requestModel(mock(RequestModel.class))
                 .build();
-        inbox.client = new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL);
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
+                requestContext
+        );
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch, Mode.MAIN_THREAD);
         inbox.fetchNotifications(listener);
@@ -357,17 +372,14 @@ public class InboxInternal_V1Test {
     }
 
     @Test
-    public void testResetBadgeCount_shouldMakeRequest_viaRestClient() {
+    public void testResetBadgeCount_shouldMakeRequest_viaRequestManager_submitNow() {
         RequestModel expected = createRequestModel("https://me-inbox.eservice.emarsys.net/api/reset-badge-count", RequestMethod.POST);
-
-        RestClient mockRestClient = mock(RestClient.class);
-        inbox.client = mockRestClient;
 
         requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
         inbox.resetBadgeCount(resetListenerMock);
 
         ArgumentCaptor<RequestModel> requestCaptor = ArgumentCaptor.forClass(RequestModel.class);
-        verify(mockRestClient).execute(requestCaptor.capture(), any(CoreCompletionHandler.class));
+        verify(manager).submitNow(requestCaptor.capture(), any(CoreCompletionHandler.class));
 
         RequestModel requestModel = requestCaptor.getValue();
         Assert.assertNotNull(requestModel.getId());
@@ -381,7 +393,10 @@ public class InboxInternal_V1Test {
     public void testResetBadgeCount_listener_success() throws InterruptedException {
         requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
 
-        inbox.client = new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS);
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
+                requestContext
+        );
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch);
         inbox.resetBadgeCount(listener);
@@ -395,7 +410,10 @@ public class InboxInternal_V1Test {
     public void testResetBadgeCount_listener_success_shouldBeCalledOnMainThread() throws InterruptedException {
         requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
 
-        inbox.client = new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS);
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
+                requestContext
+        );
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch, FakeResetBadgeCountResultListener.Mode.MAIN_THREAD);
         inbox.resetBadgeCount(listener);
@@ -410,7 +428,10 @@ public class InboxInternal_V1Test {
         requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
 
         Exception expectedException = new Exception("FakeRestClientException");
-        inbox.client = new FakeRestClient(expectedException);
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(expectedException)),
+                requestContext
+        );
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch);
         inbox.resetBadgeCount(listener);
@@ -425,7 +446,10 @@ public class InboxInternal_V1Test {
     public void testResetBadgeCount_listener_failureWithException_shouldBeCalledOnMainThread() throws InterruptedException {
         requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
 
-        inbox.client = new FakeRestClient(new Exception());
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(new Exception())),
+                requestContext
+        );
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch, FakeResetBadgeCountResultListener.Mode.MAIN_THREAD);
         inbox.resetBadgeCount(listener);
@@ -444,7 +468,11 @@ public class InboxInternal_V1Test {
                 .message("Bad request")
                 .requestModel(mock(RequestModel.class))
                 .build();
-        inbox.client = new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL);
+
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
+                requestContext
+        );
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch);
         inbox.resetBadgeCount(listener);
@@ -472,7 +500,10 @@ public class InboxInternal_V1Test {
                 .message("Bad request")
                 .requestModel(mock(RequestModel.class))
                 .build();
-        inbox.client = new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL);
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
+                requestContext
+        );
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch, FakeResetBadgeCountResultListener.Mode.MAIN_THREAD);
         inbox.resetBadgeCount(listener);
@@ -536,7 +567,10 @@ public class InboxInternal_V1Test {
     public void testResetBadgeCount_shouldNotFail_withNullListener_success() {
         requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
 
-        inbox.client = new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS);
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
+                requestContext
+        );
 
         try {
             inbox.resetBadgeCount(null);
@@ -551,7 +585,10 @@ public class InboxInternal_V1Test {
         requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
 
         Exception expectedException = new Exception("FakeRestClientException");
-        inbox.client = new FakeRestClient(expectedException);
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(expectedException)),
+                requestContext
+        );
 
         try {
             inbox.resetBadgeCount(null);
@@ -570,7 +607,10 @@ public class InboxInternal_V1Test {
                 .message("Bad request")
                 .requestModel(mock(RequestModel.class))
                 .build();
-        inbox.client = new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL);
+        inbox = new InboxInternal_V1(
+                requestManagerWithRestClient(new FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
+                requestContext
+        );
 
         try {
             inbox.resetBadgeCount(null);
@@ -610,7 +650,7 @@ public class InboxInternal_V1Test {
     }
 
     @Test
-    public void testTrackNotificationOpen_requestManagerCalledWithCorrectRequestModel() throws Exception {
+    public void testTrackNotificationOpen_requestManagerCalledWithCorrectRequestModel() {
         Notification message = new Notification("id1", "sid1", "title", null, new HashMap<String, String>(), new JSONObject(), 7200, new Date().getTime());
 
         Map<String, Object> payload = new HashMap<>();
@@ -629,7 +669,7 @@ public class InboxInternal_V1Test {
 
         inbox.trackNotificationOpen(message, null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModel result = captor.getValue();
         Assert.assertEquals(expected.getUrl(), result.getUrl());
@@ -664,7 +704,7 @@ public class InboxInternal_V1Test {
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
         inbox.trackNotificationOpen(mock(Notification.class), null);
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         Map<String, Object> payload = captor.getValue().getPayload();
         Assert.assertEquals(payload.get("contact_field_id"), contactFieldId);
@@ -803,5 +843,16 @@ public class InboxInternal_V1Test {
                 .body(json)
                 .requestModel(mock(RequestModel.class))
                 .build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private RequestManager requestManagerWithRestClient(RestClient restClient) {
+        return new RequestManager(
+                mock(Handler.class),
+                mock(Repository.class),
+                mock(Repository.class),
+                mock(Worker.class),
+                restClient,
+                mock(Registry.class));
     }
 }
