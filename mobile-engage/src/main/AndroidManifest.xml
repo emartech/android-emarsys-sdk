@@ -3,7 +3,7 @@
 
     <application>
 
-        <service android:name=".service.TrackMessageOpenService" />
+        <service android:name=".service.NotificationHandlerService" />
 
     </application>
 

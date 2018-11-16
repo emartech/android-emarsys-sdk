@@ -108,7 +108,7 @@ public class MessagingServiceUtils {
         List<Action> actions = NotificationActionUtils.createActions(context, remoteMessageData, notificationId);
 
         Map<String, String> preloadedRemoteMessageData = createPreloadedRemoteMessageData(remoteMessageData, getInAppDescriptor(context, remoteMessageData));
-        PendingIntent resultPendingIntent = IntentUtils.createTrackMessageOpenServicePendingIntent(context, preloadedRemoteMessageData, notificationId);
+        PendingIntent resultPendingIntent = IntentUtils.createNotificationHandlerServicePendingIntent(context, preloadedRemoteMessageData, notificationId);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
                 .setContentTitle(title)

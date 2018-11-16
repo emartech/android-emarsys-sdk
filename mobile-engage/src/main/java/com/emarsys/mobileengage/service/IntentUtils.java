@@ -23,14 +23,14 @@ public class IntentUtils {
         return intent;
     }
 
-    public static Intent createTrackMessageOpenServiceIntent(
+    public static Intent createNotificationHandlerServiceIntent(
             Context context, Map<String, String> remoteMessageData,
             int notificationId,
             String action) {
         Assert.notNull(remoteMessageData, "RemoteMessageData must not be null!");
         Assert.notNull(context, "Context must not be null!");
 
-        Intent intent = new Intent(context, TrackMessageOpenService.class);
+        Intent intent = new Intent(context, NotificationHandlerService.class);
 
         if (action != null) {
             intent.setAction(action);
@@ -46,14 +46,14 @@ public class IntentUtils {
         return intent;
     }
 
-    public static PendingIntent createTrackMessageOpenServicePendingIntent(
+    public static PendingIntent createNotificationHandlerServicePendingIntent(
             Context context,
             Map<String, String> remoteMessageData,
             int notificationId) {
-        return createTrackMessageOpenServicePendingIntent(context, remoteMessageData, notificationId, null);
+        return IntentUtils.createNotificationHandlerServicePendingIntent(context, remoteMessageData, notificationId, null);
     }
 
-    public static PendingIntent createTrackMessageOpenServicePendingIntent(
+    public static PendingIntent createNotificationHandlerServicePendingIntent(
             Context context,
             Map<String, String> remoteMessageData,
             int notificationId,
@@ -61,7 +61,7 @@ public class IntentUtils {
         Assert.notNull(remoteMessageData, "RemoteMessageData must not be null!");
         Assert.notNull(context, "Context must not be null!");
 
-        Intent intent = createTrackMessageOpenServiceIntent(context, remoteMessageData, notificationId, action);
+        Intent intent = createNotificationHandlerServiceIntent(context, remoteMessageData, notificationId, action);
         return PendingIntent.getService(
                 context,
                 (int) (System.currentTimeMillis() % Integer.MAX_VALUE),

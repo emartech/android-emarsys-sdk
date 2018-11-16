@@ -134,7 +134,7 @@ public class NotificationCommandFactoryTest {
         Map<String, String> remoteMessageData = new HashMap<>();
         remoteMessageData.put("ems", emsPayload);
 
-        Intent intent = IntentUtils.createTrackMessageOpenServiceIntent(
+        Intent intent = IntentUtils.createNotificationHandlerServiceIntent(
                 InstrumentationRegistry.getTargetContext().getApplicationContext(),
                 remoteMessageData,
                 0,

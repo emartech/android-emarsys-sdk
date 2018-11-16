@@ -63,7 +63,7 @@ public class NotificationActionUtils {
                 result = new NotificationCompat.Action.Builder(
                         0,
                         action.getString("title"),
-                        IntentUtils.createTrackMessageOpenServicePendingIntent(context, remoteMessageData, notificationId, actionId)).build();
+                        IntentUtils.createNotificationHandlerServicePendingIntent(context, remoteMessageData, notificationId, actionId)).build();
             }
         } catch (JSONException ignored) {
         }

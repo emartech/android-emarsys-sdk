@@ -96,24 +96,24 @@ public class IntentUtilsTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateTrackMessageOpenServiceIntent_remoteMessageDataMustNotBeNull() {
-        IntentUtils.createTrackMessageOpenServiceIntent(context, null, 0, "action");
+    public void testCreateNotificationHandlerServiceIntent_remoteMessageDataMustNotBeNull() {
+        IntentUtils.createNotificationHandlerServiceIntent(context, null, 0, "action");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateTrackMessageOpenServiceIntent_contextMustNotBeNull() {
-        IntentUtils.createTrackMessageOpenServiceIntent(null, new HashMap<String, String>(), 0, "action");
+    public void testCreateNotificationHandlerServiceIntent_contextMustNotBeNull() {
+        IntentUtils.createNotificationHandlerServiceIntent(null, new HashMap<String, String>(), 0, "action");
     }
 
     @Test
-    public void createTrackMessageOpenServiceIntent() {
+    public void createNotificationHandlerServiceIntent() {
         int notificationId = 987;
 
         Map<String, String> remoteMessageData = new HashMap<>();
         remoteMessageData.put("key1", "value1");
         remoteMessageData.put("key2", "value2");
 
-        Intent resultIntent = IntentUtils.createTrackMessageOpenServiceIntent(context, remoteMessageData, notificationId, "action");
+        Intent resultIntent = IntentUtils.createNotificationHandlerServiceIntent(context, remoteMessageData, notificationId, "action");
         assertEquals("action", resultIntent.getAction());
         Bundle payload = resultIntent.getBundleExtra("payload");
         assertEquals("value1", payload.getString("key1"));
@@ -122,19 +122,19 @@ public class IntentUtilsTest {
     }
 
     @Test
-    public void createTrackMessageOpenServiceIntent_withoutAction() {
-        Intent resultIntent = IntentUtils.createTrackMessageOpenServiceIntent(context, new HashMap<String, String>(), 0, null);
+    public void createNotificationHandlerServiceIntent_withoutAction() {
+        Intent resultIntent = IntentUtils.createNotificationHandlerServiceIntent(context, new HashMap<String, String>(), 0, null);
         assertEquals(null, resultIntent.getAction());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateTrackMessageOpenServicePendingIntent_remoteMessageDataMustNotBeNull() {
-        IntentUtils.createTrackMessageOpenServicePendingIntent(context, null, 0, "action");
+    public void testCreateNotificationHandlerServicePendingIntent_remoteMessageDataMustNotBeNull() {
+        IntentUtils.createNotificationHandlerServicePendingIntent(context, null, 0, "action");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testCreateTrackMessageOpenServicePendingIntent_contextMustNotBeNull() {
-        IntentUtils.createTrackMessageOpenServicePendingIntent(null, new HashMap<String, String>(), 0, "action");
+    public void testCreateNotificationHandlerServicePendingIntent_contextMustNotBeNull() {
+        IntentUtils.createNotificationHandlerServicePendingIntent(null, new HashMap<String, String>(), 0, "action");
     }
 
 }

@@ -10,7 +10,7 @@ import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.mobileengage.notification.NotificationCommandFactory;
 import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 
-public class TrackMessageOpenService extends Service {
+public class NotificationHandlerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
