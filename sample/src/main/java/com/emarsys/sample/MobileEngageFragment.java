@@ -77,9 +77,6 @@ public class MobileEngageFragment extends BaseFragment {
 
         root.findViewById(R.id.appLogin).setOnClickListener(v -> {
             String id = contactFieldValue.getText().toString();
-            if (id.isEmpty()) {
-                id = contactFieldValue.getHint().toString();
-            }
             Emarsys.setCustomer(id, errorCause -> {
                 completionListener.onCompleted(errorCause);
                 if (errorCause != null) {
