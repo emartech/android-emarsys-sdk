@@ -5,7 +5,6 @@ import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
-import com.emarsys.mobileengage.config.OreoConfig;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
@@ -28,6 +27,4 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
     InAppPresenter getInAppPresenter();
 
     NotificationEventHandler getNotificationEventHandler();
-
-    OreoConfig getOreoConfig();
 }

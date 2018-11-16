@@ -7,7 +7,6 @@ import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
-import com.emarsys.mobileengage.config.OreoConfig;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -25,7 +24,6 @@ public class EmarsysConfigTest {
     private int CONTACT_FIELD_ID = 567;
     private String MERCHANT_ID = "MERCHANT_ID";
     private Application application;
-    private OreoConfig mockOreoConfig;
     private EventHandler defaultInAppEventHandler;
     private NotificationEventHandler defaultNotificationEventHandler;
     private FlipperFeature[] features;
@@ -36,7 +34,6 @@ public class EmarsysConfigTest {
     @Before
     public void init() {
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
-        mockOreoConfig = mock(OreoConfig.class);
         defaultInAppEventHandler = mock(EventHandler.class);
         defaultNotificationEventHandler = mock(NotificationEventHandler.class);
         features = new FlipperFeature[]{
@@ -54,7 +51,6 @@ public class EmarsysConfigTest {
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,
-                mockOreoConfig,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 features);
@@ -69,7 +65,6 @@ public class EmarsysConfigTest {
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,
-                mockOreoConfig,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 features);
@@ -84,7 +79,6 @@ public class EmarsysConfigTest {
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,
-                mockOreoConfig,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 features);
@@ -99,7 +93,6 @@ public class EmarsysConfigTest {
                 null,
                 MERCHANT_ID,
                 true,
-                mockOreoConfig,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 features);
@@ -114,25 +107,10 @@ public class EmarsysConfigTest {
                 CONTACT_FIELD_ID,
                 null,
                 true,
-                mockOreoConfig,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 features);
-    }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_oreoConfigShouldNotBeNull() {
-        new EmarsysConfig(
-                application,
-                APP_ID,
-                APP_PASSWORD,
-                CONTACT_FIELD_ID,
-                MERCHANT_ID,
-                true,
-                null,
-                defaultInAppEventHandler,
-                defaultNotificationEventHandler,
-                features);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -144,7 +122,6 @@ public class EmarsysConfigTest {
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,
-                mockOreoConfig,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 null);
@@ -159,40 +136,9 @@ public class EmarsysConfigTest {
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,
-                mockOreoConfig,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 new FlipperFeature[]{mock(FlipperFeature.class), null});
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_oreoConfigParameter_channelNameShouldNotBeNull_whenEnabled() {
-        new EmarsysConfig(
-                application,
-                APP_ID,
-                APP_PASSWORD,
-                CONTACT_FIELD_ID,
-                MERCHANT_ID,
-                true,
-                new OreoConfig(true, null, "description"),
-                defaultInAppEventHandler,
-                defaultNotificationEventHandler,
-                features);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_oreoConfigParameter_channelDescriptionShouldNotBeNull_whenEnabled() {
-        new EmarsysConfig(
-                application,
-                APP_ID,
-                APP_PASSWORD,
-                CONTACT_FIELD_ID,
-                MERCHANT_ID,
-                true,
-                new OreoConfig(true, "name", null),
-                defaultInAppEventHandler,
-                defaultNotificationEventHandler,
-                features);
     }
 
     @Test
@@ -204,7 +150,6 @@ public class EmarsysConfigTest {
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,
-                new OreoConfig(true, "defaultChannelName", "defaultChannelDescription"),
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 features
@@ -216,7 +161,6 @@ public class EmarsysConfigTest {
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
                 .enableIdlingResource(true)
-                .enableDefaultChannel("defaultChannelName", "defaultChannelDescription")
                 .enableExperimentalFeatures(features)
                 .inAppEventHandler(defaultInAppEventHandler)
                 .notificationEventHandler(defaultNotificationEventHandler)
@@ -234,7 +178,6 @@ public class EmarsysConfigTest {
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 false,
-                new OreoConfig(false),
                 null,
                 null,
                 new FlipperFeature[]{});
@@ -244,7 +187,6 @@ public class EmarsysConfigTest {
                 .mobileEngageCredentials(APP_ID, APP_PASSWORD)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
-                .disableDefaultChannel()
                 .build();
 
         assertEquals(expected, result);
@@ -257,7 +199,6 @@ public class EmarsysConfigTest {
                 .mobileEngageCredentials(APP_ID, APP_PASSWORD)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
-                .disableDefaultChannel()
                 .enableExperimentalFeatures(MobileEngageFeature.IN_APP_MESSAGING)
                 .build();
     }
@@ -270,7 +211,6 @@ public class EmarsysConfigTest {
                     .mobileEngageCredentials(APP_ID, APP_PASSWORD)
                     .contactFieldId(CONTACT_FIELD_ID)
                     .predictMerchantId(MERCHANT_ID)
-                    .disableDefaultChannel()
                     .build();
         } catch (IllegalArgumentException e) {
             fail("Should not fail with: " + e.getMessage());
@@ -291,7 +231,6 @@ public class EmarsysConfigTest {
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,
-                new OreoConfig(false),
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 features);

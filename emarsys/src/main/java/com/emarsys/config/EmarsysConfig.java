@@ -8,7 +8,6 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
-import com.emarsys.mobileengage.config.OreoConfig;
 
 import java.util.Arrays;
 
@@ -20,7 +19,6 @@ public class EmarsysConfig {
     private final int contactFieldId;
     private final String predictMerchantId;
     private final boolean idlingResourceEnabled;
-    private final OreoConfig oreoConfig;
     private final EventHandler inAppEventHandler;
     private final NotificationEventHandler notificationEventHandler;
     private final FlipperFeature[] experimentalFeatures;
@@ -31,7 +29,6 @@ public class EmarsysConfig {
                   Integer contactFieldId,
                   String predictMerchantId,
                   boolean idlingResourceEnabled,
-                  OreoConfig oreoConfig,
                   EventHandler inAppEventHandler,
                   NotificationEventHandler notificationEventHandler,
                   FlipperFeature[] experimentalFeatures) {
@@ -40,8 +37,6 @@ public class EmarsysConfig {
         Assert.notNull(applicationPassword, "ApplicationPassword must not be null");
         Assert.notNull(contactFieldId, "ContactFieldId must not be null");
         Assert.notNull(predictMerchantId, "PredictMerchantId must not be null");
-        Assert.notNull(oreoConfig, "OreoConfig must not be null! Did you forget to enable/disable defaultChannel in EmarsysConfig?");
-        validate(oreoConfig);
         Assert.notNull(experimentalFeatures, "ExperimentalFeatures must not be null");
         Assert.elementsNotNull(experimentalFeatures, "ExperimentalFeatures must not contain null elements!");
 
@@ -55,7 +50,6 @@ public class EmarsysConfig {
         this.contactFieldId = contactFieldId;
         this.predictMerchantId = predictMerchantId;
         this.idlingResourceEnabled = idlingResourceEnabled;
-        this.oreoConfig = oreoConfig;
         this.inAppEventHandler = inAppEventHandler;
         this.notificationEventHandler = notificationEventHandler;
         this.experimentalFeatures = experimentalFeatures;
@@ -85,10 +79,6 @@ public class EmarsysConfig {
         return idlingResourceEnabled;
     }
 
-    public OreoConfig getOreoConfig() {
-        return oreoConfig;
-    }
-
     public EventHandler getInAppEventHandler() {
         return inAppEventHandler;
     }
@@ -99,13 +89,6 @@ public class EmarsysConfig {
 
     public FlipperFeature[] getExperimentalFeatures() {
         return experimentalFeatures;
-    }
-
-    private void validate(OreoConfig oreoConfig) {
-        if (oreoConfig.isDefaultChannelEnabled()) {
-            Assert.notNull(oreoConfig.getDefaultChannelName(), "DefaultChannelName must not be null");
-            Assert.notNull(oreoConfig.getDefaultChannelDescription(), "DefaultChannelDescription must not be null");
-        }
     }
 
     @Override
@@ -125,8 +108,6 @@ public class EmarsysConfig {
             return false;
         if (predictMerchantId != null ? !predictMerchantId.equals(config.predictMerchantId) : config.predictMerchantId != null)
             return false;
-        if (oreoConfig != null ? !oreoConfig.equals(config.oreoConfig) : config.oreoConfig != null)
-            return false;
         if (inAppEventHandler != null ? !inAppEventHandler.equals(config.inAppEventHandler) : config.inAppEventHandler != null)
             return false;
         if (notificationEventHandler != null ? !notificationEventHandler.equals(config.notificationEventHandler) : config.notificationEventHandler != null)
@@ -142,7 +123,6 @@ public class EmarsysConfig {
         result = 31 * result + contactFieldId;
         result = 31 * result + (predictMerchantId != null ? predictMerchantId.hashCode() : 0);
         result = 31 * result + (idlingResourceEnabled ? 1 : 0);
-        result = 31 * result + (oreoConfig != null ? oreoConfig.hashCode() : 0);
         result = 31 * result + (inAppEventHandler != null ? inAppEventHandler.hashCode() : 0);
         result = 31 * result + (notificationEventHandler != null ? notificationEventHandler.hashCode() : 0);
         result = 31 * result + Arrays.hashCode(experimentalFeatures);
@@ -158,7 +138,6 @@ public class EmarsysConfig {
                 ", contactFieldId=" + contactFieldId +
                 ", predictMerchantId='" + predictMerchantId + '\'' +
                 ", idlingResourceEnabled=" + idlingResourceEnabled +
-                ", oreoConfig=" + oreoConfig +
                 ", inAppEventHandler=" + inAppEventHandler +
                 ", notificationEventHandler=" + notificationEventHandler +
                 ", experimentalFeatures=" + Arrays.toString(experimentalFeatures) +
@@ -172,7 +151,6 @@ public class EmarsysConfig {
         private Integer contactFieldId;
         private String predictMerchantId;
         private boolean idlingResourceEnabled;
-        private OreoConfig oreoConfig;
         private EventHandler defaultInAppEventHandler;
         private NotificationEventHandler notificationEventHandler;
         private FlipperFeature[] experimentalFeatures;
@@ -185,7 +163,6 @@ public class EmarsysConfig {
             contactFieldId = baseConfig.getContactFieldId();
             predictMerchantId = baseConfig.getPredictMerchantId();
             idlingResourceEnabled = baseConfig.isIdlingResourceEnabled();
-            oreoConfig = baseConfig.getOreoConfig();
             defaultInAppEventHandler = baseConfig.getInAppEventHandler();
             notificationEventHandler = baseConfig.getNotificationEventHandler();
             experimentalFeatures = baseConfig.getExperimentalFeatures();
@@ -219,16 +196,6 @@ public class EmarsysConfig {
             return this;
         }
 
-        public Builder enableDefaultChannel(@NonNull String name, @NonNull String description) {
-            this.oreoConfig = new OreoConfig(true, name, description);
-            return this;
-        }
-
-        public Builder disableDefaultChannel() {
-            this.oreoConfig = new OreoConfig(false);
-            return this;
-        }
-
         public Builder enableExperimentalFeatures(@NonNull FlipperFeature... experimentalFeatures) {
             this.experimentalFeatures = experimentalFeatures;
             return this;
@@ -254,7 +221,6 @@ public class EmarsysConfig {
                     contactFieldId,
                     predictMerchantId,
                     idlingResourceEnabled,
-                    oreoConfig,
                     defaultInAppEventHandler,
                     notificationEventHandler,
                     experimentalFeatures

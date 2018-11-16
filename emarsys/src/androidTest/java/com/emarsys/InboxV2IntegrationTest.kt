@@ -63,7 +63,6 @@ class InboxV2IntegrationTest {
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
                 .enableExperimentalFeatures(USER_CENTRIC_INBOX)
-                .disableDefaultChannel()
                 .build()
 
         errorCause = null

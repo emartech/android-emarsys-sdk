@@ -1,7 +1,6 @@
 package com.emarsys.mobileengage.service;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -21,7 +20,6 @@ import com.emarsys.core.util.FileUtils;
 import com.emarsys.core.util.ImageUtils;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.core.validate.JsonObjectValidator;
-import com.emarsys.mobileengage.config.OreoConfig;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.inbox.InboxParseUtils;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
@@ -42,14 +40,12 @@ public class MessagingServiceUtils {
     public static final String METADATA_SMALL_NOTIFICATION_ICON_KEY = "com.emarsys.mobileengage.small_notification_icon";
     public static final String METADATA_NOTIFICATION_COLOR = "com.emarsys.mobileengage.notification_color";
     public static final int DEFAULT_SMALL_NOTIFICATION_ICON = com.emarsys.mobileengage.R.drawable.default_small_notification_icon;
-    public static final String DEFAULT_CHANNEL_ID = "ems_me_default";
 
     static NotificationCache notificationCache = new NotificationCache();
 
-    public static boolean handleMessage(Context context, RemoteMessage remoteMessage, OreoConfig oreoConfig) {
+    public static boolean handleMessage(Context context, RemoteMessage remoteMessage) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(remoteMessage, "RemoteMessage must not be null!");
-        Assert.notNull(oreoConfig, "OreoConfig must not be null!");
 
         boolean handled = false;
         Map<String, String> remoteData = remoteMessage.getData();
@@ -68,7 +64,6 @@ public class MessagingServiceUtils {
                     notificationId,
                     context.getApplicationContext(),
                     remoteData,
-                    oreoConfig,
                     new MetaDataReader());
 
             ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE))
@@ -102,7 +97,6 @@ public class MessagingServiceUtils {
             int notificationId,
             Context context,
             Map<String, String> remoteMessageData,
-            OreoConfig oreoConfig,
             MetaDataReader metaDataReader) {
 
         int smallIconResourceId = metaDataReader.getInt(context, METADATA_SMALL_NOTIFICATION_ICON_KEY, DEFAULT_SMALL_NOTIFICATION_ICON);
@@ -110,12 +104,8 @@ public class MessagingServiceUtils {
         Bitmap image = ImageUtils.loadOptimizedBitmap(context, remoteMessageData.get("image_url"));
         String title = getTitle(remoteMessageData, context);
         String body = remoteMessageData.get("body");
-        String channelId = getChannelId(remoteMessageData, oreoConfig);
+        String channelId = remoteMessageData.get("channel_id");
         List<Action> actions = NotificationActionUtils.createActions(context, remoteMessageData, notificationId);
-
-        if (DEFAULT_CHANNEL_ID.equals(channelId)) {
-            createDefaultChannel(context, oreoConfig);
-        }
 
         Map<String, String> preloadedRemoteMessageData = createPreloadedRemoteMessageData(remoteMessageData, getInAppDescriptor(context, remoteMessageData));
         PendingIntent resultPendingIntent = IntentUtils.createTrackMessageOpenServicePendingIntent(context, preloadedRemoteMessageData, notificationId);
@@ -165,14 +155,6 @@ public class MessagingServiceUtils {
         return title;
     }
 
-    static String getChannelId(Map<String, String> remoteMessageData, OreoConfig oreoConfig) {
-        String result = remoteMessageData.get("channel_id");
-        if (result == null && oreoConfig.isDefaultChannelEnabled()) {
-            result = DEFAULT_CHANNEL_ID;
-        }
-        return result;
-    }
-
     static String getInAppDescriptor(Context context, Map<String, String> remoteMessageData) {
         String result = null;
 
@@ -216,15 +198,6 @@ public class MessagingServiceUtils {
             }
         }
         return preloadedRemoteMessageData;
-    }
-
-    static void createDefaultChannel(Context context, OreoConfig oreoConfig) {
-        if (Build.VERSION.SDK_INT >= 26) {
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            NotificationChannel channel = new NotificationChannel(DEFAULT_CHANNEL_ID, oreoConfig.getDefaultChannelName(), NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription(oreoConfig.getDefaultChannelDescription());
-            notificationManager.createNotificationChannel(channel);
-        }
     }
 
     private static String getDefaultTitle(Map<String, String> remoteMessageData, Context context) {

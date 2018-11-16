@@ -41,7 +41,6 @@ import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
-import com.emarsys.mobileengage.config.OreoConfig;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.experimental.MobileEngageExperimentalFeatures;
@@ -90,7 +89,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private DefaultCoreCompletionHandler completionHandler;
     private InAppPresenter inAppPresenter;
     private NotificationEventHandler notificationEventHandler;
-    private OreoConfig oreoConfig;
     private CoreSQLiteDatabase coreDatabase;
     private Runnable predictShardTrigger;
 
@@ -194,14 +192,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         return notificationEventHandler;
     }
 
-    @Override
-    public OreoConfig getOreoConfig() {
-        return oreoConfig;
-    }
-
     private void initializeDependencies(EmarsysConfig config) {
         application = config.getApplication();
-        oreoConfig = config.getOreoConfig();
 
         inAppInternal = new InAppInternal();
 

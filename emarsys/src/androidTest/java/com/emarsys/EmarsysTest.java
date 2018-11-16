@@ -151,7 +151,6 @@ public class EmarsysTest {
                 null,
                 null,
                 null,
-                null,
                 mockPredictInternal,
                 mockPredictShardTrigger
         ));
@@ -829,7 +828,6 @@ public class EmarsysTest {
                 .mobileEngageCredentials(APPLICATION_CODE, APPLICATION_PASSWORD)
                 .predictMerchantId(MERCHANT_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
-                .disableDefaultChannel()
                 .enableExperimentalFeatures(experimentalFeatures);
 
         if (Arrays.asList(experimentalFeatures).contains(MobileEngageFeature.IN_APP_MESSAGING)) {

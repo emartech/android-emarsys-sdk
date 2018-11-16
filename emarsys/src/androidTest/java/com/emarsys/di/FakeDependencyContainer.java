@@ -9,7 +9,6 @@ import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
-import com.emarsys.mobileengage.config.OreoConfig;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
@@ -29,7 +28,6 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final RequestContext requestContext;
     private final InAppPresenter inAppPresenter;
     private final NotificationEventHandler notificationEventHandler;
-    private final OreoConfig oreoConfig;
     private final PredictInternal predictInternal;
     private final Runnable predictShardTrigger;
 
@@ -46,7 +44,6 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             RequestContext requestContext,
             InAppPresenter inAppPresenter,
             NotificationEventHandler notificationEventHandler,
-            OreoConfig oreoConfig,
             PredictInternal predictInternal,
             Runnable predictShardTrigger) {
         this.coreSdkHandler = coreSdkHandler;
@@ -61,7 +58,6 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
         this.requestContext = requestContext;
         this.inAppPresenter = inAppPresenter;
         this.notificationEventHandler = notificationEventHandler;
-        this.oreoConfig = oreoConfig;
         this.predictInternal = predictInternal;
         this.predictShardTrigger = predictShardTrigger;
     }
@@ -124,11 +120,6 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     @Override
     public NotificationEventHandler getNotificationEventHandler() {
         return notificationEventHandler;
-    }
-
-    @Override
-    public OreoConfig getOreoConfig() {
-        return oreoConfig;
     }
 
     @Override

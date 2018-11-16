@@ -32,7 +32,6 @@ public class SampleApplication extends Application implements EventHandler, Noti
                 .mobileEngageCredentials("14C19-A121F", "PaNkfOD90AVpYimMBuZopCpm8OWCrREu")
                 .contactFieldId(3)
                 .predictMerchantId("1428C8EE286EC34B")
-                .enableDefaultChannel("default", "here is a description")
                 .inAppEventHandler(this)
                 .enableExperimentalFeatures(MobileEngageFeature.IN_APP_MESSAGING, MobileEngageFeature.USER_CENTRIC_INBOX)
                 .notificationEventHandler(this)

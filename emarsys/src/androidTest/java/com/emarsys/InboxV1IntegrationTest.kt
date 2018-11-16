@@ -62,7 +62,6 @@ class InboxV1IntegrationTest {
                 .mobileEngageCredentials(APP_ID, APP_PASSWORD)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
-                .disableDefaultChannel()
                 .build()
 
         errorCause = null
