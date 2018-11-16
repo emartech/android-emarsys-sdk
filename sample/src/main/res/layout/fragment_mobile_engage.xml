@@ -93,7 +93,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="@string/applogin"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/appLogout"
                         app:layout_constraintTop_toBottomOf="@+id/contactFieldValue" />
 
                     <Button
@@ -120,7 +120,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="@string/applogout"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/appLoginAnonymous"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/contactFieldValue" />
                 </android.support.constraint.ConstraintLayout>
             </android.support.design.card.MaterialCardView>
