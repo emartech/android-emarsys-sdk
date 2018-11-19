@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.iam;
 import android.os.Handler;
 
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.testUtil.SharedPrefsUtils;
+import com.emarsys.mobileengage.testUtil.MobileEngageSharedPrefsUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -32,7 +32,7 @@ public class InAppStartActionTest {
     @SuppressWarnings("unchecked")
     public void init() {
         DatabaseTestUtils.deleteCoreDatabase();
-        SharedPrefsUtils.deleteMobileEngageSharedPrefs();
+        MobileEngageSharedPrefsUtils.deleteMobileEngageSharedPrefs();
 
         mobileEngageInternal = mock(MobileEngageInternal.class);
 
@@ -43,7 +43,7 @@ public class InAppStartActionTest {
     public void tearDown() {
         DatabaseTestUtils.deleteCoreDatabase();
         DatabaseTestUtils.deleteCoreDatabase();
-        SharedPrefsUtils.deleteMobileEngageSharedPrefs();
+        MobileEngageSharedPrefsUtils.deleteMobileEngageSharedPrefs();
     }
 
     @Test(expected = IllegalArgumentException.class)

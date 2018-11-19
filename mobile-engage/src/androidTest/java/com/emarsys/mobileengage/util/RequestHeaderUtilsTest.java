@@ -12,7 +12,7 @@ import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.testUtil.SharedPrefsUtils;
+import com.emarsys.mobileengage.testUtil.MobileEngageSharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -41,7 +41,7 @@ public class RequestHeaderUtilsTest {
 
     @Before
     public void setup() {
-        SharedPrefsUtils.deleteMobileEngageSharedPrefs();
+        MobileEngageSharedPrefsUtils.deleteMobileEngageSharedPrefs();
 
         context = InstrumentationRegistry.getTargetContext();
 

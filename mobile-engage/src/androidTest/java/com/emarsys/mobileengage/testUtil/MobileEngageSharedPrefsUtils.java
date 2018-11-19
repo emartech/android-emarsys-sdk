@@ -5,10 +5,10 @@ import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.mobileengage.storage.Storage;
 
-public class SharedPrefsUtils {
+public class MobileEngageSharedPrefsUtils {
     public static final String MOBILE_ENGAGE_SHARED_PREFS = Storage.SHARED_PREFERENCES_NAMESPACE;
 
-    private SharedPrefsUtils() {
+    private MobileEngageSharedPrefsUtils() {
     }
 
     public static void deleteMobileEngageSharedPrefs() {
