@@ -6,6 +6,7 @@ import android.support.test.InstrumentationRegistry
 object SharedPrefsUtils {
 
     @JvmStatic
+    @JvmOverloads
     fun clearSharedPrefs(namespace: String, mode: Int = Context.MODE_PRIVATE) =
             InstrumentationRegistry
                     .getTargetContext()
