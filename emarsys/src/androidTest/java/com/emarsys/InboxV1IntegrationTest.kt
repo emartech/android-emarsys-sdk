@@ -4,8 +4,11 @@ import android.app.Application
 import android.support.test.InstrumentationRegistry
 import android.support.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.core.DeviceInfo
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
@@ -16,6 +19,7 @@ import com.emarsys.testUtil.ExperimentalTestUtils
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.fake.FakeActivity
+import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONObject
@@ -24,6 +28,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.Mockito.mock
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import kotlin.reflect.KMutableProperty0
@@ -72,6 +77,15 @@ class InboxV1IntegrationTest {
         AppLoginStorage(application).remove()
 
         ExperimentalTestUtils.resetExperimentalFeatures()
+
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
+            override fun getDeviceInfo() = DeviceInfo(
+                    application,
+                    mock(HardwareIdProvider::class.java).apply {
+                        whenever(provideHardwareId()).thenReturn("inboxv1_integration_hwid")
+                    }
+            )
+        })
 
         Emarsys.setup(baseConfig)
     }

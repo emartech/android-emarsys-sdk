@@ -6,7 +6,9 @@ import android.support.test.InstrumentationRegistry
 import android.support.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
+import com.emarsys.core.DeviceInfo
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
@@ -16,12 +18,14 @@ import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.ExperimentalTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.fake.FakeActivity
+import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.Mockito.mock
 import java.net.URLDecoder
 import java.util.concurrent.CountDownLatch
 
@@ -94,6 +98,13 @@ class PredictIntegrationTest {
         }
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getCoreCompletionHandler() = completionHandler
+
+            override fun getDeviceInfo() = DeviceInfo(
+                    application,
+                    mock(HardwareIdProvider::class.java).apply {
+                        whenever(provideHardwareId()).thenReturn("predict_integration_hwid")
+                    }
+            )
         })
 
         Emarsys.setup(baseConfig)

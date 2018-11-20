@@ -7,7 +7,10 @@ import android.os.Bundle
 import android.support.test.InstrumentationRegistry
 import android.support.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.core.DeviceInfo
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature.IN_APP_MESSAGING
@@ -19,6 +22,7 @@ import com.emarsys.testUtil.ExperimentalTestUtils
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.fake.FakeActivity
+import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
@@ -60,6 +64,15 @@ class MobileEngageIntegrationTest {
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
                 .build()
+
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
+            override fun getDeviceInfo() = DeviceInfo(
+                    application,
+                    mock(HardwareIdProvider::class.java).apply {
+                        whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
+                    }
+            )
+        })
 
         setup(baseConfig)
     }
