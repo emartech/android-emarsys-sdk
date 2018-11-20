@@ -14,7 +14,6 @@ import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature.IN_APP_MESSAGING
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature.TRACK_MESSAGE_OPEN_V3
 import com.emarsys.mobileengage.storage.AppLoginStorage
 import com.emarsys.mobileengage.storage.MeIdStorage
 import com.emarsys.testUtil.ConnectionTestUtils
@@ -172,21 +171,6 @@ class MobileEngageIntegrationTest {
     }
 
     @Test
-    fun testTrackMessageOpen_V2() {
-        val intent = Intent().apply {
-            putExtra("payload", Bundle().apply {
-                putString("key1", "value1")
-                putString("u", "{\"sid\": \"dd8_zXfDdndBNEQi\"}")
-            })
-        }
-
-        Emarsys.Push.trackMessageOpen(
-                intent,
-                this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
-    }
-
-    @Test
     fun testTrackMessageOpen_V3() {
         setupWithV3()
         IntegrationTestUtils.doAppLogin()
@@ -231,7 +215,7 @@ class MobileEngageIntegrationTest {
         tearDown()
         EmarsysConfig.Builder()
                 .from(baseConfig)
-                .enableExperimentalFeatures(IN_APP_MESSAGING, TRACK_MESSAGE_OPEN_V3)
+                .enableExperimentalFeatures(IN_APP_MESSAGING)
                 .inAppEventHandler(mock(EventHandler::class.java))
                 .build()
                 .let(this::setup)

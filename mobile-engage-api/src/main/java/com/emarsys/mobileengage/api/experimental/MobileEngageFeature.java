@@ -6,7 +6,7 @@ import java.util.Locale;
 
 public enum MobileEngageFeature implements FlipperFeature {
 
-    IN_APP_MESSAGING, USER_CENTRIC_INBOX, TRACK_MESSAGE_OPEN_V3;
+    IN_APP_MESSAGING, USER_CENTRIC_INBOX;
 
     @Override
     public String getName() {

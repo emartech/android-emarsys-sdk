@@ -304,7 +304,7 @@ public class MobileEngageInternalTest {
     }
 
     @Test
-    public void testAppLogin_shouldNotResult_inMultipleAppLoginRequests_evenIfPayloadIsTheSame() throws Exception {
+    public void testAppLogin_shouldNotResult_inMultipleAppLoginRequests_evenIfPayloadIsTheSame() {
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         testSequentialApplogins(
@@ -316,7 +316,7 @@ public class MobileEngageInternalTest {
     }
 
     @Test
-    public void testAppLogin_shouldResult_inMultipleAppLoginRequests_ifPayloadIsDifferent() throws Exception {
+    public void testAppLogin_shouldResult_inMultipleAppLoginRequests_ifPayloadIsDifferent() {
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         testSequentialApplogins(
@@ -328,7 +328,7 @@ public class MobileEngageInternalTest {
     }
 
     @Test
-    public void testAppLogin_shouldResult_inMultipleAppLoginRequests_when_thereWasALogout() throws Exception {
+    public void testAppLogin_shouldResult_inMultipleAppLoginRequests_when_thereWasALogout() {
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
@@ -355,7 +355,7 @@ public class MobileEngageInternalTest {
     }
 
     @Test
-    public void testAppLogin_shouldNotResult_inMultipleAppLoginRequests_ifPayloadIsTheSame_evenIfMobileEngageIsReInitialized() throws Exception {
+    public void testAppLogin_shouldNotResult_inMultipleAppLoginRequests_ifPayloadIsTheSame_evenIfMobileEngageIsReInitialized() {
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         testSequentialApplogins_withReinstantiationOfMobileEngage(
@@ -367,7 +367,7 @@ public class MobileEngageInternalTest {
     }
 
     @Test
-    public void testAppLogin_shouldResult_inMultipleAppLoginRequests_ifPayloadIsDifferent_evenIfMobileEngageIsReInitialized() throws Exception {
+    public void testAppLogin_shouldResult_inMultipleAppLoginRequests_ifPayloadIsDifferent_evenIfMobileEngageIsReInitialized() {
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         testSequentialApplogins_withReinstantiationOfMobileEngage(
@@ -548,7 +548,7 @@ public class MobileEngageInternalTest {
     }
 
     @Test
-    public void testTrackCustomEvent_V2_requestManagerCalledWithCorrectRequestModel() throws Exception {
+    public void testTrackCustomEvent_V2_requestManagerCalledWithCorrectRequestModel() {
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         String eventName = "cartoon";
@@ -590,7 +590,7 @@ public class MobileEngageInternalTest {
     }
 
     @Test
-    public void testCustomEvent_V2_containsCredentials_fromAppLoginParameters() throws Exception {
+    public void testCustomEvent_V2_containsCredentials_fromAppLoginParameters() {
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         int contactFieldId = 3;
@@ -607,7 +607,7 @@ public class MobileEngageInternalTest {
     }
 
     @Test
-    public void testTrackCustomEvent_V2_returnsRequestModelId() throws Exception {
+    public void testTrackCustomEvent_V2_returnsRequestModelId() {
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
@@ -711,48 +711,7 @@ public class MobileEngageInternalTest {
     }
 
     @Test
-    public void testTrackMessageOpen_requestManagerCalledWithCorrectRequestModel_whenUsingV2() {
-        ExperimentalTestUtils.resetExperimentalFeatures();
-        Intent intent = getTestIntent();
-
-        Map<String, Object> payload = createBasePayload();
-        payload.put("sid", "+43c_lODSmXqCvdOz");
-
-        RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
-                .url(ENDPOINT_BASE_V2 + "events/message_open")
-                .payload(payload)
-                .headers(defaultHeaders)
-                .build();
-
-        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
-
-        mobileEngageInternal.trackMessageOpen(intent, null);
-
-        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
-
-        RequestModel result = captor.getValue();
-        assertRequestModels(expected, result);
-    }
-
-    @Test
-    public void testTrackMessageOpen_requestManagerCalledWithCorrectCompletionHandler_whenUsingV2() {
-        ExperimentalTestUtils.resetExperimentalFeatures();
-        Intent intent = getTestIntent();
-
-        Map<String, Object> payload = createBasePayload();
-        payload.put("sid", "+43c_lODSmXqCvdOz");
-
-        CompletionListener completionListener = mock(CompletionListener.class);
-
-        mobileEngageInternal.trackMessageOpen(intent, completionListener);
-
-        verify(manager).submit(any(RequestModel.class), eq(completionListener));
-    }
-
-    @Test
-    public void testTrackMessageOpen_requestManagerCalledWithCorrectRequestModelWhenUsingV3() throws Exception {
-        ExperimentalFeatures.enableFeature(MobileEngageFeature.TRACK_MESSAGE_OPEN_V3);
-
+    public void testTrackMessageOpen_requestManagerCalledWithCorrectRequestModelWhenUsingV3() {
         Intent intent = getTestIntent();
 
         when(requestContext.getTimestampProvider().provideTimestamp()).thenReturn(TIMESTAMP);
@@ -778,7 +737,7 @@ public class MobileEngageInternalTest {
     }
 
     @Test
-    public void testTrackMessageOpen_requestManagerCalledWithCorrectCompletionHandler_whenUsingV3() throws Exception {
+    public void testTrackMessageOpen_requestManagerCalledWithCorrectCompletionHandler_whenUsingV3() {
         Intent intent = getTestIntent();
 
         when(requestContext.getTimestampProvider().provideTimestamp()).thenReturn(TIMESTAMP);
@@ -791,7 +750,7 @@ public class MobileEngageInternalTest {
     }
 
     @Test
-    public void testTrackMessageOpen_returnsRequestModelId() throws Exception {
+    public void testTrackMessageOpen_returnsRequestModelId() {
         Intent intent = getTestIntent();
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
@@ -801,24 +760,6 @@ public class MobileEngageInternalTest {
         verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         assertEquals(captor.getValue().getId(), result);
-    }
-
-    @Test
-    public void testTrackMessageOpen_containsCredentials_fromApploginParameters_V2() throws Exception {
-        ExperimentalTestUtils.resetExperimentalFeatures();
-
-        Intent intent = getTestIntent();
-        int contactFieldId = 3;
-        String contactFieldValue = "test@test.com";
-        requestContext.setAppLoginParameters(new AppLoginParameters(contactFieldId, contactFieldValue));
-        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
-
-        mobileEngageInternal.trackMessageOpen(intent, null);
-        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
-
-        Map<String, Object> payload = captor.getValue().getPayload();
-        assertEquals(contactFieldId, payload.get("contact_field_id"));
-        assertEquals(contactFieldValue, payload.get("contact_field_value"));
     }
 
     @Test
@@ -882,7 +823,7 @@ public class MobileEngageInternalTest {
 
 
     @Test
-    public void testGetMessageId_shouldReturnTheCorrectSIDValue() throws Exception {
+    public void testGetMessageId_shouldReturnTheCorrectSIDValue() {
         Intent intent = getTestIntent();
         String result = mobileEngageInternal.getMessageId(intent);
         assertEquals("+43c_lODSmXqCvdOz", result);

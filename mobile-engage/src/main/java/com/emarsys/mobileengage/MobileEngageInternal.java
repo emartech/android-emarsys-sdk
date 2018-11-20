@@ -229,36 +229,20 @@ public class MobileEngageInternal {
 
     private String handleMessageOpen(String messageId, final CompletionListener completionListener) {
         if (messageId != null) {
-            if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.TRACK_MESSAGE_OPEN_V3)) {
-                return handleMessageOpen_V3(messageId, completionListener);
-            } else {
-                return handleMessageOpen_V2(messageId, completionListener);
-            }
+            return handleMessageOpen_V3(messageId, completionListener);
+
         } else {
             final String uuid = requestContext.getUUIDProvider().provideId();
             uiHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                         Throwable cause = new IllegalArgumentException("No messageId found!");
-                         EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", cause);
-                         completionListener.onCompleted(cause);
+                    Throwable cause = new IllegalArgumentException("No messageId found!");
+                    EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", cause);
+                    completionListener.onCompleted(cause);
                 }
             });
             return uuid;
         }
-    }
-
-    private String handleMessageOpen_V2(String messageId, CompletionListener completionListener) {
-        Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
-        payload.put("sid", messageId);
-        RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
-                .url(RequestUrlUtils.createEventUrl_V2("message_open"))
-                .payload(payload)
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
-                .build();
-
-        manager.submit(model, completionListener);
-        return model.getId();
     }
 
     private String handleMessageOpen_V3(String messageId, CompletionListener completionListener) {
