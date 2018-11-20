@@ -13,6 +13,7 @@ import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.experimental.ExperimentalFeatures;
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -107,7 +108,7 @@ public class MobileEngageInternalTest {
         manager = mock(RequestManager.class);
         coreCompletionHandler = mock(DefaultCoreCompletionHandler.class);
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
-        deviceInfo = new DeviceInfo(application);
+        deviceInfo = new DeviceInfo(application, mock(HardwareIdProvider.class));
         appLoginStorage = new AppLoginStorage(application);
         appLoginStorage.remove();
 

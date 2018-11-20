@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.support.test.InstrumentationRegistry;
 
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.testUtil.ApplicationTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -26,11 +27,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DeviceInfoTest {
-    DeviceInfo deviceInfo;
-    TimeZone tz;
+
+    private static final String HARDWARE_ID = "hwid";
+
+    private DeviceInfo deviceInfo;
+    private TimeZone tz;
+    private Context context;
+    private HardwareIdProvider hardwareIdProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -39,7 +46,11 @@ public class DeviceInfoTest {
     public void setup() {
         tz = TimeZone.getTimeZone("Asia/Tokyo");
         TimeZone.setDefault(tz);
-        deviceInfo = new DeviceInfo(InstrumentationRegistry.getTargetContext());
+
+        context = InstrumentationRegistry.getTargetContext().getApplicationContext();
+
+        hardwareIdProvider = mock(HardwareIdProvider.class);
+        when(hardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID);
     }
 
     @After
@@ -47,8 +58,19 @@ public class DeviceInfoTest {
         TimeZone.setDefault(null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_context_mustNotBeNull() {
+        new DeviceInfo(null, hardwareIdProvider);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_hardwareIdProvider_mustNotBeNull() {
+        new DeviceInfo(context, null);
+    }
+
     @Test
     public void testConstructor_initializesFields() {
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider);
         assertNotNull(deviceInfo.getHwid());
         assertNotNull(deviceInfo.getPlatform());
         assertNotNull(deviceInfo.getLanguage());
@@ -74,23 +96,19 @@ public class DeviceInfoTest {
         when(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo);
         when(mockContext.getApplicationInfo()).thenReturn(mock(ApplicationInfo.class));
 
-        DeviceInfo info = new DeviceInfo(mockContext);
+        DeviceInfo info = new DeviceInfo(mockContext, hardwareIdProvider);
 
         assertEquals(DeviceInfo.UNKNOWN_VERSION_NAME, info.getApplicationVersion());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_contextShouldNotBeNull() {
-        new DeviceInfo(null);
-    }
-
     @Test
-    public void test_timezoneCorrectlyFormatted() {
+    public void testTimezoneCorrectlyFormatted() {
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider);
         assertEquals("+0900", deviceInfo.getTimezone());
     }
 
     @Test
-    public void test_timezoneCorrectlyFormatted_withArabicLocale() {
+    public void testTimezoneCorrectlyFormatted_withArabicLocale() {
         Locale previous = Locale.getDefault();
 
         Locale locale = new Locale("my");
@@ -100,7 +118,7 @@ public class DeviceInfoTest {
         config.locale = locale;
         resources.updateConfiguration(config, resources.getDisplayMetrics());
 
-        deviceInfo = new DeviceInfo(InstrumentationRegistry.getTargetContext());
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider);
 
         Locale.setDefault(previous);
 
@@ -108,7 +126,8 @@ public class DeviceInfoTest {
     }
 
     @Test
-    public void test_getDisplayMetrics() {
+    public void testGetDisplayMetrics() {
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider);
         assertEquals(deviceInfo.getDisplayMetrics(), Resources.getSystem().getDisplayMetrics());
     }
 
@@ -116,7 +135,7 @@ public class DeviceInfoTest {
     public void testIsDebugMode_withDebugApplication() {
         Application mockDebugContext = ApplicationTestUtils.getApplicationDebug();
 
-        DeviceInfo debugDeviceInfo = new DeviceInfo(mockDebugContext);
+        DeviceInfo debugDeviceInfo = new DeviceInfo(mockDebugContext, hardwareIdProvider);
         assertTrue(debugDeviceInfo.isDebugMode());
     }
 
@@ -124,7 +143,15 @@ public class DeviceInfoTest {
     public void testIsDebugMode_withReleaseApplication() {
         Application mockReleaseContext = ApplicationTestUtils.getApplicationRelease();
 
-        DeviceInfo releaseDeviceInfo = new DeviceInfo(mockReleaseContext);
+        DeviceInfo releaseDeviceInfo = new DeviceInfo(mockReleaseContext, hardwareIdProvider);
         assertFalse(releaseDeviceInfo.isDebugMode());
+    }
+
+    @Test
+    public void testHardwareId_isAcquiredFromHardwareIdProvider() {
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider);
+
+        verify(hardwareIdProvider).provideHardwareId();
+        assertEquals(HARDWARE_ID, deviceInfo.getHwid());
     }
 }

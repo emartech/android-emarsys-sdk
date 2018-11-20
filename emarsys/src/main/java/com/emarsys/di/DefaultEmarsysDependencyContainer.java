@@ -24,6 +24,7 @@ import com.emarsys.core.database.repository.log.LogRepository;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.provider.activity.CurrentActivityProvider;
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -85,6 +86,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private DeepLinkInternal deepLinkInternal;
     private PredictInternal predictInternal;
     private Handler coreSdkHandler;
+    private DeviceInfo deviceInfo;
     private RequestContext requestContext;
     private DefaultCoreCompletionHandler completionHandler;
     private InAppPresenter inAppPresenter;
@@ -97,7 +99,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private AppLoginStorage appLoginStorage;
     private MeIdStorage meIdStorage;
     private MeIdSignatureStorage meIdSignatureStorage;
-    private DeviceInfo deviceInfo;
     private RequestManager requestManager;
     private ButtonClickedRepository buttonClickedRepository;
     private DisplayedIamRepository displayedIamRepository;
@@ -183,6 +184,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
+    public DeviceInfo getDeviceInfo() {
+        return deviceInfo;
+    }
+
+    @Override
     public InAppPresenter getInAppPresenter() {
         return inAppPresenter;
     }
@@ -195,6 +201,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private void initializeDependencies(EmarsysConfig config) {
         application = config.getApplication();
 
+        SharedPreferences prefs = application.getSharedPreferences(EMARSYS_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+
         inAppInternal = new InAppInternal();
 
         uiHandler = new Handler(Looper.getMainLooper());
@@ -204,7 +212,9 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         appLoginStorage = new AppLoginStorage(application);
         meIdStorage = new MeIdStorage(application);
         meIdSignatureStorage = new MeIdSignatureStorage(application);
-        deviceInfo = new DeviceInfo(application);
+
+        HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, prefs);
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider);
 
         currentActivityProvider = new CurrentActivityProvider();
         currentActivityWatchdog = new CurrentActivityWatchdog(currentActivityProvider);
@@ -255,7 +265,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(requestContext));
 
-        SharedPreferences prefs = application.getSharedPreferences(EMARSYS_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
         notificationEventHandler = config.getNotificationEventHandler();
 

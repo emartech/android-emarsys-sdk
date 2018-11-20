@@ -5,9 +5,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Build;
-import android.provider.Settings;
 import android.util.DisplayMetrics;
 
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.util.Assert;
 
 import java.text.SimpleDateFormat;
@@ -28,10 +28,11 @@ public class DeviceInfo {
     private final DisplayMetrics displayMetrics;
     private final boolean isDebugMode;
 
-    public DeviceInfo(Context context){
+    public DeviceInfo(Context context, HardwareIdProvider hardwareIdProvider){
         Assert.notNull(context, "Context must not be null!");
+        Assert.notNull(hardwareIdProvider, "HardwareIdProvider must not be null!");
 
-        this.hwid = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        this.hwid = hardwareIdProvider.provideHardwareId();
 
         this.manufacturer = Build.MANUFACTURER;
 

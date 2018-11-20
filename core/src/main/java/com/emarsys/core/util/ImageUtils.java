@@ -13,7 +13,7 @@ public class ImageUtils {
 
     public static Bitmap loadBitmap(Context context, String imageUrl) {
         Bitmap result = null;
-        if (ImageUtils.validateParameters(context, imageUrl)) {
+        if (ImageUtils.isImageUrlValid(imageUrl)) {
             String fileUrl = downloadImage(context, imageUrl);
             result = loadBitmap(fileUrl, Integer.MAX_VALUE);
             if (fileUrl != null && isRemoteUrl(imageUrl)) {
@@ -23,11 +23,13 @@ public class ImageUtils {
         return result;
     }
 
-    public static Bitmap loadOptimizedBitmap(Context context, String imageUrl) {
+    public static Bitmap loadOptimizedBitmap(Context context, String imageUrl, DeviceInfo deviceInfo) {
+        Assert.notNull(context, "Context must not be null!");
+        Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
+
         Bitmap result = null;
-        if (ImageUtils.validateParameters(context, imageUrl)) {
+        if (ImageUtils.isImageUrlValid(imageUrl)) {
             String fileUrl = downloadImage(context, imageUrl);
-            DeviceInfo deviceInfo = new DeviceInfo(context);
             result = loadBitmap(fileUrl, deviceInfo.getDisplayMetrics().widthPixels);
             if (fileUrl != null && isRemoteUrl(imageUrl)) {
                 FileUtils.delete(fileUrl);
@@ -36,9 +38,9 @@ public class ImageUtils {
         return result;
     }
 
-    private static boolean validateParameters(Context context, String imageUrl) {
+    private static boolean isImageUrlValid(String imageUrl) {
         boolean result = true;
-        if (context == null || imageUrl == null) {
+        if (imageUrl == null) {
             result = false;
         } else if (!URLUtil.isHttpsUrl(imageUrl)) {
             result = new File(imageUrl).exists();

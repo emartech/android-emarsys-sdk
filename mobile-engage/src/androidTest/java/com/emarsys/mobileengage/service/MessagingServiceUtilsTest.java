@@ -13,7 +13,9 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
+import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.experimental.ExperimentalFeatures;
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.api.inbox.Notification;
@@ -69,6 +71,7 @@ public class MessagingServiceUtilsTest {
     private static final String CHANNEL_ID = "channelId";
 
     private Context context;
+    private DeviceInfo deviceInfo;
     private List<Notification> notificationCache;
     private MetaDataReader metaDataReader;
 
@@ -79,6 +82,8 @@ public class MessagingServiceUtilsTest {
     @SuppressWarnings("unchecked")
     public void init() throws Exception {
         context = InstrumentationRegistry.getContext();
+
+        deviceInfo = new DeviceInfo(context, mock(HardwareIdProvider.class));
 
         Field cacheField = NotificationCache.class.getDeclaredField("internalCache");
         cacheField.setAccessible(true);
@@ -97,22 +102,27 @@ public class MessagingServiceUtilsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testHandleMessage_contextShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(null, createEMSRemoteMessage());
+        MessagingServiceUtils.handleMessage(null, createEMSRemoteMessage(), deviceInfo);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testHandleMessage_remoteMessageShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(context, null);
+        MessagingServiceUtils.handleMessage(context, null, deviceInfo);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testHandleMessage_deviceInfoShouldNotBeNull() {
+        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), null);
     }
 
     @Test
     public void testHandleMessage_shouldReturnFalse_ifMessageIsNotHandled() {
-        assertFalse(MessagingServiceUtils.handleMessage(context, createRemoteMessage()));
+        assertFalse(MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo));
     }
 
     @Test
     public void testHandleMessage_shouldReturnTrue_ifMessageIsHandled() {
-        assertTrue(MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage()));
+        assertTrue(MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), deviceInfo));
     }
 
     @Test
@@ -197,7 +207,12 @@ public class MessagingServiceUtilsTest {
 
     @Test
     public void createNotification_shouldNotBeNull() {
-        assertNotNull(MessagingServiceUtils.createNotification(0, context, new HashMap<String, String>(), metaDataReader));
+        assertNotNull(MessagingServiceUtils.createNotification(
+                0,
+                context,
+                new HashMap<String, String>(),
+                deviceInfo,
+                metaDataReader));
     }
 
     @Test
@@ -207,7 +222,12 @@ public class MessagingServiceUtilsTest {
         input.put("title", TITLE);
         input.put("body", BODY);
 
-        android.app.Notification result = MessagingServiceUtils.createNotification(0, context, input, metaDataReader);
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
 
         assertEquals(TITLE, result.extras.getString(NotificationCompat.EXTRA_TITLE));
         assertEquals(TITLE, result.extras.getString(NotificationCompat.EXTRA_TITLE_BIG));
@@ -223,7 +243,12 @@ public class MessagingServiceUtilsTest {
         Map<String, String> input = new HashMap<>();
         input.put("title", TITLE);
 
-        android.app.Notification result = MessagingServiceUtils.createNotification(0, context, input, metaDataReader);
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
 
         assertEquals(TITLE, result.extras.getString(NotificationCompat.EXTRA_TITLE));
         assertEquals(TITLE, result.extras.getString(NotificationCompat.EXTRA_TITLE_BIG));
@@ -239,7 +264,12 @@ public class MessagingServiceUtilsTest {
         Map<String, String> input = new HashMap<>();
         input.put("body", BODY);
 
-        android.app.Notification result = MessagingServiceUtils.createNotification(0, context, input, metaDataReader);
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
 
         String expectedTitle = expectedBasedOnApiLevel(getApplicationName(), "");
 
@@ -258,7 +288,12 @@ public class MessagingServiceUtilsTest {
         input.put("body", BODY);
         input.put("u", "{\"test_field\":\"\",\"ems_default_title\":\"" + DEFAULT_TITLE + "\",\"image\":\"https:\\/\\/media.giphy.com\\/media\\/ktvFa67wmjDEI\\/giphy.gif\",\"deep_link\":\"lifestylelabels.com\\/mobile\\/product\\/3245678\",\"sid\":\"sid_here\"}");
 
-        android.app.Notification result = MessagingServiceUtils.createNotification(0, context, input, metaDataReader);
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
 
         String expectedTitle = expectedBasedOnApiLevel(DEFAULT_TITLE, "");
 
@@ -278,7 +313,12 @@ public class MessagingServiceUtilsTest {
         input.put("body", BODY);
         input.put("image_url", "https://ems-denna.herokuapp.com/images/Emarsys.png");
 
-        android.app.Notification result = MessagingServiceUtils.createNotification(0, context, input, metaDataReader);
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
 
         assertEquals(TITLE, result.extras.getString(NotificationCompat.EXTRA_TITLE));
         assertEquals(TITLE, result.extras.getString(NotificationCompat.EXTRA_TITLE_BIG));
@@ -298,7 +338,12 @@ public class MessagingServiceUtilsTest {
         input.put("body", BODY);
         input.put("image_url", "https://fa.il/img.jpg");
 
-        android.app.Notification result = MessagingServiceUtils.createNotification(0, context, input, metaDataReader);
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
 
         assertEquals(TITLE, result.extras.getString(NotificationCompat.EXTRA_TITLE));
         assertEquals(TITLE, result.extras.getString(NotificationCompat.EXTRA_TITLE_BIG));
@@ -319,7 +364,12 @@ public class MessagingServiceUtilsTest {
         input.put("title", TITLE);
         input.put("body", BODY);
 
-        android.app.Notification result = MessagingServiceUtils.createNotification(0, context, input, metaDataReader);
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
         assertEquals(expectedColor, result.color);
     }
 
@@ -330,7 +380,12 @@ public class MessagingServiceUtilsTest {
         input.put("title", TITLE);
         input.put("body", BODY);
 
-        android.app.Notification result = MessagingServiceUtils.createNotification(0, context, input, metaDataReader);
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
         assertEquals(android.app.Notification.COLOR_DEFAULT, result.color);
     }
 
@@ -342,7 +397,12 @@ public class MessagingServiceUtilsTest {
         input.put("body", BODY);
         input.put("channel_id", CHANNEL_ID);
 
-        android.app.Notification result = MessagingServiceUtils.createNotification(0, context, input, metaDataReader);
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
 
         assertEquals(CHANNEL_ID, result.getChannelId());
     }
@@ -354,7 +414,12 @@ public class MessagingServiceUtilsTest {
         input.put("title", TITLE);
         input.put("body", BODY);
 
-        android.app.Notification result = MessagingServiceUtils.createNotification(0, context, input, metaDataReader);
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
 
         assertNull(result.getChannelId());
     }
@@ -384,7 +449,12 @@ public class MessagingServiceUtilsTest {
         input.put("body", BODY);
         input.put("ems", ems.toString());
 
-        android.app.Notification result = MessagingServiceUtils.createNotification(0, context, input, metaDataReader);
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
 
         assertNotNull(result.actions);
         assertEquals(2, result.actions.length);
@@ -399,7 +469,12 @@ public class MessagingServiceUtilsTest {
         input.put("title", TITLE);
         input.put("body", BODY);
 
-        android.app.Notification result = MessagingServiceUtils.createNotification(0, context, input, metaDataReader);
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
         assertNull(result.actions);
     }
 

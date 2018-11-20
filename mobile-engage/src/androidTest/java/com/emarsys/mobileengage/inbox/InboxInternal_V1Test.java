@@ -12,6 +12,7 @@ import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
 import com.emarsys.core.api.result.Try;
 import com.emarsys.core.database.repository.Repository;
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -63,9 +64,10 @@ import static org.mockito.Mockito.when;
 
 public class InboxInternal_V1Test {
 
-    public static final String APPLICATION_ID = "id";
-    public static final String REQUEST_ID = "REQUEST_ID";
-    public static final long TIMESTAMP = 100_000;
+    private static final String HARDWARE_ID = "hwid";
+    private static final String APPLICATION_ID = "id";
+    private static final String REQUEST_ID = "REQUEST_ID";
+    private static final long TIMESTAMP = 100_000;
     private static List<Notification> notificationList;
 
     private ResultListener<Try<NotificationInboxStatus>> resultListenerMock;
@@ -85,6 +87,7 @@ public class InboxInternal_V1Test {
     private RequestContext requestContext;
     private UUIDProvider uuidProvider;
     private TimestampProvider timestampProvider;
+    private HardwareIdProvider hardwareIdProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -99,7 +102,9 @@ public class InboxInternal_V1Test {
         manager = mock(RequestManager.class);
 
         notificationList = createNotificationList();
-        deviceInfo = new DeviceInfo(application);
+        hardwareIdProvider  = mock(HardwareIdProvider.class);
+        when(hardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID);
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider);
 
         uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn(REQUEST_ID);
@@ -655,7 +660,7 @@ public class InboxInternal_V1Test {
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("application_id", APPLICATION_ID);
-        payload.put("hardware_id", new DeviceInfo(application).getHwid());
+        payload.put("hardware_id", deviceInfo.getHwid());
         payload.put("sid", "sid1");
         payload.put("source", "inbox");
 
@@ -712,8 +717,6 @@ public class InboxInternal_V1Test {
     }
 
     private RequestModel createRequestModel(String path, RequestMethod method) {
-        DeviceInfo deviceInfo = new DeviceInfo(InstrumentationRegistry.getContext());
-
         Map<String, String> headers = new HashMap<>();
         headers.put("x-ems-me-hardware-id", deviceInfo.getHwid());
         headers.put("x-ems-me-application-code", requestContext.getApplicationCode());

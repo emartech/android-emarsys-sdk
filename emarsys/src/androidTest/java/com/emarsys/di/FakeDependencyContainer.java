@@ -3,6 +3,7 @@ package com.emarsys.di;
 import android.os.Handler;
 
 import com.emarsys.core.DefaultCoreCompletionHandler;
+import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.database.CoreSQLiteDatabase;
@@ -20,6 +21,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final ActivityLifecycleWatchdog activityLifecycleWatchdog;
     private final CurrentActivityWatchdog currentActivityWatchdog;
     private final CoreSQLiteDatabase coreSQLiteDatabase;
+    private final DeviceInfo deviceInfo;
     private final MobileEngageInternal mobileEngageInternal;
     private final InboxInternal inboxInternal;
     private final InAppInternal inAppInternal;
@@ -36,6 +38,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             ActivityLifecycleWatchdog activityLifecycleWatchdog,
             CurrentActivityWatchdog currentActivityWatchdog,
             CoreSQLiteDatabase coreSQLiteDatabase,
+            DeviceInfo deviceInfo,
             MobileEngageInternal mobileEngageInternal,
             InboxInternal inboxInternal,
             InAppInternal inAppInternal,
@@ -50,6 +53,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
         this.activityLifecycleWatchdog = activityLifecycleWatchdog;
         this.currentActivityWatchdog = currentActivityWatchdog;
         this.coreSQLiteDatabase = coreSQLiteDatabase;
+        this.deviceInfo = deviceInfo;
         this.mobileEngageInternal = mobileEngageInternal;
         this.inboxInternal = inboxInternal;
         this.inAppInternal = inAppInternal;
@@ -80,6 +84,11 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     @Override
     public CoreSQLiteDatabase getCoreSQLiteDatabase() {
         return coreSQLiteDatabase;
+    }
+
+    @Override
+    public DeviceInfo getDeviceInfo() {
+        return deviceInfo;
     }
 
     @Override

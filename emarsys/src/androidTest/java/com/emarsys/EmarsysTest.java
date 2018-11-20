@@ -9,6 +9,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DefaultCoreCompletionHandler;
+import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
@@ -22,6 +23,7 @@ import com.emarsys.core.database.trigger.TriggerEvent;
 import com.emarsys.core.database.trigger.TriggerType;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.di.DefaultEmarsysDependencyContainer;
@@ -138,11 +140,15 @@ public class EmarsysTest {
                 MobileEngageFeature.IN_APP_MESSAGING,
                 MobileEngageFeature.USER_CENTRIC_INBOX);
 
+        HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
+        DeviceInfo deviceInfo = new DeviceInfo(application, hardwareIdProvider);
+
         DependencyInjection.setup(new FakeDependencyContainer(
                 mockCoreSdkHandler,
                 activityLifecycleWatchdog,
                 currentActivityWatchdog,
                 mockCoreDatabase,
+                deviceInfo,
                 mockMobileEngageInternal,
                 mockInboxInternal,
                 mockInAppInternal,

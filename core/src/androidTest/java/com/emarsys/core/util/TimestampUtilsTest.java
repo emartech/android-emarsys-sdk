@@ -3,6 +3,7 @@ package com.emarsys.core.util;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -16,6 +17,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 public class TimestampUtilsTest {
 
@@ -27,8 +29,8 @@ public class TimestampUtilsTest {
     }
 
     @Test
-    public void testformatTimestampWithUTC() throws ParseException {
-        String deviceTimeZone = new DeviceInfo(InstrumentationRegistry.getTargetContext()).getTimezone();
+    public void testFormatTimestampWithUTC() throws ParseException {
+        String deviceTimeZone = new DeviceInfo(InstrumentationRegistry.getTargetContext(), mock(HardwareIdProvider.class)).getTimezone();
         String dateString = "2017-12-07T10:46:09.100";
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         parser.setTimeZone(TimeZone.getTimeZone(deviceTimeZone));

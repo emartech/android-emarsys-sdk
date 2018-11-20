@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.util;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.mobileengage.BuildConfig;
@@ -60,7 +61,7 @@ public class RequestPayloadUtilsTest {
                 APPLICATION_CODE,
                 APPLICATION_PASSWORD,
                 1,
-                new DeviceInfo(InstrumentationRegistry.getContext()),
+                new DeviceInfo(InstrumentationRegistry.getContext(), mock(HardwareIdProvider.class)),
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),

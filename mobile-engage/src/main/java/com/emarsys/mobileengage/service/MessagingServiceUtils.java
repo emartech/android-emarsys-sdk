@@ -13,6 +13,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Action;
 import android.support.v4.content.ContextCompat;
 
+import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.core.util.Assert;
@@ -43,9 +44,10 @@ public class MessagingServiceUtils {
 
     static NotificationCache notificationCache = new NotificationCache();
 
-    public static boolean handleMessage(Context context, RemoteMessage remoteMessage) {
+    public static boolean handleMessage(Context context, RemoteMessage remoteMessage, DeviceInfo deviceInfo) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(remoteMessage, "RemoteMessage must not be null!");
+        Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
 
         boolean handled = false;
         Map<String, String> remoteData = remoteMessage.getData();
@@ -64,6 +66,7 @@ public class MessagingServiceUtils {
                     notificationId,
                     context.getApplicationContext(),
                     remoteData,
+                    deviceInfo,
                     new MetaDataReader());
 
             ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE))
@@ -93,15 +96,16 @@ public class MessagingServiceUtils {
         }
     }
 
-    public static Notification createNotification(
+    static Notification createNotification(
             int notificationId,
             Context context,
             Map<String, String> remoteMessageData,
+            DeviceInfo deviceInfo,
             MetaDataReader metaDataReader) {
 
         int smallIconResourceId = metaDataReader.getInt(context, METADATA_SMALL_NOTIFICATION_ICON_KEY, DEFAULT_SMALL_NOTIFICATION_ICON);
         int colorResourceId = metaDataReader.getInt(context, METADATA_NOTIFICATION_COLOR);
-        Bitmap image = ImageUtils.loadOptimizedBitmap(context, remoteMessageData.get("image_url"));
+        Bitmap image = ImageUtils.loadOptimizedBitmap(context, remoteMessageData.get("image_url"), deviceInfo);
         String title = getTitle(remoteMessageData, context);
         String body = remoteMessageData.get("body");
         String channelId = remoteMessageData.get("channel_id");

@@ -10,6 +10,7 @@ import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.database.trigger.TriggerKey;
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
@@ -83,7 +84,7 @@ public class RequestRepositoryProxyTest {
         Context context = InstrumentationRegistry.getTargetContext();
 
         mockDeviceInfo = mock(DeviceInfo.class);
-        deviceInfo = new DeviceInfo(context);
+        deviceInfo = new DeviceInfo(context, mock(HardwareIdProvider.class));
 
         mockRequestModelRepository = mock(Repository.class);
         mockDisplayedIamRepository = mock(Repository.class);
