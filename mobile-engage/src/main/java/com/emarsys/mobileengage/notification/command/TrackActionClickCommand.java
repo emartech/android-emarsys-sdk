@@ -21,6 +21,10 @@ public class TrackActionClickCommand implements Runnable {
         this.sid = sid;
     }
 
+    public String getSid() {
+        return sid;
+    }
+
     @Override
     public void run() {
         Map<String, String> payload = new HashMap<>();

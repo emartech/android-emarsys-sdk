@@ -54,9 +54,8 @@ public class NotificationCommandFactory {
                     JSONArray actions = new JSONObject(emsPayload).getJSONArray("actions");
                     JSONObject action = findActionWithId(actions, actionId);
                     String type = action.getString("type");
-                    String title = action.getString("title");
-
-                    Runnable trackActionClickCommand = new TrackActionClickCommand(mobileEngageInternal, actionId, title);
+                    String sid = extractSid(bundle);
+                    Runnable trackActionClickCommand = new TrackActionClickCommand(mobileEngageInternal, actionId, sid);
 
                     if ("MEAppEvent".equals(type)) {
                         String name = action.getString("name");
@@ -102,6 +101,22 @@ public class NotificationCommandFactory {
         }
 
         return result;
+    }
+
+    private String extractSid(Bundle bundle) {
+        String sid = null;
+        if (bundle.containsKey("u")) {
+            try {
+                sid = new JSONObject(bundle.getString("u")).getString("sid");
+            } catch (JSONException ignore) {
+
+            }
+        }
+
+        if (sid == null) {
+            sid = "Missing sid";
+        }
+        return sid;
     }
 
     private JSONObject findActionWithId(JSONArray actions, String actionId) throws JSONException {

@@ -104,6 +104,18 @@ class NotificationCommandFactoryTest {
     }
 
     @Test
+    fun testCreateNotificationCommand_trackActionCommand_withSids() {
+        forall(
+                row(SID, extractCommandFromComposite<TrackActionClickCommand>(createAppEventIntent(), 0).sid),
+                row(MISSING_SID, extractCommandFromComposite<TrackActionClickCommand>(createAppEventIntent(hasSid = false), 0).sid),
+                row(SID, extractCommandFromComposite<TrackActionClickCommand>(createOpenExternalLinkIntent(), 0).sid),
+                row(MISSING_SID, extractCommandFromComposite<TrackActionClickCommand>(createOpenExternalLinkIntent(hasSid = false), 0).sid),
+                row(SID, extractCommandFromComposite<TrackActionClickCommand>(createCustomEventIntent(), 0).sid),
+                row(MISSING_SID, extractCommandFromComposite<TrackActionClickCommand>(createCustomEventIntent(hasSid = false), 0).sid)
+        ) { expectedSid, actualSid -> actualSid shouldBe expectedSid }
+    }
+
+    @Test
     fun testCreateNotificationCommand_shouldCreateAppEvent_withCorrectName() {
         val intent = createAppEventIntent()
         val command = extractCommandFromComposite<AppEventCommand>(intent, 2)
