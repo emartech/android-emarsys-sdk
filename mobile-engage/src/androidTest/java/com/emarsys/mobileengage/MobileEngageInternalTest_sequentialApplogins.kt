@@ -3,8 +3,6 @@ package com.emarsys.mobileengage
 import android.app.Application
 import android.os.Handler
 import android.os.Looper
-import android.support.test.InstrumentationRegistry
-import android.support.test.runner.AndroidJUnit4
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.DeviceInfo
 import com.emarsys.core.api.result.CompletionListener
@@ -20,7 +18,7 @@ import com.emarsys.mobileengage.storage.AppLoginStorage
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage
 import com.emarsys.mobileengage.storage.MeIdStorage
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils
+import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.data.forall
 import io.kotlintest.shouldBe
 import io.kotlintest.tables.row
@@ -83,15 +81,15 @@ class MobileEngageInternalTest_sequentialApplogins {
         coreCompletionHandler = mock(DefaultCoreCompletionHandler::class.java)
         application = InstrumentationRegistry.getTargetContext().applicationContext as Application
         deviceInfo = DeviceInfo(application, mock(HardwareIdProvider::class.java).apply {
-            MockitoTestUtils.whenever(this.provideHardwareId()).thenReturn(HARDWARE_ID)
+            whenever(this.provideHardwareId()).thenReturn(HARDWARE_ID)
         })
         appLoginStorage = AppLoginStorage(application)
         appLoginStorage.remove()
 
         timestampProvider = mock(TimestampProvider::class.java)
-        `when`(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
+        whenever(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
         uuidProvider = mock(UUIDProvider::class.java)
-        `when`(uuidProvider.provideId()).thenReturn(REQUEST_ID)
+        whenever(uuidProvider.provideId()).thenReturn(REQUEST_ID)
 
         meIdStorage = MeIdStorage(application)
         meIdSignatureStorage = MeIdSignatureStorage(application)
