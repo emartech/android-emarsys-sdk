@@ -226,7 +226,8 @@ public class MobileEngageInternal {
     private String handleMessageOpen_V3(String messageId, CompletionListener completionListener) {
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put("sid", messageId);
-        return trackInternalCustomEvent("message_open", attributes, completionListener);
+        attributes.put("origin", "main");
+        return trackInternalCustomEvent("push:click", attributes, completionListener);
     }
 
     private boolean shouldDoAppLogin(Integer storedHashCode, int currentHashCode, MeIdStorage meIdStorage) {

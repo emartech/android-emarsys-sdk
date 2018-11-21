@@ -744,15 +744,15 @@ public class MobileEngageInternalTest {
         return payload;
     }
 
-
     @NonNull
     private Map<String, Object> createTrackMessageOpenPayload_V3() {
         Map<String, Object> event = new HashMap<>();
         event.put("type", "internal");
-        event.put("name", "message_open");
+        event.put("name", "push:click");
 
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put("sid", "+43c_lODSmXqCvdOz");
+        attributes.put("origin", "main");
 
         event.put("attributes", attributes);
         event.put("timestamp", TimestampUtils.formatTimestampWithUTC(TIMESTAMP));
