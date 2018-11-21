@@ -33,7 +33,7 @@ public class SampleApplication extends Application implements EventHandler, Noti
                 .contactFieldId(3)
                 .predictMerchantId("1428C8EE286EC34B")
                 .inAppEventHandler(this)
-                .enableExperimentalFeatures(MobileEngageFeature.IN_APP_MESSAGING, MobileEngageFeature.USER_CENTRIC_INBOX)
+                .enableExperimentalFeatures(MobileEngageFeature.USER_CENTRIC_INBOX)
                 .notificationEventHandler(this)
                 .build();
 

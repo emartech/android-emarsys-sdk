@@ -1,18 +1,15 @@
 package com.emarsys.mobileengage.util;
 
-import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.emarsys.mobileengage.endpoint.Endpoint.ME_LAST_MOBILE_ACTIVITY_V2;
 import static com.emarsys.mobileengage.endpoint.Endpoint.ME_LOGIN_V2;
 
 public class RequestModelUtils {
@@ -38,19 +35,10 @@ public class RequestModelUtils {
 
     public static RequestModel createLastMobileActivity(RequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null");
-        RequestModel result;
-        if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
-            result = createInternalCustomEvent(
-                    "last_mobile_activity",
-                    null,
-                    requestContext);
-        } else {
-            result = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
-                    .url(ME_LAST_MOBILE_ACTIVITY_V2)
-                    .payload(RequestPayloadUtils.createBasePayload(requestContext))
-                    .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
-                    .build();
-        }
+        RequestModel result = createInternalCustomEvent(
+                "last_mobile_activity",
+                null,
+                requestContext);
         return result;
     }
 

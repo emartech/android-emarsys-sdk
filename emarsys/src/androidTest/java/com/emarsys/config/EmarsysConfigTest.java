@@ -6,7 +6,6 @@ import android.support.test.InstrumentationRegistry;
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -190,17 +189,6 @@ public class EmarsysConfigTest {
                 .build();
 
         assertEquals(expected, result);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testBuilder_whenInAppMessagingFlipperIsOn_defaultInAppMessageHandlerIsRequired() {
-        new EmarsysConfig.Builder()
-                .application(application)
-                .mobileEngageCredentials(APP_ID, APP_PASSWORD)
-                .contactFieldId(CONTACT_FIELD_ID)
-                .predictMerchantId(MERCHANT_ID)
-                .enableExperimentalFeatures(MobileEngageFeature.IN_APP_MESSAGING)
-                .build();
     }
 
     @Test

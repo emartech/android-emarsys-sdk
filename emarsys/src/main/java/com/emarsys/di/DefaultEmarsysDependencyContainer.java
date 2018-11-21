@@ -44,7 +44,6 @@ import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
-import com.emarsys.mobileengage.experimental.MobileEngageExperimentalFeatures;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.InAppStartAction;
@@ -297,26 +296,19 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
         RequestModelRepository requestModelRepository = new RequestModelRepository(coreDbHelper);
-        if (MobileEngageExperimentalFeatures.isV3Enabled()) {
-            return new RequestRepositoryProxy(
-                    deviceInfo,
-                    requestModelRepository,
-                    displayedIamRepository,
-                    buttonClickedRepository,
-                    timestampProvider,
-                    inAppInternal);
-        } else {
-            return requestModelRepository;
-        }
+        return new RequestRepositoryProxy(
+                deviceInfo,
+                requestModelRepository,
+                displayedIamRepository,
+                buttonClickedRepository,
+                timestampProvider,
+                inAppInternal);
     }
 
     private void initializeActivityLifecycleWatchdog() {
-        ActivityLifecycleAction[] applicationStartActions = null;
-        if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
-            applicationStartActions = new ActivityLifecycleAction[]{
-                    new InAppStartAction(mobileEngageInternal)
-            };
-        }
+        ActivityLifecycleAction[] applicationStartActions = new ActivityLifecycleAction[]{
+                new InAppStartAction(mobileEngageInternal)
+        };
 
         ActivityLifecycleAction[] activityCreatedActions = new ActivityLifecycleAction[]{
                 new DeepLinkAction(deepLinkInternal)
@@ -345,23 +337,19 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         responseHandlers.add(new VisitorIdResponseHandler(sharedPrefsKeyStore));
 
-        if (MobileEngageExperimentalFeatures.isV3Enabled()) {
-            responseHandlers.add(new MeIdResponseHandler(
-                    meIdStorage,
-                    meIdSignatureStorage));
-        }
+        responseHandlers.add(new MeIdResponseHandler(
+                meIdStorage,
+                meIdSignatureStorage));
 
-        if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
-            responseHandlers.add(new InAppMessageResponseHandler(
-                    inAppPresenter,
-                    logRepositoryProxy,
-                    timestampProvider));
+        responseHandlers.add(new InAppMessageResponseHandler(
+                inAppPresenter,
+                logRepositoryProxy,
+                timestampProvider));
 
-            responseHandlers.add(new InAppCleanUpResponseHandler(
-                    displayedIamRepository,
-                    buttonClickedRepository
-            ));
-        }
+        responseHandlers.add(new InAppCleanUpResponseHandler(
+                displayedIamRepository,
+                buttonClickedRepository
+        ));
 
         getCoreCompletionHandler().addResponseHandlers(responseHandlers);
     }

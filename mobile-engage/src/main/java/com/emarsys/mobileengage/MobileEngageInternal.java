@@ -6,14 +6,12 @@ import android.os.Handler;
 
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.api.result.CompletionListener;
-import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
@@ -127,33 +125,13 @@ public class MobileEngageInternal {
 
         manager.submit(model, completionListener);
         requestContext.getMeIdStorage().remove();
+        requestContext.getMeIdSignatureStorage().remove();
         requestContext.getAppLoginStorage().remove();
         return model.getId();
     }
 
     public String trackCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
-        if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
-            return trackCustomEvent_V3(eventName, eventAttributes, completionListener);
-        } else {
-            return trackCustomEvent_V2(eventName, eventAttributes, completionListener);
-        }
-    }
-
-    private String trackCustomEvent_V2(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Arguments: eventName %s, eventAttributes %s", eventName, eventAttributes);
-
-        Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
-        if (eventAttributes != null && !eventAttributes.isEmpty()) {
-            payload.put("attributes", eventAttributes);
-        }
-        RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
-                .url(RequestUrlUtils.createEventUrl_V2(eventName))
-                .payload(payload)
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
-                .build();
-
-        manager.submit(model, completionListener);
-        return model.getId();
+        return trackCustomEvent_V3(eventName, eventAttributes, completionListener);
     }
 
     private String trackCustomEvent_V3(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
@@ -252,13 +230,7 @@ public class MobileEngageInternal {
     }
 
     private boolean shouldDoAppLogin(Integer storedHashCode, int currentHashCode, MeIdStorage meIdStorage) {
-        boolean result = storedHashCode == null || currentHashCode != storedHashCode;
-
-        if (ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.IN_APP_MESSAGING)) {
-            result = result || meIdStorage.get() == null;
-        }
-
-        return result;
+        return storedHashCode == null || currentHashCode != storedHashCode || meIdStorage.get() == null;
     }
 
 }

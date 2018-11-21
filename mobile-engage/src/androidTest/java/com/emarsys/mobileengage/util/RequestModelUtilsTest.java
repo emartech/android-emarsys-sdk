@@ -3,7 +3,6 @@ package com.emarsys.mobileengage.util;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
-import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
@@ -11,17 +10,14 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.testUtil.MobileEngageSharedPrefsUtils;
 import com.emarsys.mobileengage.testUtil.RequestModelTestUtils;
-import com.emarsys.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -78,11 +74,6 @@ public class RequestModelUtilsTest {
         requestContext.setAppLoginParameters(new AppLoginParameters(3, "test@test.com"));
     }
 
-    @After
-    public void tearDown() {
-        ExperimentalTestUtils.resetExperimentalFeatures();
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testIsCustomEvent_V3_mustNotBeNull() {
         RequestModelUtils.isCustomEvent_V3(null);
@@ -130,22 +121,7 @@ public class RequestModelUtilsTest {
     }
 
     @Test
-    public void testCreateLastMobileActivity_V2() {
-        RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
-                .url("https://push.eservice.emarsys.net/api/mobileengage/v2/events/ems_lastMobileActivity")
-                .payload(RequestPayloadUtils.createBasePayload(requestContext))
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
-                .build();
-
-        RequestModel result = RequestModelUtils.createLastMobileActivity(requestContext);
-
-        RequestModelTestUtils.assertEqualsRequestModels(expected, result);
-    }
-
-    @Test
     public void testCreateLastMobileActivity_V3() {
-        ExperimentalFeatures.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
-
         when(meIdStorage.get()).thenReturn("meId");
 
         RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)

@@ -7,7 +7,6 @@ import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 
 import java.util.Arrays;
 
@@ -39,10 +38,6 @@ public class EmarsysConfig {
         Assert.notNull(predictMerchantId, "PredictMerchantId must not be null");
         Assert.notNull(experimentalFeatures, "ExperimentalFeatures must not be null");
         Assert.elementsNotNull(experimentalFeatures, "ExperimentalFeatures must not contain null elements!");
-
-        if (Arrays.asList(experimentalFeatures).contains(MobileEngageFeature.IN_APP_MESSAGING)) {
-            Assert.notNull(inAppEventHandler, "InAppMessageHandler must not be null");
-        }
 
         this.application = application;
         this.applicationCode = applicationCode;

@@ -1,13 +1,8 @@
 package com.emarsys.mobileengage.notification.command;
 
-import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
-import com.emarsys.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -17,22 +12,11 @@ import java.util.Map;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class TrackActionClickCommandTest {
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
-
-    @Before
-    public void init() throws Exception {
-        ExperimentalTestUtils.resetExperimentalFeatures();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        ExperimentalTestUtils.resetExperimentalFeatures();
-    }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_mobileEngageInternal_mustNotBeNull() {
@@ -50,29 +34,7 @@ public class TrackActionClickCommandTest {
     }
 
     @Test
-    public void testRun_doesNotCallMobileEngageInternal_ifV3isNotEnabled() {
-        MobileEngageInternal internalMock = mock(MobileEngageInternal.class);
-
-        new TrackActionClickCommand(internalMock, "", "").run();
-
-        verifyZeroInteractions(internalMock);
-    }
-
-    @Test
-    public void testRun_sendsInternalCustomEvent_ifInAppIsEnabled() {
-        ExperimentalFeatures.enableFeature(MobileEngageFeature.IN_APP_MESSAGING);
-
-        verifyTrackInternalCustomEventIsCalled();
-    }
-
-    @Test
-    public void testRun_sendsInternalCustomEvent_ifInboxV2IsEnabled() {
-        ExperimentalFeatures.enableFeature(MobileEngageFeature.USER_CENTRIC_INBOX);
-
-        verifyTrackInternalCustomEventIsCalled();
-    }
-
-    private void verifyTrackInternalCustomEventIsCalled() {
+    public void testRun_sendsInternalCustomEvent() {
         MobileEngageInternal internalMock = mock(MobileEngageInternal.class);
         String buttonId = "buttonId";
         String title = "title";

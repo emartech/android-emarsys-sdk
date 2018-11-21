@@ -13,7 +13,6 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature.IN_APP_MESSAGING
 import com.emarsys.mobileengage.storage.AppLoginStorage
 import com.emarsys.mobileengage.storage.MeIdStorage
 import com.emarsys.testUtil.ConnectionTestUtils
@@ -129,24 +128,6 @@ class MobileEngageIntegrationTest {
     }
 
     @Test
-    fun testTrackCustomEvent_V2_noAttributes() {
-        Emarsys.trackCustomEvent(
-                "integrationTestCustomEvent",
-                null,
-                this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
-    }
-
-    @Test
-    fun testTrackCustomEvent_V2_withAttributes() {
-        Emarsys.trackCustomEvent(
-                "integrationTestCustomEvent",
-                mapOf("key1" to "value1", "key2" to "value2"),
-                this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
-    }
-
-    @Test
     fun testTrackCustomEvent_V3_noAttributes() {
         setupWithV3()
         IntegrationTestUtils.doAppLogin()
@@ -215,7 +196,6 @@ class MobileEngageIntegrationTest {
         tearDown()
         EmarsysConfig.Builder()
                 .from(baseConfig)
-                .enableExperimentalFeatures(IN_APP_MESSAGING)
                 .inAppEventHandler(mock(EventHandler::class.java))
                 .build()
                 .let(this::setup)

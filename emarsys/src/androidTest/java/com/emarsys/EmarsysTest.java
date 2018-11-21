@@ -25,7 +25,6 @@ import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.request.RequestManager;
-import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.di.FakeDependencyContainer;
@@ -107,9 +106,8 @@ public class EmarsysTest {
     private CompletionListener completionListener;
 
     private EmarsysConfig baseConfig;
+    private EmarsysConfig configWithInAppEventHandler;
     private EmarsysConfig userCentricInboxConfig;
-    private EmarsysConfig inAppConfig;
-    private EmarsysConfig inAppAndInboxConfig;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -133,12 +131,9 @@ public class EmarsysTest {
 
         inappEventHandler = mock(EventHandler.class);
 
-        baseConfig = createConfigWithFlippers();
-        userCentricInboxConfig = createConfigWithFlippers(MobileEngageFeature.USER_CENTRIC_INBOX);
-        inAppConfig = createConfigWithFlippers(MobileEngageFeature.IN_APP_MESSAGING);
-        inAppAndInboxConfig = createConfigWithFlippers(
-                MobileEngageFeature.IN_APP_MESSAGING,
-                MobileEngageFeature.USER_CENTRIC_INBOX);
+        baseConfig = createConfig(false);
+        configWithInAppEventHandler = createConfig(true);
+        userCentricInboxConfig = createConfig(false, MobileEngageFeature.USER_CENTRIC_INBOX);
 
         HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
         DeviceInfo deviceInfo = new DeviceInfo(application, hardwareIdProvider);
@@ -239,27 +234,11 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testSetup_initializesRequestManager_withPlainRequestModelRepository_withNoFlippers() {
+    public void testSetup_initializesRequestManager_withRequestModelRepositoryProxy() {
         DependencyInjection.tearDown();
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         Emarsys.setup(baseConfig);
-
-        RequestManager requestManager = ReflectionTestUtils.getField(
-                DependencyInjection.<DefaultEmarsysDependencyContainer>getContainer(),
-                "requestManager");
-        Object repository = ReflectionTestUtils.getField(
-                requestManager,
-                "requestRepository");
-        assertEquals(RequestModelRepository.class, repository.getClass());
-    }
-
-    @Test
-    public void testSetup_initializesRequestManager_withRequestModelRepositoryProxy_withInAppFlipper() {
-        DependencyInjection.tearDown();
-        ExperimentalTestUtils.resetExperimentalFeatures();
-
-        Emarsys.setup(inAppConfig);
 
         RequestManager requestManager = ReflectionTestUtils.getField(
                 DependencyInjection.<DefaultEmarsysDependencyContainer>getContainer(),
@@ -287,45 +266,11 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testSetup_initializesRequestManager_withRequestModelRepositoryProxy_withBothInboxAndInAppFlippers() {
-        DependencyInjection.tearDown();
-        ExperimentalTestUtils.resetExperimentalFeatures();
-
-        Emarsys.setup(inAppAndInboxConfig);
-
-        RequestManager requestManager = ReflectionTestUtils.getField(
-                DependencyInjection.<DefaultEmarsysDependencyContainer>getContainer(),
-                "requestManager");
-        Object repository = ReflectionTestUtils.getField(
-                requestManager,
-                "requestRepository");
-        assertEquals(RequestRepositoryProxy.class, repository.getClass());
-    }
-
-    @Test
     public void testSetup_initializesCoreCompletionHandler_withNoFlippers() {
         DependencyInjection.tearDown();
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         Emarsys.setup(baseConfig);
-
-        DefaultCoreCompletionHandler coreCompletionHandler = DependencyInjection
-                .<DefaultEmarsysDependencyContainer>getContainer()
-                .getCoreCompletionHandler();
-
-        assertNotNull(coreCompletionHandler);
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), VisitorIdResponseHandler.class));
-        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MeIdResponseHandler.class));
-        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppMessageResponseHandler.class));
-        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppCleanUpResponseHandler.class));
-    }
-
-    @Test
-    public void testSetup_initializesCoreCompletionHandler_whenInAppIsOn() {
-        DependencyInjection.tearDown();
-        ExperimentalTestUtils.resetExperimentalFeatures();
-
-        Emarsys.setup(inAppConfig);
 
         DefaultCoreCompletionHandler coreCompletionHandler = DependencyInjection
                 .<DefaultEmarsysDependencyContainer>getContainer()
@@ -352,23 +297,8 @@ public class EmarsysTest {
         assertNotNull(coreCompletionHandler);
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), VisitorIdResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MeIdResponseHandler.class));
-        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppMessageResponseHandler.class));
-        assertEquals(0, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppCleanUpResponseHandler.class));
-    }
-
-    @Test
-    public void testSetup_initializesCoreCompletionHandler_withMeIdResponseHandler_onlyOnce_whenBothUserCentricInboxAndInAppIsOn() {
-        DependencyInjection.tearDown();
-        ExperimentalTestUtils.resetExperimentalFeatures();
-
-        Emarsys.setup(inAppAndInboxConfig);
-
-        DefaultCoreCompletionHandler coreCompletionHandler = DependencyInjection
-                .<DefaultEmarsysDependencyContainer>getContainer()
-                .getCoreCompletionHandler();
-
-        assertNotNull(coreCompletionHandler);
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MeIdResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppMessageResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppCleanUpResponseHandler.class));
     }
 
     @Test
@@ -391,7 +321,7 @@ public class EmarsysTest {
 
         ArgumentCaptor<ActivityLifecycleWatchdog> captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog.class);
 
-        Emarsys.setup(inAppConfig);
+        Emarsys.setup(baseConfig);
 
         verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture());
         ActivityLifecycleAction[] actions = CollectionTestUtils.getElementByType(captor.getAllValues(), ActivityLifecycleWatchdog.class).getApplicationStartActions();
@@ -422,7 +352,7 @@ public class EmarsysTest {
 
     @Test
     public void testSetup_setsInAppEventHandler_whenProvidedInConfig() {
-        Emarsys.setup(inAppConfig);
+        Emarsys.setup(configWithInAppEventHandler);
 
         verify(mockInAppInternal).setEventHandler(inappEventHandler);
     }
@@ -583,7 +513,7 @@ public class EmarsysTest {
     public void testPush_setPushToken_token_mustNotBeNull() {
         Emarsys.Push.setPushToken(null);
     }
-    
+
     @Test
     public void testPush_setPushToken_delegatesTo_mobileEngageInternal() {
         String pushToken = "pushToken";
@@ -828,18 +758,16 @@ public class EmarsysTest {
         };
     }
 
-    private EmarsysConfig createConfigWithFlippers(FlipperFeature... experimentalFeatures) {
+    private EmarsysConfig createConfig(boolean withInApp, FlipperFeature... experimentalFeatures) {
         EmarsysConfig.Builder builder = new EmarsysConfig.Builder()
                 .application(application)
                 .mobileEngageCredentials(APPLICATION_CODE, APPLICATION_PASSWORD)
                 .predictMerchantId(MERCHANT_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .enableExperimentalFeatures(experimentalFeatures);
-
-        if (Arrays.asList(experimentalFeatures).contains(MobileEngageFeature.IN_APP_MESSAGING)) {
+        if (withInApp) {
             builder.inAppEventHandler(inappEventHandler);
         }
-
         return builder.build();
     }
 
