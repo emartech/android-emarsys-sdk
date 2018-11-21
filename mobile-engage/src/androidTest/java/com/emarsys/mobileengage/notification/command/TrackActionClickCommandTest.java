@@ -29,7 +29,7 @@ public class TrackActionClickCommandTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_title_mustNotBeNull() {
+    public void testConstructor_sid_mustNotBeNull() {
         new TrackActionClickCommand(mock(MobileEngageInternal.class), "", null);
     }
 
@@ -37,14 +37,15 @@ public class TrackActionClickCommandTest {
     public void testRun_sendsInternalCustomEvent() {
         MobileEngageInternal internalMock = mock(MobileEngageInternal.class);
         String buttonId = "buttonId";
-        String title = "title";
+        String sid = "sid1234";
 
-        new TrackActionClickCommand(internalMock, buttonId, title).run();
+        new TrackActionClickCommand(internalMock, buttonId, sid).run();
 
         Map<String, String> payload = new HashMap<>();
         payload.put("button_id", buttonId);
-        payload.put("title", title);
-        verify(internalMock).trackInternalCustomEvent("richNotification:actionClicked", payload, null);
+        payload.put("origin", "button");
+        payload.put("sid", sid);
+        verify(internalMock).trackInternalCustomEvent("push:click", payload, null);
     }
 
 }

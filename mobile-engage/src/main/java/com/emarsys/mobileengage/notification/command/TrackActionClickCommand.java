@@ -10,23 +10,25 @@ public class TrackActionClickCommand implements Runnable {
 
     private final MobileEngageInternal mobileEngageInternal;
     private final String buttonId;
-    private final String title;
+    private final String sid;
 
-    public TrackActionClickCommand(MobileEngageInternal mobileEngageInternal, String buttonId, String title) {
+    public TrackActionClickCommand(MobileEngageInternal mobileEngageInternal, String buttonId, String sid) {
         Assert.notNull(mobileEngageInternal, "MobileEngageInternal must not be null!");
         Assert.notNull(buttonId, "ButtonId must not be null!");
-        Assert.notNull(title, "Title must not be null!");
+        Assert.notNull(sid, "Sid must not be null!");
         this.mobileEngageInternal = mobileEngageInternal;
         this.buttonId = buttonId;
-        this.title = title;
+        this.sid = sid;
     }
 
     @Override
     public void run() {
-            Map<String, String> payload = new HashMap<>();
-            payload.put("button_id", buttonId);
-            payload.put("title", title);
-            mobileEngageInternal.trackInternalCustomEvent("richNotification:actionClicked", payload, null);
+        Map<String, String> payload = new HashMap<>();
+        payload.put("button_id", buttonId);
+        payload.put("origin", "button");
+        payload.put("sid", sid);
+
+        mobileEngageInternal.trackInternalCustomEvent("push:click", payload, null);
     }
 
 }
