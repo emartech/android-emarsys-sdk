@@ -44,13 +44,12 @@ import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 @RunWith(AndroidJUnit4.class)
 public class RequestManagerOfflineTest {
 
-    public static final String URL = "https://www.google.com";
+    public static final String URL = "https://www.host.com/";
 
     private Boolean[] connectionStates;
     private Object[] requestResults;
@@ -76,7 +75,7 @@ public class RequestManagerOfflineTest {
 
     @Before
     public void setup() {
-        assertTrue(DatabaseTestUtils.deleteCoreDatabase());
+        DatabaseTestUtils.deleteCoreDatabase();
 
         uiHandler = new Handler(Looper.getMainLooper());
     }
@@ -84,13 +83,14 @@ public class RequestManagerOfflineTest {
     @After
     public void tearDown() {
         coreSdkHandler.getLooper().quit();
+        DatabaseTestUtils.deleteCoreDatabase();
     }
 
     @Test
     public void test_online_offline_online() throws InterruptedException {
         connectionStates = new Boolean[]{true, false, true};
         requestResults = new Object[]{200, 200};
-        requestModels = new RequestModel[]{normal(), normal()};
+        requestModels = new RequestModel[]{normal(1), normal(2)};
         watchDogCountDown = 2;
         completionHandlerCountDown = 1;
 
@@ -116,7 +116,7 @@ public class RequestManagerOfflineTest {
     public void test_alwaysOnline() throws InterruptedException {
         connectionStates = new Boolean[]{true};
         requestResults = new Object[]{200, 200, 200};
-        requestModels = new RequestModel[]{normal(), normal(), normal()};
+        requestModels = new RequestModel[]{normal(1), normal(2), normal(3)};
         watchDogCountDown = 3;
         completionHandlerCountDown = 3;
 
@@ -131,13 +131,13 @@ public class RequestManagerOfflineTest {
         connectionStates = new Boolean[]{true};
         requestResults = new Object[]{200, 200, 200};
         requestModels = new RequestModel[]{
-                normal(),
-                expired(),
-                normal(),
-                expired(),
-                expired(),
-                expired(),
-                normal()
+                normal(1),
+                expired(1),
+                normal(2),
+                expired(2),
+                expired(3),
+                expired(4),
+                normal(3)
         };
         watchDogCountDown = 3;
         completionHandlerCountDown = 7;
@@ -154,9 +154,9 @@ public class RequestManagerOfflineTest {
         connectionStates = new Boolean[]{false};
         requestResults = new Object[]{200, 300, 200};
 
-        RequestModel normal1 = normal();
-        RequestModel normal2 = normal();
-        RequestModel normal3 = normal();
+        RequestModel normal1 = normal(1);
+        RequestModel normal2 = normal(2);
+        RequestModel normal3 = normal(3);
         requestModels = new RequestModel[]{normal1, normal2, normal3};
         watchDogCountDown = 1;
         completionHandlerCountDown = 0;
@@ -177,7 +177,7 @@ public class RequestManagerOfflineTest {
     public void test_4xx_doesNotStopQueue() throws InterruptedException {
         connectionStates = new Boolean[]{true};
         requestResults = new Object[]{200, 400, 200};
-        requestModels = new RequestModel[]{normal(), normal(), normal()};
+        requestModels = new RequestModel[]{normal(1), normal(2), normal(3)};
         watchDogCountDown = 3;
         completionHandlerCountDown = 3;
 
@@ -192,7 +192,7 @@ public class RequestManagerOfflineTest {
     public void test_408_stopsQueue() throws InterruptedException {
         connectionStates = new Boolean[]{true};
         requestResults = new Object[]{200, 408, 200};
-        requestModels = new RequestModel[]{normal(), normal(), normal()};
+        requestModels = new RequestModel[]{normal(1), normal(2), normal(3)};
         watchDogCountDown = 2;
         completionHandlerCountDown = 1;
 
@@ -207,7 +207,7 @@ public class RequestManagerOfflineTest {
     public void test_5xx_stopsQueue() throws InterruptedException {
         connectionStates = new Boolean[]{true};
         requestResults = new Object[]{200, 500, 200};
-        requestModels = new RequestModel[]{normal(), normal(), normal()};
+        requestModels = new RequestModel[]{normal(1), normal(2), normal(3)};
         watchDogCountDown = 2;
         completionHandlerCountDown = 1;
 
@@ -222,8 +222,8 @@ public class RequestManagerOfflineTest {
     public void test_exception_stopsQueue() throws InterruptedException {
         connectionStates = new Boolean[]{true};
         requestResults = new Object[]{200, 300, 200, new IOException()};
-        RequestModel lastNormal = normal();
-        requestModels = new RequestModel[]{normal(), normal(), normal(), lastNormal};
+        RequestModel lastNormal = normal(4);
+        requestModels = new RequestModel[]{normal(1), normal(2), normal(3), lastNormal};
         watchDogCountDown = 4;
         completionHandlerCountDown = 3;
 
@@ -270,15 +270,15 @@ public class RequestManagerOfflineTest {
         completionLatch.await();
     }
 
-    private RequestModel normal() {
+    private RequestModel normal(int orderId) {
         TimestampProvider timestampProvider = new TimestampProvider();
         UUIDProvider uuidProvider = new UUIDProvider();
-        return new RequestModel.Builder(timestampProvider, uuidProvider).url(URL).method(RequestMethod.GET).ttl(60_000).build();
+        return new RequestModel.Builder(timestampProvider, uuidProvider).url(URL + "normal/" + orderId).method(RequestMethod.GET).ttl(60_000).build();
     }
 
-    private RequestModel expired() {
+    private RequestModel expired(int orderId) {
         return new RequestModel(
-                URL,
+                URL + "expired/" + orderId,
                 RequestMethod.GET,
                 new HashMap<String, Object>(),
                 new HashMap<String, String>(),
