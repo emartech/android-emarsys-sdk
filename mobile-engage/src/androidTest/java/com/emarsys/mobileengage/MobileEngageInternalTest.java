@@ -1,7 +1,9 @@
 package com.emarsys.mobileengage;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -24,8 +26,8 @@ import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
-import com.emarsys.mobileengage.util.RequestModelUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 import com.emarsys.testUtil.mockito.ThreadSpy;
 
@@ -85,25 +87,29 @@ public class MobileEngageInternalTest {
     private MobileEngageInternal mobileEngageInternal;
     private MeIdStorage meIdStorage;
     private MeIdSignatureStorage meIdSignatureStorage;
-    private AppLoginParameters appLoginParameters;
-    private AppLoginParameters otherAppLoginParameters;
+
     private RequestContext requestContext;
     private TimestampProvider timestampProvider;
     private UUIDProvider uuidProvider;
     private CompletionListener mockCompletionListener;
+    private SharedPreferences sharedPreferences;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     public void init() {
+        SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences");
+
         mockCompletionListener = mock(CompletionListener.class);
 
         manager = mock(RequestManager.class);
         coreCompletionHandler = mock(DefaultCoreCompletionHandler.class);
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
+        sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE);
+
         deviceInfo = new DeviceInfo(application, mock(HardwareIdProvider.class));
-        appLoginStorage = new AppLoginStorage(application);
+        appLoginStorage = new AppLoginStorage(sharedPreferences);
         appLoginStorage.remove();
 
         timestampProvider = mock(TimestampProvider.class);
@@ -111,8 +117,8 @@ public class MobileEngageInternalTest {
         uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn(REQUEST_ID);
 
-        meIdStorage = new MeIdStorage(application);
-        meIdSignatureStorage = new MeIdSignatureStorage(application);
+        meIdStorage = new MeIdStorage(sharedPreferences);
+        meIdSignatureStorage = new MeIdSignatureStorage(sharedPreferences);
         requestContext = new RequestContext(
                 APPLICATION_ID,
                 APPLICATION_PASSWORD,
@@ -134,15 +140,11 @@ public class MobileEngageInternalTest {
 
         meIdStorage.set(ME_ID);
         meIdSignatureStorage.set(ME_ID_SIGNATURE);
-
-        appLoginParameters = new AppLoginParameters(3, "test@test.com");
-        otherAppLoginParameters = new AppLoginParameters(3, "test2@test.com");
     }
 
     @After
     public void tearDown() {
-        meIdStorage.remove();
-        meIdSignatureStorage.remove();
+        SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -337,7 +339,7 @@ public class MobileEngageInternalTest {
 
     @Test
     public void testAppLogout_removesStoredAppLoginParameters() {
-        AppLoginStorage storage = new AppLoginStorage(application);
+        AppLoginStorage storage = new AppLoginStorage(sharedPreferences);
         storage.set(42);
 
         mobileEngageInternal.appLogout(null);
@@ -346,7 +348,7 @@ public class MobileEngageInternalTest {
 
     @Test
     public void testAppLogout_removesStoredMeId() {
-        MeIdStorage storage = new MeIdStorage(application);
+        MeIdStorage storage = new MeIdStorage(sharedPreferences);
         storage.set("testMeID");
 
         mobileEngageInternal.appLogout(null);
@@ -355,7 +357,7 @@ public class MobileEngageInternalTest {
 
     @Test
     public void testAppLogout_removesStoredMeIdSignature() {
-        MeIdSignatureStorage storage = new MeIdSignatureStorage(application);
+        MeIdSignatureStorage storage = new MeIdSignatureStorage(sharedPreferences);
         storage.set("testMeID");
 
         mobileEngageInternal.appLogout(null);
@@ -699,21 +701,6 @@ public class MobileEngageInternalTest {
                 .payload(payload)
                 .headers(defaultHeaders)
                 .build();
-    }
-
-    private RequestModel createLastMobileActivityRequestModel(AppLoginParameters appLoginParameters) {
-        Map<String, Object> payload = createBasePayload();
-        payload.put("contact_field_id", CONTACT_FIELD_ID);
-        payload.put("contact_field_value", appLoginParameters.getContactFieldValue());
-        return new RequestModel.Builder(timestampProvider, uuidProvider)
-                .url(ENDPOINT_LAST_MOBILE_ACTIVITY)
-                .payload(payload)
-                .headers(defaultHeaders)
-                .build();
-    }
-
-    private RequestModel createLastMobileActivityRequestModelV3() {
-        return RequestModelUtils.createInternalCustomEvent("last_mobile_activity", null, requestContext);
     }
 
     private void assertRequestModels(RequestModel expected, RequestModel result) {

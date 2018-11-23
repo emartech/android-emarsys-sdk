@@ -23,23 +23,23 @@ public class AppLoginStorageTest {
     @Before
     public void init() {
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();
-        storage = new AppLoginStorage(context);
+        storage = createAppLoginStorage();
         storage.remove();
     }
 
     @Test
-    public void getLastAppLoginPayloadHashCode_shouldReturnNull_ifTheStorageIsEmpty() throws Exception {
+    public void testGetLastAppLoginPayloadHashCode_shouldReturnNull_ifTheStorageIsEmpty() {
         assertNull(storage.get());
     }
 
     @Test
-    public void set() throws Exception {
+    public void testSet() {
         storage.set(42);
         assertEquals((Integer) 42, storage.get());
     }
 
     @Test
-    public void clear_shouldRemoveLastAppLoginPayloadHashCodeValue() {
+    public void testClear_shouldRemoveLastAppLoginPayloadHashCodeValue() {
         storage.set(42);
         storage.remove();
 
@@ -47,11 +47,14 @@ public class AppLoginStorageTest {
     }
 
     @Test
-    public void setLastAppLoginPayloadHashCode_shouldPreserveValues() throws Exception {
+    public void testSetLastAppLoginPayloadHashCode_shouldPreserveValues() {
         storage.set(42);
-        storage = new AppLoginStorage(context);
+        storage = createAppLoginStorage();
 
         assertEquals((Integer) 42, storage.get());
     }
 
+    private AppLoginStorage createAppLoginStorage() {
+        return new AppLoginStorage(context.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE));
+    }
 }

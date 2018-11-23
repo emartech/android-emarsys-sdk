@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.storage;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 public class AppLoginStorage implements Storage<Integer> {
@@ -8,8 +7,8 @@ public class AppLoginStorage implements Storage<Integer> {
 
     private SharedPreferences sharedPreferences;
 
-    public AppLoginStorage(Context context) {
-        sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAMESPACE, Context.MODE_PRIVATE);
+    public AppLoginStorage(SharedPreferences prefs) {
+        sharedPreferences = prefs;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.inbox;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.Handler;
 import android.support.test.InstrumentationRegistry;
 
@@ -33,12 +34,14 @@ import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
+import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -102,7 +105,7 @@ public class InboxInternal_V1Test {
         manager = mock(RequestManager.class);
 
         notificationList = createNotificationList();
-        hardwareIdProvider  = mock(HardwareIdProvider.class);
+        hardwareIdProvider = mock(HardwareIdProvider.class);
         when(hardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID);
         deviceInfo = new DeviceInfo(application, hardwareIdProvider);
 
@@ -117,7 +120,7 @@ public class InboxInternal_V1Test {
                 "applicationPassword",
                 1,
                 deviceInfo,
-                new AppLoginStorage(application),
+                new AppLoginStorage(application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)),
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 timestampProvider,
@@ -139,6 +142,11 @@ public class InboxInternal_V1Test {
         ((List) cacheField.get(null)).clear();
 
         cache = new NotificationCache();
+    }
+
+    @After
+    public void tearDown() {
+        SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences");
     }
 
     @Test(expected = IllegalArgumentException.class)

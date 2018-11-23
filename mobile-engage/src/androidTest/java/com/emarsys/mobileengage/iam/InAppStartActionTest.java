@@ -3,8 +3,8 @@ package com.emarsys.mobileengage.iam;
 import android.os.Handler;
 
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.testUtil.MobileEngageSharedPrefsUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
@@ -17,6 +17,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class InAppStartActionTest {
+
+    private static final String EMARSYS_SHARED_PREFERENCES = "emarsys_shared_preferences";
 
     static {
         mock(Handler.class);
@@ -32,7 +34,7 @@ public class InAppStartActionTest {
     @SuppressWarnings("unchecked")
     public void init() {
         DatabaseTestUtils.deleteCoreDatabase();
-        MobileEngageSharedPrefsUtils.deleteMobileEngageSharedPrefs();
+        SharedPrefsUtils.clearSharedPrefs(EMARSYS_SHARED_PREFERENCES);
 
         mobileEngageInternal = mock(MobileEngageInternal.class);
 
@@ -43,7 +45,7 @@ public class InAppStartActionTest {
     public void tearDown() {
         DatabaseTestUtils.deleteCoreDatabase();
         DatabaseTestUtils.deleteCoreDatabase();
-        MobileEngageSharedPrefsUtils.deleteMobileEngageSharedPrefs();
+        SharedPrefsUtils.clearSharedPrefs(EMARSYS_SHARED_PREFERENCES);
     }
 
     @Test(expected = IllegalArgumentException.class)

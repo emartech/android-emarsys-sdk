@@ -1,7 +1,9 @@
 package com.emarsys
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.support.test.InstrumentationRegistry
@@ -41,6 +43,8 @@ class MobileEngageIntegrationTest {
 
     private lateinit var latch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
+    private lateinit var sharedPreferences: SharedPreferences
+
     private var errorCause: Throwable? = null
 
     private val application: Application
@@ -79,10 +83,11 @@ class MobileEngageIntegrationTest {
         errorCause = null
         latch = CountDownLatch(1)
 
-        val context = InstrumentationRegistry.getTargetContext()
-        ConnectionTestUtils.checkConnection(context)
-        MeIdStorage(context).remove()
-        AppLoginStorage(context).remove()
+        ConnectionTestUtils.checkConnection(application)
+
+        sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
+        MeIdStorage(sharedPreferences).remove()
+        AppLoginStorage(sharedPreferences).remove()
 
         ExperimentalTestUtils.resetExperimentalFeatures()
 
@@ -99,8 +104,8 @@ class MobileEngageIntegrationTest {
             coreSdkHandler.looper.quit()
         }
 
-        MeIdStorage(application).remove()
-        AppLoginStorage(application).remove()
+        MeIdStorage(sharedPreferences).remove()
+        AppLoginStorage(sharedPreferences).remove()
 
         DependencyInjection.tearDown()
     }

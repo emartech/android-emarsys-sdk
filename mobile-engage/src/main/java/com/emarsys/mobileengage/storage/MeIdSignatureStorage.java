@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.storage;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 public class MeIdSignatureStorage implements Storage<String> {
@@ -8,8 +7,8 @@ public class MeIdSignatureStorage implements Storage<String> {
 
     private SharedPreferences sharedPreferences;
 
-    public MeIdSignatureStorage(Context context) {
-        sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAMESPACE, Context.MODE_PRIVATE);
+    public MeIdSignatureStorage(SharedPreferences prefs) {
+        sharedPreferences = prefs;
     }
 
     @Override

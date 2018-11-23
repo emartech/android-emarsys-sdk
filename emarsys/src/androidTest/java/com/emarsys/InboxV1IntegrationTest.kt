@@ -1,6 +1,8 @@
 package com.emarsys
 
 import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import android.support.test.InstrumentationRegistry
 import android.support.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
@@ -47,6 +49,8 @@ class InboxV1IntegrationTest {
     private lateinit var latch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
     private lateinit var triedNotificationInboxStatus: Try<NotificationInboxStatus>
+    private lateinit var sharedPreferences: SharedPreferences
+
     private var errorCause: Throwable? = null
 
     private val application: Application
@@ -73,8 +77,10 @@ class InboxV1IntegrationTest {
         latch = CountDownLatch(1)
 
         ConnectionTestUtils.checkConnection(application)
-        MeIdStorage(application).remove()
-        AppLoginStorage(application).remove()
+
+        sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
+        MeIdStorage(sharedPreferences).remove()
+        AppLoginStorage(sharedPreferences).remove()
 
         ExperimentalTestUtils.resetExperimentalFeatures()
 
@@ -100,8 +106,8 @@ class InboxV1IntegrationTest {
             coreSdkHandler.looper.quit()
         }
 
-        MeIdStorage(application).remove()
-        AppLoginStorage(application).remove()
+        MeIdStorage(sharedPreferences).remove()
+        AppLoginStorage(sharedPreferences).remove()
 
         DependencyInjection.tearDown()
     }
@@ -142,7 +148,7 @@ class InboxV1IntegrationTest {
         }
     }
 
-    private fun <T> eventuallyStoreResultInProperty(setter: KMutableProperty0.Setter<T>): (T)-> Unit{
+    private fun <T> eventuallyStoreResultInProperty(setter: KMutableProperty0.Setter<T>): (T) -> Unit {
         return {
             setter.isAccessible = true
             setter(it)
@@ -150,7 +156,7 @@ class InboxV1IntegrationTest {
         }
     }
 
-    private fun Any.eventuallyAssert(assertion: ()->Unit) {
+    private fun Any.eventuallyAssert(assertion: () -> Unit) {
         latch.await()
         assertion.invoke()
     }

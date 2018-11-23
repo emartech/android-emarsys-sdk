@@ -16,9 +16,9 @@ import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.testUtil.MobileEngageSharedPrefsUtils;
 import com.emarsys.mobileengage.testUtil.RandomMETestUtils;
 import com.emarsys.testUtil.RandomTestUtils;
+import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -52,8 +52,8 @@ public class RequestPayloadUtilsTest {
 
     @Before
     public void setup() {
-        MobileEngageSharedPrefsUtils.deleteMobileEngageSharedPrefs();
-
+        SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences");
+        
         uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn(REQUEST_ID);
 

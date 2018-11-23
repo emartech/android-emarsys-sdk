@@ -1,6 +1,8 @@
 package com.emarsys.mobileengage
 
 import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.DefaultCoreCompletionHandler
@@ -31,6 +33,7 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
+import com.emarsys.testUtil.SharedPrefsUtils
 import org.mockito.Mockito.*
 
 @RunWith(AndroidJUnit4::class)
@@ -51,6 +54,7 @@ class MobileEngageInternalTest_sequentialApplogins {
     private lateinit var timestampProvider: TimestampProvider
     private lateinit var uuidProvider: UUIDProvider
     private lateinit var mockCompletionListener: CompletionListener
+    private lateinit var sharedPrefs: SharedPreferences
 
     @Rule
     @JvmField
@@ -77,6 +81,8 @@ class MobileEngageInternalTest_sequentialApplogins {
 
     @Before
     fun init() {
+        SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences")
+
         mockCompletionListener = mock(CompletionListener::class.java)
 
         manager = mock(RequestManager::class.java)
@@ -85,7 +91,9 @@ class MobileEngageInternalTest_sequentialApplogins {
         deviceInfo = DeviceInfo(application, mock(HardwareIdProvider::class.java).apply {
             whenever(this.provideHardwareId()).thenReturn(HARDWARE_ID)
         })
-        appLoginStorage = AppLoginStorage(application)
+        sharedPrefs = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
+
+        appLoginStorage = AppLoginStorage(sharedPrefs)
         appLoginStorage.remove()
 
         timestampProvider = mock(TimestampProvider::class.java)
@@ -93,8 +101,8 @@ class MobileEngageInternalTest_sequentialApplogins {
         uuidProvider = mock(UUIDProvider::class.java)
         whenever(uuidProvider.provideId()).thenReturn(REQUEST_ID)
 
-        meIdStorage = MeIdStorage(application)
-        meIdSignatureStorage = MeIdSignatureStorage(application)
+        meIdStorage = MeIdStorage(sharedPrefs)
+        meIdSignatureStorage = MeIdSignatureStorage(sharedPrefs)
         requestContext = RequestContext(
                 APPLICATION_ID,
                 APPLICATION_PASSWORD,
@@ -125,9 +133,7 @@ class MobileEngageInternalTest_sequentialApplogins {
 
     @After
     fun tearDown() {
-        meIdStorage.remove()
-        meIdSignatureStorage.remove()
-        appLoginStorage.remove()
+        SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences")
     }
 
     private val reinstantiate = { reinstantiateMobileEngage() }

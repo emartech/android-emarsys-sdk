@@ -23,23 +23,23 @@ public class MeIdStorageTest {
     @Before
     public void init() {
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();
-        storage = new MeIdStorage(context);
+        storage = createMeIdStorage();
         storage.remove();
     }
 
     @Test
-    public void get_shouldReturnNull_ifTheStorageIsEmpty() throws Exception {
+    public void testGet_shouldReturnNull_ifTheStorageIsEmpty() {
         assertNull(storage.get());
     }
 
     @Test
-    public void set() throws Exception {
+    public void testSet() {
         storage.set("12345");
         assertEquals("12345", storage.get());
     }
 
     @Test
-    public void remove_shouldRemoveMeId() {
+    public void testRemove_shouldRemoveMeId() {
         storage.set("12345");
         storage.remove();
 
@@ -47,11 +47,15 @@ public class MeIdStorageTest {
     }
 
     @Test
-    public void set_shouldPreserveMeId() throws Exception {
+    public void testSet_shouldPreserveMeId() {
         storage.set("12345");
-        storage = new MeIdStorage(context);
+        storage = createMeIdStorage();
 
         assertEquals("12345", storage.get());
+    }
+
+    private MeIdStorage createMeIdStorage() {
+        return new MeIdStorage(context.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE));
     }
 
 }

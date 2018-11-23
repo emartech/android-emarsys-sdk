@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.util;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
@@ -12,9 +13,10 @@ import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.testUtil.MobileEngageSharedPrefsUtils;
+import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,25 +33,27 @@ import static org.mockito.Mockito.when;
 public class RequestHeaderUtilsTest {
     private static final String APPLICATION_CODE = "applicationCode";
     private static final String APPLICATION_PASSWORD = "applicationPassword";
+    public static final String EMARSYS_SHARED_PREFERENCES = "emarsys_shared_preferences";
 
     private RequestContext debugRequestContext;
     private RequestContext releaseRequestContext;
-    private Context context;
+    private SharedPreferences sharedPreferences;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     public void setup() {
-        MobileEngageSharedPrefsUtils.deleteMobileEngageSharedPrefs();
+        SharedPrefsUtils.clearSharedPrefs(EMARSYS_SHARED_PREFERENCES);
 
-        context = InstrumentationRegistry.getTargetContext();
+        Context context = InstrumentationRegistry.getTargetContext();
+        sharedPreferences = context.getSharedPreferences(EMARSYS_SHARED_PREFERENCES, Context.MODE_PRIVATE);
 
         String meId = "meid";
         String meIdSignature = "meidsignature";
-        MeIdStorage meIdStorage = new MeIdStorage(context);
+        MeIdStorage meIdStorage = new MeIdStorage(sharedPreferences);
         meIdStorage.set(meId);
-        MeIdSignatureStorage meIdSignatureStorage = new MeIdSignatureStorage(context);
+        MeIdSignatureStorage meIdSignatureStorage = new MeIdSignatureStorage(sharedPreferences);
         meIdSignatureStorage.set(meIdSignature);
 
         UUIDProvider uuidProvider = mock(UUIDProvider.class);
@@ -89,6 +93,11 @@ public class RequestHeaderUtilsTest {
 
     }
 
+    @After
+    public void tearDown() {
+        SharedPrefsUtils.clearSharedPrefs(EMARSYS_SHARED_PREFERENCES);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testCreateBaseHeaders_V2_configShouldNotBeNull() {
         RequestHeaderUtils.createBaseHeaders_V2(null);
@@ -113,9 +122,9 @@ public class RequestHeaderUtilsTest {
     public void testCreateBaseHeaders_V3_shouldReturnCorrectMap() {
         String meId = "meid";
         String meIdSignature = "meidsignature";
-        MeIdStorage meIdStorage = new MeIdStorage(context);
+        MeIdStorage meIdStorage = new MeIdStorage(sharedPreferences);
         meIdStorage.set(meId);
-        MeIdSignatureStorage meIdSignatureStorage = new MeIdSignatureStorage(context);
+        MeIdSignatureStorage meIdSignatureStorage = new MeIdSignatureStorage(sharedPreferences);
         meIdSignatureStorage.set(meIdSignature);
 
         UUIDProvider uuidProvider = mock(UUIDProvider.class);

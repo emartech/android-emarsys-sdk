@@ -14,10 +14,11 @@ import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.testUtil.MobileEngageSharedPrefsUtils;
 import com.emarsys.mobileengage.testUtil.RequestModelTestUtils;
+import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,7 +53,7 @@ public class RequestModelUtilsTest {
 
     @Before
     public void setup() {
-        MobileEngageSharedPrefsUtils.deleteMobileEngageSharedPrefs();
+        SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences");
 
         meIdStorage = mock(MeIdStorage.class);
         uuidProvider = mock(UUIDProvider.class);
@@ -72,6 +73,11 @@ public class RequestModelUtilsTest {
                 uuidProvider);
 
         requestContext.setAppLoginParameters(new AppLoginParameters(3, "test@test.com"));
+    }
+
+    @After
+    public void tearDown() {
+        SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences");
     }
 
     @Test(expected = IllegalArgumentException.class)

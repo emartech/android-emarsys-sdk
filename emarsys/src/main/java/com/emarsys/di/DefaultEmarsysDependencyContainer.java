@@ -208,9 +208,9 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
-        appLoginStorage = new AppLoginStorage(application);
-        meIdStorage = new MeIdStorage(application);
-        meIdSignatureStorage = new MeIdSignatureStorage(application);
+        appLoginStorage = new AppLoginStorage(prefs);
+        meIdStorage = new MeIdStorage(prefs);
+        meIdSignatureStorage = new MeIdSignatureStorage(prefs);
 
         HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, prefs);
         deviceInfo = new DeviceInfo(application, hardwareIdProvider);
