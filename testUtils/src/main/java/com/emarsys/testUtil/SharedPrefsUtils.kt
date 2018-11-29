@@ -1,7 +1,7 @@
 package com.emarsys.testUtil
 
 import android.content.Context
-import android.support.test.InstrumentationRegistry
+import androidx.test.InstrumentationRegistry
 
 object SharedPrefsUtils {
 

@@ -1,7 +1,7 @@
 package com.emarsys.core.database
 
 import android.content.ContentValues
-import android.support.test.InstrumentationRegistry
+import androidx.test.InstrumentationRegistry
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerType

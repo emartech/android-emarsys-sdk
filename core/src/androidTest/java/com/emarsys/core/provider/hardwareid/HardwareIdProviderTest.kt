@@ -3,7 +3,7 @@ package com.emarsys.core.provider.hardwareid
 import android.content.Context
 import android.content.SharedPreferences
 import android.provider.Settings
-import android.support.test.InstrumentationRegistry
+import androidx.test.InstrumentationRegistry
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before

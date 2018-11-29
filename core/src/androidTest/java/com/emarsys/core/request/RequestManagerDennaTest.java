@@ -3,7 +3,7 @@ package com.emarsys.core.request;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.Registry;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;

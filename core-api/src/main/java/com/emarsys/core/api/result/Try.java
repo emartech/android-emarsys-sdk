@@ -1,6 +1,6 @@
 package com.emarsys.core.api.result;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 public class Try<T> {
 

@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.iam.model.requestRepositoryProxy;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.database.helper.CoreDbHelper;

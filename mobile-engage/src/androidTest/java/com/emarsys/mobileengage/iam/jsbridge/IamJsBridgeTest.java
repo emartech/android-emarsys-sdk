@@ -5,8 +5,8 @@ import android.app.Application;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
-import android.support.test.filters.SdkSuppress;
-import android.support.test.rule.ActivityTestRule;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.rule.ActivityTestRule;
 import android.webkit.WebView;
 
 import com.emarsys.core.api.result.CompletionListener;

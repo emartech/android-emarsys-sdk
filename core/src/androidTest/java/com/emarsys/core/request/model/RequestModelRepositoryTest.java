@@ -3,7 +3,7 @@ package com.emarsys.core.request.model;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.DatabaseContract;

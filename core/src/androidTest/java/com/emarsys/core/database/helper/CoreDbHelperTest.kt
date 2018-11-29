@@ -2,7 +2,7 @@ package com.emarsys.core.database.helper;
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import android.support.test.InstrumentationRegistry
+import androidx.test.InstrumentationRegistry
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.matchers.collections.shouldContain

@@ -1,7 +1,7 @@
 package com.emarsys.testUtil
 
 import android.database.sqlite.SQLiteDatabase
-import android.support.test.InstrumentationRegistry
+import androidx.test.InstrumentationRegistry
 
 object DatabaseTestUtils {
 

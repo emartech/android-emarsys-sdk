@@ -4,7 +4,7 @@
     android:versionName="1.0">
 
     <application
-        android:name="android.support.multidex.MultiDexApplication"
+        android:name="androidx.multidex.MultiDexApplication"
         android:label="emarsys-mobile-engage-android-test">
         <activity android:name="com.emarsys.testUtil.fake.FakeActivity" />
     </application>

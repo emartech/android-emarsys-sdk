@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.iam.dialog;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
-import android.support.test.filters.SdkSuppress;
+import androidx.test.filters.SdkSuppress;
 
 import java.util.concurrent.CountDownLatch;
 

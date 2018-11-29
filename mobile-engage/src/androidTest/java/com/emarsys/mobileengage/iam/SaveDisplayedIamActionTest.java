@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.iam;
 
 import android.os.Handler;
-import android.support.test.filters.SdkSuppress;
+import androidx.test.filters.SdkSuppress;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.database.repository.Repository;

@@ -1,6 +1,6 @@
 package com.emarsys.core.request;
 
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.database.repository.Repository;

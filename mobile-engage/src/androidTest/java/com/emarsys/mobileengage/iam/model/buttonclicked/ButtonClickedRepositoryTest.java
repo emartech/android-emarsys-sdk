@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.iam.model.buttonclicked;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.helper.DbHelper;

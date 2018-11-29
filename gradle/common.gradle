@@ -13,14 +13,14 @@ modules.each {
         apply plugin: 'kotlin-android'
 
         android {
-            buildToolsVersion Versions.buildToolsVersion
+            buildToolsVersion Config.buildToolsVersion
             compileSdkVersion Config.targetApiLevel
             defaultConfig {
                 minSdkVersion Config.minApiLevel
                 targetSdkVersion Config.targetApiLevel
                 versionCode gitVersionCode
                 versionName gitVersionName
-                testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+                testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
             }
             buildTypes {
                 release {

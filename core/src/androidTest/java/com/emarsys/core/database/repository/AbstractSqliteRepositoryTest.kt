@@ -2,7 +2,7 @@ package com.emarsys.core.database.repository
 
 import android.content.ContentValues
 import android.database.Cursor
-import android.support.test.InstrumentationRegistry
+import androidx.test.InstrumentationRegistry
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.DatabaseContract.*

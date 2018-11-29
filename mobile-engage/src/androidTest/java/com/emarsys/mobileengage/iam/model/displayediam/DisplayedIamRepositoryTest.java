@@ -3,8 +3,8 @@ package com.emarsys.mobileengage.iam.model.displayediam;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SdkSuppress;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SdkSuppress;
 
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.helper.DbHelper;

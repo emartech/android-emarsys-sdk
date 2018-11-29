@@ -2,8 +2,8 @@ package com.emarsys.mobileengage.iam.webview;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SdkSuppress;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SdkSuppress;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 

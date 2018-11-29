@@ -1,6 +1,6 @@
 package com.emarsys.core.shard.specification
 
-import android.support.test.InstrumentationRegistry
+import androidx.test.InstrumentationRegistry
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.shard.ShardModel

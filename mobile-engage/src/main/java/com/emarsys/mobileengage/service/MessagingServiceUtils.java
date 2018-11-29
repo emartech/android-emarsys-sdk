@@ -9,9 +9,9 @@ import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.Action;
-import android.support.v4.content.ContextCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationCompat.Action;
+import androidx.core.content.ContextCompat;
 
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.experimental.ExperimentalFeatures;

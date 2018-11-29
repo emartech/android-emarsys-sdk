@@ -1,7 +1,7 @@
 package com.emarsys.config;
 
 import android.app.Application;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.mobileengage.api.EventHandler;

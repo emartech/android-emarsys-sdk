@@ -1,6 +1,6 @@
 package com.emarsys.mobileengage.api.inbox;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.json.JSONObject;
 

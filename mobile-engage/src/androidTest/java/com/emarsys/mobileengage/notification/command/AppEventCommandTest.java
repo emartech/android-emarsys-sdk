@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.notification.command;
 
 import android.content.Context;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.mobileengage.api.NotificationEventHandler;

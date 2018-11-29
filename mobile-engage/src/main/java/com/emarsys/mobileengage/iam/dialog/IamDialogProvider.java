@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.iam.dialog;
 
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 
 public class IamDialogProvider {
 

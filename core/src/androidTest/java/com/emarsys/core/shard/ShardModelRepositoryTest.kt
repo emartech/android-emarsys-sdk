@@ -2,8 +2,8 @@ package com.emarsys.core.shard
 
 import android.content.Context
 import android.database.Cursor
-import android.support.test.InstrumentationRegistry
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.InstrumentationRegistry
+import androidx.test.runner.AndroidJUnit4
 import com.emarsys.core.database.DatabaseContract.*
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob

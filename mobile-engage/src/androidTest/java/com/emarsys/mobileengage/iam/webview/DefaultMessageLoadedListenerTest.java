@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.support.test.filters.SdkSuppress;
+import androidx.test.filters.SdkSuppress;
 
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;

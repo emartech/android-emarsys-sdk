@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.notification.command;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.testUtil.TimeoutUtils;
 

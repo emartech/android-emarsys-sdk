@@ -1,6 +1,6 @@
 package com.emarsys.mobileengage.inbox.model;
 
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.testUtil.TimeoutUtils;

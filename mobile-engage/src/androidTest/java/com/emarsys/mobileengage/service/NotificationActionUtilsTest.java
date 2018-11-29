@@ -2,9 +2,9 @@ package com.emarsys.mobileengage.service;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.SdkSuppress;
-import android.support.v4.app.NotificationCompat;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SdkSuppress;
+import androidx.core.app.NotificationCompat;
 
 import com.emarsys.mobileengage.notification.NotificationCommandFactory;
 import com.emarsys.testUtil.TimeoutUtils;

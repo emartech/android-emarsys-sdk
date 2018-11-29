@@ -2,7 +2,7 @@ package com.emarsys.core.connection;
 
 
 import android.net.ConnectivityManager;
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.testUtil.ConnectionTestUtils;

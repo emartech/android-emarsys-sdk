@@ -3,8 +3,8 @@ package com.emarsys.core.connection;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.fake.FakeConnectionChangeListener;

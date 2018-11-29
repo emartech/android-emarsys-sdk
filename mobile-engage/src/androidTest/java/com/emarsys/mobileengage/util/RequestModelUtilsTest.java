@@ -1,6 +1,6 @@
 package com.emarsys.mobileengage.util;
 
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;

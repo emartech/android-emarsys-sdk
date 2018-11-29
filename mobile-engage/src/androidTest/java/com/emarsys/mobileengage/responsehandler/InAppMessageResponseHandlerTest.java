@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.responsehandler;
 
 import android.os.Build;
 import android.os.Handler;
-import android.support.test.filters.SdkSuppress;
+import androidx.test.filters.SdkSuppress;
 
 import com.emarsys.core.database.repository.log.LogRepository;
 import com.emarsys.core.provider.Gettable;

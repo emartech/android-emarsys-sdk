@@ -1,7 +1,7 @@
 package com.emarsys.config;
 
 import android.app.Application;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.util.Assert;

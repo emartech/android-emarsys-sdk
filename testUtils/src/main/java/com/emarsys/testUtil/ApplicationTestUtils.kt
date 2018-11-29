@@ -2,7 +2,7 @@ package com.emarsys.testUtil
 
 import android.app.Application
 import android.content.pm.ApplicationInfo
-import android.support.test.InstrumentationRegistry
+import androidx.test.InstrumentationRegistry
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import org.mockito.Mockito.spy
 

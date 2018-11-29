@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.api;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.json.JSONObject;
 
