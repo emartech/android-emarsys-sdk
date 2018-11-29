@@ -163,7 +163,7 @@ class MobileEngageInternalTest_sequentialApplogins {
                 row("10", reinstantiate, loggedInWith1, logInWith1, withMeId, lastMobileActivity1),
                 row("11", reinstantiate, loggedInWith1, logInWith2, withoutMeId, requestModelLogin2),
                 row("12", reinstantiate, loggedInWith1, logInWith2, withMeId, requestModelLogin2)
-        ) { id, reinstantiateIfNeeded, firstLogin, secondLogin, meId, expectedRequestModel ->
+        ) { _, reinstantiateIfNeeded, firstLogin, secondLogin, meId, expectedRequestModel ->
             init()
             firstLogin()
             reset(manager)
