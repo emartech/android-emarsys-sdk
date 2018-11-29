@@ -59,39 +59,25 @@ public class NotificationCommandFactory {
                     Runnable hideNotificationShadeCommand = new HideNotificationShadeCommand(context);
 
                     if ("MEAppEvent".equals(type)) {
-                        String name = action.getString("name");
-                        JSONObject payload = action.optJSONObject("payload");
                         result = new CompositeCommand(Arrays.asList(
                                 trackActionClickCommand,
                                 hideNotificationShadeCommand,
-                                new AppEventCommand(
-                                        context,
-                                        notificationEventHandler,
-                                        name,
-                                        payload)));
+                                createAppEventCommand(action)));
                     }
                     if ("OpenExternalUrl".equals(type)) {
-                        Uri link = Uri.parse(action.getString("url"));
-                        Intent externalCommandIntent = new Intent(Intent.ACTION_VIEW, link);
-                        externalCommandIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        if (externalCommandIntent.resolveActivity(context.getPackageManager()) != null) {
+                        Runnable openExternalUrl = createOpenExternalUrlCommand(action);
+                        if (openExternalUrl != null) {
                             result = new CompositeCommand(Arrays.asList(
                                     trackActionClickCommand,
                                     hideNotificationShadeCommand,
-                                    new OpenExternalUrlCommand(externalCommandIntent, context)));
+                                    openExternalUrl));
                         }
                     }
                     if ("MECustomEvent".equals(type)) {
-                        String name = action.getString("name");
-                        JSONObject payload = action.optJSONObject("payload");
-                        Map<String, String> eventAttribute = null;
-                        if (payload != null) {
-                            eventAttribute = JsonUtils.toFlatMap(payload);
-                        }
                         result = new CompositeCommand(Arrays.asList(
                                 trackActionClickCommand,
                                 hideNotificationShadeCommand,
-                                new CustomEventCommand(mobileEngageInternal, name, eventAttribute)));
+                                createCustomEventCommand(action)));
                     }
                 } catch (JSONException ignored) {
                 }
@@ -129,6 +115,37 @@ public class NotificationCommandFactory {
             }
         }
         throw new JSONException("Cannot find action with id: " + actionId);
+    }
+
+    private Runnable createAppEventCommand(JSONObject action) throws JSONException{
+        return new AppEventCommand(
+                context,
+                notificationEventHandler,
+                action.getString("name"),
+                action.optJSONObject("payload"));
+    }
+
+    private Runnable createOpenExternalUrlCommand(JSONObject action) throws JSONException{
+        Runnable result = null;
+
+        Uri link = Uri.parse(action.getString("url"));
+        Intent externalCommandIntent = new Intent(Intent.ACTION_VIEW, link);
+        externalCommandIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (externalCommandIntent.resolveActivity(context.getPackageManager()) != null) {
+            result = new OpenExternalUrlCommand(externalCommandIntent, context);
+        }
+        return result;
+    }
+
+    private Runnable createCustomEventCommand(JSONObject action) throws JSONException{
+        String name = action.getString("name");
+        JSONObject payload = action.optJSONObject("payload");
+        Map<String, String> eventAttribute = null;
+        if (payload != null) {
+            eventAttribute = JsonUtils.toFlatMap(payload);
+        }
+
+        return new CustomEventCommand(mobileEngageInternal, name, eventAttribute);
     }
 
 }
