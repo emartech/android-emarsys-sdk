@@ -56,13 +56,14 @@ public class NotificationCommandFactory {
                     String type = action.getString("type");
                     String sid = extractSid(bundle);
                     Runnable trackActionClickCommand = new TrackActionClickCommand(mobileEngageInternal, actionId, sid);
+                    Runnable hideNotificationShadeCommand = new HideNotificationShadeCommand(context);
 
                     if ("MEAppEvent".equals(type)) {
                         String name = action.getString("name");
                         JSONObject payload = action.optJSONObject("payload");
                         result = new CompositeCommand(Arrays.asList(
                                 trackActionClickCommand,
-                                new HideNotificationShadeCommand(context),
+                                hideNotificationShadeCommand,
                                 new AppEventCommand(
                                         context,
                                         notificationEventHandler,
@@ -76,7 +77,7 @@ public class NotificationCommandFactory {
                         if (externalCommandIntent.resolveActivity(context.getPackageManager()) != null) {
                             result = new CompositeCommand(Arrays.asList(
                                     trackActionClickCommand,
-                                    new HideNotificationShadeCommand(context),
+                                    hideNotificationShadeCommand,
                                     new OpenExternalUrlCommand(externalCommandIntent, context)));
                         }
                     }
@@ -89,6 +90,7 @@ public class NotificationCommandFactory {
                         }
                         result = new CompositeCommand(Arrays.asList(
                                 trackActionClickCommand,
+                                hideNotificationShadeCommand,
                                 new CustomEventCommand(mobileEngageInternal, name, eventAttribute)));
                     }
                 } catch (JSONException ignored) {

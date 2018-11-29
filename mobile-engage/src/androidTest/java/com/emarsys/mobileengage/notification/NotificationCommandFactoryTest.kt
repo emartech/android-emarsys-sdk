@@ -1,35 +1,25 @@
 package com.emarsys.mobileengage.notification
 
+import android.support.test.InstrumentationRegistry
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.test.InstrumentationRegistry
-
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.api.NotificationEventHandler
-import com.emarsys.mobileengage.notification.command.AppEventCommand
-import com.emarsys.mobileengage.notification.command.CompositeCommand
-import com.emarsys.mobileengage.notification.command.CustomEventCommand
-import com.emarsys.mobileengage.notification.command.HideNotificationShadeCommand
-import com.emarsys.mobileengage.notification.command.LaunchApplicationCommand
-import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand
-import com.emarsys.mobileengage.notification.command.TrackActionClickCommand
+import com.emarsys.mobileengage.notification.command.*
 import com.emarsys.mobileengage.service.IntentUtils
-import com.emarsys.testUtil.CollectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.data.forall
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.tables.row
-
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-
 import org.mockito.Mockito.mock
 
 class NotificationCommandFactoryTest {
@@ -69,21 +59,21 @@ class NotificationCommandFactoryTest {
     fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_whenIntentIsEmpty() {
         val command = factory.createNotificationCommand(Intent())
 
-        command.javaClass shouldBe LaunchApplicationCommand::class.java
+        command::class.java shouldBe LaunchApplicationCommand::class.java
     }
 
     @Test
     fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_whenTypeIsNotSupported() {
         val command = factory.createNotificationCommand(createUnknownCommandIntent())
 
-        command.javaClass shouldBe LaunchApplicationCommand::class.java
+        command::class.java shouldBe LaunchApplicationCommand::class.java
     }
 
     @Test
     fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_whenActionsKeyIsMissing() {
         val command = factory.createNotificationCommand(createIntent("actionId", JSONObject()))
 
-        command.javaClass shouldBe LaunchApplicationCommand::class.java
+        command::class.java shouldBe LaunchApplicationCommand::class.java
     }
 
     @Test
@@ -92,15 +82,14 @@ class NotificationCommandFactoryTest {
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command.javaClass shouldBe CompositeCommand::class.java
+        command::class.java shouldBe CompositeCommand::class.java
 
-        val composite = command as CompositeCommand
+        command as CompositeCommand
 
-        composite.commands.size shouldBe 3
-        CollectionTestUtils.numberOfElementsIn(composite.commands, AppEventCommand::class.java) shouldBe 1
-        CollectionTestUtils.numberOfElementsIn(composite.commands, HideNotificationShadeCommand::class.java) shouldBe 1
-        CollectionTestUtils.numberOfElementsIn(composite.commands, TrackActionClickCommand::class.java) shouldBe 1
-
+        command.commands.map { it::class.java } shouldBe listOf(
+                TrackActionClickCommand::class.java,
+                HideNotificationShadeCommand::class.java,
+                AppEventCommand::class.java)
     }
 
     @Test
@@ -170,14 +159,14 @@ class NotificationCommandFactoryTest {
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command.javaClass shouldBe CompositeCommand::class.java
+        command::class.java shouldBe CompositeCommand::class.java
 
-        val composite = command as CompositeCommand
+        command as CompositeCommand
 
-        composite.commands.size shouldBe 3
-        CollectionTestUtils.numberOfElementsIn(composite.commands, OpenExternalUrlCommand::class.java) shouldBe 1
-        CollectionTestUtils.numberOfElementsIn(composite.commands, HideNotificationShadeCommand::class.java) shouldBe 1
-        CollectionTestUtils.numberOfElementsIn(composite.commands, TrackActionClickCommand::class.java) shouldBe 1
+        command.commands.map { it::class.java } shouldBe listOf(
+                TrackActionClickCommand::class.java,
+                HideNotificationShadeCommand::class.java,
+                OpenExternalUrlCommand::class.java)
     }
 
     @Test
@@ -197,7 +186,7 @@ class NotificationCommandFactoryTest {
     fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_insteadOf_OpenExternalLinkCommand_whenCantResolveUrl() {
         val command = factory.createNotificationCommand(createOpenExternalLinkIntent("Not valid url!"))
 
-        command.javaClass shouldBe LaunchApplicationCommand::class.java
+        command::class.java shouldBe LaunchApplicationCommand::class.java
     }
 
     @Test
@@ -206,13 +195,14 @@ class NotificationCommandFactoryTest {
         val command = factory.createNotificationCommand(intent)
 
         command shouldNotBe null
-        command.javaClass shouldBe CompositeCommand::class.java
+        command::class.java shouldBe CompositeCommand::class.java
 
-        val composite = command as CompositeCommand
+        command as CompositeCommand
 
-        composite.commands.size shouldBe 2
-        CollectionTestUtils.numberOfElementsIn(composite.commands, CustomEventCommand::class.java) shouldBe 1
-        CollectionTestUtils.numberOfElementsIn(composite.commands, TrackActionClickCommand::class.java) shouldBe 1
+        command.commands.map { it::class.java } shouldBe listOf(
+                TrackActionClickCommand::class.java,
+                HideNotificationShadeCommand::class.java,
+                CustomEventCommand::class.java)
     }
 
     @Test
@@ -221,7 +211,7 @@ class NotificationCommandFactoryTest {
 
         val intent = createCustomEventIntent(eventName)
 
-        val command = extractCommandFromComposite<CustomEventCommand>(intent, 1)
+        val command = extractCommandFromComposite<CustomEventCommand>(intent, 2)
 
         command.eventName shouldBe eventName
     }
@@ -244,7 +234,7 @@ class NotificationCommandFactoryTest {
 
         val intent = createCustomEventIntent(eventName, payload)
 
-        val command = extractCommandFromComposite<CustomEventCommand>(intent, 1)
+        val command = extractCommandFromComposite<CustomEventCommand>(intent, 2)
 
         command.eventAttributes shouldBe attributes
     }
@@ -255,7 +245,7 @@ class NotificationCommandFactoryTest {
 
         val intent = createCustomEventIntent(eventName)
 
-        val command = extractCommandFromComposite<CustomEventCommand>(intent, 1)
+        val command = extractCommandFromComposite<CustomEventCommand>(intent, 2)
 
         command.eventAttributes shouldBe null
     }
