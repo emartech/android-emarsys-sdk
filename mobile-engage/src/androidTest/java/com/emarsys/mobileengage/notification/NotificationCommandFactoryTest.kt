@@ -95,7 +95,7 @@ class NotificationCommandFactoryTest {
     @Test
     fun testCreateNotificationCommand_defaultAction_shouldCreateAppEvent_withCorrectName() {
         val intent = createDefaultAppEventIntent()
-        val command = extractCommandFromComposite<AppEventCommand>(intent, 1)
+        val command = extractCommandFromComposite<AppEventCommand>(intent)
 
         command.name shouldBe NAME_OF_EVENT
     }
@@ -103,7 +103,7 @@ class NotificationCommandFactoryTest {
     @Test
     fun testCreateNotificationCommand_defaultAction_shouldCreateAppEvent_withCorrectPayload() {
         val intent = createDefaultAppEventIntent()
-        val command = extractCommandFromComposite<AppEventCommand>(intent, 1)
+        val command = extractCommandFromComposite<AppEventCommand>(intent)
 
         val payload = command.payload
 
@@ -113,7 +113,7 @@ class NotificationCommandFactoryTest {
     @Test
     fun testCreateNotificationCommand_defaultAction_shouldCreateAppEvent_withCorrectNotificationEventHandler() {
         val intent = createDefaultAppEventIntent()
-        val command = extractCommandFromComposite<AppEventCommand>(intent, 1)
+        val command = extractCommandFromComposite<AppEventCommand>(intent)
 
         val handler = command.notificationEventHandler
 
@@ -138,7 +138,7 @@ class NotificationCommandFactoryTest {
     @Test
     fun testCreateNotificationCommand_defaultAction_shouldCreateOpenExternalLinkCommand_withCorrectParameters() {
         val intent = createDefaultOpenExternalLinkIntent("https://www.emarsys.com")
-        val command = extractCommandFromComposite<OpenExternalUrlCommand>(intent, 1)
+        val command = extractCommandFromComposite<OpenExternalUrlCommand>(intent)
 
         command.context shouldBe context
         command.intent.data shouldBe Uri.parse("https://www.emarsys.com")
@@ -176,7 +176,7 @@ class NotificationCommandFactoryTest {
 
         val intent = createDefaultCustomEventIntent(eventName)
 
-        val command = extractCommandFromComposite<CustomEventCommand>(intent, 1)
+        val command = extractCommandFromComposite<CustomEventCommand>(intent)
 
         command.eventName shouldBe eventName
     }
@@ -199,7 +199,7 @@ class NotificationCommandFactoryTest {
 
         val intent = createDefaultCustomEventIntent(eventName, payload)
 
-        val command = extractCommandFromComposite<CustomEventCommand>(intent, 1)
+        val command = extractCommandFromComposite<CustomEventCommand>(intent)
 
         command.eventAttributes shouldBe attributes
     }
@@ -210,7 +210,7 @@ class NotificationCommandFactoryTest {
 
         val intent = createDefaultCustomEventIntent(eventName)
 
-        val command = extractCommandFromComposite<CustomEventCommand>(intent, 1)
+        val command = extractCommandFromComposite<CustomEventCommand>(intent)
 
         command.eventAttributes shouldBe null
     }
@@ -234,19 +234,19 @@ class NotificationCommandFactoryTest {
     @Test
     fun testCreateNotificationCommand_trackActionCommand_withSids() {
         forall(
-                row(SID, extractCommandFromComposite<TrackActionClickCommand>(createAppEventIntent(), 0).sid),
-                row(MISSING_SID, extractCommandFromComposite<TrackActionClickCommand>(createAppEventIntent(hasSid = false), 0).sid),
-                row(SID, extractCommandFromComposite<TrackActionClickCommand>(createOpenExternalLinkIntent(), 0).sid),
-                row(MISSING_SID, extractCommandFromComposite<TrackActionClickCommand>(createOpenExternalLinkIntent(hasSid = false), 0).sid),
-                row(SID, extractCommandFromComposite<TrackActionClickCommand>(createCustomEventIntent(), 0).sid),
-                row(MISSING_SID, extractCommandFromComposite<TrackActionClickCommand>(createCustomEventIntent(hasSid = false), 0).sid)
+                row(SID, extractCommandFromComposite<TrackActionClickCommand>(createAppEventIntent()).sid),
+                row(MISSING_SID, extractCommandFromComposite<TrackActionClickCommand>(createAppEventIntent(hasSid = false)).sid),
+                row(SID, extractCommandFromComposite<TrackActionClickCommand>(createOpenExternalLinkIntent()).sid),
+                row(MISSING_SID, extractCommandFromComposite<TrackActionClickCommand>(createOpenExternalLinkIntent(hasSid = false)).sid),
+                row(SID, extractCommandFromComposite<TrackActionClickCommand>(createCustomEventIntent()).sid),
+                row(MISSING_SID, extractCommandFromComposite<TrackActionClickCommand>(createCustomEventIntent(hasSid = false)).sid)
         ) { expectedSid, actualSid -> actualSid shouldBe expectedSid }
     }
 
     @Test
     fun testCreateNotificationCommand_shouldCreateAppEvent_withCorrectName() {
         val intent = createAppEventIntent()
-        val command = extractCommandFromComposite<AppEventCommand>(intent, 2)
+        val command = extractCommandFromComposite<AppEventCommand>(intent)
 
         command.name shouldBe NAME_OF_EVENT
     }
@@ -254,7 +254,7 @@ class NotificationCommandFactoryTest {
     @Test
     fun testCreateNotificationCommand_shouldCreateAppEvent_withCorrectPayload() {
         val intent = createAppEventIntent()
-        val command = extractCommandFromComposite<AppEventCommand>(intent, 2)
+        val command = extractCommandFromComposite<AppEventCommand>(intent)
 
         val payload = command.payload
 
@@ -264,7 +264,7 @@ class NotificationCommandFactoryTest {
     @Test
     fun testCreateNotificationCommand_shouldCreateAppEvent_withCorrectNotificationEventHandler() {
         val intent = createAppEventIntent()
-        val command = extractCommandFromComposite<AppEventCommand>(intent, 2)
+        val command = extractCommandFromComposite<AppEventCommand>(intent)
 
         val handler = command.notificationEventHandler
 
@@ -287,7 +287,7 @@ class NotificationCommandFactoryTest {
                 "actionId"
         )
 
-        val command = extractCommandFromComposite<AppEventCommand>(intent, 2)
+        val command = extractCommandFromComposite<AppEventCommand>(intent)
 
         command.name shouldBe "eventName"
     }
@@ -311,7 +311,7 @@ class NotificationCommandFactoryTest {
     @Test
     fun testCreateNotificationCommand_shouldCreateOpenExternalLinkCommand_withCorrectParameters() {
         val intent = createOpenExternalLinkIntent("https://www.emarsys.com")
-        val command = extractCommandFromComposite<OpenExternalUrlCommand>(intent, 2)
+        val command = extractCommandFromComposite<OpenExternalUrlCommand>(intent)
 
         command.context shouldBe context
         command.intent.data shouldBe Uri.parse("https://www.emarsys.com")
@@ -350,7 +350,7 @@ class NotificationCommandFactoryTest {
 
         val intent = createCustomEventIntent(eventName)
 
-        val command = extractCommandFromComposite<CustomEventCommand>(intent, 2)
+        val command = extractCommandFromComposite<CustomEventCommand>(intent)
 
         command.eventName shouldBe eventName
     }
@@ -373,7 +373,7 @@ class NotificationCommandFactoryTest {
 
         val intent = createCustomEventIntent(eventName, payload)
 
-        val command = extractCommandFromComposite<CustomEventCommand>(intent, 2)
+        val command = extractCommandFromComposite<CustomEventCommand>(intent)
 
         command.eventAttributes shouldBe attributes
     }
@@ -384,14 +384,19 @@ class NotificationCommandFactoryTest {
 
         val intent = createCustomEventIntent(eventName)
 
-        val command = extractCommandFromComposite<CustomEventCommand>(intent, 2)
+        val command = extractCommandFromComposite<CustomEventCommand>(intent)
 
         command.eventAttributes shouldBe null
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T : Runnable> extractCommandFromComposite(intent: Intent, index: Int) =
-            (factory.createNotificationCommand(intent) as CompositeCommand).commands[index] as T
+    private inline fun <reified T : Runnable> extractCommandFromComposite(intent: Intent) =
+            (factory.createNotificationCommand(intent) as CompositeCommand).commands.filter {
+                it is T
+            }.let { list ->
+                list.firstOrNull().takeIf { list.size == 1 }
+                        ?: error("CompositeCommand contains multiple commands of type ${T::class.java}: $list")
+            } as T
 
     private fun createUnknownCommandIntent(): Intent {
         val unknownType = "NOT_SUPPORTED"
