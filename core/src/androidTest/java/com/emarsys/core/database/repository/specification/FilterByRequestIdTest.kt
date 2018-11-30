@@ -1,6 +1,5 @@
 package com.emarsys.core.database.repository.specification
 
-import androidx.test.InstrumentationRegistry
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -10,6 +9,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
 import com.emarsys.core.request.model.specification.FilterByRequestId
 import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
 import org.junit.Before

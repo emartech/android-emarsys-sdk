@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
+import androidx.test.runner.AndroidJUnit4
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.DeviceInfo
 import com.emarsys.core.api.result.CompletionListener
@@ -19,6 +20,8 @@ import com.emarsys.mobileengage.event.applogin.AppLoginParameters
 import com.emarsys.mobileengage.storage.AppLoginStorage
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage
 import com.emarsys.mobileengage.storage.MeIdStorage
+import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.SharedPrefsUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.data.forall
@@ -31,9 +34,6 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
-import androidx.test.InstrumentationRegistry
-import androidx.test.runner.AndroidJUnit4
-import com.emarsys.testUtil.SharedPrefsUtils
 import org.mockito.Mockito.*
 
 @RunWith(AndroidJUnit4::class)

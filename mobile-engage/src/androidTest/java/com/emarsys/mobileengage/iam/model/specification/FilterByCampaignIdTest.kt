@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.iam.model.specification
 
-import androidx.test.InstrumentationRegistry
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
@@ -8,6 +7,7 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
 import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
 import org.junit.Before
@@ -29,7 +29,7 @@ class FilterByCampaignIdTest {
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
 
-        val context = InstrumentationRegistry.getContext()
+        val context = InstrumentationRegistry.getTargetContext()
         val dbHelper = CoreDbHelper(context, HashMap())
 
         displayedIamRepository = DisplayedIamRepository(dbHelper)

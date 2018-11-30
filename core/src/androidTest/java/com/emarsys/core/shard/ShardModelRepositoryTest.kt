@@ -2,12 +2,12 @@ package com.emarsys.core.shard
 
 import android.content.Context
 import android.database.Cursor
-import androidx.test.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
 import com.emarsys.core.database.DatabaseContract.*
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
 import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Assert
 import org.junit.Before
@@ -41,7 +41,7 @@ class ShardModelRepositoryTest {
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
 
-        context = InstrumentationRegistry.getContext()
+        context = InstrumentationRegistry.getTargetContext()
 
         repository = ShardModelRepository(CoreDbHelper(context, mapOf()))
 

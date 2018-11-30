@@ -1,13 +1,13 @@
 package com.emarsys.core.shard.specification
 
 import android.content.Context
-import androidx.test.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
 import org.junit.Before

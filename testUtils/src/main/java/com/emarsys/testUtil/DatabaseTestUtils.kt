@@ -1,13 +1,12 @@
 package com.emarsys.testUtil
 
 import android.database.sqlite.SQLiteDatabase
-import androidx.test.InstrumentationRegistry
 
 object DatabaseTestUtils {
 
     @JvmStatic
     fun deleteCoreDatabase(): Boolean {
-        return InstrumentationRegistry.getContext().deleteDatabase("EmarsysCore.db")
+        return InstrumentationRegistry.getTargetContext().deleteDatabase("EmarsysCore.db")
     }
 
     @JvmStatic

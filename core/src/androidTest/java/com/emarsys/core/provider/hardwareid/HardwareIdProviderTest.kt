@@ -3,7 +3,7 @@ package com.emarsys.core.provider.hardwareid
 import android.content.Context
 import android.content.SharedPreferences
 import android.provider.Settings
-import androidx.test.InstrumentationRegistry
+import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
@@ -42,7 +42,7 @@ class HardwareIdProviderTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_sharedPreferences_shouldNotBeNull() {
-        HardwareIdProvider(InstrumentationRegistry.getContext(), null)
+        HardwareIdProvider(InstrumentationRegistry.getTargetContext(), null)
     }
 
     @Test

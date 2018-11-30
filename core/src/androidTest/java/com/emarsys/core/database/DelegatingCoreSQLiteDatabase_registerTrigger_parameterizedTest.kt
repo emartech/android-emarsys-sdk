@@ -1,12 +1,12 @@
 package com.emarsys.core.database
 
 import android.content.ContentValues
-import androidx.test.InstrumentationRegistry
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerKey
 import com.emarsys.core.database.trigger.TriggerType
 import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Assert.assertEquals
 import org.junit.Before

@@ -4,12 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import androidx.test.InstrumentationRegistry
-
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.api.NotificationEventHandler
 import com.emarsys.mobileengage.notification.command.*
 import com.emarsys.mobileengage.service.IntentUtils
+import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.data.forall
 import io.kotlintest.shouldBe

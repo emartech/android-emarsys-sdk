@@ -2,7 +2,6 @@ package com.emarsys
 
 import android.app.Application
 import android.content.Context
-import androidx.test.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
@@ -16,6 +15,7 @@ import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.ExperimentalTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever

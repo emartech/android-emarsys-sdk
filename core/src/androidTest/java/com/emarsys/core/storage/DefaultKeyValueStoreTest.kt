@@ -3,7 +3,7 @@ package com.emarsys.core.storage
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.test.InstrumentationRegistry
+import com.emarsys.testUtil.InstrumentationRegistry
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before

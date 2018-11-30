@@ -3,7 +3,6 @@ package com.emarsys
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.test.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DeviceInfo
@@ -16,10 +15,7 @@ import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
 import com.emarsys.mobileengage.storage.AppLoginStorage
 import com.emarsys.mobileengage.storage.MeIdStorage
-import com.emarsys.testUtil.ConnectionTestUtils
-import com.emarsys.testUtil.ExperimentalTestUtils
-import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe

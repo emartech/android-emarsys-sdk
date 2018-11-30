@@ -2,7 +2,6 @@ package com.emarsys.core.database.repository
 
 import android.content.ContentValues
 import android.database.Cursor
-import androidx.test.InstrumentationRegistry
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.DatabaseContract.*
@@ -13,6 +12,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
 import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
