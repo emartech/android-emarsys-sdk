@@ -1,7 +1,5 @@
 package com.emarsys.mobileengage.inbox.model;
 
-import androidx.test.runner.AndroidJUnit4;
-
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -18,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static org.mockito.Mockito.mock;
 

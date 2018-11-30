@@ -1,6 +1,6 @@
 package com.emarsys.core.validate;
 
-import androidx.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.json.JSONObject
 import org.junit.Assert
 import org.junit.Before

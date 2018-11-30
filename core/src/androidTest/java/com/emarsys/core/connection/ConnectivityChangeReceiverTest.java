@@ -3,8 +3,6 @@ package com.emarsys.core.connection;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.fake.FakeConnectionChangeListener;
@@ -17,6 +15,9 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;

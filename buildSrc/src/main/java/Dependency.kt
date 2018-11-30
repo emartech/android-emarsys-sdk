@@ -11,6 +11,7 @@ object Versions {
     const val support_annotations = "1.0.0"
     const val buildToolsVersion = "28.0.3"
     const val multiDexVersion = "2.0.0"
+    const val androidJunit4 = "1.0.0"
 }
 
 object Libs {
@@ -32,4 +33,5 @@ object TestLibs {
     val hamcrest_integration = "org.hamcrest:hamcrest-integration:${Versions.hamcrest_version}"
     val hamcrest_library = "org.hamcrest:hamcrest-library:${Versions.hamcrest_version}"
     val multiDex = "androidx.multidex:multidex-instrumentation:${Versions.multiDexVersion}"
+    val androidJunit4 = "androidx.test.ext:junit:${Versions.androidJunit4}"
 }

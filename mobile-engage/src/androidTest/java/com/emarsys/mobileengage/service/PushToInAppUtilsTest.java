@@ -3,9 +3,6 @@ package com.emarsys.mobileengage.service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.test.InstrumentationRegistry;
-import androidx.test.filters.SdkSuppress;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
@@ -27,6 +24,10 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static org.junit.Assert.assertEquals;

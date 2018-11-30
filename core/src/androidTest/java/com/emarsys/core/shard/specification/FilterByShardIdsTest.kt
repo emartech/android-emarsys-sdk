@@ -1,7 +1,7 @@
 package com.emarsys.core.shard.specification
 
 import android.content.Context
-import androidx.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.shard.ShardModel

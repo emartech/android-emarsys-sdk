@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
-import androidx.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.DeviceInfo
 import com.emarsys.core.api.result.CompletionListener

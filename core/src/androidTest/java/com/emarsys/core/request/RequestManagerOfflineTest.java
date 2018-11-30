@@ -2,8 +2,6 @@ package com.emarsys.core.request;
 
 import android.os.Handler;
 import android.os.Looper;
-import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.emarsys.core.Registry;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
@@ -41,6 +39,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
