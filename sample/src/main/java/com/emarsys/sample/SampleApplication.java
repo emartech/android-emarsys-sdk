@@ -5,8 +5,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -15,6 +15,7 @@ import com.emarsys.config.EmarsysConfig;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
+import com.emarsys.sample.configuration.MobileEngageCredentials;
 
 import org.json.JSONObject;
 
@@ -29,7 +30,7 @@ public class SampleApplication extends Application implements EventHandler, Noti
 
         EmarsysConfig config = new EmarsysConfig.Builder()
                 .application(this)
-                .mobileEngageCredentials("14C19-A121F", "PaNkfOD90AVpYimMBuZopCpm8OWCrREu")
+                .mobileEngageCredentials(MobileEngageCredentials.INTEGRATION_APPLICATION_CODE, MobileEngageCredentials.INTEGRATION_APPLICATION_PASSWORD)
                 .contactFieldId(3)
                 .predictMerchantId("1428C8EE286EC34B")
                 .inAppEventHandler(this)

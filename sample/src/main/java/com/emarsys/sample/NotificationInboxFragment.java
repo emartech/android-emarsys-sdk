@@ -2,9 +2,10 @@ package com.emarsys.sample;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +22,6 @@ import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.support.v7.widget.RecyclerView.LayoutManager;
 
 public class NotificationInboxFragment extends BaseFragment {
     private static final String TAG = "InboxFragment";
@@ -58,7 +58,7 @@ public class NotificationInboxFragment extends BaseFragment {
     }
 
     private void initRecyclerView(RecyclerView notificationList) {
-        LayoutManager notificationListManager = new LinearLayoutManager(context);
+        RecyclerView.LayoutManager notificationListManager = new LinearLayoutManager(context);
         notificationList.setLayoutManager(notificationListManager);
 
         notificationListAdapter = new NotificationListAdapter(notifications);

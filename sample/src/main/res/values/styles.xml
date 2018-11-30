@@ -1,17 +1,18 @@
 <resources>
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="buttonStyle">@style/AppTheme.Button</item>
         <item name="imageButtonStyle">@style/AppTheme.ImageButton</item>
+        <item name="materialButtonStyle">@style/AppTheme.Button</item>
     </style>
 
-    <style name="AppTheme.Button" parent="Base.Widget.AppCompat.Button.Borderless">
+    <style name="AppTheme.Button" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">@color/colorAction</item>
     </style>
 
-    <style name="AppTheme.ImageButton" parent="Base.Widget.AppCompat.Button.Borderless">
+    <style name="AppTheme.ImageButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:tint">@color/colorAction</item>
     </style>
 </resources>

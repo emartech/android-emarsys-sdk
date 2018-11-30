@@ -1,9 +1,10 @@
 package com.emarsys.sample.testutils;
 
 import android.content.Context;
-import android.support.multidex.MultiDex;
 
 import com.emarsys.sample.SampleApplication;
+
+import androidx.multidex.MultiDex;
 
 public class InstrumentedApplication extends SampleApplication {
 
