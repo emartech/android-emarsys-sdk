@@ -1,13 +1,10 @@
 package com.emarsys.mobileengage.iam.dialog;
 
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.RequiresApi;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +25,9 @@ import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.RequiresApi;
+import androidx.fragment.app.DialogFragment;
 
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class IamDialog extends DialogFragment {

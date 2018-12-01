@@ -5,9 +5,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.test.InstrumentationRegistry;
-import androidx.test.filters.SdkSuppress;
-import androidx.test.rule.ActivityTestRule;
 import android.webkit.WebView;
 
 import com.emarsys.core.database.repository.Repository;
@@ -15,6 +12,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 import com.emarsys.testUtil.fake.FakeActivity;
 
@@ -30,6 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.rule.ActivityTestRule;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static junit.framework.Assert.assertNotNull;
@@ -236,11 +238,11 @@ public class IamDialogTest {
     private void displayDialog() throws InterruptedException {
         dialog.resumeLatch = new CountDownLatch(1);
 
-        final Activity activity = activityRule.getActivity();
+        final AppCompatActivity activity = activityRule.getActivity();
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                dialog.show(activity.getFragmentManager(), "testDialog");
+                dialog.show((activity).getSupportFragmentManager(), "testDialog");
             }
         });
 

@@ -1,5 +1,5 @@
 package com.emarsys.testUtil.fake
 
-import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 
-class FakeActivity : Activity()
+class FakeActivity : AppCompatActivity()

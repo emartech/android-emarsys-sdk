@@ -2,9 +2,6 @@ package com.emarsys.mobileengage.iam.webview;
 
 import android.app.Activity;
 import android.app.Application;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import androidx.test.filters.SdkSuppress;
 
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
@@ -22,6 +19,11 @@ import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.test.filters.SdkSuppress;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static org.mockito.Mockito.mock;
@@ -59,9 +61,9 @@ public class DefaultMessageLoadedListenerTest {
     @SuppressWarnings("unchecked")
     public void init() {
         currentActivityProvider = mock(Gettable.class);
-        Activity currentActivity = mock(Activity.class);
+        AppCompatActivity currentActivity = mock(AppCompatActivity.class);
         fragmentManager = mock(FragmentManager.class);
-        when(currentActivity.getFragmentManager()).thenReturn(fragmentManager);
+        when(currentActivity.getSupportFragmentManager()).thenReturn(fragmentManager);
         when(currentActivityProvider.get()).thenReturn(currentActivity);
         dialog = mock(IamDialog.class);
 

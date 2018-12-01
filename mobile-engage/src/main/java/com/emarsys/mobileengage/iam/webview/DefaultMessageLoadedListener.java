@@ -1,10 +1,7 @@
 package com.emarsys.mobileengage.iam.webview;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.os.Build;
-import androidx.annotation.RequiresApi;
 
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
@@ -16,6 +13,11 @@ import com.emarsys.mobileengage.iam.dialog.IamDialog;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class DefaultMessageLoadedListener implements MessageLoadedListener {
@@ -47,8 +49,8 @@ public class DefaultMessageLoadedListener implements MessageLoadedListener {
     @Override
     public void onMessageLoaded() {
         Activity currentActivity = currentActivityProvider.get();
-        if (currentActivity != null) {
-            FragmentManager fragmentManager = currentActivity.getFragmentManager();
+        if (currentActivity instanceof AppCompatActivity) {
+            FragmentManager fragmentManager = ((AppCompatActivity) currentActivity).getSupportFragmentManager();
             Fragment fragment = fragmentManager.findFragmentByTag(IamDialog.TAG);
             if (fragment == null) {
                 iamDialog.show(fragmentManager, IamDialog.TAG);

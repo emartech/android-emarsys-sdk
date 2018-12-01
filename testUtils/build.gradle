@@ -35,4 +35,5 @@ dependencies {
     api TestLibs.hamcrest_library
     api TestLibs.multiDex
     api TestLibs.androidJunit4
+    implementation Libs.support_appcompat
 }

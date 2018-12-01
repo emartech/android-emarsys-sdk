@@ -2,8 +2,6 @@ package com.emarsys.mobileengage.iam;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.os.Build;
 import android.os.Handler;
 
@@ -25,6 +23,10 @@ import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener;
 
 import java.util.Arrays;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 public class InAppPresenter {
 
@@ -84,8 +86,8 @@ public class InAppPresenter {
             @Override
             public void onMessageLoaded() {
                 Activity currentActivity = currentActivityProvider.get();
-                if (currentActivity != null) {
-                    FragmentManager fragmentManager = currentActivity.getFragmentManager();
+                if (currentActivity instanceof AppCompatActivity) {
+                    FragmentManager fragmentManager = ((AppCompatActivity) currentActivity).getSupportFragmentManager();
                     Fragment fragment = fragmentManager.findFragmentByTag(IamDialog.TAG);
                     if (fragment == null) {
                         iamDialog.show(fragmentManager, IamDialog.TAG);

@@ -5,8 +5,6 @@ import android.app.Application;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
-import androidx.test.filters.SdkSuppress;
-import androidx.test.rule.ActivityTestRule;
 import android.webkit.WebView;
 
 import com.emarsys.core.api.result.CompletionListener;
@@ -35,6 +33,10 @@ import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.rule.ActivityTestRule;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static org.hamcrest.Matchers.allOf;
@@ -251,7 +253,7 @@ public class IamJsBridgeTest {
         doAnswer(threadSpy).when(mobileEngageInternal).trackCustomEvent(
                 any(String.class),
                 nullable(Map.class),
-                (CompletionListener)isNull());
+                (CompletionListener) isNull());
 
         String id = "12346789";
         String eventName = "eventName";
@@ -287,7 +289,7 @@ public class IamJsBridgeTest {
         when(mobileEngageInternal.trackCustomEvent(
                 any(String.class),
                 nullable(Map.class),
-                (CompletionListener)isNull())).thenReturn(requestId);
+                (CompletionListener) isNull())).thenReturn(requestId);
 
         jsBridge.triggerMEEvent(json.toString());
 
@@ -542,12 +544,12 @@ public class IamJsBridgeTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSendResult_whenPayloadIsNull() throws Exception {
+    public void testSendResult_whenPayloadIsNull() {
         jsBridge.sendResult(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSendResult_whenPayloadDoesntContainId() throws Exception {
+    public void testSendResult_whenPayloadDoesntContainId() {
         jsBridge.sendResult(new JSONObject());
     }
 
@@ -560,9 +562,10 @@ public class IamJsBridgeTest {
     }
 
     private IamDialog initializeActivityWatchdogWithIamDialog() {
-        Activity activity = mock(Activity.class, Mockito.RETURNS_DEEP_STUBS);
+        AppCompatActivity activity = mock(AppCompatActivity.class, Mockito.RETURNS_DEEP_STUBS);
         IamDialog iamDialog = mock(IamDialog.class);
-        when(activity.getFragmentManager().findFragmentByTag(IamDialog.TAG)).thenReturn(iamDialog);
+
+        when(activity.getSupportFragmentManager().findFragmentByTag(IamDialog.TAG)).thenReturn(iamDialog);
 
         when(currentActivityProvider.get()).thenReturn(activity);
         return iamDialog;

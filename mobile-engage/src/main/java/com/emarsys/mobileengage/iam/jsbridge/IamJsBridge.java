@@ -1,14 +1,11 @@
 package com.emarsys.mobileengage.iam.jsbridge;
 
 import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.RequiresApi;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
@@ -31,6 +28,11 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class IamJsBridge {
@@ -75,8 +77,8 @@ public class IamJsBridge {
             @Override
             public void run() {
                 Activity currentActivity = currentActivityProvider.get();
-                if (currentActivity != null) {
-                    Fragment fragment = currentActivity.getFragmentManager().findFragmentByTag(IamDialog.TAG);
+                if (currentActivity instanceof AppCompatActivity) {
+                    Fragment fragment = ((AppCompatActivity) currentActivity).getSupportFragmentManager().findFragmentByTag(IamDialog.TAG);
                     if (fragment instanceof DialogFragment) {
                         ((DialogFragment) fragment).dismiss();
                     }
