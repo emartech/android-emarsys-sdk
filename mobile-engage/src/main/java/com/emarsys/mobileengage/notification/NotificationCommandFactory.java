@@ -10,6 +10,7 @@ import com.emarsys.core.util.CollectionUtils;
 import com.emarsys.core.util.JsonUtils;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.mobileengage.notification.command.AppEventCommand;
 import com.emarsys.mobileengage.notification.command.CompositeCommand;
 import com.emarsys.mobileengage.notification.command.CustomEventCommand;
@@ -17,6 +18,7 @@ import com.emarsys.mobileengage.notification.command.DismissNotificationCommand;
 import com.emarsys.mobileengage.notification.command.HideNotificationShadeCommand;
 import com.emarsys.mobileengage.notification.command.LaunchApplicationCommand;
 import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand;
+import com.emarsys.mobileengage.notification.command.PreloadedInappHandlerCommand;
 import com.emarsys.mobileengage.notification.command.TrackActionClickCommand;
 import com.emarsys.mobileengage.notification.command.TrackMessageOpenCommand;
 
@@ -31,19 +33,21 @@ import java.util.Map;
 
 public class NotificationCommandFactory {
 
-    private Context context;
-    private MobileEngageInternal mobileEngageInternal;
-    private NotificationEventHandler notificationEventHandler;
+    private final Context context;
+    private final MobileEngageDependencyContainer dependencyContainer;
+    private final MobileEngageInternal mobileEngageInternal;
+    private final NotificationEventHandler notificationEventHandler;
 
     public NotificationCommandFactory(
             Context context,
-            MobileEngageInternal mobileEngageInternal,
-            NotificationEventHandler notificationEventHandler) {
+            MobileEngageDependencyContainer dependencyContainer) {
         Assert.notNull(context, "Context must not be null!");
-        Assert.notNull(mobileEngageInternal, "MobileEngageInternal must not be null!");
+        Assert.notNull(dependencyContainer, "DependencyContainer must not be null!");
         this.context = context;
-        this.mobileEngageInternal = mobileEngageInternal;
-        this.notificationEventHandler = notificationEventHandler;
+        this.dependencyContainer = dependencyContainer;
+        this.mobileEngageInternal = dependencyContainer.getMobileEngageInternal();
+        Assert.notNull(mobileEngageInternal, "MobileEngageInternal from dependency container must not be null!");
+        this.notificationEventHandler = dependencyContainer.getNotificationEventHandler();
     }
 
     public Runnable createNotificationCommand(Intent intent) {
@@ -54,9 +58,12 @@ public class NotificationCommandFactory {
         if (bundle != null) {
             String emsPayload = bundle.getString("ems");
             if (emsPayload != null) {
+
                 Runnable hideNotificationShadeCommand = new HideNotificationShadeCommand(context);
                 Runnable trackMessageOpenCommand = new TrackMessageOpenCommand(mobileEngageInternal, intent);
                 Runnable dismissNotificationCommand = new DismissNotificationCommand(context, intent);
+                Runnable preloadedInappHandlerCommand = new PreloadedInappHandlerCommand(intent, dependencyContainer);
+
                 if (actionId != null) {
                     try {
                         JSONArray actions = new JSONObject(emsPayload).getJSONArray("actions");
@@ -65,7 +72,12 @@ public class NotificationCommandFactory {
                         String sid = extractSid(bundle);
                         Runnable trackActionClickCommand = new TrackActionClickCommand(mobileEngageInternal, actionId, sid);
 
-                        result = createCompositeCommand(action, Arrays.asList(dismissNotificationCommand, trackMessageOpenCommand, trackActionClickCommand, hideNotificationShadeCommand));
+                        result = createCompositeCommand(action, Arrays.asList(
+                                preloadedInappHandlerCommand,
+                                dismissNotificationCommand,
+                                trackMessageOpenCommand,
+                                trackActionClickCommand,
+                                hideNotificationShadeCommand));
 
                     } catch (JSONException ignored) {
                     }
@@ -73,7 +85,11 @@ public class NotificationCommandFactory {
                     try {
                         JSONObject action = new JSONObject(emsPayload).getJSONObject("default_action");
 
-                        result = createCompositeCommand(action, Arrays.asList(dismissNotificationCommand, trackMessageOpenCommand, hideNotificationShadeCommand));
+                        result = createCompositeCommand(action, Arrays.asList(
+                                preloadedInappHandlerCommand,
+                                dismissNotificationCommand,
+                                trackMessageOpenCommand,
+                                hideNotificationShadeCommand));
                     } catch (JSONException ignored) {
                     }
                 }

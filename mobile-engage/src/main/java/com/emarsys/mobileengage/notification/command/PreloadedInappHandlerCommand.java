@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.service;
+package com.emarsys.mobileengage.notification.command;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,12 +13,21 @@ import org.json.JSONObject;
 
 import java.io.File;
 
-public class PushToInAppUtils {
+public class PreloadedInappHandlerCommand implements Runnable {
 
-    public static void handlePreloadedInAppMessage(Intent intent, final MobileEngageDependencyContainer dependencyContainer) {
+    private final Intent intent;
+    private final MobileEngageDependencyContainer dependencyContainer;
+
+    public PreloadedInappHandlerCommand(Intent intent, MobileEngageDependencyContainer dependencyContainer) {
         Assert.notNull(intent, "Intent must not be null!");
         Assert.notNull(dependencyContainer, "DependencyContainer must not be null!");
 
+        this.intent = intent;
+        this.dependencyContainer = dependencyContainer;
+    }
+
+    @Override
+    public void run() {
         try {
             Bundle extras = intent.getExtras();
             if (extras != null) {
@@ -57,9 +66,8 @@ public class PushToInAppUtils {
         }
     }
 
-    private static void scheduleInAppDisplay(String campaignId, String html, MobileEngageDependencyContainer container) {
+    private void scheduleInAppDisplay(String campaignId, String html, MobileEngageDependencyContainer container) {
         PushToInAppAction pushToInAppAction = new PushToInAppAction(container.getInAppPresenter(), campaignId, html);
         container.getActivityLifecycleWatchdog().addTriggerOnActivityAction(pushToInAppAction);
     }
-
 }

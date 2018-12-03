@@ -19,15 +19,9 @@ public class NotificationHandlerService extends Service {
         EMSLogger.log(MobileEngageTopic.PUSH, "Notification was clicked");
 
         if (intent != null) {
-
-            MobileEngageDependencyContainer container = DependencyInjection.getContainer();
-
-            PushToInAppUtils.handlePreloadedInAppMessage(intent, container);
-
             NotificationActionUtils.handleAction(intent, new NotificationCommandFactory(
                     this,
-                    container.getMobileEngageInternal(),
-                    container.getNotificationEventHandler()));
+                    DependencyInjection.<MobileEngageDependencyContainer>getContainer()));
 
         }
         stopSelf(startId);

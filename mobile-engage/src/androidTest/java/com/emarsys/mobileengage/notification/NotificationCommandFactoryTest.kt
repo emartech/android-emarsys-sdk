@@ -6,10 +6,12 @@ import android.net.Uri
 import android.os.Bundle
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.api.NotificationEventHandler
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.notification.command.*
 import com.emarsys.mobileengage.service.IntentUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.data.forall
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -35,25 +37,36 @@ class NotificationCommandFactoryTest {
 
     private lateinit var factory: NotificationCommandFactory
     private lateinit var context: Context
+    private lateinit var dependencyContainer: MobileEngageDependencyContainer
     private lateinit var mobileEngageInternal: MobileEngageInternal
     private lateinit var notificationEventHandler: NotificationEventHandler
 
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
+
         mobileEngageInternal = mock(MobileEngageInternal::class.java)
         notificationEventHandler = mock(NotificationEventHandler::class.java)
-        factory = NotificationCommandFactory(context, mobileEngageInternal, notificationEventHandler)
+        dependencyContainer = mock(MobileEngageDependencyContainer::class.java)
+        whenever(dependencyContainer.mobileEngageInternal).thenReturn(mobileEngageInternal)
+        whenever(dependencyContainer.notificationEventHandler).thenReturn(notificationEventHandler)
+
+        factory = NotificationCommandFactory(context, dependencyContainer)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_context_shouldNotBeNull() {
-        NotificationCommandFactory(null, mobileEngageInternal, notificationEventHandler)
+    fun testConstructor_context_mustNotBeNull() {
+        NotificationCommandFactory(null, dependencyContainer)
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun testConstructor_dependencyContainer_mustNotBeNull() {
+        NotificationCommandFactory(context, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_mobileEngageInternal_shouldNotBeNull() {
-        NotificationCommandFactory(context, null, notificationEventHandler)
+    fun testConstructor_mobileEngageInternalFromContainer_mustNotBeNull() {
+        NotificationCommandFactory(context, mock(MobileEngageDependencyContainer::class.java))
     }
 
     @Test
@@ -88,6 +101,7 @@ class NotificationCommandFactoryTest {
         command as CompositeCommand
 
         command.commands.map { it::class.java } shouldBe listOf(
+                PreloadedInappHandlerCommand::class.java,
                 DismissNotificationCommand::class.java,
                 TrackMessageOpenCommand::class.java,
                 HideNotificationShadeCommand::class.java,
@@ -133,6 +147,7 @@ class NotificationCommandFactoryTest {
         command as CompositeCommand
 
         command.commands.map { it::class.java } shouldBe listOf(
+                PreloadedInappHandlerCommand::class.java,
                 DismissNotificationCommand::class.java,
                 TrackMessageOpenCommand::class.java,
                 HideNotificationShadeCommand::class.java,
@@ -170,6 +185,7 @@ class NotificationCommandFactoryTest {
         command as CompositeCommand
 
         command.commands.map { it::class.java } shouldBe listOf(
+                PreloadedInappHandlerCommand::class.java,
                 DismissNotificationCommand::class.java,
                 TrackMessageOpenCommand::class.java,
                 HideNotificationShadeCommand::class.java,
@@ -232,6 +248,7 @@ class NotificationCommandFactoryTest {
         command as CompositeCommand
 
         command.commands.map { it::class.java } shouldBe listOf(
+                PreloadedInappHandlerCommand::class.java,
                 DismissNotificationCommand::class.java,
                 TrackMessageOpenCommand::class.java,
                 TrackActionClickCommand::class.java,
@@ -311,6 +328,7 @@ class NotificationCommandFactoryTest {
         command as CompositeCommand
 
         command.commands.map { it::class.java } shouldBe listOf(
+                PreloadedInappHandlerCommand::class.java,
                 DismissNotificationCommand::class.java,
                 TrackMessageOpenCommand::class.java,
                 TrackActionClickCommand::class.java,
@@ -349,6 +367,7 @@ class NotificationCommandFactoryTest {
         command as CompositeCommand
 
         command.commands.map { it::class.java } shouldBe listOf(
+                PreloadedInappHandlerCommand::class.java,
                 DismissNotificationCommand::class.java,
                 TrackMessageOpenCommand::class.java,
                 TrackActionClickCommand::class.java,
