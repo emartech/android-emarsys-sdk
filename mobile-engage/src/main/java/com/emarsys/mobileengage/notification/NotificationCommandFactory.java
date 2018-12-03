@@ -18,6 +18,7 @@ import com.emarsys.mobileengage.notification.command.HideNotificationShadeComman
 import com.emarsys.mobileengage.notification.command.LaunchApplicationCommand;
 import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand;
 import com.emarsys.mobileengage.notification.command.TrackActionClickCommand;
+import com.emarsys.mobileengage.notification.command.TrackMessageOpenCommand;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,6 +55,7 @@ public class NotificationCommandFactory {
             String emsPayload = bundle.getString("ems");
             if (emsPayload != null) {
                 Runnable hideNotificationShadeCommand = new HideNotificationShadeCommand(context);
+                Runnable trackMessageOpenCommand = new TrackMessageOpenCommand(mobileEngageInternal, intent);
                 Runnable dismissNotificationCommand = new DismissNotificationCommand(context, intent);
                 if (actionId != null) {
                     try {
@@ -63,7 +65,7 @@ public class NotificationCommandFactory {
                         String sid = extractSid(bundle);
                         Runnable trackActionClickCommand = new TrackActionClickCommand(mobileEngageInternal, actionId, sid);
 
-                        result = createCompositeCommand(action, Arrays.asList(dismissNotificationCommand, trackActionClickCommand, hideNotificationShadeCommand));
+                        result = createCompositeCommand(action, Arrays.asList(dismissNotificationCommand, trackMessageOpenCommand, trackActionClickCommand, hideNotificationShadeCommand));
 
                     } catch (JSONException ignored) {
                     }
@@ -71,7 +73,7 @@ public class NotificationCommandFactory {
                     try {
                         JSONObject action = new JSONObject(emsPayload).getJSONObject("default_action");
 
-                        result = createCompositeCommand(action, Arrays.asList(dismissNotificationCommand, hideNotificationShadeCommand));
+                        result = createCompositeCommand(action, Arrays.asList(dismissNotificationCommand, trackMessageOpenCommand, hideNotificationShadeCommand));
                     } catch (JSONException ignored) {
                     }
                 }
