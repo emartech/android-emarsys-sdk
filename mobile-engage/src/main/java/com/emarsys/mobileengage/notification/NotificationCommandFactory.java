@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.emarsys.core.util.Assert;
+import com.emarsys.core.util.CollectionUtils;
 import com.emarsys.core.util.JsonUtils;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
@@ -22,6 +23,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class NotificationCommandFactory {
@@ -49,72 +52,53 @@ public class NotificationCommandFactory {
         if (bundle != null) {
             String emsPayload = bundle.getString("ems");
             if (emsPayload != null) {
+                Runnable hideNotificationShadeCommand = new HideNotificationShadeCommand(context);
+
                 if (actionId != null) {
                     try {
                         JSONArray actions = new JSONObject(emsPayload).getJSONArray("actions");
                         JSONObject action = findActionWithId(actions, actionId);
-                        String type = action.getString("type");
+
                         String sid = extractSid(bundle);
                         Runnable trackActionClickCommand = new TrackActionClickCommand(mobileEngageInternal, actionId, sid);
-                        Runnable hideNotificationShadeCommand = new HideNotificationShadeCommand(context);
 
-                        if ("MEAppEvent".equals(type)) {
-                            result = new CompositeCommand(Arrays.asList(
-                                    trackActionClickCommand,
-                                    hideNotificationShadeCommand,
-                                    createAppEventCommand(action)));
-                        }
-                        if ("OpenExternalUrl".equals(type)) {
-                            Runnable openExternalUrl = createOpenExternalUrlCommand(action);
-                            if (openExternalUrl != null) {
-                                result = new CompositeCommand(Arrays.asList(
-                                        trackActionClickCommand,
-                                        hideNotificationShadeCommand,
-                                        openExternalUrl));
-                            }
-                        }
-                        if ("MECustomEvent".equals(type)) {
-                            result = new CompositeCommand(Arrays.asList(
-                                    trackActionClickCommand,
-                                    hideNotificationShadeCommand,
-                                    createCustomEventCommand(action)));
-                        }
+                        result = createCompositeCommand(action, Arrays.asList(trackActionClickCommand, hideNotificationShadeCommand));
+
                     } catch (JSONException ignored) {
                     }
                 } else {
                     try {
                         JSONObject action = new JSONObject(emsPayload).getJSONObject("default_action");
-                        String type = action.getString("type");
-                        Runnable hideNotificationShadeCommand = new HideNotificationShadeCommand(context);
 
-                        if ("MEAppEvent".equals(type)) {
-                            result = new CompositeCommand(Arrays.asList(
-                                    hideNotificationShadeCommand,
-                                    createAppEventCommand(action)));
-                        }
-                        if ("OpenExternalUrl".equals(type)) {
-                            Runnable openExternalUrl = createOpenExternalUrlCommand(action);
-                            if (openExternalUrl != null) {
-                                result = new CompositeCommand(Arrays.asList(
-                                        hideNotificationShadeCommand,
-                                        openExternalUrl));
-                            }
-                        }
-                        if ("MECustomEvent".equals(type)) {
-                            result = new CompositeCommand(Arrays.asList(
-                                    hideNotificationShadeCommand,
-                                    createCustomEventCommand(action)));
-                        }
+                        result = createCompositeCommand(action, Collections.singletonList(hideNotificationShadeCommand));
                     } catch (JSONException ignored) {
                     }
                 }
             }
         }
-
         if (result == null) {
             result = new LaunchApplicationCommand(intent, context);
         }
 
+        return result;
+    }
+
+    private Runnable createCompositeCommand(JSONObject action, List<Runnable> mandatoryActions) throws JSONException {
+        Runnable result = null;
+        String type = action.getString("type");
+
+        if ("MEAppEvent".equals(type)) {
+            result = new CompositeCommand(CollectionUtils.mergeLists(mandatoryActions, Collections.singletonList(createAppEventCommand(action))));
+        }
+        if ("OpenExternalUrl".equals(type)) {
+            Runnable openExternalUrl = createOpenExternalUrlCommand(action);
+            if (openExternalUrl != null) {
+                result = new CompositeCommand(CollectionUtils.mergeLists(mandatoryActions, Collections.singletonList(openExternalUrl)));
+            }
+        }
+        if ("MECustomEvent".equals(type)) {
+            result = new CompositeCommand(CollectionUtils.mergeLists(mandatoryActions, Collections.singletonList(createCustomEventCommand(action))));
+        }
         return result;
     }
 

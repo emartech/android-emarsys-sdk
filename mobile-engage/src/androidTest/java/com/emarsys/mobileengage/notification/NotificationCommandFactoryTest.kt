@@ -40,7 +40,7 @@ class NotificationCommandFactoryTest {
 
     @Before
     fun setUp() {
-        context = InstrumentationRegistry.getTargetContext().getApplicationContext()
+        context = InstrumentationRegistry.getTargetContext().applicationContext
         mobileEngageInternal = mock(MobileEngageInternal::class.java)
         notificationEventHandler = mock(NotificationEventHandler::class.java)
         factory = NotificationCommandFactory(context, mobileEngageInternal, notificationEventHandler)
@@ -394,9 +394,9 @@ class NotificationCommandFactoryTest {
             (factory.createNotificationCommand(intent) as CompositeCommand).commands.filter {
                 it is T
             }.let { list ->
-                list.firstOrNull().takeIf { list.size == 1 }
+                list.firstOrNull().takeIf { list.size == 1 } as? T
                         ?: error("CompositeCommand contains multiple commands of type ${T::class.java}: $list")
-            } as T
+            }
 
     private fun createUnknownCommandIntent(): Intent {
         val unknownType = "NOT_SUPPORTED"
