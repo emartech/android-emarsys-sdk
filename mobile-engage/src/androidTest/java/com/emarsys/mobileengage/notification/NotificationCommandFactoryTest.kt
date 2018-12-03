@@ -88,6 +88,7 @@ class NotificationCommandFactoryTest {
         command as CompositeCommand
 
         command.commands.map { it::class.java } shouldBe listOf(
+                DismissNotificationCommand::class.java,
                 HideNotificationShadeCommand::class.java,
                 AppEventCommand::class.java)
     }
@@ -131,6 +132,7 @@ class NotificationCommandFactoryTest {
         command as CompositeCommand
 
         command.commands.map { it::class.java } shouldBe listOf(
+                DismissNotificationCommand::class.java,
                 HideNotificationShadeCommand::class.java,
                 OpenExternalUrlCommand::class.java)
     }
@@ -166,6 +168,7 @@ class NotificationCommandFactoryTest {
         command as CompositeCommand
 
         command.commands.map { it::class.java } shouldBe listOf(
+                DismissNotificationCommand::class.java,
                 HideNotificationShadeCommand::class.java,
                 CustomEventCommand::class.java)
     }
@@ -226,6 +229,7 @@ class NotificationCommandFactoryTest {
         command as CompositeCommand
 
         command.commands.map { it::class.java } shouldBe listOf(
+                DismissNotificationCommand::class.java,
                 TrackActionClickCommand::class.java,
                 HideNotificationShadeCommand::class.java,
                 AppEventCommand::class.java)
@@ -303,6 +307,7 @@ class NotificationCommandFactoryTest {
         command as CompositeCommand
 
         command.commands.map { it::class.java } shouldBe listOf(
+                DismissNotificationCommand::class.java,
                 TrackActionClickCommand::class.java,
                 HideNotificationShadeCommand::class.java,
                 OpenExternalUrlCommand::class.java)
@@ -339,6 +344,7 @@ class NotificationCommandFactoryTest {
         command as CompositeCommand
 
         command.commands.map { it::class.java } shouldBe listOf(
+                DismissNotificationCommand::class.java,
                 TrackActionClickCommand::class.java,
                 HideNotificationShadeCommand::class.java,
                 CustomEventCommand::class.java)

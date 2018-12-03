@@ -24,8 +24,6 @@ public class NotificationHandlerService extends Service {
 
             PushToInAppUtils.handlePreloadedInAppMessage(intent, container);
 
-            MessagingServiceUtils.dismissNotification(this, intent);
-
             container.getMobileEngageInternal().trackMessageOpen(intent, null);
 
             NotificationActionUtils.handleAction(intent, new NotificationCommandFactory(

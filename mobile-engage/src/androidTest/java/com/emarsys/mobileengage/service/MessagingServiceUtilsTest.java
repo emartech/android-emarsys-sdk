@@ -13,6 +13,7 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 import com.google.firebase.messaging.RemoteMessage;
@@ -34,7 +35,6 @@ import java.util.Map;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 
@@ -77,7 +77,7 @@ public class MessagingServiceUtilsTest {
     @Before
     @SuppressWarnings("unchecked")
     public void init() throws Exception {
-        context = InstrumentationRegistry.getContext();
+        context = InstrumentationRegistry.getTargetContext();
 
         deviceInfo = new DeviceInfo(context, mock(HardwareIdProvider.class));
 
@@ -133,65 +133,6 @@ public class MessagingServiceUtilsTest {
         remoteMessageData.put("key1", "value1");
         remoteMessageData.put("key2", "value2");
         assertFalse(MessagingServiceUtils.isMobileEngageMessage(remoteMessageData));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testDismissNotification_context_mustNotBeNull() {
-        MessagingServiceUtils.dismissNotification(null, new Intent());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testDismissNotification_intent_mustNotBeNull() {
-        MessagingServiceUtils.dismissNotification(mock(Context.class), null);
-    }
-
-    @Test
-    public void testDismissNotification_callsNotificationManager() {
-        int notificationId = 987;
-
-        NotificationManager notificationManagerMock = mock(NotificationManager.class);
-
-        Context mockContext = mock(Context.class);
-        when(mockContext.getSystemService(Context.NOTIFICATION_SERVICE)).thenReturn(notificationManagerMock);
-
-        Intent intent = new Intent();
-        Bundle bundle = new Bundle();
-        bundle.putInt("notification_id", notificationId);
-        intent.putExtra("payload", bundle);
-
-        MessagingServiceUtils.dismissNotification(mockContext, intent);
-
-        verify(notificationManagerMock).cancel(notificationId);
-    }
-
-    @Test
-    public void testDismissNotification_doesNotCallNotificationManager_ifBundleIsMissing() {
-        NotificationManager notificationManagerMock = mock(NotificationManager.class);
-
-        Context mockContext = mock(Context.class);
-        when(mockContext.getSystemService(Context.NOTIFICATION_SERVICE)).thenReturn(notificationManagerMock);
-
-        Intent intent = new Intent();
-
-        MessagingServiceUtils.dismissNotification(mockContext, intent);
-
-        verifyZeroInteractions(notificationManagerMock);
-    }
-
-    @Test
-    public void testDismissNotification_doesNotCallNotificationManager_ifNotificationIdIsMissing() {
-        NotificationManager notificationManagerMock = mock(NotificationManager.class);
-
-        Context mockContext = mock(Context.class);
-        when(mockContext.getSystemService(Context.NOTIFICATION_SERVICE)).thenReturn(notificationManagerMock);
-
-        Intent intent = new Intent();
-        Bundle bundle = new Bundle();
-        intent.putExtra("payload", bundle);
-
-        MessagingServiceUtils.dismissNotification(mockContext, intent);
-
-        verifyZeroInteractions(notificationManagerMock);
     }
 
     @Test

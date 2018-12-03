@@ -82,20 +82,6 @@ public class MessagingServiceUtils {
         return remoteMessageData != null && remoteMessageData.size() > 0 && remoteMessageData.containsKey(MESSAGE_FILTER);
     }
 
-    static void dismissNotification(Context context, Intent intent) {
-        Assert.notNull(context, "Context must not be null!");
-        Assert.notNull(intent, "Intent must not be null!");
-
-        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        Bundle bundle = intent.getBundleExtra("payload");
-        if (bundle != null) {
-            int notificationId = bundle.getInt("notification_id", Integer.MIN_VALUE);
-            if (notificationId != Integer.MIN_VALUE) {
-                manager.cancel(notificationId);
-            }
-        }
-    }
-
     static Notification createNotification(
             int notificationId,
             Context context,
