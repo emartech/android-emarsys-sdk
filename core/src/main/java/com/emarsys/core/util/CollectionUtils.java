@@ -1,6 +1,8 @@
 package com.emarsys.core.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CollectionUtils {
@@ -14,6 +16,20 @@ public class CollectionUtils {
 
         for (Map<K, V> map : maps) {
             merged.putAll(map);
+        }
+
+        return merged;
+    }
+
+    public static <T> List<T> mergeLists(List<T>... lists) {
+        Assert.notNull(lists, "Lists must not be null!");
+        Assert.notEmpty(lists, "At least one argument must be provided!");
+        Assert.elementsNotNull(lists, "Lists array cannot contain null elements!");
+
+        List<T> merged = new ArrayList<>();
+
+        for (List<T> list : lists) {
+            merged.addAll(list);
         }
 
         return merged;

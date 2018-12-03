@@ -6,7 +6,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -75,4 +77,49 @@ public class CollectionUtilsTest {
 
         assertEquals(expected, actual);
     }
+
+    @SuppressWarnings("unchecked")
+    @Test(expected = IllegalArgumentException.class)
+    public void testMergeLists_mustProvideAtLeastOneArgument() {
+        CollectionUtils.mergeLists();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMergeLists_listsMustNotBeNull() {
+        CollectionUtils.mergeLists((List[]) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMergeLists_listsMustNotContainNullValue() {
+        CollectionUtils.mergeLists(null, mock(List.class), null);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testMergeLists_withMultipleInput() {
+        List<String> input1 = new ArrayList<>();
+        input1.add("A");
+        input1.add("B");
+        input1.add("C");
+
+        List<String> input2 = new ArrayList<>();
+        input2.add("D");
+        input2.add("E");
+        input2.add("F");
+
+        List<String> input3 = new ArrayList<>();
+        input3.add("B");
+        input3.add("E");
+        input3.add("N");
+
+        List<String> expected = new ArrayList<>();
+        expected.addAll(input1);
+        expected.addAll(input2);
+        expected.addAll(input3);
+
+        List<String> actual = CollectionUtils.mergeLists(input1, input2, input3);
+
+        assertEquals(expected, actual);
+    }
+
 }
