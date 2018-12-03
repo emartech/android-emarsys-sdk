@@ -60,7 +60,6 @@ public class NotificationCommandFactory {
             if (emsPayload != null) {
 
                 Runnable hideNotificationShadeCommand = new HideNotificationShadeCommand(context);
-                Runnable trackMessageOpenCommand = new TrackMessageOpenCommand(mobileEngageInternal, intent);
                 Runnable dismissNotificationCommand = new DismissNotificationCommand(context, intent);
                 Runnable preloadedInappHandlerCommand = new PreloadedInappHandlerCommand(intent, dependencyContainer);
 
@@ -75,7 +74,6 @@ public class NotificationCommandFactory {
                         result = createCompositeCommand(action, Arrays.asList(
                                 preloadedInappHandlerCommand,
                                 dismissNotificationCommand,
-                                trackMessageOpenCommand,
                                 trackActionClickCommand,
                                 hideNotificationShadeCommand));
 
@@ -84,6 +82,8 @@ public class NotificationCommandFactory {
                 } else {
                     try {
                         JSONObject action = new JSONObject(emsPayload).getJSONObject("default_action");
+
+                        Runnable trackMessageOpenCommand = new TrackMessageOpenCommand(mobileEngageInternal, intent);
 
                         result = createCompositeCommand(action, Arrays.asList(
                                 preloadedInappHandlerCommand,

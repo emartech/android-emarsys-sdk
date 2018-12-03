@@ -250,7 +250,6 @@ class NotificationCommandFactoryTest {
         command.commands.map { it::class.java } shouldBe listOf(
                 PreloadedInappHandlerCommand::class.java,
                 DismissNotificationCommand::class.java,
-                TrackMessageOpenCommand::class.java,
                 TrackActionClickCommand::class.java,
                 HideNotificationShadeCommand::class.java,
                 AppEventCommand::class.java)
@@ -330,7 +329,6 @@ class NotificationCommandFactoryTest {
         command.commands.map { it::class.java } shouldBe listOf(
                 PreloadedInappHandlerCommand::class.java,
                 DismissNotificationCommand::class.java,
-                TrackMessageOpenCommand::class.java,
                 TrackActionClickCommand::class.java,
                 HideNotificationShadeCommand::class.java,
                 OpenExternalUrlCommand::class.java)
@@ -369,7 +367,6 @@ class NotificationCommandFactoryTest {
         command.commands.map { it::class.java } shouldBe listOf(
                 PreloadedInappHandlerCommand::class.java,
                 DismissNotificationCommand::class.java,
-                TrackMessageOpenCommand::class.java,
                 TrackActionClickCommand::class.java,
                 HideNotificationShadeCommand::class.java,
                 CustomEventCommand::class.java)
