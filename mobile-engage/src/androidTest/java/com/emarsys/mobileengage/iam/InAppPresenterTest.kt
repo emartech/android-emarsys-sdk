@@ -26,6 +26,11 @@ import org.mockito.Mockito.*
 import java.util.concurrent.CountDownLatch
 
 class InAppPresenterTest {
+    companion object {
+        @JvmStatic
+        val fragmentMock = mock(Fragment::class.java)
+        val activityMock = mock(AppCompatActivity::class.java)
+    }
 
     @Rule
     @JvmField
@@ -196,13 +201,11 @@ class InAppPresenterTest {
     @Test
     fun testPresent_shouldShowDialog_whenAppCompatActivity_isUsed() {
         val iamDialog = mock(IamDialog::class.java)
-        val activity = mock(AppCompatActivity::class.java)
         val fragmentManager = mock(FragmentManager::class.java)
-        val fragment = mock(Fragment::class.java)
 
-        whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
-        whenever(fragmentManager.findFragmentById(anyInt())).thenReturn(fragment)
-        whenever(activityProvider.get()).thenReturn(activity)
+        whenever(activityMock.supportFragmentManager).thenReturn(fragmentManager)
+        whenever(fragmentManager.findFragmentById(anyInt())).thenReturn(fragmentMock)
+        whenever(activityProvider.get()).thenReturn(activityMock)
         whenever(iamDialogProvider.provideDialog(any())).thenReturn(iamDialog)
         val countDownLatch = CountDownLatch(1)
 
