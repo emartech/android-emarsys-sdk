@@ -2,11 +2,10 @@ package com.emarsys.mobileengage.iam.webview;
 
 import android.os.Handler;
 import android.os.Looper;
-import androidx.test.InstrumentationRegistry;
-import androidx.test.filters.SdkSuppress;
 import android.webkit.WebView;
 
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -15,6 +14,8 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.util.concurrent.CountDownLatch;
+
+import androidx.test.filters.SdkSuppress;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static junit.framework.Assert.assertEquals;
@@ -47,7 +48,7 @@ public class IamWebViewClientTest {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                client.onPageFinished(new WebView(InstrumentationRegistry.getContext().getApplicationContext()), "");
+                client.onPageFinished(new WebView(InstrumentationRegistry.getTargetContext().getApplicationContext()), "");
             }
         });
 
@@ -63,7 +64,7 @@ public class IamWebViewClientTest {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                final WebView webView = new WebView(InstrumentationRegistry.getContext().getApplicationContext());
+                final WebView webView = new WebView(InstrumentationRegistry.getTargetContext().getApplicationContext());
 
                 new Thread(new Runnable() {
                     @Override

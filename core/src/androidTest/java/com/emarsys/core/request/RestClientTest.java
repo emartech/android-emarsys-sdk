@@ -1,7 +1,5 @@
 package com.emarsys.core.request;
 
-import androidx.test.InstrumentationRegistry;
-
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
@@ -12,6 +10,7 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.testUtil.RequestModelTestUtils;
 import com.emarsys.testUtil.ConnectionTestUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -41,7 +40,7 @@ public class RestClientTest {
     @Before
     @SuppressWarnings("unchecked")
     public void setup() {
-        ConnectionTestUtils.checkConnection(InstrumentationRegistry.getContext());
+        ConnectionTestUtils.checkConnection(InstrumentationRegistry.getTargetContext());
 
         logRepository = mock(Repository.class);
         timestampProvider = mock(TimestampProvider.class);

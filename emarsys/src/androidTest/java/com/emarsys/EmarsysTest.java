@@ -48,6 +48,7 @@ import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.predict.shard.PredictShardTrigger;
 import com.emarsys.testUtil.CollectionTestUtils;
 import com.emarsys.testUtil.ExperimentalTestUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.RandomTestUtils;
 import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -66,7 +67,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static junit.framework.Assert.assertTrue;

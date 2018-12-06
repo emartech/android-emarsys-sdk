@@ -1,8 +1,8 @@
 package com.emarsys.core.util;
 
 import android.content.Context;
-import androidx.test.InstrumentationRegistry;
 
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -36,7 +36,7 @@ public class FileUtilsTest {
 
     @Before
     public void init() {
-        context = InstrumentationRegistry.getContext();
+        context = InstrumentationRegistry.getTargetContext();
     }
 
     @Test

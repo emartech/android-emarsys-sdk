@@ -3,7 +3,6 @@ package com.emarsys.core.request.model;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.DatabaseContract;
@@ -11,6 +10,7 @@ import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.json.JSONException;
@@ -62,7 +62,7 @@ public class RequestModelRepositoryTest {
     public void init() {
         DatabaseTestUtils.deleteCoreDatabase();
 
-        context = InstrumentationRegistry.getContext();
+        context = InstrumentationRegistry.getTargetContext();
         CoreDbHelper coreDbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
         repository = new RequestModelRepository(coreDbHelper);
 

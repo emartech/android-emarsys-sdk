@@ -25,6 +25,7 @@ import com.emarsys.core.shard.ShardModelRepository;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
@@ -40,7 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static junit.framework.Assert.assertEquals;

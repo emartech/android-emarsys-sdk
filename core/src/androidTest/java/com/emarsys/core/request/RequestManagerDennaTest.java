@@ -3,7 +3,6 @@ package com.emarsys.core.request;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.Registry;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
@@ -25,6 +24,7 @@ import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.testUtil.ConnectionTestUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.json.JSONObject;

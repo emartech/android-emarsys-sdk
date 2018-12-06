@@ -2,7 +2,6 @@ package com.emarsys.mobileengage.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
@@ -13,6 +12,7 @@ import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 

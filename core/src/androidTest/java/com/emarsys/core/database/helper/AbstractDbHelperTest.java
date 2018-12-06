@@ -2,10 +2,10 @@ package com.emarsys.core.database.helper;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.trigger.TriggerKey;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;

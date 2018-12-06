@@ -24,6 +24,7 @@ import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 import com.emarsys.testUtil.mockito.ThreadSpy;
@@ -43,7 +44,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static com.emarsys.mobileengage.MobileEngageInternal.MOBILEENGAGE_SDK_VERSION;

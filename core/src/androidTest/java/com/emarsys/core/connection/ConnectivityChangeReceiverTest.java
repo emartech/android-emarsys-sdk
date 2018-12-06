@@ -6,6 +6,7 @@ import android.os.Handler;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.fake.FakeConnectionChangeListener;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -16,7 +17,6 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 
-import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static junit.framework.Assert.assertEquals;
@@ -34,7 +34,7 @@ public class ConnectivityChangeReceiverTest {
 
     @Before
     public void setup() {
-        context = InstrumentationRegistry.getContext();
+        context = InstrumentationRegistry.getTargetContext();
         listener = mock(ConnectionChangeListener.class);
     }
 

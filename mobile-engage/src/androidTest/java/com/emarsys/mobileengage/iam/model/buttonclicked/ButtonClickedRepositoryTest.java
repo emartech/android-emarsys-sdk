@@ -3,12 +3,12 @@ package com.emarsys.mobileengage.iam.model.buttonclicked;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.helper.DbHelper;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Assert;
@@ -43,7 +43,7 @@ public class ButtonClickedRepositoryTest {
     public void init() {
         DatabaseTestUtils.deleteCoreDatabase();
 
-        Context context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getTargetContext();
 
         DbHelper dbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
 

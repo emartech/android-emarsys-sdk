@@ -1,10 +1,10 @@
 package com.emarsys.mobileengage.notification.command;
 
 import android.content.Context;
-import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;

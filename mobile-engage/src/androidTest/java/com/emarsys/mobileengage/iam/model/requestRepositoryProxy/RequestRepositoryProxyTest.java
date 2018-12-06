@@ -1,7 +1,6 @@
 package com.emarsys.mobileengage.iam.model.requestRepositoryProxy;
 
 import android.content.Context;
-import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.database.helper.CoreDbHelper;
@@ -27,6 +26,7 @@ import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.RandomTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 

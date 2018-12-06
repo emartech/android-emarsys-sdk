@@ -3,7 +3,6 @@ package com.emarsys.mobileengage.inbox;
 import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
-import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
@@ -34,6 +33,7 @@ import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 

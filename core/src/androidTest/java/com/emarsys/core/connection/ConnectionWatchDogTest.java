@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.os.Handler;
 
 import com.emarsys.testUtil.ConnectionTestUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -16,7 +17,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
-import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static junit.framework.Assert.assertFalse;
@@ -59,7 +59,7 @@ public class ConnectionWatchDogTest {
 
     @Test
     public void testConstructor_shouldKeepReferenceToApplicationContext() {
-        ConnectionWatchDog watchDog = new ConnectionWatchDog(InstrumentationRegistry.getContext(), mockHandler);
+        ConnectionWatchDog watchDog = new ConnectionWatchDog(InstrumentationRegistry.getTargetContext(), mockHandler);
         assertTrue(watchDog.context instanceof Application);
     }
 

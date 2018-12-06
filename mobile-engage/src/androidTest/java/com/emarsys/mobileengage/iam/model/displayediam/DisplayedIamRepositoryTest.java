@@ -3,13 +3,12 @@ package com.emarsys.mobileengage.iam.model.displayediam;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import androidx.test.InstrumentationRegistry;
-import androidx.test.filters.SdkSuppress;
 
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.helper.DbHelper;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;
@@ -22,6 +21,8 @@ import org.junit.rules.TestRule;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
+import androidx.test.filters.SdkSuppress;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static com.emarsys.core.database.DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID;
@@ -46,7 +47,7 @@ public class DisplayedIamRepositoryTest {
     public void init() {
         DatabaseTestUtils.deleteCoreDatabase();
 
-        Context context = InstrumentationRegistry.getContext();
+        Context context = InstrumentationRegistry.getTargetContext();
         DbHelper dbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
         iamRepository = new DisplayedIamRepository(dbHelper);
         displayedIam1 = new DisplayedIam("campaign1", new Date().getTime());

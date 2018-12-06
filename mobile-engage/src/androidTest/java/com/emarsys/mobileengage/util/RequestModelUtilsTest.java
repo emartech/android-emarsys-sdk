@@ -1,7 +1,5 @@
 package com.emarsys.mobileengage.util;
 
-import androidx.test.InstrumentationRegistry;
-
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
@@ -15,6 +13,7 @@ import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.testUtil.RequestModelTestUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -65,7 +64,7 @@ public class RequestModelUtilsTest {
                 APPLICATION_CODE,
                 APPLICATION_PASSWORD,
                 1,
-                new DeviceInfo(InstrumentationRegistry.getContext(), mock(HardwareIdProvider.class)),
+                new DeviceInfo(InstrumentationRegistry.getTargetContext(), mock(HardwareIdProvider.class)),
                 mock(AppLoginStorage.class),
                 meIdStorage,
                 mock(MeIdSignatureStorage.class),

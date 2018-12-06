@@ -2,11 +2,9 @@ package com.emarsys.mobileengage.service;
 
 import android.content.Context;
 import android.content.Intent;
-import androidx.test.InstrumentationRegistry;
-import androidx.test.filters.SdkSuppress;
-import androidx.core.app.NotificationCompat;
 
 import com.emarsys.mobileengage.notification.NotificationCommandFactory;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.json.JSONArray;
@@ -20,6 +18,9 @@ import org.junit.rules.TestRule;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import androidx.core.app.NotificationCompat;
+import androidx.test.filters.SdkSuppress;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static junit.framework.Assert.assertEquals;

@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import androidx.test.InstrumentationRegistry;
 
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class MetaDataReaderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetIntOrNull_key_mustNotBeNull() throws Exception {
-        reader.getInt(InstrumentationRegistry.getContext(), null);
+        reader.getInt(InstrumentationRegistry.getTargetContext(), null);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class MetaDataReaderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetInt_key_mustNotBeNull() throws Exception {
-        reader.getInt(InstrumentationRegistry.getContext(), null, 0);
+        reader.getInt(InstrumentationRegistry.getTargetContext(), null, 0);
     }
 
     @Test

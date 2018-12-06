@@ -1,8 +1,8 @@
 package com.emarsys.mobileengage.storage;
 
 import android.content.Context;
-import androidx.test.InstrumentationRegistry;
 
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;

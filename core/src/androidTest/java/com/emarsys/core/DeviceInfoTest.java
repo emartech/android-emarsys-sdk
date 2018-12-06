@@ -7,10 +7,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.testUtil.ApplicationTestUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;

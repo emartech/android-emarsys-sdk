@@ -2,10 +2,10 @@ package com.emarsys.core.connection;
 
 
 import android.net.ConnectivityManager;
-import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.testUtil.ConnectionTestUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Rule;
@@ -64,7 +64,7 @@ public class Connectivity_getConnectionState_ParameterizedTest {
 
     @Test
     public void testGetConnectionState_connectionWatchDog() {
-        ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(InstrumentationRegistry.getContext(), new CoreSdkHandlerProvider().provideHandler());
+        ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(InstrumentationRegistry.getTargetContext(), new CoreSdkHandlerProvider().provideHandler());
         connectionWatchDog.connectivityManager = ConnectionTestUtils.getConnectivityManagerMock(isConnected, connectionType);
 
         assertEquals(connectionState, connectionWatchDog.getConnectionState());

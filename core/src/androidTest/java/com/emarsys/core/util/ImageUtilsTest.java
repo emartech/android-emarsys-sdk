@@ -3,10 +3,10 @@ package com.emarsys.core.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import androidx.test.InstrumentationRegistry;
 
 import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;

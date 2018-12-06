@@ -2,8 +2,6 @@ package com.emarsys.mobileengage.iam.webview;
 
 import android.os.Handler;
 import android.os.Looper;
-import androidx.test.InstrumentationRegistry;
-import androidx.test.filters.SdkSuppress;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
@@ -14,6 +12,7 @@ import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
+import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -22,6 +21,8 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.util.concurrent.CountDownLatch;
+
+import androidx.test.filters.SdkSuppress;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static junit.framework.Assert.assertEquals;
@@ -130,7 +131,7 @@ public class IamWebViewProviderTest {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                IamWebViewProvider.webView = new WebView(InstrumentationRegistry.getContext());
+                IamWebViewProvider.webView = new WebView(InstrumentationRegistry.getTargetContext());
                 latch.countDown();
             }
         });
