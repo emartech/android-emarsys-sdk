@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 
 public class RequestTaskTest {
 
-    private static final String DENNA_ECHO_URL = "https://notdenna.eu-gb.mybluemix.net/echo";
+    private static final String DENNA_ECHO_URL = "https://ems-denna.herokuapp.com/echo";
     private static final String WRONG_URL = "https://localhost/missing";
     public static final String NETWORKING_TIME = "networking_time";
     public static final String IN_DATABASE = "in_database_time";

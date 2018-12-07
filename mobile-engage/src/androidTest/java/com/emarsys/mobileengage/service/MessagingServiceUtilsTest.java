@@ -238,7 +238,7 @@ public class MessagingServiceUtilsTest {
         Map<String, String> input = new HashMap<>();
         input.put("title", TITLE);
         input.put("body", BODY);
-        input.put("image_url", "https://notdenna.eu-gb.mybluemix.net/images/Emarsys.png");
+        input.put("image_url", "https://ems-denna.herokuapp.com/images/Emarsys.png");
 
         android.app.Notification result = MessagingServiceUtils.createNotification(
                 0,
