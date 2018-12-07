@@ -24,7 +24,7 @@ import static org.mockito.Mockito.mock;
 
 public class ImageUtilsTest {
 
-    public static final String DENNA_IMAGE = "https://ems-denna.herokuapp.com/images/Emarsys.png";
+    public static final String DENNA_IMAGE = "https://notdenna.eu-gb.mybluemix.net/images/Emarsys.png";
 
     private Context context;
     private DeviceInfo deviceInfo;

@@ -2,7 +2,6 @@ package com.emarsys.mobileengage.service;
 
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -48,8 +47,6 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
@@ -241,7 +238,7 @@ public class MessagingServiceUtilsTest {
         Map<String, String> input = new HashMap<>();
         input.put("title", TITLE);
         input.put("body", BODY);
-        input.put("image_url", "https://ems-denna.herokuapp.com/images/Emarsys.png");
+        input.put("image_url", "https://notdenna.eu-gb.mybluemix.net/images/Emarsys.png");
 
         android.app.Notification result = MessagingServiceUtils.createNotification(
                 0,

@@ -26,8 +26,8 @@ import static org.junit.Assert.assertTrue;
 
 public class FileUtilsTest {
 
-    public static final String DENNA_404 = "https://ems-denna.herokuapp.com/customResponseCode/404";
-    public static final String DENNA_IMAGE = "https://ems-denna.herokuapp.com/images/Emarsys.png";
+    public static final String DENNA_404 = "https://notdenna.eu-gb.mybluemix.net/customResponseCode/404";
+    public static final String DENNA_IMAGE = "https://notdenna.eu-gb.mybluemix.net/images/Emarsys.png";
 
     private Context context;
 

@@ -45,7 +45,7 @@ import static org.mockito.Mockito.mock;
 
 public class RequestManagerDennaTest {
 
-    private static final String DENNA_ECHO_URL = "https://ems-denna.herokuapp.com/echo";
+    private static final String DENNA_ECHO_URL = "https://notdenna.eu-gb.mybluemix.net/echo";
 
     private RequestManager manager;
     private Map<String, String> headers;
