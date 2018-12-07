@@ -37,6 +37,7 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -159,7 +160,7 @@ public class RequestManagerOfflineTest {
         RequestModel normal2 = normal(2);
         RequestModel normal3 = normal(3);
         requestModels = new RequestModel[]{normal1, normal2, normal3};
-        watchDogCountDown = 1;
+        watchDogCountDown = 3;
         completionHandlerCountDown = 0;
 
         prepareTestCaseAndWait();
@@ -168,10 +169,8 @@ public class RequestManagerOfflineTest {
         assertEquals(0, completionHandler.getOnErrorCount());
         assertFalse(requestRepository.isEmpty());
 
-        for (RequestModel model : requestModels) {
-            requestRepository.remove(new FilterByRequestId(model));
-        }
-        assertRequestTableEmpty();
+        List<RequestModel> result = requestRepository.query(new Everything());
+        assertEquals(Arrays.asList(requestModels), result);
     }
 
     @Test
