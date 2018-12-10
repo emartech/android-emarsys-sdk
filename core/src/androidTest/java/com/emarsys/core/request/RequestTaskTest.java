@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import static com.emarsys.testUtil.TestUrls.DENNA_ECHO;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -29,7 +30,6 @@ import static org.mockito.Mockito.when;
 
 public class RequestTaskTest {
 
-    private static final String DENNA_ECHO_URL = "https://ems-denna.herokuapp.com/echo";
     private static final String WRONG_URL = "https://localhost/missing";
     public static final String NETWORKING_TIME = "networking_time";
     public static final String IN_DATABASE = "in_database_time";
@@ -109,7 +109,7 @@ public class RequestTaskTest {
 
     @Test
     public void testDoInBackground_savesInDatabaseTime() {
-        RequestModel requestModel = new RequestModel(DENNA_ECHO_URL,
+        RequestModel requestModel = new RequestModel(DENNA_ECHO,
                 RequestMethod.GET,
                 null,
                 new HashMap<String, String>(),
@@ -137,7 +137,7 @@ public class RequestTaskTest {
 
     @Test
     public void testDoInBackground_savesNetworkingTime() {
-        RequestModel requestModel = new RequestModel(DENNA_ECHO_URL,
+        RequestModel requestModel = new RequestModel(DENNA_ECHO,
                 RequestMethod.GET,
                 null,
                 new HashMap<String, String>(),

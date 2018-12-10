@@ -18,6 +18,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.UUID;
 
+import static com.emarsys.testUtil.TestUrls.DENNA_404;
+import static com.emarsys.testUtil.TestUrls.LARGE_IMAGE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -25,9 +27,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class FileUtilsTest {
-
-    public static final String DENNA_404 = "https://ems-denna.herokuapp.com/customResponseCode/404";
-    public static final String DENNA_IMAGE = "https://ems-denna.herokuapp.com/images/Emarsys.png";
 
     private Context context;
 
@@ -51,7 +50,7 @@ public class FileUtilsTest {
 
     @Test
     public void testDownload_shouldNotReturnNull_whenUrlIsCorrect() {
-        assertNotNull(FileUtils.download(context, DENNA_IMAGE));
+        assertNotNull(FileUtils.download(context, LARGE_IMAGE));
     }
 
     @Test
@@ -66,14 +65,14 @@ public class FileUtilsTest {
 
     @Test
     public void testDownload_returnedPathShouldExist() {
-        String filePath = FileUtils.download(context, DENNA_IMAGE);
+        String filePath = FileUtils.download(context, LARGE_IMAGE);
         File file = new File(filePath);
         assertTrue(file.exists());
     }
 
     @Test
     public void testDownload_downloadedAndRemoteFileShouldBeTheSame() throws Exception {
-        String path = DENNA_IMAGE;
+        String path = LARGE_IMAGE;
         String filePath = FileUtils.download(context, path);
         File file = new File(filePath);
         InputStream fileInputStream = new FileInputStream(file);
@@ -88,7 +87,7 @@ public class FileUtilsTest {
 
     @Test
     public void testDelete_shouldDeleteTheFile() {
-        String filePath = FileUtils.download(context, DENNA_IMAGE);
+        String filePath = FileUtils.download(context, LARGE_IMAGE);
         File file = new File(filePath);
         assertTrue(file.exists());
         FileUtils.delete(filePath);
@@ -130,10 +129,10 @@ public class FileUtilsTest {
 
     @Test
     public void testReadURLIntoString() {
-        String file = FileUtils.download(context, DENNA_IMAGE);
+        String file = FileUtils.download(context, LARGE_IMAGE);
         String expected = FileUtils.readFileIntoString(file);
 
-        assertEquals(expected, FileUtils.readURLIntoString(DENNA_IMAGE));
+        assertEquals(expected, FileUtils.readURLIntoString(LARGE_IMAGE));
     }
 
     @Test

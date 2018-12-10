@@ -40,6 +40,7 @@ import androidx.test.filters.SdkSuppress;
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static android.os.Build.VERSION_CODES.O;
+import static com.emarsys.testUtil.TestUrls.LARGE_IMAGE;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
@@ -238,7 +239,7 @@ public class MessagingServiceUtilsTest {
         Map<String, String> input = new HashMap<>();
         input.put("title", TITLE);
         input.put("body", BODY);
-        input.put("image_url", "https://ems-denna.herokuapp.com/images/Emarsys.png");
+        input.put("image_url", LARGE_IMAGE);
 
         android.app.Notification result = MessagingServiceUtils.createNotification(
                 0,

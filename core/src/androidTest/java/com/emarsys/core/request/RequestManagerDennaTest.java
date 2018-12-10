@@ -39,13 +39,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import static com.emarsys.testUtil.TestUrls.DENNA_ECHO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 
 public class RequestManagerDennaTest {
-
-    private static final String DENNA_ECHO_URL = "https://ems-denna.herokuapp.com/echo";
 
     private RequestManager manager;
     private Map<String, String> headers;
@@ -100,7 +99,7 @@ public class RequestManagerDennaTest {
 
     @Test
     public void testGet() throws Exception {
-        model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO_URL).method(RequestMethod.GET).headers(headers).build();
+        model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO).method(RequestMethod.GET).headers(headers).build();
         manager.submit(model, null);
         latch.await();
 
@@ -133,7 +132,7 @@ public class RequestManagerDennaTest {
         payload.put("key4", 4);
         payload.put("deepKey", deepPayload);
 
-        model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO_URL).method(RequestMethod.POST).headers(headers).payload(payload).build();
+        model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO).method(RequestMethod.POST).headers(headers).payload(payload).build();
         manager.submit(model, null);
         latch.await();
 
@@ -163,7 +162,7 @@ public class RequestManagerDennaTest {
 
     @Test
     public void testDelete() throws Exception {
-        model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO_URL).method(RequestMethod.DELETE).headers(headers).build();
+        model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO).method(RequestMethod.DELETE).headers(headers).build();
         manager.submit(model, null);
         latch.await();
 

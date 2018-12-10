@@ -16,6 +16,7 @@ import org.junit.rules.TestRule;
 
 import java.io.File;
 
+import static com.emarsys.testUtil.TestUrls.LARGE_IMAGE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -23,9 +24,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class ImageUtilsTest {
-
-    public static final String DENNA_IMAGE = "https://ems-denna.herokuapp.com/images/Emarsys.png";
-
     private Context context;
     private DeviceInfo deviceInfo;
 
@@ -56,7 +54,7 @@ public class ImageUtilsTest {
 
     @Test
     public void testLoadBitmap_withRemoteUrl() {
-        Bitmap bitmap = ImageUtils.loadBitmap(context, DENNA_IMAGE);
+        Bitmap bitmap = ImageUtils.loadBitmap(context, LARGE_IMAGE);
         assertNotNull(bitmap);
         assertEquals(bitmap.getWidth(), 2500);
         assertEquals(bitmap.getHeight(), 2505);
@@ -66,14 +64,14 @@ public class ImageUtilsTest {
     public void testLoadBitmap_withRemoteUrl_CleansUpTempFile() {
         clearCache();
         assertEquals(0, context.getCacheDir().list().length);
-        ImageUtils.loadBitmap(context, DENNA_IMAGE);
+        ImageUtils.loadBitmap(context, LARGE_IMAGE);
         assertEquals(0, context.getCacheDir().list().length);
     }
 
     @Test
     public void testLoadBitmap_withLocalFile_ShouldNotCleansUpLocalFile() {
         clearCache();
-        String fileUrl = FileUtils.download(context, DENNA_IMAGE);
+        String fileUrl = FileUtils.download(context, LARGE_IMAGE);
         File imageFile = new File(fileUrl);
         assertTrue(imageFile.exists());
         ImageUtils.loadBitmap(context, fileUrl);
@@ -82,7 +80,7 @@ public class ImageUtilsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testLoadOptimizedBitmap_deviceInfo_mustNotBeNull() {
-        ImageUtils.loadOptimizedBitmap(context, DENNA_IMAGE, null);
+        ImageUtils.loadOptimizedBitmap(context, LARGE_IMAGE, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -99,14 +97,14 @@ public class ImageUtilsTest {
     public void testLoadOptimizedBitmap_withRemoteUrl_CleansUpTempFile() {
         clearCache();
         assertEquals(0, context.getCacheDir().list().length);
-        ImageUtils.loadOptimizedBitmap(context, DENNA_IMAGE, deviceInfo);
+        ImageUtils.loadOptimizedBitmap(context, LARGE_IMAGE, deviceInfo);
         assertEquals(0, context.getCacheDir().list().length);
     }
 
     @Test
     public void testLoadOptimizedBitmap_withLocalFile_ShouldNotCleanUpLocalFile() {
         clearCache();
-        String fileUrl = FileUtils.download(context, DENNA_IMAGE);
+        String fileUrl = FileUtils.download(context, LARGE_IMAGE);
         File imageFile = new File(fileUrl);
         assertTrue(imageFile.exists());
         ImageUtils.loadOptimizedBitmap(context, fileUrl, deviceInfo);
@@ -120,7 +118,7 @@ public class ImageUtilsTest {
 
     @Test
     public void testLoadOptimizedBitmap_withRemoteUrl() {
-        Bitmap bitmap = ImageUtils.loadOptimizedBitmap(context, DENNA_IMAGE, deviceInfo);
+        Bitmap bitmap = ImageUtils.loadOptimizedBitmap(context, LARGE_IMAGE, deviceInfo);
         assertNotNull(bitmap);
         assertTrue(bitmap.getWidth() < 2500);
         assertTrue(bitmap.getHeight() < 2505);
