@@ -27,9 +27,10 @@ import java.util.concurrent.CountDownLatch
 
 class InAppPresenterTest {
     companion object {
-        @JvmStatic
-        val fragmentMock = mock(Fragment::class.java)
-        val activityMock = mock(AppCompatActivity::class.java)
+        init {
+            mock(Fragment::class.java)
+            mock(AppCompatActivity::class.java)
+        }
     }
 
     @Rule
@@ -45,7 +46,6 @@ class InAppPresenterTest {
     private lateinit var timestampProvider: TimestampProvider
     private lateinit var mobileEngageInternal: MobileEngageInternal
     private lateinit var activityProvider: Gettable<Activity>
-
     private lateinit var presenter: InAppPresenter
 
     @Suppress("UNCHECKED_CAST")
@@ -200,6 +200,9 @@ class InAppPresenterTest {
 
     @Test
     fun testPresent_shouldShowDialog_whenAppCompatActivity_isUsed() {
+        val fragmentMock = mock(Fragment::class.java)
+        val activityMock = mock(AppCompatActivity::class.java)
+
         val iamDialog = mock(IamDialog::class.java)
         val fragmentManager = mock(FragmentManager::class.java)
 
