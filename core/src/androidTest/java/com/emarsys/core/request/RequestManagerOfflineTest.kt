@@ -146,7 +146,7 @@ class RequestManagerOfflineTest {
         val normal2 = normal(2)
         val normal3 = normal(3)
         requestModels = arrayOf(normal1, normal2, normal3)
-        watchDogCountDown = 3
+        watchDogCountDown = 1
         completionHandlerCountDown = 0
 
         prepareTestCaseAndWait()
@@ -246,10 +246,9 @@ class RequestManagerOfflineTest {
 
         manager = RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, fakeRestClient, mock(Registry::class.java) as Registry<RequestModel, CompletionListener>)
 
-        uiHandler.post {
-            for (i in requestModels.indices) {
-                manager.submit(requestModels[i], null)
-            }
+        coreSdkHandler.post {
+            requestModels.forEach(requestRepository::add)
+            worker.run()
         }
 
         watchDogLatch.await()
