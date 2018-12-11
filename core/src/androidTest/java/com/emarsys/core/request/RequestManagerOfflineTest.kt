@@ -30,8 +30,6 @@ import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.matchers.beEmpty
 import io.kotlintest.should
 import io.kotlintest.shouldBe
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertFalse
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -46,7 +44,7 @@ import java.util.concurrent.CountDownLatch
 @RunWith(AndroidJUnit4::class)
 class RequestManagerOfflineTest {
     companion object {
-        val URL = "https://www.host.com/"
+       const val URL = "https://www.host.com/"
     }
 
     @Rule
@@ -96,7 +94,7 @@ class RequestManagerOfflineTest {
 
         prepareTestCaseAndWait()
 
-        assertFalse(requestRepository.isEmpty)
+        requestRepository.isEmpty shouldBe false
         completionHandler.latch = CountDownLatch(1)
 
         uiHandler.post { watchDog.connectionChangeListener.onConnectionChanged(ConnectionState.CONNECTED, true) }
@@ -156,7 +154,7 @@ class RequestManagerOfflineTest {
         requestRepository.isEmpty shouldBe false
 
         val result = requestRepository.query(Everything())
-        assertEquals(Arrays.asList(*requestModels), result)
+        result shouldBe requestModels.toList()
     }
 
     @Test
