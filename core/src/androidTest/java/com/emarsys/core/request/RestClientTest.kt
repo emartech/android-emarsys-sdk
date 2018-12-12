@@ -13,6 +13,7 @@ import com.emarsys.core.request.model.asRequestResult
 import com.emarsys.core.testUtil.RequestModelTestUtils
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.TestUrls
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
 import org.junit.Before
@@ -78,7 +79,7 @@ class RestClientTest {
     @Test
     fun testSendRequest_callbackWithResponseModel() {
         val handler = FakeCompletionHandler(latch)
-        val model = RequestModelTestUtils.createRequestModel(RequestMethod.POST)
+        val model = RequestModelTestUtils.createRequestModel(url = TestUrls.customResponse(405))
 
         client.execute(model, handler)
 

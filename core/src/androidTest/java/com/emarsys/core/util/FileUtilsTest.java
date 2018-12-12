@@ -3,6 +3,7 @@ package com.emarsys.core.util;
 import android.content.Context;
 
 import com.emarsys.testUtil.InstrumentationRegistry;
+import com.emarsys.testUtil.TestUrls;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -18,7 +19,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.UUID;
 
-import static com.emarsys.testUtil.TestUrls.DENNA_404;
 import static com.emarsys.testUtil.TestUrls.LARGE_IMAGE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -60,7 +60,7 @@ public class FileUtilsTest {
 
     @Test
     public void testDownload_shouldReturnNull_whenResourceDoesNotExist() {
-        assertNull(FileUtils.download(context, DENNA_404));
+        assertNull(FileUtils.download(context, TestUrls.customResponse(404)));
     }
 
     @Test
