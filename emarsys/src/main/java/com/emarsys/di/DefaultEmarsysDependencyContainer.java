@@ -36,6 +36,7 @@ import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.shard.ShardModelRepository;
 import com.emarsys.core.storage.DefaultKeyValueStore;
 import com.emarsys.core.storage.KeyValueStore;
+import com.emarsys.core.util.log.LogShard;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.MobileEngageInternal;
@@ -86,6 +87,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private PredictInternal predictInternal;
     private Handler coreSdkHandler;
     private DeviceInfo deviceInfo;
+    private Repository<LogShard, SqlSpecification> logRepository;
     private RequestContext requestContext;
     private DefaultCoreCompletionHandler completionHandler;
     private InAppPresenter inAppPresenter;
@@ -188,6 +190,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
+    public Repository<LogShard, SqlSpecification> getLogRepository() {
+        return logRepository;
+    }
+
+    @Override
     public InAppPresenter getInAppPresenter() {
         return inAppPresenter;
     }
@@ -226,6 +233,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
+        logRepository = new com.emarsys.core.util.log.LogRepository(shardModelRepository);
 
         Repository<Map<String, Object>, SqlSpecification> logRepository = new LogRepository(application);
         List<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>> logHandlers = Arrays.<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>>asList(

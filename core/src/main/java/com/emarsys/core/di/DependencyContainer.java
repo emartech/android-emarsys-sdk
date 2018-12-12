@@ -6,6 +6,9 @@ import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.database.CoreSQLiteDatabase;
+import com.emarsys.core.database.repository.Repository;
+import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.util.log.LogShard;
 
 public interface DependencyContainer {
 
@@ -18,5 +21,7 @@ public interface DependencyContainer {
     CoreSQLiteDatabase getCoreSQLiteDatabase();
 
     DeviceInfo getDeviceInfo();
+
+    Repository<LogShard, SqlSpecification> getLogRepository();
 
 }
