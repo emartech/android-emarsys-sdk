@@ -1,41 +1,64 @@
 package com.emarsys.core.util.log
 
 import android.os.Handler
+import com.emarsys.core.Convertable
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.provider.timestamp.TimestampProvider
+import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.core.shard.ShardModel
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import com.emarsys.testUtil.mockito.ThreadSpy
+import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import org.mockito.Mockito.*
 
 class LoggerTest {
 
+    companion object {
+        const val TIMESTAMP = 400L
+        const val UUID = "UUID12345"
+        const val TYPE = "log"
+        const val TTL = Long.MAX_VALUE
+    }
+
+    private lateinit var handler: Handler
+    private lateinit var shardRepositoryMock: Repository<ShardModel, SqlSpecification>
+    private lateinit var timestampProviderMock: TimestampProvider
+    private lateinit var uuidProviderMock: UUIDProvider
+    private lateinit var dependencyContainer: DependencyContainer
+
     @Rule
     @JvmField
     var timeout: TestRule = TimeoutUtils.timeoutRule
 
-    private lateinit var logShardRepository: Repository<LogShard, SqlSpecification>
-    private lateinit var handler: Handler
-    private lateinit var dependencyContainer: DependencyContainer
-
     @Before
     @Suppress("UNCHECKED_CAST")
     fun init() {
-        logShardRepository = mock(Repository::class.java) as Repository<LogShard, SqlSpecification>
+        shardRepositoryMock = mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>
         handler = CoreSdkHandlerProvider().provideHandler()
+        timestampProviderMock = mock(TimestampProvider::class.java).apply {
+            whenever(provideTimestamp()).thenReturn(TIMESTAMP)
+        }
+        uuidProviderMock = mock(UUIDProvider::class.java).apply {
+            whenever(provideId()).thenReturn(UUID)
+        }
         dependencyContainer = mock(DependencyContainer::class.java).apply {
-            whenever(logRepository).thenReturn(logShardRepository)
+            whenever(shardRepository).thenReturn(shardRepositoryMock)
             whenever(coreSdkHandler).thenReturn(handler)
+            whenever(timestampProvider).thenReturn(timestampProviderMock)
+            whenever(uuidProvider).thenReturn(uuidProviderMock)
         }
 
         DependencyInjection.setup(dependencyContainer)
@@ -49,21 +72,35 @@ class LoggerTest {
 
     @Test
     fun testLog_addsLog_toLogRepository() {
-        val shard = mock(LogShard::class.java)
+        val logContent = mapOf(
+                "key1" to "value",
+                "key2" to 3,
+                "key3" to true
+        )
 
-        Logger.log(shard)
+        Logger.log(convertableMock(logContent))
 
-        verify(logShardRepository, Mockito.timeout(100)).add(shard)
+        val captor = ArgumentCaptor.forClass(ShardModel::class.java)
+
+        verify(shardRepositoryMock, Mockito.timeout(100)).add(captor.capture())
+
+        captor.value shouldBe ShardModel(UUID, TYPE, logContent, TIMESTAMP, TTL)
     }
 
     @Test
     fun testLog_addsLog_toLogRepository_viaCoreSdkHandler() {
         val threadSpy = ThreadSpy<Unit>()
-        doAnswer(threadSpy).`when`(logShardRepository).add(ArgumentMatchers.any())
+        doAnswer(threadSpy).`when`(shardRepositoryMock).add(ArgumentMatchers.any())
 
-        Logger.log(mock(LogShard::class.java))
+        Logger.log(convertableMock())
 
         threadSpy.verifyCalledOnCoreSdkThread()
     }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun convertableMock(data: Map<String, Any> = mapOf()) =
+            (mock(Convertable::class.java) as Convertable<Map<String, Any>>).apply {
+                whenever(convert()).thenReturn(data)
+            }
 
 }

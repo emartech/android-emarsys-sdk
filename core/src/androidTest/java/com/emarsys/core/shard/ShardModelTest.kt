@@ -164,11 +164,23 @@ class ShardModelTest {
     fun testBuilder_with_allArguments() {
         val shard: ShardModel = ShardModel.Builder(timestampProvider, uuidProvider)
                 .type(TYPE)
-                .payloadEntry("type", payload)
+                .payloadEntry("key1", payload)
+                .payloadEntries(mapOf(
+                        "key2" to "value2",
+                        "key3" to 4.1415
+                ))
                 .ttl(312L)
                 .build()
 
-        val expected = ShardModel(UUID, TYPE, mapOf(TYPE to payload), TIMESTAMP, 312L)
+        val expected = ShardModel(
+                UUID,
+                TYPE,
+                mapOf(
+                        "key1" to payload,
+                        "key2" to "value2",
+                        "key3" to 4.1415),
+                TIMESTAMP,
+                312L)
 
         assertEquals(expected, shard)
     }

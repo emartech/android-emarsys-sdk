@@ -7,6 +7,11 @@ import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.database.CoreSQLiteDatabase;
+import com.emarsys.core.database.repository.Repository;
+import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.shard.ShardModel;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
@@ -22,6 +27,9 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final CurrentActivityWatchdog currentActivityWatchdog;
     private final CoreSQLiteDatabase coreSQLiteDatabase;
     private final DeviceInfo deviceInfo;
+    private final Repository<ShardModel, SqlSpecification> shardRepository;
+    private final TimestampProvider timestampProvider;
+    private final UUIDProvider uuidProvider;
     private final MobileEngageInternal mobileEngageInternal;
     private final InboxInternal inboxInternal;
     private final InAppInternal inAppInternal;
@@ -39,6 +47,9 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             CurrentActivityWatchdog currentActivityWatchdog,
             CoreSQLiteDatabase coreSQLiteDatabase,
             DeviceInfo deviceInfo,
+            Repository<ShardModel, SqlSpecification> shardRepository,
+            TimestampProvider timestampProvider,
+            UUIDProvider uuidProvider,
             MobileEngageInternal mobileEngageInternal,
             InboxInternal inboxInternal,
             InAppInternal inAppInternal,
@@ -54,6 +65,9 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
         this.currentActivityWatchdog = currentActivityWatchdog;
         this.coreSQLiteDatabase = coreSQLiteDatabase;
         this.deviceInfo = deviceInfo;
+        this.shardRepository = shardRepository;
+        this.timestampProvider = timestampProvider;
+        this.uuidProvider = uuidProvider;
         this.mobileEngageInternal = mobileEngageInternal;
         this.inboxInternal = inboxInternal;
         this.inAppInternal = inAppInternal;
@@ -89,6 +103,21 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     @Override
     public DeviceInfo getDeviceInfo() {
         return deviceInfo;
+    }
+
+    @Override
+    public Repository<ShardModel, SqlSpecification> getShardRepository() {
+        return shardRepository;
+    }
+
+    @Override
+    public TimestampProvider getTimestampProvider() {
+        return timestampProvider;
+    }
+
+    @Override
+    public UUIDProvider getUuidProvider() {
+        return uuidProvider;
     }
 
     @Override

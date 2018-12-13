@@ -36,7 +36,6 @@ import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.shard.ShardModelRepository;
 import com.emarsys.core.storage.DefaultKeyValueStore;
 import com.emarsys.core.storage.KeyValueStore;
-import com.emarsys.core.util.log.LogShard;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.MobileEngageInternal;
@@ -87,7 +86,9 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private PredictInternal predictInternal;
     private Handler coreSdkHandler;
     private DeviceInfo deviceInfo;
-    private Repository<LogShard, SqlSpecification> logRepository;
+    private Repository<ShardModel, SqlSpecification> shardModelRepository;
+    private TimestampProvider timestampProvider;
+    private UUIDProvider uuidProvider;
     private RequestContext requestContext;
     private DefaultCoreCompletionHandler completionHandler;
     private InAppPresenter inAppPresenter;
@@ -96,7 +97,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private Runnable predictShardTrigger;
 
     private Handler uiHandler;
-    private TimestampProvider timestampProvider;
     private AppLoginStorage appLoginStorage;
     private MeIdStorage meIdStorage;
     private MeIdSignatureStorage meIdSignatureStorage;
@@ -104,13 +104,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private ButtonClickedRepository buttonClickedRepository;
     private DisplayedIamRepository displayedIamRepository;
     private Repository<RequestModel, SqlSpecification> requestModelRepository;
-    private Repository<ShardModel, SqlSpecification> shardModelRepository;
     private RestClient restClient;
     private Repository<Map<String, Object>, SqlSpecification> logRepositoryProxy;
     private Application application;
     private ActivityLifecycleWatchdog activityLifecycleWatchdog;
     private CurrentActivityWatchdog currentActivityWatchdog;
-    private UUIDProvider uuidProvider;
     private KeyValueStore sharedPrefsKeyStore;
     private CurrentActivityProvider currentActivityProvider;
 
@@ -190,8 +188,18 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
-    public Repository<LogShard, SqlSpecification> getLogRepository() {
-        return logRepository;
+    public Repository<ShardModel, SqlSpecification> getShardRepository() {
+        return shardModelRepository;
+    }
+
+    @Override
+    public TimestampProvider getTimestampProvider() {
+        return timestampProvider;
+    }
+
+    @Override
+    public UUIDProvider getUuidProvider() {
+        return uuidProvider;
     }
 
     @Override
@@ -233,7 +241,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
-        logRepository = new com.emarsys.core.util.log.LogRepository(shardModelRepository);
 
         Repository<Map<String, Object>, SqlSpecification> logRepository = new LogRepository(application);
         List<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>> logHandlers = Arrays.<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>>asList(

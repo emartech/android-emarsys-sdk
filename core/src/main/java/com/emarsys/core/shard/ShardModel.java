@@ -111,6 +111,11 @@ public class ShardModel {
             return this;
         }
 
+        public Builder payloadEntries(Map<String, Object> entries) {
+            this.payload.putAll(entries);
+            return this;
+        }
+
         public ShardModel build() {
             return new ShardModel(id, type, payload, timestamp, ttl);
         }
