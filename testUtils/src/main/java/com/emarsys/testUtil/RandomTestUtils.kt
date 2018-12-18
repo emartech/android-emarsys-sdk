@@ -30,11 +30,9 @@ object RandomTestUtils {
     }
 
     @JvmStatic
-    fun randomMap(): Any {
-        val map = HashMap<String, Any>()
-        map[randomString()] = randomInt()
-        map[randomString()] = randomBool()
-        map[randomString()] = randomString()
-        return map
-    }
+    fun randomMap(): Map<String, Any> = mapOf(
+            randomString() to randomInt(),
+            randomString() to randomBool(),
+            randomString() to randomString()
+    )
 }

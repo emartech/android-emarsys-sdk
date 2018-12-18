@@ -30,4 +30,6 @@ public interface DependencyContainer {
 
     UUIDProvider getUuidProvider();
 
+    Runnable getLogShardTrigger();
+
 }

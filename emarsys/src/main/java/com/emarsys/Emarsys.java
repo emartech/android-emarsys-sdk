@@ -2,8 +2,6 @@ package com.emarsys;
 
 import android.app.Activity;
 import android.content.Intent;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.api.experimental.FlipperFeature;
@@ -30,6 +28,9 @@ import com.emarsys.predict.api.model.CartItem;
 
 import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class Emarsys {
 
@@ -261,5 +262,11 @@ public class Emarsys {
                 TriggerType.AFTER,
                 TriggerEvent.INSERT,
                 getContainer().getPredictShardTrigger());
+
+        getContainer().getCoreSQLiteDatabase().registerTrigger(
+                DatabaseContract.SHARD_TABLE_NAME,
+                TriggerType.AFTER,
+                TriggerEvent.INSERT,
+                getContainer().getLogShardTrigger());
     }
 }

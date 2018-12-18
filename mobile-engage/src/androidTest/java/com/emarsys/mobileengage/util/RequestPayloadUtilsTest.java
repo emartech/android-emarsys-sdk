@@ -248,7 +248,7 @@ public class RequestPayloadUtilsTest {
 
     @Test
     public void testCreateCompositeRequestModelPayload() {
-        List<Object> events = Arrays.asList(
+        List<?> events = Arrays.asList(
                 RandomTestUtils.randomMap(),
                 RandomTestUtils.randomMap(),
                 RandomTestUtils.randomMap()

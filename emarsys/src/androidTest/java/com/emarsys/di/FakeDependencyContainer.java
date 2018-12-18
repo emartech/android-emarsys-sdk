@@ -30,6 +30,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final Repository<ShardModel, SqlSpecification> shardRepository;
     private final TimestampProvider timestampProvider;
     private final UUIDProvider uuidProvider;
+    private final Runnable logShardTrigger;
     private final MobileEngageInternal mobileEngageInternal;
     private final InboxInternal inboxInternal;
     private final InAppInternal inAppInternal;
@@ -50,6 +51,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             Repository<ShardModel, SqlSpecification> shardRepository,
             TimestampProvider timestampProvider,
             UUIDProvider uuidProvider,
+            Runnable logShardTrigger,
             MobileEngageInternal mobileEngageInternal,
             InboxInternal inboxInternal,
             InAppInternal inAppInternal,
@@ -68,6 +70,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
         this.shardRepository = shardRepository;
         this.timestampProvider = timestampProvider;
         this.uuidProvider = uuidProvider;
+        this.logShardTrigger = logShardTrigger;
         this.mobileEngageInternal = mobileEngageInternal;
         this.inboxInternal = inboxInternal;
         this.inAppInternal = inAppInternal;
@@ -118,6 +121,11 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     @Override
     public UUIDProvider getUuidProvider() {
         return uuidProvider;
+    }
+
+    @Override
+    public Runnable getLogShardTrigger() {
+        return logShardTrigger;
     }
 
     @Override

@@ -23,6 +23,7 @@ import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.request.RequestManager;
+import com.emarsys.core.util.batch.BatchingShardTrigger;
 import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.di.FakeDependencyContainer;
@@ -45,7 +46,6 @@ import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
-import com.emarsys.predict.shard.PredictShardTrigger;
 import com.emarsys.testUtil.CollectionTestUtils;
 import com.emarsys.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
@@ -102,6 +102,7 @@ public class EmarsysTest {
     private EventHandler inappEventHandler;
     private CoreSQLiteDatabase mockCoreDatabase;
     private Runnable mockPredictShardTrigger;
+    private Runnable mockLogShardTrigger;
 
     private Application application;
     private CompletionListener completionListener;
@@ -128,7 +129,8 @@ public class EmarsysTest {
         mockDeepLinkInternal = mock(DeepLinkInternal.class);
         mockPredictInternal = mock(PredictInternal.class);
         mockCoreDatabase = mock(CoreSQLiteDatabase.class);
-        mockPredictShardTrigger = mock(PredictShardTrigger.class);
+        mockPredictShardTrigger = mock(BatchingShardTrigger.class);
+        mockLogShardTrigger = mock(BatchingShardTrigger.class);
 
         inappEventHandler = mock(EventHandler.class);
 
@@ -148,6 +150,7 @@ public class EmarsysTest {
                 null,
                 null,
                 null,
+                mockLogShardTrigger,
                 mockMobileEngageInternal,
                 mockInboxInternal,
                 mockInAppInternal,
@@ -310,6 +313,13 @@ public class EmarsysTest {
         Emarsys.setup(baseConfig);
 
         verify(mockCoreDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockPredictShardTrigger);
+    }
+
+    @Test
+    public void testSetup_registersLogTrigger() {
+        Emarsys.setup(baseConfig);
+
+        verify(mockCoreDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockLogShardTrigger);
     }
 
     @Test

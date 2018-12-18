@@ -7,6 +7,9 @@ import com.emarsys.core.util.Assert;
 
 public class FilterByShardType extends AbstractSqlSpecification {
 
+    public static final String SHARD_TYPE_PREDICT = "predict_%";
+    public static final String SHARD_TYPE_LOG = "log_%";
+
     private final String type;
 
     public FilterByShardType(String type) {

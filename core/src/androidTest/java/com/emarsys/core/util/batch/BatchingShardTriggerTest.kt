@@ -1,4 +1,4 @@
-package com.emarsys.predict.shard
+package com.emarsys.core.util.batch
 
 import com.emarsys.core.Mapper
 import com.emarsys.core.database.repository.Repository
@@ -7,50 +7,64 @@ import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.specification.FilterByShardIds
-import com.emarsys.core.shard.specification.FilterByShardType
+import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mockito
 import org.mockito.Mockito.*
 
-class PredictShardTriggerTest {
+class BatchingShardTriggerTest {
 
-    lateinit var trigger: PredictShardTrigger
+    lateinit var trigger: BatchingShardTrigger
 
     lateinit var repository: Repository<ShardModel, SqlSpecification>
+    lateinit var querySpecification: SqlSpecification
     lateinit var chunker: Mapper<List<ShardModel>, List<List<ShardModel>>>
     lateinit var merger: Mapper<List<ShardModel>, RequestModel>
     lateinit var manager: RequestManager
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     @Suppress("UNCHECKED_CAST")
     fun init() {
         repository = mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>
+        querySpecification = mock(SqlSpecification::class.java)
         chunker = mock(Mapper::class.java) as Mapper<List<ShardModel>, List<List<ShardModel>>>
         merger = mock(Mapper::class.java) as Mapper<List<ShardModel>, RequestModel>
         manager = mock(RequestManager::class.java)
 
-        trigger = PredictShardTrigger(repository, chunker, merger, manager)
+        trigger = BatchingShardTrigger(repository, querySpecification, chunker, merger, manager)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_repository_mustNotBeNull() {
-        PredictShardTrigger(null, chunker, merger, manager)
+        BatchingShardTrigger(null, querySpecification, chunker, merger, manager)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_specification_mustNotBeNull() {
+        BatchingShardTrigger(repository, null, chunker, merger, manager)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_chunker_mustNotBeNull() {
-        PredictShardTrigger(repository, null, merger, manager)
+        BatchingShardTrigger(repository, querySpecification, null, merger, manager)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_merger_mustNotBeNull() {
-        PredictShardTrigger(repository, chunker, null, manager)
+        BatchingShardTrigger(repository, querySpecification, chunker, null, manager)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_manager_mustNotBeNull() {
-        PredictShardTrigger(repository, chunker, merger, null)
+        BatchingShardTrigger(repository, querySpecification, chunker, merger, null)
     }
 
     @Test
@@ -76,7 +90,7 @@ class PredictShardTriggerTest {
         trigger.run()
 
         Mockito.inOrder(manager, repository).run {
-            this.verify(repository).query(FilterByShardType("predict_%"))
+            this.verify(repository).query(querySpecification)
             this.verify(manager, Mockito.timeout(50)).submit(requestModel1, null)
             this.verify(repository).remove(FilterByShardIds(listOf(shard1)))
             this.verify(manager, Mockito.timeout(50)).submit(requestModel2, null)
@@ -90,11 +104,11 @@ class PredictShardTriggerTest {
 
     @Test
     fun testRun_doesNothing_whenQueryReturns_emptyList() {
-        `when`(repository.query(FilterByShardType("predict_%"))).thenReturn(listOf())
+        whenever(repository.query(querySpecification)).thenReturn(listOf())
 
         trigger.run()
 
-        verify(repository).query(FilterByShardType("predict_%"))
+        verify(repository).query(querySpecification)
         verifyNoMoreInteractions(repository)
         verifyZeroInteractions(chunker)
         verifyZeroInteractions(merger)
@@ -116,12 +130,12 @@ class PredictShardTriggerTest {
 
         val chunkedShards = shards.map { listOf(it) }
 
-        `when`(repository.query(FilterByShardType("predict_%"))).thenReturn(shards)
+        whenever(repository.query(querySpecification)).thenReturn(shards)
 
-        `when`(chunker.map(shards)).thenReturn(chunkedShards)
+        whenever(chunker.map(shards)).thenReturn(chunkedShards)
 
         chunkedShards.forEachIndexed { i, chunkedShardList ->
-            `when`(merger.map(chunkedShardList)).thenReturn(requestModels[i])
+            whenever(merger.map(chunkedShardList)).thenReturn(requestModels[i])
         }
 
         return MockObjects(shards, requestModels)

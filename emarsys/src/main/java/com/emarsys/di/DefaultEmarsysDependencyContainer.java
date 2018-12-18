@@ -34,8 +34,12 @@ import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.shard.ShardModelRepository;
+import com.emarsys.core.shard.specification.FilterByShardType;
 import com.emarsys.core.storage.DefaultKeyValueStore;
 import com.emarsys.core.storage.KeyValueStore;
+import com.emarsys.core.util.batch.BatchingShardTrigger;
+import com.emarsys.core.util.batch.ListChunker;
+import com.emarsys.core.util.log.LogShardListMerger;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.MobileEngageInternal;
@@ -65,9 +69,7 @@ import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
-import com.emarsys.predict.shard.PredictShardListChunker;
 import com.emarsys.predict.shard.PredictShardListMerger;
-import com.emarsys.predict.shard.PredictShardTrigger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,6 +91,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private Repository<ShardModel, SqlSpecification> shardModelRepository;
     private TimestampProvider timestampProvider;
     private UUIDProvider uuidProvider;
+    private Runnable logShardTrigger;
     private RequestContext requestContext;
     private DefaultCoreCompletionHandler completionHandler;
     private InAppPresenter inAppPresenter;
@@ -203,6 +206,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
+    public Runnable getLogShardTrigger() {
+        return logShardTrigger;
+    }
+
+    @Override
     public InAppPresenter getInAppPresenter() {
         return inAppPresenter;
     }
@@ -282,15 +290,23 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
         notificationEventHandler = config.getNotificationEventHandler();
 
-        predictShardTrigger = new PredictShardTrigger(
+        predictShardTrigger = new BatchingShardTrigger(
                 shardModelRepository,
-                new PredictShardListChunker(),
+                new FilterByShardType(FilterByShardType.SHARD_TYPE_PREDICT),
+                new ListChunker<ShardModel>(1),
                 new PredictShardListMerger(
                         config.getPredictMerchantId(),
                         sharedPrefsKeyStore,
                         timestampProvider,
                         uuidProvider,
                         deviceInfo),
+                requestManager);
+
+        logShardTrigger = new BatchingShardTrigger(
+                shardModelRepository,
+                new FilterByShardType(FilterByShardType.SHARD_TYPE_LOG),
+                new ListChunker<ShardModel>(10),
+                new LogShardListMerger(timestampProvider, uuidProvider),
                 requestManager);
 
         mobileEngageInternal = new MobileEngageInternal(
