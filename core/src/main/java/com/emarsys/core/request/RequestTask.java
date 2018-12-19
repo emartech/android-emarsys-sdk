@@ -14,6 +14,8 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.JsonUtils;
 import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
+import com.emarsys.core.util.log.Logger;
+import com.emarsys.core.util.log.entry.InDatabaseTime;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -62,7 +64,7 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
         EMSLogger.log(CoreTopic.NETWORKING, "RequestModel: %s", requestModel);
 
         long dbEnd = timestampProvider.provideTimestamp();
-        logMetric("in_database_time", requestModel.getTimestamp(), dbEnd);
+        Logger.log(new InDatabaseTime(requestModel, dbEnd));
 
         HttpsURLConnection connection = null;
         try {
