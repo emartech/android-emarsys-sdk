@@ -7,12 +7,14 @@ import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.specification.FilterByShardIds
+import com.emarsys.core.util.predicate.Predicate
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import org.mockito.Mockito.*
 
@@ -21,6 +23,7 @@ class BatchingShardTriggerTest {
     lateinit var trigger: BatchingShardTrigger
 
     lateinit var repository: Repository<ShardModel, SqlSpecification>
+    lateinit var predicate: Predicate<List<ShardModel>>
     lateinit var querySpecification: SqlSpecification
     lateinit var chunker: Mapper<List<ShardModel>, List<List<ShardModel>>>
     lateinit var merger: Mapper<List<ShardModel>, RequestModel>
@@ -34,37 +37,45 @@ class BatchingShardTriggerTest {
     @Suppress("UNCHECKED_CAST")
     fun init() {
         repository = mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>
+        predicate = (mock(Predicate::class.java) as Predicate<List<ShardModel>>).apply {
+            whenever(this.evaluate(ArgumentMatchers.anyList())).thenReturn(true)
+        }
         querySpecification = mock(SqlSpecification::class.java)
         chunker = mock(Mapper::class.java) as Mapper<List<ShardModel>, List<List<ShardModel>>>
         merger = mock(Mapper::class.java) as Mapper<List<ShardModel>, RequestModel>
         manager = mock(RequestManager::class.java)
 
-        trigger = BatchingShardTrigger(repository, querySpecification, chunker, merger, manager)
+        trigger = BatchingShardTrigger(repository, predicate, querySpecification, chunker, merger, manager)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_repository_mustNotBeNull() {
-        BatchingShardTrigger(null, querySpecification, chunker, merger, manager)
+        BatchingShardTrigger(null, predicate, querySpecification, chunker, merger, manager)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_predicate_mustNotBeNull() {
+        BatchingShardTrigger(repository, null, querySpecification, chunker, merger, manager)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_specification_mustNotBeNull() {
-        BatchingShardTrigger(repository, null, chunker, merger, manager)
+        BatchingShardTrigger(repository, predicate, null, chunker, merger, manager)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_chunker_mustNotBeNull() {
-        BatchingShardTrigger(repository, querySpecification, null, merger, manager)
+        BatchingShardTrigger(repository, predicate, querySpecification, null, merger, manager)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_merger_mustNotBeNull() {
-        BatchingShardTrigger(repository, querySpecification, chunker, null, manager)
+        BatchingShardTrigger(repository, predicate, querySpecification, chunker, null, manager)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_manager_mustNotBeNull() {
-        BatchingShardTrigger(repository, querySpecification, chunker, merger, null)
+        BatchingShardTrigger(repository, predicate, querySpecification, chunker, merger, null)
     }
 
     @Test
@@ -103,8 +114,8 @@ class BatchingShardTriggerTest {
     }
 
     @Test
-    fun testRun_doesNothing_whenQueryReturns_emptyList() {
-        whenever(repository.query(querySpecification)).thenReturn(listOf())
+    fun testRun_doesNothing_whenPredicateReturns_false() {
+        whenever(predicate.evaluate(ArgumentMatchers.anyList())).thenReturn(false)
 
         trigger.run()
 

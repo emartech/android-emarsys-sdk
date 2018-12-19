@@ -40,6 +40,7 @@ import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.batch.BatchingShardTrigger;
 import com.emarsys.core.util.batch.ListChunker;
 import com.emarsys.core.util.log.LogShardListMerger;
+import com.emarsys.core.util.predicate.ListSizeAtLeast;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.MobileEngageInternal;
@@ -292,6 +293,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         predictShardTrigger = new BatchingShardTrigger(
                 shardModelRepository,
+                new ListSizeAtLeast<ShardModel>(1),
                 new FilterByShardType(FilterByShardType.SHARD_TYPE_PREDICT),
                 new ListChunker<ShardModel>(1),
                 new PredictShardListMerger(
@@ -304,6 +306,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         logShardTrigger = new BatchingShardTrigger(
                 shardModelRepository,
+                new ListSizeAtLeast<ShardModel>(10),
                 new FilterByShardType(FilterByShardType.SHARD_TYPE_LOG),
                 new ListChunker<ShardModel>(10),
                 new LogShardListMerger(timestampProvider, uuidProvider),
