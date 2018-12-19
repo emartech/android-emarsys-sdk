@@ -19,7 +19,11 @@ public class DependencyInjection {
             throw new IllegalStateException("DependencyInjection must be setup before accessing container!");
         }
 
-        return (T)container;
+        return (T) container;
+    }
+
+    public static boolean isSetup() {
+        return container != null;
     }
 
 }

@@ -3,9 +3,8 @@ package com.emarsys.core.di;
 import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
-import junit.framework.Assert;
-
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,6 +69,26 @@ public class DependencyInjectionTest {
         DependencyInjection.tearDown();
 
         DependencyInjection.getContainer();
+    }
+
+    @Test
+    public void testIsSetUp_returnsTrue_ifInitialized() {
+        DependencyInjection.setup(mock(DependencyContainer.class));
+
+        Assert.assertTrue(DependencyInjection.isSetup());
+    }
+
+    @Test
+    public void testIsSetUp_returnsFalse_withoutInitialization() {
+        Assert.assertFalse(DependencyInjection.isSetup());
+    }
+
+    @Test
+    public void testIsSetUp_returnsFalse_afterTeardown() {
+        DependencyInjection.setup(mock(DependencyContainer.class));
+        DependencyInjection.tearDown();
+
+        Assert.assertFalse(DependencyInjection.isSetup());
     }
 
 }
