@@ -1,7 +1,6 @@
 package com.emarsys.core.util.log
 
 import android.os.Handler
-import com.emarsys.core.Convertable
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
@@ -10,6 +9,7 @@ import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
+import com.emarsys.core.util.log.entry.LogEntry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import com.emarsys.testUtil.mockito.ThreadSpy
@@ -77,7 +77,7 @@ class LoggerTest {
                 "key3" to true
         )
 
-        Logger.log(logTopicMock("crash"), convertableMock(logContent))
+        Logger.log(logEntryMock("log_crash", logContent))
 
         val captor = ArgumentCaptor.forClass(ShardModel::class.java)
 
@@ -96,20 +96,14 @@ class LoggerTest {
         val threadSpy = ThreadSpy<Unit>()
         doAnswer(threadSpy).`when`(shardRepositoryMock).add(ArgumentMatchers.any())
 
-        Logger.log(logTopicMock(), convertableMock())
+        Logger.log(logEntryMock())
 
         threadSpy.verifyCalledOnCoreSdkThread()
     }
 
-    private fun logTopicMock(topic: String = "") =
-            mock(LogTopic::class.java).apply {
+    private fun logEntryMock(topic: String = "", data: Map<String, Any> = mapOf()) =
+            mock(LogEntry::class.java).apply {
+                whenever(getData()).thenReturn(data)
                 whenever(getTopic()).thenReturn(topic)
             }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun convertableMock(data: Map<String, Any> = mapOf()) =
-            (mock(Convertable::class.java) as Convertable<Map<String, Any>>).apply {
-                whenever(convert()).thenReturn(data)
-            }
-
 }
