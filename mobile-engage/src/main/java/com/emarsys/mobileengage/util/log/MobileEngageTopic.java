@@ -27,14 +27,14 @@ public enum MobileEngageTopic implements LogTopic {
      */
     IDLING_RESOURCE("ems_idling_resource");
 
-    private String tag;
+    private String topic;
 
-    MobileEngageTopic(String tag) {
-        this.tag = tag;
+    MobileEngageTopic(String topic) {
+        this.topic = topic;
     }
 
     @Override
-    public String getTag() {
-        return tag;
+    public String getTopic() {
+        return topic;
     }
 }

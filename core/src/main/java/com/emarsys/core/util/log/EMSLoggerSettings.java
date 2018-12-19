@@ -12,7 +12,7 @@ public class EMSLoggerSettings {
 
     public static void enableLogging(LogTopic... topics) {
         for (LogTopic topic : topics) {
-            EMSLoggerSettings.topics.add(topic.getTag());
+            EMSLoggerSettings.topics.add(topic.getTopic());
         }
     }
 
@@ -21,6 +21,6 @@ public class EMSLoggerSettings {
     }
 
     static boolean isEnabled(LogTopic topic) {
-        return allEnabled || topics.contains(topic.getTag());
+        return allEnabled || topics.contains(topic.getTopic());
     }
 }

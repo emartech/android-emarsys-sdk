@@ -9,13 +9,13 @@ public class EMSLogger {
 
     public static void log(LogTopic topic, String message) {
         if (EMSLoggerSettings.isEnabled(topic)) {
-            log(topic.getTag(), message);
+            log(topic.getTopic(), message);
         }
     }
 
     public static void log(LogTopic topic, String message, Object... args) {
         if (EMSLoggerSettings.isEnabled(topic)) {
-            log(topic.getTag(), String.format(message, args));
+            log(topic.getTopic(), String.format(message, args));
         }
     }
 

@@ -26,14 +26,14 @@ public enum CoreTopic implements LogTopic {
      */
     UTIL("ems_util");
 
-    private String tag;
+    private String topic;
 
-    CoreTopic(String tag) {
-        this.tag = tag;
+    CoreTopic(String topic) {
+        this.topic = topic;
     }
 
     @Override
-    public String getTag() {
-        return tag;
+    public String getTopic() {
+        return topic;
     }
 }
