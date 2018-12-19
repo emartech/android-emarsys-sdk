@@ -29,7 +29,6 @@ class LoggerTest {
     companion object {
         const val TIMESTAMP = 400L
         const val UUID = "UUID12345"
-        const val TYPE = "log"
         const val TTL = Long.MAX_VALUE
     }
 
@@ -78,13 +77,18 @@ class LoggerTest {
                 "key3" to true
         )
 
-        Logger.log(convertableMock(logContent))
+        Logger.log(logTopicMock("crash"), convertableMock(logContent))
 
         val captor = ArgumentCaptor.forClass(ShardModel::class.java)
 
         verify(shardRepositoryMock, Mockito.timeout(100)).add(captor.capture())
 
-        captor.value shouldBe ShardModel(UUID, TYPE, logContent, TIMESTAMP, TTL)
+        captor.value shouldBe ShardModel(
+                UUID,
+                "log_crash",
+                logContent,
+                TIMESTAMP,
+                TTL)
     }
 
     @Test
@@ -92,10 +96,15 @@ class LoggerTest {
         val threadSpy = ThreadSpy<Unit>()
         doAnswer(threadSpy).`when`(shardRepositoryMock).add(ArgumentMatchers.any())
 
-        Logger.log(convertableMock())
+        Logger.log(logTopicMock(), convertableMock())
 
         threadSpy.verifyCalledOnCoreSdkThread()
     }
+
+    private fun logTopicMock(topic: String = "") =
+            mock(LogTopic::class.java).apply {
+                whenever(getTopic()).thenReturn(topic)
+            }
 
     @Suppress("UNCHECKED_CAST")
     private fun convertableMock(data: Map<String, Any> = mapOf()) =

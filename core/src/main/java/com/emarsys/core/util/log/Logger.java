@@ -15,12 +15,12 @@ import java.util.Map;
 
 public class Logger {
 
-    public static void log(final Convertable<Map<String, Object>> logContent) {
+    public static void log(final LogTopic logTopic, final Convertable<Map<String, Object>> logContent) {
         coreSdkHandler().post(new Runnable() {
             @Override
             public void run() {
                 ShardModel shard = new ShardModel.Builder(timestampProvider(), uuidProvider())
-                        .type("log")
+                        .type(String.format("log_%s", logTopic.getTopic()))
                         .payloadEntries(logContent.convert())
                         .build();
                 shardRepository().add(shard);
