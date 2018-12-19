@@ -14,16 +14,18 @@ import com.emarsys.core.util.log.entry.LogEntry;
 public class Logger {
 
     public static void log(final LogEntry logEntry) {
-        coreSdkHandler().post(new Runnable() {
-            @Override
-            public void run() {
-                ShardModel shard = new ShardModel.Builder(timestampProvider(), uuidProvider())
-                        .type(logEntry.getTopic())
-                        .payloadEntries(logEntry.getData())
-                        .build();
-                shardRepository().add(shard);
-            }
-        });
+        if (DependencyInjection.isSetup()) {
+            coreSdkHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    ShardModel shard = new ShardModel.Builder(timestampProvider(), uuidProvider())
+                            .type(logEntry.getTopic())
+                            .payloadEntries(logEntry.getData())
+                            .build();
+                    shardRepository().add(shard);
+                }
+            });
+        }
     }
 
     private static DependencyContainer container() {
