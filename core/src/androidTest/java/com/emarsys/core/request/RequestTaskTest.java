@@ -108,34 +108,6 @@ public class RequestTaskTest {
     }
 
     @Test
-    public void testDoInBackground_savesInDatabaseTime() {
-        RequestModel requestModel = new RequestModel(DENNA_ECHO,
-                RequestMethod.GET,
-                null,
-                new HashMap<String, String>(),
-                400L,
-                Long.MAX_VALUE,
-                "123");
-
-        RequestTask requestTask = new RequestTask(
-                requestModel,
-                coreCompletionHandler,
-                connectionProvider,
-                logRepository,
-                timestampProvider);
-
-        requestTask.doInBackground();
-
-        Map<String, Object> inDbMetric = createMetricFromRequestModel(
-                requestModel,
-                IN_DATABASE,
-                requestModel.getTimestamp(),
-                TIMESTAMP_1);
-
-        verify(logRepository).add(inDbMetric);
-    }
-
-    @Test
     public void testDoInBackground_savesNetworkingTime() {
         RequestModel requestModel = new RequestModel(DENNA_ECHO,
                 RequestMethod.GET,
@@ -161,36 +133,6 @@ public class RequestTaskTest {
                 TIMESTAMP_2);
 
         verify(logRepository).add(networkingMetric);
-    }
-
-    @Test
-    public void testDoInBackground_savesOnlyInDatabaseTime_inCaseOfNetworkingError() {
-        RequestModel requestModel = new RequestModel(
-                WRONG_URL,
-                RequestMethod.GET,
-                null,
-                new HashMap<String, String>(),
-                400L,
-                Long.MAX_VALUE,
-                "123");
-
-        RequestTask requestTask = new RequestTask(
-                requestModel,
-                coreCompletionHandler,
-                connectionProvider,
-                logRepository,
-                timestampProvider);
-
-        requestTask.doInBackground();
-
-        Map<String, Object> inDbMetric = createMetricFromRequestModel(
-                requestModel,
-                IN_DATABASE,
-                requestModel.getTimestamp(),
-                TIMESTAMP_1);
-
-        verify(logRepository).add(inDbMetric);
-        verifyNoMoreInteractions(logRepository);
     }
 
     @Test
