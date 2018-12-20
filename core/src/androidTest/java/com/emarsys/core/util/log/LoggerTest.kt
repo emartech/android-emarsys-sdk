@@ -46,7 +46,7 @@ class LoggerTest {
     @Suppress("UNCHECKED_CAST")
     fun init() {
         shardRepositoryMock = mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>
-        handler = spy(CoreSdkHandlerProvider().provideHandler())
+        handler = CoreSdkHandlerProvider().provideHandler()
         timestampProviderMock = mock(TimestampProvider::class.java).apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
@@ -103,6 +103,10 @@ class LoggerTest {
 
     @Test
     fun testLog_doesNotLogAnything_ifDependencyInjection_isNotSetup() {
+        DependencyInjection.tearDown()
+        handler = spy(handler)
+        whenever(dependencyContainer.coreSdkHandler).thenReturn(handler)
+        DependencyInjection.setup(dependencyContainer)
         DependencyInjection.tearDown()
 
         Logger.log(logEntryMock())
