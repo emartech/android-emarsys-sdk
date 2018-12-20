@@ -108,34 +108,6 @@ public class RequestTaskTest {
     }
 
     @Test
-    public void testDoInBackground_savesNetworkingTime() {
-        RequestModel requestModel = new RequestModel(DENNA_ECHO,
-                RequestMethod.GET,
-                null,
-                new HashMap<String, String>(),
-                400L,
-                Long.MAX_VALUE,
-                "123");
-
-        RequestTask requestTask = new RequestTask(
-                requestModel,
-                coreCompletionHandler,
-                connectionProvider,
-                logRepository,
-                timestampProvider);
-
-        requestTask.doInBackground();
-
-        Map<String, Object> networkingMetric = createMetricFromRequestModel(
-                requestModel,
-                NETWORKING_TIME,
-                TIMESTAMP_1,
-                TIMESTAMP_2);
-
-        verify(logRepository).add(networkingMetric);
-    }
-
-    @Test
     public void testDoInBackground_shouldBeResilientToRuntimeExceptions() throws IOException {
         String id = "123";
         connectionProvider = mock(ConnectionProvider.class);
@@ -161,14 +133,6 @@ public class RequestTaskTest {
         } catch (Exception e) {
             Assert.fail("Request Task should handle exception: " + e.getMessage());
         }
-    }
-
-    private Map<String, Object> createMetricFromRequestModel(RequestModel requestModel, String metricName, long start, long end) {
-        HashMap<String, Object> metric = new HashMap<>();
-        metric.put("request_id", requestModel.getId());
-        metric.put(metricName, end - start);
-        metric.put("url", requestModel.getUrl().toString());
-        return metric;
     }
 
 }

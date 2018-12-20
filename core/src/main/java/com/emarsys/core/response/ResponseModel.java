@@ -24,7 +24,7 @@ public class ResponseModel {
     private final long timestamp;
     private final RequestModel requestModel;
 
-    ResponseModel(
+    public ResponseModel(
             int statusCode,
             String message,
             Map<String, String> headers,

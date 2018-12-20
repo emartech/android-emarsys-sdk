@@ -16,13 +16,13 @@ import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.log.entry.InDatabaseTime;
+import com.emarsys.core.util.log.entry.NetworkingTime;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,7 +75,7 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
             sendBody(connection, requestModel);
             responseModel = readResponse(connection);
 
-            logMetric("networking_time", dbEnd, responseModel.getTimestamp());
+            Logger.log(new NetworkingTime(responseModel, dbEnd));
         } catch (Exception e) {
             exception = e;
         } finally {
@@ -108,19 +108,6 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
 
     public CoreCompletionHandler getHandler() {
         return handler;
-    }
-
-
-    private void logMetric(
-            String metricName,
-            long start,
-            long end) {
-        Map<String, Object> metric = new HashMap<>();
-        metric.put("request_id", requestModel.getId());
-        metric.put(metricName, end - start);
-        metric.put("url", requestModel.getUrl().toString());
-
-        logRepository.add(metric);
     }
 
     private void initializeConnection(HttpsURLConnection connection, RequestModel model) throws IOException {
