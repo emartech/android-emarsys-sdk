@@ -29,7 +29,6 @@ class RestClientTest {
     private lateinit var client: RestClient
     private lateinit var latch: CountDownLatch
 
-    private lateinit var logRepository: Repository<Map<String, Any>, SqlSpecification>
     private lateinit var timestampProvider: TimestampProvider
     private lateinit var connectionProvider: ConnectionProvider
 
@@ -42,26 +41,20 @@ class RestClientTest {
     fun setup() {
         ConnectionTestUtils.checkConnection(InstrumentationRegistry.getTargetContext())
 
-        logRepository = mock(Repository::class.java) as Repository<Map<String, Any>, SqlSpecification>
         timestampProvider = mock(TimestampProvider::class.java)
         connectionProvider = ConnectionProvider()
-        client = RestClient(logRepository, connectionProvider, timestampProvider)
+        client = RestClient(connectionProvider, timestampProvider)
         latch = CountDownLatch(1)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_logRepository_mustNotBeNull() {
-        RestClient(null, connectionProvider, timestampProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
     fun testConstructor_connectionProvider_mustNotBeNull() {
-        RestClient(logRepository, null, timestampProvider)
+        RestClient(null, timestampProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_timestampProvider_mustNotBeNull() {
-        RestClient(logRepository, connectionProvider, null)
+        RestClient(connectionProvider, null)
     }
 
     @Test

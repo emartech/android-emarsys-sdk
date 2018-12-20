@@ -94,7 +94,7 @@ public class RequestManagerTest {
 
         completionHandlerLatch = new CountDownLatch(1);
         handler = new FakeCompletionHandler(completionHandlerLatch);
-        RestClient restClient = new RestClient(mock(Repository.class), new ConnectionProvider(), mock(TimestampProvider.class));
+        RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class));
         restClientMock = mock(RestClient.class);
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, coreSdkHandler, handler, restClient);
         manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClientMock, callbackRegistry);

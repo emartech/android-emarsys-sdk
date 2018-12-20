@@ -22,10 +22,7 @@ import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import static com.emarsys.testUtil.TestUrls.DENNA_ECHO;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class RequestTaskTest {
@@ -63,7 +60,6 @@ public class RequestTaskTest {
                 null,
                 coreCompletionHandler,
                 connectionProvider,
-                logRepository,
                 timestampProvider);
     }
 
@@ -73,7 +69,6 @@ public class RequestTaskTest {
                 requestModel,
                 null,
                 connectionProvider,
-                logRepository,
                 timestampProvider);
     }
 
@@ -82,17 +77,6 @@ public class RequestTaskTest {
         new RequestTask(
                 requestModel,
                 coreCompletionHandler,
-                null,
-                logRepository,
-                timestampProvider);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_logRepositoryMustNotBeNull() {
-        new RequestTask(
-                requestModel,
-                coreCompletionHandler,
-                connectionProvider,
                 null,
                 timestampProvider);
     }
@@ -103,7 +87,6 @@ public class RequestTaskTest {
                 requestModel,
                 coreCompletionHandler,
                 connectionProvider,
-                logRepository,
                 null);
     }
 
@@ -126,7 +109,7 @@ public class RequestTaskTest {
 
         when(connectionProvider.provideConnection(requestModel)).thenReturn(connection);
 
-        RequestTask requestTask = new RequestTask(requestModel, coreCompletionHandler, connectionProvider, logRepository, timestampProvider);
+        RequestTask requestTask = new RequestTask(requestModel, coreCompletionHandler, connectionProvider, timestampProvider);
 
         try {
             requestTask.doInBackground();

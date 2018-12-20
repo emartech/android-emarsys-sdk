@@ -5,7 +5,6 @@ import android.os.Looper;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.connection.ConnectionProvider;
-import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestModel;
@@ -31,7 +30,7 @@ public class FakeRestClient extends RestClient {
 
     @SuppressWarnings("unchecked")
     public FakeRestClient(List<ResponseModel> responses, Mode mode) {
-        super(mock(Repository.class), mock(ConnectionProvider.class), mock(TimestampProvider.class));
+        super(mock(ConnectionProvider.class), mock(TimestampProvider.class));
         this.responses = new ArrayList<>(responses);
         this.mode = mode;
     }
@@ -42,7 +41,7 @@ public class FakeRestClient extends RestClient {
 
     @SuppressWarnings("unchecked")
     public FakeRestClient(List<Exception> exceptions) {
-        super(mock(Repository.class), mock(ConnectionProvider.class), mock(TimestampProvider.class));
+        super(mock(ConnectionProvider.class), mock(TimestampProvider.class));
         this.exceptions = new ArrayList<>(exceptions);
         this.mode = Mode.ERROR_EXCEPTION;
     }

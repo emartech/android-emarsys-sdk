@@ -256,7 +256,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 new IamMetricsLogHandler(new HashMap<String, Map<String, Object>>())
         );
         logRepositoryProxy = new LogRepositoryProxy(logRepository, logHandlers);
-        restClient = new RestClient(logRepositoryProxy, new ConnectionProvider(), timestampProvider);
+        restClient = new RestClient(new ConnectionProvider(), timestampProvider);
 
         ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(application, coreSdkHandler);
         Worker worker = new DefaultWorker(

@@ -4,8 +4,6 @@ import android.os.AsyncTask;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.connection.ConnectionProvider;
-import com.emarsys.core.database.repository.Repository;
-import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
@@ -35,7 +33,6 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
     private final RequestModel requestModel;
     private final CoreCompletionHandler handler;
     private final ConnectionProvider connectionProvider;
-    private Repository<Map<String, Object>, SqlSpecification> logRepository;
     private TimestampProvider timestampProvider;
 
     private ResponseModel responseModel;
@@ -45,17 +42,14 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
             RequestModel requestModel,
             CoreCompletionHandler handler,
             ConnectionProvider connectionProvider,
-            Repository<Map<String, Object>, SqlSpecification> logRepository,
             TimestampProvider timestampProvider) {
         Assert.notNull(requestModel, "RequestModel must not be null!");
         Assert.notNull(handler, "CoreCompletionHandler must not be null!");
         Assert.notNull(connectionProvider, "ConnectionProvider must not be null!");
-        Assert.notNull(logRepository, "LogRepository must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         this.requestModel = requestModel;
         this.handler = handler;
         this.connectionProvider = connectionProvider;
-        this.logRepository = logRepository;
         this.timestampProvider = timestampProvider;
     }
 
