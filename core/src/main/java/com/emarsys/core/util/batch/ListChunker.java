@@ -24,15 +24,13 @@ public class ListChunker<T> implements Mapper<List<T>, List<List<T>>> {
         Assert.elementsNotNull(shards, "Shard elements must not be null!");
 
         List<List<T>> result = new ArrayList<>();
-        int chunkStartIndex = 0;
-        while (chunkStartIndex < shards.size()) {
-            List<T> chunk = new ArrayList<>();
-            for (int i = 0; i < chunkSize && chunkStartIndex + i < shards.size(); i++) {
-                chunk.add(shards.get(chunkStartIndex + i));
-            }
-            result.add(chunk);
-            chunkStartIndex += chunkSize;
+        int length = shards.size();
+
+        for (int chunkStartIndex = 0; chunkStartIndex < length; chunkStartIndex += chunkSize) {
+            int chunkLength = chunkStartIndex + chunkSize < length ? chunkSize : length - chunkStartIndex;
+            result.add(shards.subList(chunkStartIndex, chunkStartIndex + chunkLength));
         }
+
         return result;
     }
 
