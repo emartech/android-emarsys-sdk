@@ -13,7 +13,7 @@ public class NetworkingTime implements LogEntry {
         long end = responseModel.getTimestamp();
 
         data = new HashMap<>();
-        data.put("id", responseModel.getRequestModel().getId());
+        data.put("request_id", responseModel.getRequestModel().getId());
         data.put("start", start);
         data.put("end", end);
         data.put("duration", end - start);

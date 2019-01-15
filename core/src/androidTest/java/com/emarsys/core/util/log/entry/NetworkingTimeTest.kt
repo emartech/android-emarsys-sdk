@@ -62,7 +62,7 @@ class NetworkingTimeTest{
                 "end" to REQUEST_ENDED,
                 "duration" to REQUEST_ENDED - REQUEST_STARTED,
                 "url" to URL.toString(),
-                "id" to ID,
+                "request_id" to ID,
                 "response_code" to RESPONSE_CODE
         )
 

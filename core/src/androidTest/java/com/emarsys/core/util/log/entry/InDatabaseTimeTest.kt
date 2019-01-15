@@ -46,7 +46,7 @@ class InDatabaseTimeTest {
     fun testGetData() {
         val result = inDbTime.data
         val expected = mapOf(
-                "id" to ID,
+                "request_id" to ID,
                 "start" to REQUEST_MODEL_CREATED,
                 "end" to REQUEST_MODEL_SENT,
                 "duration" to REQUEST_MODEL_SENT - REQUEST_MODEL_CREATED,

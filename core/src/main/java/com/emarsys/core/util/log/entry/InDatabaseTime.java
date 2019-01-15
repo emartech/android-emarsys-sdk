@@ -13,7 +13,7 @@ public class InDatabaseTime implements LogEntry {
         long start = requestModel.getTimestamp();
 
         data = new HashMap<>();
-        data.put("id", requestModel.getId());
+        data.put("request_id", requestModel.getId());
         data.put("start", start);
         data.put("end", end);
         data.put("duration", end - start);
