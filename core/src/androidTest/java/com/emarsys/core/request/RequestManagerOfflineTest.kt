@@ -3,6 +3,7 @@ package com.emarsys.core.request
 import android.os.Handler
 import android.os.Looper
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
@@ -242,7 +243,14 @@ class RequestManagerOfflineTest {
 
         worker = DefaultWorker(requestRepository, watchDog, uiHandler, coreSdkHandler, completionHandler, fakeRestClient)
 
-        manager = RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, fakeRestClient, mock(Registry::class.java) as Registry<RequestModel, CompletionListener>)
+        manager = RequestManager(
+                coreSdkHandler,
+                requestRepository,
+                shardRepository,
+                worker,
+                fakeRestClient,
+                mock(Registry::class.java) as Registry<RequestModel, CompletionListener>,
+                mock(CoreCompletionHandler::class.java) )
 
         coreSdkHandler.post {
             requestModels.forEach(requestRepository::add)

@@ -273,6 +273,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 shardModelRepository,
                 worker,
                 restClient,
+                getCoreCompletionHandler(),
                 getCoreCompletionHandler());
 
         requestContext = new RequestContext(
@@ -302,7 +303,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                         timestampProvider,
                         uuidProvider,
                         deviceInfo),
-                requestManager);
+                requestManager,
+                BatchingShardTrigger.RequestStrategy.PERSISTENT);
 
         logShardTrigger = new BatchingShardTrigger(
                 shardModelRepository,
@@ -310,7 +312,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 new FilterByShardType(FilterByShardType.SHARD_TYPE_LOG),
                 new ListChunker<ShardModel>(10),
                 new LogShardListMerger(timestampProvider, uuidProvider),
-                requestManager);
+                requestManager,
+                BatchingShardTrigger.RequestStrategy.TRANSIENT);
 
         mobileEngageInternal = new MobileEngageInternal(
                 requestManager,

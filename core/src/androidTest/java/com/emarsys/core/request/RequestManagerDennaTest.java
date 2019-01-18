@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.Registry;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionProvider;
@@ -84,7 +85,14 @@ public class RequestManagerDennaTest {
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, coreSdkHandler, fakeCompletionHandler, restClient);
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
-        manager = new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClient, mock(Registry.class));
+        manager = new RequestManager(
+                coreSdkHandler,
+                requestRepository,
+                shardRepository,
+                worker,
+                restClient,
+                mock(Registry.class),
+                mock(CoreCompletionHandler.class));
         headers = new HashMap<>();
         headers.put("accept", "application/json");
         headers.put("content", "application/x-www-form-urlencoded");

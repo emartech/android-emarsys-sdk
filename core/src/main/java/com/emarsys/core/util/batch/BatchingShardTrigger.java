@@ -13,12 +13,18 @@ import com.emarsys.core.util.predicate.Predicate;
 import java.util.List;
 
 public class BatchingShardTrigger implements Runnable {
+
+    public enum RequestStrategy{
+        PERSISTENT, TRANSIENT
+    }
+
     private final Repository<ShardModel, SqlSpecification> repository;
     private final Predicate<List<ShardModel>> predicate;
     private final SqlSpecification querySpecification;
     private final Mapper<List<ShardModel>, List<List<ShardModel>>> chunker;
     private final Mapper<List<ShardModel>, RequestModel> merger;
     private final RequestManager requestManager;
+    private final RequestStrategy requestStrategy;
 
     public BatchingShardTrigger(
             Repository<ShardModel, SqlSpecification> repository,
@@ -26,13 +32,14 @@ public class BatchingShardTrigger implements Runnable {
             SqlSpecification querySpecification,
             Mapper<List<ShardModel>, List<List<ShardModel>>> chunker,
             Mapper<List<ShardModel>, RequestModel> merger,
-            RequestManager requestManager) {
+            RequestManager requestManager, RequestStrategy requestStrategy) {
         Assert.notNull(repository, "Repository must not be null!");
         Assert.notNull(predicate, "Predicate must not be null!");
         Assert.notNull(querySpecification, "QuerySpecification must not be null!");
         Assert.notNull(chunker, "Chunker must not be null!");
         Assert.notNull(merger, "Merger must not be null!");
         Assert.notNull(requestManager, "RequestManager must not be null!");
+        Assert.notNull(requestStrategy, "RequestStrategy must not be null!");
 
         this.repository = repository;
         this.predicate = predicate;
@@ -40,6 +47,7 @@ public class BatchingShardTrigger implements Runnable {
         this.chunker = chunker;
         this.merger = merger;
         this.requestManager = requestManager;
+        this.requestStrategy = requestStrategy;
     }
 
     @Override
@@ -49,9 +57,17 @@ public class BatchingShardTrigger implements Runnable {
             List<List<ShardModel>> chunks = chunker.map(shards);
 
             for (List<ShardModel> chunk : chunks) {
-                requestManager.submitNow(merger.map(chunk), null);
+                submit(merger.map(chunk));
                 repository.remove(new FilterByShardIds(chunk));
             }
+        }
+    }
+
+    private void submit(RequestModel requestModel) {
+        if (requestStrategy == RequestStrategy.PERSISTENT) {
+            requestManager.submit(requestModel, null);
+        } else if (requestStrategy == RequestStrategy.TRANSIENT) {
+            requestManager.submitNow(requestModel);
         }
     }
 }

@@ -40,7 +40,8 @@ public class FakeRequestManager extends RequestManager {
                 mock(Repository.class),
                 mock(Worker.class),
                 mock(RestClient.class),
-                mock(Registry.class));
+                mock(Registry.class),
+                mock(CoreCompletionHandler.class));
         this.coreCompletionHandler = coreCompletionHandler;
         this.responseType = responseType;
         this.latch = latch;

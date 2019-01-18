@@ -56,6 +56,8 @@ class MobileEngageIntegrationTest {
 
     @Before
     fun setup() {
+        DatabaseTestUtils.deleteCoreDatabase()
+
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
                 .mobileEngageCredentials(APP_ID, APP_PASSWORD)

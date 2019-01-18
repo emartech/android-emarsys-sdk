@@ -1030,7 +1030,8 @@ public class InboxInternal_V2Test {
                 mock(Repository.class),
                 mock(Worker.class),
                 restClient,
-                mock(Registry.class));
+                mock(Registry.class),
+                mock(CoreCompletionHandler.class));
     }
 
 }

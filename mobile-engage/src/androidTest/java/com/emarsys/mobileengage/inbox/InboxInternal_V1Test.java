@@ -864,6 +864,7 @@ public class InboxInternal_V1Test {
                 mock(Repository.class),
                 mock(Worker.class),
                 restClient,
-                mock(Registry.class));
+                mock(Registry.class),
+                mock(CoreCompletionHandler.class));
     }
 }

@@ -13,10 +13,7 @@ import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.util.CartItemUtils
-import com.emarsys.testUtil.ConnectionTestUtils
-import com.emarsys.testUtil.ExperimentalTestUtils
-import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
@@ -58,9 +55,12 @@ class PredictIntegrationTest {
 
     @Before
     fun setup() {
-        application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE).let {
-            it.edit().clear().commit()
-        }
+        DatabaseTestUtils.deleteCoreDatabase()
+
+        application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
+                .edit()
+                .clear()
+                .commit()
 
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
