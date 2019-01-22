@@ -54,6 +54,7 @@ import static org.mockito.Mockito.when;
 public class RequestRepositoryProxyTest {
 
     public static final String MEID = "123meid456";
+    public static final String SDK_VERSION = "sdkVersion";
     public static final long TIMESTAMP = 80_000L;
 
     private DeviceInfo deviceInfo;
@@ -84,7 +85,7 @@ public class RequestRepositoryProxyTest {
         Context context = InstrumentationRegistry.getTargetContext();
 
         mockDeviceInfo = mock(DeviceInfo.class);
-        deviceInfo = new DeviceInfo(context, mock(HardwareIdProvider.class));
+        deviceInfo = new DeviceInfo(context, mock(HardwareIdProvider.class), SDK_VERSION);
 
         mockRequestModelRepository = mock(Repository.class);
         mockDisplayedIamRepository = mock(Repository.class);

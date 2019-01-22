@@ -90,6 +90,7 @@ public class EmarsysTest {
     private static final String APPLICATION_PASSWORD = "secret";
     private static final int CONTACT_FIELD_ID = 3;
     private static final String MERCHANT_ID = "merchantId";
+    private static final String SDK_VERSION = "sdkVersion";
 
     private CoreSdkHandler mockCoreSdkHandler;
     private ActivityLifecycleWatchdog activityLifecycleWatchdog;
@@ -139,7 +140,7 @@ public class EmarsysTest {
         userCentricInboxConfig = createConfig(false, MobileEngageFeature.USER_CENTRIC_INBOX);
 
         HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
-        DeviceInfo deviceInfo = new DeviceInfo(application, hardwareIdProvider);
+        DeviceInfo deviceInfo = new DeviceInfo(application, hardwareIdProvider, SDK_VERSION);
 
         DependencyInjection.setup(new FakeDependencyContainer(
                 mockCoreSdkHandler,

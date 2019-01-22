@@ -1,5 +1,6 @@
 package com.emarsys.core.util.log;
 
+import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.Mapper;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
@@ -19,10 +20,13 @@ public class LogShardListMerger implements Mapper<List<ShardModel>, RequestModel
 
     private final TimestampProvider timestampProvider;
     private final UUIDProvider uuidProvider;
+    private final DeviceInfo deviceInfo;
 
-    public LogShardListMerger(TimestampProvider timestampProvider, UUIDProvider uuidProvider) {
+    public LogShardListMerger(TimestampProvider timestampProvider, UUIDProvider uuidProvider, DeviceInfo deviceInfo) {
+        Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
         this.timestampProvider = timestampProvider;
         this.uuidProvider = uuidProvider;
+        this.deviceInfo = deviceInfo;
     }
 
     @Override
@@ -41,16 +45,28 @@ public class LogShardListMerger implements Mapper<List<ShardModel>, RequestModel
     private Map<String, Object> createPayload(List<ShardModel> shards) {
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> datas = new ArrayList<>(shards.size());
-
+        Map<String, String> deviceInfo = createDeviceInfo();
         for (ShardModel shard : shards) {
             Map<String, Object> data = new HashMap<>();
             data.put("type", shard.getType());
+            data.put("device_info", deviceInfo);
             data.putAll(shard.getData());
             datas.add(data);
         }
 
         result.put("logs", datas);
         return result;
+    }
+
+    private Map<String, String> createDeviceInfo() {
+        Map<String, String> data = new HashMap<>();
+        data.put("platform", deviceInfo.getPlatform());
+        data.put("app_version", deviceInfo.getApplicationVersion());
+        data.put("sdk_version", deviceInfo.getSdkVersion());
+        data.put("os_version", deviceInfo.getOsVersion());
+        data.put("model", deviceInfo.getModel());
+        data.put("hw_id", deviceInfo.getHwid());
+        return data;
     }
 
 }

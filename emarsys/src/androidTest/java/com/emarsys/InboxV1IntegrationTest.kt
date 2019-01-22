@@ -40,6 +40,7 @@ class InboxV1IntegrationTest {
         private const val APP_PASSWORD = "PaNkfOD90AVpYimMBuZopCpm8OWCrREu"
         private const val CONTACT_FIELD_ID = 3
         private const val MERCHANT_ID = "1428C8EE286EC34B"
+        private const val SDK_VERSION = "sdkVersion"
     }
 
     private lateinit var latch: CountDownLatch
@@ -87,7 +88,7 @@ class InboxV1IntegrationTest {
                     application,
                     mock(HardwareIdProvider::class.java).apply {
                         whenever(provideHardwareId()).thenReturn("inboxv1_integration_hwid")
-                    }
+                    }, SDK_VERSION
             )
         })
 

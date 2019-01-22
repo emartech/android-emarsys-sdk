@@ -70,6 +70,7 @@ public class InboxInternal_V1Test {
     private static final String HARDWARE_ID = "hwid";
     private static final String APPLICATION_ID = "id";
     private static final String REQUEST_ID = "REQUEST_ID";
+    private static final String SDK_VERSION = "sdkVersion";
     private static final long TIMESTAMP = 100_000;
     private static List<Notification> notificationList;
 
@@ -107,7 +108,7 @@ public class InboxInternal_V1Test {
         notificationList = createNotificationList();
         hardwareIdProvider = mock(HardwareIdProvider.class);
         when(hardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID);
-        deviceInfo = new DeviceInfo(application, hardwareIdProvider);
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider, SDK_VERSION);
 
         uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn(REQUEST_ID);

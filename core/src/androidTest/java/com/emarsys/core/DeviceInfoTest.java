@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 public class DeviceInfoTest {
 
     private static final String HARDWARE_ID = "hwid";
+    private static final String SDK_VERSION = "sdkVersion";
 
     private DeviceInfo deviceInfo;
     private TimeZone tz;
@@ -60,17 +61,22 @@ public class DeviceInfoTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_context_mustNotBeNull() {
-        new DeviceInfo(null, hardwareIdProvider);
+        new DeviceInfo(null, hardwareIdProvider, SDK_VERSION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_hardwareIdProvider_mustNotBeNull() {
-        new DeviceInfo(context, null);
+        new DeviceInfo(context, null, SDK_VERSION);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_sdkVersion_mustNotBeNull() {
+        new DeviceInfo(context, hardwareIdProvider, null);
     }
 
     @Test
     public void testConstructor_initializesFields() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider);
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION);
         assertNotNull(deviceInfo.getHwid());
         assertNotNull(deviceInfo.getPlatform());
         assertNotNull(deviceInfo.getLanguage());
@@ -80,6 +86,7 @@ public class DeviceInfoTest {
         assertNotNull(deviceInfo.getApplicationVersion());
         assertNotNull(deviceInfo.getOsVersion());
         assertNotNull(deviceInfo.getDisplayMetrics());
+        assertNotNull(deviceInfo.getSdkVersion());
     }
 
     @Test
@@ -96,14 +103,14 @@ public class DeviceInfoTest {
         when(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo);
         when(mockContext.getApplicationInfo()).thenReturn(mock(ApplicationInfo.class));
 
-        DeviceInfo info = new DeviceInfo(mockContext, hardwareIdProvider);
+        DeviceInfo info = new DeviceInfo(mockContext, hardwareIdProvider, SDK_VERSION);
 
         assertEquals(DeviceInfo.UNKNOWN_VERSION_NAME, info.getApplicationVersion());
     }
 
     @Test
     public void testTimezoneCorrectlyFormatted() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider);
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION);
         assertEquals("+0900", deviceInfo.getTimezone());
     }
 
@@ -118,7 +125,7 @@ public class DeviceInfoTest {
         config.locale = locale;
         resources.updateConfiguration(config, resources.getDisplayMetrics());
 
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider);
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION);
 
         Locale.setDefault(previous);
 
@@ -127,7 +134,7 @@ public class DeviceInfoTest {
 
     @Test
     public void testGetDisplayMetrics() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider);
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION);
         assertEquals(deviceInfo.getDisplayMetrics(), Resources.getSystem().getDisplayMetrics());
     }
 
@@ -135,7 +142,7 @@ public class DeviceInfoTest {
     public void testIsDebugMode_withDebugApplication() {
         Application mockDebugContext = ApplicationTestUtils.getApplicationDebug();
 
-        DeviceInfo debugDeviceInfo = new DeviceInfo(mockDebugContext, hardwareIdProvider);
+        DeviceInfo debugDeviceInfo = new DeviceInfo(mockDebugContext, hardwareIdProvider, SDK_VERSION);
         assertTrue(debugDeviceInfo.isDebugMode());
     }
 
@@ -143,13 +150,13 @@ public class DeviceInfoTest {
     public void testIsDebugMode_withReleaseApplication() {
         Application mockReleaseContext = ApplicationTestUtils.getApplicationRelease();
 
-        DeviceInfo releaseDeviceInfo = new DeviceInfo(mockReleaseContext, hardwareIdProvider);
+        DeviceInfo releaseDeviceInfo = new DeviceInfo(mockReleaseContext, hardwareIdProvider, SDK_VERSION);
         assertFalse(releaseDeviceInfo.isDebugMode());
     }
 
     @Test
     public void testHardwareId_isAcquiredFromHardwareIdProvider() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider);
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION);
 
         verify(hardwareIdProvider).provideHardwareId();
         assertEquals(HARDWARE_ID, deviceInfo.getHwid());

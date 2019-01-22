@@ -27,13 +27,15 @@ public class ImageUtilsTest {
     private Context context;
     private DeviceInfo deviceInfo;
 
+    private static final String SDK_VERSION = "sdkVersion";
+
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     public void setup() {
         context = InstrumentationRegistry.getTargetContext();
-        deviceInfo = new DeviceInfo(context, mock(HardwareIdProvider.class));
+        deviceInfo = new DeviceInfo(context, mock(HardwareIdProvider.class), SDK_VERSION);
     }
 
     @Test

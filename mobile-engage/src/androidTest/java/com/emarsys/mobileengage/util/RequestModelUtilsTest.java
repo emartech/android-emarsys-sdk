@@ -40,6 +40,7 @@ public class RequestModelUtilsTest {
     private static final String APPLICATION_PASSWORD = "applicationPassword";
     public static final String VALID_CUSTOM_EVENT_V3 = "https://mobile-events.eservice.emarsys.net/v3/devices/12345/events";
     public static final String REQUEST_ID = "REQUEST_ID";
+    public static final String SDK_VERSION = "sdkVersion";
     public static final long TIMESTAMP = 100_000;
 
     private RequestContext requestContext;
@@ -64,7 +65,7 @@ public class RequestModelUtilsTest {
                 APPLICATION_CODE,
                 APPLICATION_PASSWORD,
                 1,
-                new DeviceInfo(InstrumentationRegistry.getTargetContext(), mock(HardwareIdProvider.class)),
+                new DeviceInfo(InstrumentationRegistry.getTargetContext(), mock(HardwareIdProvider.class), SDK_VERSION),
                 mock(AppLoginStorage.class),
                 meIdStorage,
                 mock(MeIdSignatureStorage.class),

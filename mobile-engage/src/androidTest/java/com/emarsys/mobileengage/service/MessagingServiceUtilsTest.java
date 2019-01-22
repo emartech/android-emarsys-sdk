@@ -63,6 +63,7 @@ public class MessagingServiceUtilsTest {
     private static final String DEFAULT_TITLE = "This is a default title";
     private static final String BODY = "body";
     private static final String CHANNEL_ID = "channelId";
+    private static final String SDK_VERSION = "sdkVersion";
 
     private Context context;
     private DeviceInfo deviceInfo;
@@ -77,7 +78,7 @@ public class MessagingServiceUtilsTest {
     public void init() throws Exception {
         context = InstrumentationRegistry.getTargetContext();
 
-        deviceInfo = new DeviceInfo(context, mock(HardwareIdProvider.class));
+        deviceInfo = new DeviceInfo(context, mock(HardwareIdProvider.class), SDK_VERSION);
 
         Field cacheField = NotificationCache.class.getDeclaredField("internalCache");
         cacheField.setAccessible(true);

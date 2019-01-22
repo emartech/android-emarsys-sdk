@@ -77,6 +77,7 @@ class MobileEngageInternalTest_sequentialApplogins {
         private const val CONTACT_FIELD_VALUE_1 = "value1"
         private const val CONTACT_FIELD_VALUE_2 = "value2"
         private const val HARDWARE_ID = "hwid"
+        private const val SDK_VERSION = "sdkVersion"
     }
 
     @Before
@@ -90,7 +91,7 @@ class MobileEngageInternalTest_sequentialApplogins {
         application = InstrumentationRegistry.getTargetContext().applicationContext as Application
         deviceInfo = DeviceInfo(application, mock(HardwareIdProvider::class.java).apply {
             whenever(this.provideHardwareId()).thenReturn(HARDWARE_ID)
-        })
+        },SDK_VERSION)
         sharedPrefs = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
 
         appLoginStorage = AppLoginStorage(sharedPrefs)

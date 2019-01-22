@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.emarsys.BuildConfig;
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.DeviceInfo;
@@ -237,7 +238,9 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         meIdSignatureStorage = new MeIdSignatureStorage(prefs);
 
         HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, prefs);
-        deviceInfo = new DeviceInfo(application, hardwareIdProvider);
+
+        String sdkVersion = BuildConfig.VERSION_NAME;
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider, sdkVersion);
 
         currentActivityProvider = new CurrentActivityProvider();
         currentActivityWatchdog = new CurrentActivityWatchdog(currentActivityProvider);
@@ -311,7 +314,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 new ListSizeAtLeast<ShardModel>(10),
                 new FilterByShardType(FilterByShardType.SHARD_TYPE_LOG),
                 new ListChunker<ShardModel>(10),
-                new LogShardListMerger(timestampProvider, uuidProvider),
+                new LogShardListMerger(timestampProvider, uuidProvider, deviceInfo),
                 requestManager,
                 BatchingShardTrigger.RequestStrategy.TRANSIENT);
 

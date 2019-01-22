@@ -23,13 +23,15 @@ public class TimestampUtilsTest {
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
+    private static final String SDK_VERSION = "sdkVersion";
+
     @Before
     public void init() {
     }
 
     @Test
     public void testFormatTimestampWithUTC() throws ParseException {
-        String deviceTimeZone = new DeviceInfo(InstrumentationRegistry.getTargetContext(), mock(HardwareIdProvider.class)).getTimezone();
+        String deviceTimeZone = new DeviceInfo(InstrumentationRegistry.getTargetContext(), mock(HardwareIdProvider.class), SDK_VERSION).getTimezone();
         String dateString = "2017-12-07T10:46:09.100";
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         parser.setTimeZone(TimeZone.getTimeZone(deviceTimeZone));

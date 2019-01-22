@@ -52,7 +52,7 @@ public class RequestPayloadUtilsTest {
     @Before
     public void setup() {
         SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences");
-        
+
         uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn(REQUEST_ID);
 
@@ -60,7 +60,7 @@ public class RequestPayloadUtilsTest {
                 APPLICATION_CODE,
                 APPLICATION_PASSWORD,
                 1,
-                new DeviceInfo(InstrumentationRegistry.getTargetContext(), mock(HardwareIdProvider.class)),
+                new DeviceInfo(InstrumentationRegistry.getTargetContext(), mock(HardwareIdProvider.class), MOBILEENGAGE_SDK_VERSION),
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),

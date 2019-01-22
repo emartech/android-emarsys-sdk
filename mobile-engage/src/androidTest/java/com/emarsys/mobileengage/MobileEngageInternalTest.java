@@ -68,6 +68,7 @@ public class MobileEngageInternalTest {
     private static final String CUSTOM = "custom";
     public static final String REQUEST_ID = "REQUEST_ID";
     public static final int CONTACT_FIELD_ID = Integer.MAX_VALUE;
+    public static final String SDK_VERSION = "sdkVersion";
 
     private static String APPLICATION_ID = "user";
     private static String APPLICATION_PASSWORD = "pass";
@@ -109,7 +110,7 @@ public class MobileEngageInternalTest {
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE);
 
-        deviceInfo = new DeviceInfo(application, mock(HardwareIdProvider.class));
+        deviceInfo = new DeviceInfo(application, mock(HardwareIdProvider.class),SDK_VERSION);
         appLoginStorage = new AppLoginStorage(sharedPreferences);
         appLoginStorage.remove();
 

@@ -27,10 +27,12 @@ public class DeviceInfo {
     private final String osVersion;
     private final DisplayMetrics displayMetrics;
     private final boolean isDebugMode;
+    private final String sdkVersion;
 
-    public DeviceInfo(Context context, HardwareIdProvider hardwareIdProvider){
+    public DeviceInfo(Context context, HardwareIdProvider hardwareIdProvider, String sdkVersion) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(hardwareIdProvider, "HardwareIdProvider must not be null!");
+        Assert.notNull(sdkVersion, "SdkVersion must not be null!");
 
         this.hwid = hardwareIdProvider.provideHardwareId();
 
@@ -51,6 +53,8 @@ public class DeviceInfo {
         this.displayMetrics = Resources.getSystem().getDisplayMetrics();
 
         this.isDebugMode = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
+
+        this.sdkVersion = sdkVersion;
     }
 
     private String getApplicationVersion(Context context) {
@@ -103,5 +107,9 @@ public class DeviceInfo {
 
     public boolean isDebugMode() {
         return isDebugMode;
+    }
+
+    public String getSdkVersion() {
+        return sdkVersion;
     }
 }
