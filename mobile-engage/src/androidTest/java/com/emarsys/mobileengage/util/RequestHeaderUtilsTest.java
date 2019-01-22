@@ -168,8 +168,8 @@ public class RequestHeaderUtilsTest {
     public void testCreateDefaultHeaders_debug_shouldReturnCorrectMap() {
         Map<String, String> expected = new HashMap<>();
         expected.put("Content-Type", "application/json");
-        expected.put("X-MOBILEENGAGE-SDK-VERSION", BuildConfig.VERSION_NAME);
-        expected.put("X-MOBILEENGAGE-SDK-MODE", "debug");
+        expected.put("X-EMARSYS-SDK-VERSION", BuildConfig.VERSION_NAME);
+        expected.put("X-EMARSYS-SDK-MODE", "debug");
 
         Map<String, String> result = RequestHeaderUtils.createDefaultHeaders(debugRequestContext);
 
@@ -180,8 +180,8 @@ public class RequestHeaderUtilsTest {
     public void testCreateDefaultHeaders_release_shouldReturnCorrectMap() {
         Map<String, String> expected = new HashMap<>();
         expected.put("Content-Type", "application/json");
-        expected.put("X-MOBILEENGAGE-SDK-VERSION", BuildConfig.VERSION_NAME);
-        expected.put("X-MOBILEENGAGE-SDK-MODE", "production");
+        expected.put("X-EMARSYS-SDK-VERSION", BuildConfig.VERSION_NAME);
+        expected.put("X-EMARSYS-SDK-MODE", "production");
 
         Map<String, String> result = RequestHeaderUtils.createDefaultHeaders(releaseRequestContext);
 

@@ -36,8 +36,8 @@ public class RequestHeaderUtils {
 
         HashMap<String, String> defaultHeaders = new HashMap<>();
         defaultHeaders.put("Content-Type", "application/json");
-        defaultHeaders.put("X-MOBILEENGAGE-SDK-VERSION", BuildConfig.VERSION_NAME);
-        defaultHeaders.put("X-MOBILEENGAGE-SDK-MODE", requestContext.getDeviceInfo().isDebugMode() ? "debug" : "production");
+        defaultHeaders.put("X-EMARSYS-SDK-VERSION", BuildConfig.VERSION_NAME);
+        defaultHeaders.put("X-EMARSYS-SDK-MODE", requestContext.getDeviceInfo().isDebugMode() ? "debug" : "production");
 
         return defaultHeaders;
     }
