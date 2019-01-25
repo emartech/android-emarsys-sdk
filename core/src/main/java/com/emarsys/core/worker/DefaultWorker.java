@@ -8,6 +8,7 @@ import com.emarsys.core.connection.ConnectionState;
 import com.emarsys.core.connection.ConnectionWatchDog;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.request.RequestExpiredException;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestModel;
@@ -16,6 +17,8 @@ import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.CoreTopic;
 import com.emarsys.core.util.log.EMSLogger;
+import com.emarsys.core.util.log.Logger;
+import com.emarsys.core.util.log.entry.OfflineQueueSize;
 
 import java.util.List;
 
@@ -91,6 +94,7 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
     @Override
     public void onConnectionChanged(ConnectionState connectionState, boolean isConnected) {
         if (isConnected) {
+            Logger.log(new OfflineQueueSize(requestRepository.query(new Everything()).size()));
             run();
         }
     }
