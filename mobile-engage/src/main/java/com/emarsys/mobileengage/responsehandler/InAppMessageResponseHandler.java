@@ -63,8 +63,8 @@ public class InAppMessageResponseHandler extends AbstractResponseHandler {
             JSONObject message = responseBody.getJSONObject("message");
             String html = message.getString("html");
             String id = message.getString("id");
-
-            inAppPresenter.present(id, html, new MessageLoadedListener() {
+            String requestId = responseModel.getRequestModel().getId();
+            inAppPresenter.present(id, requestId, html, new MessageLoadedListener() {
                 @Override
                 public void onMessageLoaded() {
                     Map<String, Object> metric = new HashMap<>();

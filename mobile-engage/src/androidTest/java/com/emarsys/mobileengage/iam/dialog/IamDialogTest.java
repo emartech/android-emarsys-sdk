@@ -36,6 +36,7 @@ import androidx.test.rule.ActivityTestRule;
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -49,6 +50,7 @@ public class IamDialogTest {
     public static final String CAMPAIGN_ID = "id_value";
     public static final String ON_SCREEN_TIME_KEY = "on_screen_time";
     public static final String CAMPAIGN_ID_KEY = "id";
+    public static final String REQUEST_ID_KEY = "request_id";
     private TestIamDialog dialog;
 
     @Rule
@@ -77,21 +79,40 @@ public class IamDialogTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreate_campaignIdMustNotBeNull() {
-        IamDialog.create(null);
+        IamDialog.create(null, "requestId");
     }
 
     @Test
     public void testCreate_shouldReturnImageDialogInstance() {
-        assertNotNull(IamDialog.create(""));
+        assertNotNull(IamDialog.create("", "requestId"));
     }
 
     @Test
     public void testCreate_shouldInitializeDialog_withCampaignId() {
         String campaignId = "123456789";
-        IamDialog dialog = IamDialog.create(campaignId);
+        IamDialog dialog = IamDialog.create(campaignId, "requestId");
 
         Bundle result = dialog.getArguments();
         assertEquals(campaignId, result.getString(CAMPAIGN_ID_KEY));
+    }
+
+    @Test
+    public void testCreate_shouldInitializeDialog_withRequestId() {
+        String requestId = "requestId";
+        String campaignId = "campaignId";
+        IamDialog dialog = IamDialog.create(campaignId, requestId);
+
+        Bundle result = dialog.getArguments();
+        assertEquals(requestId, result.getString(REQUEST_ID_KEY));
+    }
+
+    @Test
+    public void testCreate_shouldInitializeDialog_withOutRequestId() {
+        String campaignId = "campaignId";
+        IamDialog dialog = IamDialog.create(campaignId, null);
+
+        Bundle result = dialog.getArguments();
+        assertNull(result.getString(REQUEST_ID_KEY));
     }
 
     @Test

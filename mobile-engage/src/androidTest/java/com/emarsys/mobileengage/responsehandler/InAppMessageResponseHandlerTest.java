@@ -2,7 +2,6 @@ package com.emarsys.mobileengage.responsehandler;
 
 import android.os.Build;
 import android.os.Handler;
-import androidx.test.filters.SdkSuppress;
 
 import com.emarsys.core.database.repository.log.LogRepository;
 import com.emarsys.core.provider.Gettable;
@@ -32,6 +31,8 @@ import org.junit.rules.TestRule;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
+
+import androidx.test.filters.SdkSuppress;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static junit.framework.Assert.assertEquals;
@@ -64,7 +65,7 @@ public class InAppMessageResponseHandlerTest {
 
         dialog = mock(IamDialog.class);
         IamDialogProvider dialogProvider = mock(IamDialogProvider.class);
-        when(dialogProvider.provideDialog(any(String.class))).thenReturn(dialog);
+        when(dialogProvider.provideDialog(any(String.class), any(String.class))).thenReturn(dialog);
 
         presenter = new InAppPresenter(
                 mock(Handler.class),

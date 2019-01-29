@@ -18,6 +18,8 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.log.LogRepository;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.Assert;
+import com.emarsys.core.util.log.Logger;
+import com.emarsys.core.util.log.entry.OnScreenTime;
 import com.emarsys.mobileengage.R;
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
@@ -34,6 +36,7 @@ public class IamDialog extends DialogFragment {
 
     public static final String TAG = "MOBILE_ENGAGE_IAM_DIALOG_TAG";
     public static final String CAMPAIGN_ID = "id";
+    public static final String REQUEST_ID = "request_id";
     public static final String IS_SHOWN = "isShown";
     public static final String ON_SCREEN_TIME = "on_screen_time";
 
@@ -46,11 +49,13 @@ public class IamDialog extends DialogFragment {
     TimestampProvider timestampProvider;
     Repository<Map<String, Object>, SqlSpecification> logRepository;
 
-    public static IamDialog create(String campaignId) {
+    public static IamDialog create(String campaignId, String requestId) {
         Assert.notNull(campaignId, "CampaignId must not be null!");
+
         IamDialog iamDialog = new IamDialog();
         Bundle bundle = new Bundle();
         bundle.putString(CAMPAIGN_ID, campaignId);
+        bundle.putString(REQUEST_ID, requestId);
         iamDialog.setArguments(bundle);
         return iamDialog;
     }
@@ -157,6 +162,10 @@ public class IamDialog extends DialogFragment {
         onScreenMetric.put(CAMPAIGN_ID, args.getString(CAMPAIGN_ID));
         onScreenMetric.put(ON_SCREEN_TIME, args.getLong(ON_SCREEN_TIME));
         logRepository.add(onScreenMetric);
+        Logger.log(new OnScreenTime(
+                args.getLong(ON_SCREEN_TIME),
+                args.getString(CAMPAIGN_ID),
+                args.getString(REQUEST_ID)));
         dismissed = true;
     }
 }

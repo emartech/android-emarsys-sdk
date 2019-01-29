@@ -22,6 +22,6 @@ public class PushToInAppAction implements ActivityLifecycleAction {
 
     @Override
     public void execute(Activity activity) {
-        inAppPresenter.present(campaignId, html, null);
+        inAppPresenter.present(campaignId, null, html, null);
     }
 }
