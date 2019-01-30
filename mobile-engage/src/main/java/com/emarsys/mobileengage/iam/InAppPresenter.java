@@ -71,7 +71,7 @@ public class InAppPresenter {
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public void present(String id, String requestId, String html, final MessageLoadedListener messageLoadedListener) {
+    public void present(final String id, final String requestId, String html, final MessageLoadedListener messageLoadedListener) {
         final IamDialog iamDialog = dialogProvider.provideDialog(id, requestId);
         setupDialogWithActions(iamDialog);
 

@@ -6,6 +6,7 @@ import android.os.Handler;
 import com.emarsys.core.database.repository.log.LogRepository;
 import com.emarsys.core.provider.Gettable;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.mobileengage.MobileEngageInternal;
@@ -197,7 +198,9 @@ public class InAppMessageResponseHandlerTest {
                 .statusCode(200)
                 .message("OK")
                 .body(responseBody)
-                .requestModel(mock(RequestModel.class))
+                .requestModel(new RequestModel.Builder(new TimestampProvider(), new UUIDProvider())
+                        .url("https://emarsys.com")
+                        .build())
                 .build();
     }
 }

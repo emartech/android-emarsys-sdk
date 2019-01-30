@@ -7,8 +7,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.webkit.WebView;
 
-import com.emarsys.core.database.repository.Repository;
-import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
@@ -24,9 +22,7 @@ import org.junit.rules.TestRule;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -204,56 +200,6 @@ public class IamDialogTest {
         pauseDialog();
 
         assertEquals(150L + 3, dialog.getArguments().getLong("on_screen_time"));
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void testDismiss_savesMetric() throws InterruptedException {
-        TimestampProvider timestampProvider = mock(TimestampProvider.class);
-        when(timestampProvider.provideTimestamp()).thenReturn(100L, 250L, 1000L);
-        dialog.timestampProvider = timestampProvider;
-
-        Repository<Map<String, Object>, SqlSpecification> repository = mock(Repository.class);
-
-        displayDialog();
-
-        dialog.logRepository = repository;
-
-        dismissDialog();
-
-        long onScreenTime = dialog.getArguments().getLong("on_screen_time");
-        assertEquals(150L, onScreenTime);
-
-        Map<String, Object> expectedMetric = new HashMap<>();
-        expectedMetric.put(ON_SCREEN_TIME_KEY, 150L);
-        expectedMetric.put(CAMPAIGN_ID_KEY, CAMPAIGN_ID);
-
-        verify(repository).add(expectedMetric);
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    public void testOnCancel_savesMetric() throws InterruptedException {
-        TimestampProvider timestampProvider = mock(TimestampProvider.class);
-        when(timestampProvider.provideTimestamp()).thenReturn(100L, 250L, 1000L);
-        dialog.timestampProvider = timestampProvider;
-
-        Repository<Map<String, Object>, SqlSpecification> repository = mock(Repository.class);
-
-        displayDialog();
-
-        dialog.logRepository = repository;
-
-        cancelDialog();
-
-        long onScreenTime = dialog.getArguments().getLong("on_screen_time");
-        assertEquals(150L, onScreenTime);
-
-        Map<String, Object> expectedMetric = new HashMap<>();
-        expectedMetric.put(ON_SCREEN_TIME_KEY, 150L);
-        expectedMetric.put(CAMPAIGN_ID_KEY, CAMPAIGN_ID);
-
-        verify(repository).add(expectedMetric);
     }
 
     private void displayDialog() throws InterruptedException {

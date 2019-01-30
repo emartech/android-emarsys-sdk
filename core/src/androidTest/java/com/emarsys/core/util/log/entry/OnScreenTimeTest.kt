@@ -23,7 +23,7 @@ class OnScreenTimeTest {
         val actual = OnScreenTime(30L, "campaignId", null).data
         val expected = mapOf(
                 "campaign_id" to "campaignId",
-                "on_screen_time" to 30L,
+                "duration" to 30L,
                 "source" to "push"
         )
 
@@ -35,7 +35,7 @@ class OnScreenTimeTest {
         val actual = OnScreenTime(130L, "realCampaignId", "requestId").data
         val expected = mapOf(
                 "campaign_id" to "realCampaignId",
-                "on_screen_time" to 130L,
+                "duration" to 130L,
                 "source" to "customEvent",
                 "request_id" to "requestId"
         )

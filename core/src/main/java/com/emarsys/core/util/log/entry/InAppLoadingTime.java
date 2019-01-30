@@ -3,25 +3,25 @@ package com.emarsys.core.util.log.entry;
 import java.util.HashMap;
 import java.util.Map;
 
-public class OnScreenTime implements LogEntry {
+public class InAppLoadingTime implements LogEntry {
 
     private final Map<String, Object> data;
 
-    public OnScreenTime(long onScreenTime, String campaignId, String requestId) {
+    public InAppLoadingTime(long loadingTime, String campaignId, String requestId) {
         data = new HashMap<>();
+        data.put("duration", loadingTime);
         data.put("campaign_id", campaignId);
-        data.put("duration", onScreenTime);
         if (requestId == null) {
             data.put("source", "push");
         } else {
-            data.put("source", "customEvent");
             data.put("request_id", requestId);
+            data.put("source", "customEvent");
         }
     }
 
     @Override
     public String getTopic() {
-        return "log_inapp_on_screen_time";
+        return "log_inapp_loading_time";
     }
 
     @Override

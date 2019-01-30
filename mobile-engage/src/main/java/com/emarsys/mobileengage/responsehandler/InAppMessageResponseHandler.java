@@ -10,6 +10,8 @@ import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.EMSLogger;
+import com.emarsys.core.util.log.Logger;
+import com.emarsys.core.util.log.entry.InAppLoadingTime;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener;
 import com.emarsys.mobileengage.util.AndroidVersionUtils;
@@ -18,7 +20,6 @@ import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class InAppMessageResponseHandler extends AbstractResponseHandler {
@@ -62,15 +63,13 @@ public class InAppMessageResponseHandler extends AbstractResponseHandler {
         try {
             JSONObject message = responseBody.getJSONObject("message");
             String html = message.getString("html");
-            String id = message.getString("id");
-            String requestId = responseModel.getRequestModel().getId();
+            final String id = message.getString("id");
+            final String requestId = responseModel.getRequestModel().getId();
             inAppPresenter.present(id, requestId, html, new MessageLoadedListener() {
                 @Override
                 public void onMessageLoaded() {
-                    Map<String, Object> metric = new HashMap<>();
-                    metric.put("loading_time", timestampProvider.provideTimestamp() - responseModel.getTimestamp());
-                    metric.put("id", responseModel.getRequestModel().getId());
-                    logRepository.add(metric);
+                    long loadingTime = timestampProvider.provideTimestamp() - responseModel.getTimestamp();
+                    Logger.log(new InAppLoadingTime(loadingTime, id, requestId));
                 }
             });
         } catch (JSONException je) {

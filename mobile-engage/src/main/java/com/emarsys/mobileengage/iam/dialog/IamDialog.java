@@ -24,7 +24,6 @@ import com.emarsys.mobileengage.R;
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -157,11 +156,7 @@ public class IamDialog extends DialogFragment {
 
     private void saveOnScreenTime() {
         updateOnScreenTime();
-        Map<String, Object> onScreenMetric = new HashMap<>();
         Bundle args = getArguments();
-        onScreenMetric.put(CAMPAIGN_ID, args.getString(CAMPAIGN_ID));
-        onScreenMetric.put(ON_SCREEN_TIME, args.getLong(ON_SCREEN_TIME));
-        logRepository.add(onScreenMetric);
         Logger.log(new OnScreenTime(
                 args.getLong(ON_SCREEN_TIME),
                 args.getString(CAMPAIGN_ID),
