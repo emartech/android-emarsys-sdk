@@ -1,6 +1,6 @@
 package com.emarsys.mobileengage.util;
 
-import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;

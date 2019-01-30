@@ -1,6 +1,6 @@
 package com.emarsys.mobileengage.iam.model.requestRepositoryProxy;
 
-import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;

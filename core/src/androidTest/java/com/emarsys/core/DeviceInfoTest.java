@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.testUtil.ApplicationTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;

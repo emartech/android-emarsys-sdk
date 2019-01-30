@@ -1,6 +1,6 @@
 package com.emarsys.mobileengage.util;
 
-import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;

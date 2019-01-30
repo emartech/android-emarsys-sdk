@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.webkit.URLUtil;
 
-import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.device.DeviceInfo;
 
 import java.io.File;
 

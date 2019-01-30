@@ -12,7 +12,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Action;
 import androidx.core.content.ContextCompat;
 
-import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.core.util.Assert;

@@ -2,7 +2,7 @@ package com.emarsys.core.di;
 
 import android.os.Handler;
 
-import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.database.CoreSQLiteDatabase;

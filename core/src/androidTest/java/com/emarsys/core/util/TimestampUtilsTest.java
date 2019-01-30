@@ -1,6 +1,6 @@
 package com.emarsys.core.util;
 
-import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;

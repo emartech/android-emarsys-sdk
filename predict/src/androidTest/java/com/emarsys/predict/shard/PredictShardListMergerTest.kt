@@ -1,6 +1,6 @@
 package com.emarsys.predict.shard
 
-import com.emarsys.core.DeviceInfo
+import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod

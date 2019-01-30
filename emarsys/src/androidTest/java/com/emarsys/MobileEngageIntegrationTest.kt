@@ -8,7 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.core.DeviceInfo
+import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.di.DefaultEmarsysDependencyContainer

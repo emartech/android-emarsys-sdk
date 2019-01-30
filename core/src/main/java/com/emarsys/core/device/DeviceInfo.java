@@ -1,4 +1,4 @@
-package com.emarsys.core;
+package com.emarsys.core.device;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;

@@ -7,7 +7,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.mobileengage.api.inbox.Notification;

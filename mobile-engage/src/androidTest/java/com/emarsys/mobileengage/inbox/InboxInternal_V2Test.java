@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.inbox;
 import android.os.Handler;
 
 import com.emarsys.core.CoreCompletionHandler;
-import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.Registry;
 import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.core.api.result.CompletionListener;

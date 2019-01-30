@@ -5,7 +5,7 @@ import android.content.Context
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
-import com.emarsys.core.DeviceInfo
+import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.response.ResponseModel

@@ -9,7 +9,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.core.DefaultCoreCompletionHandler;
-import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;

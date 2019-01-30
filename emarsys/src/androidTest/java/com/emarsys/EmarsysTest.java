@@ -7,7 +7,7 @@ import android.os.Looper;
 
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DefaultCoreCompletionHandler;
-import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;

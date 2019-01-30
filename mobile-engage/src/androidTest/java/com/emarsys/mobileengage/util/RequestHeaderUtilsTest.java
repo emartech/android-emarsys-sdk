@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.emarsys.core.DeviceInfo;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.util.HeaderUtils;
