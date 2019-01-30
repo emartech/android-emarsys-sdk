@@ -382,9 +382,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 meIdSignatureStorage));
 
         responseHandlers.add(new InAppMessageResponseHandler(
-                inAppPresenter,
-                logRepositoryProxy,
-                timestampProvider));
+                inAppPresenter
+        ));
 
         responseHandlers.add(new InAppCleanUpResponseHandler(
                 displayedIamRepository,

@@ -10,6 +10,8 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.Gettable;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.Assert;
+import com.emarsys.core.util.log.Logger;
+import com.emarsys.core.util.log.entry.InAppLoadingTime;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider;
@@ -71,14 +73,14 @@ public class InAppPresenter {
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public void present(final String id, final String requestId, String html, final MessageLoadedListener messageLoadedListener) {
-        final IamDialog iamDialog = dialogProvider.provideDialog(id, requestId);
+    public void present(final String campaignId, final String requestId, final long startTimestamp, String html, final MessageLoadedListener messageLoadedListener) {
+        final IamDialog iamDialog = dialogProvider.provideDialog(campaignId, requestId);
         setupDialogWithActions(iamDialog);
 
         IamJsBridge jsBridge = new IamJsBridge(
                 inAppInternal,
                 buttonClickedRepository,
-                id,
+                campaignId,
                 coreSdkHandler,
                 mobileEngageInternal,
                 currentActivityProvider);
@@ -86,6 +88,8 @@ public class InAppPresenter {
             @Override
             public void onMessageLoaded() {
                 Activity currentActivity = currentActivityProvider.get();
+                long loadingTime = timestampProvider.provideTimestamp() - startTimestamp;
+                Logger.log(new InAppLoadingTime(loadingTime, campaignId, requestId));
                 if (currentActivity instanceof AppCompatActivity) {
                     FragmentManager fragmentManager = ((AppCompatActivity) currentActivity).getSupportFragmentManager();
                     Fragment fragment = fragmentManager.findFragmentByTag(IamDialog.TAG);

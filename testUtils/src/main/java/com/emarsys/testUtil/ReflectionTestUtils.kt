@@ -9,6 +9,7 @@ object ReflectionTestUtils {
         containerField.set(null, value)
     }
 
+    @Suppress("UNCHECKED_CAST")
     @JvmStatic
     fun <T> getStaticField(type: Class<*>, fieldName: String): T? {
         val field = type.getDeclaredField(fieldName)
@@ -17,6 +18,7 @@ object ReflectionTestUtils {
         return result as T?
     }
 
+    @Suppress("UNCHECKED_CAST")
     @JvmStatic
     fun <T> getField(instance: Any, fieldName: String): T? {
         val field = instance::class.java.getDeclaredField(fieldName)
@@ -25,6 +27,7 @@ object ReflectionTestUtils {
         return result as T?
     }
 
+    @Suppress("UNCHECKED_CAST")
     @JvmStatic
     fun <T> instantiate(type: Class<*>, constructorIndex: Int, vararg args: Any): T {
         val constructor = type.declaredConstructors[constructorIndex]
@@ -32,6 +35,7 @@ object ReflectionTestUtils {
         return constructor.newInstance(*args) as T
     }
 
+    @Suppress("UNCHECKED_CAST")
     @JvmStatic
     fun invokeStaticMethod(type: Class<*>, methodName: String, vararg parameters: Any) {
         val parameterTypes = parameters.map { it::class.javaPrimitiveType }.toTypedArray()

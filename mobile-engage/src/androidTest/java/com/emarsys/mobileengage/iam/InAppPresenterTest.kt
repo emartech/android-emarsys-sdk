@@ -212,7 +212,7 @@ class InAppPresenterTest {
         whenever(iamDialogProvider.provideDialog(any(), any())).thenReturn(iamDialog)
         val countDownLatch = CountDownLatch(1)
 
-        presenter.present("1", "requestId", "<html><body><p>Hello</p></body></html>") {
+        presenter.present("1", "requestId", 0L, "<html><body><p>Hello</p></body></html>") {
             countDownLatch.countDown()
         }
 
@@ -231,10 +231,48 @@ class InAppPresenterTest {
 
         val countDownLatch = CountDownLatch(1)
 
-        presenter.present("1", "requestId", "<html><body><p>Hello</p></body></html>") { countDownLatch.countDown() }
+        presenter.present("1", "requestId", 0L, "<html><body><p>Hello</p></body></html>") { countDownLatch.countDown() }
 
         countDownLatch.await()
 
         verify(iamDialog, times(0)).show(any<FragmentManager>(), any())
     }
+
+    @Test
+    fun testPresent_shouldNotShowDialog_whenActivity_isNull() {
+        val iamDialog = mock(IamDialog::class.java)
+
+        whenever(activityProvider.get()).thenReturn(null)
+        whenever(iamDialogProvider.provideDialog(any(), any())).thenReturn(iamDialog)
+
+        val countDownLatch = CountDownLatch(1)
+
+        presenter.present("1", "requestId", 0L, "<html><body><p>Hello</p></body></html>") { countDownLatch.countDown() }
+
+        countDownLatch.await()
+
+        verify(iamDialog, times(0)).show(any<FragmentManager>(), any())
+    }
+
+    @Test
+    fun testPresent_shouldNotShowDialog_whenAnotherDialog_isAlreadyShown() {
+        val iamDialog = mock(IamDialog::class.java)
+        val activity = mock(AppCompatActivity::class.java)
+        val fragmentManager = mock(FragmentManager::class.java)
+        val fragment = mock(Fragment::class.java)
+
+        whenever(iamDialogProvider.provideDialog(any(), any())).thenReturn(iamDialog)
+        whenever(activityProvider.get()).thenReturn(activity)
+        whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
+        whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(fragment)
+
+        val countDownLatch = CountDownLatch(1)
+
+        presenter.present("1", "requestId", 0L, "<html><body><p>Hello</p></body></html>") { countDownLatch.countDown() }
+
+        countDownLatch.await()
+
+        verify(iamDialog, times(0)).show(any<FragmentManager>(), any())
+    }
+
 }

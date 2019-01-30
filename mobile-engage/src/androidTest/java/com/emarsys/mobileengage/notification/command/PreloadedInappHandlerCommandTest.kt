@@ -8,6 +8,7 @@ import androidx.test.filters.SdkSuppress
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.FileUtils
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.iam.InAppPresenter
@@ -17,7 +18,7 @@ import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import org.json.JSONObject
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -28,7 +29,7 @@ import java.io.File
 import java.util.concurrent.CountDownLatch
 
 @SdkSuppress(minSdkVersion = KITKAT)
-class PreloadedInappHandlerCommandTest{
+class PreloadedInappHandlerCommandTest {
     companion object {
         private const val URL = "https://www.google.com"
     }
@@ -48,7 +49,8 @@ class PreloadedInappHandlerCommandTest{
 
         dependencyContainer = mock(MobileEngageDependencyContainer::class.java)
         whenever(dependencyContainer.activityLifecycleWatchdog).thenReturn(activityLifecycleWatchdog)
-        whenever(dependencyContainer.inAppPresenter).thenReturn(mock<InAppPresenter>(InAppPresenter::class.java))
+        whenever(dependencyContainer.inAppPresenter).thenReturn(mock(InAppPresenter::class.java))
+        whenever(dependencyContainer.timestampProvider).thenReturn(mock(TimestampProvider::class.java))
         whenever(dependencyContainer.coreSdkHandler).thenReturn(coreSdkHandler)
     }
 
@@ -106,7 +108,7 @@ class PreloadedInappHandlerCommandTest{
 
         waitForEventLoopToFinish(coreSdkHandler)
 
-        verify<ActivityLifecycleWatchdog>(activityLifecycleWatchdog).addTriggerOnActivityAction(any<PushToInAppAction>(PushToInAppAction::class.java))
+        verify(activityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
     }
 
     @Test
@@ -125,7 +127,7 @@ class PreloadedInappHandlerCommandTest{
 
         waitForEventLoopToFinish(coreSdkHandler)
 
-        verify<ActivityLifecycleWatchdog>(activityLifecycleWatchdog).addTriggerOnActivityAction(any<PushToInAppAction>(PushToInAppAction::class.java))
+        verify(activityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
     }
 
     @Test
@@ -148,7 +150,7 @@ class PreloadedInappHandlerCommandTest{
 
         waitForEventLoopToFinish(coreSdkHandler)
 
-        verify<ActivityLifecycleWatchdog>(activityLifecycleWatchdog).addTriggerOnActivityAction(any<PushToInAppAction>(PushToInAppAction::class.java))
+        verify(activityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
 
         assertEquals(false, File(fileUrl).exists())
     }

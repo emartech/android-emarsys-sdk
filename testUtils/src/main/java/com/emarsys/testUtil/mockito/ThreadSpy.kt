@@ -1,7 +1,7 @@
 package com.emarsys.testUtil.mockito
 
 import android.os.Looper
-import junit.framework.Assert.assertEquals
+import io.kotlintest.shouldBe
 import org.hamcrest.Matchers.startsWith
 import org.junit.Assert.assertThat
 import org.mockito.invocation.InvocationOnMock
@@ -26,7 +26,7 @@ class ThreadSpy<T> @JvmOverloads constructor(private val result: T? = null) : An
 
     fun verifyCalledOnMainThread() {
         val expected = Looper.getMainLooper().thread
-        assertEquals(expected, thread)
+        thread shouldBe expected
     }
 
     fun verifyCalledOnCoreSdkThread() {

@@ -3,7 +3,6 @@ package com.emarsys.mobileengage.responsehandler;
 import android.os.Build;
 import android.os.Handler;
 
-import com.emarsys.core.database.repository.log.LogRepository;
 import com.emarsys.core.provider.Gettable;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
@@ -80,33 +79,15 @@ public class InAppMessageResponseHandlerTest {
                 mock(Gettable.class));
 
         handler = new InAppMessageResponseHandler(
-                presenter,
-                mock(LogRepository.class),
-                mock(TimestampProvider.class));
+                presenter
+        );
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_inAppPresenter_shouldNotBeNull() {
         new InAppMessageResponseHandler(
-                null,
-                mock(LogRepository.class),
-                mock(TimestampProvider.class));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_logRepository_shouldNotBeNull() {
-        new InAppMessageResponseHandler(
-                mock(InAppPresenter.class),
-                null,
-                mock(TimestampProvider.class));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_timestampProvider_shouldNotBeNull() {
-        new InAppMessageResponseHandler(
-                mock(InAppPresenter.class),
-                mock(LogRepository.class),
-                null);
+                null
+        );
     }
 
     @Test

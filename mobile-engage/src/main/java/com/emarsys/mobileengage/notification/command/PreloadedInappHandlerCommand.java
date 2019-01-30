@@ -67,7 +67,7 @@ public class PreloadedInappHandlerCommand implements Runnable {
     }
 
     private void scheduleInAppDisplay(String campaignId, String html, MobileEngageDependencyContainer container) {
-        PushToInAppAction pushToInAppAction = new PushToInAppAction(container.getInAppPresenter(), campaignId, html);
+        PushToInAppAction pushToInAppAction = new PushToInAppAction(container.getInAppPresenter(), campaignId, html, container.getTimestampProvider());
         container.getActivityLifecycleWatchdog().addTriggerOnActivityAction(pushToInAppAction);
     }
 }
