@@ -12,6 +12,7 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mockito.*
 
 class PredictInternalTest {
@@ -25,7 +26,7 @@ class PredictInternalTest {
 
     @Rule
     @JvmField
-    var timeout = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var mockKeyValueStore: KeyValueStore
     private lateinit var predictInternal: PredictInternal

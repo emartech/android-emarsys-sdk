@@ -2,12 +2,19 @@ package com.emarsys.predict.util
 
 import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.PredictCartItem
+import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 
 class CartItemUtilsTest {
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     lateinit var cartItem1: CartItem
     lateinit var cartItem2: CartItem

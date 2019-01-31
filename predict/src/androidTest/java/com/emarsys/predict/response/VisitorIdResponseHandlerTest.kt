@@ -5,13 +5,20 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.KeyValueStore
+import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
 class VisitorIdResponseHandlerTest {
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     lateinit var keyValueStore: KeyValueStore
     lateinit var responseHandler: VisitorIdResponseHandler
