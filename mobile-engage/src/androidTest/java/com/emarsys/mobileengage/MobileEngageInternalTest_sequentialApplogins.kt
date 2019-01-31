@@ -59,7 +59,7 @@ class MobileEngageInternalTest_sequentialApplogins {
 
     @Rule
     @JvmField
-    var timeout: TestRule = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     companion object {
         private const val TIMESTAMP: Long = 123

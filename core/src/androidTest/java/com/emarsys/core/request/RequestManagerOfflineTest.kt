@@ -50,7 +50,7 @@ class RequestManagerOfflineTest {
 
     @Rule
     @JvmField
-    var timeout: TestRule = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var connectionStates: Array<Boolean>
     private lateinit var requestResults: Array<Any>

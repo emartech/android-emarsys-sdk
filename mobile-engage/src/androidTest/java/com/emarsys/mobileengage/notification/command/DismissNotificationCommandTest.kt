@@ -15,7 +15,7 @@ class DismissNotificationCommandTest {
 
     @Rule
     @JvmField
-    var timeout: TestRule = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test(expected = IllegalArgumentException::class)
     fun testDismissNotification_context_mustNotBeNull() {

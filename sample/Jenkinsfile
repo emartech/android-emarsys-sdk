@@ -20,10 +20,16 @@ node('master') {
                     }
                     git url: 'git@github.com:emartech/android-emarsys-sdk.git', branch: 'master'
 
-                    def testFileCount = sh(returnStdout: true, script: 'find . -name  "*Test.java" | wc -l').trim() as Integer
-                    def timeoutRuleCount = sh(returnStdout: true, script: 'grep -r "^\\s*public TestRule timeout = TimeoutUtils.getTimeoutRule();" . | wc -l').trim() as Integer
-                    if (testFileCount != timeoutRuleCount) {
-                        error("$testFileCount tests found, but only $timeoutRuleCount timeout rules!")
+                    def javaTestFileCount = sh(returnStdout: true, script: 'find . -name  "*Test.java" | wc -l').trim() as Integer
+                    def kotlinTestFileCount = sh(returnStdout: true, script: 'find . -name  "*Test.kt" | wc -l').trim() as Integer
+                    def javaTimeoutRuleCount = sh(returnStdout: true, script: 'grep -r "^\\s*public TestRule timeout = TimeoutUtils.getTimeoutRule();" . | wc -l').trim() as Integer
+                    def kotlinTimeoutRuleCount = sh(returnStdout: true, script: 'grep -r "^\\s*val timeout: TestRule = TimeoutUtils.timeoutRule" . | wc -l').trim() as Integer
+
+                    if (javaTestFileCount != javaTimeoutRuleCount) {
+                        error("$javaTestFileCount java tests found, but only $javaTimeoutRuleCount timeout rules!")
+                    }
+                    if (kotlinTestFileCount != kotlinTimeoutRuleCount) {
+                        error("$javaTestFileCount kotlin tests found, but only $kotlinTimeoutRuleCount timeout rules!")
                     }
                 }
 

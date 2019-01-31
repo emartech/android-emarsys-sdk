@@ -33,7 +33,7 @@ class NotificationCommandFactoryTest {
 
     @Rule
     @JvmField
-    var timeout: TestRule = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var factory: NotificationCommandFactory
     private lateinit var context: Context

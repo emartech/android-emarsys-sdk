@@ -35,7 +35,7 @@ class InAppPresenterTest {
 
     @Rule
     @JvmField
-    var timeout: TestRule = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var coreSdkHandler: CoreSdkHandler
     private lateinit var iamWebViewProvider: IamWebViewProvider

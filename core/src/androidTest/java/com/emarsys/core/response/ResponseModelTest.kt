@@ -34,7 +34,7 @@ class ResponseModelTest {
 
     @Rule
     @JvmField
-    var timeout: TestRule = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun init() {

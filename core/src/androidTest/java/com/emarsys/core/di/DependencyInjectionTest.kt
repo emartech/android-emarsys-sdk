@@ -5,21 +5,18 @@ import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.matchers.beTheSameInstanceAs
 import io.kotlintest.should
 import io.kotlintest.shouldBe
-
 import org.junit.After
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-
 import org.mockito.Mockito.mock
 
 class DependencyInjectionTest {
 
     @Rule
     @JvmField
-    var timeout: TestRule = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun init() {

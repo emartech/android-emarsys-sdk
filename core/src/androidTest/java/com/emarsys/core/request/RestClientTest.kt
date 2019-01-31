@@ -1,8 +1,6 @@
 package com.emarsys.core.request
 
 import com.emarsys.core.connection.ConnectionProvider
-import com.emarsys.core.database.repository.Repository
-import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.fake.FakeCompletionHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -34,7 +32,7 @@ class RestClientTest {
 
     @Rule
     @JvmField
-    var timeout: TestRule = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Suppress("UNCHECKED_CAST")
     @Before

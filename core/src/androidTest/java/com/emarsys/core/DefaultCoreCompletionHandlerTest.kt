@@ -33,7 +33,7 @@ class DefaultCoreCompletionHandlerTest {
 
     @Rule
     @JvmField
-    var timeout: TestRule = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     @Suppress("UNCHECKED_CAST")
