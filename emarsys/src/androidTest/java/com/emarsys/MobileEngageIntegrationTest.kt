@@ -9,6 +9,7 @@ import android.os.Bundle
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.di.DefaultEmarsysDependencyContainer
@@ -72,7 +73,8 @@ class MobileEngageIntegrationTest {
                     mock(HardwareIdProvider::class.java).apply {
                         whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
                     },
-                    SDK_VERSION
+                    SDK_VERSION,
+                    mock(LanguageProvider::class.java)
             )
         })
 

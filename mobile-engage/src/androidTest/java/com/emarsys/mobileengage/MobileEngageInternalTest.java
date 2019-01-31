@@ -9,8 +9,9 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.core.DefaultCoreCompletionHandler;
-import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.api.result.CompletionListener;
+import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
@@ -110,7 +111,10 @@ public class MobileEngageInternalTest {
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE);
 
-        deviceInfo = new DeviceInfo(application, mock(HardwareIdProvider.class),SDK_VERSION);
+        deviceInfo = new DeviceInfo(application,
+                mock(HardwareIdProvider.class),
+                SDK_VERSION,
+                mock(LanguageProvider.class));
         appLoginStorage = new AppLoginStorage(sharedPreferences);
         appLoginStorage.remove();
 

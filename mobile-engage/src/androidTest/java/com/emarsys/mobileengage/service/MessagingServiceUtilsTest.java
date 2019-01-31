@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.mobileengage.api.inbox.Notification;
@@ -78,7 +79,7 @@ public class MessagingServiceUtilsTest {
     public void init() throws Exception {
         context = InstrumentationRegistry.getTargetContext();
 
-        deviceInfo = new DeviceInfo(context, mock(HardwareIdProvider.class), SDK_VERSION);
+        deviceInfo = new DeviceInfo(context, mock(HardwareIdProvider.class), SDK_VERSION, mock(LanguageProvider.class));
 
         Field cacheField = NotificationCache.class.getDeclaredField("internalCache");
         cacheField.setAccessible(true);

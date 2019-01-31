@@ -5,13 +5,14 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.emarsys.core.CoreCompletionHandler;
-import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.Registry;
 import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
 import com.emarsys.core.api.result.Try;
 import com.emarsys.core.database.repository.Repository;
+import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
@@ -91,6 +92,7 @@ public class InboxInternal_V1Test {
     private RequestContext requestContext;
     private UUIDProvider uuidProvider;
     private TimestampProvider timestampProvider;
+    private LanguageProvider languageProvider;
     private HardwareIdProvider hardwareIdProvider;
 
     @Rule
@@ -107,8 +109,10 @@ public class InboxInternal_V1Test {
 
         notificationList = createNotificationList();
         hardwareIdProvider = mock(HardwareIdProvider.class);
+        languageProvider = mock(LanguageProvider.class);
+
         when(hardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID);
-        deviceInfo = new DeviceInfo(application, hardwareIdProvider, SDK_VERSION);
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider, SDK_VERSION, languageProvider);
 
         uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn(REQUEST_ID);

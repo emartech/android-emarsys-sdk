@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -35,7 +36,10 @@ public class ImageUtilsTest {
     @Before
     public void setup() {
         context = InstrumentationRegistry.getTargetContext();
-        deviceInfo = new DeviceInfo(context, mock(HardwareIdProvider.class), SDK_VERSION);
+        deviceInfo = new DeviceInfo(context,
+                mock(HardwareIdProvider.class),
+                SDK_VERSION,
+                mock(LanguageProvider.class));
     }
 
     @Test

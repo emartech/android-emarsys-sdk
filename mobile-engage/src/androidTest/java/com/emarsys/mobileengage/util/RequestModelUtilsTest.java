@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.util;
 
 import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
@@ -65,7 +66,10 @@ public class RequestModelUtilsTest {
                 APPLICATION_CODE,
                 APPLICATION_PASSWORD,
                 1,
-                new DeviceInfo(InstrumentationRegistry.getTargetContext(), mock(HardwareIdProvider.class), SDK_VERSION),
+                new DeviceInfo(InstrumentationRegistry.getTargetContext(),
+                        mock(HardwareIdProvider.class),
+                        SDK_VERSION,
+                        mock(LanguageProvider.class)),
                 mock(AppLoginStorage.class),
                 meIdStorage,
                 mock(MeIdSignatureStorage.class),

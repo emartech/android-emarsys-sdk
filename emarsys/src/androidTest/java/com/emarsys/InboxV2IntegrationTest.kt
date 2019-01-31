@@ -5,8 +5,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.api.result.Try
+import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.di.DefaultEmarsysDependencyContainer
@@ -90,7 +91,8 @@ class InboxV2IntegrationTest {
                     mock(HardwareIdProvider::class.java).apply {
                         whenever(provideHardwareId()).thenReturn("inboxv2_integration_hwid")
                     },
-                    SDK_VERSION)
+                    SDK_VERSION,
+                    mock(LanguageProvider::class.java))
         })
 
         Emarsys.setup(baseConfig)

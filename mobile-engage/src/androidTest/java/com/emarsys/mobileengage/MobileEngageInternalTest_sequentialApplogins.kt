@@ -7,8 +7,9 @@ import android.os.Handler
 import android.os.Looper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.emarsys.core.DefaultCoreCompletionHandler
-import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -89,9 +90,12 @@ class MobileEngageInternalTest_sequentialApplogins {
         manager = mock(RequestManager::class.java)
         coreCompletionHandler = mock(DefaultCoreCompletionHandler::class.java)
         application = InstrumentationRegistry.getTargetContext().applicationContext as Application
-        deviceInfo = DeviceInfo(application, mock(HardwareIdProvider::class.java).apply {
-            whenever(this.provideHardwareId()).thenReturn(HARDWARE_ID)
-        }, SDK_VERSION)
+        deviceInfo = DeviceInfo(application,
+                mock(HardwareIdProvider::class.java).apply {
+                    whenever(this.provideHardwareId()).thenReturn(HARDWARE_ID)
+                },
+                SDK_VERSION,
+                mock(LanguageProvider::class.java))
         sharedPrefs = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
 
         appLoginStorage = AppLoginStorage(sharedPrefs)

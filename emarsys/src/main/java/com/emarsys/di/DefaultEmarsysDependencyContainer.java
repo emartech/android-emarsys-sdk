@@ -24,6 +24,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.log.LogRepository;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
@@ -243,11 +244,12 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         appLoginStorage = new AppLoginStorage(prefs);
         meIdStorage = new MeIdStorage(prefs);
         meIdSignatureStorage = new MeIdSignatureStorage(prefs);
-
+        LanguageProvider languageProvider = new LanguageProvider();
         HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, prefs);
 
         String sdkVersion = BuildConfig.VERSION_NAME;
-        deviceInfo = new DeviceInfo(application, hardwareIdProvider, sdkVersion);
+
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider, sdkVersion, languageProvider);
 
         currentActivityProvider = new CurrentActivityProvider();
         currentActivityWatchdog = new CurrentActivityWatchdog(currentActivityProvider);

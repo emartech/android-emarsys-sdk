@@ -29,10 +29,11 @@ public class DeviceInfo {
     private final boolean isDebugMode;
     private final String sdkVersion;
 
-    public DeviceInfo(Context context, HardwareIdProvider hardwareIdProvider, String sdkVersion) {
+    public DeviceInfo(Context context, HardwareIdProvider hardwareIdProvider, String sdkVersion, LanguageProvider languageProvider) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(hardwareIdProvider, "HardwareIdProvider must not be null!");
         Assert.notNull(sdkVersion, "SdkVersion must not be null!");
+        Assert.notNull(languageProvider, "LanguageProvider must not be null!");
 
         this.hwid = hardwareIdProvider.provideHardwareId();
 
@@ -42,7 +43,7 @@ public class DeviceInfo {
 
         this.platform = "android";
 
-        this.language = Locale.getDefault().getLanguage();
+        this.language = languageProvider.provideLanguage(Locale.getDefault());
 
         this.timezone = new SimpleDateFormat("Z", Locale.ENGLISH).format(Calendar.getInstance().getTime());
 

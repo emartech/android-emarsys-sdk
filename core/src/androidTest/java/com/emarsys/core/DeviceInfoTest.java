@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 
 import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.testUtil.ApplicationTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
@@ -27,6 +28,7 @@ import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,11 +37,13 @@ public class DeviceInfoTest {
 
     private static final String HARDWARE_ID = "hwid";
     private static final String SDK_VERSION = "sdkVersion";
+    private static final String LANGUAGE = "en-US";
 
     private DeviceInfo deviceInfo;
     private TimeZone tz;
     private Context context;
     private HardwareIdProvider hardwareIdProvider;
+    private LanguageProvider languageProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -52,7 +56,10 @@ public class DeviceInfoTest {
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();
 
         hardwareIdProvider = mock(HardwareIdProvider.class);
+        languageProvider = mock(LanguageProvider.class);
+
         when(hardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID);
+        when(languageProvider.provideLanguage(any(Locale.class))).thenReturn(LANGUAGE);
     }
 
     @After
@@ -62,22 +69,27 @@ public class DeviceInfoTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_context_mustNotBeNull() {
-        new DeviceInfo(null, hardwareIdProvider, SDK_VERSION);
+        new DeviceInfo(null, hardwareIdProvider, SDK_VERSION, languageProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_hardwareIdProvider_mustNotBeNull() {
-        new DeviceInfo(context, null, SDK_VERSION);
+        new DeviceInfo(context, null, SDK_VERSION, languageProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_sdkVersion_mustNotBeNull() {
-        new DeviceInfo(context, hardwareIdProvider, null);
+        new DeviceInfo(context, hardwareIdProvider, null, languageProvider);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_languageProvider_mustNotBeNull() {
+        new DeviceInfo(context, hardwareIdProvider, SDK_VERSION, null);
     }
 
     @Test
     public void testConstructor_initializesFields() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION);
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION, languageProvider);
         assertNotNull(deviceInfo.getHwid());
         assertNotNull(deviceInfo.getPlatform());
         assertNotNull(deviceInfo.getLanguage());
@@ -104,14 +116,14 @@ public class DeviceInfoTest {
         when(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo);
         when(mockContext.getApplicationInfo()).thenReturn(mock(ApplicationInfo.class));
 
-        DeviceInfo info = new DeviceInfo(mockContext, hardwareIdProvider, SDK_VERSION);
+        DeviceInfo info = new DeviceInfo(mockContext, hardwareIdProvider, SDK_VERSION, languageProvider);
 
         assertEquals(DeviceInfo.UNKNOWN_VERSION_NAME, info.getApplicationVersion());
     }
 
     @Test
     public void testTimezoneCorrectlyFormatted() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION);
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION, languageProvider);
         assertEquals("+0900", deviceInfo.getTimezone());
     }
 
@@ -126,7 +138,7 @@ public class DeviceInfoTest {
         config.locale = locale;
         resources.updateConfiguration(config, resources.getDisplayMetrics());
 
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION);
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION, languageProvider);
 
         Locale.setDefault(previous);
 
@@ -135,7 +147,7 @@ public class DeviceInfoTest {
 
     @Test
     public void testGetDisplayMetrics() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION);
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION, languageProvider);
         assertEquals(deviceInfo.getDisplayMetrics(), Resources.getSystem().getDisplayMetrics());
     }
 
@@ -143,7 +155,7 @@ public class DeviceInfoTest {
     public void testIsDebugMode_withDebugApplication() {
         Application mockDebugContext = ApplicationTestUtils.getApplicationDebug();
 
-        DeviceInfo debugDeviceInfo = new DeviceInfo(mockDebugContext, hardwareIdProvider, SDK_VERSION);
+        DeviceInfo debugDeviceInfo = new DeviceInfo(mockDebugContext, hardwareIdProvider, SDK_VERSION, languageProvider);
         assertTrue(debugDeviceInfo.isDebugMode());
     }
 
@@ -151,15 +163,26 @@ public class DeviceInfoTest {
     public void testIsDebugMode_withReleaseApplication() {
         Application mockReleaseContext = ApplicationTestUtils.getApplicationRelease();
 
-        DeviceInfo releaseDeviceInfo = new DeviceInfo(mockReleaseContext, hardwareIdProvider, SDK_VERSION);
+        DeviceInfo releaseDeviceInfo = new DeviceInfo(mockReleaseContext, hardwareIdProvider, SDK_VERSION, languageProvider);
         assertFalse(releaseDeviceInfo.isDebugMode());
     }
 
     @Test
     public void testHardwareId_isAcquiredFromHardwareIdProvider() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION);
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION, languageProvider);
 
         verify(hardwareIdProvider).provideHardwareId();
         assertEquals(HARDWARE_ID, deviceInfo.getHwid());
+    }
+
+    @Test
+    public void testGetLanguage_isAcquiredFromLanguageProvider() {
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION, languageProvider);
+
+        String language = deviceInfo.getLanguage();
+
+        verify(languageProvider).provideLanguage(Locale.getDefault());
+
+        assertEquals(LANGUAGE, language);
     }
 }
