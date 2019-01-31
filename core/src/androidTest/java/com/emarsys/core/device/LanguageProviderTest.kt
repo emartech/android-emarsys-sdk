@@ -1,7 +1,7 @@
 package com.emarsys.core.device
 
-import android.os.Build
-import androidx.annotation.RequiresApi
+import android.os.Build.VERSION_CODES.LOLLIPOP
+import androidx.test.filters.SdkSuppress
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Test
@@ -16,8 +16,8 @@ class LanguageProviderTest {
         languageProvider = LanguageProvider()
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Test
+    @SdkSuppress(minSdkVersion = LOLLIPOP)
     fun testProvideLanguage_shouldReturnCorrectLanguageCode() {
         val result = languageProvider.provideLanguage(Locale.US)
 
