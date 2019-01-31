@@ -4,12 +4,10 @@ import com.emarsys.core.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 
 public class RequestContext {
     private final String applicationCode;
@@ -93,7 +91,6 @@ public class RequestContext {
     }
 
     public void setAppLoginParameters(AppLoginParameters appLoginParameters) {
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Setting appLoginParameters: %s", appLoginParameters);
         this.appLoginParameters = appLoginParameters;
     }
 

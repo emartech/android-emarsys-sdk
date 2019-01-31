@@ -9,8 +9,6 @@ import android.net.NetworkInfo;
 import android.os.Handler;
 
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.log.CoreTopic;
-import com.emarsys.core.util.log.EMSLogger;
 
 public class ConnectionWatchDog {
 
@@ -49,9 +47,7 @@ public class ConnectionWatchDog {
 
     public boolean isConnected() {
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        boolean isConnected = networkInfo != null && networkInfo.isConnected();
-        EMSLogger.log(CoreTopic.CONNECTIVITY, "Connected to the network: %s", isConnected);
-        return isConnected;
+        return networkInfo != null && networkInfo.isConnected();
     }
 
     public void registerReceiver(ConnectionChangeListener connectionChangeListener) {
@@ -76,7 +72,6 @@ public class ConnectionWatchDog {
         public void onReceive(Context context, Intent intent) {
             final ConnectionState connectionState = getConnectionState();
             final boolean isConnected = isConnected();
-            EMSLogger.log(CoreTopic.CONNECTIVITY, "ConnectionState: %s, isConnected: %s", connectionState, isConnected);
 
             coreSdkHandler.post(new Runnable() {
                 @Override

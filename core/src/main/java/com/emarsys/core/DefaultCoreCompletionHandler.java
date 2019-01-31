@@ -6,8 +6,6 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.log.CoreTopic;
-import com.emarsys.core.util.log.EMSLogger;
 
 import java.util.List;
 import java.util.Map;
@@ -40,8 +38,6 @@ public class DefaultCoreCompletionHandler implements CoreCompletionHandler, Regi
 
     @Override
     public void onSuccess(final String id, final ResponseModel responseModel) {
-        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", responseModel);
-
         for (AbstractResponseHandler responseHandler : responseHandlers) {
             responseHandler.processResponse(responseModel);
         }
@@ -51,15 +47,11 @@ public class DefaultCoreCompletionHandler implements CoreCompletionHandler, Regi
 
     @Override
     public void onError(final String id, final Exception cause) {
-        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", cause);
-
         callCompletionListener(id, cause);
     }
 
     @Override
     public void onError(final String id, final ResponseModel responseModel) {
-        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", responseModel);
-
         Exception exception = new ResponseErrorException(
                 responseModel.getStatusCode(),
                 responseModel.getMessage(),

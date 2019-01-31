@@ -5,8 +5,6 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.trigger.TriggerKey;
-import com.emarsys.core.util.log.CoreTopic;
-import com.emarsys.core.util.log.EMSLogger;
 
 import java.util.List;
 import java.util.Map;
@@ -21,13 +19,11 @@ public class CoreDbHelper extends AbstractDbHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        EMSLogger.log(CoreTopic.OFFLINE, "Creating new database");
         onUpgrade(db, 0, DATABASE_VERSION);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        EMSLogger.log(CoreTopic.OFFLINE, "Upgrading existing database, old version: %s, new version: %s", oldVersion, newVersion);
         for (int i = oldVersion; i<newVersion; ++i){
             for (String sqlCommand:DatabaseContract.MIGRATION[i]) {
                 db.execSQL(sqlCommand);

@@ -12,8 +12,6 @@ import com.emarsys.core.request.factory.RunnableFactory;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.log.CoreTopic;
-import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.core.worker.Worker;
 
 import java.util.HashMap;
@@ -59,13 +57,11 @@ public class RequestManager {
     }
 
     public void setDefaultHeaders(Map<String, String> defaultHeaders) {
-        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", defaultHeaders);
         this.defaultHeaders = defaultHeaders;
     }
 
     public void submit(final RequestModel model, final CompletionListener callback) {
         Assert.notNull(model, "RequestModel must not be null!");
-        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", model);
 
         coreSDKHandler.post(runnableFactory.runnableFrom(new Runnable() {
             @Override
@@ -81,7 +77,6 @@ public class RequestManager {
 
     public void submit(final ShardModel model) {
         Assert.notNull(model, "ShardModel must not be null!");
-        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", model);
 
         coreSDKHandler.post(runnableFactory.runnableFrom(
                 new Runnable() {

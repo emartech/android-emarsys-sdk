@@ -9,8 +9,6 @@ import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.log.CoreTopic;
-import com.emarsys.core.util.log.EMSLogger;
 
 public class RestClient {
 
@@ -30,7 +28,6 @@ public class RestClient {
     public void execute(RequestModel model, CoreCompletionHandler completionHandler) {
         Assert.notNull(model, "Model must not be null!");
         Assert.notNull(completionHandler, "CoreCompletionHandler must not be null!");
-        EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", model);
 
         final RequestTask task = new RequestTask(
                 model,

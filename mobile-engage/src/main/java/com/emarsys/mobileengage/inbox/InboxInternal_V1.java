@@ -13,7 +13,6 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
@@ -21,7 +20,6 @@ import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
-import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +39,6 @@ public class InboxInternal_V1 implements InboxInternal {
             RequestContext requestContext) {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
-        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: requestContext %s, requestManager %s", requestContext, requestManager);
 
         this.handler = new Handler(Looper.getMainLooper());
         this.cache = new NotificationCache();
@@ -51,7 +48,6 @@ public class InboxInternal_V1 implements InboxInternal {
 
     @Override
     public void fetchNotifications(final ResultListener<Try<NotificationInboxStatus>> resultListener) {
-        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", resultListener);
         Assert.notNull(resultListener, "ResultListener should not be null!");
 
         if (requestContext.getAppLoginParameters() != null && requestContext.getAppLoginParameters().hasCredentials()) {
@@ -76,7 +72,6 @@ public class InboxInternal_V1 implements InboxInternal {
         manager.submitNow(model, new CoreCompletionHandler() {
             @Override
             public void onSuccess(String id, ResponseModel responseModel) {
-                EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
                 NotificationInboxStatus status = InboxParseUtils.parseNotificationInboxStatus(responseModel.getBody());
                 NotificationInboxStatus resultStatus = new NotificationInboxStatus(cache.merge(status.getNotifications()), status.getBadgeCount());
                 resultListener.onResult(Try.success(resultStatus));
@@ -84,7 +79,6 @@ public class InboxInternal_V1 implements InboxInternal {
 
             @Override
             public void onError(String id, ResponseModel responseModel) {
-                EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
                 resultListener.onResult(Try.failure(new ResponseErrorException(
                         responseModel.getStatusCode(),
                         responseModel.getMessage(),
@@ -93,7 +87,6 @@ public class InboxInternal_V1 implements InboxInternal {
 
             @Override
             public void onError(String id, Exception cause) {
-                EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, cause %s", id, cause);
                 resultListener.onResult(Try.failure(cause));
             }
         });
@@ -101,8 +94,6 @@ public class InboxInternal_V1 implements InboxInternal {
 
     @Override
     public void resetBadgeCount(final CompletionListener completionListener) {
-        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", completionListener);
-
         if (requestContext.getAppLoginParameters() != null && requestContext.getAppLoginParameters().hasCredentials()) {
             handleResetRequest(completionListener);
         } else {
@@ -119,7 +110,6 @@ public class InboxInternal_V1 implements InboxInternal {
 
     @Override
     public void trackNotificationOpen(Notification notification, CompletionListener completionListener) {
-        EMSLogger.log(MobileEngageTopic.INBOX, "Argument: %s", notification);
         Assert.notNull(notification, "Notification must not be null!");
 
         Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
@@ -136,7 +126,6 @@ public class InboxInternal_V1 implements InboxInternal {
 
     @Override
     public void purgeNotificationCache() {
-        EMSLogger.log(MobileEngageTopic.INBOX, "Called");
     }
 
     private void handleResetRequest(final CompletionListener resultListener) {
@@ -149,7 +138,6 @@ public class InboxInternal_V1 implements InboxInternal {
         manager.submitNow(model, new CoreCompletionHandler() {
             @Override
             public void onSuccess(String id, ResponseModel responseModel) {
-                EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
                 if (resultListener != null) {
                     resultListener.onCompleted(null);
                 }
@@ -157,7 +145,6 @@ public class InboxInternal_V1 implements InboxInternal {
 
             @Override
             public void onError(String id, ResponseModel responseModel) {
-                EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
                 if (resultListener != null) {
                     resultListener.onCompleted(new ResponseErrorException(
                             responseModel.getStatusCode(),
@@ -168,7 +155,6 @@ public class InboxInternal_V1 implements InboxInternal {
 
             @Override
             public void onError(String id, Exception cause) {
-                EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, cause %s", id, cause);
                 if (resultListener != null) {
                     resultListener.onCompleted(cause);
                 }

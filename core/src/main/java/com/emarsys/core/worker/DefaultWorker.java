@@ -15,8 +15,6 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.FilterByRequestId;
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.log.CoreTopic;
-import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.log.entry.OfflineQueueSize;
 
@@ -51,31 +49,24 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
 
     @Override
     public void lock() {
-        EMSLogger.log(CoreTopic.OFFLINE, "Old value: %s, new value: %s", locked, true);
         locked = true;
     }
 
     @Override
     public void unlock() {
-        EMSLogger.log(CoreTopic.OFFLINE, "Old value: %s, new value: %s", locked, false);
         locked = false;
     }
 
     @Override
     public boolean isLocked() {
-        EMSLogger.log(CoreTopic.OFFLINE, "Current locked status: %s", locked);
         return locked;
     }
 
     @Override
     public void run() {
-        EMSLogger.log(CoreTopic.OFFLINE, "Entered run");
-
         if (!isLocked() && connectionWatchDog.isConnected() && !requestRepository.isEmpty()) {
-            EMSLogger.log(CoreTopic.OFFLINE, "Connection is OK and queue is not empty");
             lock();
             RequestModel model = findFirstNonExpiredModel();
-            EMSLogger.log(CoreTopic.OFFLINE, "First non expired model: %s", model);
             if (model != null) {
                 restClient.execute(
                         model,
@@ -105,7 +96,6 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
             if (!result.isEmpty()) {
                 RequestModel model = result.get(0);
                 if (isExpired(model)) {
-                    EMSLogger.log(CoreTopic.OFFLINE, "Model expired: %s", model);
                     handleExpiration(model);
                 } else {
                     return model;

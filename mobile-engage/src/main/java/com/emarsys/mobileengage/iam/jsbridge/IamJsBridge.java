@@ -14,13 +14,11 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.Gettable;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.JsonUtils;
-import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
-import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -177,8 +175,7 @@ public class IamJsBridge {
             } else {
                 sendError(id, String.format("Missing %s!", property));
             }
-        } catch (JSONException je) {
-            EMSLogger.log(MobileEngageTopic.IN_APP_MESSAGE, "Exception occurred, exception: %s json: %s", je, jsonString);
+        } catch (JSONException ignored) {
         }
     }
 

@@ -14,7 +14,6 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
@@ -22,7 +21,6 @@ import com.emarsys.mobileengage.endpoint.Endpoint;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestModelUtils;
-import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +46,6 @@ public class InboxInternal_V2 implements InboxInternal {
             RequestContext requestContext) {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
-        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: requestContext %s, requestManager %s", requestContext, requestManager);
 
         this.mainHandler = new Handler(Looper.getMainLooper());
         this.cache = new NotificationCache();
@@ -63,7 +60,6 @@ public class InboxInternal_V2 implements InboxInternal {
 
     @Override
     public void fetchNotifications(final ResultListener<Try<NotificationInboxStatus>> resultListener) {
-        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", resultListener);
         Assert.notNull(resultListener, "ResultListener should not be null!");
 
         if (requestInProgress) {
@@ -95,7 +91,6 @@ public class InboxInternal_V2 implements InboxInternal {
                 manager.submitNow(model, new CoreCompletionHandler() {
                     @Override
                     public void onSuccess(String id, ResponseModel responseModel) {
-                        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
                         NotificationInboxStatus status = InboxParseUtils.parseNotificationInboxStatus(responseModel.getBody());
                         NotificationInboxStatus resultStatus = new NotificationInboxStatus(cache.merge(status.getNotifications()), status.getBadgeCount());
 
@@ -113,8 +108,6 @@ public class InboxInternal_V2 implements InboxInternal {
 
                     @Override
                     public void onError(String id, ResponseModel responseModel) {
-                        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
-
                         this.onError(id, new ResponseErrorException(
                                 responseModel.getStatusCode(),
                                 responseModel.getMessage(),
@@ -123,8 +116,6 @@ public class InboxInternal_V2 implements InboxInternal {
 
                     @Override
                     public void onError(String id, Exception cause) {
-                        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, cause %s", id, cause);
-
                         requestInProgress = false;
 
                         resultListener.onResult(Try.failure(cause));
@@ -141,8 +132,6 @@ public class InboxInternal_V2 implements InboxInternal {
 
     @Override
     public void resetBadgeCount(final CompletionListener completionListener) {
-        EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: resultListener %s", completionListener);
-
         String meId = requestContext.getMeIdStorage().get();
         if (meId != null) {
             RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
@@ -154,7 +143,6 @@ public class InboxInternal_V2 implements InboxInternal {
             manager.submitNow(model, new CoreCompletionHandler() {
                 @Override
                 public void onSuccess(String id, ResponseModel responseModel) {
-                    EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
                     if (lastNotificationInboxStatus != null) {
                         lastNotificationInboxStatus = new NotificationInboxStatus(lastNotificationInboxStatus.getNotifications(), 0);
                     }
@@ -165,7 +153,6 @@ public class InboxInternal_V2 implements InboxInternal {
 
                 @Override
                 public void onError(String id, ResponseModel responseModel) {
-                    EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, responseModel %s", id, responseModel);
                     if (completionListener != null) {
                         completionListener.onCompleted(new ResponseErrorException(
                                 responseModel.getStatusCode(),
@@ -176,7 +163,6 @@ public class InboxInternal_V2 implements InboxInternal {
 
                 @Override
                 public void onError(String id, Exception cause) {
-                    EMSLogger.log(MobileEngageTopic.INBOX, "Arguments: id %s, cause %s", id, cause);
                     if (completionListener != null) {
                         completionListener.onCompleted(cause);
                     }
@@ -196,7 +182,6 @@ public class InboxInternal_V2 implements InboxInternal {
 
     @Override
     public void trackNotificationOpen(Notification notification, final CompletionListener completionListener) {
-        EMSLogger.log(MobileEngageTopic.INBOX, "Argument: %s", notification);
         Assert.notNull(notification, "Notification must not be null!");
 
         final Exception exception = validateNotification(notification);
@@ -224,8 +209,6 @@ public class InboxInternal_V2 implements InboxInternal {
 
     @Override
     public void purgeNotificationCache() {
-        EMSLogger.log(MobileEngageTopic.INBOX, "Called");
-
         if (oneMinutePassedSince(purgeTime)) {
             lastNotificationInboxStatus = null;
             purgeTime = requestContext.getTimestampProvider().provideTimestamp();

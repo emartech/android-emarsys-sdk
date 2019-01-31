@@ -4,11 +4,10 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.os.Bundle;
+
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Action;
 import androidx.core.content.ContextCompat;
@@ -19,13 +18,11 @@ import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.FileUtils;
 import com.emarsys.core.util.ImageUtils;
-import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.core.validate.JsonObjectValidator;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.inbox.InboxParseUtils;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.util.AndroidVersionUtils;
-import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 import com.google.firebase.messaging.RemoteMessage;
 
 import org.json.JSONException;
@@ -52,11 +49,7 @@ public class MessagingServiceUtils {
         boolean handled = false;
         Map<String, String> remoteData = remoteMessage.getData();
 
-        EMSLogger.log(MobileEngageTopic.PUSH, "Remote message data %s", remoteData);
-
         if (MessagingServiceUtils.isMobileEngageMessage(remoteData)) {
-
-            EMSLogger.log(MobileEngageTopic.PUSH, "RemoteMessage is ME message");
 
             MessagingServiceUtils.cacheNotification(remoteData);
 

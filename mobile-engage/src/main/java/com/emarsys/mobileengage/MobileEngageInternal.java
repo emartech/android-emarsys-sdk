@@ -10,15 +10,12 @@ import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.TimestampUtils;
-import com.emarsys.core.util.log.CoreTopic;
-import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestModelUtils;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
-import com.emarsys.mobileengage.util.log.MobileEngageTopic;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONException;
@@ -49,7 +46,6 @@ public class MobileEngageInternal {
         Assert.notNull(manager, "Manager must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
         Assert.notNull(coreCompletionHandler, "CoreCompletionHandler must not be null!");
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Arguments: requestContext %s, manager %s, coreCompletionHandler %s", requestContext, manager, coreCompletionHandler);
 
         this.manager = manager;
         this.requestContext = requestContext;
@@ -75,7 +71,6 @@ public class MobileEngageInternal {
     }
 
     public void setPushToken(String pushToken) {
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Argument: %s", pushToken);
         this.pushToken = pushToken;
         if (requestContext.getAppLoginParameters() != null) {
             sendAppLogin(null);
@@ -93,8 +88,6 @@ public class MobileEngageInternal {
     }
 
     String sendAppLogin(CompletionListener completionListener) {
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Called");
-
         RequestModel model = RequestModelUtils.createAppLogin_V2(
                 requestContext,
                 pushToken);
@@ -115,8 +108,6 @@ public class MobileEngageInternal {
     public String appLogout(CompletionListener completionListener) {
         requestContext.setAppLoginParameters(null);
 
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Called");
-
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(ME_LOGOUT_V2)
                 .payload(RequestPayloadUtils.createBasePayload(requestContext))
@@ -135,8 +126,6 @@ public class MobileEngageInternal {
     }
 
     private String trackCustomEvent_V3(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Arguments: eventName %s, eventAttributes %s", eventName, eventAttributes);
-
         Map<String, Object> event = new HashMap<>();
         event.put("type", "custom");
         event.put("name", eventName);
@@ -165,7 +154,6 @@ public class MobileEngageInternal {
             Map<String, String> eventAttributes,
             CompletionListener completionListener) {
         Assert.notNull(eventName, "EventName must not be null!");
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Arguments: eventName %s, eventAttributes %s", eventName, eventAttributes);
 
         if (requestContext.getMeIdStorage().get() != null && requestContext.getMeIdSignatureStorage().get() != null) {
             RequestModel model = RequestModelUtils.createInternalCustomEvent(
@@ -181,11 +169,9 @@ public class MobileEngageInternal {
     }
 
     public String trackMessageOpen(Intent intent, CompletionListener completionListener) {
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "Argument: %s", intent);
         Assert.notNull(intent, "Intent must not be null!");
 
         String messageId = getMessageId(intent);
-        EMSLogger.log(MobileEngageTopic.MOBILE_ENGAGE, "MessageId %s", messageId);
 
         return handleMessageOpen(messageId, completionListener);
     }
@@ -214,9 +200,7 @@ public class MobileEngageInternal {
             uiHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Throwable cause = new IllegalArgumentException("No messageId found!");
-                    EMSLogger.log(CoreTopic.NETWORKING, "Argument: %s", cause);
-                    completionListener.onCompleted(cause);
+                    completionListener.onCompleted(new IllegalArgumentException("No messageId found!"));
                 }
             });
             return uuid;

@@ -6,8 +6,6 @@ import android.database.Cursor;
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.DbHelper;
 import com.emarsys.core.database.repository.AbstractSqliteRepository;
-import com.emarsys.core.util.log.CoreTopic;
-import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.core.util.serialization.SerializationException;
 
 import java.util.HashMap;
@@ -52,15 +50,13 @@ public class RequestModelRepository extends AbstractSqliteRepository<RequestMode
         Map<String, String> headers = new HashMap<>();
         try {
             headers = (Map<String, String>) blobToSerializable(cursor.getBlob(cursor.getColumnIndex(REQUEST_COLUMN_NAME_HEADERS)));
-        } catch (SerializationException | ClassCastException e) {
-            EMSLogger.log(CoreTopic.UTIL, "Exception: %s", e);
+        } catch (SerializationException | ClassCastException ignored) {
         }
 
         Map<String, Object> payload = new HashMap<>();
         try {
             payload = (Map<String, Object>) blobToSerializable(cursor.getBlob(cursor.getColumnIndex(REQUEST_COLUMN_NAME_PAYLOAD)));
-        } catch (SerializationException | ClassCastException e) {
-            EMSLogger.log(CoreTopic.UTIL, "Exception: %s", e);
+        } catch (SerializationException | ClassCastException ignored) {
         }
 
         long timeStamp = cursor.getLong(cursor.getColumnIndex(REQUEST_COLUMN_NAME_TIMESTAMP));

@@ -6,12 +6,9 @@ import android.database.Cursor;
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.AbstractSqliteRepository;
-import com.emarsys.core.util.log.CoreTopic;
-import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.core.util.serialization.SerializationException;
 import com.emarsys.core.util.serialization.SerializationUtils;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,8 +47,7 @@ public class ShardModelRepository extends AbstractSqliteRepository<ShardModel> {
         try {
             data = (Map<String, Object>) SerializationUtils
                     .blobToSerializable(cursor.getBlob(cursor.getColumnIndex(SHARD_COLUMN_DATA)));
-        } catch (SerializationException | ClassCastException e) {
-            EMSLogger.log(CoreTopic.UTIL, "Exception: %s", e);
+        } catch (SerializationException | ClassCastException ignored) {
         }
 
         long timeStamp = cursor.getLong(cursor.getColumnIndex(SHARD_COLUMN_TIMESTAMP));

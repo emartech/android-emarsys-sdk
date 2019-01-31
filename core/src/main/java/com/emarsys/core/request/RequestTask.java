@@ -10,8 +10,6 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.JsonUtils;
-import com.emarsys.core.util.log.CoreTopic;
-import com.emarsys.core.util.log.EMSLogger;
 import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.log.entry.InDatabaseTime;
 import com.emarsys.core.util.log.entry.NetworkingTime;
@@ -55,8 +53,6 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-        EMSLogger.log(CoreTopic.NETWORKING, "RequestModel: %s", requestModel);
-
         long dbEnd = timestampProvider.provideTimestamp();
         Logger.log(new InDatabaseTime(requestModel, dbEnd));
 
@@ -83,11 +79,9 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
     @Override
     protected void onPostExecute(Void result) {
         if (exception != null) {
-            EMSLogger.log(CoreTopic.NETWORKING, "Exception: %s", exception);
             handler.onError(requestModel.getId(), exception);
 
         } else if (responseModel != null) {
-            EMSLogger.log(CoreTopic.NETWORKING, "ResponseModel: %s", responseModel);
             if (isStatusCodeOK(responseModel.getStatusCode())) {
                 handler.onSuccess(requestModel.getId(), responseModel);
             } else {
