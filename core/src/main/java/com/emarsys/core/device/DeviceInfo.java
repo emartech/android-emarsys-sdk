@@ -15,7 +15,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class DeviceInfo {
-    static final String UNKNOWN_VERSION_NAME = "unknown";
+    public static final String UNKNOWN_VERSION_NAME = "unknown";
 
     private final String hwid;
     private final String platform;

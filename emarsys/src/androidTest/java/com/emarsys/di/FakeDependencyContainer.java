@@ -3,12 +3,13 @@ package com.emarsys.di;
 import android.os.Handler;
 
 import com.emarsys.core.DefaultCoreCompletionHandler;
-import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.RunnerProxy;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.shard.ShardModel;
@@ -41,6 +42,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final NotificationEventHandler notificationEventHandler;
     private final PredictInternal predictInternal;
     private final Runnable predictShardTrigger;
+    private final RunnerProxy runnerProxy;
 
     public FakeDependencyContainer(
             Handler coreSdkHandler,
@@ -61,7 +63,8 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             InAppPresenter inAppPresenter,
             NotificationEventHandler notificationEventHandler,
             PredictInternal predictInternal,
-            Runnable predictShardTrigger) {
+            Runnable predictShardTrigger,
+            RunnerProxy runnerProxy) {
         this.coreSdkHandler = coreSdkHandler;
         this.activityLifecycleWatchdog = activityLifecycleWatchdog;
         this.currentActivityWatchdog = currentActivityWatchdog;
@@ -81,6 +84,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
         this.notificationEventHandler = notificationEventHandler;
         this.predictInternal = predictInternal;
         this.predictShardTrigger = predictShardTrigger;
+        this.runnerProxy = runnerProxy;
     }
 
     @Override
@@ -176,5 +180,10 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     @Override
     public Runnable getPredictShardTrigger() {
         return predictShardTrigger;
+    }
+
+    @Override
+    public RunnerProxy getRunnerProxy() {
+        return runnerProxy;
     }
 }

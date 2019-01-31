@@ -7,7 +7,7 @@ import android.os.Looper;
 
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DefaultCoreCompletionHandler;
-import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.RunnerProxy;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
@@ -19,6 +19,7 @@ import com.emarsys.core.concurrency.CoreSdkHandler;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.trigger.TriggerEvent;
 import com.emarsys.core.database.trigger.TriggerType;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
@@ -104,6 +105,7 @@ public class EmarsysTest {
     private CoreSQLiteDatabase mockCoreDatabase;
     private Runnable mockPredictShardTrigger;
     private Runnable mockLogShardTrigger;
+    private RunnerProxy runnerProxy;
 
     private Application application;
     private CompletionListener completionListener;
@@ -134,6 +136,7 @@ public class EmarsysTest {
         mockLogShardTrigger = mock(BatchingShardTrigger.class);
 
         inappEventHandler = mock(EventHandler.class);
+        runnerProxy = new RunnerProxy();
 
         baseConfig = createConfig(false);
         configWithInAppEventHandler = createConfig(true);
@@ -161,7 +164,8 @@ public class EmarsysTest {
                 null,
                 null,
                 mockPredictInternal,
-                mockPredictShardTrigger
+                mockPredictShardTrigger,
+                runnerProxy
         ));
     }
 

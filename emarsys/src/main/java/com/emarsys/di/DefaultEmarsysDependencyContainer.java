@@ -9,7 +9,7 @@ import android.os.Looper;
 import com.emarsys.BuildConfig;
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DefaultCoreCompletionHandler;
-import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.RunnerProxy;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
 import com.emarsys.core.activity.CurrentActivityWatchdog;
@@ -23,6 +23,7 @@ import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.log.LogRepository;
 import com.emarsys.core.database.trigger.TriggerKey;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
@@ -116,6 +117,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private CurrentActivityWatchdog currentActivityWatchdog;
     private KeyValueStore sharedPrefsKeyStore;
     private CurrentActivityProvider currentActivityProvider;
+    private RunnerProxy runnerProxy;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeDependencies(emarsysConfig);
@@ -222,9 +224,14 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         return notificationEventHandler;
     }
 
+    @Override
+    public RunnerProxy getRunnerProxy() {
+        return runnerProxy;
+    }
+
     private void initializeDependencies(EmarsysConfig config) {
         application = config.getApplication();
-
+        runnerProxy = new RunnerProxy();
         SharedPreferences prefs = application.getSharedPreferences(EMARSYS_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
 
         inAppInternal = new InAppInternal();
