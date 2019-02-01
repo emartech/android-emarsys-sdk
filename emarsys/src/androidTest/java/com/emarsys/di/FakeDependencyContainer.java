@@ -13,6 +13,7 @@ import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.shard.ShardModel;
+import com.emarsys.core.util.log.Logger;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
@@ -43,6 +44,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final PredictInternal predictInternal;
     private final Runnable predictShardTrigger;
     private final RunnerProxy runnerProxy;
+    private final Logger logger;
 
     public FakeDependencyContainer(
             Handler coreSdkHandler,
@@ -64,7 +66,8 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             NotificationEventHandler notificationEventHandler,
             PredictInternal predictInternal,
             Runnable predictShardTrigger,
-            RunnerProxy runnerProxy) {
+            RunnerProxy runnerProxy,
+            Logger logger) {
         this.coreSdkHandler = coreSdkHandler;
         this.activityLifecycleWatchdog = activityLifecycleWatchdog;
         this.currentActivityWatchdog = currentActivityWatchdog;
@@ -85,6 +88,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
         this.predictInternal = predictInternal;
         this.predictShardTrigger = predictShardTrigger;
         this.runnerProxy = runnerProxy;
+        this.logger = logger;
     }
 
     @Override
@@ -185,5 +189,10 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     @Override
     public RunnerProxy getRunnerProxy() {
         return runnerProxy;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
     }
 }

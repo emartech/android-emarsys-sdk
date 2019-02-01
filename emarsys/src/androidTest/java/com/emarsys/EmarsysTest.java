@@ -26,6 +26,7 @@ import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.util.batch.BatchingShardTrigger;
+import com.emarsys.core.util.log.Logger;
 import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.di.FakeDependencyContainer;
@@ -108,6 +109,7 @@ public class EmarsysTest {
     private Runnable mockPredictShardTrigger;
     private Runnable mockLogShardTrigger;
     private RunnerProxy runnerProxy;
+    private Logger logger;
 
     private Application application;
     private CompletionListener completionListener;
@@ -139,6 +141,7 @@ public class EmarsysTest {
         mockLanguageProvider = mock(LanguageProvider.class);
         inappEventHandler = mock(EventHandler.class);
         runnerProxy = new RunnerProxy();
+        logger = mock(Logger.class);
 
         baseConfig = createConfig(false);
         configWithInAppEventHandler = createConfig(true);
@@ -167,7 +170,8 @@ public class EmarsysTest {
                 null,
                 mockPredictInternal,
                 mockPredictShardTrigger,
-                runnerProxy
+                runnerProxy,
+                logger
         ));
     }
 

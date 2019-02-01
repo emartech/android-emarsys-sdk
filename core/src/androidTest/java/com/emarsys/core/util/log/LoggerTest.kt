@@ -41,23 +41,28 @@ class LoggerTest {
     private lateinit var timestampProviderMock: TimestampProvider
     private lateinit var uuidProviderMock: UUIDProvider
     private lateinit var dependencyContainer: DependencyContainer
+    private lateinit var loggerInstance: Logger
+    private lateinit var loggerMock: Logger
 
     @Before
     @Suppress("UNCHECKED_CAST")
     fun init() {
-        shardRepositoryMock = mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>
         handler = CoreSdkHandlerProvider().provideHandler()
+        shardRepositoryMock = mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>
         timestampProviderMock = mock(TimestampProvider::class.java).apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
         uuidProviderMock = mock(UUIDProvider::class.java).apply {
             whenever(provideId()).thenReturn(UUID)
         }
+        loggerInstance = Logger(handler,
+                shardRepositoryMock,
+                timestampProviderMock,
+                uuidProviderMock)
+        loggerMock = mock(Logger::class.java)
+
         dependencyContainer = mock(DependencyContainer::class.java).apply {
-            whenever(shardRepository).thenReturn(shardRepositoryMock)
-            whenever(coreSdkHandler).thenReturn(handler)
-            whenever(timestampProvider).thenReturn(timestampProviderMock)
-            whenever(uuidProvider).thenReturn(uuidProviderMock)
+            whenever(logger).thenReturn(loggerMock)
         }
 
         DependencyInjection.setup(dependencyContainer)
@@ -69,15 +74,46 @@ class LoggerTest {
         DependencyInjection.tearDown()
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_handler_mustNotBeNull() {
+        Logger(null,
+                shardRepositoryMock,
+                timestampProviderMock,
+                uuidProviderMock)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_shardRepository_mustNotBeNull() {
+        Logger(handler,
+                null,
+                timestampProviderMock,
+                uuidProviderMock)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_timestampProvider_mustNotBeNull() {
+        Logger(handler,
+                shardRepositoryMock,
+                null,
+                uuidProviderMock)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_uuidProvider_mustNotBeNull() {
+        Logger(handler,
+                shardRepositoryMock,
+                timestampProviderMock,
+                null)
+    }
+
     @Test
-    fun testLog_addsLog_toLogRepository() {
+    fun testPersistLog_addsLog_toLogRepository() {
         val logContent = mapOf(
                 "key1" to "value",
                 "key2" to 3,
                 "key3" to true
         )
-
-        Logger.log(logEntryMock("log_crash", logContent))
+        loggerInstance.persistLog(logEntryMock("log_crash", logContent))
 
         val captor = ArgumentCaptor.forClass(ShardModel::class.java)
 
@@ -92,26 +128,36 @@ class LoggerTest {
     }
 
     @Test
-    fun testLog_addsLog_toLogRepository_viaCoreSdkHandler() {
+    fun testPersistLog_addsLog_toLogRepository_viaCoreSdkHandler() {
         val threadSpy = ThreadSpy<Unit>()
         doAnswer(threadSpy).`when`(shardRepositoryMock).add(ArgumentMatchers.any())
 
-        Logger.log(logEntryMock())
+        loggerInstance.persistLog(logEntryMock())
 
         threadSpy.verifyCalledOnCoreSdkThread()
     }
 
     @Test
+    fun testLog_delegatesToInstance() {
+        val logEntry = logEntryMock()
+
+        Logger.log(logEntry)
+
+        verify(loggerMock, Mockito.timeout(100)).persistLog(logEntry)
+    }
+
+    @Test
     fun testLog_doesNotLogAnything_ifDependencyInjection_isNotSetup() {
         DependencyInjection.tearDown()
-        handler = spy(handler)
-        whenever(dependencyContainer.coreSdkHandler).thenReturn(handler)
+
+        dependencyContainer = mock(DependencyContainer::class.java)
+
         DependencyInjection.setup(dependencyContainer)
         DependencyInjection.tearDown()
 
         Logger.log(logEntryMock())
 
-        verifyZeroInteractions(handler)
+        verifyZeroInteractions(dependencyContainer)
     }
 
     private fun logEntryMock(topic: String = "", data: Map<String, Any> = mapOf()) =

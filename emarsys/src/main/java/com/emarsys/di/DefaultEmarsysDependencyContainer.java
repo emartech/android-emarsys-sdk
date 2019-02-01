@@ -43,6 +43,7 @@ import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.batch.BatchingShardTrigger;
 import com.emarsys.core.util.batch.ListChunker;
 import com.emarsys.core.util.log.LogShardListMerger;
+import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.predicate.ListSizeAtLeast;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
@@ -119,6 +120,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private KeyValueStore sharedPrefsKeyStore;
     private CurrentActivityProvider currentActivityProvider;
     private RunnerProxy runnerProxy;
+    private Logger logger;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeDependencies(emarsysConfig);
@@ -223,6 +225,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     @Override
     public NotificationEventHandler getNotificationEventHandler() {
         return notificationEventHandler;
+    }
+
+    @Override
+    public Logger getLogger() {
+        return logger;
     }
 
     @Override
@@ -341,6 +348,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         deepLinkInternal = new DeepLinkInternal(requestManager, requestContext);
         predictInternal = new PredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);
+
+        logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
