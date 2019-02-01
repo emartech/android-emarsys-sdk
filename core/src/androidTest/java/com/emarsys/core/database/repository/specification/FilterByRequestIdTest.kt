@@ -15,13 +15,14 @@ import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import java.util.*
 
 class FilterByRequestIdTest {
 
     @Rule
     @JvmField
-    val timeout = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var repository: RequestModelRepository
     private lateinit var requestModel1: RequestModel

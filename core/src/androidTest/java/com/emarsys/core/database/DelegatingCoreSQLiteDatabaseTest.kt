@@ -10,13 +10,14 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 
 class DelegatingCoreSQLiteDatabaseTest {
 
     @Rule
     @JvmField
-    val timeout = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     lateinit var db: DelegatingCoreSQLiteDatabase
     lateinit var triggerMap: MutableMap<TriggerKey, List<Runnable>>

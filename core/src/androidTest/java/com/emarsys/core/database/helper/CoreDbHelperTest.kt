@@ -11,6 +11,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 
 class CoreDbHelperTest {
 
@@ -20,7 +21,7 @@ class CoreDbHelperTest {
 
     @Rule
     @JvmField
-    val timeout = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     lateinit var dbHelper: CoreDbHelper
     lateinit var db: SQLiteDatabase

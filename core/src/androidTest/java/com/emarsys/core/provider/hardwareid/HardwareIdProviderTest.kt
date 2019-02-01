@@ -4,10 +4,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.provider.Settings
 import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mockito
 import org.mockito.Mockito.*
 
@@ -17,6 +20,10 @@ class HardwareIdProviderTest {
         private const val HARDWARE_ID_KEY = "hardwareId"
         private const val HARDWARE_ID = "hw_value"
     }
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     lateinit var context: Context
     lateinit var sharedPrefs: SharedPreferences

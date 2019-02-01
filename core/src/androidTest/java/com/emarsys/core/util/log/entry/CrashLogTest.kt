@@ -5,6 +5,7 @@ import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 
 class CrashLogTest {
 
@@ -13,7 +14,7 @@ class CrashLogTest {
 
     @Rule
     @JvmField
-    var timeout = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun init() {

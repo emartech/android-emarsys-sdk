@@ -12,6 +12,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.Mockito.*
@@ -21,7 +22,7 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
 
     @Rule
     @JvmField
-    val timeout = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Parameterized.Parameter
     lateinit var tableName: String

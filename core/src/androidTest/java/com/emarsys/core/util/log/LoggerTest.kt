@@ -32,15 +32,15 @@ class LoggerTest {
         const val TTL = Long.MAX_VALUE
     }
 
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
+
     private lateinit var handler: Handler
     private lateinit var shardRepositoryMock: Repository<ShardModel, SqlSpecification>
     private lateinit var timestampProviderMock: TimestampProvider
     private lateinit var uuidProviderMock: UUIDProvider
     private lateinit var dependencyContainer: DependencyContainer
-
-    @Rule
-    @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     @Suppress("UNCHECKED_CAST")

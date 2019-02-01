@@ -7,6 +7,7 @@ import io.kotlintest.should
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import java.net.URL
@@ -21,7 +22,7 @@ class ConnectionProviderTest {
 
     @Rule
     @JvmField
-    var timeout = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

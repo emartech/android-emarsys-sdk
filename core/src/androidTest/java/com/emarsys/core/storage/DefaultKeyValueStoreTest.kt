@@ -4,10 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.TimeoutUtils
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 
 class DefaultKeyValueStoreTest {
     companion object {
@@ -20,6 +23,10 @@ class DefaultKeyValueStoreTest {
         private const val KEY5 = "key5"
         private const val KEY6 = "key6"
     }
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var store: DefaultKeyValueStore
     private lateinit var prefs: SharedPreferences

@@ -8,6 +8,7 @@ import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 
 class NetworkingTimeTest{
 
@@ -24,7 +25,7 @@ class NetworkingTimeTest{
 
     @Rule
     @JvmField
-    var timeout = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun init() {

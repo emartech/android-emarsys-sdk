@@ -10,6 +10,7 @@ import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.Mockito
@@ -20,7 +21,7 @@ class DelegatingCoreSQLiteDatabase_triggerRecursion_parameterizedTest {
 
     @Rule
     @JvmField
-    val timeout = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Parameterized.Parameter
     lateinit var triggerType: TriggerType

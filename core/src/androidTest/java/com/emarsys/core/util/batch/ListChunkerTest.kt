@@ -1,13 +1,20 @@
 package com.emarsys.core.util.batch
 
 import com.emarsys.core.shard.ShardModel
+import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 
 class ListChunkerTest {
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var chunker: ListChunker<Any>
 
