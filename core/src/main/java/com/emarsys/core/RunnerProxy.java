@@ -5,7 +5,7 @@ import com.emarsys.core.util.log.entry.CrashLog;
 
 public class RunnerProxy {
 
-    public void safeRun(Runnable runnable) {
+    public void logException(Runnable runnable) {
         try {
             runnable.run();
         } catch (Exception exception) {
@@ -13,5 +13,15 @@ public class RunnerProxy {
             throw exception;
         }
     }
+
+    public <T> T logException(Callable<T> callable) {
+        try {
+            return callable.call();
+        } catch (Exception exception) {
+            Logger.log(new CrashLog(exception));
+            throw exception;
+        }
+    }
+
 
 }

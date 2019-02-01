@@ -12,14 +12,13 @@ import com.emarsys.core.util.Assert;
 
 public class ConnectionWatchDog {
 
-    IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-
-    BroadcastReceiver receiver;
+    private IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+    private BroadcastReceiver receiver;
+    private Handler coreSdkHandler;
 
     ConnectivityManager connectivityManager;
 
     Context context;
-    Handler coreSdkHandler;
 
     protected ConnectionWatchDog() {
     }
@@ -27,6 +26,7 @@ public class ConnectionWatchDog {
     public ConnectionWatchDog(Context context, Handler coreSdkHandler) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(coreSdkHandler, "CoreSdkHandler must not be null!");
+
         this.context = context.getApplicationContext();
         this.coreSdkHandler = coreSdkHandler;
         this.connectivityManager = (ConnectivityManager) this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -65,6 +65,7 @@ public class ConnectionWatchDog {
 
         public ConnectivityChangeReceiver(ConnectionChangeListener connectionChangeListener) {
             Assert.notNull(connectionChangeListener, "ConnectionChangeListener must not be null!");
+
             this.connectionChangeListener = connectionChangeListener;
         }
 
