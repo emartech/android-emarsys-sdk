@@ -20,7 +20,7 @@ node('master') {
                     error("$javaTestFileCount java tests found, but only $javaTimeoutRuleCount timeout rules!")
                 }
                 if (kotlinTestFileCount != kotlinTimeoutRuleCount) {
-                    error("$javaTestFileCount kotlin tests found, but only $kotlinTimeoutRuleCount timeout rules!")
+                    error("$kotlinTestFileCount kotlin tests found, but only $kotlinTimeoutRuleCount timeout rules!")
                 }
             }
 
