@@ -13,9 +13,6 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
-import com.emarsys.core.database.repository.Repository;
-import com.emarsys.core.database.repository.SqlSpecification;
-import com.emarsys.core.database.repository.log.LogRepository;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.Logger;
@@ -25,7 +22,6 @@ import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 
 import java.util.List;
-import java.util.Map;
 
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.DialogFragment;
@@ -46,8 +42,6 @@ public class IamDialog extends DialogFragment {
     private boolean dismissed;
 
     TimestampProvider timestampProvider;
-    Repository<Map<String, Object>, SqlSpecification> logRepository;
-
     public static IamDialog create(String campaignId, String requestId) {
         Assert.notNull(campaignId, "CampaignId must not be null!");
 
@@ -72,7 +66,6 @@ public class IamDialog extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NO_FRAME, android.R.style.Theme_Dialog);
-        logRepository = new LogRepository(getActivity());
     }
 
     @Override

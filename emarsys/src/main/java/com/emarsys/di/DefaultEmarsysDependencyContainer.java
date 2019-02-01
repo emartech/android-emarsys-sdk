@@ -21,7 +21,6 @@ import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
-import com.emarsys.core.database.repository.log.LogRepository;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
@@ -63,8 +62,6 @@ import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestReposito
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternalProvider;
-import com.emarsys.mobileengage.log.LogRepositoryProxy;
-import com.emarsys.mobileengage.log.handler.IamMetricsLogHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
@@ -77,10 +74,8 @@ import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.predict.shard.PredictShardListMerger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DefaultEmarsysDependencyContainer implements EmarysDependencyContainer {
 
@@ -113,7 +108,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private DisplayedIamRepository displayedIamRepository;
     private Repository<RequestModel, SqlSpecification> requestModelRepository;
     private RestClient restClient;
-    private Repository<Map<String, Object>, SqlSpecification> logRepositoryProxy;
     private Application application;
     private ActivityLifecycleWatchdog activityLifecycleWatchdog;
     private CurrentActivityWatchdog currentActivityWatchdog;
@@ -270,11 +264,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
 
-        Repository<Map<String, Object>, SqlSpecification> logRepository = new LogRepository(application);
-        List<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>> logHandlers = Arrays.<com.emarsys.core.handler.Handler<Map<String, Object>, Map<String, Object>>>asList(
-                new IamMetricsLogHandler(new HashMap<String, Map<String, Object>>())
-        );
-        logRepositoryProxy = new LogRepositoryProxy(logRepository, logHandlers);
         restClient = new RestClient(new ConnectionProvider(), timestampProvider);
 
         ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(application, coreSdkHandler);

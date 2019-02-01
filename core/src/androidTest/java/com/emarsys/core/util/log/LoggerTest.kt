@@ -107,7 +107,7 @@ class LoggerTest {
     }
 
     @Test
-    fun testPersistLog_addsLog_toLogRepository() {
+    fun testPersistLog_addsLog_toShardRepository() {
         val logContent = mapOf(
                 "key1" to "value",
                 "key2" to 3,
@@ -128,7 +128,7 @@ class LoggerTest {
     }
 
     @Test
-    fun testPersistLog_addsLog_toLogRepository_viaCoreSdkHandler() {
+    fun testPersistLog_addsLog_toShardRepository_viaCoreSdkHandler() {
         val threadSpy = ThreadSpy<Unit>()
         doAnswer(threadSpy).`when`(shardRepositoryMock).add(ArgumentMatchers.any())
 
