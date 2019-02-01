@@ -38,7 +38,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
 
 @RunWith(AndroidJUnit4::class)
-class MobileEngageInternalTest_sequentialApplogins {
+class MobileEngageInternalTest_sequentialApploginsTest {
 
     private lateinit var coreCompletionHandler: DefaultCoreCompletionHandler
     private lateinit var expectedDefaultHeaders: Map<String, String>
