@@ -23,6 +23,7 @@ class LogShardListMergerTest {
         const val ID = "id"
         const val TIMESTAMP = 125L
         const val TTL = Long.MAX_VALUE
+        const val APPLICATION_CODE = "applicationCode"
     }
 
     lateinit var merger: LogShardListMerger
@@ -51,7 +52,7 @@ class LogShardListMergerTest {
         whenever(deviceInfo.hwid).thenReturn("hardwareId")
         whenever(deviceInfo.sdkVersion).thenReturn("1.6.1")
 
-        merger = LogShardListMerger(timestampProvider, uuidProvider, deviceInfo)
+        merger = LogShardListMerger(timestampProvider, uuidProvider, deviceInfo, APPLICATION_CODE)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -73,9 +74,24 @@ class LogShardListMergerTest {
         merger.map(listOf())
     }
 
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun testConstructor_timestampProvider_mustNotBeNull() {
+        LogShardListMerger(null, uuidProvider, deviceInfo, APPLICATION_CODE)
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun testConstructor_uuidProvider_mustNotBeNull() {
+        LogShardListMerger(timestampProvider, null, deviceInfo, APPLICATION_CODE)
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_deviceInfo_mustNotBeNull() {
-        LogShardListMerger(timestampProvider, uuidProvider, null)
+        LogShardListMerger(timestampProvider, uuidProvider, null, APPLICATION_CODE)
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun testConstructor_appCode_mustNotBeNull() {
+        LogShardListMerger(timestampProvider, uuidProvider, deviceInfo, null)
     }
 
     @Test
@@ -126,7 +142,8 @@ class LogShardListMergerTest {
                 "sdk_version" to "1.6.1",
                 "os_version" to "8.0",
                 "model" to "Pixel",
-                "hw_id" to "hardwareId"
+                "hw_id" to "hardwareId",
+                "application_code" to "applicationCode"
         )
     }
 
