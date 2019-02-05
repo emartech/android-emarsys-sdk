@@ -2,8 +2,6 @@ package com.emarsys.core.request;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.connection.ConnectionProvider;
-import com.emarsys.core.database.repository.Repository;
-import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
@@ -18,7 +16,6 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -28,8 +25,6 @@ import static org.mockito.Mockito.when;
 public class RequestTaskTest {
 
     private static final String WRONG_URL = "https://localhost/missing";
-    public static final String NETWORKING_TIME = "networking_time";
-    public static final String IN_DATABASE = "in_database_time";
     private static final long TIMESTAMP_1 = 600;
     private static final long TIMESTAMP_2 = 1600;
 
@@ -37,7 +32,6 @@ public class RequestTaskTest {
 
     private CoreCompletionHandler coreCompletionHandler;
     private ConnectionProvider connectionProvider;
-    private Repository<Map<String, Object>, SqlSpecification> logRepository;
     private TimestampProvider timestampProvider;
 
     @Rule
@@ -49,7 +43,6 @@ public class RequestTaskTest {
         requestModel = mock(RequestModel.class);
         coreCompletionHandler = mock(CoreCompletionHandler.class);
         connectionProvider = new ConnectionProvider();
-        logRepository = mock(Repository.class);
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP_1, TIMESTAMP_2);
     }
