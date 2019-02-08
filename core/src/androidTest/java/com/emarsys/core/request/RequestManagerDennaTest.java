@@ -169,6 +169,28 @@ public class RequestManagerDennaTest {
     }
 
     @Test
+    public void testPut() throws Exception {
+        model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO).method(RequestMethod.PUT).headers(headers).build();
+        manager.submit(model, null);
+        latch.await();
+
+        assertEquals(null, fakeCompletionHandler.getException());
+        assertEquals(0, fakeCompletionHandler.getOnErrorCount());
+        assertEquals(1, fakeCompletionHandler.getOnSuccessCount());
+        assertEquals(200, fakeCompletionHandler.getSuccessResponseModel().getStatusCode());
+
+        JSONObject responseJson = new JSONObject(fakeCompletionHandler.getSuccessResponseModel().getBody());
+        JSONObject headers = responseJson.getJSONObject("headers");
+
+        assertEquals("value1", headers.get("Header1"));
+        assertEquals("value2", headers.get("Header2"));
+        assertEquals("application/json", headers.get("Accept"));
+        assertEquals("application/x-www-form-urlencoded", headers.get("Content"));
+        assertEquals("PUT", responseJson.get("method"));
+        assertFalse(responseJson.has("body"));
+    }
+
+    @Test
     public void testDelete() throws Exception {
         model = new RequestModel.Builder(timestampProvider, uuidProvider).url(DENNA_ECHO).method(RequestMethod.DELETE).headers(headers).build();
         manager.submit(model, null);
