@@ -8,7 +8,7 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId;
-import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.mobileengage.util.RequestUrlUtils_Old;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,7 +42,7 @@ public class InAppCleanUpResponseHandler extends AbstractResponseHandler {
     }
 
     private boolean isCustomEventResponseModel(ResponseModel responseModel) {
-        return RequestUrlUtils.isCustomEvent_V3(responseModel.getRequestModel().getUrl().toString());
+        return RequestUrlUtils_Old.isCustomEvent_V3(responseModel.getRequestModel().getUrl().toString());
     }
 
     @Override

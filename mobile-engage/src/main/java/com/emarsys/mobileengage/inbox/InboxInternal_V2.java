@@ -19,8 +19,8 @@ import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.endpoint.Endpoint;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
-import com.emarsys.mobileengage.util.RequestHeaderUtils;
-import com.emarsys.mobileengage.util.RequestModelUtils;
+import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
+import com.emarsys.mobileengage.util.RequestModelUtils_Old;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,7 +78,7 @@ public class InboxInternal_V2 implements InboxInternal {
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        resultListener.onResult(Try.failure(new NotificationInboxException("Missing MeId, appLogin must be called before calling fetchNotifications!")));
+                        resultListener.onResult(Try.failure(new NotificationInboxException("Missing MeId, setAnonymousContact must be called before calling fetchNotifications!")));
                     }
                 });
             } else {
@@ -190,7 +190,7 @@ public class InboxInternal_V2 implements InboxInternal {
             Map<String, String> attributes = new HashMap<>();
             attributes.put("message_id", notification.getId());
             attributes.put("sid", notification.getSid());
-            RequestModel requestModel = RequestModelUtils.createInternalCustomEvent(
+            RequestModel requestModel = RequestModelUtils_Old.createInternalCustomEvent(
                     "inbox:open",
                     attributes,
                     requestContext);
@@ -239,8 +239,8 @@ public class InboxInternal_V2 implements InboxInternal {
         Map<String, String> result = new HashMap<>();
 
         result.put("x-ems-me-application-code", requestContext.getApplicationCode());
-        result.putAll(RequestHeaderUtils.createDefaultHeaders(requestContext));
-        result.putAll(RequestHeaderUtils.createBaseHeaders_V2(requestContext));
+        result.putAll(RequestHeaderUtils_Old.createDefaultHeaders(requestContext));
+        result.putAll(RequestHeaderUtils_Old.createBaseHeaders_V2(requestContext));
 
         return result;
     }

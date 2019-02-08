@@ -5,6 +5,7 @@ import android.os.Handler;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.testUtil.TimeoutUtils;
 import com.emarsys.testUtil.mockito.ThreadSpy;
 
@@ -39,7 +40,7 @@ public class SendDisplayedIamActionTest {
     @Before
     public void init() {
         handler = new CoreSdkHandlerProvider().provideHandler();
-        mobileEngageInternal = mock(MobileEngageInternal.class);
+        mobileEngageInternal = mock(MobileEngageInternal_V3_Old.class);
         action = new SendDisplayedIamAction(handler, mobileEngageInternal);
     }
 
@@ -52,7 +53,7 @@ public class SendDisplayedIamActionTest {
     public void testConstructor_handler_mustNotBeNull() {
         new SendDisplayedIamAction(
                 null,
-                mock(MobileEngageInternal.class)
+                mock(MobileEngageInternal_V3_Old.class)
         );
     }
 

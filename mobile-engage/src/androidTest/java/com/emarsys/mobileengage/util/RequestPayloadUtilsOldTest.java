@@ -6,7 +6,7 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.mobileengage.BuildConfig;
-import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.iam.model.IamConversionUtils;
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RequestPayloadUtilsTest {
+public class RequestPayloadUtilsOldTest {
     private static final String APPLICATION_CODE = "applicationCode";
     private static final String APPLICATION_PASSWORD = "applicationPassword";
     public static final String MOBILEENGAGE_SDK_VERSION = BuildConfig.VERSION_NAME;
@@ -76,24 +76,24 @@ public class RequestPayloadUtilsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateBasePayload_requestContext_ShouldNotBeNull() {
-        RequestPayloadUtils.createBasePayload(null);
+        RequestPayloadUtils_Old.createBasePayload(null);
     }
 
     @Test
     public void testCreateBasePayload_shouldReturnTheCorrectPayload() {
-        Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
-        Map<String, Object> expected = RequestPayloadUtils.createBasePayload(new HashMap<String, Object>(), requestContext);
+        Map<String, Object> payload = RequestPayloadUtils_Old.createBasePayload(requestContext);
+        Map<String, Object> expected = RequestPayloadUtils_Old.createBasePayload(new HashMap<String, Object>(), requestContext);
         assertEquals(expected, payload);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateBasePayload_map_additionalPayloadShouldNotBeNull() {
-        RequestPayloadUtils.createBasePayload(null, requestContext);
+        RequestPayloadUtils_Old.createBasePayload(null, requestContext);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateBasePayload_map_requestContext_ShouldNotBeNull() {
-        RequestPayloadUtils.createBasePayload(new HashMap<String, Object>(), null);
+        RequestPayloadUtils_Old.createBasePayload(new HashMap<String, Object>(), null);
     }
 
     @Test
@@ -109,7 +109,7 @@ public class RequestPayloadUtilsTest {
         input.put("key1", "value1");
         input.put("key2", "value2");
 
-        Map<String, Object> result = RequestPayloadUtils.createBasePayload(input, requestContext);
+        Map<String, Object> result = RequestPayloadUtils_Old.createBasePayload(input, requestContext);
 
         assertEquals(expected, result);
     }
@@ -127,7 +127,7 @@ public class RequestPayloadUtilsTest {
         expected.put("contact_field_id", contactFieldId);
         expected.put("contact_field_value", contactFieldValue);
 
-        Map<String, Object> result = RequestPayloadUtils.createBasePayload(requestContext);
+        Map<String, Object> result = RequestPayloadUtils_Old.createBasePayload(requestContext);
 
         assertEquals(expected, result);
     }
@@ -140,7 +140,7 @@ public class RequestPayloadUtilsTest {
         expected.put("application_id", requestContext.getApplicationCode());
         expected.put("hardware_id", requestContext.getDeviceInfo().getHwid());
 
-        Map<String, Object> result = RequestPayloadUtils.createBasePayload(requestContext);
+        Map<String, Object> result = RequestPayloadUtils_Old.createBasePayload(requestContext);
 
         assertEquals(expected, result);
     }
@@ -152,19 +152,19 @@ public class RequestPayloadUtilsTest {
         expected.put("application_id", requestContext.getApplicationCode());
         expected.put("hardware_id", requestContext.getDeviceInfo().getHwid());
 
-        Map<String, Object> result = RequestPayloadUtils.createBasePayload(requestContext);
+        Map<String, Object> result = RequestPayloadUtils_Old.createBasePayload(requestContext);
 
         assertEquals(expected, result);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateAppLoginPayload_requestContext_mustNotBeNull() {
-        RequestPayloadUtils.createAppLoginPayload(null, PUSH_TOKEN);
+        RequestPayloadUtils_Old.createAppLoginPayload(null, PUSH_TOKEN);
     }
 
     @Test
     public void testCreateAppLoginPayload_withMissingPushToken() {
-        Map<String, Object> expected = RequestPayloadUtils.createBasePayload(requestContext);
+        Map<String, Object> expected = RequestPayloadUtils_Old.createBasePayload(requestContext);
         expected.put("platform", requestContext.getDeviceInfo().getPlatform());
         expected.put("language", requestContext.getDeviceInfo().getLanguage());
         expected.put("timezone", requestContext.getDeviceInfo().getTimezone());
@@ -175,14 +175,14 @@ public class RequestPayloadUtilsTest {
 
         expected.put("push_token", false);
 
-        Map<String, Object> result = RequestPayloadUtils.createAppLoginPayload(requestContext, null);
+        Map<String, Object> result = RequestPayloadUtils_Old.createAppLoginPayload(requestContext, null);
 
         assertEquals(expected, result);
     }
 
     @Test
     public void testCreateAppLoginPayload_withPushToken() {
-        Map<String, Object> expected = RequestPayloadUtils.createBasePayload(requestContext);
+        Map<String, Object> expected = RequestPayloadUtils_Old.createBasePayload(requestContext);
         expected.put("platform", requestContext.getDeviceInfo().getPlatform());
         expected.put("language", requestContext.getDeviceInfo().getLanguage());
         expected.put("timezone", requestContext.getDeviceInfo().getTimezone());
@@ -193,14 +193,14 @@ public class RequestPayloadUtilsTest {
 
         expected.put("push_token", PUSH_TOKEN);
 
-        Map<String, Object> result = RequestPayloadUtils.createAppLoginPayload(requestContext, PUSH_TOKEN);
+        Map<String, Object> result = RequestPayloadUtils_Old.createAppLoginPayload(requestContext, PUSH_TOKEN);
 
         assertEquals(expected, result);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateCompositeRequestModelPayload_eventsMustNotBeNull() {
-        RequestPayloadUtils.createCompositeRequestModelPayload(
+        RequestPayloadUtils_Old.createCompositeRequestModelPayload(
                 null,
                 Collections.<DisplayedIam>emptyList(),
                 Collections.<ButtonClicked>emptyList(),
@@ -210,7 +210,7 @@ public class RequestPayloadUtilsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateCompositeRequestModelPayload_displayedIamsMustNotBeNull() {
-        RequestPayloadUtils.createCompositeRequestModelPayload(
+        RequestPayloadUtils_Old.createCompositeRequestModelPayload(
                 Collections.emptyList(),
                 null,
                 Collections.<ButtonClicked>emptyList(),
@@ -220,7 +220,7 @@ public class RequestPayloadUtilsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateCompositeRequestModelPayload_buttonClicksMustNotBeNull() {
-        RequestPayloadUtils.createCompositeRequestModelPayload(
+        RequestPayloadUtils_Old.createCompositeRequestModelPayload(
                 Collections.emptyList(),
                 Collections.<DisplayedIam>emptyList(),
                 null,
@@ -230,7 +230,7 @@ public class RequestPayloadUtilsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateCompositeRequestModelPayload_deviceInfoMustNotBeNull() {
-        RequestPayloadUtils.createCompositeRequestModelPayload(
+        RequestPayloadUtils_Old.createCompositeRequestModelPayload(
                 Collections.emptyList(),
                 Collections.<DisplayedIam>emptyList(),
                 Collections.<ButtonClicked>emptyList(),
@@ -240,7 +240,7 @@ public class RequestPayloadUtilsTest {
 
     @Test
     public void testCreateCompositeRequestModelPayload_payloadContainsDoNotDisturb_whenDoNotDisturbIsTrue() {
-        Map<String, Object> payload = RequestPayloadUtils.createCompositeRequestModelPayload(
+        Map<String, Object> payload = RequestPayloadUtils_Old.createCompositeRequestModelPayload(
                 Collections.emptyList(),
                 Collections.<DisplayedIam>emptyList(),
                 Collections.<ButtonClicked>emptyList(),
@@ -273,9 +273,9 @@ public class RequestPayloadUtilsTest {
         expectedPayload.put("hardware_id", requestContext.getDeviceInfo().getHwid());
         expectedPayload.put("language", requestContext.getDeviceInfo().getLanguage());
         expectedPayload.put("application_version", requestContext.getDeviceInfo().getApplicationVersion());
-        expectedPayload.put("ems_sdk", MobileEngageInternal.MOBILEENGAGE_SDK_VERSION);
+        expectedPayload.put("ems_sdk", MobileEngageInternal_V3_Old.MOBILEENGAGE_SDK_VERSION);
 
-        Map<String, Object> resultPayload = RequestPayloadUtils.createCompositeRequestModelPayload(
+        Map<String, Object> resultPayload = RequestPayloadUtils_Old.createCompositeRequestModelPayload(
                 events,
                 displayedIams,
                 buttonClicks,

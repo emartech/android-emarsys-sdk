@@ -33,7 +33,7 @@ import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.util.RequestHeaderUtils;
+import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -132,7 +132,7 @@ public class InboxInternal_V1Test {
                 uuidProvider
         );
 
-        defaultHeaders = RequestHeaderUtils.createDefaultHeaders(requestContext);
+        defaultHeaders = RequestHeaderUtils_Old.createDefaultHeaders(requestContext);
 
         inbox = new InboxInternal_V1(manager, requestContext);
 
@@ -735,8 +735,8 @@ public class InboxInternal_V1Test {
         headers.put("x-ems-me-application-code", requestContext.getApplicationCode());
         headers.put("x-ems-me-contact-field-id", String.valueOf(appLoginParameters_withCredentials.getContactFieldId()));
         headers.put("x-ems-me-contact-field-value", appLoginParameters_withCredentials.getContactFieldValue());
-        headers.putAll(RequestHeaderUtils.createDefaultHeaders(requestContext));
-        headers.putAll(RequestHeaderUtils.createBaseHeaders_V2(requestContext));
+        headers.putAll(RequestHeaderUtils_Old.createDefaultHeaders(requestContext));
+        headers.putAll(RequestHeaderUtils_Old.createBaseHeaders_V2(requestContext));
 
         return new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(path)

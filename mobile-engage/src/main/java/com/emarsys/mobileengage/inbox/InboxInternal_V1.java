@@ -17,9 +17,9 @@ import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
-import com.emarsys.mobileengage.util.RequestHeaderUtils;
-import com.emarsys.mobileengage.util.RequestPayloadUtils;
-import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
+import com.emarsys.mobileengage.util.RequestPayloadUtils_Old;
+import com.emarsys.mobileengage.util.RequestUrlUtils_Old;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -112,13 +112,13 @@ public class InboxInternal_V1 implements InboxInternal {
     public void trackNotificationOpen(Notification notification, CompletionListener completionListener) {
         Assert.notNull(notification, "Notification must not be null!");
 
-        Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
+        Map<String, Object> payload = RequestPayloadUtils_Old.createBasePayload(requestContext);
         payload.put("source", "inbox");
         payload.put("sid", notification.getSid());
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
-                .url(RequestUrlUtils.createEventUrl_V2("message_open"))
+                .url(RequestUrlUtils_Old.createEventUrl_V2("message_open"))
                 .payload(payload)
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
+                .headers(RequestHeaderUtils_Old.createBaseHeaders_V2(requestContext))
                 .build();
 
         manager.submit(model, completionListener);
@@ -170,8 +170,8 @@ public class InboxInternal_V1 implements InboxInternal {
         result.put("x-ems-me-contact-field-id", String.valueOf(requestContext.getAppLoginParameters().getContactFieldId()));
         result.put("x-ems-me-contact-field-value", requestContext.getAppLoginParameters().getContactFieldValue());
 
-        result.putAll(RequestHeaderUtils.createDefaultHeaders(requestContext));
-        result.putAll(RequestHeaderUtils.createBaseHeaders_V2(requestContext));
+        result.putAll(RequestHeaderUtils_Old.createDefaultHeaders(requestContext));
+        result.putAll(RequestHeaderUtils_Old.createBaseHeaders_V2(requestContext));
 
         return result;
     }

@@ -8,7 +8,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
-import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
@@ -75,7 +75,7 @@ public class InAppMessageResponseHandlerTest {
                 mock(ButtonClickedRepository.class),
                 mock(DisplayedIamRepository.class),
                 mock(TimestampProvider.class),
-                mock(MobileEngageInternal.class),
+                mock(MobileEngageInternal_V3_Old.class),
                 mock(Gettable.class));
 
         handler = new InAppMessageResponseHandler(

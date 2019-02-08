@@ -6,7 +6,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import com.emarsys.core.provider.Gettable;
-import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
@@ -38,7 +38,7 @@ class TestJSInterface extends IamJsBridge {
                 mock(ButtonClickedRepository.class),
                 "123",
                 mock(Handler.class),
-                mock(MobileEngageInternal.class),
+                mock(MobileEngageInternal_V3_Old.class),
                 mock(Gettable.class));
     }
 

@@ -47,6 +47,7 @@ import com.emarsys.core.util.predicate.ListSizeAtLeast;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
@@ -68,7 +69,7 @@ import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.util.RequestHeaderUtils;
+import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.predict.shard.PredictShardListMerger;
@@ -295,7 +296,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 timestampProvider,
                 uuidProvider);
 
-        requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(requestContext));
+        requestManager.setDefaultHeaders(RequestHeaderUtils_Old.createDefaultHeaders(requestContext));
 
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
         notificationEventHandler = config.getNotificationEventHandler();
@@ -323,7 +324,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 requestManager,
                 BatchingShardTrigger.RequestStrategy.TRANSIENT);
 
-        mobileEngageInternal = new MobileEngageInternal(
+        mobileEngageInternal = new MobileEngageInternal_V3_Old(
                 requestManager,
                 uiHandler,
                 getCoreCompletionHandler(),

@@ -5,13 +5,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 
-import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.api.result.CompletionListener;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
@@ -93,7 +93,7 @@ public class DeepLinkInternalTest {
 
         Map<String, String> headers = new HashMap<>();
         headers.put("User-Agent",
-                String.format("Mobile Engage SDK %s Android %s", MobileEngageInternal.MOBILEENGAGE_SDK_VERSION, Build.VERSION.SDK_INT));
+                String.format("Mobile Engage SDK %s Android %s", MobileEngageInternal_V3_Old.MOBILEENGAGE_SDK_VERSION, Build.VERSION.SDK_INT));
 
         RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url("https://deep-link.eservice.emarsys.net/api/clicks")

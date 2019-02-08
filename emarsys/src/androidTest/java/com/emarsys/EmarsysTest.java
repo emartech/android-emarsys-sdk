@@ -31,6 +31,7 @@ import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.di.FakeDependencyContainer;
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.api.inbox.Notification;
@@ -130,7 +131,7 @@ public class EmarsysTest {
         mockCoreSdkHandler = mock(CoreSdkHandler.class);
         activityLifecycleWatchdog = mock(ActivityLifecycleWatchdog.class);
         currentActivityWatchdog = mock(CurrentActivityWatchdog.class);
-        mockMobileEngageInternal = mock(MobileEngageInternal.class);
+        mockMobileEngageInternal = mock(MobileEngageInternal_V3_Old.class);
         mockInboxInternal = mock(InboxInternal.class);
         mockInAppInternal = mock(InAppInternal.class);
         mockDeepLinkInternal = mock(DeepLinkInternal.class);
@@ -400,7 +401,7 @@ public class EmarsysTest {
 
         Emarsys.setCustomer(customerId);
 
-        verify(mockMobileEngageInternal).appLogin(customerId, null);
+        verify(mockMobileEngageInternal).setContact(customerId, null);
     }
 
     @Test
@@ -409,7 +410,7 @@ public class EmarsysTest {
 
         Emarsys.setCustomer(customerId, completionListener);
 
-        verify(mockMobileEngageInternal).appLogin(customerId, completionListener);
+        verify(mockMobileEngageInternal).setContact(customerId, completionListener);
     }
 
     @Test
@@ -425,28 +426,28 @@ public class EmarsysTest {
     public void testSetAnonymousCustomer_delegatesToMobileEngageInternal() {
         Emarsys.setAnonymousCustomer();
 
-        verify(mockMobileEngageInternal).appLogin(null);
+        verify(mockMobileEngageInternal).setAnonymousContact(null);
     }
 
     @Test
     public void testSetAnonymousCustomer_completionListener_delegatesToMobileEngageInternal() {
         Emarsys.setAnonymousCustomer(completionListener);
 
-        verify(mockMobileEngageInternal).appLogin(completionListener);
+        verify(mockMobileEngageInternal).setAnonymousContact(completionListener);
     }
 
     @Test
     public void testClearCustomer_delegatesTo_mobileEngageInternal() {
         Emarsys.clearCustomer();
 
-        verify(mockMobileEngageInternal).appLogout(null);
+        verify(mockMobileEngageInternal).removeContact(null);
     }
 
     @Test
     public void testClearCustomer_completionListener_delegatesTo_mobileEngageInternal() {
         Emarsys.clearCustomer(completionListener);
 
-        verify(mockMobileEngageInternal).appLogout(completionListener);
+        verify(mockMobileEngageInternal).removeContact(completionListener);
     }
 
     @Test

@@ -1,9 +1,9 @@
 package com.emarsys.mobileengage.iam.model.requestRepositoryProxy;
 
-import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
@@ -13,8 +13,8 @@ import com.emarsys.mobileengage.endpoint.Endpoint;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
-import com.emarsys.mobileengage.util.RequestModelUtils;
-import com.emarsys.mobileengage.util.RequestPayloadUtils;
+import com.emarsys.mobileengage.util.RequestModelUtils_Old;
+import com.emarsys.mobileengage.util.RequestPayloadUtils_Old;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,7 +91,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private List<RequestModel> collectCustomEvents(List<RequestModel> models) {
         List<RequestModel> result = new ArrayList<>();
         for (RequestModel requestModel : models) {
-            if (RequestModelUtils.isCustomEvent_V3(requestModel)) {
+            if (RequestModelUtils_Old.isCustomEvent_V3(requestModel)) {
                 result.add(requestModel);
             }
         }
@@ -124,7 +124,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
             }
         }
 
-        return RequestPayloadUtils.createCompositeRequestModelPayload(
+        return RequestPayloadUtils_Old.createCompositeRequestModelPayload(
                 events,
                 iamRepository.query(new Everything()),
                 buttonClickedRepository.query(new Everything()),

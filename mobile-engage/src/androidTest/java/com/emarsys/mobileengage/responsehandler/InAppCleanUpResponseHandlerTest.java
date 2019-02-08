@@ -7,7 +7,7 @@ import com.emarsys.core.response.ResponseModel;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId;
-import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.mobileengage.util.RequestUrlUtils_Old;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -37,7 +37,7 @@ public class InAppCleanUpResponseHandlerTest {
     @SuppressWarnings("unchecked")
     public void init() throws Exception {
         customEventRequestModel = mock(RequestModel.class);
-        when(customEventRequestModel.getUrl()).thenReturn(new URL(RequestUrlUtils.createEventUrl_V3("yolo")));
+        when(customEventRequestModel.getUrl()).thenReturn(new URL(RequestUrlUtils_Old.createEventUrl_V3("yolo")));
 
         displayedIamRepository = mock(Repository.class);
         buttonClickRepository = mock(Repository.class);
@@ -90,7 +90,7 @@ public class InAppCleanUpResponseHandlerTest {
     @Test
     public void testShouldHandleResponse_shouldReturnTrueWhen_UrlIsCustomEventUrl() throws Exception {
         RequestModel requestModel = mock(RequestModel.class);
-        when(requestModel.getUrl()).thenReturn(new URL(RequestUrlUtils.createEventUrl_V3("yolo")));
+        when(requestModel.getUrl()).thenReturn(new URL(RequestUrlUtils_Old.createEventUrl_V3("yolo")));
         ResponseModel response = buildResponseModel("{'old_messages': ['123', '456', '78910']}", requestModel);
         assertTrue(handler.shouldHandleResponse(response));
     }

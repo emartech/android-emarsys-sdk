@@ -8,7 +8,8 @@ import java.util.regex.Pattern;
 import static com.emarsys.mobileengage.endpoint.Endpoint.ME_BASE_V2;
 import static com.emarsys.mobileengage.endpoint.Endpoint.ME_BASE_V3;
 
-public class RequestUrlUtils {
+@Deprecated
+public class RequestUrlUtils_Old {
     private static Pattern customEventPattern = Pattern.compile("^" + ME_BASE_V3 + "\\w+/events$");
 
     public static String createEventUrl_V2(String eventName) {

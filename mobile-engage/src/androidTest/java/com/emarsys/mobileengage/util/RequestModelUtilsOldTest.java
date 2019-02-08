@@ -36,7 +36,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RequestModelUtilsTest {
+public class RequestModelUtilsOldTest {
     private static final String APPLICATION_CODE = "applicationCode";
     private static final String APPLICATION_PASSWORD = "applicationPassword";
     public static final String VALID_CUSTOM_EVENT_V3 = "https://mobile-events.eservice.emarsys.net/v3/devices/12345/events";
@@ -86,7 +86,7 @@ public class RequestModelUtilsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testIsCustomEvent_V3_mustNotBeNull() {
-        RequestModelUtils.isCustomEvent_V3(null);
+        RequestModelUtils_Old.isCustomEvent_V3(null);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class RequestModelUtilsTest {
                 .url(VALID_CUSTOM_EVENT_V3)
                 .build();
 
-        assertTrue(RequestModelUtils.isCustomEvent_V3(requestModel));
+        assertTrue(RequestModelUtils_Old.isCustomEvent_V3(requestModel));
     }
 
     @Test
@@ -104,30 +104,30 @@ public class RequestModelUtilsTest {
                 .url("https://www.google.com")
                 .build();
 
-        assertFalse(RequestModelUtils.isCustomEvent_V3(requestModel));
+        assertFalse(RequestModelUtils_Old.isCustomEvent_V3(requestModel));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateAppLogin_V2_requestContext_mustNotBeNull() {
-        RequestModelUtils.createAppLogin_V2(null, "pushtoken");
+        RequestModelUtils_Old.createAppLogin_V2(null, "pushtoken");
     }
 
     @Test
     public void testCreateAppLogin_V2() {
         RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url("https://push.eservice.emarsys.net/api/mobileengage/v2/users/login")
-                .payload(RequestPayloadUtils.createAppLoginPayload(requestContext, null))
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
+                .payload(RequestPayloadUtils_Old.createAppLoginPayload(requestContext, null))
+                .headers(RequestHeaderUtils_Old.createBaseHeaders_V2(requestContext))
                 .build();
 
-        RequestModel result = RequestModelUtils.createAppLogin_V2(requestContext, null);
+        RequestModel result = RequestModelUtils_Old.createAppLogin_V2(requestContext, null);
 
         RequestModelTestUtils.assertEqualsRequestModels(expected, result);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateLastMobileActivity_requestContext_mustNotBeNull() {
-        RequestModelUtils.createLastMobileActivity(null);
+        RequestModelUtils_Old.createLastMobileActivity(null);
     }
 
     @Test
@@ -135,12 +135,12 @@ public class RequestModelUtilsTest {
         when(meIdStorage.get()).thenReturn("meId");
 
         RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
-                .url(RequestUrlUtils.createEventUrl_V3(requestContext.getMeIdStorage().get()))
-                .payload(RequestPayloadUtils.createBasePayload(requestContext))
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
+                .url(RequestUrlUtils_Old.createEventUrl_V3(requestContext.getMeIdStorage().get()))
+                .payload(RequestPayloadUtils_Old.createBasePayload(requestContext))
+                .headers(RequestHeaderUtils_Old.createBaseHeaders_V3(requestContext))
                 .build();
 
-        RequestModel requestModel = RequestModelUtils.createLastMobileActivity(requestContext);
+        RequestModel requestModel = RequestModelUtils_Old.createLastMobileActivity(requestContext);
 
         assertEquals(expected.getUrl(), requestModel.getUrl());
         assertEquals("last_mobile_activity", (((List<Map<String, Object>>) requestModel.getPayload().get("events")).get(0).get("name")));
@@ -148,7 +148,7 @@ public class RequestModelUtilsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateInternalCustomEvent_eventNameShouldNotBeNull() {
-        RequestModelUtils.createInternalCustomEvent(
+        RequestModelUtils_Old.createInternalCustomEvent(
                 null,
                 new HashMap<String, String>(),
                 requestContext
@@ -157,7 +157,7 @@ public class RequestModelUtilsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateInternalCustomEvent_requestContextShouldNotBeNull() {
-        RequestModelUtils.createInternalCustomEvent(
+        RequestModelUtils_Old.createInternalCustomEvent(
                 "eventname",
                 new HashMap<String, String>(),
                 null
@@ -184,16 +184,16 @@ public class RequestModelUtilsTest {
         payload.put("viewed_messages", new ArrayList<>());
         payload.put("events", Collections.singletonList(event));
 
-        RequestModel actual = RequestModelUtils.createInternalCustomEvent(
+        RequestModel actual = RequestModelUtils_Old.createInternalCustomEvent(
                 eventName,
                 null,
                 requestContext);
 
         RequestModel expected = new RequestModel(
-                RequestUrlUtils.createEventUrl_V3(meId),
+                RequestUrlUtils_Old.createEventUrl_V3(meId),
                 RequestMethod.POST,
                 payload,
-                RequestHeaderUtils.createBaseHeaders_V3(requestContext),
+                RequestHeaderUtils_Old.createBaseHeaders_V3(requestContext),
                 timestamp,
                 Long.MAX_VALUE,
                 actual.getId());
@@ -227,16 +227,16 @@ public class RequestModelUtilsTest {
         payload.put("viewed_messages", new ArrayList<>());
         payload.put("events", Collections.singletonList(event));
 
-        RequestModel actual = RequestModelUtils.createInternalCustomEvent(
+        RequestModel actual = RequestModelUtils_Old.createInternalCustomEvent(
                 eventName,
                 attributes,
                 requestContext);
 
         RequestModel expected = new RequestModel(
-                RequestUrlUtils.createEventUrl_V3(meId),
+                RequestUrlUtils_Old.createEventUrl_V3(meId),
                 RequestMethod.POST,
                 payload,
-                RequestHeaderUtils.createBaseHeaders_V3(requestContext),
+                RequestHeaderUtils_Old.createBaseHeaders_V3(requestContext),
                 timestamp,
                 Long.MAX_VALUE,
                 actual.getId());

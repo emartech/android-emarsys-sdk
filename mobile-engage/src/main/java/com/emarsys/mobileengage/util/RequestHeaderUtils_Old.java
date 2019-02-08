@@ -8,7 +8,8 @@ import com.emarsys.mobileengage.RequestContext;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RequestHeaderUtils {
+@Deprecated
+public class RequestHeaderUtils_Old {
 
     public static Map<String, String> createBaseHeaders_V2(RequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");

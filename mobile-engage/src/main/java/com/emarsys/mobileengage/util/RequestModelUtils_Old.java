@@ -12,24 +12,25 @@ import java.util.Map;
 
 import static com.emarsys.mobileengage.endpoint.Endpoint.ME_LOGIN_V2;
 
-public class RequestModelUtils {
+@Deprecated
+public class RequestModelUtils_Old {
 
     public static boolean isCustomEvent_V3(RequestModel requestModel) {
         Assert.notNull(requestModel, "RequestModel must not be null");
         String url = requestModel.getUrl().toString();
-        return RequestUrlUtils.isCustomEvent_V3(url);
+        return RequestUrlUtils_Old.isCustomEvent_V3(url);
     }
 
     public static RequestModel createAppLogin_V2(RequestContext requestContext,
                                                  String pushToken) {
         Assert.notNull(requestContext, "RequestContext must not be null");
 
-        Map<String, Object> payload = RequestPayloadUtils.createAppLoginPayload(requestContext, pushToken);
+        Map<String, Object> payload = RequestPayloadUtils_Old.createAppLoginPayload(requestContext, pushToken);
 
         return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(ME_LOGIN_V2)
                 .payload(payload)
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
+                .headers(RequestHeaderUtils_Old.createBaseHeaders_V2(requestContext))
                 .build();
     }
 
@@ -63,10 +64,10 @@ public class RequestModelUtils {
         payload.put("events", Collections.singletonList(event));
 
         return new RequestModel(
-                RequestUrlUtils.createEventUrl_V3(requestContext.getMeIdStorage().get()),
+                RequestUrlUtils_Old.createEventUrl_V3(requestContext.getMeIdStorage().get()),
                 RequestMethod.POST,
                 payload,
-                RequestHeaderUtils.createBaseHeaders_V3(requestContext),
+                RequestHeaderUtils_Old.createBaseHeaders_V3(requestContext),
                 requestContext.getTimestampProvider().provideTimestamp(),
                 Long.MAX_VALUE,
                 requestContext.getUUIDProvider().provideId());

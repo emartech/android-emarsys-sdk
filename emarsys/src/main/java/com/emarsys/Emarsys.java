@@ -64,7 +64,7 @@ public class Emarsys {
             public void run() {
                 Assert.notNull(customerId, "CustomerId must not be null!");
 
-                getMobileEngageInternal().appLogin(customerId, completionListener);
+                getMobileEngageInternal().setContact(customerId, completionListener);
                 getPredictInternal().setCustomer(customerId);
             }
         });
@@ -78,7 +78,7 @@ public class Emarsys {
         getRunnerProxy().logException(new Runnable() {
             @Override
             public void run() {
-                getMobileEngageInternal().appLogin(completionListener);
+                getMobileEngageInternal().setAnonymousContact(completionListener);
             }
         });
     }
@@ -91,7 +91,7 @@ public class Emarsys {
         getRunnerProxy().logException(new Runnable() {
             @Override
             public void run() {
-                getMobileEngageInternal().appLogout(completionListener);
+                getMobileEngageInternal().removeContact(completionListener);
                 getPredictInternal().clearCustomer();
             }
         });

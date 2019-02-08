@@ -16,7 +16,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.util.TimestampUtils
-import com.emarsys.mobileengage.MobileEngageInternal.MOBILEENGAGE_SDK_VERSION
+import com.emarsys.mobileengage.MobileEngageInternal_V3_Old.MOBILEENGAGE_SDK_VERSION
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters
 import com.emarsys.mobileengage.storage.AppLoginStorage
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage
@@ -38,7 +38,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
 
 @RunWith(AndroidJUnit4::class)
-class MobileEngageInternalTest_sequentialApploginsTest {
+class MobileEngageInternal_V3_Old_sequentialApploginsTest {
 
     private lateinit var coreCompletionHandler: DefaultCoreCompletionHandler
     private lateinit var expectedDefaultHeaders: Map<String, String>
@@ -46,7 +46,7 @@ class MobileEngageInternalTest_sequentialApploginsTest {
     private lateinit var application: Application
     private lateinit var deviceInfo: DeviceInfo
     private lateinit var appLoginStorage: AppLoginStorage
-    private lateinit var mobileEngageInternal: MobileEngageInternal
+    private lateinit var mobileEngageInternal: MobileEngageInternal_V3_Old
     private lateinit var meIdStorage: MeIdStorage
     private lateinit var meIdSignatureStorage: MeIdSignatureStorage
     private lateinit var appLoginParameters: AppLoginParameters
@@ -123,7 +123,7 @@ class MobileEngageInternalTest_sequentialApploginsTest {
                 "Authorization" to "Basic dXNlcjpwYXNz"
         )
 
-        mobileEngageInternal = MobileEngageInternal(
+        mobileEngageInternal = MobileEngageInternal_V3_Old(
                 manager,
                 Handler(Looper.getMainLooper()),
                 coreCompletionHandler,
@@ -187,7 +187,7 @@ class MobileEngageInternalTest_sequentialApploginsTest {
     }
 
     private fun reinstantiateMobileEngage() {
-        mobileEngageInternal = MobileEngageInternal(
+        mobileEngageInternal = MobileEngageInternal_V3_Old(
                 manager,
                 mock(Handler::class.java),
                 coreCompletionHandler,
@@ -195,7 +195,7 @@ class MobileEngageInternalTest_sequentialApploginsTest {
     }
 
     private fun login(contactFieldValue: String) = {
-        mobileEngageInternal.appLogin(contactFieldValue, null)
+        mobileEngageInternal.setContact(contactFieldValue, null)
     }
 
     private fun createAppLogin(contactFieldValue: String) =

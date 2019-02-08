@@ -30,7 +30,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RequestHeaderUtilsTest {
+public class RequestHeaderUtilsOldTest {
     private static final String APPLICATION_CODE = "applicationCode";
     private static final String APPLICATION_PASSWORD = "applicationPassword";
     public static final String EMARSYS_SHARED_PREFERENCES = "emarsys_shared_preferences";
@@ -100,7 +100,7 @@ public class RequestHeaderUtilsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateBaseHeaders_V2_configShouldNotBeNull() {
-        RequestHeaderUtils.createBaseHeaders_V2(null);
+        RequestHeaderUtils_Old.createBaseHeaders_V2(null);
     }
 
     @Test
@@ -108,14 +108,14 @@ public class RequestHeaderUtilsTest {
         Map<String, String> expected = new HashMap<>();
         expected.put("Authorization", HeaderUtils.createBasicAuth(releaseRequestContext.getApplicationCode(), releaseRequestContext.getApplicationPassword()));
 
-        Map<String, String> result = RequestHeaderUtils.createBaseHeaders_V2(releaseRequestContext);
+        Map<String, String> result = RequestHeaderUtils_Old.createBaseHeaders_V2(releaseRequestContext);
 
         assertEquals(expected, result);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateBaseHeaders_V3_requestContextShouldNotBeNull() {
-        RequestHeaderUtils.createBaseHeaders_V3(null);
+        RequestHeaderUtils_Old.createBaseHeaders_V3(null);
     }
 
     @Test
@@ -149,19 +149,19 @@ public class RequestHeaderUtilsTest {
         expected.put("X-ME-ID-SIGNATURE", meIdSignature);
         expected.put("X-ME-APPLICATIONCODE", APPLICATION_CODE);
 
-        Map<String, String> result = RequestHeaderUtils.createBaseHeaders_V3(requestContext);
+        Map<String, String> result = RequestHeaderUtils_Old.createBaseHeaders_V3(requestContext);
 
         assertEquals(expected, result);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateDefaultHeaders_configShouldNotBeNull() {
-        RequestHeaderUtils.createDefaultHeaders(null);
+        RequestHeaderUtils_Old.createDefaultHeaders(null);
     }
 
     @Test
     public void testCreateDefaultHeaders_returnedValueShouldNotBeNull() {
-        assertNotNull(RequestHeaderUtils.createDefaultHeaders(debugRequestContext));
+        assertNotNull(RequestHeaderUtils_Old.createDefaultHeaders(debugRequestContext));
     }
 
     @Test
@@ -171,7 +171,7 @@ public class RequestHeaderUtilsTest {
         expected.put("X-EMARSYS-SDK-VERSION", BuildConfig.VERSION_NAME);
         expected.put("X-EMARSYS-SDK-MODE", "debug");
 
-        Map<String, String> result = RequestHeaderUtils.createDefaultHeaders(debugRequestContext);
+        Map<String, String> result = RequestHeaderUtils_Old.createDefaultHeaders(debugRequestContext);
 
         assertEquals(expected, result);
     }
@@ -183,7 +183,7 @@ public class RequestHeaderUtilsTest {
         expected.put("X-EMARSYS-SDK-VERSION", BuildConfig.VERSION_NAME);
         expected.put("X-EMARSYS-SDK-MODE", "production");
 
-        Map<String, String> result = RequestHeaderUtils.createDefaultHeaders(releaseRequestContext);
+        Map<String, String> result = RequestHeaderUtils_Old.createDefaultHeaders(releaseRequestContext);
 
         assertEquals(expected, result);
     }

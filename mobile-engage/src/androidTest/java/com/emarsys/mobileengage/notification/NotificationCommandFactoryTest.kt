@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import com.emarsys.mobileengage.MobileEngageInternal
+import com.emarsys.mobileengage.MobileEngageInternal_V3_Old
 import com.emarsys.mobileengage.api.NotificationEventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.notification.command.*
@@ -38,14 +38,14 @@ class NotificationCommandFactoryTest {
     private lateinit var factory: NotificationCommandFactory
     private lateinit var context: Context
     private lateinit var dependencyContainer: MobileEngageDependencyContainer
-    private lateinit var mobileEngageInternal: MobileEngageInternal
+    private lateinit var mobileEngageInternal: MobileEngageInternal_V3_Old
     private lateinit var notificationEventHandler: NotificationEventHandler
 
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
 
-        mobileEngageInternal = mock(MobileEngageInternal::class.java)
+        mobileEngageInternal = mock(MobileEngageInternal_V3_Old::class.java)
         notificationEventHandler = mock(NotificationEventHandler::class.java)
         dependencyContainer = mock(MobileEngageDependencyContainer::class.java)
         whenever(dependencyContainer.mobileEngageInternal).thenReturn(mobileEngageInternal)

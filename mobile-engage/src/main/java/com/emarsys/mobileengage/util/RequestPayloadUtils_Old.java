@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.util;
 
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.iam.model.IamConversionUtils;
@@ -14,7 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RequestPayloadUtils {
+@Deprecated
+public class RequestPayloadUtils_Old {
 
     @SuppressWarnings("unchecked")
     public static Map<String, Object> createBasePayload(RequestContext requestContext) {
@@ -45,7 +46,7 @@ public class RequestPayloadUtils {
             RequestContext requestContext,
             String pushToken) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
-        Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
+        Map<String, Object> payload = RequestPayloadUtils_Old.createBasePayload(requestContext);
 
         payload.put("platform", requestContext.getDeviceInfo().getPlatform());
         payload.put("language", requestContext.getDeviceInfo().getLanguage());
@@ -53,7 +54,7 @@ public class RequestPayloadUtils {
         payload.put("device_model", requestContext.getDeviceInfo().getModel());
         payload.put("application_version", requestContext.getDeviceInfo().getApplicationVersion());
         payload.put("os_version", requestContext.getDeviceInfo().getOsVersion());
-        payload.put("ems_sdk", MobileEngageInternal.MOBILEENGAGE_SDK_VERSION);
+        payload.put("ems_sdk", MobileEngageInternal_V3_Old.MOBILEENGAGE_SDK_VERSION);
 
         if (pushToken == null) {
             payload.put("push_token", false);
@@ -85,7 +86,7 @@ public class RequestPayloadUtils {
         compositePayload.put("hardware_id", deviceInfo.getHwid());
         compositePayload.put("language", deviceInfo.getLanguage());
         compositePayload.put("application_version", deviceInfo.getApplicationVersion());
-        compositePayload.put("ems_sdk", MobileEngageInternal.MOBILEENGAGE_SDK_VERSION);
+        compositePayload.put("ems_sdk", MobileEngageInternal_V3_Old.MOBILEENGAGE_SDK_VERSION);
         return compositePayload;
     }
 }

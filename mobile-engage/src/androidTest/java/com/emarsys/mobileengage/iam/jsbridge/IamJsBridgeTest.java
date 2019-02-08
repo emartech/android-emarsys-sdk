@@ -13,6 +13,7 @@ import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.Gettable;
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
@@ -90,7 +91,7 @@ public class IamJsBridgeTest {
         buttonClickedRepository = mock(Repository.class);
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
 
-        mobileEngageInternal = mock(MobileEngageInternal.class);
+        mobileEngageInternal = mock(MobileEngageInternal_V3_Old.class);
         currentActivityProvider = mock(Gettable.class);
         jsBridge = new IamJsBridge(
                 inAppInternal,

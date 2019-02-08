@@ -3,13 +3,13 @@ package com.emarsys.mobileengage.inbox;
 import android.os.Handler;
 
 import com.emarsys.core.CoreCompletionHandler;
-import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.Registry;
 import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
 import com.emarsys.core.api.result.Try;
 import com.emarsys.core.database.repository.Repository;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -30,7 +30,7 @@ import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.testUtil.RequestModelTestUtils;
-import com.emarsys.mobileengage.util.RequestHeaderUtils;
+import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;
@@ -713,7 +713,7 @@ public class InboxInternal_V2Test {
         RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(ENDPOINT_BASE_V3 + ME_ID + "/events")
                 .payload(payload)
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
+                .headers(RequestHeaderUtils_Old.createBaseHeaders_V3(requestContext))
                 .build();
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
@@ -913,8 +913,8 @@ public class InboxInternal_V2Test {
     private RequestModel createRequestModel(String path, RequestMethod method) {
         Map<String, String> headers = new HashMap<>();
         headers.put("x-ems-me-application-code", requestContext.getApplicationCode());
-        headers.putAll(RequestHeaderUtils.createDefaultHeaders(requestContext));
-        headers.putAll(RequestHeaderUtils.createBaseHeaders_V2(requestContext));
+        headers.putAll(RequestHeaderUtils_Old.createDefaultHeaders(requestContext));
+        headers.putAll(RequestHeaderUtils_Old.createBaseHeaders_V2(requestContext));
 
         return new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(path)

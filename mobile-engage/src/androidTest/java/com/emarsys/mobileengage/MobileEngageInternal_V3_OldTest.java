@@ -23,8 +23,8 @@ import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.util.RequestHeaderUtils;
-import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
+import com.emarsys.mobileengage.util.RequestUrlUtils_Old;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -47,7 +47,7 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import static com.emarsys.mobileengage.MobileEngageInternal.MOBILEENGAGE_SDK_VERSION;
+import static com.emarsys.mobileengage.MobileEngageInternal_V3_Old.MOBILEENGAGE_SDK_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.eq;
@@ -62,7 +62,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
-public class MobileEngageInternalTest {
+public class MobileEngageInternal_V3_OldTest {
 
     private static final long TIMESTAMP = 123;
     private static final String INTERNAL = "internal";
@@ -87,7 +87,7 @@ public class MobileEngageInternalTest {
     private Application application;
     private DeviceInfo deviceInfo;
     private AppLoginStorage appLoginStorage;
-    private MobileEngageInternal mobileEngageInternal;
+    private MobileEngageInternal_V3_Old mobileEngageInternal;
     private MeIdStorage meIdStorage;
     private MeIdSignatureStorage meIdSignatureStorage;
 
@@ -136,9 +136,9 @@ public class MobileEngageInternalTest {
                 timestampProvider,
                 uuidProvider);
 
-        defaultHeaders = RequestHeaderUtils.createDefaultHeaders(requestContext);
+        defaultHeaders = RequestHeaderUtils_Old.createDefaultHeaders(requestContext);
 
-        mobileEngageInternal = new MobileEngageInternal(
+        mobileEngageInternal = new MobileEngageInternal_V3_Old(
                 manager,
                 new Handler(Looper.getMainLooper()),
                 coreCompletionHandler,
@@ -155,7 +155,7 @@ public class MobileEngageInternalTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestManagerShouldNotBeNull() {
-        new MobileEngageInternal(
+        new MobileEngageInternal_V3_Old(
                 null,
                 mock(Handler.class),
                 coreCompletionHandler,
@@ -164,7 +164,7 @@ public class MobileEngageInternalTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestContextShouldNotBeNull() {
-        new MobileEngageInternal(
+        new MobileEngageInternal_V3_Old(
                 manager,
                 mock(Handler.class),
                 coreCompletionHandler,
@@ -183,7 +183,7 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngageInternal.appLogin(null);
+        mobileEngageInternal.setAnonymousContact(null);
 
         verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
@@ -197,7 +197,7 @@ public class MobileEngageInternalTest {
 
         CompletionListener completionListener = mock(CompletionListener.class);
 
-        mobileEngageInternal.appLogin(completionListener);
+        mobileEngageInternal.setAnonymousContact(completionListener);
 
         verify(manager).submit(any(RequestModel.class), eq(completionListener));
     }
@@ -209,13 +209,13 @@ public class MobileEngageInternalTest {
         when(requestContext.getApplicationPassword()).thenReturn(APPLICATION_PASSWORD);
         when(requestContext.getUUIDProvider()).thenReturn(uuidProvider);
 
-        MobileEngageInternal internal = new MobileEngageInternal(
+        MobileEngageInternal internal = new MobileEngageInternal_V3_Old(
                 manager,
                 mock(Handler.class),
                 coreCompletionHandler,
                 requestContext);
 
-        internal.appLogin(mockCompletionListener);
+        internal.setAnonymousContact(mockCompletionListener);
 
         ArgumentCaptor<AppLoginParameters> captor = ArgumentCaptor.forClass(AppLoginParameters.class);
         verify(requestContext).setAppLoginParameters(captor.capture());
@@ -231,7 +231,7 @@ public class MobileEngageInternalTest {
         meIdStorage.remove();
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngageInternal.appLogin(null);
+        String result = mobileEngageInternal.setAnonymousContact(null);
 
         verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
@@ -246,7 +246,7 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngageInternal.appLogin(contactFieldValue, null);
+        mobileEngageInternal.setContact(contactFieldValue, null);
 
         verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
@@ -259,7 +259,7 @@ public class MobileEngageInternalTest {
         meIdStorage.remove();
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngageInternal.appLogin("value", null);
+        String result = mobileEngageInternal.setContact("value", null);
 
         verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
@@ -273,7 +273,7 @@ public class MobileEngageInternalTest {
 
         CompletionListener completionListener = mock(CompletionListener.class);
 
-        mobileEngageInternal.appLogin(contactFieldValue, completionListener);
+        mobileEngageInternal.setContact(contactFieldValue, completionListener);
 
         verify(manager).submit(any(RequestModel.class), eq(completionListener));
     }
@@ -286,14 +286,14 @@ public class MobileEngageInternalTest {
         when(requestContext.getUUIDProvider()).thenReturn(uuidProvider);
         when(requestContext.getContactFieldId()).thenReturn(CONTACT_FIELD_ID);
 
-        MobileEngageInternal internal = new MobileEngageInternal(
+        MobileEngageInternal internal = new MobileEngageInternal_V3_Old(
                 manager,
                 mock(Handler.class),
                 coreCompletionHandler,
                 requestContext);
 
         final String contactFieldValue = "email@address.com";
-        internal.appLogin(contactFieldValue, mockCompletionListener);
+        internal.setContact(contactFieldValue, mockCompletionListener);
 
         ArgumentCaptor<AppLoginParameters> captor = ArgumentCaptor.forClass(AppLoginParameters.class);
         verify(requestContext).setAppLoginParameters(captor.capture());
@@ -315,7 +315,7 @@ public class MobileEngageInternalTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngageInternal.appLogout(null);
+        mobileEngageInternal.removeContact(null);
 
         verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
@@ -327,7 +327,7 @@ public class MobileEngageInternalTest {
     public void testAppLogout_requestManagerCalledWithCompletionListener() {
         CompletionListener completionListener = mock(CompletionListener.class);
 
-        mobileEngageInternal.appLogout(completionListener);
+        mobileEngageInternal.removeContact(completionListener);
 
         verify(manager).submit(any(RequestModel.class), eq(completionListener));
     }
@@ -336,7 +336,7 @@ public class MobileEngageInternalTest {
     public void testAppLogout_returnsRequestModelId() {
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngageInternal.appLogout(null);
+        String result = mobileEngageInternal.removeContact(null);
 
         verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
@@ -348,7 +348,7 @@ public class MobileEngageInternalTest {
         AppLoginStorage storage = new AppLoginStorage(sharedPreferences);
         storage.set(42);
 
-        mobileEngageInternal.appLogout(null);
+        mobileEngageInternal.removeContact(null);
         assertEquals(storage.get(), null);
     }
 
@@ -357,7 +357,7 @@ public class MobileEngageInternalTest {
         MeIdStorage storage = new MeIdStorage(sharedPreferences);
         storage.set("testMeID");
 
-        mobileEngageInternal.appLogout(null);
+        mobileEngageInternal.removeContact(null);
         assertEquals(storage.get(), null);
     }
 
@@ -366,7 +366,7 @@ public class MobileEngageInternalTest {
         MeIdSignatureStorage storage = new MeIdSignatureStorage(sharedPreferences);
         storage.set("testMeID");
 
-        mobileEngageInternal.appLogout(null);
+        mobileEngageInternal.removeContact(null);
         assertEquals(storage.get(), null);
     }
 
@@ -527,10 +527,10 @@ public class MobileEngageInternalTest {
 
         RequestModel result = captor.getValue();
         RequestModel expected = new RequestModel(
-                RequestUrlUtils.createEventUrl_V3(ME_ID),
+                RequestUrlUtils_Old.createEventUrl_V3(ME_ID),
                 RequestMethod.POST,
                 payload,
-                RequestHeaderUtils.createBaseHeaders_V3(requestContext),
+                RequestHeaderUtils_Old.createBaseHeaders_V3(requestContext),
                 TIMESTAMP,
                 Long.MAX_VALUE,
                 result.getId());
@@ -632,7 +632,7 @@ public class MobileEngageInternalTest {
 
     @Test
     public void testSetPushToken_whenAppLoginParameters_isEmpty() {
-        MobileEngageInternal spy = spy(mobileEngageInternal);
+        MobileEngageInternal_V3_Old spy = spy(mobileEngageInternal);
 
         requestContext.setAppLoginParameters(new AppLoginParameters());
         spy.setPushToken("123456789");
@@ -644,7 +644,7 @@ public class MobileEngageInternalTest {
     public void testSetPushToken_whenAppLoginParameters_hasCredentials() {
         int contactFieldId = 12;
         String contactFieldValue = "asdf";
-        MobileEngageInternal spy = spy(mobileEngageInternal);
+        MobileEngageInternal_V3_Old spy = spy(mobileEngageInternal);
 
         requestContext.setAppLoginParameters(new AppLoginParameters(contactFieldId, contactFieldValue));
         spy.setPushToken("123456789");
@@ -654,7 +654,7 @@ public class MobileEngageInternalTest {
 
     @Test
     public void testSetPushToken_doesNotCallAppLogins_whenApploginParameters_isNull() {
-        MobileEngageInternal spy = spy(mobileEngageInternal);
+        MobileEngageInternal_V3_Old spy = spy(mobileEngageInternal);
 
         requestContext.setAppLoginParameters(null);
         spy.setPushToken("123456789");

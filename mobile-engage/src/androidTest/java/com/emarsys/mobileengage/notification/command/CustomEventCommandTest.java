@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.notification.command;
 
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -24,7 +25,7 @@ public class CustomEventCommandTest {
 
     @Before
     public void setUp() {
-        mockMobileEngageInternal = mock(MobileEngageInternal.class);
+        mockMobileEngageInternal = mock(MobileEngageInternal_V3_Old.class);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -24,8 +24,8 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
-import com.emarsys.mobileengage.util.RequestPayloadUtils;
-import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.mobileengage.util.RequestPayloadUtils_Old;
+import com.emarsys.mobileengage.util.RequestUrlUtils_Old;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.RandomTestUtils;
@@ -247,7 +247,7 @@ public class RequestRepositoryProxyTest {
         event3.put("name", "event3");
         event3.put("timestamp", TimestampUtils.formatTimestampWithUTC(1200));
 
-        Map<String, Object> payload = RequestPayloadUtils.createCompositeRequestModelPayload(
+        Map<String, Object> payload = RequestPayloadUtils_Old.createCompositeRequestModelPayload(
                 Arrays.asList(event1, event2, event3),
                 Collections.<DisplayedIam>emptyList(),
                 Collections.<ButtonClicked>emptyList(),
@@ -255,7 +255,7 @@ public class RequestRepositoryProxyTest {
                 false);
 
         RequestModel expectedComposite = new CompositeRequestModel(
-                RequestUrlUtils.createEventUrl_V3(MEID),
+                RequestUrlUtils_Old.createEventUrl_V3(MEID),
                 RequestMethod.POST,
                 payload,
                 customEvent1.getHeaders(),
@@ -310,7 +310,7 @@ public class RequestRepositoryProxyTest {
         event1.put("timestamp", TimestampUtils.formatTimestampWithUTC(1000));
         event1.put("attributes", eventAttributes);
 
-        Map<String, Object> payload = RequestPayloadUtils.createCompositeRequestModelPayload(
+        Map<String, Object> payload = RequestPayloadUtils_Old.createCompositeRequestModelPayload(
                 Collections.singletonList(event1),
                 Arrays.asList(
                         new DisplayedIam("campaign1", 100),
@@ -326,7 +326,7 @@ public class RequestRepositoryProxyTest {
                 false);
 
         RequestModel expectedComposite = new CompositeRequestModel(
-                RequestUrlUtils.createEventUrl_V3(MEID),
+                RequestUrlUtils_Old.createEventUrl_V3(MEID),
                 RequestMethod.POST,
                 payload,
                 customEvent1.getHeaders(),
@@ -399,7 +399,7 @@ public class RequestRepositoryProxyTest {
         event3.put("name", "event3");
         event3.put("timestamp", TimestampUtils.formatTimestampWithUTC(1200));
 
-        Map<String, Object> payload = RequestPayloadUtils.createCompositeRequestModelPayload(
+        Map<String, Object> payload = RequestPayloadUtils_Old.createCompositeRequestModelPayload(
                 Arrays.asList(event1, event2, event3),
                 Arrays.asList(
                         new DisplayedIam("campaign1", 100),
@@ -415,7 +415,7 @@ public class RequestRepositoryProxyTest {
                 false);
 
         RequestModel expectedComposite = new CompositeRequestModel(
-                RequestUrlUtils.createEventUrl_V3(MEID),
+                RequestUrlUtils_Old.createEventUrl_V3(MEID),
                 RequestMethod.POST,
                 payload,
                 customEvent1.getHeaders(),
@@ -495,7 +495,7 @@ public class RequestRepositoryProxyTest {
         headers.put("custom_event_header2", "custom_event_value2");
 
         return new RequestModel(
-                RequestUrlUtils.createEventUrl_V3(MEID),
+                RequestUrlUtils_Old.createEventUrl_V3(MEID),
                 RequestMethod.POST,
                 payload,
                 headers,
