@@ -78,7 +78,7 @@ public class InboxInternal_V2 implements InboxInternal {
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        resultListener.onResult(Try.failure(new NotificationInboxException("Missing MeId, setAnonymousContact must be called before calling fetchNotifications!")));
+                        resultListener.onResult(Try.failure(new NotificationInboxException("Missing MeId, setContact must be called before calling fetchNotifications!")));
                     }
                 });
             } else {
