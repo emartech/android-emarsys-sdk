@@ -635,7 +635,7 @@ public class MobileEngageInternal_V3_OldTest {
         MobileEngageInternal_V3_Old spy = spy(mobileEngageInternal);
 
         requestContext.setAppLoginParameters(new AppLoginParameters());
-        spy.setPushToken("123456789");
+        spy.setPushToken("123456789", null);
 
         verify(spy).sendAppLogin((CompletionListener) isNull());
     }
@@ -647,7 +647,7 @@ public class MobileEngageInternal_V3_OldTest {
         MobileEngageInternal_V3_Old spy = spy(mobileEngageInternal);
 
         requestContext.setAppLoginParameters(new AppLoginParameters(contactFieldId, contactFieldValue));
-        spy.setPushToken("123456789");
+        spy.setPushToken("123456789", null);
 
         verify(spy).sendAppLogin((CompletionListener) isNull());
     }
@@ -657,7 +657,7 @@ public class MobileEngageInternal_V3_OldTest {
         MobileEngageInternal_V3_Old spy = spy(mobileEngageInternal);
 
         requestContext.setAppLoginParameters(null);
-        spy.setPushToken("123456789");
+        spy.setPushToken("123456789", null);
 
         verify(spy, times(0)).sendAppLogin(any(CompletionListener.class));
     }

@@ -72,7 +72,7 @@ public class MobileEngageInternal_V3_Old implements MobileEngageInternal {
     }
 
     @Override
-    public void setPushToken(String pushToken) {
+    public void setPushToken(String pushToken, CompletionListener completionListener) {
         this.pushToken = pushToken;
         if (requestContext.getAppLoginParameters() != null) {
             sendAppLogin(null);
@@ -80,7 +80,7 @@ public class MobileEngageInternal_V3_Old implements MobileEngageInternal {
     }
 
     @Override
-    public void removePushToken() {
+    public void removePushToken(CompletionListener completionListener) {
 
     }
 

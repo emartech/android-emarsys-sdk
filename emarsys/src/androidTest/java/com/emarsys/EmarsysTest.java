@@ -546,7 +546,7 @@ public class EmarsysTest {
 
         Emarsys.Push.setPushToken(pushToken);
 
-        verify(mockMobileEngageInternal).setPushToken(pushToken);
+        verify(mockMobileEngageInternal).setPushToken(pushToken, null);
     }
 
     @Test(expected = IllegalArgumentException.class)

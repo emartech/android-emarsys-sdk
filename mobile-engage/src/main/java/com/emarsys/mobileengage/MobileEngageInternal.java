@@ -7,9 +7,9 @@ import com.emarsys.core.api.result.CompletionListener;
 import java.util.Map;
 
 public interface MobileEngageInternal {
-    void setPushToken(String pushToken);
+    void setPushToken(String pushToken, CompletionListener completionListener);
 
-    void removePushToken();
+    void removePushToken(CompletionListener completionListener);
 
     String setAnonymousContact(CompletionListener completionListener);
 
