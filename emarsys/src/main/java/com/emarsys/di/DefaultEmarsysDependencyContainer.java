@@ -47,7 +47,7 @@ import com.emarsys.core.util.predicate.ListSizeAtLeast;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
+import com.emarsys.mobileengage.MobileEngageInternalV3;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
@@ -324,12 +324,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 requestManager,
                 BatchingShardTrigger.RequestStrategy.TRANSIENT);
 
-        mobileEngageInternal = new MobileEngageInternal_V3_Old(
-                requestManager,
-                uiHandler,
-                getCoreCompletionHandler(),
-                requestContext
-        );
+        mobileEngageInternal = new MobileEngageInternalV3();
         inboxInternal = new InboxInternalProvider().provideInboxInternal(
                 ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX),
                 requestManager,

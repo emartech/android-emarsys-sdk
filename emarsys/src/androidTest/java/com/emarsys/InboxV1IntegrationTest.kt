@@ -22,10 +22,7 @@ import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 import java.util.*
@@ -33,7 +30,7 @@ import java.util.concurrent.CountDownLatch
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.jvm.isAccessible
 
-
+@Ignore
 class InboxV1IntegrationTest {
 
     companion object {

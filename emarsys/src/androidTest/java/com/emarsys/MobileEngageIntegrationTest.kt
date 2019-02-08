@@ -21,14 +21,12 @@ import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 import java.util.concurrent.CountDownLatch
 
+@Ignore
 class MobileEngageIntegrationTest {
 
     companion object {
