@@ -8,7 +8,7 @@ public class Endpoint {
     public static final String ME_LOGOUT_V2 = ME_BASE_V2 + "users/logout";
     public static final String ME_LAST_MOBILE_ACTIVITY_V2 = ME_BASE_V2 + "events/ems_lastMobileActivity";
 
-    public static final String ME_BASE_V3 = BuildConfig.ME_BASE_V3_URL;
+    public static final String ME_BASE_V3_OLD = BuildConfig.ME_BASE_V3_URL;
 
     public static final String INBOX_BASE = BuildConfig.INBOX_BASE_URL;
     public static final String INBOX_RESET_BADGE_COUNT_V1 = INBOX_BASE + "reset-badge-count";
@@ -19,4 +19,6 @@ public class Endpoint {
 
     public static final String DEEP_LINK_BASE = BuildConfig.DEEP_LINK_BASE_URL;
     public static final String DEEP_LINK_CLICK = DEEP_LINK_BASE + "clicks";
+
+    public static final String ME_V3_CLIENT_BASE = "https://ems-me-client.herokuapp.com/v3/apps/%s/client/";
 }

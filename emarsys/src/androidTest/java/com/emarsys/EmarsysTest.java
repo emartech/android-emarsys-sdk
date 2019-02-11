@@ -549,6 +549,15 @@ public class EmarsysTest {
         verify(mockMobileEngageInternal).setPushToken(pushToken, null);
     }
 
+    @Test
+    public void testPush_setPushToken_completionListener_delegatesTo_mobileEngageInternal() {
+        String pushToken = "pushToken";
+
+        Emarsys.Push.setPushToken(pushToken, completionListener);
+
+        verify(mockMobileEngageInternal).setPushToken(pushToken, completionListener);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testPredict_trackCart_items_mustNotBeNull() {
         Emarsys.Predict.trackCart(null);

@@ -6,11 +6,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.emarsys.mobileengage.endpoint.Endpoint.ME_BASE_V2;
-import static com.emarsys.mobileengage.endpoint.Endpoint.ME_BASE_V3;
+import static com.emarsys.mobileengage.endpoint.Endpoint.ME_BASE_V3_OLD;
 
 @Deprecated
 public class RequestUrlUtils_Old {
-    private static Pattern customEventPattern = Pattern.compile("^" + ME_BASE_V3 + "\\w+/events$");
+    private static Pattern customEventPattern = Pattern.compile("^" + ME_BASE_V3_OLD + "\\w+/events$");
 
     public static String createEventUrl_V2(String eventName) {
         Assert.notNull(eventName, "EventName must not be null!");
@@ -20,7 +20,7 @@ public class RequestUrlUtils_Old {
     public static String createEventUrl_V3(String meId) {
         Assert.notNull(meId, "MEID must not be null!");
 
-        return ME_BASE_V3 + meId + "/events";
+        return ME_BASE_V3_OLD + meId + "/events";
     }
 
     public static boolean isCustomEvent_V3(String url) {

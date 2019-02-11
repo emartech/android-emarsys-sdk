@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpecification> {
 
-    private static final String CUSTOM_EVENT_URL_PATTERN = Endpoint.ME_BASE_V3 + "_%/events";
+    private static final String CUSTOM_EVENT_URL_PATTERN = Endpoint.ME_BASE_V3_OLD + "_%/events";
 
     private final DeviceInfo deviceInfo;
     private final Repository<RequestModel, SqlSpecification> requestRepository;

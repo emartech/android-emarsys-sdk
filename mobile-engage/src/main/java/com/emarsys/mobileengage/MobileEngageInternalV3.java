@@ -3,17 +3,37 @@ package com.emarsys.mobileengage;
 import android.content.Intent;
 
 import com.emarsys.core.api.result.CompletionListener;
+import com.emarsys.core.request.RequestManager;
+import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.core.util.Assert;
+import com.emarsys.mobileengage.util.RequestModelUtils;
 
 import java.util.Map;
 
 public class MobileEngageInternalV3 implements MobileEngageInternal {
-    @Override
-    public void setPushToken(String pushToken) {
 
+    private final RequestManager requestManager;
+    private final RequestContext requestContext;
+
+    public MobileEngageInternalV3(RequestManager requestManager, RequestContext requestContext) {
+        Assert.notNull(requestManager, "RequestManager must not be null!");
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
+        this.requestManager = requestManager;
+        this.requestContext = requestContext;
     }
 
     @Override
-    public void removePushToken() {
+    public void setPushToken(String pushToken, CompletionListener completionListener) {
+        if (pushToken != null) {
+            RequestModel requestModel = RequestModelUtils.createSetPushTokenRequest(pushToken, requestContext);
+
+            requestManager.submit(requestModel, completionListener);
+        }
+    }
+
+    @Override
+    public void removePushToken(CompletionListener completionListener) {
 
     }
 

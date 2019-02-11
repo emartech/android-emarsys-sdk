@@ -162,7 +162,20 @@ public class Emarsys {
                 public void run() {
                     Assert.notNull(pushToken, "PushToken must not be null!");
 
-                    getMobileEngageInternal().setPushToken(pushToken, null);
+                    setPushToken(pushToken, null);
+                }
+            });
+        }
+
+        public static void setPushToken(
+                @NonNull final String pushToken,
+                @NonNull final CompletionListener completionListener) {
+            getRunnerProxy().logException(new Runnable() {
+                @Override
+                public void run() {
+                    Assert.notNull(pushToken, "PushToken must not be null!");
+
+                    getMobileEngageInternal().setPushToken(pushToken, completionListener);
                 }
             });
         }
