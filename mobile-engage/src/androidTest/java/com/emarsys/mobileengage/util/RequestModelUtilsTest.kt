@@ -72,10 +72,7 @@ class RequestModelUtilsTest {
                 mapOf(
                         "pushToken" to PUSH_TOKEN
                 ),
-                mapOf(
-                        "X-CLIENT-ID" to HARDWARE_ID,
-                        "X-REQUEST-ORDER" to TIMESTAMP.toString()
-                ),
+                RequestHeaderUtils.createBaseHeaders_V3(requestContextMock),
                 TIMESTAMP,
                 Long.MAX_VALUE,
                 REQUEST_ID

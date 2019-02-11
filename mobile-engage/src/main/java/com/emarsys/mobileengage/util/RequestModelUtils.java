@@ -19,17 +19,8 @@ public class RequestModelUtils {
         return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(String.format(Endpoint.ME_V3_CLIENT_BASE + "push-token", requestContext.getApplicationCode()))
                 .method(RequestMethod.PUT)
-                .headers(createBaseHeaders_V3(requestContext))
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .payload(payload)
                 .build();
     }
-
-
-    private static Map<String, String> createBaseHeaders_V3(RequestContext requestContext) {
-        Map<String, String> baseHeaders = new HashMap<>();
-        baseHeaders.put("X-CLIENT-ID", requestContext.getDeviceInfo().getHwid());
-        baseHeaders.put("X-REQUEST-ORDER", Long.toString(requestContext.getTimestampProvider().provideTimestamp()));
-        return baseHeaders;
-    }
-
 }
