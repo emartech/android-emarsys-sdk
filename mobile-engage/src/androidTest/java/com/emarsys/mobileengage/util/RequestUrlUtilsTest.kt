@@ -1,10 +1,13 @@
 package com.emarsys.mobileengage.util
 
 import com.emarsys.mobileengage.RequestContext
+import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils
 import io.kotlintest.shouldBe
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mockito
 
 class RequestUrlUtilsTest {
@@ -13,6 +16,10 @@ class RequestUrlUtilsTest {
     }
 
     lateinit var requestContextMock: RequestContext
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

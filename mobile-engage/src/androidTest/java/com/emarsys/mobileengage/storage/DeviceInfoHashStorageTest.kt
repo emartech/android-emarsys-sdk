@@ -3,13 +3,20 @@ package com.emarsys.mobileengage.storage
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
 import com.emarsys.testUtil.SharedPrefsUtils
+import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 
 class DeviceInfoHashStorageTest {
     private lateinit var context: Context
     private lateinit var storage: DeviceInfoHashStorage
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {
