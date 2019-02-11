@@ -3,7 +3,6 @@ package com.emarsys.mobileengage.iam;
 import android.os.Handler;
 
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -37,7 +36,7 @@ public class InAppStartActionTest {
         DatabaseTestUtils.deleteCoreDatabase();
         SharedPrefsUtils.clearSharedPrefs(EMARSYS_SHARED_PREFERENCES);
 
-        mobileEngageInternal = mock(MobileEngageInternal_V3_Old.class);
+        mobileEngageInternal = mock(MobileEngageInternal.class);
 
         startAction = new InAppStartAction(mobileEngageInternal);
     }
