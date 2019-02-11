@@ -6,7 +6,6 @@ public class Endpoint {
     public static final String ME_BASE_V2 = BuildConfig.ME_BASE_V2_URL;
     public static final String ME_LOGIN_V2 = ME_BASE_V2 + "users/login";
     public static final String ME_LOGOUT_V2 = ME_BASE_V2 + "users/logout";
-    public static final String ME_LAST_MOBILE_ACTIVITY_V2 = ME_BASE_V2 + "events/ems_lastMobileActivity";
 
     public static final String ME_BASE_V3_OLD = BuildConfig.ME_BASE_V3_URL;
 
