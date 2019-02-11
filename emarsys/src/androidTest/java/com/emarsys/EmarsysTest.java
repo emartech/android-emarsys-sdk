@@ -95,6 +95,7 @@ public class EmarsysTest {
     private static final int CONTACT_FIELD_ID = 3;
     private static final String MERCHANT_ID = "merchantId";
     private static final String SDK_VERSION = "sdkVersion";
+    private static final String CUSTOMER_ID = "CUSTOMER_ID";
 
     private CoreSdkHandler mockCoreSdkHandler;
     private ActivityLifecycleWatchdog activityLifecycleWatchdog;
@@ -395,31 +396,48 @@ public class EmarsysTest {
         Emarsys.setCustomer(null);
     }
 
-    @Test
-    public void testSetCustomer_delegatesTo_mobileEngageInternal() {
-        String customerId = "customerId";
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetCustomerWithCompletionListener_customerId_mustNotBeNull() {
+        Emarsys.setCustomer(null, completionListener);
+    }
 
-        Emarsys.setCustomer(customerId);
-
-        verify(mockMobileEngageInternal).setContact(customerId, null);
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetCustomerWithCompletionListener_completionListener_mustNotBeNull() {
+        Emarsys.setCustomer(CUSTOMER_ID, null);
     }
 
     @Test
-    public void testSetCustomer_completionListener_delegatesToMobileEngageInternal() {
-        String customerId = "customerId";
+    public void testSetCustomer_delegatesTo_mobileEngageInternal() {
 
-        Emarsys.setCustomer(customerId, completionListener);
+        Emarsys.setCustomer(CUSTOMER_ID);
 
-        verify(mockMobileEngageInternal).setContact(customerId, completionListener);
+        verify(mockMobileEngageInternal).setContact(CUSTOMER_ID, null);
+    }
+
+    @Test
+    public void testSetCustomerWithCompletionListener_delegatesToMobileEngageInternal() {
+        Emarsys.setCustomer(CUSTOMER_ID, completionListener);
+
+        verify(mockMobileEngageInternal).setContact(CUSTOMER_ID, completionListener);
     }
 
     @Test
     public void testSetCustomer_delegatesTo_predictInternal() {
-        String customerId = "customerId";
+        Emarsys.setCustomer(CUSTOMER_ID);
 
-        Emarsys.setCustomer(customerId);
+        verify(mockPredictInternal).setCustomer(CUSTOMER_ID);
+    }
 
-        verify(mockPredictInternal).setCustomer(customerId);
+    @Test
+    public void testSetCustomerWithCompletionListener_delegatesTo_predictInternal() {
+        Emarsys.setCustomer(CUSTOMER_ID, completionListener);
+
+        verify(mockPredictInternal).setCustomer(CUSTOMER_ID);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetAnonymousCustomerWithCompletionListener_completionListener_mustNotBeNull() {
+        Emarsys.setAnonymousCustomer(null);
     }
 
     @Test
@@ -430,10 +448,15 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testSetAnonymousCustomer_completionListener_delegatesToMobileEngageInternal() {
+    public void testSetAnonymousCustomerWithCompletionListener_delegatesToMobileEngageInternal() {
         Emarsys.setAnonymousCustomer(completionListener);
 
         verify(mockMobileEngageInternal).setAnonymousContact(completionListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testClearCustomerWithCompletionListener_completionListener_mustNotBeNull() {
+        Emarsys.clearCustomer(null);
     }
 
     @Test
@@ -444,7 +467,7 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testClearCustomer_completionListener_delegatesTo_mobileEngageInternal() {
+    public void testClearCustomerWithCompletionListener_delegatesTo_mobileEngageInternal() {
         Emarsys.clearCustomer(completionListener);
 
         verify(mockMobileEngageInternal).removeContact(completionListener);
@@ -453,6 +476,13 @@ public class EmarsysTest {
     @Test
     public void testClearCustomer_delegatesTo_predictInternal() {
         Emarsys.clearCustomer();
+
+        verify(mockPredictInternal).clearCustomer();
+    }
+
+    @Test
+    public void testClearCustomerWithCompletionListener_delegatesTo_predictInternal() {
+        Emarsys.clearCustomer(completionListener);
 
         verify(mockPredictInternal).clearCustomer();
     }
@@ -467,6 +497,21 @@ public class EmarsysTest {
         Emarsys.trackDeepLink(mock(Activity.class), null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testTrackDeepLinkWithCompletionListener_activity_mustNotBeNull() {
+        Emarsys.trackDeepLink(null, mock(Intent.class), completionListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testTrackDeepLinkWithCompletionListener_intent_mustNotBeNull() {
+        Emarsys.trackDeepLink(mock(Activity.class), null, completionListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testTrackDeepLinkWithCompletionListener_completionListener_mustNotBeNull() {
+        Emarsys.trackDeepLink(mock(Activity.class), mock(Intent.class), null);
+    }
+
     @Test
     public void testTrackDeepLink_delegatesTo_deepLinkInternal() {
         Activity mockActivity = mock(Activity.class);
@@ -478,7 +523,7 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testTrackDeepLink_completionListener_delegatesTo_deepLinkInternal() {
+    public void testTrackDeepLinkWithCompletionListener_delegatesTo_deepLinkInternal() {
         Activity mockActivity = mock(Activity.class);
         Intent mockIntent = mock(Intent.class);
 
@@ -492,6 +537,16 @@ public class EmarsysTest {
         Emarsys.trackCustomEvent(null, new HashMap<String, String>());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testTrackCustomEventWithCompletionListener_eventName_mustNotBeNull() {
+        Emarsys.trackCustomEvent(null, new HashMap<String, String>(), completionListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testTrackCustomEventWithCompletionListener_completionListener_mustNotBeNull() {
+        Emarsys.trackCustomEvent("eventName", new HashMap<String, String>(), null);
+    }
+
     @Test
     public void testTrackCustomEvent_delegatesTo_mobileEngageInternal() {
         String eventName = "eventName";
@@ -503,7 +558,7 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testTrackCustomEvent_completionListener_delegatesTo_mobileEngageInternal() {
+    public void testTrackCustomEventWithCompletionListener_delegatesTo_mobileEngageInternal() {
         String eventName = "eventName";
         HashMap<String, String> eventAttributes = new HashMap<>();
 
@@ -517,6 +572,16 @@ public class EmarsysTest {
         Emarsys.Push.trackMessageOpen(null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testPush_trackMessageOpenWithCompletionListener_intent_mustNotBeNull() {
+        Emarsys.Push.trackMessageOpen(null, completionListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPush_trackMessageOpenWithCompletionListener_completionListener_mustNotBeNull() {
+        Emarsys.Push.trackMessageOpen(mock(Intent.class), null);
+    }
+
     @Test
     public void testPush_trackMessageOpen_delegatesTo_mobileEngageInternal() {
         Intent intent = mock(Intent.class);
@@ -527,7 +592,7 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testPush_trackMessageOpen_completionListener_delegatesTo_mobileEngageInternal() {
+    public void testPush_trackMessageOpenWithCompletionListener_delegatesTo_mobileEngageInternal() {
         Intent intent = mock(Intent.class);
 
         Emarsys.Push.trackMessageOpen(intent, completionListener);
@@ -538,6 +603,16 @@ public class EmarsysTest {
     @Test(expected = IllegalArgumentException.class)
     public void testPush_setPushToken_token_mustNotBeNull() {
         Emarsys.Push.setPushToken(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPush_setPushTokenWithCompletionListener_token_mustNotBeNull() {
+        Emarsys.Push.setPushToken(null, completionListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPush_setPushTokenWithCompletionListener_completionListener_mustNotBeNull() {
+        Emarsys.Push.setPushToken("pushToken", null);
     }
 
     @Test

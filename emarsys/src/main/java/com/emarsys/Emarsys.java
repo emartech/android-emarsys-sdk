@@ -52,8 +52,17 @@ public class Emarsys {
         registerDatabaseTriggers();
     }
 
-    public static void setCustomer(@NonNull String customerId) {
-        setCustomer(customerId, null);
+    public static void setCustomer(@NonNull final String customerId) {
+        getRunnerProxy().logException(new Runnable() {
+            @Override
+            public void run() {
+                Assert.notNull(customerId, "CustomerId must not be null!");
+
+                getMobileEngageInternal().setContact(customerId, null);
+                getPredictInternal().setCustomer(customerId);
+            }
+        });
+
     }
 
     public static void setCustomer(
@@ -63,6 +72,7 @@ public class Emarsys {
             @Override
             public void run() {
                 Assert.notNull(customerId, "CustomerId must not be null!");
+                Assert.notNull(completionListener, "CompletionListener must not be null!");
 
                 getMobileEngageInternal().setContact(customerId, completionListener);
                 getPredictInternal().setCustomer(customerId);
@@ -71,26 +81,42 @@ public class Emarsys {
     }
 
     public static void setAnonymousCustomer() {
-        setAnonymousCustomer(null);
+        getRunnerProxy().logException(new Runnable() {
+            @Override
+            public void run() {
+
+                getMobileEngageInternal().setAnonymousContact(null);
+            }
+        });
     }
 
     public static void setAnonymousCustomer(@NonNull final CompletionListener completionListener) {
         getRunnerProxy().logException(new Runnable() {
             @Override
             public void run() {
+                Assert.notNull(completionListener, "CompletionListener must not be null!");
+
                 getMobileEngageInternal().setAnonymousContact(completionListener);
             }
         });
     }
 
     public static void clearCustomer() {
-        clearCustomer(null);
+        getRunnerProxy().logException(new Runnable() {
+            @Override
+            public void run() {
+                getMobileEngageInternal().removeContact(null);
+                getPredictInternal().clearCustomer();
+            }
+        });
     }
 
     public static void clearCustomer(@NonNull final CompletionListener completionListener) {
         getRunnerProxy().logException(new Runnable() {
             @Override
             public void run() {
+                Assert.notNull(completionListener, "CompletionListener must not be null!");
+
                 getMobileEngageInternal().removeContact(completionListener);
                 getPredictInternal().clearCustomer();
             }
@@ -98,9 +124,17 @@ public class Emarsys {
 
     }
 
-    public static void trackDeepLink(@NonNull Activity activity,
-                                     @NonNull Intent intent) {
-        trackDeepLink(activity, intent, null);
+    public static void trackDeepLink(@NonNull final Activity activity,
+                                     @NonNull final Intent intent) {
+        getRunnerProxy().logException(new Runnable() {
+            @Override
+            public void run() {
+                Assert.notNull(activity, "Activity must not be null!");
+                Assert.notNull(intent, "Intent must not be null!");
+
+                getDeepLinkInternal().trackDeepLinkOpen(activity, intent, null);
+            }
+        });
     }
 
     public static void trackDeepLink(@NonNull final Activity activity,
@@ -111,6 +145,7 @@ public class Emarsys {
             public void run() {
                 Assert.notNull(activity, "Activity must not be null!");
                 Assert.notNull(intent, "Intent must not be null!");
+                Assert.notNull(completionListener, "CompletionListener must not be null!");
 
                 getDeepLinkInternal().trackDeepLinkOpen(activity, intent, completionListener);
             }
@@ -118,9 +153,16 @@ public class Emarsys {
     }
 
     public static void trackCustomEvent(
-            @NonNull String eventName,
-            @Nullable Map<String, String> eventAttributes) {
-        trackCustomEvent(eventName, eventAttributes, null);
+            @NonNull final String eventName,
+            @Nullable final Map<String, String> eventAttributes) {
+        getRunnerProxy().logException(new Runnable() {
+            @Override
+            public void run() {
+                Assert.notNull(eventName, "EventName must not be null!");
+
+                getMobileEngageInternal().trackCustomEvent(eventName, eventAttributes, null);
+            }
+        });
     }
 
     public static void trackCustomEvent(
@@ -131,6 +173,7 @@ public class Emarsys {
             @Override
             public void run() {
                 Assert.notNull(eventName, "EventName must not be null!");
+                Assert.notNull(completionListener, "CompletionListener must not be null!");
 
                 getMobileEngageInternal().trackCustomEvent(eventName, eventAttributes, completionListener);
             }
@@ -139,8 +182,15 @@ public class Emarsys {
 
     public static class Push {
 
-        public static void trackMessageOpen(@NonNull Intent intent) {
-            trackMessageOpen(intent, null);
+        public static void trackMessageOpen(@NonNull final Intent intent) {
+            getRunnerProxy().logException(new Runnable() {
+                @Override
+                public void run() {
+                    Assert.notNull(intent, "Intent must not be null!");
+
+                    getMobileEngageInternal().trackMessageOpen(intent, null);
+                }
+            });
         }
 
         public static void trackMessageOpen(
@@ -150,6 +200,7 @@ public class Emarsys {
                 @Override
                 public void run() {
                     Assert.notNull(intent, "Intent must not be null!");
+                    Assert.notNull(completionListener, "CompletionListener must not be null!");
 
                     getMobileEngageInternal().trackMessageOpen(intent, completionListener);
                 }
@@ -162,7 +213,7 @@ public class Emarsys {
                 public void run() {
                     Assert.notNull(pushToken, "PushToken must not be null!");
 
-                    setPushToken(pushToken, null);
+                    getMobileEngageInternal().setPushToken(pushToken, null);
                 }
             });
         }
@@ -174,6 +225,7 @@ public class Emarsys {
                 @Override
                 public void run() {
                     Assert.notNull(pushToken, "PushToken must not be null!");
+                    Assert.notNull(completionListener, "CompletionListener must not be null!");
 
                     getMobileEngageInternal().setPushToken(pushToken, completionListener);
                 }
