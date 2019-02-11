@@ -95,7 +95,7 @@ public class EmarsysTest {
     private static final int CONTACT_FIELD_ID = 3;
     private static final String MERCHANT_ID = "merchantId";
     private static final String SDK_VERSION = "sdkVersion";
-    private static final String CUSTOMER_ID = "CUSTOMER_ID";
+    private static final String CONTACT_ID = "CONTACT_ID";
 
     private CoreSdkHandler mockCoreSdkHandler;
     private ActivityLifecycleWatchdog activityLifecycleWatchdog;
@@ -392,99 +392,99 @@ public class EmarsysTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSetCustomer_customerId_mustNotBeNull() {
-        Emarsys.setCustomer(null);
+    public void testSetContact_contactId_mustNotBeNull() {
+        Emarsys.setContact(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSetCustomerWithCompletionListener_customerId_mustNotBeNull() {
-        Emarsys.setCustomer(null, completionListener);
+    public void testSetContactWithCompletionListener_contactId_mustNotBeNull() {
+        Emarsys.setContact(null, completionListener);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSetCustomerWithCompletionListener_completionListener_mustNotBeNull() {
-        Emarsys.setCustomer(CUSTOMER_ID, null);
+    public void testSetContactWithCompletionListener_completionListener_mustNotBeNull() {
+        Emarsys.setContact(CONTACT_ID, null);
     }
 
     @Test
-    public void testSetCustomer_delegatesTo_mobileEngageInternal() {
+    public void testSetContact_delegatesTo_mobileEngageInternal() {
 
-        Emarsys.setCustomer(CUSTOMER_ID);
+        Emarsys.setContact(CONTACT_ID);
 
-        verify(mockMobileEngageInternal).setContact(CUSTOMER_ID, null);
+        verify(mockMobileEngageInternal).setContact(CONTACT_ID, null);
     }
 
     @Test
-    public void testSetCustomerWithCompletionListener_delegatesToMobileEngageInternal() {
-        Emarsys.setCustomer(CUSTOMER_ID, completionListener);
+    public void testSetContactWithCompletionListener_delegatesToMobileEngageInternal() {
+        Emarsys.setContact(CONTACT_ID, completionListener);
 
-        verify(mockMobileEngageInternal).setContact(CUSTOMER_ID, completionListener);
+        verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener);
     }
 
     @Test
-    public void testSetCustomer_delegatesTo_predictInternal() {
-        Emarsys.setCustomer(CUSTOMER_ID);
+    public void testSetContact_delegatesTo_predictInternal() {
+        Emarsys.setContact(CONTACT_ID);
 
-        verify(mockPredictInternal).setCustomer(CUSTOMER_ID);
+        verify(mockPredictInternal).setContact(CONTACT_ID);
     }
 
     @Test
-    public void testSetCustomerWithCompletionListener_delegatesTo_predictInternal() {
-        Emarsys.setCustomer(CUSTOMER_ID, completionListener);
+    public void testSetContactWithCompletionListener_delegatesTo_predictInternal() {
+        Emarsys.setContact(CONTACT_ID, completionListener);
 
-        verify(mockPredictInternal).setCustomer(CUSTOMER_ID);
+        verify(mockPredictInternal).setContact(CONTACT_ID);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSetAnonymousCustomerWithCompletionListener_completionListener_mustNotBeNull() {
-        Emarsys.setAnonymousCustomer(null);
+    public void testSetAnonymousContactWithCompletionListener_completionListener_mustNotBeNull() {
+        Emarsys.setAnonymousContact(null);
     }
 
     @Test
-    public void testSetAnonymousCustomer_delegatesToMobileEngageInternal() {
-        Emarsys.setAnonymousCustomer();
+    public void testSetAnonymousContact_delegatesToMobileEngageInternal() {
+        Emarsys.setAnonymousContact();
 
         verify(mockMobileEngageInternal).setAnonymousContact(null);
     }
 
     @Test
-    public void testSetAnonymousCustomerWithCompletionListener_delegatesToMobileEngageInternal() {
-        Emarsys.setAnonymousCustomer(completionListener);
+    public void testSetAnonymousContactWithCompletionListener_delegatesToMobileEngageInternal() {
+        Emarsys.setAnonymousContact(completionListener);
 
         verify(mockMobileEngageInternal).setAnonymousContact(completionListener);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testClearCustomerWithCompletionListener_completionListener_mustNotBeNull() {
-        Emarsys.clearCustomer(null);
+    public void testClearContactWithCompletionListener_completionListener_mustNotBeNull() {
+        Emarsys.clearContact(null);
     }
 
     @Test
-    public void testClearCustomer_delegatesTo_mobileEngageInternal() {
-        Emarsys.clearCustomer();
+    public void testClearContact_delegatesTo_mobileEngageInternal() {
+        Emarsys.clearContact();
 
         verify(mockMobileEngageInternal).removeContact(null);
     }
 
     @Test
-    public void testClearCustomerWithCompletionListener_delegatesTo_mobileEngageInternal() {
-        Emarsys.clearCustomer(completionListener);
+    public void testClearContactWithCompletionListener_delegatesTo_mobileEngageInternal() {
+        Emarsys.clearContact(completionListener);
 
         verify(mockMobileEngageInternal).removeContact(completionListener);
     }
 
     @Test
-    public void testClearCustomer_delegatesTo_predictInternal() {
-        Emarsys.clearCustomer();
+    public void testClearContact_delegatesTo_predictInternal() {
+        Emarsys.clearContact();
 
-        verify(mockPredictInternal).clearCustomer();
+        verify(mockPredictInternal).clearContact();
     }
 
     @Test
-    public void testClearCustomerWithCompletionListener_delegatesTo_predictInternal() {
-        Emarsys.clearCustomer(completionListener);
+    public void testClearContactWithCompletionListener_delegatesTo_predictInternal() {
+        Emarsys.clearContact(completionListener);
 
-        verify(mockPredictInternal).clearCustomer();
+        verify(mockPredictInternal).clearContact();
     }
 
     @Test(expected = IllegalArgumentException.class)

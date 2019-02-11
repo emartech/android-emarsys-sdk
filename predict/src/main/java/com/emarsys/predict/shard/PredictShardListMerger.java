@@ -2,8 +2,8 @@ package com.emarsys.predict.shard;
 
 import android.net.Uri;
 
-import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.Mapper;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
@@ -92,9 +92,9 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
             result.put("vi", visitorId);
         }
 
-        String customerId = keyValueStore.getString(PredictInternal.CUSTOMER_ID_KEY);
-        if (customerId != null) {
-            result.put("ci", customerId);
+        String contactId = keyValueStore.getString(PredictInternal.CONTACT_ID_KEY);
+        if (contactId != null) {
+            result.put("ci", contactId);
         }
     }
 

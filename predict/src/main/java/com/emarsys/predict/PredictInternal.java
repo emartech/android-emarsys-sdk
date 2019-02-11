@@ -16,7 +16,7 @@ public class PredictInternal {
     public static final String BASE_URL = "https://recommender.scarabresearch.com/merchants";
 
     public static final String VISITOR_ID_KEY = "predict_visitor_id";
-    public static final String CUSTOMER_ID_KEY = "predict_customer_id";
+    public static final String CONTACT_ID_KEY = "predict_contact_id";
 
     private static final String TYPE_CART = "predict_cart";
     private static final String TYPE_PURCHASE = "predict_purchase";
@@ -40,13 +40,13 @@ public class PredictInternal {
         this.timestampProvider = timestampProvider;
     }
 
-    public void setCustomer(String customerId) {
-        Assert.notNull(customerId, "CustomerId must not be null!");
-        keyValueStore.putString(CUSTOMER_ID_KEY, customerId);
+    public void setContact(String contactId) {
+        Assert.notNull(contactId, "ContactId must not be null!");
+        keyValueStore.putString(CONTACT_ID_KEY, contactId);
     }
 
-    public void clearCustomer() {
-        keyValueStore.remove(CUSTOMER_ID_KEY);
+    public void clearContact() {
+        keyValueStore.remove(CONTACT_ID_KEY);
         keyValueStore.remove(VISITOR_ID_KEY);
     }
 

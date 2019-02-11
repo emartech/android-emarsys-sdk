@@ -108,16 +108,16 @@ class MobileEngageIntegrationTest {
 
     @Ignore
     @Test
-    fun testSetAnonymousCustomer() {
-        Emarsys.setAnonymousCustomer(
+    fun testSetAnonymousContact() {
+        Emarsys.setAnonymousContact(
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
     }
 
     @Ignore
     @Test
-    fun testSetCustomer() {
-        Emarsys.setCustomer(
+    fun testSetContact() {
+        Emarsys.setContact(
                 "test@test.com",
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
@@ -125,8 +125,8 @@ class MobileEngageIntegrationTest {
 
     @Ignore
     @Test
-    fun testClearCustomer() {
-        Emarsys.clearCustomer(
+    fun testClearContact() {
+        Emarsys.clearContact(
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
     }

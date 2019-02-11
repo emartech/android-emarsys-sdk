@@ -68,29 +68,29 @@ class PredictInternalTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testSetCustomer_customerId_mustNotBeNull() {
-        predictInternal.setCustomer(null)
+    fun testSetContact_contactId_mustNotBeNull() {
+        predictInternal.setContact(null)
     }
 
     @Test
-    fun testSetCustomer_shouldPersistsWithKeyValueStore() {
-        val customerId = "customerId"
+    fun testSetContact_shouldPersistsWithKeyValueStore() {
+        val contactId = "contactId"
 
-        predictInternal.setCustomer(customerId)
+        predictInternal.setContact(contactId)
 
-        verify(mockKeyValueStore).putString("predict_customer_id", customerId)
+        verify(mockKeyValueStore).putString("predict_contact_id", contactId)
     }
 
     @Test
-    fun testClearCustomer_shouldRemove_customerIdFromKeyValueStore() {
-        predictInternal.clearCustomer()
+    fun testClearContact_shouldRemove_contactIdFromKeyValueStore() {
+        predictInternal.clearContact()
 
-        verify(mockKeyValueStore).remove("predict_customer_id")
+        verify(mockKeyValueStore).remove("predict_contact_id")
     }
 
     @Test
-    fun testClearCustomer_shouldRemove_visitorIdFromKeyValueStore() {
-        predictInternal.clearCustomer()
+    fun testClearContact_shouldRemove_visitorIdFromKeyValueStore() {
+        predictInternal.clearContact()
 
         verify(mockKeyValueStore).remove("predict_visitor_id")
     }

@@ -10,7 +10,7 @@ object IntegrationTestUtils {
     fun doAppLogin(contactFieldValue: String = "test@test.com") {
         val latch = CountDownLatch(1)
         var errorCause: Throwable? = null
-        Emarsys.setCustomer(contactFieldValue) {
+        Emarsys.setContact(contactFieldValue) {
             errorCause = it
             latch.countDown()
         }

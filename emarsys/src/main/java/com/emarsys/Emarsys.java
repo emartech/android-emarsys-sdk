@@ -52,35 +52,35 @@ public class Emarsys {
         registerDatabaseTriggers();
     }
 
-    public static void setCustomer(@NonNull final String customerId) {
+    public static void setContact(@NonNull final String contactId) {
         getRunnerProxy().logException(new Runnable() {
             @Override
             public void run() {
-                Assert.notNull(customerId, "CustomerId must not be null!");
+                Assert.notNull(contactId, "ContactId must not be null!");
 
-                getMobileEngageInternal().setContact(customerId, null);
-                getPredictInternal().setCustomer(customerId);
+                getMobileEngageInternal().setContact(contactId, null);
+                getPredictInternal().setContact(contactId);
             }
         });
 
     }
 
-    public static void setCustomer(
-            @NonNull final String customerId,
+    public static void setContact(
+            @NonNull final String contactId,
             @NonNull final CompletionListener completionListener) {
         getRunnerProxy().logException(new Runnable() {
             @Override
             public void run() {
-                Assert.notNull(customerId, "CustomerId must not be null!");
+                Assert.notNull(contactId, "ContactId must not be null!");
                 Assert.notNull(completionListener, "CompletionListener must not be null!");
 
-                getMobileEngageInternal().setContact(customerId, completionListener);
-                getPredictInternal().setCustomer(customerId);
+                getMobileEngageInternal().setContact(contactId, completionListener);
+                getPredictInternal().setContact(contactId);
             }
         });
     }
 
-    public static void setAnonymousCustomer() {
+    public static void setAnonymousContact() {
         getRunnerProxy().logException(new Runnable() {
             @Override
             public void run() {
@@ -90,7 +90,7 @@ public class Emarsys {
         });
     }
 
-    public static void setAnonymousCustomer(@NonNull final CompletionListener completionListener) {
+    public static void setAnonymousContact(@NonNull final CompletionListener completionListener) {
         getRunnerProxy().logException(new Runnable() {
             @Override
             public void run() {
@@ -101,24 +101,24 @@ public class Emarsys {
         });
     }
 
-    public static void clearCustomer() {
+    public static void clearContact() {
         getRunnerProxy().logException(new Runnable() {
             @Override
             public void run() {
                 getMobileEngageInternal().removeContact(null);
-                getPredictInternal().clearCustomer();
+                getPredictInternal().clearContact();
             }
         });
     }
 
-    public static void clearCustomer(@NonNull final CompletionListener completionListener) {
+    public static void clearContact(@NonNull final CompletionListener completionListener) {
         getRunnerProxy().logException(new Runnable() {
             @Override
             public void run() {
                 Assert.notNull(completionListener, "CompletionListener must not be null!");
 
                 getMobileEngageInternal().removeContact(completionListener);
-                getPredictInternal().clearCustomer();
+                getPredictInternal().clearContact();
             }
         });
 

@@ -23,7 +23,7 @@ class PredictShardListMergerTest {
         const val TIMESTAMP = 125L
         const val TTL = Long.MAX_VALUE
         const val VISITOR_ID = "888999888"
-        const val CUSTOMER_ID = "12345"
+        const val CONTACT_ID = "12345"
         const val OS_VERSION = "1.0.0"
         const val PLATFORM = "android"
     }
@@ -139,8 +139,8 @@ class PredictShardListMergerTest {
     }
 
     @Test
-    fun testMap_withCustomerIdPresent() {
-        whenever(store.getString("predict_customer_id")).thenReturn(CUSTOMER_ID)
+    fun testMap_withContactIdPresent() {
+        whenever(store.getString("predict_contact_id")).thenReturn(CONTACT_ID)
 
         val expectedRequestModel = requestModel("https://recommender.scarabresearch.com/merchants/merchantId555?cp=1&ci=12345&q3=c")
 
@@ -148,9 +148,9 @@ class PredictShardListMergerTest {
     }
 
     @Test
-    fun testMap_withBoth_visitorIdAndCustomerIdPresent() {
+    fun testMap_withBoth_visitorIdAndContactIdPresent() {
         whenever(store.getString("predict_visitor_id")).thenReturn(VISITOR_ID)
-        whenever(store.getString("predict_customer_id")).thenReturn(CUSTOMER_ID)
+        whenever(store.getString("predict_contact_id")).thenReturn(CONTACT_ID)
 
         val expectedRequestModel = requestModel("https://recommender.scarabresearch.com/merchants/merchantId555?cp=1&vi=888999888&ci=12345&q3=c")
 

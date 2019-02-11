@@ -71,13 +71,13 @@ public class MobileEngageFragment extends BaseFragment {
         messageId = root.findViewById(R.id.messageId);
 
         root.findViewById(R.id.appLoginAnonymous).setOnClickListener(v -> {
-            Emarsys.setAnonymousCustomer(completionListener);
+            Emarsys.setAnonymousContact(completionListener);
             handleRequestSent("Anonymous login: ");
         });
 
         root.findViewById(R.id.appLogin).setOnClickListener(v -> {
             String id = contactFieldValue.getText().toString();
-            Emarsys.setCustomer(id, errorCause -> {
+            Emarsys.setContact(id, errorCause -> {
                 completionListener.onCompleted(errorCause);
                 if (errorCause != null) {
                     ((MainActivity) getActivity()).updateBadgeCount();
@@ -87,7 +87,7 @@ public class MobileEngageFragment extends BaseFragment {
         });
 
         root.findViewById(R.id.appLogout).setOnClickListener(v -> {
-            Emarsys.clearCustomer(completionListener);
+            Emarsys.clearContact(completionListener);
             handleRequestSent("Logout: ");
         });
 

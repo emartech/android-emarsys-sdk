@@ -215,8 +215,8 @@ class PredictIntegrationTest {
     }
 
     @Test
-    fun testMultipleInvocationsWithSetCustomer() {
-        Emarsys.setCustomer("test@test.com")
+    fun testMultipleInvocationsWithSetContact() {
+        Emarsys.setContact("test@test.com")
         testMultipleInvocations()
     }
 
