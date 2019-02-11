@@ -26,7 +26,6 @@ import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 import java.util.concurrent.CountDownLatch
 
-@Ignore
 class MobileEngageIntegrationTest {
 
     companion object {
@@ -60,6 +59,7 @@ class MobileEngageIntegrationTest {
 
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
+                .inAppEventHandler(mock(EventHandler::class.java))
                 .mobileEngageCredentials(APP_ID, APP_PASSWORD)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
@@ -76,10 +76,6 @@ class MobileEngageIntegrationTest {
             )
         })
 
-        setup(baseConfig)
-    }
-
-    private fun setup(config: EmarsysConfig) {
         errorCause = null
         latch = CountDownLatch(1)
 
@@ -91,7 +87,7 @@ class MobileEngageIntegrationTest {
 
         ExperimentalTestUtils.resetExperimentalFeatures()
 
-        Emarsys.setup(config)
+        Emarsys.setup(baseConfig)
     }
 
     @After
@@ -110,6 +106,7 @@ class MobileEngageIntegrationTest {
         DependencyInjection.tearDown()
     }
 
+    @Ignore
     @Test
     fun testSetAnonymousCustomer() {
         Emarsys.setAnonymousCustomer(
@@ -117,6 +114,7 @@ class MobileEngageIntegrationTest {
         ).also(this::eventuallyAssertSuccess)
     }
 
+    @Ignore
     @Test
     fun testSetCustomer() {
         Emarsys.setCustomer(
@@ -125,6 +123,7 @@ class MobileEngageIntegrationTest {
         ).also(this::eventuallyAssertSuccess)
     }
 
+    @Ignore
     @Test
     fun testClearCustomer() {
         Emarsys.clearCustomer(
@@ -132,9 +131,9 @@ class MobileEngageIntegrationTest {
         ).also(this::eventuallyAssertSuccess)
     }
 
+    @Ignore
     @Test
     fun testTrackCustomEvent_V3_noAttributes() {
-        setupWithV3()
         IntegrationTestUtils.doAppLogin()
 
         Emarsys.trackCustomEvent(
@@ -144,9 +143,9 @@ class MobileEngageIntegrationTest {
         ).also(this::eventuallyAssertSuccess)
     }
 
+    @Ignore
     @Test
     fun testTrackCustomEvent_V3_withAttributes() {
-        setupWithV3()
         IntegrationTestUtils.doAppLogin()
 
         Emarsys.trackCustomEvent(
@@ -156,9 +155,9 @@ class MobileEngageIntegrationTest {
         ).also(this::eventuallyAssertSuccess)
     }
 
+    @Ignore
     @Test
     fun testTrackMessageOpen_V3() {
-        setupWithV3()
         IntegrationTestUtils.doAppLogin()
 
         val intent = Intent().apply {
@@ -174,6 +173,14 @@ class MobileEngageIntegrationTest {
         ).also(this::eventuallyAssertSuccess)
     }
 
+    @Test
+    fun testSetPushToken() {
+        Emarsys.Push.setPushToken("pushToken",
+                this::eventuallyStoreResult
+        ).also(this::eventuallyAssertSuccess)
+    }
+
+    @Ignore
     @Test
     fun testDeepLinkOpen() {
         val intent = Intent(
@@ -195,14 +202,5 @@ class MobileEngageIntegrationTest {
     private fun eventuallyAssertSuccess(ignored: Any) {
         latch.await()
         errorCause shouldBe null
-    }
-
-    private fun setupWithV3() {
-        tearDown()
-        EmarsysConfig.Builder()
-                .from(baseConfig)
-                .inAppEventHandler(mock(EventHandler::class.java))
-                .build()
-                .let(this::setup)
     }
 }
