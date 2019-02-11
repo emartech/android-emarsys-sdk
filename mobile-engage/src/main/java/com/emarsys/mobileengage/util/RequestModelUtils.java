@@ -4,23 +4,18 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.endpoint.Endpoint;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class RequestModelUtils {
 
     public static RequestModel createSetPushTokenRequest(String pushToken, RequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
         Assert.notNull(pushToken, "PushToken must not be null!");
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("pushToken", pushToken);
+
         return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
-                .url(String.format(Endpoint.ME_V3_CLIENT_BASE + "push-token", requestContext.getApplicationCode()))
+                .url(RequestUrlUtils.createSetPushTokenUrl(requestContext))
                 .method(RequestMethod.PUT)
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
-                .payload(payload)
+                .payload(RequestPayloadUtils.createSetPushTokenPayload(pushToken))
                 .build();
     }
 }

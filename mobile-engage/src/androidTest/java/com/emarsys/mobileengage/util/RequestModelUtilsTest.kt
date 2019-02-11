@@ -67,11 +67,9 @@ class RequestModelUtilsTest {
     @Test
     fun testCreateSetPushTokenRequest() {
         val expected = RequestModel(
-                "https://ems-me-client.herokuapp.com/v3/apps/$APPLICATION_CODE/client/push-token",
+                RequestUrlUtils.createSetPushTokenUrl(requestContextMock),
                 RequestMethod.PUT,
-                mapOf(
-                        "pushToken" to PUSH_TOKEN
-                ),
+                RequestPayloadUtils.createSetPushTokenPayload(PUSH_TOKEN),
                 RequestHeaderUtils.createBaseHeaders_V3(requestContextMock),
                 TIMESTAMP,
                 Long.MAX_VALUE,
