@@ -23,6 +23,7 @@ public class RequestModelTest {
     private RequestMethod method;
     private Map<String, Object> payload;
     private Map<String, String> headers;
+    private Map<String, String> queryParams;
     private long timestamp;
     private long ttl;
     private String id;
@@ -33,11 +34,12 @@ public class RequestModelTest {
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
-    public void init(){
+    public void init() {
         url = "https://google.com";
         method = RequestMethod.PUT;
         payload = createPayload();
         headers = createHeaders();
+        queryParams = createQueryParams();
         timestamp = System.currentTimeMillis();
         ttl = 6000;
         id = "uuid";
@@ -46,27 +48,27 @@ public class RequestModelTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_urlShouldNotBeNull(){
+    public void testConstructor_urlShouldNotBeNull() {
         new RequestModel(null, method, payload, headers, timestamp, ttl, id);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_methodShouldNotBeNull(){
+    public void testConstructor_methodShouldNotBeNull() {
         new RequestModel(url, null, payload, headers, timestamp, ttl, id);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_headersShouldNotBeNull(){
+    public void testConstructor_headersShouldNotBeNull() {
         new RequestModel(url, method, payload, null, timestamp, ttl, id);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_idShouldNotBeNull(){
+    public void testConstructor_idShouldNotBeNull() {
         new RequestModel(url, method, payload, headers, timestamp, ttl, null);
     }
 
     @Test
-    public void testBuilder_mandatoryArgumentsInitialized() throws Exception{
+    public void testBuilder_mandatoryArgumentsInitialized() throws Exception {
         RequestModel result = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(url)
                 .build();
@@ -75,7 +77,7 @@ public class RequestModelTest {
     }
 
     @Test
-    public void testBuilder_optionalArgumentsInitializedWithDefaultValue(){
+    public void testBuilder_optionalArgumentsInitializedWithDefaultValue() {
         RequestModel result = new RequestModel.Builder(timestampProvider, uuidProvider).url(url).build();
 
         assertEquals(new HashMap<String, String>(), result.getHeaders());
@@ -85,7 +87,7 @@ public class RequestModelTest {
     }
 
     @Test
-    public void testBuilder_idAndTimestampInitialized(){
+    public void testBuilder_idAndTimestampInitialized() {
         RequestModel result = new RequestModel.Builder(timestampProvider, uuidProvider).url(url).build();
 
         assertNotNull(result.getTimestamp());
@@ -93,24 +95,26 @@ public class RequestModelTest {
     }
 
     @Test
-    public void testBuilder_withAllArguments(){
+    public void testBuilder_withAllArguments() {
         RequestModel result = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(url)
                 .method(method)
                 .payload(payload)
                 .headers(headers)
+                .queryParams(queryParams)
                 .ttl(ttl)
                 .build();
 
         String id = result.getId();
         long timestamp = result.getTimestamp();
-        RequestModel expected = new RequestModel(url, method, payload, headers, timestamp, ttl, id);
+        String urlWithQueryParams = url + "?q1=v1&q2=v2";
+        RequestModel expected = new RequestModel(urlWithQueryParams, method, payload, headers, timestamp, ttl, id);
 
         assertEquals(expected, result);
     }
 
     @Test
-    public void testBuilder_timestampCorrectlySet(){
+    public void testBuilder_timestampCorrectlySet() {
         TimestampProvider timestampProvider = mock(TimestampProvider.class);
         final long timestamp = 1L;
         when(timestampProvider.provideTimestamp()).thenReturn(timestamp);
@@ -123,7 +127,7 @@ public class RequestModelTest {
     }
 
     @Test
-    public void testBuilder_requestIdCorrectlySet(){
+    public void testBuilder_requestIdCorrectlySet() {
         UUIDProvider uuidProvider = mock(UUIDProvider.class);
         final String requestId = "REQUEST_ID";
         when(uuidProvider.provideId()).thenReturn(requestId);
@@ -133,6 +137,39 @@ public class RequestModelTest {
                 .build();
 
         assertEquals(requestId, result.getId());
+    }
+
+    @Test
+    public void testBuilder_queryParamIsCorrectlySet() {
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("key1", "value1");
+
+        RequestModel result = new RequestModel.Builder(timestampProvider, uuidProvider)
+                .url("https://emarsys.com")
+                .queryParams(queryParams).build();
+
+        assertEquals("https://emarsys.com?key1=value1", result.getUrl().toString());
+    }
+
+    @Test
+    public void testBuilder_multipleQueryParamsAreCorrectlySet() {
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("key1", "value1");
+        queryParams.put("key2", "value2");
+        RequestModel result = new RequestModel.Builder(timestampProvider, uuidProvider)
+                .url("https://emarsys.com")
+                .queryParams(queryParams).build();
+
+        assertEquals("https://emarsys.com?key1=value1&key2=value2", result.getUrl().toString());
+    }
+
+    @Test
+    public void testBuilder_ignoresEmptyMap() {
+        RequestModel result = new RequestModel.Builder(timestampProvider, uuidProvider)
+                .url("https://emarsys.com")
+                .queryParams(new HashMap<String, String>()).build();
+
+        assertEquals("https://emarsys.com", result.getUrl().toString());
     }
 
     private Map<String, Object> createPayload() {
@@ -152,6 +189,13 @@ public class RequestModelTest {
         Map<String, String> result = new HashMap<>();
         result.put("content", "application/x-www-form-urlencoded");
         result.put("accept", "application/json");
+        return result;
+    }
+
+    private Map<String, String> createQueryParams() {
+        Map<String, String> result = new HashMap<>();
+        result.put("q1", "v1");
+        result.put("q2", "v2");
         return result;
     }
 }

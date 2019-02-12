@@ -1,7 +1,7 @@
 package com.emarsys.core.request.model;
 
-import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.util.Assert;
 
 import java.io.Serializable;
@@ -114,6 +114,7 @@ public class RequestModel implements Serializable {
         private long timestamp;
         private long ttl;
         private String id;
+        private Map<String, String> queryParams;
 
         public Builder(TimestampProvider timestampProvider, UUIDProvider uuidProvider) {
             method = RequestMethod.POST;
@@ -125,6 +126,11 @@ public class RequestModel implements Serializable {
 
         public Builder url(String url) {
             this.url = url;
+            return this;
+        }
+
+        public Builder queryParams(Map<String, String> queryParams) {
+            this.queryParams = queryParams;
             return this;
         }
 
@@ -149,7 +155,27 @@ public class RequestModel implements Serializable {
         }
 
         public RequestModel build() {
-            return new RequestModel(url, method, payload, headers, timestamp, ttl, id);
+            return new RequestModel(buildUrl(), method, payload, headers, timestamp, ttl, id);
+        }
+
+        private String buildUrl() {
+            String result = url;
+            if (queryParams != null && !queryParams.isEmpty()) {
+                StringBuilder sb = new StringBuilder(url).append("?");
+                boolean isFirstEntry = true;
+
+                for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+                    if (!isFirstEntry) {
+                        sb.append("&");
+                    }
+                    sb.append(entry.getKey())
+                            .append("=")
+                            .append(entry.getValue());
+                    isFirstEntry = false;
+                }
+                result = sb.toString();
+            }
+            return result;
         }
     }
 }
