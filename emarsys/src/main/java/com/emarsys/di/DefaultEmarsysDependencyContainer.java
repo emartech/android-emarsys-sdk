@@ -53,6 +53,7 @@ import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
+import com.emarsys.mobileengage.device.DeviceInfoStartAction;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.InAppStartAction;
@@ -67,6 +68,7 @@ import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
+import com.emarsys.mobileengage.storage.DeviceInfoHashStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
@@ -104,6 +106,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private AppLoginStorage appLoginStorage;
     private MeIdStorage meIdStorage;
     private MeIdSignatureStorage meIdSignatureStorage;
+    private DeviceInfoHashStorage deviceInfoHashStorage;
     private RequestManager requestManager;
     private ButtonClickedRepository buttonClickedRepository;
     private DisplayedIamRepository displayedIamRepository;
@@ -246,6 +249,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         appLoginStorage = new AppLoginStorage(prefs);
         meIdStorage = new MeIdStorage(prefs);
         meIdSignatureStorage = new MeIdSignatureStorage(prefs);
+        deviceInfoHashStorage = new DeviceInfoHashStorage(prefs);
         LanguageProvider languageProvider = new LanguageProvider();
         HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, prefs);
 
@@ -350,7 +354,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
     private void initializeActivityLifecycleWatchdog() {
         ActivityLifecycleAction[] applicationStartActions = new ActivityLifecycleAction[]{
-                new InAppStartAction(mobileEngageInternal)
+                new InAppStartAction(mobileEngageInternal),
+                new DeviceInfoStartAction(mobileEngageInternal, deviceInfoHashStorage, deviceInfo)
         };
 
         ActivityLifecycleAction[] activityCreatedActions = new ActivityLifecycleAction[]{

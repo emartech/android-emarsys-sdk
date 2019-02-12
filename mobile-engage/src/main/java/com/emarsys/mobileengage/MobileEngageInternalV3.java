@@ -66,4 +66,9 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
     public String trackMessageOpen(Intent intent, CompletionListener completionListener) {
         return null;
     }
+
+    @Override
+    public void trackDeviceInfo() {
+
+    }
 }

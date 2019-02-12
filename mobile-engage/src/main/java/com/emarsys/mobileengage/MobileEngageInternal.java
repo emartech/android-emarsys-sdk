@@ -28,4 +28,6 @@ public interface MobileEngageInternal {
             CompletionListener completionListener);
 
     String trackMessageOpen(Intent intent, CompletionListener completionListener);
+
+    void trackDeviceInfo();
 }

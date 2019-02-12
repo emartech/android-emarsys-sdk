@@ -185,4 +185,13 @@ public class DeviceInfoTest {
 
         assertEquals(LANGUAGE, language);
     }
+
+    @Test
+    public void testGetHash_shouldEqualHashCode() {
+        deviceInfo = new DeviceInfo(context, hardwareIdProvider, SDK_VERSION, languageProvider);
+
+        Integer expectedHash = deviceInfo.hashCode();
+
+        assertEquals(expectedHash, deviceInfo.getHash());
+    }
 }

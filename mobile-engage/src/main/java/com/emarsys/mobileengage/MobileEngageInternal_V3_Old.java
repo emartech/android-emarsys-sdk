@@ -189,6 +189,11 @@ public class MobileEngageInternal_V3_Old implements MobileEngageInternal {
         return handleMessageOpen(messageId, completionListener);
     }
 
+    @Override
+    public void trackDeviceInfo() {
+
+    }
+
     String getMessageId(Intent intent) {
         String sid = null;
         Bundle payload = intent.getBundleExtra("payload");

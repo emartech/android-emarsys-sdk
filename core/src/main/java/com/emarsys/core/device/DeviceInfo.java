@@ -113,4 +113,8 @@ public class DeviceInfo {
     public String getSdkVersion() {
         return sdkVersion;
     }
+
+    public Integer getHash() {
+        return hashCode();
+    }
 }
