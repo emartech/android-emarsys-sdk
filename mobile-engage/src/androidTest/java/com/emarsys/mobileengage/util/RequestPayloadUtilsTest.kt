@@ -1,20 +1,47 @@
 package com.emarsys.mobileengage.util
 
 
+import com.emarsys.core.device.DeviceInfo
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.Mockito
 
 class RequestPayloadUtilsTest {
     companion object {
         const val PUSH_TOKEN = "pushToken"
+        const val PLATFORM = "android"
+        const val APPLICATION_VERSION = "1.0.2"
+        const val DEVICE_MODEL = "GT-9100"
+        const val OS_VERSION = "9.0"
+        const val SDK_VERSION = "1.7.2"
+        const val LANGUAGE = "en-US"
+        const val TIMEZONE = "+0200"
     }
+
+    lateinit var deviceInfoMock: DeviceInfo
+
 
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
+
+    @Before
+    fun setUp() {
+        deviceInfoMock = Mockito.mock(DeviceInfo::class.java).apply {
+            whenever(platform).thenReturn(PLATFORM)
+            whenever(applicationVersion).thenReturn(APPLICATION_VERSION)
+            whenever(model).thenReturn(DEVICE_MODEL)
+            whenever(osVersion).thenReturn(OS_VERSION)
+            whenever(sdkVersion).thenReturn(SDK_VERSION)
+            whenever(language).thenReturn(LANGUAGE)
+            whenever(timezone).thenReturn(TIMEZONE)
+        }
+    }
 
     @Test(expected = IllegalArgumentException::class)
     fun testCreateSetPushTokenPayload_pushToken_mustNotBeNull() {
@@ -23,9 +50,28 @@ class RequestPayloadUtilsTest {
 
     @Test
     fun testCreateSetPushTokenPayload() {
-        val url = RequestPayloadUtils.createSetPushTokenPayload(PUSH_TOKEN)
-        url shouldBe mapOf(
+        val payload = RequestPayloadUtils.createSetPushTokenPayload(PUSH_TOKEN)
+        payload shouldBe mapOf(
                 "pushToken" to PUSH_TOKEN
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateTrackDeviceInfoRequest_deviceInfo_mustNotBeNull() {
+        RequestPayloadUtils.createTrackDeviceInfoRequest(null)
+    }
+
+    @Test
+    fun testCreateTrackDeviceInfoRequest() {
+        val payload = RequestPayloadUtils.createTrackDeviceInfoRequest(deviceInfoMock)
+        payload shouldBe mapOf(
+                "platform" to PLATFORM,
+                "applicationVersion" to APPLICATION_VERSION,
+                "deviceModel" to DEVICE_MODEL,
+                "osVersion" to OS_VERSION,
+                "sdkVersion" to SDK_VERSION,
+                "language" to LANGUAGE,
+                "timezone" to TIMEZONE
         )
     }
 }

@@ -69,6 +69,8 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
 
     @Override
     public void trackDeviceInfo() {
+        RequestModel requestModel = RequestModelUtils.createTrackDeviceInfoRequest(requestContext);
 
+        requestManager.submit(requestModel, null);
     }
 }

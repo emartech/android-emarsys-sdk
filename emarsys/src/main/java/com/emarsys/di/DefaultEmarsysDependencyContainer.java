@@ -293,7 +293,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 config.getApplicationCode(),
                 config.getApplicationPassword(),
                 config.getContactFieldId(),
-                deviceInfo,
+                getDeviceInfo(),
                 appLoginStorage,
                 meIdStorage,
                 meIdSignatureStorage,
@@ -315,7 +315,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                         sharedPrefsKeyStore,
                         timestampProvider,
                         uuidProvider,
-                        deviceInfo),
+                        getDeviceInfo()),
                 requestManager,
                 BatchingShardTrigger.RequestStrategy.PERSISTENT);
 
@@ -324,7 +324,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 new ListSizeAtLeast<ShardModel>(10),
                 new FilterByShardType(FilterByShardType.SHARD_TYPE_LOG),
                 new ListChunker<ShardModel>(10),
-                new LogShardListMerger(timestampProvider, uuidProvider, deviceInfo, config.getApplicationCode()),
+                new LogShardListMerger(timestampProvider, uuidProvider, getDeviceInfo(), config.getApplicationCode()),
                 requestManager,
                 BatchingShardTrigger.RequestStrategy.TRANSIENT);
 
@@ -344,7 +344,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
         RequestModelRepository requestModelRepository = new RequestModelRepository(coreDbHelper);
         return new RequestRepositoryProxy(
-                deviceInfo,
+                getDeviceInfo(),
                 requestModelRepository,
                 displayedIamRepository,
                 buttonClickedRepository,
@@ -355,7 +355,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private void initializeActivityLifecycleWatchdog() {
         ActivityLifecycleAction[] applicationStartActions = new ActivityLifecycleAction[]{
                 new InAppStartAction(mobileEngageInternal),
-                new DeviceInfoStartAction(mobileEngageInternal, deviceInfoHashStorage, deviceInfo)
+                new DeviceInfoStartAction(mobileEngageInternal, deviceInfoHashStorage, getDeviceInfo())
         };
 
         ActivityLifecycleAction[] activityCreatedActions = new ActivityLifecycleAction[]{

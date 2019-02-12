@@ -8,13 +8,16 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.response.ResponseModel
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.storage.AppLoginStorage
 import com.emarsys.mobileengage.storage.MeIdStorage
 import com.emarsys.testUtil.*
@@ -33,12 +36,14 @@ class MobileEngageIntegrationTest {
         private const val APP_PASSWORD = "PaNkfOD90AVpYimMBuZopCpm8OWCrREu"
         private const val CONTACT_FIELD_ID = 3
         private const val MERCHANT_ID = "1428C8EE286EC34B"
-        private const val SDK_VERSION = "sdkVersion"
+        private const val SDK_VERSION = "1.7.0"
     }
 
     private lateinit var latch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var responseModel: ResponseModel
+    private lateinit var completionHandler: DefaultCoreCompletionHandler
 
     private var errorCause: Throwable? = null
 
@@ -65,14 +70,17 @@ class MobileEngageIntegrationTest {
                 .predictMerchantId(MERCHANT_ID)
                 .build()
 
+        completionHandler = createDefaultCoreCompletionHandler()
+
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
+            override fun getCoreCompletionHandler() = completionHandler
             override fun getDeviceInfo() = DeviceInfo(
                     application,
                     mock(HardwareIdProvider::class.java).apply {
                         whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
                     },
                     SDK_VERSION,
-                    mock(LanguageProvider::class.java)
+                    LanguageProvider()
             )
         })
 
@@ -194,6 +202,13 @@ class MobileEngageIntegrationTest {
         ).also(this::eventuallyAssertSuccess)
     }
 
+    @Test
+    fun testTrackDeviceInfo() {
+        val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
+
+        mobileEngageInternal.trackDeviceInfo().also(this::eventuallyAssertSuccess)
+    }
+
     private fun eventuallyStoreResult(errorCause: Throwable?) {
         this.errorCause = errorCause
         latch.countDown()
@@ -202,5 +217,28 @@ class MobileEngageIntegrationTest {
     private fun eventuallyAssertSuccess(ignored: Any) {
         latch.await()
         errorCause shouldBe null
+    }
+
+    private fun createDefaultCoreCompletionHandler(): DefaultCoreCompletionHandler {
+        return object : DefaultCoreCompletionHandler(mutableListOf(), mutableMapOf()) {
+            override fun onSuccess(id: String?, responseModel: ResponseModel) {
+                super.onSuccess(id, responseModel)
+                this@MobileEngageIntegrationTest.responseModel = responseModel
+                latch.countDown()
+
+            }
+
+            override fun onError(id: String?, cause: Exception) {
+                super.onError(id, cause)
+                this@MobileEngageIntegrationTest.errorCause = cause
+                latch.countDown()
+            }
+
+            override fun onError(id: String?, responseModel: ResponseModel) {
+                super.onError(id, responseModel)
+                this@MobileEngageIntegrationTest.responseModel = responseModel
+                latch.countDown()
+            }
+        }
     }
 }

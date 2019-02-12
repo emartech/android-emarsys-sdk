@@ -19,5 +19,5 @@ public class Endpoint {
     public static final String DEEP_LINK_BASE = BuildConfig.DEEP_LINK_BASE_URL;
     public static final String DEEP_LINK_CLICK = DEEP_LINK_BASE + "clicks";
 
-    public static final String ME_V3_CLIENT_BASE = "https://ems-me-client.herokuapp.com/v3/apps/%s/client/";
+    public static final String ME_V3_CLIENT_BASE = "https://ems-me-client.herokuapp.com/v3/apps/%s/client";
 }

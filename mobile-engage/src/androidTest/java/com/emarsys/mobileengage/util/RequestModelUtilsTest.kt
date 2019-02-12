@@ -80,4 +80,25 @@ class RequestModelUtilsTest {
 
         result shouldBe expected
     }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateTrackDeviceInfoRequest_requestContext_mustNotBeNull() {
+        RequestModelUtils.createTrackDeviceInfoRequest(null)
+    }
+
+    @Test
+    fun testCreateTrackDeviceInfoRequest() {
+        val expected = RequestModel(
+                RequestUrlUtils.createTrackDeviceInfoUrl(requestContextMock),
+                RequestMethod.POST,
+                RequestPayloadUtils.createTrackDeviceInfoRequest(deviceInfoMock),
+                RequestHeaderUtils.createBaseHeaders_V3(requestContextMock),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+        val result = RequestModelUtils.createTrackDeviceInfoRequest(requestContextMock)
+
+        result shouldBe expected
+    }
 }

@@ -38,4 +38,15 @@ class RequestUrlUtilsTest {
         val url = RequestUrlUtils.createSetPushTokenUrl(requestContextMock)
         url shouldBe "https://ems-me-client.herokuapp.com/v3/apps/$APPLICATION_CODE/client/push-token"
     }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateTrackDeviceInfoUrl_requestContext_mustNotBeNull() {
+        RequestUrlUtils.createTrackDeviceInfoUrl(null)
+    }
+
+    @Test
+    fun testCreateTrackDeviceInfoUrl() {
+        val url = RequestUrlUtils.createTrackDeviceInfoUrl(requestContextMock)
+        url shouldBe "https://ems-me-client.herokuapp.com/v3/apps/$APPLICATION_CODE/client"
+    }
 }

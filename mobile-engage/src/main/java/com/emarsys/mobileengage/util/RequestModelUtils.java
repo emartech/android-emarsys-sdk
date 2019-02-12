@@ -18,4 +18,15 @@ public class RequestModelUtils {
                 .payload(RequestPayloadUtils.createSetPushTokenPayload(pushToken))
                 .build();
     }
+
+    public static RequestModel createTrackDeviceInfoRequest(RequestContext requestContext) {
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
+        return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
+                .url(RequestUrlUtils.createTrackDeviceInfoUrl(requestContext))
+                .method(RequestMethod.POST)
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
+                .payload(RequestPayloadUtils.createTrackDeviceInfoRequest(requestContext.getDeviceInfo()))
+                .build();
+    }
 }

@@ -8,6 +8,12 @@ public class RequestUrlUtils {
     public static String createSetPushTokenUrl(RequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
-        return String.format(Endpoint.ME_V3_CLIENT_BASE + "push-token", requestContext.getApplicationCode());
+        return String.format(Endpoint.ME_V3_CLIENT_BASE + "/push-token", requestContext.getApplicationCode());
+    }
+
+    public static String createTrackDeviceInfoUrl(RequestContext requestContext) {
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
+        return String.format(Endpoint.ME_V3_CLIENT_BASE, requestContext.getApplicationCode());
     }
 }
