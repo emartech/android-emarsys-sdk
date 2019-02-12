@@ -39,7 +39,8 @@ class MobileEngageIntegrationTest {
         private const val MERCHANT_ID = "1428C8EE286EC34B"
     }
 
-    private lateinit var latch: CountDownLatch
+    private lateinit var completionHandlerLatch: CountDownLatch
+    private lateinit var completionListenerLatch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var responseModel: ResponseModel
@@ -87,7 +88,8 @@ class MobileEngageIntegrationTest {
         })
 
         errorCause = null
-        latch = CountDownLatch(1)
+        completionListenerLatch = CountDownLatch(1)
+        completionHandlerLatch = CountDownLatch(1)
 
         ConnectionTestUtils.checkConnection(application)
 
@@ -208,16 +210,21 @@ class MobileEngageIntegrationTest {
     fun testTrackDeviceInfo() {
         val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
 
-        mobileEngageInternal.trackDeviceInfo().also(this::eventuallyAssertSuccess)
+        mobileEngageInternal.trackDeviceInfo().also(this::eventuallyAssertCompletionHandlerSuccess)
     }
 
     private fun eventuallyStoreResult(errorCause: Throwable?) {
         this.errorCause = errorCause
-        latch.countDown()
+        completionListenerLatch.countDown()
     }
 
     private fun eventuallyAssertSuccess(ignored: Any) {
-        latch.await()
+        completionListenerLatch.await()
+        errorCause shouldBe null
+    }
+
+    private fun eventuallyAssertCompletionHandlerSuccess(ignored: Any) {
+        completionHandlerLatch.await()
         errorCause shouldBe null
     }
 
@@ -226,20 +233,20 @@ class MobileEngageIntegrationTest {
             override fun onSuccess(id: String?, responseModel: ResponseModel) {
                 super.onSuccess(id, responseModel)
                 this@MobileEngageIntegrationTest.responseModel = responseModel
-                latch.countDown()
+                completionHandlerLatch.countDown()
 
             }
 
             override fun onError(id: String?, cause: Exception) {
                 super.onError(id, cause)
                 this@MobileEngageIntegrationTest.errorCause = cause
-                latch.countDown()
+                completionHandlerLatch.countDown()
             }
 
             override fun onError(id: String?, responseModel: ResponseModel) {
                 super.onError(id, responseModel)
                 this@MobileEngageIntegrationTest.responseModel = responseModel
-                latch.countDown()
+                completionHandlerLatch.countDown()
             }
         }
     }
