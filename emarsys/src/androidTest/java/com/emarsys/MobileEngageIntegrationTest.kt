@@ -36,7 +36,7 @@ class MobileEngageIntegrationTest {
         private const val APP_PASSWORD = "PaNkfOD90AVpYimMBuZopCpm8OWCrREu"
         private const val CONTACT_FIELD_ID = 3
         private const val MERCHANT_ID = "1428C8EE286EC34B"
-        private const val SDK_VERSION = "1.7.0"
+        private const val SDK_VERSION = "0.0.0"
     }
 
     private lateinit var latch: CountDownLatch
