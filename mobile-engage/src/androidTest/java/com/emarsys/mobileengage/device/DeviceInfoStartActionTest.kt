@@ -58,7 +58,6 @@ class DeviceInfoStartActionTest {
     @Test
     fun testExecute_callsMobileEngageInternal_whenStorageIsEmpty() {
         whenever(deviceInfoHashStorage.get()).thenReturn(null)
-        startAction = DeviceInfoStartAction(mobileEngageInternal, deviceInfoHashStorage, deviceInfo)
 
         startAction.execute(null)
 
@@ -70,8 +69,6 @@ class DeviceInfoStartActionTest {
         whenever(deviceInfoHashStorage.get()).thenReturn(42)
         whenever(deviceInfo.hash).thenReturn(43)
 
-        startAction = DeviceInfoStartAction(mobileEngageInternal, deviceInfoHashStorage, deviceInfo)
-
         startAction.execute(null)
 
         verify(mobileEngageInternal).trackDeviceInfo()
@@ -82,8 +79,6 @@ class DeviceInfoStartActionTest {
         whenever(deviceInfoHashStorage.get()).thenReturn(42)
 
         whenever(deviceInfo.hash).thenReturn(42)
-
-        startAction = DeviceInfoStartAction(mobileEngageInternal, deviceInfoHashStorage, deviceInfo)
 
         startAction.execute(null)
 
