@@ -11,8 +11,8 @@ import com.emarsys.mobileengage.storage.Storage;
 public class DeviceInfoStartAction implements ActivityLifecycleAction {
 
     private final DeviceInfo deviceInfo;
-    private MobileEngageInternal mobileEngageInternal;
-    private Storage<Integer> deviceInfoHashStorage;
+    private final MobileEngageInternal mobileEngageInternal;
+    private final Storage<Integer> deviceInfoHashStorage;
 
     public DeviceInfoStartAction(MobileEngageInternal mobileEngageInternal, Storage<Integer> deviceInfoHashStorage, DeviceInfo deviceInfo) {
         Assert.notNull(mobileEngageInternal, "MobileEngageInternal must not be null!");
