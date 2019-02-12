@@ -15,6 +15,7 @@ import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
@@ -69,7 +70,6 @@ public class MobileEngageInternal_V3_OldTest {
     private static final String CUSTOM = "custom";
     public static final String REQUEST_ID = "REQUEST_ID";
     public static final int CONTACT_FIELD_ID = Integer.MAX_VALUE;
-    public static final String SDK_VERSION = "sdkVersion";
 
     private static String APPLICATION_ID = "user";
     private static String APPLICATION_PASSWORD = "pass";
@@ -113,7 +113,7 @@ public class MobileEngageInternal_V3_OldTest {
 
         deviceInfo = new DeviceInfo(application,
                 mock(HardwareIdProvider.class),
-                SDK_VERSION,
+                mock(VersionProvider.class),
                 mock(LanguageProvider.class));
         appLoginStorage = new AppLoginStorage(sharedPreferences);
         appLoginStorage.remove();

@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
+import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -28,8 +29,6 @@ public class ImageUtilsTest {
     private Context context;
     private DeviceInfo deviceInfo;
 
-    private static final String SDK_VERSION = "sdkVersion";
-
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
@@ -38,7 +37,7 @@ public class ImageUtilsTest {
         context = InstrumentationRegistry.getTargetContext();
         deviceInfo = new DeviceInfo(context,
                 mock(HardwareIdProvider.class),
-                SDK_VERSION,
+                mock(VersionProvider.class),
                 mock(LanguageProvider.class));
     }
 

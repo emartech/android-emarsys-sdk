@@ -13,6 +13,7 @@ import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
@@ -55,7 +56,6 @@ import static org.mockito.Mockito.when;
 public class RequestRepositoryProxyTest {
 
     public static final String MEID = "123meid456";
-    public static final String SDK_VERSION = "sdkVersion";
     public static final long TIMESTAMP = 80_000L;
 
     private DeviceInfo deviceInfo;
@@ -88,7 +88,7 @@ public class RequestRepositoryProxyTest {
         mockDeviceInfo = mock(DeviceInfo.class);
         deviceInfo = new DeviceInfo(context,
                 mock(HardwareIdProvider.class),
-                SDK_VERSION,
+                mock(VersionProvider.class),
                 mock(LanguageProvider.class));
 
         mockRequestModelRepository = mock(Repository.class);

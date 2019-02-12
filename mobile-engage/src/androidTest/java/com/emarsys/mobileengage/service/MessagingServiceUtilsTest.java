@@ -10,6 +10,7 @@ import android.os.Bundle;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
+import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
@@ -64,7 +65,6 @@ public class MessagingServiceUtilsTest {
     private static final String DEFAULT_TITLE = "This is a default title";
     private static final String BODY = "body";
     private static final String CHANNEL_ID = "channelId";
-    private static final String SDK_VERSION = "sdkVersion";
 
     private Context context;
     private DeviceInfo deviceInfo;
@@ -79,7 +79,10 @@ public class MessagingServiceUtilsTest {
     public void init() throws Exception {
         context = InstrumentationRegistry.getTargetContext();
 
-        deviceInfo = new DeviceInfo(context, mock(HardwareIdProvider.class), SDK_VERSION, mock(LanguageProvider.class));
+        deviceInfo = new DeviceInfo(context,
+                mock(HardwareIdProvider.class),
+                mock(VersionProvider.class),
+                mock(LanguageProvider.class));
 
         Field cacheField = NotificationCache.class.getDeclaredField("internalCache");
         cacheField.setAccessible(true);

@@ -3,6 +3,7 @@ package com.emarsys.core.util;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
+import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -24,8 +25,6 @@ public class TimestampUtilsTest {
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
-    private static final String SDK_VERSION = "sdkVersion";
-
     @Before
     public void init() {
     }
@@ -34,7 +33,7 @@ public class TimestampUtilsTest {
     public void testFormatTimestampWithUTC() throws ParseException {
         String deviceTimeZone = new DeviceInfo(InstrumentationRegistry.getTargetContext(),
                 mock(HardwareIdProvider.class),
-                SDK_VERSION,
+                mock(VersionProvider.class),
                 mock(LanguageProvider.class)
         ).getTimezone();
         String dateString = "2017-12-07T10:46:09.100";

@@ -13,6 +13,7 @@ import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.util.TimestampUtils
@@ -94,7 +95,7 @@ class MobileEngageInternal_V3_Old_sequentialApploginsTest {
                 mock(HardwareIdProvider::class.java).apply {
                     whenever(this.provideHardwareId()).thenReturn(HARDWARE_ID)
                 },
-                SDK_VERSION,
+                mock(VersionProvider::class.java),
                 mock(LanguageProvider::class.java))
         sharedPrefs = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
 

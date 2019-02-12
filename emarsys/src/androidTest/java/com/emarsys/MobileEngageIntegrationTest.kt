@@ -13,6 +13,7 @@ import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
+import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
@@ -36,7 +37,6 @@ class MobileEngageIntegrationTest {
         private const val APP_PASSWORD = "PaNkfOD90AVpYimMBuZopCpm8OWCrREu"
         private const val CONTACT_FIELD_ID = 3
         private const val MERCHANT_ID = "1428C8EE286EC34B"
-        private const val SDK_VERSION = "0.0.0"
     }
 
     private lateinit var latch: CountDownLatch
@@ -79,7 +79,9 @@ class MobileEngageIntegrationTest {
                     mock(HardwareIdProvider::class.java).apply {
                         whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
                     },
-                    SDK_VERSION,
+                    mock(VersionProvider::class.java).apply {
+                        whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
+                    },
                     LanguageProvider()
             )
         })

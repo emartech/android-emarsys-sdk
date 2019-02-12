@@ -5,6 +5,7 @@ import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.TimestampUtils;
@@ -41,7 +42,6 @@ public class RequestModelUtilsOldTest {
     private static final String APPLICATION_PASSWORD = "applicationPassword";
     public static final String VALID_CUSTOM_EVENT_V3 = "https://mobile-events.eservice.emarsys.net/v3/devices/12345/events";
     public static final String REQUEST_ID = "REQUEST_ID";
-    public static final String SDK_VERSION = "sdkVersion";
     public static final long TIMESTAMP = 100_000;
 
     private RequestContext requestContext;
@@ -68,7 +68,7 @@ public class RequestModelUtilsOldTest {
                 1,
                 new DeviceInfo(InstrumentationRegistry.getTargetContext(),
                         mock(HardwareIdProvider.class),
-                        SDK_VERSION,
+                        mock(VersionProvider.class),
                         mock(LanguageProvider.class)),
                 mock(AppLoginStorage.class),
                 meIdStorage,

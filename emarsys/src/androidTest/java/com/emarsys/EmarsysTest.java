@@ -24,6 +24,7 @@ import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
+import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.util.batch.BatchingShardTrigger;
 import com.emarsys.core.util.log.Logger;
@@ -106,6 +107,7 @@ public class EmarsysTest {
     private InAppInternal mockInAppInternal;
     private DeepLinkInternal mockDeepLinkInternal;
     private LanguageProvider mockLanguageProvider;
+    private VersionProvider mockVersionProvider;
     private EventHandler inappEventHandler;
     private CoreSQLiteDatabase mockCoreDatabase;
     private Runnable mockPredictShardTrigger;
@@ -141,6 +143,7 @@ public class EmarsysTest {
         mockPredictShardTrigger = mock(BatchingShardTrigger.class);
         mockLogShardTrigger = mock(BatchingShardTrigger.class);
         mockLanguageProvider = mock(LanguageProvider.class);
+        mockVersionProvider = mock(VersionProvider.class);
         inappEventHandler = mock(EventHandler.class);
         runnerProxy = new RunnerProxy();
         logger = mock(Logger.class);
@@ -148,9 +151,10 @@ public class EmarsysTest {
         baseConfig = createConfig(false);
         configWithInAppEventHandler = createConfig(true);
         userCentricInboxConfig = createConfig(false, MobileEngageFeature.USER_CENTRIC_INBOX);
+        when(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION);
 
         HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
-        DeviceInfo deviceInfo = new DeviceInfo(application, hardwareIdProvider, SDK_VERSION, mockLanguageProvider);
+        DeviceInfo deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider);
 
         DependencyInjection.setup(new FakeDependencyContainer(
                 mockCoreSdkHandler,

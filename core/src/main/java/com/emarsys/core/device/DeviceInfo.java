@@ -8,6 +8,7 @@ import android.os.Build;
 import android.util.DisplayMetrics;
 
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
+import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.util.Assert;
 
 import java.text.SimpleDateFormat;
@@ -29,10 +30,10 @@ public class DeviceInfo {
     private final boolean isDebugMode;
     private final String sdkVersion;
 
-    public DeviceInfo(Context context, HardwareIdProvider hardwareIdProvider, String sdkVersion, LanguageProvider languageProvider) {
+    public DeviceInfo(Context context, HardwareIdProvider hardwareIdProvider, VersionProvider versionProvider, LanguageProvider languageProvider) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(hardwareIdProvider, "HardwareIdProvider must not be null!");
-        Assert.notNull(sdkVersion, "SdkVersion must not be null!");
+        Assert.notNull(versionProvider, "VersionProvider must not be null!");
         Assert.notNull(languageProvider, "LanguageProvider must not be null!");
 
         this.hwid = hardwareIdProvider.provideHardwareId();
@@ -55,7 +56,7 @@ public class DeviceInfo {
 
         this.isDebugMode = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
 
-        this.sdkVersion = sdkVersion;
+        this.sdkVersion = versionProvider.provideSdkVersion();
     }
 
     private String getApplicationVersion(Context context) {

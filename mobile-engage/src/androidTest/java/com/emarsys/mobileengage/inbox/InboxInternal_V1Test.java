@@ -16,6 +16,7 @@ import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestMethod;
@@ -71,7 +72,6 @@ public class InboxInternal_V1Test {
     private static final String HARDWARE_ID = "hwid";
     private static final String APPLICATION_ID = "id";
     private static final String REQUEST_ID = "REQUEST_ID";
-    private static final String SDK_VERSION = "sdkVersion";
     private static final long TIMESTAMP = 100_000;
     private static List<Notification> notificationList;
 
@@ -112,7 +112,7 @@ public class InboxInternal_V1Test {
         languageProvider = mock(LanguageProvider.class);
 
         when(hardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID);
-        deviceInfo = new DeviceInfo(application, hardwareIdProvider, SDK_VERSION, languageProvider);
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider, mock(VersionProvider.class), languageProvider);
 
         uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn(REQUEST_ID);

@@ -5,6 +5,7 @@ import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.mobileengage.BuildConfig;
 import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.RequestContext;
@@ -63,7 +64,7 @@ public class RequestPayloadUtilsOldTest {
                 1,
                 new DeviceInfo(InstrumentationRegistry.getTargetContext(),
                         mock(HardwareIdProvider.class),
-                        MOBILEENGAGE_SDK_VERSION,
+                        mock(VersionProvider.class),
                         mock(LanguageProvider.class)),
                 mock(AppLoginStorage.class),
                 mock(MeIdStorage.class),

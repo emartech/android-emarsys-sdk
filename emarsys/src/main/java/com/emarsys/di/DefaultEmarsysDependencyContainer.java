@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.emarsys.BuildConfig;
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.RunnerProxy;
@@ -29,6 +28,7 @@ import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestModel;
@@ -252,10 +252,9 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         deviceInfoHashStorage = new DeviceInfoHashStorage(prefs);
         LanguageProvider languageProvider = new LanguageProvider();
         HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, prefs);
+        VersionProvider versionProvider = new VersionProvider();
 
-        String sdkVersion = BuildConfig.VERSION_NAME;
-
-        deviceInfo = new DeviceInfo(application, hardwareIdProvider, sdkVersion, languageProvider);
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider, versionProvider, languageProvider);
 
         currentActivityProvider = new CurrentActivityProvider();
         currentActivityWatchdog = new CurrentActivityWatchdog(currentActivityProvider);
