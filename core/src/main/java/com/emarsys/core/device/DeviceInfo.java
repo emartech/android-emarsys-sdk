@@ -118,4 +118,47 @@ public class DeviceInfo {
     public Integer getHash() {
         return hashCode();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DeviceInfo that = (DeviceInfo) o;
+
+        if (isDebugMode != that.isDebugMode) return false;
+        if (hwid != null ? !hwid.equals(that.hwid) : that.hwid != null) return false;
+        if (platform != null ? !platform.equals(that.platform) : that.platform != null)
+            return false;
+        if (language != null ? !language.equals(that.language) : that.language != null)
+            return false;
+        if (timezone != null ? !timezone.equals(that.timezone) : that.timezone != null)
+            return false;
+        if (manufacturer != null ? !manufacturer.equals(that.manufacturer) : that.manufacturer != null)
+            return false;
+        if (model != null ? !model.equals(that.model) : that.model != null) return false;
+        if (applicationVersion != null ? !applicationVersion.equals(that.applicationVersion) : that.applicationVersion != null)
+            return false;
+        if (osVersion != null ? !osVersion.equals(that.osVersion) : that.osVersion != null)
+            return false;
+        if (displayMetrics != null ? !displayMetrics.equals(that.displayMetrics) : that.displayMetrics != null)
+            return false;
+        return sdkVersion != null ? sdkVersion.equals(that.sdkVersion) : that.sdkVersion == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = hwid != null ? hwid.hashCode() : 0;
+        result = 31 * result + (platform != null ? platform.hashCode() : 0);
+        result = 31 * result + (language != null ? language.hashCode() : 0);
+        result = 31 * result + (timezone != null ? timezone.hashCode() : 0);
+        result = 31 * result + (manufacturer != null ? manufacturer.hashCode() : 0);
+        result = 31 * result + (model != null ? model.hashCode() : 0);
+        result = 31 * result + (applicationVersion != null ? applicationVersion.hashCode() : 0);
+        result = 31 * result + (osVersion != null ? osVersion.hashCode() : 0);
+        result = 31 * result + (displayMetrics != null ? displayMetrics.hashCode() : 0);
+        result = 31 * result + (isDebugMode ? 1 : 0);
+        result = 31 * result + (sdkVersion != null ? sdkVersion.hashCode() : 0);
+        return result;
+    }
 }
