@@ -26,7 +26,7 @@ public class RequestModelUtils {
                 .url(RequestUrlUtils.createTrackDeviceInfoUrl(requestContext))
                 .method(RequestMethod.POST)
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
-                .payload(RequestPayloadUtils.createTrackDeviceInfoRequest(requestContext.getDeviceInfo()))
+                .payload(RequestPayloadUtils.createTrackDeviceInfoPayload(requestContext))
                 .build();
     }
 }

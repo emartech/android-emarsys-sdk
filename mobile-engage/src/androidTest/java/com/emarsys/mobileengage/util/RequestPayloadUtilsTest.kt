@@ -2,6 +2,7 @@ package com.emarsys.mobileengage.util
 
 
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.mobileengage.RequestContext
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
@@ -9,7 +10,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito
+import org.mockito.Mockito.mock
 
 class RequestPayloadUtilsTest {
     companion object {
@@ -24,7 +25,7 @@ class RequestPayloadUtilsTest {
     }
 
     lateinit var deviceInfoMock: DeviceInfo
-
+    lateinit var requestContextMock: RequestContext
 
     @Rule
     @JvmField
@@ -32,7 +33,7 @@ class RequestPayloadUtilsTest {
 
     @Before
     fun setUp() {
-        deviceInfoMock = Mockito.mock(DeviceInfo::class.java).apply {
+        deviceInfoMock = mock(DeviceInfo::class.java).apply {
             whenever(platform).thenReturn(PLATFORM)
             whenever(applicationVersion).thenReturn(APPLICATION_VERSION)
             whenever(model).thenReturn(DEVICE_MODEL)
@@ -40,6 +41,10 @@ class RequestPayloadUtilsTest {
             whenever(sdkVersion).thenReturn(SDK_VERSION)
             whenever(language).thenReturn(LANGUAGE)
             whenever(timezone).thenReturn(TIMEZONE)
+        }
+
+        requestContextMock = mock(RequestContext::class.java).apply {
+            whenever(deviceInfo).thenReturn(deviceInfoMock)
         }
     }
 
@@ -58,12 +63,12 @@ class RequestPayloadUtilsTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testCreateTrackDeviceInfoRequest_deviceInfo_mustNotBeNull() {
-        RequestPayloadUtils.createTrackDeviceInfoRequest(null)
+        RequestPayloadUtils.createTrackDeviceInfoPayload(null)
     }
 
     @Test
     fun testCreateTrackDeviceInfoRequest() {
-        val payload = RequestPayloadUtils.createTrackDeviceInfoRequest(deviceInfoMock)
+        val payload = RequestPayloadUtils.createTrackDeviceInfoPayload(requestContextMock)
         payload shouldBe mapOf(
                 "platform" to PLATFORM,
                 "applicationVersion" to APPLICATION_VERSION,

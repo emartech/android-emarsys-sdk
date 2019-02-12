@@ -2,6 +2,7 @@ package com.emarsys.mobileengage.util;
 
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.util.Assert;
+import com.emarsys.mobileengage.RequestContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +16,9 @@ public class RequestPayloadUtils {
         return payload;
     }
 
-    public static Map<String, Object> createTrackDeviceInfoRequest(DeviceInfo deviceInfo) {
-        Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
+    public static Map<String, Object> createTrackDeviceInfoPayload(RequestContext requestContext) {
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+        DeviceInfo deviceInfo = requestContext.getDeviceInfo();
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("platform", deviceInfo.getPlatform());

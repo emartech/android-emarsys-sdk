@@ -91,7 +91,7 @@ class RequestModelUtilsTest {
         val expected = RequestModel(
                 RequestUrlUtils.createTrackDeviceInfoUrl(requestContextMock),
                 RequestMethod.POST,
-                RequestPayloadUtils.createTrackDeviceInfoRequest(deviceInfoMock),
+                RequestPayloadUtils.createTrackDeviceInfoPayload(requestContextMock),
                 RequestHeaderUtils.createBaseHeaders_V3(requestContextMock),
                 TIMESTAMP,
                 Long.MAX_VALUE,
