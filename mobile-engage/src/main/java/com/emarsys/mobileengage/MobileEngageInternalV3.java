@@ -43,8 +43,12 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
     }
 
     @Override
-    public String setContact(String contactFieldValue, CompletionListener completionListener) {
-        return null;
+    public void setContact(String contactFieldValue, CompletionListener completionListener) {
+        Assert.notNull(contactFieldValue, "ContactFieldValue must not be null!");
+
+        RequestModel requestModel = RequestModelUtils.createSetContactRequest(contactFieldValue, requestContext);
+
+        requestManager.submit(requestModel, completionListener);
     }
 
     @Override

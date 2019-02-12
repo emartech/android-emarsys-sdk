@@ -30,6 +30,9 @@ class MobileEngageInternalV3Test {
         const val SDK_VERSION = "1.7.2"
         const val LANGUAGE = "en-US"
         const val TIMEZONE = "+0200"
+
+        const val CONTACT_FIELD_VALUE = "contactFieldValue"
+        const val CONTACT_FIELD_ID = 3
     }
 
     lateinit var mobileEngageInternal: MobileEngageInternalV3
@@ -112,6 +115,29 @@ class MobileEngageInternalV3Test {
         mobileEngageInternal.setPushToken(null, completionListener)
 
         verifyZeroInteractions(requestManagerMock)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testSetContact_contactFieldValue_mustNotBeNull() {
+        mobileEngageInternal.setContact(null, completionListener)
+    }
+
+    @Test
+    fun testSetContact() {
+        val expectedRequestModel = RequestModelUtils.createSetContactRequest(CONTACT_FIELD_VALUE, requestContextMock)
+
+        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, completionListener)
+
+        verify(requestManagerMock).submit(expectedRequestModel, completionListener)
+    }
+
+    @Test
+    fun testSetContact_completionListener_canBeNull() {
+        val expectedRequestModel = RequestModelUtils.createSetContactRequest(CONTACT_FIELD_VALUE, requestContextMock)
+
+        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
+
+        verify(requestManagerMock).submit(expectedRequestModel, null)
     }
 
     @Test

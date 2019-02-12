@@ -30,4 +30,15 @@ public class RequestPayloadUtils {
         payload.put("timezone", deviceInfo.getTimezone());
         return payload;
     }
+
+    public static Map<String, Object> createSetContactPayload(String contactFieldValue, RequestContext requestContext) {
+        Assert.notNull(contactFieldValue, "ContactFieldValue must not be null!");
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("contactFieldId", String.valueOf(requestContext.getContactFieldId()));
+        payload.put("contactFieldValue", contactFieldValue);
+
+        return payload;
+    }
 }

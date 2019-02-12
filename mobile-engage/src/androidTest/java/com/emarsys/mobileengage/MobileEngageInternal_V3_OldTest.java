@@ -255,18 +255,6 @@ public class MobileEngageInternal_V3_OldTest {
     }
 
     @Test
-    public void testAppLogin_withContactFieldValue_returnsRequestModelId() {
-        meIdStorage.remove();
-        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
-
-        String result = mobileEngageInternal.setContact("value", null);
-
-        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
-
-        assertEquals(captor.getValue().getId(), result);
-    }
-
-    @Test
     public void testAppLogin_withContactFieldValue_requestManagerCalledWithCorrectCompletionHandler() {
         meIdStorage.remove();
         String contactFieldValue = "value";

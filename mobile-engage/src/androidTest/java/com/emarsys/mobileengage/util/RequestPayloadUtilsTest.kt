@@ -22,6 +22,8 @@ class RequestPayloadUtilsTest {
         const val SDK_VERSION = "1.7.2"
         const val LANGUAGE = "en-US"
         const val TIMEZONE = "+0200"
+        const val CONTACT_FIELD_VALUE = "contactFieldValue"
+        const val CONTACT_FIELD_ID = 3
     }
 
     lateinit var deviceInfoMock: DeviceInfo
@@ -45,6 +47,7 @@ class RequestPayloadUtilsTest {
 
         requestContextMock = mock(RequestContext::class.java).apply {
             whenever(deviceInfo).thenReturn(deviceInfoMock)
+            whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)
         }
     }
 
@@ -62,12 +65,12 @@ class RequestPayloadUtilsTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testCreateTrackDeviceInfoRequest_deviceInfo_mustNotBeNull() {
+    fun testCreateTrackDeviceInfoPayload_requestContext_mustNotBeNull() {
         RequestPayloadUtils.createTrackDeviceInfoPayload(null)
     }
 
     @Test
-    fun testCreateTrackDeviceInfoRequest() {
+    fun testCreateTrackDeviceInfoPayload() {
         val payload = RequestPayloadUtils.createTrackDeviceInfoPayload(requestContextMock)
         payload shouldBe mapOf(
                 "platform" to PLATFORM,
@@ -77,6 +80,25 @@ class RequestPayloadUtilsTest {
                 "sdkVersion" to SDK_VERSION,
                 "language" to LANGUAGE,
                 "timezone" to TIMEZONE
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateSetContactPayload_contactFieldValue_mustNotBeNull() {
+        RequestPayloadUtils.createSetContactPayload(null, requestContextMock)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateSetContactPayload_requestContext_mustNotBeNull() {
+        RequestPayloadUtils.createSetContactPayload(CONTACT_FIELD_VALUE, null)
+    }
+
+    @Test
+    fun testCreateSetContactPayload() {
+        val payload = RequestPayloadUtils.createSetContactPayload(CONTACT_FIELD_VALUE, requestContextMock)
+        payload shouldBe mapOf(
+                "contactFieldId" to CONTACT_FIELD_ID.toString(),
+                "contactFieldValue" to CONTACT_FIELD_VALUE
         )
     }
 }

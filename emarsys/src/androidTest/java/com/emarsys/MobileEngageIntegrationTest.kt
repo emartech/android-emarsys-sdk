@@ -126,7 +126,6 @@ class MobileEngageIntegrationTest {
         ).also(this::eventuallyAssertSuccess)
     }
 
-    @Ignore
     @Test
     fun testSetContact() {
         Emarsys.setContact(

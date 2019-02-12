@@ -91,9 +91,9 @@ public class MobileEngageInternal_V3_Old implements MobileEngageInternal {
     }
 
     @Override
-    public String setContact(String contactFieldValue, CompletionListener completionListener) {
+    public void setContact(String contactFieldValue, CompletionListener completionListener) {
         requestContext.setAppLoginParameters(new AppLoginParameters(requestContext.getContactFieldId(), contactFieldValue));
-        return sendAppLogin(completionListener);
+        sendAppLogin(completionListener);
     }
 
     String sendAppLogin(CompletionListener completionListener) {

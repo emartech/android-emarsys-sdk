@@ -29,4 +29,16 @@ public class RequestModelUtils {
                 .payload(RequestPayloadUtils.createTrackDeviceInfoPayload(requestContext))
                 .build();
     }
+
+    public static RequestModel createSetContactRequest(String contactFieldValue, RequestContext requestContext) {
+        Assert.notNull(contactFieldValue, "ContactFieldValue must not be null!");
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
+        return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
+                .url(RequestUrlUtils.createSetContactUrl(requestContext))
+                .method(RequestMethod.POST)
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
+                .payload(RequestPayloadUtils.createSetContactPayload(contactFieldValue, requestContext))
+                .build();
+    }
 }

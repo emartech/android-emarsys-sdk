@@ -13,7 +13,7 @@ public interface MobileEngageInternal {
 
     String setAnonymousContact(CompletionListener completionListener);
 
-    String setContact(String contactFieldValue, CompletionListener completionListener);
+    void setContact(String contactFieldValue, CompletionListener completionListener);
 
     String removeContact(CompletionListener completionListener);
 

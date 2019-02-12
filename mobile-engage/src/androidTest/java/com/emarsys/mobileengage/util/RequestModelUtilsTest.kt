@@ -101,4 +101,30 @@ class RequestModelUtilsTest {
 
         result shouldBe expected
     }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateSetContactRequest_contactFieldValue_mustNotBeNull() {
+        RequestModelUtils.createSetContactRequest(null, requestContextMock)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateSetContactRequest_requestContext_mustNotBeNull() {
+        RequestModelUtils.createSetContactRequest("contactFieldValue", null)
+    }
+
+    @Test
+    fun testCreateSetContactRequest() {
+        val expected = RequestModel(
+                RequestUrlUtils.createSetContactUrl(requestContextMock),
+                RequestMethod.POST,
+                RequestPayloadUtils.createSetContactPayload("contactFieldValue", requestContextMock),
+                RequestHeaderUtils.createBaseHeaders_V3(requestContextMock),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+        val result = RequestModelUtils.createSetContactRequest("contactFieldValue", requestContextMock)
+
+        result shouldBe expected
+    }
 }

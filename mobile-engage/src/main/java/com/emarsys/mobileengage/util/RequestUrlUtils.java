@@ -16,4 +16,10 @@ public class RequestUrlUtils {
 
         return String.format(Endpoint.ME_V3_CLIENT_BASE, requestContext.getApplicationCode());
     }
+
+    public static String createSetContactUrl(RequestContext requestContext) {
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
+        return String.format(Endpoint.ME_V3_CLIENT_BASE + "/contact", requestContext.getApplicationCode());
+    }
 }
