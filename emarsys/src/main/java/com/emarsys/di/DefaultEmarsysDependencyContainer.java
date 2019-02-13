@@ -67,13 +67,14 @@ import com.emarsys.mobileengage.inbox.InboxInternalProvider;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
-import com.emarsys.mobileengage.responsehandler.TokenResponseHandler;
+import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
-import com.emarsys.mobileengage.storage.ContactTokenStorage;
 import com.emarsys.mobileengage.storage.DeviceInfoHashStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
-import com.emarsys.mobileengage.storage.RefreshTokenStorage;
+import com.emarsys.mobileengage.storage.MobileEngageStorageKey;
+import com.emarsys.mobileengage.storage.Storage;
+import com.emarsys.mobileengage.storage.StringStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
@@ -110,8 +111,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private MeIdStorage meIdStorage;
     private MeIdSignatureStorage meIdSignatureStorage;
     private DeviceInfoHashStorage deviceInfoHashStorage;
-    private ContactTokenStorage contactTokenStorage;
-    private RefreshTokenStorage refreshTokenStorage;
+    private Storage<String> contactTokenStorage;
+    private Storage<String> refreshTokenStorage;
     private RequestManager requestManager;
     private ButtonClickedRepository buttonClickedRepository;
     private DisplayedIamRepository displayedIamRepository;
@@ -255,8 +256,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         meIdStorage = new MeIdStorage(prefs);
         meIdSignatureStorage = new MeIdSignatureStorage(prefs);
         deviceInfoHashStorage = new DeviceInfoHashStorage(prefs);
-        contactTokenStorage = new ContactTokenStorage(prefs);
-        refreshTokenStorage = new RefreshTokenStorage(prefs);
+        contactTokenStorage = new StringStorage(MobileEngageStorageKey.CONTACT_TOKEN, prefs);
+        refreshTokenStorage = new StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, prefs);
 
         LanguageProvider languageProvider = new LanguageProvider();
         HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, prefs);
@@ -392,9 +393,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         responseHandlers.add(new VisitorIdResponseHandler(sharedPrefsKeyStore));
 
-        responseHandlers.add(new TokenResponseHandler(
-                refreshTokenStorage,
-                contactTokenStorage));
+        responseHandlers.add(new MobileEngageTokenResponseHandler("refreshToken", refreshTokenStorage));
+        responseHandlers.add(new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage));
 
         responseHandlers.add(new MeIdResponseHandler(
                 meIdStorage,

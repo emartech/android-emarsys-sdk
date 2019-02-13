@@ -48,6 +48,7 @@ import com.emarsys.mobileengage.inbox.InboxInternal_V2;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
+import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
@@ -301,10 +302,12 @@ public class EmarsysTest {
                 .getCoreCompletionHandler();
 
         assertNotNull(coreCompletionHandler);
+        assertEquals(6, coreCompletionHandler.getResponseHandlers().size());
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), VisitorIdResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MeIdResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppMessageResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppCleanUpResponseHandler.class));
+        assertEquals(2, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MobileEngageTokenResponseHandler.class));
     }
 
     @Test
@@ -319,10 +322,12 @@ public class EmarsysTest {
                 .getCoreCompletionHandler();
 
         assertNotNull(coreCompletionHandler);
+        assertEquals(6, coreCompletionHandler.getResponseHandlers().size());
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), VisitorIdResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MeIdResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppMessageResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppCleanUpResponseHandler.class));
+        assertEquals(2, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MobileEngageTokenResponseHandler.class));
     }
 
     @Test
