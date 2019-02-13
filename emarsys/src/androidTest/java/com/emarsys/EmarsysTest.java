@@ -264,10 +264,10 @@ public class EmarsysTest {
 
         Emarsys.setup(baseConfig);
 
-        RequestManager requestManager = ReflectionTestUtils.getField(
+        RequestManager requestManager = ReflectionTestUtils.getInstanceField(
                 DependencyInjection.<DefaultEmarsysDependencyContainer>getContainer(),
                 "requestManager");
-        Object repository = ReflectionTestUtils.getField(
+        Object repository = ReflectionTestUtils.getInstanceField(
                 requestManager,
                 "requestRepository");
         assertEquals(RequestRepositoryProxy.class, repository.getClass());
@@ -280,10 +280,10 @@ public class EmarsysTest {
 
         Emarsys.setup(userCentricInboxConfig);
 
-        RequestManager requestManager = ReflectionTestUtils.getField(
+        RequestManager requestManager = ReflectionTestUtils.getInstanceField(
                 DependencyInjection.<DefaultEmarsysDependencyContainer>getContainer(),
                 "requestManager");
-        Object repository = ReflectionTestUtils.getField(
+        Object repository = ReflectionTestUtils.getInstanceField(
                 requestManager,
                 "requestRepository");
         assertEquals(RequestRepositoryProxy.class, repository.getClass());

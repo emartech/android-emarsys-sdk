@@ -1,27 +1,34 @@
 package com.emarsys.testUtil
 
+import java.lang.reflect.Field
+
 object ReflectionTestUtils {
 
     @JvmStatic
-    fun setStaticField(type: Class<*>, fieldName: String, value: Any?) {
-        val containerField = type.getDeclaredField(fieldName)
+    fun setInstanceField(instance: Any, fieldName: String, value: Any?) =
+            setField(instance, instance.javaClass, fieldName, value)
+
+    @JvmStatic
+    fun setStaticField(type: Class<*>, fieldName: String, value: Any?) =
+            setField(null, type, fieldName, value)
+
+    private fun setField(instance: Any?, type: Class<*>, fieldName: String, value: Any?) {
+        val containerField = searchForField(type, fieldName)
         containerField.isAccessible = true
-        containerField.set(null, value)
+        containerField.set(instance, value)
     }
 
-    @Suppress("UNCHECKED_CAST")
     @JvmStatic
-    fun <T> getStaticField(type: Class<*>, fieldName: String): T? {
-        val field = type.getDeclaredField(fieldName)
-        field.isAccessible = true
-        val result = field.get(null)
-        return result as T?
-    }
+    fun <T> getInstanceField(instance: Any, fieldName: String): T? =
+            getField(instance, instance::class.java, fieldName)
+
+    @JvmStatic
+    fun <T> getStaticField(type: Class<*>, fieldName: String): T? =
+            getField(null, type, fieldName)
 
     @Suppress("UNCHECKED_CAST")
-    @JvmStatic
-    fun <T> getField(instance: Any, fieldName: String): T? {
-        val field = instance::class.java.getDeclaredField(fieldName)
+    private fun <T> getField(instance: Any?, type: Class<*>, fieldName: String): T? {
+        val field = searchForField(type, fieldName)
         field.isAccessible = true
         val result = field.get(instance)
         return result as T?
@@ -42,6 +49,21 @@ object ReflectionTestUtils {
         val method = type.getDeclaredMethod(methodName, *parameterTypes)
         method.isAccessible = true
         method.invoke(null, *parameters)
+    }
+
+    private fun searchForField(type: Class<*>, fieldName: String): Field = try {
+        type.getDeclaredField(fieldName)
+    } catch (nsfe: NoSuchFieldException) {
+        nsfe
+    }.let { result ->
+        when (result) {
+            is NoSuchFieldException -> when (val superclass = type.superclass) {
+                null -> throw NoSuchFieldException("Could not find field in class hierarchy!")
+                else -> searchForField(superclass, fieldName)
+            }
+            is Field -> result
+            else -> throw IllegalStateException("Unrecognized type: ${result.javaClass}")
+        }
     }
 
 }
