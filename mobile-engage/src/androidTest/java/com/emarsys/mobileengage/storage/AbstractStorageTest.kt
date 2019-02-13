@@ -2,10 +2,13 @@ package com.emarsys.mobileengage.storage
 
 import android.content.SharedPreferences
 import com.emarsys.testUtil.ReflectionTestUtils
+import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mockito
 import org.mockito.Mockito.*
 
@@ -16,6 +19,10 @@ class AbstractStorageTest {
 
     lateinit var sharedPreferences: SharedPreferences
     lateinit var storage: AbstractStorage<String, SharedPreferences>
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     @Suppress("UNCHECKED_CAST")
