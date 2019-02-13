@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.storage;
 
 public interface Storage<T> {
 
-    void set(T item);
+    void set(T value);
 
     T get();
 
