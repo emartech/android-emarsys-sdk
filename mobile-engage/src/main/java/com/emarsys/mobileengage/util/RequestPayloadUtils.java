@@ -36,7 +36,7 @@ public class RequestPayloadUtils {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         Map<String, Object> payload = new HashMap<>();
-        payload.put("contactFieldId", String.valueOf(requestContext.getContactFieldId()));
+        payload.put("contactFieldId", requestContext.getContactFieldId());
         payload.put("contactFieldValue", contactFieldValue);
 
         return payload;
