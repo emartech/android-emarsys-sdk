@@ -4,10 +4,13 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.endpoint.Endpoint
+import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mockito
 import org.mockito.Mockito.verify
 import java.net.URL
@@ -21,6 +24,10 @@ class MobileEngageClientStateResponseHandlerTest {
     private lateinit var mockStorage: Storage<String>
     private lateinit var requestModelMock: RequestModel
     private lateinit var clientStateResponseHandler: MobileEngageClientStateResponseHandler
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     @Suppress("UNCHECKED_CAST")
