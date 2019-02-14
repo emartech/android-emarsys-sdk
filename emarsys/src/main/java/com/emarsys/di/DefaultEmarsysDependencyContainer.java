@@ -8,6 +8,7 @@ import android.os.Looper;
 
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DefaultCoreCompletionHandler;
+import com.emarsys.core.Mapper;
 import com.emarsys.core.RunnerProxy;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
@@ -66,6 +67,7 @@ import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestReposito
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternalProvider;
+import com.emarsys.mobileengage.request.MobileEngageHeaderMapper;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
@@ -277,6 +279,17 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         buttonClickedRepository = new ButtonClickedRepository(coreDbHelper);
         displayedIamRepository = new DisplayedIamRepository(coreDbHelper);
 
+        requestContext = new RequestContext(
+                config.getApplicationCode(),
+                config.getApplicationPassword(),
+                config.getContactFieldId(),
+                getDeviceInfo(),
+                appLoginStorage,
+                meIdStorage,
+                meIdSignatureStorage,
+                timestampProvider,
+                uuidProvider);
+
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
 
@@ -299,17 +312,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 restClient,
                 getCoreCompletionHandler(),
                 getCoreCompletionHandler());
-
-        requestContext = new RequestContext(
-                config.getApplicationCode(),
-                config.getApplicationPassword(),
-                config.getContactFieldId(),
-                getDeviceInfo(),
-                appLoginStorage,
-                meIdStorage,
-                meIdSignatureStorage,
-                timestampProvider,
-                uuidProvider);
 
         requestManager.setDefaultHeaders(RequestHeaderUtils_Old.createDefaultHeaders(requestContext));
 
@@ -360,7 +362,14 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 displayedIamRepository,
                 buttonClickedRepository,
                 timestampProvider,
-                inAppInternal);
+                inAppInternal,
+                createRequestModelMappers());
+    }
+
+    private List<Mapper<List<RequestModel>, List<RequestModel>>> createRequestModelMappers() {
+        List<Mapper<List<RequestModel>, List<RequestModel>>> mappers = new ArrayList<>();
+        mappers.add(new MobileEngageHeaderMapper(clientStateStorage, requestContext));
+        return mappers;
     }
 
     private void initializeActivityLifecycleWatchdog() {

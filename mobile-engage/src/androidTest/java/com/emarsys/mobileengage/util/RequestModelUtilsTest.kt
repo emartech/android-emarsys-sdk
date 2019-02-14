@@ -17,7 +17,7 @@ import org.mockito.Mockito.mock
 
 class RequestModelUtilsTest {
 
-    companion object {
+    private companion object {
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
         const val HARDWARE_ID = "hardware_id"
