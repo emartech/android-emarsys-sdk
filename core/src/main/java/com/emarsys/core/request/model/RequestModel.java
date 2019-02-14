@@ -1,5 +1,7 @@
 package com.emarsys.core.request.model;
 
+import android.net.Uri;
+
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.util.Assert;
@@ -124,7 +126,7 @@ public class RequestModel implements Serializable {
             id = uuidProvider.provideId();
         }
 
-        public Builder from(RequestModel requestModel){
+        public Builder from(RequestModel requestModel) {
             Assert.notNull(requestModel, "RequestModel must not be null!");
 
             url = requestModel.url.toString();
@@ -173,23 +175,14 @@ public class RequestModel implements Serializable {
         }
 
         private String buildUrl() {
-            String result = url;
-            if (queryParams != null && !queryParams.isEmpty()) {
-                StringBuilder sb = new StringBuilder(url).append("?");
-                boolean isFirstEntry = true;
+            Uri.Builder uriBuilder = Uri.parse(url).buildUpon();
 
-                for (Map.Entry<String, String> entry : queryParams.entrySet()) {
-                    if (!isFirstEntry) {
-                        sb.append("&");
-                    }
-                    sb.append(entry.getKey())
-                            .append("=")
-                            .append(entry.getValue());
-                    isFirstEntry = false;
+            if (queryParams != null && !queryParams.isEmpty()) {
+                for (String key : queryParams.keySet()) {
+                    uriBuilder.appendQueryParameter(key, queryParams.get(key));
                 }
-                result = sb.toString();
             }
-            return result;
+            return uriBuilder.build().toString();
         }
     }
 }
