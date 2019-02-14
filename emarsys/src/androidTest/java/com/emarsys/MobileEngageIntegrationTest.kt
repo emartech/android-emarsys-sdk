@@ -15,12 +15,14 @@ import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.storage.AppLoginStorage
 import com.emarsys.mobileengage.storage.MeIdStorage
+import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
@@ -75,6 +77,7 @@ class MobileEngageIntegrationTest {
 
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getCoreCompletionHandler() = completionHandler
+
             override fun getDeviceInfo() = DeviceInfo(
                     application,
                     mock(HardwareIdProvider::class.java).apply {
@@ -96,6 +99,7 @@ class MobileEngageIntegrationTest {
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
         MeIdStorage(sharedPreferences).remove()
         AppLoginStorage(sharedPreferences).remove()
+        StringStorage(MobileEngageStorageKey.CLIENT_STATE, sharedPreferences).remove()
 
         ExperimentalTestUtils.resetExperimentalFeatures()
 
@@ -128,6 +132,8 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testSetContact() {
+        sharedPreferences.edit().putString("mobile_engage_client_state", "mobile-engage-integration-test").commit()
+
         Emarsys.setContact(
                 "test@test.com",
                 this::eventuallyStoreResult
@@ -186,6 +192,8 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testSetPushToken() {
+        sharedPreferences.edit().putString("mobile_engage_client_state", "mobile-engage-integration-test").commit()
+
         Emarsys.Push.setPushToken("pushToken",
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
