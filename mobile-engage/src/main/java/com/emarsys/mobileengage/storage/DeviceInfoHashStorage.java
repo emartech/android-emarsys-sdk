@@ -2,6 +2,7 @@ package com.emarsys.mobileengage.storage;
 
 import android.content.SharedPreferences;
 
+import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
 
 public class DeviceInfoHashStorage implements Storage<Integer> {

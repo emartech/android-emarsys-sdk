@@ -4,9 +4,9 @@ import android.app.Activity;
 
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.storage.Storage;
 
 public class DeviceInfoStartAction implements ActivityLifecycleAction {
 

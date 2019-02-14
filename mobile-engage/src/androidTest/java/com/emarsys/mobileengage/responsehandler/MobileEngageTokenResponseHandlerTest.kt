@@ -2,8 +2,8 @@ package com.emarsys.mobileengage.responsehandler
 
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.endpoint.Endpoint
-import com.emarsys.mobileengage.storage.Storage
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe

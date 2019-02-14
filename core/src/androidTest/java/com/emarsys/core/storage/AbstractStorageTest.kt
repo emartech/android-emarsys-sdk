@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.storage
+package com.emarsys.core.storage
 
 import android.content.SharedPreferences
 import com.emarsys.testUtil.ReflectionTestUtils

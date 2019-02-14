@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.storage;
+package com.emarsys.core.storage;
 
 public interface PersistentStorage<T, S> extends Storage<T>{
     void persistValue(S store, T value);

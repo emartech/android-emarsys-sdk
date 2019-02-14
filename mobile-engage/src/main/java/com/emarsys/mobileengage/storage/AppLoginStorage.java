@@ -2,6 +2,8 @@ package com.emarsys.mobileengage.storage;
 
 import android.content.SharedPreferences;
 
+import com.emarsys.core.storage.Storage;
+
 public class AppLoginStorage implements Storage<Integer> {
     public static final String APP_LOGIN_PAYLOAD_HASH_CODE_KEY = "appLoginPayloadHashCode";
 

@@ -2,6 +2,8 @@ package com.emarsys.mobileengage.storage;
 
 import android.content.SharedPreferences;
 
+import com.emarsys.core.storage.Storage;
+
 public class MeIdSignatureStorage implements Storage<String> {
     public static final String ME_ID_SIGNATURE_KEY = "meIdSignature";
 
