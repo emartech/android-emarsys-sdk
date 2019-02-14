@@ -97,7 +97,7 @@ class RequestPayloadUtilsTest {
     fun testCreateSetContactPayload() {
         val payload = RequestPayloadUtils.createSetContactPayload(CONTACT_FIELD_VALUE, requestContextMock)
         payload shouldBe mapOf(
-                "contactFieldId" to CONTACT_FIELD_ID.toString(),
+                "contactFieldId" to CONTACT_FIELD_ID,
                 "contactFieldValue" to CONTACT_FIELD_VALUE
         )
     }
