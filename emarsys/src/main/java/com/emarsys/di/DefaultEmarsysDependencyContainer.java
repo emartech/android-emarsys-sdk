@@ -67,6 +67,7 @@ import com.emarsys.mobileengage.inbox.InboxInternalProvider;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
+import com.emarsys.mobileengage.responsehandler.MobileEngageClientStateResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.DeviceInfoHashStorage;
@@ -113,6 +114,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private DeviceInfoHashStorage deviceInfoHashStorage;
     private Storage<String> contactTokenStorage;
     private Storage<String> refreshTokenStorage;
+    private Storage<String> clientStateStorage;
     private RequestManager requestManager;
     private ButtonClickedRepository buttonClickedRepository;
     private DisplayedIamRepository displayedIamRepository;
@@ -258,6 +260,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         deviceInfoHashStorage = new DeviceInfoHashStorage(prefs);
         contactTokenStorage = new StringStorage(MobileEngageStorageKey.CONTACT_TOKEN, prefs);
         refreshTokenStorage = new StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, prefs);
+        clientStateStorage = new StringStorage(MobileEngageStorageKey.CLIENT_STATE, prefs);
 
         LanguageProvider languageProvider = new LanguageProvider();
         HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, prefs);
@@ -395,6 +398,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         responseHandlers.add(new MobileEngageTokenResponseHandler("refreshToken", refreshTokenStorage));
         responseHandlers.add(new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage));
+        responseHandlers.add(new MobileEngageClientStateResponseHandler(clientStateStorage));
 
         responseHandlers.add(new MeIdResponseHandler(
                 meIdStorage,
