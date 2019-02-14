@@ -172,6 +172,22 @@ public class RequestModelTest {
         assertEquals("https://emarsys.com", result.getUrl().toString());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuilder_from_requestModelMustNotBeNull() {
+        new RequestModel.Builder(timestampProvider, uuidProvider).from(null);
+    }
+
+    @Test
+    public void testBuilder_from() {
+        RequestModel expected = new RequestModel(url, method, payload, headers, timestamp, ttl, id);
+
+        RequestModel result = new RequestModel.Builder(timestampProvider, uuidProvider)
+                .from(expected)
+                .build();
+
+        assertEquals(expected, result);
+    }
+
     private Map<String, Object> createPayload() {
         Map<String, Object> result = new HashMap<>();
         result.put("key1", "value1");
