@@ -19,6 +19,7 @@ import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
@@ -134,7 +135,9 @@ public class MobileEngageInternal_V3_OldTest {
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                uuidProvider);
+                uuidProvider,
+                mock(Storage.class),
+                mock(Storage.class));
 
         defaultHeaders = RequestHeaderUtils_Old.createDefaultHeaders(requestContext);
 

@@ -8,6 +8,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
@@ -58,6 +59,7 @@ public class RequestModelUtilsOldTest {
 
         meIdStorage = mock(MeIdStorage.class);
         uuidProvider = mock(UUIDProvider.class);
+
         when(uuidProvider.provideId()).thenReturn(REQUEST_ID);
 
         timestampProvider = mock(TimestampProvider.class);
@@ -74,7 +76,9 @@ public class RequestModelUtilsOldTest {
                 meIdStorage,
                 mock(MeIdSignatureStorage.class),
                 timestampProvider,
-                uuidProvider);
+                uuidProvider,
+                mock(Storage.class),
+                mock(Storage.class));
 
         requestContext.setAppLoginParameters(new AppLoginParameters(3, "test@test.com"));
     }

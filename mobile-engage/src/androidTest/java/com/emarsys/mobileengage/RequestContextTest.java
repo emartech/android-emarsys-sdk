@@ -3,6 +3,7 @@ package com.emarsys.mobileengage;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
@@ -32,7 +33,10 @@ public class RequestContextTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
-                mock(UUIDProvider.class));
+                mock(UUIDProvider.class),
+                mock(Storage.class),
+                mock(Storage.class)
+        );
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -46,7 +50,10 @@ public class RequestContextTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
-                mock(UUIDProvider.class));
+                mock(UUIDProvider.class),
+                mock(Storage.class),
+                mock(Storage.class)
+        );
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -60,7 +67,10 @@ public class RequestContextTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
-                mock(UUIDProvider.class));
+                mock(UUIDProvider.class),
+                mock(Storage.class),
+                mock(Storage.class)
+        );
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -74,7 +84,10 @@ public class RequestContextTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
-                mock(UUIDProvider.class));
+                mock(UUIDProvider.class),
+                mock(Storage.class),
+                mock(Storage.class)
+        );
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -88,7 +101,9 @@ public class RequestContextTest {
                 null,
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
-                mock(UUIDProvider.class));
+                mock(UUIDProvider.class),
+                mock(Storage.class),
+                mock(Storage.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -102,7 +117,9 @@ public class RequestContextTest {
                 mock(MeIdStorage.class),
                 null,
                 mock(TimestampProvider.class),
-                mock(UUIDProvider.class));
+                mock(UUIDProvider.class),
+                mock(Storage.class),
+                mock(Storage.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -116,7 +133,10 @@ public class RequestContextTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 null,
-                mock(UUIDProvider.class));
+                mock(UUIDProvider.class),
+                mock(Storage.class),
+                mock(Storage.class)
+        );
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -130,6 +150,40 @@ public class RequestContextTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
+                null,
+                mock(Storage.class),
+                mock(Storage.class));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_clientStateStorage_ShouldNotBeNull() {
+        new RequestContext(
+                "",
+                "",
+                contactFieldId,
+                mock(DeviceInfo.class),
+                mock(AppLoginStorage.class),
+                mock(MeIdStorage.class),
+                mock(MeIdSignatureStorage.class),
+                mock(TimestampProvider.class),
+                mock(UUIDProvider.class),
+                null,
+                mock(Storage.class));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_contactTokenStorage_ShouldNotBeNull() {
+        new RequestContext(
+                "",
+                "",
+                contactFieldId,
+                mock(DeviceInfo.class),
+                mock(AppLoginStorage.class),
+                mock(MeIdStorage.class),
+                mock(MeIdSignatureStorage.class),
+                mock(TimestampProvider.class),
+                mock(UUIDProvider.class),
+                mock(Storage.class),
                 null);
     }
 }

@@ -6,6 +6,7 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.provider.version.VersionProvider;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.mobileengage.BuildConfig;
 import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.RequestContext;
@@ -70,7 +71,9 @@ public class RequestPayloadUtilsOldTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
-                uuidProvider);
+                uuidProvider,
+                mock(Storage.class),
+                mock(Storage.class));
 
         requestContext.setAppLoginParameters(new AppLoginParameters(3, "test@test.com"));
     }

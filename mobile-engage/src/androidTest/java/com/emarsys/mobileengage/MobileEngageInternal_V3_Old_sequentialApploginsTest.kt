@@ -16,6 +16,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
+import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.MobileEngageInternal_V3_Old.MOBILEENGAGE_SDK_VERSION
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters
@@ -79,10 +80,10 @@ class MobileEngageInternal_V3_Old_sequentialApploginsTest {
         private const val CONTACT_FIELD_VALUE_1 = "value1"
         private const val CONTACT_FIELD_VALUE_2 = "value2"
         private const val HARDWARE_ID = "hwid"
-        private const val SDK_VERSION = "sdkVersion"
     }
 
     @Before
+    @Suppress("UNCHECKED_CAST")
     fun init() {
         SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences")
 
@@ -118,7 +119,10 @@ class MobileEngageInternal_V3_Old_sequentialApploginsTest {
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                uuidProvider)
+                uuidProvider,
+                mock(Storage::class.java) as Storage<String>,
+                mock(Storage::class.java) as Storage<String>
+        )
 
         expectedDefaultHeaders = mapOf(
                 "Authorization" to "Basic dXNlcjpwYXNz"

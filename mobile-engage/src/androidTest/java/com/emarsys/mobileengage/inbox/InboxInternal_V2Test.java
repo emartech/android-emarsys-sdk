@@ -17,6 +17,7 @@ import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.RequestContext;
@@ -163,7 +164,10 @@ public class InboxInternal_V2Test {
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                uuidProvider);
+                uuidProvider,
+                mock(Storage.class),
+                mock(Storage.class)
+        );
 
         inbox = new InboxInternal_V2(manager, requestContext);
 

@@ -288,7 +288,9 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                uuidProvider);
+                uuidProvider,
+                clientStateStorage,
+                contactTokenStorage);
 
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
@@ -368,7 +370,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
     private List<Mapper<List<RequestModel>, List<RequestModel>>> createRequestModelMappers() {
         List<Mapper<List<RequestModel>, List<RequestModel>>> mappers = new ArrayList<>();
-        mappers.add(new MobileEngageHeaderMapper(clientStateStorage, requestContext));
+        mappers.add(new MobileEngageHeaderMapper(requestContext));
         return mappers;
     }
 

@@ -6,12 +6,15 @@ import android.content.SharedPreferences;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.storage.Storage;
+import com.emarsys.core.storage.StringStorage;
 import com.emarsys.core.util.HeaderUtils;
 import com.emarsys.mobileengage.BuildConfig;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
+import com.emarsys.mobileengage.storage.MobileEngageStorageKey;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.SharedPrefsUtils;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -38,6 +41,8 @@ public class RequestHeaderUtilsOldTest {
     private RequestContext debugRequestContext;
     private RequestContext releaseRequestContext;
     private SharedPreferences sharedPreferences;
+    private Storage<String> clientStateStorage;
+    private Storage<String> contactTokenStorage;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -55,6 +60,9 @@ public class RequestHeaderUtilsOldTest {
         meIdStorage.set(meId);
         MeIdSignatureStorage meIdSignatureStorage = new MeIdSignatureStorage(sharedPreferences);
         meIdSignatureStorage.set(meIdSignature);
+
+        clientStateStorage = new StringStorage(MobileEngageStorageKey.CLIENT_STATE, sharedPreferences);
+        contactTokenStorage = new StringStorage(MobileEngageStorageKey.CONTACT_TOKEN, sharedPreferences);
 
         UUIDProvider uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
@@ -74,7 +82,9 @@ public class RequestHeaderUtilsOldTest {
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                uuidProvider);
+                uuidProvider,
+                clientStateStorage,
+                contactTokenStorage);
 
         DeviceInfo releaseDeviceInfo = mock(DeviceInfo.class);
         when(releaseDeviceInfo.isDebugMode()).thenReturn(false);
@@ -88,7 +98,9 @@ public class RequestHeaderUtilsOldTest {
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                uuidProvider);
+                uuidProvider,
+                clientStateStorage,
+                contactTokenStorage);
 
 
     }
@@ -142,7 +154,9 @@ public class RequestHeaderUtilsOldTest {
                 meIdStorage,
                 meIdSignatureStorage,
                 timestampProvider,
-                uuidProvider);
+                uuidProvider,
+                clientStateStorage,
+                contactTokenStorage);
 
         Map<String, String> expected = new HashMap<>();
         expected.put("X-ME-ID", meId);

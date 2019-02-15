@@ -3,6 +3,7 @@ package com.emarsys.mobileengage;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
@@ -19,6 +20,8 @@ public class RequestContext {
     private final MeIdSignatureStorage meIdSignatureStorage;
     private final TimestampProvider timestampProvider;
     private final UUIDProvider uuidProvider;
+    private final Storage<String> clientStateStorage;
+    private final Storage<String> contactTokenStorage;
     private AppLoginParameters appLoginParameters;
 
     public RequestContext(
@@ -30,7 +33,9 @@ public class RequestContext {
             MeIdStorage meIdStorage,
             MeIdSignatureStorage meIdSignatureStorage,
             TimestampProvider timestampProvider,
-            UUIDProvider uuidProvider) {
+            UUIDProvider uuidProvider,
+            Storage<String> clientStateStorage,
+            Storage<String> contactTokenStorage) {
         Assert.notNull(applicationCode, "ApplicationCode must not be null!");
         Assert.notNull(applicationPassword, "ApplicationPassword must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
@@ -39,6 +44,9 @@ public class RequestContext {
         Assert.notNull(meIdSignatureStorage, "MeIdSignatureStorage must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(uuidProvider, "UUIDProvider must not be null!");
+        Assert.notNull(clientStateStorage, "ClientStateStorage must not be null!");
+        Assert.notNull(contactTokenStorage, "ContactTokenStorage must not be null!");
+
         this.applicationCode = applicationCode;
         this.applicationPassword = applicationPassword;
         this.contactFieldId = contactFieldId;
@@ -48,6 +56,8 @@ public class RequestContext {
         this.meIdSignatureStorage = meIdSignatureStorage;
         this.timestampProvider = timestampProvider;
         this.uuidProvider = uuidProvider;
+        this.clientStateStorage = clientStateStorage;
+        this.contactTokenStorage = contactTokenStorage;
     }
 
     public String getApplicationCode() {
@@ -94,6 +104,14 @@ public class RequestContext {
         this.appLoginParameters = appLoginParameters;
     }
 
+    public Storage<String> getClientStateStorage() {
+        return clientStateStorage;
+    }
+
+    public Storage<String> getContactTokenStorage() {
+        return contactTokenStorage;
+    }
+
     @Override
     public String toString() {
         return "RequestContext{" +
@@ -106,6 +124,8 @@ public class RequestContext {
                 ", meIdSignatureStorage=" + meIdSignatureStorage +
                 ", timestampProvider=" + timestampProvider +
                 ", uuidProvider=" + uuidProvider +
+                ", clientStateStorage=" + clientStateStorage +
+                ", contactTokenStorage=" + contactTokenStorage +
                 ", appLoginParameters=" + appLoginParameters +
                 '}';
     }

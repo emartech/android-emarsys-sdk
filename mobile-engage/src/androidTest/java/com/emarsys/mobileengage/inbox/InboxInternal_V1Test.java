@@ -22,6 +22,7 @@ import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.inbox.Notification;
@@ -129,8 +130,9 @@ public class InboxInternal_V1Test {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 timestampProvider,
-                uuidProvider
-        );
+                uuidProvider,
+                mock(Storage.class),
+                mock(Storage.class));
 
         defaultHeaders = RequestHeaderUtils_Old.createDefaultHeaders(requestContext);
 

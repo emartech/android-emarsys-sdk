@@ -11,6 +11,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
@@ -68,8 +69,9 @@ public class DeepLinkInternalTest {
                 mock(MeIdStorage.class),
                 mock(MeIdSignatureStorage.class),
                 timestampProvider,
-                uuidProvider
-        );
+                uuidProvider,
+                mock(Storage.class),
+                mock(Storage.class));
 
         deepLinkInternal = new DeepLinkInternal(manager, requestContext);
     }
@@ -105,7 +107,7 @@ public class DeepLinkInternalTest {
 
         deepLinkInternal.trackDeepLinkOpen(mockActivity, intent, null);
 
-        verify(manager).submit(captor.capture(), (CompletionListener)isNull());
+        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         RequestModel result = captor.getValue();
         assertRequestModels(expected, result);
@@ -144,7 +146,7 @@ public class DeepLinkInternalTest {
 
         deepLinkInternal.trackDeepLinkOpen(mockActivity, currentIntent, null);
 
-        verify(manager, times(0)).submit(any(RequestModel.class), (CompletionListener)isNull());
+        verify(manager, times(0)).submit(any(RequestModel.class), (CompletionListener) isNull());
     }
 
     @Test
@@ -153,7 +155,7 @@ public class DeepLinkInternalTest {
 
         deepLinkInternal.trackDeepLinkOpen(mockActivity, intent, null);
 
-        verify(manager, times(0)).submit(any(RequestModel.class), (CompletionListener)isNull());
+        verify(manager, times(0)).submit(any(RequestModel.class), (CompletionListener) isNull());
     }
 
     @Test
@@ -162,7 +164,7 @@ public class DeepLinkInternalTest {
 
         deepLinkInternal.trackDeepLinkOpen(mockActivity, intent, null);
 
-        verify(manager, times(0)).submit(any(RequestModel.class), (CompletionListener)isNull());
+        verify(manager, times(0)).submit(any(RequestModel.class), (CompletionListener) isNull());
     }
 
     private void assertRequestModels(RequestModel expected, RequestModel result) {
