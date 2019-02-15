@@ -1,5 +1,7 @@
 package com.emarsys.core.request.model;
 
+import android.net.Uri;
+
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -23,7 +25,6 @@ public class RequestModelTest {
     private RequestMethod method;
     private Map<String, Object> payload;
     private Map<String, String> headers;
-    private Map<String, String> queryParams;
     private long timestamp;
     private long ttl;
     private String id;
@@ -39,7 +40,6 @@ public class RequestModelTest {
         method = RequestMethod.PUT;
         payload = createPayload();
         headers = createHeaders();
-        queryParams = createQueryParams();
         timestamp = System.currentTimeMillis();
         ttl = 6000;
         id = "uuid";
@@ -96,6 +96,9 @@ public class RequestModelTest {
 
     @Test
     public void testBuilder_withAllArguments() {
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("q1", "v1");
+
         RequestModel result = new RequestModel.Builder(timestampProvider, uuidProvider)
                 .url(url)
                 .method(method)
@@ -107,7 +110,7 @@ public class RequestModelTest {
 
         String id = result.getId();
         long timestamp = result.getTimestamp();
-        String urlWithQueryParams = url + "?q1=v1&q2=v2";
+        String urlWithQueryParams = url + "?q1=v1";
         RequestModel expected = new RequestModel(urlWithQueryParams, method, payload, headers, timestamp, ttl, id);
 
         assertEquals(expected, result);
@@ -148,7 +151,11 @@ public class RequestModelTest {
                 .url("https://emarsys.com")
                 .queryParams(queryParams).build();
 
-        assertEquals("https://emarsys.com?key1=value1", result.getUrl().toString());
+        Uri uri = Uri.parse(result.getUrl().toString());
+
+        assertEquals("emarsys.com", uri.getHost());
+        assertEquals("value1", uri.getQueryParameter("key1"));
+        assertEquals(1, uri.getQueryParameterNames().size());
     }
 
     @Test
@@ -160,7 +167,12 @@ public class RequestModelTest {
                 .url("https://emarsys.com")
                 .queryParams(queryParams).build();
 
-        assertEquals("https://emarsys.com?key1=value1&key2=value2", result.getUrl().toString());
+        Uri uri = Uri.parse(result.getUrl().toString());
+
+        assertEquals("emarsys.com", uri.getHost());
+        assertEquals("value1", uri.getQueryParameter("key1"));
+        assertEquals("value2", uri.getQueryParameter("key2"));
+        assertEquals(2, uri.getQueryParameterNames().size());
     }
 
     @Test
@@ -205,13 +217,6 @@ public class RequestModelTest {
         Map<String, String> result = new HashMap<>();
         result.put("content", "application/x-www-form-urlencoded");
         result.put("accept", "application/json");
-        return result;
-    }
-
-    private Map<String, String> createQueryParams() {
-        Map<String, String> result = new HashMap<>();
-        result.put("q1", "v1");
-        result.put("q2", "v2");
         return result;
     }
 }
