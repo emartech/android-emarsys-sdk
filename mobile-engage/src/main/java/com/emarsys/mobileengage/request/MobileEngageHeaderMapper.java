@@ -2,7 +2,6 @@ package com.emarsys.mobileengage.request;
 
 import com.emarsys.core.Mapper;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
@@ -14,14 +13,11 @@ import java.util.Map;
 
 public class MobileEngageHeaderMapper implements Mapper<List<RequestModel>, List<RequestModel>> {
 
-    private final Storage<String> clientStateStorage;
     private final RequestContext requestContext;
 
-    public MobileEngageHeaderMapper(Storage<String> clientStateStorage, RequestContext requestContext) {
-        Assert.notNull(clientStateStorage, "ClientStateStorage must not be null!");
+    public MobileEngageHeaderMapper(RequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
-        this.clientStateStorage = clientStateStorage;
         this.requestContext = requestContext;
     }
 
@@ -30,9 +26,7 @@ public class MobileEngageHeaderMapper implements Mapper<List<RequestModel>, List
         Assert.notNull(requestModels, "RequestModels must not be null!");
 
         List<RequestModel> result = new ArrayList<>();
-
-        Map<String, String> headersToInject = new HashMap<>();
-        headersToInject.put("X-CLIENT-STATE", clientStateStorage.get());
+        Map<String, String> headersToInject = getHeadersToInject();
 
         for (RequestModel requestModel : requestModels) {
             RequestModel updatedRequestModel = requestModel;
@@ -50,5 +44,19 @@ public class MobileEngageHeaderMapper implements Mapper<List<RequestModel>, List
             result.add(updatedRequestModel);
         }
         return result;
+    }
+
+    private Map<String, String> getHeadersToInject() {
+        Map<String, String> headersToInject = new HashMap<>();
+
+        String clientState = requestContext.getClientStateStorage().get();
+        if (clientState != null) {
+            headersToInject.put("X-CLIENT-STATE", clientState);
+        }
+        String contactToken = requestContext.getContactTokenStorage().get();
+        if (contactToken != null) {
+            headersToInject.put("X-CONTACT-TOKEN", contactToken);
+        }
+        return headersToInject;
     }
 }
