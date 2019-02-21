@@ -1,6 +1,5 @@
 package com.emarsys.core.provider.version
 
-import com.emarsys.testUtil.BuildConfig
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
 import org.junit.Before
@@ -23,7 +22,7 @@ class VersionProviderTest {
 
     @Test
     fun testProvideSdkVersion() {
-        val expected = BuildConfig.VERSION_NAME
+        val expected = "0.0.1"
 
         val sdkVersion = versionProvider.provideSdkVersion()
 
