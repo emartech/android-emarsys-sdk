@@ -192,9 +192,19 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testSetPushToken() {
-        sharedPreferences.edit().putString("mobile_engage_client_state", "mobile-engage-integration-test").commit()
-
         Emarsys.Push.setPushToken("pushToken",
+                this::eventuallyStoreResult
+        ).also(this::eventuallyAssertSuccess)
+    }
+
+    @Test
+    fun testSetPushToken_shouldSetClientStateForSetContact() {
+        Emarsys.Push.setPushToken("pushToken",
+                this::eventuallyStoreResult
+        ).also(this::eventuallyAssertSuccess)
+
+        Emarsys.setContact(
+                "test@test.com",
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
     }
