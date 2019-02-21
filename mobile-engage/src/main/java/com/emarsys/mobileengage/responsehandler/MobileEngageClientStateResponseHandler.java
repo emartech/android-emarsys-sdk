@@ -8,7 +8,7 @@ import com.emarsys.mobileengage.util.RequestUrlUtils;
 
 public class MobileEngageClientStateResponseHandler extends AbstractResponseHandler {
 
-    private static final String X_CLIENT_STATE = "X-CLIENT-STATE";
+    private static final String X_CLIENT_STATE = "X-Client-State";
 
     private final Storage<String> clientStateStorage;
 

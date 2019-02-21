@@ -79,7 +79,7 @@ class MobileEngageClientStateResponseHandlerTest {
         return ResponseModel.Builder()
                 .statusCode(200)
                 .message("OK")
-                .headers(mapOf("X-CLIENT-STATE" to listOf(X_CLIENT_STATE_VALUE)))
+                .headers(mapOf("X-Client-State" to listOf(X_CLIENT_STATE_VALUE)))
                 .requestModel(requestModelMock)
                 .build()
     }

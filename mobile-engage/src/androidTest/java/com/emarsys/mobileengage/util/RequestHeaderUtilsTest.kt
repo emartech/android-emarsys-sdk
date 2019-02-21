@@ -51,7 +51,7 @@ class RequestHeaderUtilsTest {
         val headers = RequestHeaderUtils.createBaseHeaders_V3(requestContextMock)
 
         headers shouldBe mapOf(
-                "X-CLIENT-ID" to HARDWARE_ID,
-                "X-REQUEST-ORDER" to TIMESTAMP.toString())
+                "X-Client-Id" to HARDWARE_ID,
+                "X-Request-Order" to TIMESTAMP.toString())
     }
 }

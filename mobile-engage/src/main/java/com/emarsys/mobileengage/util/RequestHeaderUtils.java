@@ -12,8 +12,8 @@ public class RequestHeaderUtils {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         Map<String, String> baseHeaders = new HashMap<>();
-        baseHeaders.put("X-CLIENT-ID", requestContext.getDeviceInfo().getHwid());
-        baseHeaders.put("X-REQUEST-ORDER", Long.toString(requestContext.getTimestampProvider().provideTimestamp()));
+        baseHeaders.put("X-Client-Id", requestContext.getDeviceInfo().getHwid());
+        baseHeaders.put("X-Request-Order", Long.toString(requestContext.getTimestampProvider().provideTimestamp()));
 
         return baseHeaders;
     }

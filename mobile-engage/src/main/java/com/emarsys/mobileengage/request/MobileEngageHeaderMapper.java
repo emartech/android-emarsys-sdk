@@ -51,11 +51,11 @@ public class MobileEngageHeaderMapper implements Mapper<List<RequestModel>, List
 
         String clientState = requestContext.getClientStateStorage().get();
         if (clientState != null) {
-            headersToInject.put("X-CLIENT-STATE", clientState);
+            headersToInject.put("X-Client-State", clientState);
         }
         String contactToken = requestContext.getContactTokenStorage().get();
         if (contactToken != null) {
-            headersToInject.put("X-CONTACT-TOKEN", contactToken);
+            headersToInject.put("X-Contact-Token", contactToken);
         }
         return headersToInject;
     }

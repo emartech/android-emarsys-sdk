@@ -90,8 +90,8 @@ class MobileEngageHeaderMapperTest {
         val originalRequestModels = createMobileEngageRequest()
 
         val expectedRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
-                "X-CLIENT-STATE" to CLIENT_STATE,
-                "X-CONTACT-TOKEN" to CONTACT_TOKEN
+                "X-Client-State" to CLIENT_STATE,
+                "X-Contact-Token" to CONTACT_TOKEN
         ))
 
         val result = mobileEngageHeaderMapper.map(originalRequestModels)
@@ -106,7 +106,7 @@ class MobileEngageHeaderMapperTest {
         whenever(mockContactTokenStorage.get()).thenReturn(null)
 
         val expectedRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
-                "X-CLIENT-STATE" to CLIENT_STATE
+                "X-Client-State" to CLIENT_STATE
         ))
 
         val result = mobileEngageHeaderMapper.map(originalRequestModels)
@@ -121,7 +121,7 @@ class MobileEngageHeaderMapperTest {
         whenever(mockClientStateStorage.get()).thenReturn(null)
 
         val expectedRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
-                "X-CONTACT-TOKEN" to CONTACT_TOKEN
+                "X-Contact-Token" to CONTACT_TOKEN
         ))
 
         val result = mobileEngageHeaderMapper.map(originalRequestModels)
@@ -134,8 +134,8 @@ class MobileEngageHeaderMapperTest {
         val originalRequestModels = createNonMobileEngageRequest() + createMobileEngageRequest()
 
         val expectedRequestModels = createNonMobileEngageRequest() + createMobileEngageRequest(extraHeaders = mapOf(
-                "X-CLIENT-STATE" to CLIENT_STATE,
-                "X-CONTACT-TOKEN" to CONTACT_TOKEN
+                "X-Client-State" to CLIENT_STATE,
+                "X-Contact-Token" to CONTACT_TOKEN
         ))
 
         val result = mobileEngageHeaderMapper.map(originalRequestModels)
