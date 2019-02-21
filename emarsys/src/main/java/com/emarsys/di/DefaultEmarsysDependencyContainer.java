@@ -376,8 +376,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
     private void initializeActivityLifecycleWatchdog() {
         ActivityLifecycleAction[] applicationStartActions = new ActivityLifecycleAction[]{
-                new InAppStartAction(mobileEngageInternal),
-                new DeviceInfoStartAction(mobileEngageInternal, deviceInfoHashStorage, getDeviceInfo())
+                new DeviceInfoStartAction(mobileEngageInternal, deviceInfoHashStorage, getDeviceInfo()),
+                new InAppStartAction(mobileEngageInternal)
         };
 
         ActivityLifecycleAction[] activityCreatedActions = new ActivityLifecycleAction[]{
