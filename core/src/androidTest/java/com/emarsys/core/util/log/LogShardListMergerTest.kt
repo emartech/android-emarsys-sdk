@@ -126,7 +126,7 @@ class LogShardListMergerTest {
             RandomTestUtils.randomInt().toLong())
 
     private fun requestModel(payload: Map<String, Any>) = RequestModel(
-            "https://ems-log-dealer.herokuapp.com/v1/log",
+            "https://log-dealer.eservice.emarsys.net/v1/log",
             RequestMethod.POST,
             payload,
             mapOf(),

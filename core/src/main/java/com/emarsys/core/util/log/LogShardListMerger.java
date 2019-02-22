@@ -1,7 +1,7 @@
 package com.emarsys.core.util.log;
 
-import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.Mapper;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class LogShardListMerger implements Mapper<List<ShardModel>, RequestModel> {
 
-    private static final String LOG_URL = "https://ems-log-dealer.herokuapp.com/v1/log";
+    private static final String LOG_URL = "https://log-dealer.eservice.emarsys.net/v1/log";
 
     private final TimestampProvider timestampProvider;
     private final UUIDProvider uuidProvider;
