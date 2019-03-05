@@ -11,18 +11,6 @@ import java.io.File;
 
 public class ImageUtils {
 
-    public static Bitmap loadBitmap(Context context, String imageUrl) {
-        Bitmap result = null;
-        if (ImageUtils.isImageUrlValid(imageUrl)) {
-            String fileUrl = downloadImage(context, imageUrl);
-            result = loadBitmap(fileUrl, Integer.MAX_VALUE);
-            if (fileUrl != null && isRemoteUrl(imageUrl)) {
-                FileUtils.delete(fileUrl);
-            }
-        }
-        return result;
-    }
-
     public static Bitmap loadOptimizedBitmap(Context context, String imageUrl, DeviceInfo deviceInfo) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");

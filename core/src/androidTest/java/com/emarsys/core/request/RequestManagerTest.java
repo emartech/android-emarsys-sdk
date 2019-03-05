@@ -345,7 +345,7 @@ public class RequestManagerTest {
     @Test
     public void testSubmitNow_shouldCallRestClient_withDefaultHandler() {
         manager.submitNow(requestModel);
-        
+
         verify(restClientMock).execute(requestModel, mockDefaultHandler);
     }
 

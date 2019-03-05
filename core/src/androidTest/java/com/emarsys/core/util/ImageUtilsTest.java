@@ -41,48 +41,6 @@ public class ImageUtilsTest {
                 mock(LanguageProvider.class));
     }
 
-    @Test
-    public void testLoadBitmap_contextShouldNotBeNull() {
-        assertNull(ImageUtils.loadBitmap(null, "url"));
-    }
-
-    @Test
-    public void testLoadBitmap_imageUrlShouldNotBeNull() {
-
-        assertNull(ImageUtils.loadBitmap(context, null));
-    }
-
-    @Test
-    public void testLoadBitmap_imageUrlShouldNotBeInvalid() {
-        assertNull(ImageUtils.loadBitmap(context, "invalidUrl"));
-    }
-
-    @Test
-    public void testLoadBitmap_withRemoteUrl() {
-        Bitmap bitmap = ImageUtils.loadBitmap(context, LARGE_IMAGE);
-        assertNotNull(bitmap);
-        assertEquals(bitmap.getWidth(), 2500);
-        assertEquals(bitmap.getHeight(), 2505);
-    }
-
-    @Test
-    public void testLoadBitmap_withRemoteUrl_CleansUpTempFile() {
-        clearCache();
-        assertEquals(0, context.getCacheDir().list().length);
-        ImageUtils.loadBitmap(context, LARGE_IMAGE);
-        assertEquals(0, context.getCacheDir().list().length);
-    }
-
-    @Test
-    public void testLoadBitmap_withLocalFile_ShouldNotCleansUpLocalFile() {
-        clearCache();
-        String fileUrl = FileUtils.download(context, LARGE_IMAGE);
-        File imageFile = new File(fileUrl);
-        assertTrue(imageFile.exists());
-        ImageUtils.loadBitmap(context, fileUrl);
-        assertTrue(imageFile.exists());
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testLoadOptimizedBitmap_deviceInfo_mustNotBeNull() {
         ImageUtils.loadOptimizedBitmap(context, LARGE_IMAGE, null);
