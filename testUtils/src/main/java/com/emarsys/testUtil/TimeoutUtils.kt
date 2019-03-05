@@ -8,6 +8,6 @@ object TimeoutUtils {
 
     @JvmStatic
     val timeoutRule
-        get () = DisableOnAndroidDebug(Timeout.seconds(30))
+        get () = DisableOnAndroidDebug(Timeout.seconds(60))
 
 }
