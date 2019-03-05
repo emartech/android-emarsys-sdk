@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import static com.emarsys.testUtil.TestUrls.customResponse;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -352,7 +353,7 @@ public class RequestManagerTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testError_callbackWithResponseContainsRequestModel() throws Exception {
-        requestModel = new RequestModel.Builder(timestampProvider, uuidProvider).url(GOOGLE_URL).method(RequestMethod.POST).build();
+        requestModel = new RequestModel.Builder(timestampProvider, uuidProvider).url(customResponse(405)).method(RequestMethod.GET).build();
 
         when(connectionWatchDog.isConnected()).thenReturn(true, false);
         when(requestRepository.isEmpty()).thenReturn(false, false, true);
