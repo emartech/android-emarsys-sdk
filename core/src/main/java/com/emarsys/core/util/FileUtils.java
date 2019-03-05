@@ -54,19 +54,21 @@ public class FileUtils {
 
     public static String readFileIntoString(String fileUrl) {
         String result = null;
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(fileUrl));
-            StringBuilder stringBuilder = new StringBuilder();
-            String line;
-            String ls = System.getProperty("line.separator");
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append(ls);
+        if (fileUrl != null) {
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(fileUrl));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                String ls = System.getProperty("line.separator");
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                    stringBuilder.append(ls);
+                }
+                stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+                reader.close();
+                result = stringBuilder.toString();
+            } catch (IOException ignored) {
             }
-            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-            reader.close();
-            result = stringBuilder.toString();
-        } catch (IOException ignored) {
         }
         return result;
     }

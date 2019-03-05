@@ -86,8 +86,8 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void testDelete_shouldDeleteTheFile() {
-        String filePath = FileUtils.download(context, LARGE_IMAGE);
+    public void testDelete_shouldDeleteTheFile() throws IOException {
+        String filePath = createTempFile();
         File file = new File(filePath);
         assertTrue(file.exists());
         FileUtils.delete(filePath);
@@ -140,6 +140,11 @@ public class FileUtilsTest {
         assertEquals(null, FileUtils.readURLIntoString(null));
     }
 
+    @Test
+    public void testReadFileIntoString_shouldReturnNull_whenFileUrlIsNull() {
+        assertEquals(null, FileUtils.readFileIntoString(null));
+    }
+
     private byte[] convertToByteArray(InputStream inputStream) throws IOException {
         byte[] buffer = new byte[4096];
 
@@ -151,5 +156,14 @@ public class FileUtilsTest {
         }
 
         return bao.toByteArray();
+    }
+
+    private String createTempFile() throws IOException {
+        File cacheFolder = context.getCacheDir();
+        String fileName = UUID.randomUUID().toString();
+        File resultFile = new File(cacheFolder, fileName);
+        resultFile.createNewFile();
+
+        return resultFile.toURI().toURL().getPath();
     }
 }
