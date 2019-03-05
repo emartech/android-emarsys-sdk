@@ -68,14 +68,36 @@ class RequestUrlUtilsTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
+    fun testCreateTrackCustomEventUrl_requestContext_mustNotBeNull() {
+        RequestUrlUtils.createTrackCustomEventUrl(null)
+    }
+
+    @Test
+    fun testCreateTrackCustomEventUrl() {
+        val url = RequestUrlUtils.createTrackCustomEventUrl(requestContextMock)
+
+        url shouldBe "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events"
+    }
+
+    @Test(expected = IllegalArgumentException::class)
     fun testIsMobileEngageRequest_requestModel_mustNotBeNull() {
         RequestUrlUtils.isMobileEngageRequest(null)
     }
 
     @Test
-    fun testIsMobileEngageRequest_true_whenItIsMobileEngage() {
+    fun testIsMobileEngageRequest_true_whenItIsMobileEngageClient() {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(Endpoint.ME_V3_CLIENT_BASE))
+        }
+        val result = RequestUrlUtils.isMobileEngageRequest(mockRequestModel)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsMobileEngageRequest_true_whenItIsMobileEngageEvent() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL(Endpoint.ME_V3_EVENT_BASE))
         }
         val result = RequestUrlUtils.isMobileEngageRequest(mockRequestModel)
 

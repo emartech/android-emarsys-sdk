@@ -33,17 +33,19 @@ class MobileEngageInternalV3Test {
 
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
         const val CONTACT_FIELD_ID = 3
+        const val EVENT_NAME = "customEventName"
+        val EVENT_ATTRIBUTES = emptyMap<String, String>()
     }
 
     lateinit var mobileEngageInternal: MobileEngageInternalV3
 
-    lateinit var requestManagerMock: RequestManager
-    lateinit var requestContextMock: RequestContext
+    lateinit var mockRequestManager: RequestManager
+    lateinit var mockRequestContext: RequestContext
     lateinit var completionListener: CompletionListener
 
-    lateinit var timestampProviderMock: TimestampProvider
-    lateinit var uuidProviderMock: UUIDProvider
-    lateinit var deviceInfoMock: DeviceInfo
+    lateinit var mockTimestampProvider: TimestampProvider
+    lateinit var mockUuidProvider: UUIDProvider
+    lateinit var mockDeviceInfo: DeviceInfo
 
     @Rule
     @JvmField
@@ -51,14 +53,14 @@ class MobileEngageInternalV3Test {
 
     @Before
     fun setUp() {
-        uuidProviderMock = mock(UUIDProvider::class.java).apply {
+        mockUuidProvider = mock(UUIDProvider::class.java).apply {
             whenever(provideId()).thenReturn(REQUEST_ID)
         }
-        timestampProviderMock = mock(TimestampProvider::class.java).apply {
+        mockTimestampProvider = mock(TimestampProvider::class.java).apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
 
-        deviceInfoMock = mock(DeviceInfo::class.java).apply {
+        mockDeviceInfo = mock(DeviceInfo::class.java).apply {
             whenever(hwid).thenReturn(HARDWARE_ID)
             whenever(platform).thenReturn(PLATFORM)
             whenever(applicationVersion).thenReturn(APPLICATION_VERSION)
@@ -69,52 +71,52 @@ class MobileEngageInternalV3Test {
             whenever(timezone).thenReturn(TIMEZONE)
         }
 
-        requestManagerMock = mock(RequestManager::class.java)
-        requestContextMock = mock(RequestContext::class.java).apply {
-            whenever(timestampProvider).thenReturn(timestampProviderMock)
-            whenever(uuidProvider).thenReturn(uuidProviderMock)
-            whenever(deviceInfo).thenReturn(deviceInfoMock)
+        mockRequestManager = mock(RequestManager::class.java)
+        mockRequestContext = mock(RequestContext::class.java).apply {
+            whenever(timestampProvider).thenReturn(mockTimestampProvider)
+            whenever(uuidProvider).thenReturn(mockUuidProvider)
+            whenever(deviceInfo).thenReturn(mockDeviceInfo)
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
         }
 
         completionListener = mock(CompletionListener::class.java)
 
-        mobileEngageInternal = MobileEngageInternalV3(requestManagerMock, requestContextMock)
+        mobileEngageInternal = MobileEngageInternalV3(mockRequestManager, mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestManager_mustNotBeNull() {
-        MobileEngageInternalV3(null, requestContextMock)
+        MobileEngageInternalV3(null, mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestContext_mustNotBeNull() {
-        MobileEngageInternalV3(requestManagerMock, null)
+        MobileEngageInternalV3(mockRequestManager, null)
     }
 
     @Test
     fun testSetPushToken() {
-        val expectedRequestModel = RequestModelUtils.createSetPushTokenRequest(PUSH_TOKEN, requestContextMock)
+        val expectedRequestModel = RequestModelUtils.createSetPushTokenRequest(PUSH_TOKEN, mockRequestContext)
 
         mobileEngageInternal.setPushToken(PUSH_TOKEN, completionListener)
 
-        verify(requestManagerMock).submit(expectedRequestModel, completionListener)
+        verify(mockRequestManager).submit(expectedRequestModel, completionListener)
     }
 
     @Test
     fun testSetPushToken_completionListener_canBeNull() {
-        val expectedRequestModel = RequestModelUtils.createSetPushTokenRequest(PUSH_TOKEN, requestContextMock)
+        val expectedRequestModel = RequestModelUtils.createSetPushTokenRequest(PUSH_TOKEN, mockRequestContext)
 
         mobileEngageInternal.setPushToken(PUSH_TOKEN, null)
 
-        verify(requestManagerMock).submit(expectedRequestModel, null)
+        verify(mockRequestManager).submit(expectedRequestModel, null)
     }
 
     @Test
     fun testSetPushToken_whenPushTokenIsNull_callShouldBeIgnored() {
         mobileEngageInternal.setPushToken(null, completionListener)
 
-        verifyZeroInteractions(requestManagerMock)
+        verifyZeroInteractions(mockRequestManager)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -124,28 +126,53 @@ class MobileEngageInternalV3Test {
 
     @Test
     fun testSetContact() {
-        val expectedRequestModel = RequestModelUtils.createSetContactRequest(CONTACT_FIELD_VALUE, requestContextMock)
+        val expectedRequestModel = RequestModelUtils.createSetContactRequest(CONTACT_FIELD_VALUE, mockRequestContext)
 
         mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, completionListener)
 
-        verify(requestManagerMock).submit(expectedRequestModel, completionListener)
+        verify(mockRequestManager).submit(expectedRequestModel, completionListener)
     }
 
     @Test
     fun testSetContact_completionListener_canBeNull() {
-        val expectedRequestModel = RequestModelUtils.createSetContactRequest(CONTACT_FIELD_VALUE, requestContextMock)
+        val expectedRequestModel = RequestModelUtils.createSetContactRequest(CONTACT_FIELD_VALUE, mockRequestContext)
 
         mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
 
-        verify(requestManagerMock).submit(expectedRequestModel, null)
+        verify(mockRequestManager).submit(expectedRequestModel, null)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testTrackCustomEvent_eventName_mustNotBeNull() {
+        mobileEngageInternal.trackCustomEvent(null, emptyMap(), completionListener)
+    }
+
+    @Test
+    fun testTrackCustomEvent() {
+
+        val expectedRequestModel = RequestModelUtils.createTrackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockRequestContext)
+
+        mobileEngageInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, completionListener)
+
+        verify(mockRequestManager).submit(expectedRequestModel, completionListener)
+    }
+
+    @Test
+    fun testTrackCustomEvent_completionListener_canBeNull() {
+
+        val expectedRequestModel = RequestModelUtils.createTrackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockRequestContext)
+
+        mobileEngageInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, null)
+
+        verify(mockRequestManager).submit(expectedRequestModel, null)
     }
 
     @Test
     fun testTrackDeviceInfo() {
-        val expectedRequestModel = RequestModelUtils.createTrackDeviceInfoRequest(requestContextMock)
+        val expectedRequestModel = RequestModelUtils.createTrackDeviceInfoRequest(mockRequestContext)
 
         mobileEngageInternal.trackDeviceInfo()
 
-        verify(requestManagerMock).submit(expectedRequestModel, null)
+        verify(mockRequestManager).submit(expectedRequestModel, null)
     }
 }

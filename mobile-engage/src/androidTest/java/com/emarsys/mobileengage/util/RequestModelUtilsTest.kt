@@ -25,10 +25,10 @@ class RequestModelUtilsTest {
         const val PUSH_TOKEN = "kjhygtfdrtrtdtguyihoj3iurf8y7t6fqyua2gyi8fhu"
     }
 
-    lateinit var requestContextMock: RequestContext
-    lateinit var timestampProviderMock: TimestampProvider
-    lateinit var uuidProviderMock: UUIDProvider
-    lateinit var deviceInfoMock: DeviceInfo
+    lateinit var mockRequestContext: RequestContext
+    lateinit var mockTimestampProvider: TimestampProvider
+    lateinit var mockUuidProvider: UUIDProvider
+    lateinit var mockDeviceInfo: DeviceInfo
 
     @Rule
     @JvmField
@@ -36,20 +36,20 @@ class RequestModelUtilsTest {
 
     @Before
     fun setUp() {
-        uuidProviderMock = mock(UUIDProvider::class.java).apply {
+        mockUuidProvider = mock(UUIDProvider::class.java).apply {
             whenever(provideId()).thenReturn(REQUEST_ID)
         }
-        timestampProviderMock = mock(TimestampProvider::class.java).apply {
+        mockTimestampProvider = mock(TimestampProvider::class.java).apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
-        deviceInfoMock = mock(DeviceInfo::class.java).apply {
+        mockDeviceInfo = mock(DeviceInfo::class.java).apply {
             whenever(hwid).thenReturn(HARDWARE_ID)
         }
 
-        requestContextMock = mock(RequestContext::class.java).apply {
-            whenever(timestampProvider).thenReturn(timestampProviderMock)
-            whenever(uuidProvider).thenReturn(uuidProviderMock)
-            whenever(deviceInfo).thenReturn(deviceInfoMock)
+        mockRequestContext = mock(RequestContext::class.java).apply {
+            whenever(timestampProvider).thenReturn(mockTimestampProvider)
+            whenever(uuidProvider).thenReturn(mockUuidProvider)
+            whenever(deviceInfo).thenReturn(mockDeviceInfo)
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
         }
     }
@@ -67,16 +67,16 @@ class RequestModelUtilsTest {
     @Test
     fun testCreateSetPushTokenRequest() {
         val expected = RequestModel(
-                RequestUrlUtils.createSetPushTokenUrl(requestContextMock),
+                RequestUrlUtils.createSetPushTokenUrl(mockRequestContext),
                 RequestMethod.PUT,
                 RequestPayloadUtils.createSetPushTokenPayload(PUSH_TOKEN),
-                RequestHeaderUtils.createBaseHeaders_V3(requestContextMock),
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
                 TIMESTAMP,
                 Long.MAX_VALUE,
                 REQUEST_ID
         )
 
-        val result = RequestModelUtils.createSetPushTokenRequest(PUSH_TOKEN, requestContextMock)
+        val result = RequestModelUtils.createSetPushTokenRequest(PUSH_TOKEN, mockRequestContext)
 
         result shouldBe expected
     }
@@ -89,22 +89,22 @@ class RequestModelUtilsTest {
     @Test
     fun testCreateTrackDeviceInfoRequest() {
         val expected = RequestModel(
-                RequestUrlUtils.createTrackDeviceInfoUrl(requestContextMock),
+                RequestUrlUtils.createTrackDeviceInfoUrl(mockRequestContext),
                 RequestMethod.POST,
-                RequestPayloadUtils.createTrackDeviceInfoPayload(requestContextMock),
-                RequestHeaderUtils.createBaseHeaders_V3(requestContextMock),
+                RequestPayloadUtils.createTrackDeviceInfoPayload(mockRequestContext),
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
                 TIMESTAMP,
                 Long.MAX_VALUE,
                 REQUEST_ID
         )
-        val result = RequestModelUtils.createTrackDeviceInfoRequest(requestContextMock)
+        val result = RequestModelUtils.createTrackDeviceInfoRequest(mockRequestContext)
 
         result shouldBe expected
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testCreateSetContactRequest_contactFieldValue_mustNotBeNull() {
-        RequestModelUtils.createSetContactRequest(null, requestContextMock)
+        RequestModelUtils.createSetContactRequest(null, mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -115,15 +115,42 @@ class RequestModelUtilsTest {
     @Test
     fun testCreateSetContactRequest() {
         val expected = RequestModel(
-                RequestUrlUtils.createSetContactUrl(requestContextMock),
+                RequestUrlUtils.createSetContactUrl(mockRequestContext),
                 RequestMethod.POST,
-                RequestPayloadUtils.createSetContactPayload("contactFieldValue", requestContextMock),
-                RequestHeaderUtils.createBaseHeaders_V3(requestContextMock),
+                RequestPayloadUtils.createSetContactPayload("contactFieldValue", mockRequestContext),
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
                 TIMESTAMP,
                 Long.MAX_VALUE,
                 REQUEST_ID
         )
-        val result = RequestModelUtils.createSetContactRequest("contactFieldValue", requestContextMock)
+        val result = RequestModelUtils.createSetContactRequest("contactFieldValue", mockRequestContext)
+
+        result shouldBe expected
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateTrackCustomEvent_eventName_mustNotBeNull() {
+        RequestModelUtils.createTrackCustomEvent(null, emptyMap(), mockRequestContext)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateTrackCustomEvent_requestContext_mustNotBeNull() {
+        RequestModelUtils.createTrackCustomEvent("eventName", emptyMap(), null)
+    }
+
+    @Test
+    fun testCreateTrackCustomEventRequest() {
+        val expected = RequestModel(
+                RequestUrlUtils.createTrackCustomEventUrl(mockRequestContext),
+                RequestMethod.POST,
+                RequestPayloadUtils.createTrackCustomEventPayload("eventName", emptyMap(), mockRequestContext),
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+
+        val result = RequestModelUtils.createTrackCustomEvent("eventName", emptyMap(), mockRequestContext)
 
         result shouldBe expected
     }

@@ -148,7 +148,6 @@ class MobileEngageIntegrationTest {
         ).also(this::eventuallyAssertSuccess)
     }
 
-    @Ignore
     @Test
     fun testTrackCustomEvent_V3_noAttributes() {
         IntegrationTestUtils.doAppLogin()
@@ -160,7 +159,6 @@ class MobileEngageIntegrationTest {
         ).also(this::eventuallyAssertSuccess)
     }
 
-    @Ignore
     @Test
     fun testTrackCustomEvent_V3_withAttributes() {
         IntegrationTestUtils.doAppLogin()

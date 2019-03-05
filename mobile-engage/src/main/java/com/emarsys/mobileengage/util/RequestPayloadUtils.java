@@ -2,8 +2,10 @@ package com.emarsys.mobileengage.util;
 
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.util.Assert;
+import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.RequestContext;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,5 +42,30 @@ public class RequestPayloadUtils {
         payload.put("contactFieldValue", contactFieldValue);
 
         return payload;
+    }
+
+    public static Map<String, Object> createTrackCustomEventPayload(String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
+        Assert.notNull(eventName, "EventName must not be null!");
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
+        Map<String, Object> event = createEventForTrackCustomEvent(eventName, eventAttributes, requestContext);
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("clicks", Collections.emptyList());
+        payload.put("viewedMessages", Collections.emptyList());
+        payload.put("events", Collections.singletonList(event));
+
+        return payload;
+    }
+
+    private static Map<String, Object> createEventForTrackCustomEvent(String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
+        Map<String, Object> event = new HashMap<>();
+        event.put("type", "custom");
+        event.put("name", eventName);
+        event.put("timestamp", TimestampUtils.formatTimestampWithUTC(requestContext.getTimestampProvider().provideTimestamp()));
+        if (eventAttributes != null && !eventAttributes.isEmpty()) {
+            event.put("attributes", eventAttributes);
+        }
+        return event;
     }
 }

@@ -2,6 +2,8 @@ package com.emarsys.mobileengage.util
 
 
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.provider.timestamp.TimestampProvider
+import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.RequestContext
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
@@ -24,10 +26,13 @@ class RequestPayloadUtilsTest {
         const val TIMEZONE = "+0200"
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
         const val CONTACT_FIELD_ID = 3
+        const val EVENT_NAME = "testEventName"
+        const val TIMESTAMP = 123456789L
     }
 
-    lateinit var deviceInfoMock: DeviceInfo
-    lateinit var requestContextMock: RequestContext
+    lateinit var mockDeviceInfo: DeviceInfo
+    lateinit var mockRequestContext: RequestContext
+    lateinit var mockTimestampProvider: TimestampProvider
 
     @Rule
     @JvmField
@@ -35,7 +40,7 @@ class RequestPayloadUtilsTest {
 
     @Before
     fun setUp() {
-        deviceInfoMock = mock(DeviceInfo::class.java).apply {
+        mockDeviceInfo = mock(DeviceInfo::class.java).apply {
             whenever(platform).thenReturn(PLATFORM)
             whenever(applicationVersion).thenReturn(APPLICATION_VERSION)
             whenever(model).thenReturn(DEVICE_MODEL)
@@ -45,9 +50,14 @@ class RequestPayloadUtilsTest {
             whenever(timezone).thenReturn(TIMEZONE)
         }
 
-        requestContextMock = mock(RequestContext::class.java).apply {
-            whenever(deviceInfo).thenReturn(deviceInfoMock)
+        mockTimestampProvider = mock(TimestampProvider::class.java).apply {
+            whenever(provideTimestamp()).thenReturn(TIMESTAMP)
+        }
+
+        mockRequestContext = mock(RequestContext::class.java).apply {
+            whenever(deviceInfo).thenReturn(mockDeviceInfo)
             whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)
+            whenever(timestampProvider).thenReturn(mockTimestampProvider)
         }
     }
 
@@ -71,7 +81,7 @@ class RequestPayloadUtilsTest {
 
     @Test
     fun testCreateTrackDeviceInfoPayload() {
-        val payload = RequestPayloadUtils.createTrackDeviceInfoPayload(requestContextMock)
+        val payload = RequestPayloadUtils.createTrackDeviceInfoPayload(mockRequestContext)
         payload shouldBe mapOf(
                 "platform" to PLATFORM,
                 "applicationVersion" to APPLICATION_VERSION,
@@ -85,7 +95,7 @@ class RequestPayloadUtilsTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testCreateSetContactPayload_contactFieldValue_mustNotBeNull() {
-        RequestPayloadUtils.createSetContactPayload(null, requestContextMock)
+        RequestPayloadUtils.createSetContactPayload(null, mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -95,10 +105,81 @@ class RequestPayloadUtilsTest {
 
     @Test
     fun testCreateSetContactPayload() {
-        val payload = RequestPayloadUtils.createSetContactPayload(CONTACT_FIELD_VALUE, requestContextMock)
+        val payload = RequestPayloadUtils.createSetContactPayload(CONTACT_FIELD_VALUE, mockRequestContext)
         payload shouldBe mapOf(
                 "contactFieldId" to CONTACT_FIELD_ID,
                 "contactFieldValue" to CONTACT_FIELD_VALUE
         )
     }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateTrackCustomEventPayload_eventName_mustNotBeNull() {
+        RequestPayloadUtils.createTrackCustomEventPayload(null, emptyMap(), mockRequestContext)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateTrackCustomEventPayload_requestContext_mustNotBeNull() {
+        RequestPayloadUtils.createTrackCustomEventPayload(EVENT_NAME, emptyMap(), null)
+    }
+
+    @Test
+    fun testCreateTrackCustomEventPayload_whenEventAttributesIsNull() {
+        val event = mapOf(
+                "type" to "custom",
+                "name" to EVENT_NAME,
+                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP)
+        )
+
+        val expectedPayload = mapOf<String, Any>(
+                "clicks" to emptyList<Any>(),
+                "viewedMessages" to emptyList<Any>(),
+                "events" to listOf(event)
+        )
+
+        val actualPayload = RequestPayloadUtils.createTrackCustomEventPayload(EVENT_NAME, null, mockRequestContext)
+
+        actualPayload shouldBe expectedPayload
+    }
+
+    @Test
+    fun testCreateTrackCustomEventPayload_whenEventAttributesIsPresent() {
+        val attribute = mapOf("attributeKey" to "attributeValue")
+
+        val event = mapOf(
+                "type" to "custom",
+                "name" to EVENT_NAME,
+                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
+                "attributes" to attribute
+        )
+
+        val expectedPayload = mapOf<String, Any>(
+                "clicks" to emptyList<Any>(),
+                "viewedMessages" to emptyList<Any>(),
+                "events" to listOf(event)
+        )
+
+        val actualPayload = RequestPayloadUtils.createTrackCustomEventPayload(EVENT_NAME, attribute, mockRequestContext)
+
+        actualPayload shouldBe expectedPayload
+    }
+
+    @Test
+    fun testCreateTrackCustomEventPayload_whenEventAttributesIsEmpty() {
+        val event = mapOf(
+                "type" to "custom",
+                "name" to EVENT_NAME,
+                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP)
+        )
+
+        val expectedPayload = mapOf<String, Any>(
+                "clicks" to emptyList<Any>(),
+                "viewedMessages" to emptyList<Any>(),
+                "events" to listOf(event)
+        )
+
+        val actualPayload = RequestPayloadUtils.createTrackCustomEventPayload(EVENT_NAME, emptyMap(), mockRequestContext)
+
+        actualPayload shouldBe expectedPayload
+    }
+
 }

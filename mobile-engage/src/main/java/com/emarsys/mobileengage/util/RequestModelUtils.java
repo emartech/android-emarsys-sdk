@@ -5,6 +5,8 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.RequestContext;
 
+import java.util.Map;
+
 public class RequestModelUtils {
 
     public static RequestModel createSetPushTokenRequest(String pushToken, RequestContext requestContext) {
@@ -39,6 +41,18 @@ public class RequestModelUtils {
                 .method(RequestMethod.POST)
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .payload(RequestPayloadUtils.createSetContactPayload(contactFieldValue, requestContext))
+                .build();
+    }
+
+    public static RequestModel createTrackCustomEvent(String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
+        Assert.notNull(eventName, "EventName must not be null!");
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
+        return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
+                .url(RequestUrlUtils.createTrackCustomEventUrl(requestContext))
+                .method(RequestMethod.POST)
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
+                .payload(RequestPayloadUtils.createTrackCustomEventPayload(eventName,eventAttributes, requestContext))
                 .build();
     }
 }
