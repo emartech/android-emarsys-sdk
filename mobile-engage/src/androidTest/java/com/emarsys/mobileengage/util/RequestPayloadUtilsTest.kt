@@ -113,17 +113,17 @@ class RequestPayloadUtilsTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testCreateTrackCustomEventPayload_eventName_mustNotBeNull() {
-        RequestPayloadUtils.createTrackCustomEventPayload(null, emptyMap(), mockRequestContext)
+    fun testCreateCustomEventPayload_eventName_mustNotBeNull() {
+        RequestPayloadUtils.createCustomEventPayload(null, emptyMap(), mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testCreateTrackCustomEventPayload_requestContext_mustNotBeNull() {
-        RequestPayloadUtils.createTrackCustomEventPayload(EVENT_NAME, emptyMap(), null)
+    fun testCreateCustomEventPayload_requestContext_mustNotBeNull() {
+        RequestPayloadUtils.createCustomEventPayload(EVENT_NAME, emptyMap(), null)
     }
 
     @Test
-    fun testCreateTrackCustomEventPayload_whenEventAttributesIsNull() {
+    fun testCreateCustomEventPayload_whenEventAttributesIsNull() {
         val event = mapOf(
                 "type" to "custom",
                 "name" to EVENT_NAME,
@@ -136,13 +136,13 @@ class RequestPayloadUtilsTest {
                 "events" to listOf(event)
         )
 
-        val actualPayload = RequestPayloadUtils.createTrackCustomEventPayload(EVENT_NAME, null, mockRequestContext)
+        val actualPayload = RequestPayloadUtils.createCustomEventPayload(EVENT_NAME, null, mockRequestContext)
 
         actualPayload shouldBe expectedPayload
     }
 
     @Test
-    fun testCreateTrackCustomEventPayload_whenEventAttributesIsPresent() {
+    fun testCreateCustomEventPayload_whenEventAttributesIsPresent() {
         val attribute = mapOf("attributeKey" to "attributeValue")
 
         val event = mapOf(
@@ -158,13 +158,13 @@ class RequestPayloadUtilsTest {
                 "events" to listOf(event)
         )
 
-        val actualPayload = RequestPayloadUtils.createTrackCustomEventPayload(EVENT_NAME, attribute, mockRequestContext)
+        val actualPayload = RequestPayloadUtils.createCustomEventPayload(EVENT_NAME, attribute, mockRequestContext)
 
         actualPayload shouldBe expectedPayload
     }
 
     @Test
-    fun testCreateTrackCustomEventPayload_whenEventAttributesIsEmpty() {
+    fun testCreateCustomEventPayload_whenEventAttributesIsEmpty() {
         val event = mapOf(
                 "type" to "custom",
                 "name" to EVENT_NAME,
@@ -177,7 +177,78 @@ class RequestPayloadUtilsTest {
                 "events" to listOf(event)
         )
 
-        val actualPayload = RequestPayloadUtils.createTrackCustomEventPayload(EVENT_NAME, emptyMap(), mockRequestContext)
+        val actualPayload = RequestPayloadUtils.createCustomEventPayload(EVENT_NAME, emptyMap(), mockRequestContext)
+
+        actualPayload shouldBe expectedPayload
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateInternalCustomEventPayload_eventName_mustNotBeNull() {
+        RequestPayloadUtils.createInternalCustomEventPayload(null, emptyMap(), mockRequestContext)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateInternalCustomEventPayload_requestContext_mustNotBeNull() {
+        RequestPayloadUtils.createInternalCustomEventPayload(EVENT_NAME, emptyMap(), null)
+    }
+
+
+    @Test
+    fun testCreateInternalCustomEventPayload_whenEventAttributesIsNull() {
+        val event = mapOf(
+                "type" to "internal",
+                "name" to EVENT_NAME,
+                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP)
+        )
+
+        val expectedPayload = mapOf<String, Any>(
+                "clicks" to emptyList<Any>(),
+                "viewedMessages" to emptyList<Any>(),
+                "events" to listOf(event)
+        )
+
+        val actualPayload = RequestPayloadUtils.createInternalCustomEventPayload(EVENT_NAME, null, mockRequestContext)
+
+        actualPayload shouldBe expectedPayload
+    }
+
+    @Test
+    fun testCreateInternalCustomEventPayload_whenEventAttributesIsPresent() {
+        val attribute = mapOf("attributeKey" to "attributeValue")
+
+        val event = mapOf(
+                "type" to "internal",
+                "name" to EVENT_NAME,
+                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
+                "attributes" to attribute
+        )
+
+        val expectedPayload = mapOf<String, Any>(
+                "clicks" to emptyList<Any>(),
+                "viewedMessages" to emptyList<Any>(),
+                "events" to listOf(event)
+        )
+
+        val actualPayload = RequestPayloadUtils.createInternalCustomEventPayload(EVENT_NAME, attribute, mockRequestContext)
+
+        actualPayload shouldBe expectedPayload
+    }
+
+    @Test
+    fun testCreateInternalCustomEventPayload_whenEventAttributesIsEmpty() {
+        val event = mapOf(
+                "type" to "internal",
+                "name" to EVENT_NAME,
+                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP)
+        )
+
+        val expectedPayload = mapOf<String, Any>(
+                "clicks" to emptyList<Any>(),
+                "viewedMessages" to emptyList<Any>(),
+                "events" to listOf(event)
+        )
+
+        val actualPayload = RequestPayloadUtils.createInternalCustomEventPayload(EVENT_NAME, emptyMap(), mockRequestContext)
 
         actualPayload shouldBe expectedPayload
     }

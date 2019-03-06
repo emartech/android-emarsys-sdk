@@ -15,14 +15,13 @@ import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.core.storage.StringStorage
+import com.emarsys.core.storage.Storage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.storage.AppLoginStorage
 import com.emarsys.mobileengage.storage.MeIdStorage
-import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
@@ -47,6 +46,7 @@ class MobileEngageIntegrationTest {
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var responseModel: ResponseModel
     private lateinit var completionHandler: DefaultCoreCompletionHandler
+    private lateinit var clientStateStorage: Storage<String>
 
     private var errorCause: Throwable? = null
 
@@ -99,11 +99,13 @@ class MobileEngageIntegrationTest {
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
         MeIdStorage(sharedPreferences).remove()
         AppLoginStorage(sharedPreferences).remove()
-        StringStorage(MobileEngageStorageKey.CLIENT_STATE, sharedPreferences).remove()
 
         ExperimentalTestUtils.resetExperimentalFeatures()
 
         Emarsys.setup(baseConfig)
+
+        clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.clientStateStorage
+        clientStateStorage.remove()
     }
 
     @After
@@ -118,6 +120,7 @@ class MobileEngageIntegrationTest {
 
         MeIdStorage(sharedPreferences).remove()
         AppLoginStorage(sharedPreferences).remove()
+        clientStateStorage.remove()
 
         DependencyInjection.tearDown()
     }
@@ -132,7 +135,7 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testSetContact() {
-        sharedPreferences.edit().putString("mobile_engage_client_state", "mobile-engage-integration-test").commit()
+        IntegrationTestUtils.doSetPushToken()
 
         Emarsys.setContact(
                 "test@test.com",
@@ -150,7 +153,7 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackCustomEvent_V3_noAttributes() {
-        IntegrationTestUtils.doAppLogin()
+        IntegrationTestUtils.doSetPushToken()
 
         Emarsys.trackCustomEvent(
                 "integrationTestCustomEvent",
@@ -161,10 +164,36 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackCustomEvent_V3_withAttributes() {
-        IntegrationTestUtils.doAppLogin()
+        IntegrationTestUtils.doSetPushToken()
 
         Emarsys.trackCustomEvent(
                 "integrationTestCustomEvent",
+                mapOf("key1" to "value1", "key2" to "value2"),
+                this::eventuallyStoreResult
+        ).also(this::eventuallyAssertSuccess)
+    }
+
+    @Test
+    fun testTrackInternalCustomEvent_V3_noAttributes() {
+        IntegrationTestUtils.doSetPushToken()
+
+        val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
+
+        mobileEngageInternal.trackInternalCustomEvent(
+                "integrationTestInternalCustomEvent",
+                null,
+                this::eventuallyStoreResult
+        ).also(this::eventuallyAssertSuccess)
+    }
+
+    @Test
+    fun testTrackInternalCustomEvent_V3_withAttributes() {
+        IntegrationTestUtils.doSetPushToken()
+
+        val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
+
+        mobileEngageInternal.trackInternalCustomEvent(
+                "integrationTestInternalCustomEvent",
                 mapOf("key1" to "value1", "key2" to "value2"),
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
@@ -191,18 +220,6 @@ class MobileEngageIntegrationTest {
     @Test
     fun testSetPushToken() {
         Emarsys.Push.setPushToken("pushToken",
-                this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
-    }
-
-    @Test
-    fun testSetPushToken_shouldSetClientStateForSetContact() {
-        Emarsys.Push.setPushToken("pushToken",
-                this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
-
-        Emarsys.setContact(
-                "test@test.com",
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
     }

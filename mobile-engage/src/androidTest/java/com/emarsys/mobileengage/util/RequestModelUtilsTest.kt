@@ -129,28 +129,55 @@ class RequestModelUtilsTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testCreateTrackCustomEvent_eventName_mustNotBeNull() {
-        RequestModelUtils.createTrackCustomEvent(null, emptyMap(), mockRequestContext)
+    fun testCreateCustomEvent_eventName_mustNotBeNull() {
+        RequestModelUtils.createCustomEventRequest(null, emptyMap(), mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testCreateTrackCustomEvent_requestContext_mustNotBeNull() {
-        RequestModelUtils.createTrackCustomEvent("eventName", emptyMap(), null)
+    fun testCreateCustomEvent_requestContext_mustNotBeNull() {
+        RequestModelUtils.createCustomEventRequest("eventName", emptyMap(), null)
     }
 
     @Test
-    fun testCreateTrackCustomEventRequest() {
+    fun testCreateCustomEventRequest() {
         val expected = RequestModel(
-                RequestUrlUtils.createTrackCustomEventUrl(mockRequestContext),
+                RequestUrlUtils.createCustomEventUrl(mockRequestContext),
                 RequestMethod.POST,
-                RequestPayloadUtils.createTrackCustomEventPayload("eventName", emptyMap(), mockRequestContext),
+                RequestPayloadUtils.createCustomEventPayload("eventName", emptyMap(), mockRequestContext),
                 RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
                 TIMESTAMP,
                 Long.MAX_VALUE,
                 REQUEST_ID
         )
 
-        val result = RequestModelUtils.createTrackCustomEvent("eventName", emptyMap(), mockRequestContext)
+        val result = RequestModelUtils.createCustomEventRequest("eventName", emptyMap(), mockRequestContext)
+
+        result shouldBe expected
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateInternalCustomEventRequest_eventName_mustNotBeNull() {
+        RequestModelUtils.createInternalCustomEventRequest(null, emptyMap(), mockRequestContext)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateInternalCustomEventRequest_requestContext_mustNotBeNull() {
+        RequestModelUtils.createInternalCustomEventRequest("eventName", emptyMap(), null)
+    }
+
+    @Test
+    fun testCreateInternalCustomEventRequest() {
+        val expected = RequestModel(
+                RequestUrlUtils.createCustomEventUrl(mockRequestContext),
+                RequestMethod.POST,
+                RequestPayloadUtils.createInternalCustomEventPayload("eventName", emptyMap(), mockRequestContext),
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+
+        val result = RequestModelUtils.createInternalCustomEventRequest("eventName", emptyMap(), mockRequestContext)
 
         result shouldBe expected
     }

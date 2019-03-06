@@ -60,7 +60,7 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
     public String trackCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
         Assert.notNull(eventName, "EventName must not be null!");
 
-        RequestModel requestModel = RequestModelUtils.createTrackCustomEvent(eventName, eventAttributes, requestContext);
+        RequestModel requestModel = RequestModelUtils.createCustomEventRequest(eventName, eventAttributes, requestContext);
         requestManager.submit(requestModel, completionListener);
 
         return requestModel.getId();
@@ -68,7 +68,12 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
 
     @Override
     public String trackInternalCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
-        return null;
+        Assert.notNull(eventName, "EventName must not be null!");
+
+        RequestModel requestModel = RequestModelUtils.createInternalCustomEventRequest(eventName, eventAttributes, requestContext);
+        requestManager.submit(requestModel, completionListener);
+
+        return requestModel.getId();
     }
 
     @Override

@@ -44,11 +44,22 @@ public class RequestPayloadUtils {
         return payload;
     }
 
-    public static Map<String, Object> createTrackCustomEventPayload(String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
+    public static Map<String, Object> createCustomEventPayload(String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
         Assert.notNull(eventName, "EventName must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
-        Map<String, Object> event = createEventForTrackCustomEvent(eventName, eventAttributes, requestContext);
+        return createEventPayload(EventType.CUSTOM, eventName, eventAttributes, requestContext);
+    }
+
+    public static Map<String, Object> createInternalCustomEventPayload(String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
+        Assert.notNull(eventName, "EventName must not be null!");
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
+        return createEventPayload(EventType.INTERNAL, eventName, eventAttributes, requestContext);
+    }
+
+    private static Map<String, Object> createEventPayload(EventType eventType, String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
+        Map<String, Object> event = createEvent(eventType, eventName, eventAttributes, requestContext);
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("clicks", Collections.emptyList());
@@ -58,9 +69,9 @@ public class RequestPayloadUtils {
         return payload;
     }
 
-    private static Map<String, Object> createEventForTrackCustomEvent(String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
+    private static Map<String, Object> createEvent(EventType eventType, String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
         Map<String, Object> event = new HashMap<>();
-        event.put("type", "custom");
+        event.put("type", eventType.name().toLowerCase());
         event.put("name", eventName);
         event.put("timestamp", TimestampUtils.formatTimestampWithUTC(requestContext.getTimestampProvider().provideTimestamp()));
         if (eventAttributes != null && !eventAttributes.isEmpty()) {
@@ -68,4 +79,8 @@ public class RequestPayloadUtils {
         }
         return event;
     }
+}
+
+enum EventType {
+    CUSTOM, INTERNAL
 }

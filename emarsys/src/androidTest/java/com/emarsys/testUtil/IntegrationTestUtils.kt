@@ -18,4 +18,15 @@ object IntegrationTestUtils {
         errorCause shouldBe null
     }
 
+    @JvmStatic
+    fun doSetPushToken(pushToken: String = "integration_test_push_token") {
+        val latch = CountDownLatch(1)
+        var errorCause: Throwable? = null
+        Emarsys.Push.setPushToken(pushToken) {
+            errorCause = it
+            latch.countDown()
+        }
+        latch.await()
+        errorCause shouldBe null
+    }
 }

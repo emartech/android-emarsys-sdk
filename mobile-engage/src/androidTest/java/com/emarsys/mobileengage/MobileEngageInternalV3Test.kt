@@ -150,7 +150,7 @@ class MobileEngageInternalV3Test {
     @Test
     fun testTrackCustomEvent() {
 
-        val expectedRequestModel = RequestModelUtils.createTrackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockRequestContext)
+        val expectedRequestModel = RequestModelUtils.createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES, mockRequestContext)
 
         mobileEngageInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, completionListener)
 
@@ -160,9 +160,32 @@ class MobileEngageInternalV3Test {
     @Test
     fun testTrackCustomEvent_completionListener_canBeNull() {
 
-        val expectedRequestModel = RequestModelUtils.createTrackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockRequestContext)
+        val expectedRequestModel = RequestModelUtils.createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES, mockRequestContext)
 
         mobileEngageInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, null)
+
+        verify(mockRequestManager).submit(expectedRequestModel, null)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testTrackInternalCustomEvent_eventName_mustNotBeNull() {
+        mobileEngageInternal.trackInternalCustomEvent(null, emptyMap(), completionListener)
+    }
+
+    @Test
+    fun testTrackInternalCustomEvent() {
+        val expectedRequestModel = RequestModelUtils.createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES, mockRequestContext)
+
+        mobileEngageInternal.trackInternalCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, completionListener)
+
+        verify(mockRequestManager).submit(expectedRequestModel, completionListener)
+    }
+
+    @Test
+    fun testTrackInternalCustomEvent_completionListener_canBeNull() {
+        val expectedRequestModel = RequestModelUtils.createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES, mockRequestContext)
+
+        mobileEngageInternal.trackInternalCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, null)
 
         verify(mockRequestManager).submit(expectedRequestModel, null)
     }

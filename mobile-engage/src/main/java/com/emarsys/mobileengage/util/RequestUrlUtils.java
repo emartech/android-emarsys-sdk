@@ -24,7 +24,7 @@ public class RequestUrlUtils {
         return String.format(Endpoint.ME_V3_CLIENT_BASE + "/contact", requestContext.getApplicationCode());
     }
 
-    public static String createTrackCustomEventUrl(RequestContext requestContext) {
+    public static String createCustomEventUrl(RequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         return String.format(Endpoint.ME_V3_EVENT_BASE, requestContext.getApplicationCode());

@@ -44,15 +44,30 @@ public class RequestModelUtils {
                 .build();
     }
 
-    public static RequestModel createTrackCustomEvent(String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
+    public static RequestModel createCustomEventRequest(String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
         Assert.notNull(eventName, "EventName must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
+        Map<String, Object> payload = RequestPayloadUtils.createCustomEventPayload(eventName, eventAttributes, requestContext);
+
+        return createEvent(payload, requestContext);
+    }
+
+    public static RequestModel createInternalCustomEventRequest(String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
+        Assert.notNull(eventName, "EventName must not be null!");
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
+        Map<String, Object> payload = RequestPayloadUtils.createInternalCustomEventPayload(eventName, eventAttributes, requestContext);
+
+        return createEvent(payload, requestContext);
+    }
+
+    private static RequestModel createEvent(Map<String, Object> payload, RequestContext requestContext) {
         return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
-                .url(RequestUrlUtils.createTrackCustomEventUrl(requestContext))
+                .url(RequestUrlUtils.createCustomEventUrl(requestContext))
                 .method(RequestMethod.POST)
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
-                .payload(RequestPayloadUtils.createTrackCustomEventPayload(eventName,eventAttributes, requestContext))
+                .payload(payload)
                 .build();
     }
 }

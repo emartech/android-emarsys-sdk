@@ -69,12 +69,12 @@ class RequestUrlUtilsTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testCreateTrackCustomEventUrl_requestContext_mustNotBeNull() {
-        RequestUrlUtils.createTrackCustomEventUrl(null)
+        RequestUrlUtils.createCustomEventUrl(null)
     }
 
     @Test
     fun testCreateTrackCustomEventUrl() {
-        val url = RequestUrlUtils.createTrackCustomEventUrl(requestContextMock)
+        val url = RequestUrlUtils.createCustomEventUrl(requestContextMock)
 
         url shouldBe "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events"
     }
