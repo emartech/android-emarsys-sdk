@@ -27,7 +27,7 @@ public interface MobileEngageInternal {
             Map<String, String> eventAttributes,
             CompletionListener completionListener);
 
-    String trackMessageOpen(Intent intent, CompletionListener completionListener);
+    void trackMessageOpen(Intent intent, CompletionListener completionListener);
 
     void trackDeviceInfo();
 }

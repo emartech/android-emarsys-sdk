@@ -181,12 +181,12 @@ public class MobileEngageInternal_V3_Old implements MobileEngageInternal {
     }
 
     @Override
-    public String trackMessageOpen(Intent intent, CompletionListener completionListener) {
+    public void trackMessageOpen(Intent intent, CompletionListener completionListener) {
         Assert.notNull(intent, "Intent must not be null!");
 
         String messageId = getMessageId(intent);
 
-        return handleMessageOpen(messageId, completionListener);
+        handleMessageOpen(messageId, completionListener);
     }
 
     @Override
