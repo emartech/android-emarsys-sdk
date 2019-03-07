@@ -1,5 +1,9 @@
 package com.emarsys.mobileengage
 
+import android.content.Intent
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
@@ -8,10 +12,14 @@ import com.emarsys.core.request.RequestManager
 import com.emarsys.mobileengage.util.RequestModelUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.ThreadSpy
+import io.kotlintest.matchers.types.shouldBeTypeOf
+import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
 
 
@@ -34,6 +42,9 @@ class MobileEngageInternalV3Test {
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
         const val CONTACT_FIELD_ID = 3
         const val EVENT_NAME = "customEventName"
+        const val MESSAGE_OPEN_EVENT_NAME = "push:click"
+        const val SID = "+43c_lODSmXqCvdOz"
+
         val EVENT_ATTRIBUTES = emptyMap<String, String>()
     }
 
@@ -41,11 +52,12 @@ class MobileEngageInternalV3Test {
 
     lateinit var mockRequestManager: RequestManager
     lateinit var mockRequestContext: RequestContext
-    lateinit var completionListener: CompletionListener
-
     lateinit var mockTimestampProvider: TimestampProvider
     lateinit var mockUuidProvider: UUIDProvider
     lateinit var mockDeviceInfo: DeviceInfo
+    lateinit var mockCompletionListener: CompletionListener
+
+    lateinit var uiHandler: Handler
 
     @Rule
     @JvmField
@@ -79,28 +91,35 @@ class MobileEngageInternalV3Test {
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
         }
 
-        completionListener = mock(CompletionListener::class.java)
+        uiHandler = Handler(Looper.getMainLooper())
 
-        mobileEngageInternal = MobileEngageInternalV3(mockRequestManager, mockRequestContext)
+        mockCompletionListener = mock(CompletionListener::class.java)
+
+        mobileEngageInternal = MobileEngageInternalV3(mockRequestManager, mockRequestContext, uiHandler)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestManager_mustNotBeNull() {
-        MobileEngageInternalV3(null, mockRequestContext)
+        MobileEngageInternalV3(null, mockRequestContext, uiHandler)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestContext_mustNotBeNull() {
-        MobileEngageInternalV3(mockRequestManager, null)
+        MobileEngageInternalV3(mockRequestManager, null, uiHandler)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_uiHandler_mustNotBeNull() {
+        MobileEngageInternalV3(mockRequestManager, mockRequestContext, null)
     }
 
     @Test
     fun testSetPushToken() {
         val expectedRequestModel = RequestModelUtils.createSetPushTokenRequest(PUSH_TOKEN, mockRequestContext)
 
-        mobileEngageInternal.setPushToken(PUSH_TOKEN, completionListener)
+        mobileEngageInternal.setPushToken(PUSH_TOKEN, mockCompletionListener)
 
-        verify(mockRequestManager).submit(expectedRequestModel, completionListener)
+        verify(mockRequestManager).submit(expectedRequestModel, mockCompletionListener)
     }
 
     @Test
@@ -114,23 +133,23 @@ class MobileEngageInternalV3Test {
 
     @Test
     fun testSetPushToken_whenPushTokenIsNull_callShouldBeIgnored() {
-        mobileEngageInternal.setPushToken(null, completionListener)
+        mobileEngageInternal.setPushToken(null, mockCompletionListener)
 
         verifyZeroInteractions(mockRequestManager)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testSetContact_contactFieldValue_mustNotBeNull() {
-        mobileEngageInternal.setContact(null, completionListener)
+        mobileEngageInternal.setContact(null, mockCompletionListener)
     }
 
     @Test
     fun testSetContact() {
         val expectedRequestModel = RequestModelUtils.createSetContactRequest(CONTACT_FIELD_VALUE, mockRequestContext)
 
-        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, completionListener)
+        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, mockCompletionListener)
 
-        verify(mockRequestManager).submit(expectedRequestModel, completionListener)
+        verify(mockRequestManager).submit(expectedRequestModel, mockCompletionListener)
     }
 
     @Test
@@ -144,7 +163,7 @@ class MobileEngageInternalV3Test {
 
     @Test(expected = IllegalArgumentException::class)
     fun testTrackCustomEvent_eventName_mustNotBeNull() {
-        mobileEngageInternal.trackCustomEvent(null, emptyMap(), completionListener)
+        mobileEngageInternal.trackCustomEvent(null, emptyMap(), mockCompletionListener)
     }
 
     @Test
@@ -152,9 +171,9 @@ class MobileEngageInternalV3Test {
 
         val expectedRequestModel = RequestModelUtils.createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES, mockRequestContext)
 
-        mobileEngageInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, completionListener)
+        mobileEngageInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
 
-        verify(mockRequestManager).submit(expectedRequestModel, completionListener)
+        verify(mockRequestManager).submit(expectedRequestModel, mockCompletionListener)
     }
 
     @Test
@@ -169,16 +188,16 @@ class MobileEngageInternalV3Test {
 
     @Test(expected = IllegalArgumentException::class)
     fun testTrackInternalCustomEvent_eventName_mustNotBeNull() {
-        mobileEngageInternal.trackInternalCustomEvent(null, emptyMap(), completionListener)
+        mobileEngageInternal.trackInternalCustomEvent(null, emptyMap(), mockCompletionListener)
     }
 
     @Test
     fun testTrackInternalCustomEvent() {
         val expectedRequestModel = RequestModelUtils.createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES, mockRequestContext)
 
-        mobileEngageInternal.trackInternalCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, completionListener)
+        mobileEngageInternal.trackInternalCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
 
-        verify(mockRequestManager).submit(expectedRequestModel, completionListener)
+        verify(mockRequestManager).submit(expectedRequestModel, mockCompletionListener)
     }
 
     @Test
@@ -191,11 +210,141 @@ class MobileEngageInternalV3Test {
     }
 
     @Test
+    fun testGetMessageId_shouldReturnNull_withEmptyIntent() {
+        val result = mobileEngageInternal.getMessageId(Intent())
+        result shouldBe null
+    }
+
+    @Test
+    fun testGetMessageId_shouldReturnNull_withMissingUParam() {
+        val bundlePayload = Bundle().apply {
+            putString("key1", "value1")
+        }
+
+        val intent = Intent().apply {
+            putExtra("payload", bundlePayload)
+        }
+
+        val result = mobileEngageInternal.getMessageId(intent)
+        result shouldBe null
+    }
+
+    @Test
+    fun testGetMessageId_shouldReturnNull_withMissingSIDParam() {
+        val bundlePayload = Bundle().apply {
+            putString("key1", "value1")
+            putString("u", "{}")
+        }
+
+        val intent = Intent().apply {
+            putExtra("payload", bundlePayload)
+        }
+
+        val result = mobileEngageInternal.getMessageId(intent)
+        result shouldBe null
+    }
+
+    @Test
+    fun testGetMessageId_shouldReturnNull_withInvalidJson() {
+
+        val bundlePayload = Bundle().apply {
+            putString("key1", "value1")
+            putString("u", "{invalidJson}")
+        }
+
+        val intent = Intent().apply {
+            putExtra("payload", bundlePayload)
+        }
+
+        val result = mobileEngageInternal.getMessageId(intent)
+
+        result shouldBe null
+    }
+
+    @Test
+    fun testGetMessageId_shouldReturnTheCorrectSIDValue() {
+        val intent = createTestIntent()
+        val result = mobileEngageInternal.getMessageId(intent)
+
+        result shouldBe SID
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testTrackMessageOpen_intent_mustNotBeNull() {
+        mobileEngageInternal.trackMessageOpen(null, mockCompletionListener)
+    }
+
+    @Test
+    fun testTrackMessageOpen() {
+        val expectedRequestModel = RequestModelUtils.createInternalCustomEventRequest(MESSAGE_OPEN_EVENT_NAME, mapOf("sid" to SID, "origin" to "main"), mockRequestContext)
+
+        mobileEngageInternal.trackMessageOpen(createTestIntent(), mockCompletionListener)
+
+        verify(mockRequestManager).submit(expectedRequestModel, mockCompletionListener)
+    }
+
+    @Test
+    fun testTrackMessageOpen_completionListener_canBeNull() {
+        val expectedRequestModel = RequestModelUtils.createInternalCustomEventRequest(MESSAGE_OPEN_EVENT_NAME, mapOf("sid" to SID, "origin" to "main"), mockRequestContext)
+
+        mobileEngageInternal.trackMessageOpen(createTestIntent(), null)
+
+        verify(mockRequestManager).submit(expectedRequestModel, null)
+    }
+
+    @Test
+    fun testTrackMessageOpen_shouldCallCompletionListenerWithError_whenMessageIdNotFound() {
+        val completionListener = mock(CompletionListener::class.java)
+
+        mobileEngageInternal.trackMessageOpen(createBadTestIntent(), completionListener)
+
+        val captor = ArgumentCaptor.forClass(IllegalArgumentException::class.java)
+
+        verify(completionListener).onCompleted(captor.capture())
+
+        captor.value.message shouldBe "No messageId found!"
+        captor.value.shouldBeTypeOf<IllegalArgumentException>()
+    }
+
+    @Test
+    fun testTrackMessageOpen_withEmptyIntent_shouldCallCompletionListener_onMainThread() {
+        val completionListener = mock(CompletionListener::class.java)
+        val threadSpy: ThreadSpy<CompletionListener> = ThreadSpy()
+        doAnswer(threadSpy).`when`(completionListener).onCompleted(any(Throwable::class.java))
+
+        mobileEngageInternal.trackMessageOpen(createBadTestIntent(), completionListener)
+
+        threadSpy.verifyCalledOnMainThread()
+    }
+
+    @Test
     fun testTrackDeviceInfo() {
         val expectedRequestModel = RequestModelUtils.createTrackDeviceInfoRequest(mockRequestContext)
 
         mobileEngageInternal.trackDeviceInfo()
 
         verify(mockRequestManager).submit(expectedRequestModel, null)
+    }
+
+    private fun createTestIntent(): Intent {
+        val bundlePayload = Bundle().apply {
+            putString("key1", "value1")
+            putString("u", """{"sid": "$SID"}""")
+        }
+
+        return Intent().apply {
+            putExtra("payload", bundlePayload)
+        }
+    }
+
+    private fun createBadTestIntent(): Intent {
+        val bundlePayload = Bundle().apply {
+            putString("key1", "value1")
+            putString("u", "")
+        }
+
+        return Intent().apply {
+            putExtra("payload", bundlePayload)
+        }
     }
 }

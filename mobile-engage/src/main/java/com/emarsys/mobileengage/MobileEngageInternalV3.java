@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage;
 
 import android.content.Intent;
+import android.os.Handler;
 
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RequestManager;
@@ -8,19 +9,25 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.util.RequestModelUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class MobileEngageInternalV3 implements MobileEngageInternal {
 
     private final RequestManager requestManager;
     private final RequestContext requestContext;
+    private final Handler uiHandler;
 
-    public MobileEngageInternalV3(RequestManager requestManager, RequestContext requestContext) {
+    public MobileEngageInternalV3(RequestManager requestManager,
+                                  RequestContext requestContext,
+                                  Handler uiHandler) {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
+        Assert.notNull(uiHandler, "UiHandler must not be null!");
 
         this.requestManager = requestManager;
         this.requestContext = requestContext;
+        this.uiHandler = uiHandler;
     }
 
     @Override
@@ -79,6 +86,14 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
     @Override
     public void trackMessageOpen(Intent intent, final CompletionListener completionListener) {
 
+    }
+
+    private void handleMessageOpen(CompletionListener completionListener, String messageId) {
+        HashMap<String, String> attributes = new HashMap<>();
+        attributes.put("sid", messageId);
+        attributes.put("origin", "main");
+        RequestModel requestModel = RequestModelUtils.createInternalCustomEventRequest("push:click", attributes, requestContext);
+        requestManager.submit(requestModel, completionListener);
     }
 
     @Override

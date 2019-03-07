@@ -343,7 +343,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 requestManager,
                 BatchingShardTrigger.RequestStrategy.TRANSIENT);
 
-        mobileEngageInternal = new MobileEngageInternalV3(requestManager, requestContext);
+        mobileEngageInternal = new MobileEngageInternalV3(requestManager, requestContext, uiHandler);
         inboxInternal = new InboxInternalProvider().provideInboxInternal(
                 ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX),
                 requestManager,

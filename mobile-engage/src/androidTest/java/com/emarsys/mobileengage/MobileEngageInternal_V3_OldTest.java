@@ -547,11 +547,9 @@ public class MobileEngageInternal_V3_OldTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngageInternal.trackMessageOpen(intent, null);
+        mobileEngageInternal.trackMessageOpen(intent, null);
 
         verify(manager).submit(captor.capture(), (CompletionListener) isNull());
-
-        assertEquals(captor.getValue().getId(), result);
     }
 
     @Test
