@@ -20,7 +20,7 @@ import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.endpoint.Endpoint;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
-import com.emarsys.mobileengage.util.RequestModelUtils_Old;
+import com.emarsys.mobileengage.util.RequestModelUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -190,7 +190,7 @@ public class InboxInternal_V2 implements InboxInternal {
             Map<String, String> attributes = new HashMap<>();
             attributes.put("message_id", notification.getId());
             attributes.put("sid", notification.getSid());
-            RequestModel requestModel = RequestModelUtils_Old.createInternalCustomEvent(
+            RequestModel requestModel = RequestModelUtils.createInternalCustomEventRequest(
                     "inbox:open",
                     attributes,
                     requestContext);
