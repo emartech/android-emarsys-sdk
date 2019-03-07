@@ -31,7 +31,9 @@ import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.testUtil.RequestModelTestUtils;
+import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
+import com.emarsys.mobileengage.util.RequestUrlUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;
@@ -711,13 +713,13 @@ public class InboxInternal_V2Test {
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("clicks", new ArrayList<>());
-        payload.put("viewed_messages", new ArrayList<>());
+        payload.put("viewedMessages", new ArrayList<>());
         payload.put("events", Collections.singletonList(event));
 
         RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
-                .url(ENDPOINT_BASE_V3 + ME_ID + "/events")
+                .url(RequestUrlUtils.createCustomEventUrl(requestContext))
                 .payload(payload)
-                .headers(RequestHeaderUtils_Old.createBaseHeaders_V3(requestContext))
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .build();
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
