@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpecification> {
 
-    private static final String CUSTOM_EVENT_URL_PATTERN = Endpoint.ME_V3_EVENT_BASE;
+    private static final String CUSTOM_EVENT_URL_PATTERN = Endpoint.ME_V3_EVENT_HOST + "%";
 
     private final DeviceInfo deviceInfo;
     private final Repository<RequestModel, SqlSpecification> requestRepository;

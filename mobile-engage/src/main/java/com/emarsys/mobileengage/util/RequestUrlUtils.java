@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RequestUrlUtils {
-    private static Pattern customEventPattern = Pattern.compile("^" + Endpoint.ME_V3_EVENT_BASE);
+    private static Pattern customEventPattern = Pattern.compile("https:\\/\\/mobile-events\\.eservice\\.emarsys\\.net(.+)\\/events");
 
     public static String createSetPushTokenUrl(RequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");

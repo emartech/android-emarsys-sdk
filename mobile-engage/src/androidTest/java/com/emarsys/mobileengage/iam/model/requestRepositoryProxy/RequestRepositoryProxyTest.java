@@ -21,13 +21,14 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
 import com.emarsys.core.util.TimestampUtils;
+import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
 import com.emarsys.mobileengage.util.RequestPayloadUtils_Old;
-import com.emarsys.mobileengage.util.RequestUrlUtils_Old;
+import com.emarsys.mobileengage.util.RequestUrlUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.RandomTestUtils;
@@ -64,6 +65,7 @@ public class RequestRepositoryProxyTest {
 
     private DeviceInfo deviceInfo;
     private DeviceInfo mockDeviceInfo;
+    private RequestContext mockRequestContext;
 
     private Repository<RequestModel, SqlSpecification> mockRequestModelRepository;
     private Repository<DisplayedIam, SqlSpecification> mockDisplayedIamRepository;
@@ -96,11 +98,13 @@ public class RequestRepositoryProxyTest {
                 mock(HardwareIdProvider.class),
                 mock(VersionProvider.class),
                 mock(LanguageProvider.class));
+        mockRequestContext = mock(RequestContext.class);
 
         mockRequestModelRepository = mock(Repository.class);
         mockDisplayedIamRepository = mock(Repository.class);
         mockButtonClickedRepository = mock(Repository.class);
         mockRequestModelMapper = mock(Mapper.class);
+        when(mockRequestContext.getApplicationCode()).thenReturn("applicationCode");
 
         when(mockRequestModelMapper.map(any(List.class))).thenAnswer(new Answer() {
             @Override
@@ -279,7 +283,7 @@ public class RequestRepositoryProxyTest {
                 false);
 
         RequestModel expectedComposite = new CompositeRequestModel(
-                RequestUrlUtils_Old.createEventUrl_V3(MEID),
+                RequestUrlUtils.createCustomEventUrl(mockRequestContext),
                 RequestMethod.POST,
                 payload,
                 customEvent1.getHeaders(),
@@ -350,7 +354,7 @@ public class RequestRepositoryProxyTest {
                 false);
 
         RequestModel expectedComposite = new CompositeRequestModel(
-                RequestUrlUtils_Old.createEventUrl_V3(MEID),
+                RequestUrlUtils.createCustomEventUrl(mockRequestContext),
                 RequestMethod.POST,
                 payload,
                 customEvent1.getHeaders(),
@@ -439,7 +443,7 @@ public class RequestRepositoryProxyTest {
                 false);
 
         RequestModel expectedComposite = new CompositeRequestModel(
-                RequestUrlUtils_Old.createEventUrl_V3(MEID),
+                RequestUrlUtils.createCustomEventUrl(mockRequestContext),
                 RequestMethod.POST,
                 payload,
                 customEvent1.getHeaders(),
@@ -569,7 +573,7 @@ public class RequestRepositoryProxyTest {
         headers.put("custom_event_header2", "custom_event_value2");
 
         return new RequestModel(
-                RequestUrlUtils_Old.createEventUrl_V3(MEID),
+                RequestUrlUtils.createCustomEventUrl(mockRequestContext),
                 RequestMethod.POST,
                 payload,
                 headers,
