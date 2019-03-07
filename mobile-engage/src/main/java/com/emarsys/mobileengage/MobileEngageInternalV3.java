@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 
 import com.emarsys.core.api.result.CompletionListener;
@@ -8,6 +9,9 @@ import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.util.RequestModelUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -85,7 +89,35 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
 
     @Override
     public void trackMessageOpen(Intent intent, final CompletionListener completionListener) {
+        Assert.notNull(intent, "Intent must not be null!");
 
+        String messageId = getMessageId(intent);
+
+        if (messageId != null) {
+            handleMessageOpen(completionListener, messageId);
+        } else {
+            uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    completionListener.onCompleted(new IllegalArgumentException("No messageId found!"));
+                }
+            });
+        }
+    }
+
+    String getMessageId(Intent intent) {
+        String sid = null;
+        Bundle payload = intent.getBundleExtra("payload");
+        if (payload != null) {
+            String customData = payload.getString("u");
+            if (customData != null) {
+                try {
+                    sid = new JSONObject(customData).getString("sid");
+                } catch (JSONException ignore) {
+                }
+            }
+        }
+        return sid;
     }
 
     private void handleMessageOpen(CompletionListener completionListener, String messageId) {
