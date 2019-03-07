@@ -9,6 +9,7 @@ import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
+import com.emarsys.mobileengage.fake.FakeCompletionListener
 import com.emarsys.mobileengage.util.RequestModelUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
@@ -21,6 +22,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
+import java.util.concurrent.CountDownLatch
 
 
 class MobileEngageInternalV3Test {
@@ -295,9 +297,11 @@ class MobileEngageInternalV3Test {
     @Test
     fun testTrackMessageOpen_shouldCallCompletionListenerWithError_whenMessageIdNotFound() {
         val completionListener = mock(CompletionListener::class.java)
+        val countDownLatch = CountDownLatch(1)
+        val fakeCompletionListener = FakeCompletionListener(countDownLatch, completionListener)
 
-        mobileEngageInternal.trackMessageOpen(createBadTestIntent(), completionListener)
-
+        mobileEngageInternal.trackMessageOpen(createBadTestIntent(), fakeCompletionListener)
+        countDownLatch.await()
         val captor = ArgumentCaptor.forClass(IllegalArgumentException::class.java)
 
         verify(completionListener).onCompleted(captor.capture())
