@@ -14,7 +14,7 @@ import com.emarsys.mobileengage.endpoint.Endpoint;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
-import com.emarsys.mobileengage.util.RequestModelUtils_Old;
+import com.emarsys.mobileengage.util.RequestModelUtils;
 import com.emarsys.mobileengage.util.RequestPayloadUtils_Old;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpecification> {
 
-    private static final String CUSTOM_EVENT_URL_PATTERN = Endpoint.ME_BASE_V3_OLD + "_%/events";
+    private static final String CUSTOM_EVENT_URL_PATTERN = Endpoint.ME_V3_EVENT_BASE;
 
     private final DeviceInfo deviceInfo;
     private final Repository<RequestModel, SqlSpecification> requestRepository;
@@ -97,7 +97,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private List<RequestModel> collectCustomEvents(List<RequestModel> models) {
         List<RequestModel> result = new ArrayList<>();
         for (RequestModel requestModel : models) {
-            if (RequestModelUtils_Old.isCustomEvent_V3(requestModel)) {
+            if (RequestModelUtils.isCustomEvent_V3(requestModel)) {
                 result.add(requestModel);
             }
         }
