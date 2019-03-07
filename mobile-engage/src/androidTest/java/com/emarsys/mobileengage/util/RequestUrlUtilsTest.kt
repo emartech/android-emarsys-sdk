@@ -113,4 +113,23 @@ class RequestUrlUtilsTest {
 
         result shouldBe false
     }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testIsCustomEvent_V3_requestModel_mustNotBeNull() {
+        RequestUrlUtils.isCustomEvent_V3(null)
+    }
+
+    @Test
+    fun testIsCustomEvent_V3_true_whenItIsCustomEventV3Event() {
+        val result = RequestUrlUtils.isCustomEvent_V3(Endpoint.ME_V3_EVENT_BASE)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsCustomEvent_V3_false_whenItIsNotCustomEventV3Event() {
+        val result = RequestUrlUtils.isCustomEvent_V3(Endpoint.ME_V3_CLIENT_BASE)
+
+        result shouldBe false
+    }
 }

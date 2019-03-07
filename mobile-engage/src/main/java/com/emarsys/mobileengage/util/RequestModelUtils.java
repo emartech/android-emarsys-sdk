@@ -70,4 +70,11 @@ public class RequestModelUtils {
                 .payload(payload)
                 .build();
     }
+
+    public static boolean isCustomEvent_V3(RequestModel requestModel) {
+        Assert.notNull(requestModel, "RequestModel must not be null");
+
+        String url = requestModel.getUrl().toString();
+        return RequestUrlUtils.isCustomEvent_V3(url);
+    }
 }

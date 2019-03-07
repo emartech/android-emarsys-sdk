@@ -6,6 +6,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
@@ -14,6 +15,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
+import java.net.URL
 
 class RequestModelUtilsTest {
 
@@ -180,5 +182,30 @@ class RequestModelUtilsTest {
         val result = RequestModelUtils.createInternalCustomEventRequest("eventName", emptyMap(), mockRequestContext)
 
         result shouldBe expected
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testIsCustomEvent_V3_requestModel_mustNotBeNull() {
+        RequestModelUtils.isCustomEvent_V3(null)
+    }
+
+    @Test
+    fun testIsCustomEvent_V3_true_whenItIsCustomEventV3Event() {
+        val requestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL(Endpoint.ME_V3_EVENT_BASE))
+        }
+        val result = RequestModelUtils.isCustomEvent_V3(requestModel)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsCustomEvent_V3_false_whenItIsNotCustomEventV3Event() {
+        val requestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL(Endpoint.ME_V3_CLIENT_BASE))
+        }
+        val result = RequestModelUtils.isCustomEvent_V3(requestModel)
+
+        result shouldBe false
     }
 }
