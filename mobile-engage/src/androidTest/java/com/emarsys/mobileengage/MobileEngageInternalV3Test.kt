@@ -301,7 +301,9 @@ class MobileEngageInternalV3Test {
         val fakeCompletionListener = FakeCompletionListener(countDownLatch, completionListener)
 
         mobileEngageInternal.trackMessageOpen(createBadTestIntent(), fakeCompletionListener)
+
         countDownLatch.await()
+
         val captor = ArgumentCaptor.forClass(IllegalArgumentException::class.java)
 
         verify(completionListener).onCompleted(captor.capture())
