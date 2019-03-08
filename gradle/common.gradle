@@ -32,6 +32,10 @@ modules.each {
                     multiDexEnabled true
                 }
             }
+
+            packagingOptions {
+                exclude 'README.txt'
+            }
         }
     }
 }

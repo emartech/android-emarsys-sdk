@@ -20,6 +20,10 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    packagingOptions {
+        exclude 'README.txt'
+    }
 }
 
 group = 'com.emarsys.testUtil'
@@ -31,7 +35,6 @@ dependencies {
     api TestLibs.support_test_runner
     api TestLibs.support_test_rules
     api TestLibs.hamcrest_core
-    api TestLibs.hamcrest_integration
     api TestLibs.hamcrest_library
     api TestLibs.multiDex
     api TestLibs.androidJunit4
