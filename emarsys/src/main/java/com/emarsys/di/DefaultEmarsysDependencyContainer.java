@@ -359,7 +359,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
         RequestModelRepository requestModelRepository = new RequestModelRepository(coreDbHelper);
         return new RequestRepositoryProxy(
-                getDeviceInfo(),
                 requestModelRepository,
                 displayedIamRepository,
                 buttonClickedRepository,

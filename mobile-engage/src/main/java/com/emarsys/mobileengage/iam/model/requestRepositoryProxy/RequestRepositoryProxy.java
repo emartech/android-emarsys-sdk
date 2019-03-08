@@ -4,7 +4,6 @@ import com.emarsys.core.Mapper;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;
-import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
@@ -15,7 +14,7 @@ import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.util.RequestModelUtils;
-import com.emarsys.mobileengage.util.RequestPayloadUtils_Old;
+import com.emarsys.mobileengage.util.RequestPayloadUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,6 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
 
     private static final String CUSTOM_EVENT_URL_PATTERN = Endpoint.ME_V3_EVENT_HOST + "%";
 
-    private final DeviceInfo deviceInfo;
     private final Repository<RequestModel, SqlSpecification> requestRepository;
     private final Repository<DisplayedIam, SqlSpecification> iamRepository;
     private final Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
@@ -35,14 +33,12 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private final List<Mapper<List<RequestModel>, List<RequestModel>>> requestModelMappers;
 
     public RequestRepositoryProxy(
-            DeviceInfo deviceInfo,
             Repository<RequestModel, SqlSpecification> requestRepository,
             Repository<DisplayedIam, SqlSpecification> iamRepository,
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             TimestampProvider timestampProvider,
             InAppInternal inAppInternal,
             List<Mapper<List<RequestModel>, List<RequestModel>>> requestModelMappers) {
-        Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(iamRepository, "IamRepository must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
@@ -50,7 +46,6 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         Assert.notNull(inAppInternal, "InAppInternal must not be null!");
         Assert.notNull(requestModelMappers, "RequestModelMappers must not be null!");
 
-        this.deviceInfo = deviceInfo;
         this.requestRepository = requestRepository;
         this.iamRepository = iamRepository;
         this.buttonClickedRepository = buttonClickedRepository;
@@ -104,7 +99,6 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         return result;
     }
 
-
     private List<RequestModel> mapRequestModels(List<RequestModel> models) {
         List<RequestModel> requestModels = models;
         for (Mapper<List<RequestModel>, List<RequestModel>> mapper : requestModelMappers) {
@@ -139,11 +133,10 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
             }
         }
 
-        return RequestPayloadUtils_Old.createCompositeRequestModelPayload(
+        return RequestPayloadUtils.createCompositeRequestModelPayload(
                 events,
                 iamRepository.query(new Everything()),
                 buttonClickedRepository.query(new Everything()),
-                deviceInfo,
                 inAppInternal.isPaused()
         );
     }

@@ -40,13 +40,14 @@ class MobileEngageIntegrationTest {
         private const val MERCHANT_ID = "1428C8EE286EC34B"
     }
 
-    private lateinit var completionHandlerLatch: CountDownLatch
+    private var completionHandlerLatch: CountDownLatch? = null
     private lateinit var completionListenerLatch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var responseModel: ResponseModel
     private lateinit var completionHandler: DefaultCoreCompletionHandler
     private lateinit var clientStateStorage: Storage<String>
+    private lateinit var contactTokenStorage: Storage<String>
 
     private var errorCause: Throwable? = null
 
@@ -91,8 +92,6 @@ class MobileEngageIntegrationTest {
         })
 
         errorCause = null
-        completionListenerLatch = CountDownLatch(1)
-        completionHandlerLatch = CountDownLatch(1)
 
         ConnectionTestUtils.checkConnection(application)
 
@@ -105,7 +104,14 @@ class MobileEngageIntegrationTest {
         Emarsys.setup(baseConfig)
 
         clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.clientStateStorage
+        contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.contactTokenStorage
         clientStateStorage.remove()
+        contactTokenStorage.remove()
+
+        IntegrationTestUtils.doLogin()
+
+        completionListenerLatch = CountDownLatch(1)
+        completionHandlerLatch = CountDownLatch(1)
     }
 
     @After
@@ -121,6 +127,7 @@ class MobileEngageIntegrationTest {
         MeIdStorage(sharedPreferences).remove()
         AppLoginStorage(sharedPreferences).remove()
         clientStateStorage.remove()
+        contactTokenStorage.remove()
 
         DependencyInjection.tearDown()
     }
@@ -135,8 +142,7 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testSetContact() {
-        IntegrationTestUtils.doSetPushToken()
-
+        contactTokenStorage.remove()
         Emarsys.setContact(
                 "test@test.com",
                 this::eventuallyStoreResult
@@ -153,8 +159,6 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackCustomEvent_V3_noAttributes() {
-        IntegrationTestUtils.doSetPushToken()
-
         Emarsys.trackCustomEvent(
                 "integrationTestCustomEvent",
                 null,
@@ -164,8 +168,6 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackCustomEvent_V3_withAttributes() {
-        IntegrationTestUtils.doSetPushToken()
-
         Emarsys.trackCustomEvent(
                 "integrationTestCustomEvent",
                 mapOf("key1" to "value1", "key2" to "value2"),
@@ -175,8 +177,6 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackInternalCustomEvent_V3_noAttributes() {
-        IntegrationTestUtils.doSetPushToken()
-
         val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
 
         mobileEngageInternal.trackInternalCustomEvent(
@@ -188,8 +188,6 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackInternalCustomEvent_V3_withAttributes() {
-        IntegrationTestUtils.doSetPushToken()
-
         val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
 
         mobileEngageInternal.trackInternalCustomEvent(
@@ -201,8 +199,6 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackMessageOpen_V3() {
-        IntegrationTestUtils.doSetPushToken()
-
         val intent = Intent().apply {
             putExtra("payload", Bundle().apply {
                 putString("key1", "value1")
@@ -218,12 +214,14 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testSetPushToken() {
-        Emarsys.Push.setPushToken("pushToken",
+        clientStateStorage.remove()
+        contactTokenStorage.remove()
+
+        Emarsys.Push.setPushToken("integration_test_push_token",
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
     }
 
-    @Ignore
     @Test
     fun testDeepLinkOpen() {
         val intent = Intent(
@@ -239,6 +237,9 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackDeviceInfo() {
+        clientStateStorage.remove()
+        contactTokenStorage.remove()
+
         val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
 
         mobileEngageInternal.trackDeviceInfo().also(this::eventuallyAssertCompletionHandlerSuccess)
@@ -255,7 +256,7 @@ class MobileEngageIntegrationTest {
     }
 
     private fun eventuallyAssertCompletionHandlerSuccess(ignored: Any) {
-        completionHandlerLatch.await()
+        completionHandlerLatch?.await()
         errorCause shouldBe null
     }
 
@@ -264,20 +265,20 @@ class MobileEngageIntegrationTest {
             override fun onSuccess(id: String?, responseModel: ResponseModel) {
                 super.onSuccess(id, responseModel)
                 this@MobileEngageIntegrationTest.responseModel = responseModel
-                completionHandlerLatch.countDown()
+                completionHandlerLatch?.countDown()
 
             }
 
             override fun onError(id: String?, cause: Exception) {
                 super.onError(id, cause)
                 this@MobileEngageIntegrationTest.errorCause = cause
-                completionHandlerLatch.countDown()
+                completionHandlerLatch?.countDown()
             }
 
             override fun onError(id: String?, responseModel: ResponseModel) {
                 super.onError(id, responseModel)
                 this@MobileEngageIntegrationTest.responseModel = responseModel
-                completionHandlerLatch.countDown()
+                completionHandlerLatch?.countDown()
             }
         }
     }

@@ -9,12 +9,8 @@ import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.database.trigger.TriggerKey;
-import com.emarsys.core.device.DeviceInfo;
-import com.emarsys.core.device.LanguageProvider;
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
-import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
@@ -27,7 +23,7 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
-import com.emarsys.mobileengage.util.RequestPayloadUtils_Old;
+import com.emarsys.mobileengage.util.RequestPayloadUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
@@ -60,11 +56,8 @@ import static org.mockito.Mockito.when;
 
 public class RequestRepositoryProxyTest {
 
-    public static final String MEID = "123meid456";
     public static final long TIMESTAMP = 80_000L;
 
-    private DeviceInfo deviceInfo;
-    private DeviceInfo mockDeviceInfo;
     private RequestContext mockRequestContext;
 
     private Repository<RequestModel, SqlSpecification> mockRequestModelRepository;
@@ -93,11 +86,6 @@ public class RequestRepositoryProxyTest {
 
         Context context = InstrumentationRegistry.getTargetContext();
 
-        mockDeviceInfo = mock(DeviceInfo.class);
-        deviceInfo = new DeviceInfo(context,
-                mock(HardwareIdProvider.class),
-                mock(VersionProvider.class),
-                mock(LanguageProvider.class));
         mockRequestContext = mock(RequestContext.class);
 
         mockRequestModelRepository = mock(Repository.class);
@@ -131,7 +119,6 @@ public class RequestRepositoryProxyTest {
         Collections.addAll(requestModelMappers, mockRequestModelMapper);
 
         compositeRepository = new RequestRepositoryProxy(
-                mockDeviceInfo,
                 mockRequestModelRepository,
                 mockDisplayedIamRepository,
                 mockButtonClickedRepository,
@@ -142,38 +129,33 @@ public class RequestRepositoryProxyTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_deviceInfo_mustNotBeNull() {
-        new RequestRepositoryProxy(null, mockRequestModelRepository, mockDisplayedIamRepository, mockButtonClickedRepository, timestampProvider, inAppInternal, requestModelMappers);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockDeviceInfo, null, mockDisplayedIamRepository, mockButtonClickedRepository, timestampProvider, inAppInternal, requestModelMappers);
+        new RequestRepositoryProxy(null, mockDisplayedIamRepository, mockButtonClickedRepository, timestampProvider, inAppInternal, requestModelMappers);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_displayedIamRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockDeviceInfo, mockRequestModelRepository, null, mockButtonClickedRepository, timestampProvider, inAppInternal, requestModelMappers);
+        new RequestRepositoryProxy(mockRequestModelRepository, null, mockButtonClickedRepository, timestampProvider, inAppInternal, requestModelMappers);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_buttonClickedRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockDeviceInfo, mockRequestModelRepository, mockDisplayedIamRepository, null, timestampProvider, inAppInternal, requestModelMappers);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, null, timestampProvider, inAppInternal, requestModelMappers);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_timestampProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockDeviceInfo, mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, null, inAppInternal, requestModelMappers);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, null, inAppInternal, requestModelMappers);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_inAppInternal_mustNotBeNull() {
-        new RequestRepositoryProxy(mockDeviceInfo, mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, null, requestModelMappers);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, null, requestModelMappers);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestModelDecorators_mustNotBeNull() {
-        new RequestRepositoryProxy(mockDeviceInfo, mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, inAppInternal, null);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, inAppInternal, null);
     }
 
     @Test
@@ -275,11 +257,10 @@ public class RequestRepositoryProxyTest {
         event3.put("name", "event3");
         event3.put("timestamp", TimestampUtils.formatTimestampWithUTC(1200));
 
-        Map<String, Object> payload = RequestPayloadUtils_Old.createCompositeRequestModelPayload(
+        Map<String, Object> payload = RequestPayloadUtils.createCompositeRequestModelPayload(
                 Arrays.asList(event1, event2, event3),
                 Collections.<DisplayedIam>emptyList(),
                 Collections.<ButtonClicked>emptyList(),
-                deviceInfo,
                 false);
 
         RequestModel expectedComposite = new CompositeRequestModel(
@@ -338,7 +319,7 @@ public class RequestRepositoryProxyTest {
         event1.put("timestamp", TimestampUtils.formatTimestampWithUTC(1000));
         event1.put("attributes", eventAttributes);
 
-        Map<String, Object> payload = RequestPayloadUtils_Old.createCompositeRequestModelPayload(
+        Map<String, Object> payload = RequestPayloadUtils.createCompositeRequestModelPayload(
                 Collections.singletonList(event1),
                 Arrays.asList(
                         new DisplayedIam("campaign1", 100),
@@ -350,7 +331,6 @@ public class RequestRepositoryProxyTest {
                         new ButtonClicked("campaign1", "button2", 300),
                         new ButtonClicked("campaign2", "button1", 2000)
                 ),
-                deviceInfo,
                 false);
 
         RequestModel expectedComposite = new CompositeRequestModel(
@@ -427,7 +407,7 @@ public class RequestRepositoryProxyTest {
         event3.put("name", "event3");
         event3.put("timestamp", TimestampUtils.formatTimestampWithUTC(1200));
 
-        Map<String, Object> payload = RequestPayloadUtils_Old.createCompositeRequestModelPayload(
+        Map<String, Object> payload = RequestPayloadUtils.createCompositeRequestModelPayload(
                 Arrays.asList(event1, event2, event3),
                 Arrays.asList(
                         new DisplayedIam("campaign1", 100),
@@ -439,7 +419,6 @@ public class RequestRepositoryProxyTest {
                         new ButtonClicked("campaign1", "button2", 300),
                         new ButtonClicked("campaign2", "button1", 2000)
                 ),
-                deviceInfo,
                 false);
 
         RequestModel expectedComposite = new CompositeRequestModel(
@@ -522,7 +501,6 @@ public class RequestRepositoryProxyTest {
         when(mockAnotherRequestModelMapper.map(expectedRequests)).thenReturn(expectedRequests);
 
         compositeRepository = new RequestRepositoryProxy(
-                mockDeviceInfo,
                 mockRequestModelRepository,
                 mockDisplayedIamRepository,
                 mockButtonClickedRepository,
@@ -540,7 +518,6 @@ public class RequestRepositoryProxyTest {
 
     private RequestRepositoryProxy compositeRepositoryWithRealRepositories() {
         return new RequestRepositoryProxy(
-                deviceInfo,
                 requestModelRepository,
                 displayedIamRepository,
                 buttonClickedRepository,

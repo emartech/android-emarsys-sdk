@@ -5,6 +5,9 @@ import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.iam.model.IamConversionUtils
+import com.emarsys.mobileengage.testUtil.RandomMETestUtils
+import com.emarsys.testUtil.RandomTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
@@ -13,6 +16,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
+import java.util.*
 
 class RequestPayloadUtilsTest {
     companion object {
@@ -251,6 +255,74 @@ class RequestPayloadUtilsTest {
         val actualPayload = RequestPayloadUtils.createInternalCustomEventPayload(EVENT_NAME, emptyMap(), mockRequestContext)
 
         actualPayload shouldBe expectedPayload
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateCompositeRequestModelPayload_eventsMustNotBeNull() {
+        RequestPayloadUtils.createCompositeRequestModelPayload(
+                null,
+                emptyList(),
+                emptyList(),
+                false)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateCompositeRequestModelPayload_displayedIamsMustNotBeNull() {
+        RequestPayloadUtils.createCompositeRequestModelPayload(
+                emptyList<Any>(),
+                null,
+                emptyList(),
+                false)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateCompositeRequestModelPayload_buttonClicksMustNotBeNull() {
+        RequestPayloadUtils.createCompositeRequestModelPayload(
+                emptyList<Any>(),
+                emptyList(),
+                null,
+                false)
+    }
+
+    @Test
+    fun testCreateCompositeRequestModelPayload_payloadContainsDoNotDisturb_whenDoNotDisturbIsTrue() {
+        val payload = RequestPayloadUtils.createCompositeRequestModelPayload(
+                emptyList<Any>(),
+                emptyList(),
+                emptyList(),
+                true)
+
+        (payload["dnd"] as Boolean) shouldBe true
+    }
+
+    @Test
+    fun testCreateCompositeRequestModelPayload() {
+        val events = Arrays.asList(
+                RandomTestUtils.randomMap(),
+                RandomTestUtils.randomMap(),
+                RandomTestUtils.randomMap()
+        )
+        val displayedIams = Arrays.asList(
+                RandomMETestUtils.randomDisplayedIam(),
+                RandomMETestUtils.randomDisplayedIam()
+        )
+        val buttonClicks = Arrays.asList(
+                RandomMETestUtils.randomButtonClick(),
+                RandomMETestUtils.randomButtonClick(),
+                RandomMETestUtils.randomButtonClick()
+        )
+        val expectedPayload = HashMap<String, Any>()
+        expectedPayload["events"] = events
+        expectedPayload["viewedMessages"] = IamConversionUtils.displayedIamsToArray(displayedIams)
+        expectedPayload["clicks"] = IamConversionUtils.buttonClicksToArray(buttonClicks)
+
+        val resultPayload = RequestPayloadUtils.createCompositeRequestModelPayload(
+                events,
+                displayedIams,
+                buttonClicks,
+                false)
+
+        resultPayload shouldBe expectedPayload
     }
 
 }

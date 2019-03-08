@@ -4,9 +4,13 @@ import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.iam.model.IamConversionUtils;
+import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
+import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RequestPayloadUtils {
@@ -78,6 +82,26 @@ public class RequestPayloadUtils {
             event.put("attributes", eventAttributes);
         }
         return event;
+    }
+
+
+    public static Map<String, Object> createCompositeRequestModelPayload(
+            List<?> events,
+            List<DisplayedIam> displayedIams,
+            List<ButtonClicked> buttonClicks,
+            boolean doNotDisturb) {
+        Assert.notNull(events, "Events must not be null!");
+        Assert.notNull(displayedIams, "DisplayedIams must not be null!");
+        Assert.notNull(buttonClicks, "ButtonClicks must not be null!");
+
+        Map<String, Object> compositePayload = new HashMap<>();
+        compositePayload.put("viewedMessages", IamConversionUtils.displayedIamsToArray(displayedIams));
+        compositePayload.put("clicks", IamConversionUtils.buttonClicksToArray(buttonClicks));
+        if (doNotDisturb) {
+            compositePayload.put("dnd", true);
+        }
+        compositePayload.put("events", events);
+        return compositePayload;
     }
 }
 

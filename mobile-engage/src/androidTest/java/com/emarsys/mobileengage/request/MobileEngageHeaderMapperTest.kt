@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.request
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
@@ -143,6 +144,20 @@ class MobileEngageHeaderMapperTest {
         result shouldBe expectedRequestModels
     }
 
+    @Test
+    fun testMap_shouldAddHeaders_whenCompositeRequestIsForMobileEngage() {
+        val originalRequestModels = createCustomEventCompositeRequest()
+
+        val expectedRequestModels = createCustomEventCompositeRequest(extraHeaders = mapOf(
+                "X-Client-State" to CLIENT_STATE,
+                "X-Contact-Token" to CONTACT_TOKEN
+        ))
+
+        val result = mobileEngageHeaderMapper.map(originalRequestModels)
+
+        result shouldBe expectedRequestModels
+    }
+
     private fun createMobileEngageRequest(extraHeaders: Map<String, String> = mapOf()) = RequestModel(
             Endpoint.ME_V3_CLIENT_BASE,
             RequestMethod.POST,
@@ -151,6 +166,16 @@ class MobileEngageHeaderMapperTest {
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
+    ).let { listOf(it) }
+
+    private fun createCustomEventCompositeRequest(extraHeaders: Map<String, String> = mapOf()) = CompositeRequestModel(
+            Endpoint.ME_V3_CLIENT_BASE,
+            RequestMethod.POST,
+            null,
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            arrayOf(REQUEST_ID)
     ).let { listOf(it) }
 
     private fun createNonMobileEngageRequest() = RequestModel(

@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.request;
 
 import com.emarsys.core.Mapper;
+import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.RequestContext;
@@ -34,12 +35,17 @@ public class MobileEngageHeaderMapper implements Mapper<List<RequestModel>, List
 
                 Map<String, String> updatedHeaders = new HashMap<>(requestModel.getHeaders());
                 updatedHeaders.putAll(headersToInject);
-
-                updatedRequestModel = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
-                        .from(requestModel)
-                        .headers(updatedHeaders)
-                        .build();
-
+                if (updatedRequestModel instanceof CompositeRequestModel) {
+                    updatedRequestModel = new CompositeRequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
+                            .from(requestModel)
+                            .headers(updatedHeaders)
+                            .build();
+                } else {
+                    updatedRequestModel = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
+                            .from(requestModel)
+                            .headers(updatedHeaders)
+                            .build();
+                }
             }
             result.add(updatedRequestModel);
         }

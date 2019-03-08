@@ -29,4 +29,19 @@ object IntegrationTestUtils {
         latch.await()
         errorCause shouldBe null
     }
+
+    fun doLogin(contactFieldValue: String = "test@test.com", pushToken: String = "integration_test_push_token") {
+        val latchForPushToken = CountDownLatch(2)
+        var errorCause: Throwable? = null
+        Emarsys.Push.setPushToken(pushToken) { throwable ->
+            errorCause = throwable
+            latchForPushToken.countDown()
+            Emarsys.setContact(contactFieldValue) {
+                errorCause = it
+                latchForPushToken.countDown()
+            }
+        }
+        latchForPushToken.await()
+        errorCause shouldBe null
+    }
 }

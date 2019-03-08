@@ -109,14 +109,14 @@ public class RequestModel implements Serializable {
     }
 
     public static class Builder {
-        private String url;
-        private RequestMethod method;
-        private Map<String, Object> payload;
-        private Map<String, String> headers;
-        private long timestamp;
-        private long ttl;
-        private String id;
-        private Map<String, String> queryParams;
+        protected String url;
+        protected RequestMethod method;
+        protected Map<String, Object> payload;
+        protected Map<String, String> headers;
+        protected long timestamp;
+        protected long ttl;
+        protected String id;
+        protected Map<String, String> queryParams;
 
         public Builder(TimestampProvider timestampProvider, UUIDProvider uuidProvider) {
             method = RequestMethod.POST;
@@ -174,7 +174,7 @@ public class RequestModel implements Serializable {
             return new RequestModel(buildUrl(), method, payload, headers, timestamp, ttl, id);
         }
 
-        private String buildUrl() {
+        String buildUrl() {
             Uri.Builder uriBuilder = Uri.parse(url).buildUpon();
 
             if (queryParams != null && !queryParams.isEmpty()) {
