@@ -18,6 +18,41 @@ class RequestModelUtilsTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test(expected = IllegalArgumentException::class)
+    fun testIsMobileEngageRequest_requestModel_mustNotBeNull() {
+        RequestModelUtils.isMobileEngageRequest(null)
+    }
+
+    @Test
+    fun testIsMobileEngageRequest_true_whenItIsMobileEngageClient() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL(Endpoint.ME_V3_CLIENT_BASE))
+        }
+        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsMobileEngageRequest_true_whenItIsMobileEngageEvent() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL(Endpoint.ME_V3_EVENT_BASE))
+        }
+        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsMobileEngageRequest_false_whenItIsNotMobileEngage() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("https://not-mobile-engage.com"))
+        }
+        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel)
+
+        result shouldBe false
+    }
+
+    @Test(expected = IllegalArgumentException::class)
     fun testIsCustomEvent_V3_requestModel_mustNotBeNull() {
         RequestModelUtils.isCustomEvent_V3(null)
     }

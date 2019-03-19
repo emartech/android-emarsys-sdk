@@ -4,7 +4,7 @@ import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.mobileengage.util.RequestModelUtils;
 
 public class MobileEngageClientStateResponseHandler extends AbstractResponseHandler {
 
@@ -20,7 +20,7 @@ public class MobileEngageClientStateResponseHandler extends AbstractResponseHand
 
     @Override
     protected boolean shouldHandleResponse(ResponseModel responseModel) {
-        boolean isMobileEngageRequest = RequestUrlUtils.isMobileEngageRequest(responseModel.getRequestModel());
+        boolean isMobileEngageRequest = RequestModelUtils.isMobileEngageRequest(responseModel.getRequestModel());
         boolean hasClientState = getClientState(responseModel) != null;
 
         return isMobileEngageRequest && hasClientState;

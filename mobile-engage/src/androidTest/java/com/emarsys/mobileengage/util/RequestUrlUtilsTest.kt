@@ -1,19 +1,15 @@
 package com.emarsys.mobileengage.util
 
-import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.RequestContext
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito
-import org.mockito.Mockito.mock
-import java.net.URL
 
 class RequestUrlUtilsTest {
     companion object {
@@ -80,36 +76,27 @@ class RequestUrlUtilsTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testIsMobileEngageRequest_requestModel_mustNotBeNull() {
-        RequestUrlUtils.isMobileEngageRequest(null)
+    fun testIsMobileEngageUrl_url_mustNotBeNull() {
+        RequestUrlUtils.isMobileEngageUrl(null)
     }
 
     @Test
-    fun testIsMobileEngageRequest_true_whenItIsMobileEngageClient() {
-        val mockRequestModel = mock(RequestModel::class.java).apply {
-            whenever(url).thenReturn(URL(Endpoint.ME_V3_CLIENT_BASE))
-        }
-        val result = RequestUrlUtils.isMobileEngageRequest(mockRequestModel)
+    fun testIsMobileEngageUrl_true_whenItIsMobileEngageClient() {
+        val result = RequestUrlUtils.isMobileEngageUrl(Endpoint.ME_V3_CLIENT_BASE)
 
         result shouldBe true
     }
 
     @Test
-    fun testIsMobileEngageRequest_true_whenItIsMobileEngageEvent() {
-        val mockRequestModel = mock(RequestModel::class.java).apply {
-            whenever(url).thenReturn(URL(Endpoint.ME_V3_EVENT_BASE))
-        }
-        val result = RequestUrlUtils.isMobileEngageRequest(mockRequestModel)
+    fun testIsMobileEngageUrl_true_whenItIsMobileEngageEvent() {
+        val result = RequestUrlUtils.isMobileEngageUrl(Endpoint.ME_V3_EVENT_BASE)
 
         result shouldBe true
     }
 
     @Test
-    fun testIsMobileEngageRequest_false_whenItIsNotMobileEngage() {
-        val mockRequestModel = mock(RequestModel::class.java).apply {
-            whenever(url).thenReturn(URL("https://not-mobile-engage.com"))
-        }
-        val result = RequestUrlUtils.isMobileEngageRequest(mockRequestModel)
+    fun testIsMobileEngageUrl_false_whenItIsNotMobileEngage() {
+        val result = RequestUrlUtils.isMobileEngageUrl("https://not-mobile-engage.com")
 
         result shouldBe false
     }

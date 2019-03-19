@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.util;
 
-import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.endpoint.Endpoint;
@@ -35,10 +34,8 @@ public class RequestUrlUtils {
         return String.format(Endpoint.ME_V3_EVENT_BASE, requestContext.getApplicationCode());
     }
 
-    public static boolean isMobileEngageRequest(RequestModel requestModel) {
-        Assert.notNull(requestModel, "RequestModel must not be null!");
-
-        String url = requestModel.getUrl().toString();
+    public static boolean isMobileEngageUrl(String url) {
+        Assert.notNull(url, "Url must not be null!");
 
         return url.startsWith(Endpoint.ME_V3_CLIENT_HOST) || url.startsWith(Endpoint.ME_V3_EVENT_HOST);
     }

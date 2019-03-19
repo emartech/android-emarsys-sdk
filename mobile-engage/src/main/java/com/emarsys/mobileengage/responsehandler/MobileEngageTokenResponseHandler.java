@@ -5,7 +5,7 @@ import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.mobileengage.util.RequestModelUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,7 +41,7 @@ public class MobileEngageTokenResponseHandler extends AbstractResponseHandler {
     }
 
     private boolean isMobileEngage(RequestModel requestModel) {
-        return RequestUrlUtils.isMobileEngageRequest(requestModel);
+        return RequestModelUtils.isMobileEngageRequest(requestModel);
     }
 
     private boolean hasCorrectBody(JSONObject body) {

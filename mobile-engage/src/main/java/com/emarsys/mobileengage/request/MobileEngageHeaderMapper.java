@@ -5,7 +5,7 @@ import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.util.RequestUrlUtils;
+import com.emarsys.mobileengage.util.RequestModelUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class MobileEngageHeaderMapper implements Mapper<List<RequestModel>, List
 
         for (RequestModel requestModel : requestModels) {
             RequestModel updatedRequestModel = requestModel;
-            if (RequestUrlUtils.isMobileEngageRequest(requestModel)) {
+            if (RequestModelUtils.isMobileEngageRequest(requestModel)) {
 
                 Map<String, String> updatedHeaders = new HashMap<>(requestModel.getHeaders());
                 updatedHeaders.putAll(headersToInject);
