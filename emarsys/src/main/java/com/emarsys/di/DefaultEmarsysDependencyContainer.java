@@ -68,6 +68,7 @@ import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternalProvider;
 import com.emarsys.mobileengage.request.MobileEngageHeaderMapper;
+import com.emarsys.mobileengage.request.RequestModelFactory;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
@@ -118,6 +119,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private Storage<String> refreshTokenStorage;
     private Storage<String> clientStateStorage;
     private RequestManager requestManager;
+    private RequestModelFactory requestModelFactory;
     private ButtonClickedRepository buttonClickedRepository;
     private DisplayedIamRepository displayedIamRepository;
     private Repository<RequestModel, SqlSpecification> requestModelRepository;
@@ -317,6 +319,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         requestManager.setDefaultHeaders(RequestHeaderUtils_Old.createDefaultHeaders(requestContext));
 
+        requestModelFactory = new RequestModelFactory(requestContext);
+
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
         notificationEventHandler = config.getNotificationEventHandler();
 
@@ -343,11 +347,12 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 requestManager,
                 BatchingShardTrigger.RequestStrategy.TRANSIENT);
 
-        mobileEngageInternal = new MobileEngageInternalV3(requestManager, requestContext, uiHandler);
+        mobileEngageInternal = new MobileEngageInternalV3(requestManager, uiHandler, requestModelFactory);
         inboxInternal = new InboxInternalProvider().provideInboxInternal(
                 ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX),
                 requestManager,
-                requestContext
+                requestContext,
+                requestModelFactory
         );
 
         deepLinkInternal = new DeepLinkInternal(requestManager, requestContext);

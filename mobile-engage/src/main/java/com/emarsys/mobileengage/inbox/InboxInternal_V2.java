@@ -19,8 +19,8 @@ import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.endpoint.Endpoint;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
+import com.emarsys.mobileengage.request.RequestModelFactory;
 import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
-import com.emarsys.mobileengage.util.RequestModelUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,18 +40,22 @@ public class InboxInternal_V2 implements InboxInternal {
     private long purgeTime;
     private boolean requestInProgress;
     private List<ResultListener<Try<NotificationInboxStatus>>> queuedResultListeners;
+    private final RequestModelFactory requestModelFactory;
 
     public InboxInternal_V2(
             RequestManager requestManager,
-            RequestContext requestContext) {
+            RequestContext requestContext,
+            RequestModelFactory requestModelFactory) {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
+        Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");
 
         this.mainHandler = new Handler(Looper.getMainLooper());
         this.cache = new NotificationCache();
         this.manager = requestManager;
         this.requestContext = requestContext;
         this.queuedResultListeners = new ArrayList<>();
+        this.requestModelFactory = requestModelFactory;
     }
 
     public RequestContext getRequestContext() {
@@ -190,10 +194,9 @@ public class InboxInternal_V2 implements InboxInternal {
             Map<String, String> attributes = new HashMap<>();
             attributes.put("message_id", notification.getId());
             attributes.put("sid", notification.getSid());
-            RequestModel requestModel = RequestModelUtils.createInternalCustomEventRequest(
+            RequestModel requestModel = requestModelFactory.createInternalCustomEventRequest(
                     "inbox:open",
-                    attributes,
-                    requestContext);
+                    attributes);
             manager.submit(requestModel, completionListener);
         } else {
             if (completionListener != null) {

@@ -2,6 +2,7 @@ package com.emarsys.mobileengage.inbox;
 
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.request.RequestModelFactory;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import junit.framework.Assert;
@@ -30,7 +31,8 @@ public class InboxInternalProviderTest {
         InboxInternal inboxInternal = provider.provideInboxInternal(
                 false,
                 mock(RequestManager.class),
-                mock(RequestContext.class)
+                mock(RequestContext.class),
+                mock(RequestModelFactory.class)
         );
         Assert.assertEquals(InboxInternal_V1.class, inboxInternal.getClass());
     }
@@ -40,7 +42,8 @@ public class InboxInternalProviderTest {
         InboxInternal inboxInternal = provider.provideInboxInternal(
                 true,
                 mock(RequestManager.class),
-                mock(RequestContext.class)
+                mock(RequestContext.class),
+                mock(RequestModelFactory.class)
         );
         Assert.assertEquals(InboxInternal_V2.class, inboxInternal.getClass());
     }
