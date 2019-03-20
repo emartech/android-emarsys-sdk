@@ -15,6 +15,7 @@ import org.junit.rules.TestRule;
 
 import static org.mockito.Mockito.mock;
 
+@SuppressWarnings("unchecked")
 public class RequestContextTest {
 
     int contactFieldId = 2;
@@ -35,6 +36,7 @@ public class RequestContextTest {
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
                 mock(Storage.class),
+                mock(Storage.class),
                 mock(Storage.class)
         );
     }
@@ -51,6 +53,7 @@ public class RequestContextTest {
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
+                mock(Storage.class),
                 mock(Storage.class),
                 mock(Storage.class)
         );
@@ -69,6 +72,7 @@ public class RequestContextTest {
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
                 mock(Storage.class),
+                mock(Storage.class),
                 mock(Storage.class)
         );
     }
@@ -85,6 +89,7 @@ public class RequestContextTest {
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
+                mock(Storage.class),
                 mock(Storage.class),
                 mock(Storage.class)
         );
@@ -103,6 +108,7 @@ public class RequestContextTest {
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
                 mock(Storage.class),
+                mock(Storage.class),
                 mock(Storage.class));
     }
 
@@ -119,6 +125,7 @@ public class RequestContextTest {
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
                 mock(Storage.class),
+                mock(Storage.class),
                 mock(Storage.class));
     }
 
@@ -134,6 +141,7 @@ public class RequestContextTest {
                 mock(MeIdSignatureStorage.class),
                 null,
                 mock(UUIDProvider.class),
+                mock(Storage.class),
                 mock(Storage.class),
                 mock(Storage.class)
         );
@@ -152,6 +160,7 @@ public class RequestContextTest {
                 mock(TimestampProvider.class),
                 null,
                 mock(Storage.class),
+                mock(Storage.class),
                 mock(Storage.class));
     }
 
@@ -168,6 +177,7 @@ public class RequestContextTest {
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
                 null,
+                mock(Storage.class),
                 mock(Storage.class));
     }
 
@@ -183,6 +193,24 @@ public class RequestContextTest {
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
+                mock(Storage.class),
+                null,
+                mock(Storage.class));
+    }
+    
+    @Test
+    public void testConstructor_refreshTokenStorage_ShouldNotBeNull() {
+        new RequestContext(
+                "",
+                "",
+                contactFieldId,
+                mock(DeviceInfo.class),
+                mock(AppLoginStorage.class),
+                mock(MeIdStorage.class),
+                mock(MeIdSignatureStorage.class),
+                mock(TimestampProvider.class),
+                mock(UUIDProvider.class),
+                mock(Storage.class),
                 mock(Storage.class),
                 null);
     }

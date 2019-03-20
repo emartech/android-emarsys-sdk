@@ -26,6 +26,7 @@ import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
 import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
@@ -48,6 +49,7 @@ class MobileEngageIntegrationTest {
     private lateinit var completionHandler: DefaultCoreCompletionHandler
     private lateinit var clientStateStorage: Storage<String>
     private lateinit var contactTokenStorage: Storage<String>
+    private lateinit var refreshTokenStorage: Storage<String>
 
     private var errorCause: Throwable? = null
 
@@ -105,8 +107,10 @@ class MobileEngageIntegrationTest {
 
         clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.clientStateStorage
         contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.contactTokenStorage
+        refreshTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.refreshTokenStorage
         clientStateStorage.remove()
         contactTokenStorage.remove()
+        refreshTokenStorage.remove()
 
         IntegrationTestUtils.doLogin()
 
@@ -243,6 +247,17 @@ class MobileEngageIntegrationTest {
         val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
 
         mobileEngageInternal.trackDeviceInfo().also(this::eventuallyAssertCompletionHandlerSuccess)
+    }
+
+    @Test
+    fun testRefreshContactToken() {
+        contactTokenStorage.remove()
+
+        val refreshTokenInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().refreshTokenInternal
+
+        refreshTokenInternal.refreshContactToken().also(this::eventuallyAssertCompletionHandlerSuccess)
+
+        contactTokenStorage.get() shouldNotBe null
     }
 
     private fun eventuallyStoreResult(errorCause: Throwable?) {

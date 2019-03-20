@@ -52,6 +52,7 @@ public class DeepLinkInternalTest {
 
 
     @Before
+    @SuppressWarnings("unchecked")
     public void init() {
         mockActivity = mock(Activity.class, Mockito.RETURNS_DEEP_STUBS);
 
@@ -60,7 +61,7 @@ public class DeepLinkInternalTest {
         timestampProvider = mock(TimestampProvider.class);
         uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
-        requestContext = new RequestContext(
+                requestContext = new RequestContext(
                 "",
                 "",
                 1,
@@ -70,6 +71,7 @@ public class DeepLinkInternalTest {
                 mock(MeIdSignatureStorage.class),
                 timestampProvider,
                 uuidProvider,
+                mock(Storage.class),
                 mock(Storage.class),
                 mock(Storage.class));
 

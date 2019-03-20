@@ -104,6 +104,7 @@ class MobileEngageInternalV3Test {
             whenever(createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
             whenever(createTrackDeviceInfoRequest()).thenReturn(mockRequestModel)
             whenever(createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
+            whenever(createRefreshContactTokenRequest()).thenReturn(mockRequestModel)
         }
 
         uiHandler = Handler(Looper.getMainLooper())
@@ -323,6 +324,13 @@ class MobileEngageInternalV3Test {
         mobileEngageInternal.trackDeviceInfo()
 
         verify(mockRequestManager).submit(mockRequestModel, null)
+    }
+
+    @Test
+    fun testRefreshContactToken() {
+        mobileEngageInternal.refreshContactToken()
+
+        verify(mockRequestManager).submitNow(mockRequestModel)
     }
 
     private fun createTestIntent(): Intent {

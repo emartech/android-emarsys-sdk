@@ -121,6 +121,7 @@ class MobileEngageInternal_V3_Old_sequentialApploginsTest {
                 timestampProvider,
                 uuidProvider,
                 mock(Storage::class.java) as Storage<String>,
+                mock(Storage::class.java) as Storage<String>,
                 mock(Storage::class.java) as Storage<String>
         )
 

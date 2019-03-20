@@ -54,6 +54,7 @@ public class RequestModelUtilsOldTest {
     private TimestampProvider timestampProvider;
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setup() {
         SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences");
 
@@ -77,6 +78,7 @@ public class RequestModelUtilsOldTest {
                 mock(MeIdSignatureStorage.class),
                 timestampProvider,
                 uuidProvider,
+                mock(Storage.class),
                 mock(Storage.class),
                 mock(Storage.class));
 

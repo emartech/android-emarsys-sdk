@@ -132,6 +132,7 @@ public class InboxInternal_V1Test {
                 timestampProvider,
                 uuidProvider,
                 mock(Storage.class),
+                mock(Storage.class),
                 mock(Storage.class));
 
         defaultHeaders = RequestHeaderUtils_Old.createDefaultHeaders(requestContext);

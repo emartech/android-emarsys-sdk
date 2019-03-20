@@ -3,6 +3,8 @@ package com.emarsys.mobileengage.util
 
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
+import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.RequestContext
 import com.emarsys.mobileengage.iam.model.IamConversionUtils
@@ -16,7 +18,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
-import java.util.*
 
 class RequestPayloadUtilsTest {
     companion object {
@@ -32,11 +33,13 @@ class RequestPayloadUtilsTest {
         const val CONTACT_FIELD_ID = 3
         const val EVENT_NAME = "testEventName"
         const val TIMESTAMP = 123456789L
+        const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
     }
 
     lateinit var mockDeviceInfo: DeviceInfo
     lateinit var mockRequestContext: RequestContext
     lateinit var mockTimestampProvider: TimestampProvider
+    lateinit var mockRefreshTokenStorage: Storage<String>
 
     @Rule
     @JvmField
@@ -58,10 +61,15 @@ class RequestPayloadUtilsTest {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
 
+        mockRefreshTokenStorage = mock(StringStorage::class.java).apply {
+            whenever(get()).thenReturn(REFRESH_TOKEN)
+        }
+
         mockRequestContext = mock(RequestContext::class.java).apply {
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
             whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
+            whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
         }
     }
 
@@ -297,24 +305,25 @@ class RequestPayloadUtilsTest {
 
     @Test
     fun testCreateCompositeRequestModelPayload() {
-        val events = Arrays.asList(
+        val events = listOf(
                 RandomTestUtils.randomMap(),
                 RandomTestUtils.randomMap(),
                 RandomTestUtils.randomMap()
         )
-        val displayedIams = Arrays.asList(
+        val displayedIams = listOf(
                 RandomMETestUtils.randomDisplayedIam(),
                 RandomMETestUtils.randomDisplayedIam()
         )
-        val buttonClicks = Arrays.asList(
+        val buttonClicks = listOf(
                 RandomMETestUtils.randomButtonClick(),
                 RandomMETestUtils.randomButtonClick(),
                 RandomMETestUtils.randomButtonClick()
         )
-        val expectedPayload = HashMap<String, Any>()
-        expectedPayload["events"] = events
-        expectedPayload["viewedMessages"] = IamConversionUtils.displayedIamsToArray(displayedIams)
-        expectedPayload["clicks"] = IamConversionUtils.buttonClicksToArray(buttonClicks)
+        val expectedPayload = mapOf(
+                "events" to events,
+                "viewedMessages" to IamConversionUtils.displayedIamsToArray(displayedIams),
+                "clicks" to IamConversionUtils.buttonClicksToArray(buttonClicks)
+        )
 
         val resultPayload = RequestPayloadUtils.createCompositeRequestModelPayload(
                 events,
@@ -325,4 +334,19 @@ class RequestPayloadUtilsTest {
         resultPayload shouldBe expectedPayload
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateRefreshContactTokenPayload_requestContext_mustNotBeNull() {
+        RequestPayloadUtils.createRefreshContactTokenPayload(null)
+    }
+
+    @Test
+    fun testCreateRefreshContactTokenPayload() {
+        val expectedPayload = mapOf(
+                "refreshToken" to REFRESH_TOKEN
+        )
+
+        val resultPayload = RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext)
+
+        resultPayload shouldBe expectedPayload
+    }
 }

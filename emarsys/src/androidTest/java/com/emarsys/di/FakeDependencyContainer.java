@@ -15,6 +15,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.util.log.Logger;
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
@@ -138,6 +139,11 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
 
     @Override
     public MobileEngageInternal getMobileEngageInternal() {
+        return mobileEngageInternal;
+    }
+
+    @Override
+    public MobileEngageRefreshTokenInternal getRefreshTokenInternal() {
         return mobileEngageInternal;
     }
 

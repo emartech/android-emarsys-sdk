@@ -43,6 +43,7 @@ public class RequestHeaderUtilsOldTest {
     private SharedPreferences sharedPreferences;
     private Storage<String> clientStateStorage;
     private Storage<String> contactTokenStorage;
+    private Storage<String> refreshTokenStorage;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -63,6 +64,7 @@ public class RequestHeaderUtilsOldTest {
 
         clientStateStorage = new StringStorage(MobileEngageStorageKey.CLIENT_STATE, sharedPreferences);
         contactTokenStorage = new StringStorage(MobileEngageStorageKey.CONTACT_TOKEN, sharedPreferences);
+        refreshTokenStorage = new StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, sharedPreferences);
 
         UUIDProvider uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
@@ -84,7 +86,8 @@ public class RequestHeaderUtilsOldTest {
                 timestampProvider,
                 uuidProvider,
                 clientStateStorage,
-                contactTokenStorage);
+                contactTokenStorage,
+                refreshTokenStorage);
 
         DeviceInfo releaseDeviceInfo = mock(DeviceInfo.class);
         when(releaseDeviceInfo.isDebugMode()).thenReturn(false);
@@ -100,7 +103,8 @@ public class RequestHeaderUtilsOldTest {
                 timestampProvider,
                 uuidProvider,
                 clientStateStorage,
-                contactTokenStorage);
+                contactTokenStorage,
+                refreshTokenStorage);
 
 
     }
@@ -156,7 +160,8 @@ public class RequestHeaderUtilsOldTest {
                 timestampProvider,
                 uuidProvider,
                 clientStateStorage,
-                contactTokenStorage);
+                contactTokenStorage,
+                refreshTokenStorage);
 
         Map<String, String> expected = new HashMap<>();
         expected.put("X-ME-ID", meId);

@@ -132,6 +132,13 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
     public void trackDeviceInfo() {
         RequestModel requestModel = requestModelFactory.createTrackDeviceInfoRequest();
 
-        requestManager.submit(requestModel, null);
+        requestManager.submit(requestModel,null);
+    }
+
+    @Override
+    public void refreshContactToken() {
+        RequestModel requestModel = requestModelFactory.createRefreshContactTokenRequest();
+
+        requestManager.submitNow(requestModel);
     }
 }

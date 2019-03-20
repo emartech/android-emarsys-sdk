@@ -76,6 +76,18 @@ class RequestUrlUtilsTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
+    fun testCreateRefreshContactTokenUrl_requestContext_mustNotBeNull() {
+        RequestUrlUtils.createRefreshContactTokenUrl(null)
+    }
+    
+    @Test
+    fun testCreateRefreshContactTokenUrl() {
+        val url = RequestUrlUtils.createRefreshContactTokenUrl(requestContextMock)
+
+        url shouldBe "https://ems-me-client.herokuapp.com/v3/apps/$APPLICATION_CODE/client/contact-token"
+    }
+
+    @Test(expected = IllegalArgumentException::class)
     fun testIsMobileEngageUrl_url_mustNotBeNull() {
         RequestUrlUtils.isMobileEngageUrl(null)
     }

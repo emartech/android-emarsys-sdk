@@ -102,6 +102,7 @@ public class MobileEngageInternal_V3_OldTest {
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
+    @SuppressWarnings("unchecked")
     public void init() {
         SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences");
 
@@ -136,6 +137,7 @@ public class MobileEngageInternal_V3_OldTest {
                 meIdSignatureStorage,
                 timestampProvider,
                 uuidProvider,
+                mock(Storage.class),
                 mock(Storage.class),
                 mock(Storage.class));
 

@@ -5,18 +5,20 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
+import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.RequestContext
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.mobileengage.util.RequestUrlUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils
+import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito
+import org.mockito.Mockito.mock
 
 class RequestModelFactoryTest{
 
@@ -26,12 +28,14 @@ class RequestModelFactoryTest{
         const val HARDWARE_ID = "hardware_id"
         const val APPLICATION_CODE = "app_code"
         const val PUSH_TOKEN = "kjhygtfdrtrtdtguyihoj3iurf8y7t6fqyua2gyi8fhu"
+        const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
     }
 
     lateinit var mockRequestContext: RequestContext
     lateinit var mockTimestampProvider: TimestampProvider
     lateinit var mockUuidProvider: UUIDProvider
     lateinit var mockDeviceInfo: DeviceInfo
+    lateinit var mockRefreshTokenStorage: Storage<String>
     lateinit var requestFactory: RequestModelFactory
 
     @Rule
@@ -40,21 +44,25 @@ class RequestModelFactoryTest{
 
     @Before
     fun setUp() {
-        mockUuidProvider = Mockito.mock(UUIDProvider::class.java).apply {
-            MockitoTestUtils.whenever(provideId()).thenReturn(REQUEST_ID)
+        mockUuidProvider = mock(UUIDProvider::class.java).apply {
+            whenever(provideId()).thenReturn(REQUEST_ID)
         }
-        mockTimestampProvider = Mockito.mock(TimestampProvider::class.java).apply {
-            MockitoTestUtils.whenever(provideTimestamp()).thenReturn(TIMESTAMP)
+        mockTimestampProvider = mock(TimestampProvider::class.java).apply {
+            whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
-        mockDeviceInfo = Mockito.mock(DeviceInfo::class.java).apply {
-            MockitoTestUtils.whenever(hwid).thenReturn(HARDWARE_ID)
+        mockDeviceInfo = mock(DeviceInfo::class.java).apply {
+            whenever(hwid).thenReturn(HARDWARE_ID)
+        }
+        mockRefreshTokenStorage = mock(StringStorage::class.java).apply {
+            whenever(get()).thenReturn(REFRESH_TOKEN)
         }
 
-        mockRequestContext = Mockito.mock(RequestContext::class.java).apply {
-            MockitoTestUtils.whenever(timestampProvider).thenReturn(mockTimestampProvider)
-            MockitoTestUtils.whenever(uuidProvider).thenReturn(mockUuidProvider)
-            MockitoTestUtils.whenever(deviceInfo).thenReturn(mockDeviceInfo)
-            MockitoTestUtils.whenever(applicationCode).thenReturn(APPLICATION_CODE)
+        mockRequestContext = mock(RequestContext::class.java).apply {
+            whenever(timestampProvider).thenReturn(mockTimestampProvider)
+            whenever(uuidProvider).thenReturn(mockUuidProvider)
+            whenever(deviceInfo).thenReturn(mockDeviceInfo)
+            whenever(applicationCode).thenReturn(APPLICATION_CODE)
+            whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
         }
 
         requestFactory = RequestModelFactory(mockRequestContext)
@@ -164,6 +172,23 @@ class RequestModelFactoryTest{
         )
 
         val result = requestFactory.createInternalCustomEventRequest("eventName", emptyMap())
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateRefreshContactTokenRequest() {
+        val expected = RequestModel(
+                RequestUrlUtils.createRefreshContactTokenUrl(mockRequestContext),
+                RequestMethod.POST,
+                RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext),
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+
+        val result = requestFactory.createRefreshContactTokenRequest()
 
         result shouldBe expected
     }

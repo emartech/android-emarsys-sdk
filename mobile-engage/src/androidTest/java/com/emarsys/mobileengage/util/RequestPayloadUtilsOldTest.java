@@ -53,6 +53,7 @@ public class RequestPayloadUtilsOldTest {
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
+    @SuppressWarnings("unchecked")
     public void setup() {
         SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences");
 
@@ -72,6 +73,7 @@ public class RequestPayloadUtilsOldTest {
                 mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
                 uuidProvider,
+                mock(Storage.class),
                 mock(Storage.class),
                 mock(Storage.class));
 

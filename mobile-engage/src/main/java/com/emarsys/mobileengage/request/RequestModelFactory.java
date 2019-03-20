@@ -67,6 +67,15 @@ public class RequestModelFactory {
         return createEvent(payload, requestContext);
     }
 
+    public RequestModel createRefreshContactTokenRequest() {
+        return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
+                .url(RequestUrlUtils.createRefreshContactTokenUrl(requestContext))
+                .method(RequestMethod.POST)
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
+                .payload(RequestPayloadUtils.createRefreshContactTokenPayload(requestContext))
+                .build();
+    }
+
     private static RequestModel createEvent(Map<String, Object> payload, RequestContext requestContext) {
         return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(RequestUrlUtils.createCustomEventUrl(requestContext))

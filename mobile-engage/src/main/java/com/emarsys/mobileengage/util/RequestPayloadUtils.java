@@ -103,6 +103,14 @@ public class RequestPayloadUtils {
         compositePayload.put("events", events);
         return compositePayload;
     }
+
+    public static Map<String, Object> createRefreshContactTokenPayload(RequestContext requestContext) {
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("refreshToken", requestContext.getRefreshTokenStorage().get());
+        return payload;
+    }
 }
 
 enum EventType {

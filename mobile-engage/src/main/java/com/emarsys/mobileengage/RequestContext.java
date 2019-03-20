@@ -22,6 +22,7 @@ public class RequestContext {
     private final UUIDProvider uuidProvider;
     private final Storage<String> clientStateStorage;
     private final Storage<String> contactTokenStorage;
+    private final Storage<String> refreshTokenStorage;
     private AppLoginParameters appLoginParameters;
 
     public RequestContext(
@@ -35,7 +36,8 @@ public class RequestContext {
             TimestampProvider timestampProvider,
             UUIDProvider uuidProvider,
             Storage<String> clientStateStorage,
-            Storage<String> contactTokenStorage) {
+            Storage<String> contactTokenStorage,
+            Storage<String> refreshTokenStorage) {
         Assert.notNull(applicationCode, "ApplicationCode must not be null!");
         Assert.notNull(applicationPassword, "ApplicationPassword must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
@@ -58,6 +60,7 @@ public class RequestContext {
         this.uuidProvider = uuidProvider;
         this.clientStateStorage = clientStateStorage;
         this.contactTokenStorage = contactTokenStorage;
+        this.refreshTokenStorage = refreshTokenStorage;
     }
 
     public String getApplicationCode() {
@@ -112,6 +115,8 @@ public class RequestContext {
         return contactTokenStorage;
     }
 
+    public Storage<String> getRefreshTokenStorage() { return refreshTokenStorage; }
+
     @Override
     public String toString() {
         return "RequestContext{" +
@@ -126,6 +131,7 @@ public class RequestContext {
                 ", uuidProvider=" + uuidProvider +
                 ", clientStateStorage=" + clientStateStorage +
                 ", contactTokenStorage=" + contactTokenStorage +
+                ", refreshTokenStorage=" + refreshTokenStorage +
                 ", appLoginParameters=" + appLoginParameters +
                 '}';
     }

@@ -51,6 +51,7 @@ import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternalV3;
+import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
@@ -141,6 +142,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
     @Override
     public MobileEngageInternal getMobileEngageInternal() {
+        return mobileEngageInternal;
+    }
+
+    @Override
+    public MobileEngageRefreshTokenInternal getRefreshTokenInternal() {
         return mobileEngageInternal;
     }
 
@@ -292,7 +298,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 timestampProvider,
                 uuidProvider,
                 clientStateStorage,
-                contactTokenStorage);
+                contactTokenStorage,
+                refreshTokenStorage);
 
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
