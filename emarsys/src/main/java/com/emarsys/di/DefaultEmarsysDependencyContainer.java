@@ -49,6 +49,7 @@ import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.predicate.ListSizeAtLeast;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
+import com.emarsys.mobileengage.MobileEngageClientInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternalV3;
 import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal;
@@ -147,6 +148,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
     @Override
     public MobileEngageRefreshTokenInternal getRefreshTokenInternal() {
+        return mobileEngageInternal;
+    }
+
+    @Override
+    public MobileEngageClientInternal getClientInternal() {
         return mobileEngageInternal;
     }
 
@@ -387,7 +393,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
     private void initializeActivityLifecycleWatchdog() {
         ActivityLifecycleAction[] applicationStartActions = new ActivityLifecycleAction[]{
-                new DeviceInfoStartAction(mobileEngageInternal, deviceInfoHashStorage, getDeviceInfo()),
+                new DeviceInfoStartAction(getClientInternal(), deviceInfoHashStorage, getDeviceInfo()),
                 new InAppStartAction(mobileEngageInternal)
         };
 

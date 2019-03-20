@@ -14,6 +14,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.util.log.Logger;
+import com.emarsys.mobileengage.MobileEngageClientInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal;
 import com.emarsys.mobileengage.RequestContext;
@@ -144,6 +145,11 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
 
     @Override
     public MobileEngageRefreshTokenInternal getRefreshTokenInternal() {
+        return mobileEngageInternal;
+    }
+
+    @Override
+    public MobileEngageClientInternal getClientInternal() {
         return mobileEngageInternal;
     }
 
