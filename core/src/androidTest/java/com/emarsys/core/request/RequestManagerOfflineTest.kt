@@ -3,7 +3,6 @@ package com.emarsys.core.request
 import android.os.Handler
 import android.os.Looper
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
@@ -17,6 +16,7 @@ import com.emarsys.core.fake.FakeConnectionWatchDog
 import com.emarsys.core.fake.FakeRestClient
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.core.request.factory.CompletionProxyFactory
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
@@ -45,7 +45,7 @@ import java.util.concurrent.CountDownLatch
 @RunWith(AndroidJUnit4::class)
 class RequestManagerOfflineTest {
     companion object {
-       const val URL = "https://www.host.com/"
+        const val URL = "https://www.emarsys.com/"
     }
 
     @Rule
@@ -70,6 +70,7 @@ class RequestManagerOfflineTest {
     private lateinit var coreSdkHandler: Handler
     private lateinit var uiHandler: Handler
     private lateinit var worker: Worker
+    private lateinit var completionProxyFactory: CompletionProxyFactory
 
 
     @Before
@@ -241,7 +242,8 @@ class RequestManagerOfflineTest {
         provider = CoreSdkHandlerProvider()
         coreSdkHandler = provider.provideHandler()
 
-        worker = DefaultWorker(requestRepository, watchDog, uiHandler, coreSdkHandler, completionHandler, fakeRestClient)
+        completionProxyFactory = CompletionProxyFactory(requestRepository, uiHandler, coreSdkHandler, completionHandler)
+        worker = DefaultWorker(requestRepository, watchDog, uiHandler, completionHandler, fakeRestClient, completionProxyFactory)
 
         manager = RequestManager(
                 coreSdkHandler,
@@ -250,7 +252,7 @@ class RequestManagerOfflineTest {
                 worker,
                 fakeRestClient,
                 mock(Registry::class.java) as Registry<RequestModel, CompletionListener>,
-                mock(CoreCompletionHandler::class.java) )
+                completionProxyFactory)
 
         coreSdkHandler.post {
             requestModels.forEach(requestRepository::add)

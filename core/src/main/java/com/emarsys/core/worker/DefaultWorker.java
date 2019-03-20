@@ -11,6 +11,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.request.RequestExpiredException;
 import com.emarsys.core.request.RestClient;
+import com.emarsys.core.request.factory.CompletionProxyFactory;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.FilterByRequestId;
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
@@ -23,28 +24,29 @@ import java.util.List;
 
 public class DefaultWorker implements ConnectionChangeListener, Worker {
 
+    private final CompletionProxyFactory completionProxyFactory;
     Repository<RequestModel, SqlSpecification> requestRepository;
     ConnectionWatchDog connectionWatchDog;
     private boolean locked;
     CoreCompletionHandler coreCompletionHandler;
     RestClient restClient;
-    private Handler coreSdkHandler;
     private Handler uiHandler;
 
-    public DefaultWorker(Repository<RequestModel, SqlSpecification> requestRepository, ConnectionWatchDog connectionWatchDog, Handler uiHandler, Handler coreSdkHandler, CoreCompletionHandler coreCompletionHandler, RestClient restClient) {
+    public DefaultWorker(Repository<RequestModel, SqlSpecification> requestRepository, ConnectionWatchDog connectionWatchDog, Handler uiHandler, CoreCompletionHandler coreCompletionHandler, RestClient restClient, CompletionProxyFactory completionProxyFactory) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(connectionWatchDog, "ConnectionWatchDog must not be null!");
         Assert.notNull(uiHandler, "UiHandler must not be null!");
-        Assert.notNull(coreSdkHandler, "CoreSdkHandler must not be null!");
         Assert.notNull(coreCompletionHandler, "CoreCompletionHandler must not be null!");
         Assert.notNull(restClient, "RestClient must not be null!");
+        Assert.notNull(completionProxyFactory, "CompletionProxyFactory must not be null!");
+
         this.coreCompletionHandler = coreCompletionHandler;
         this.requestRepository = requestRepository;
         this.connectionWatchDog = connectionWatchDog;
         this.connectionWatchDog.registerReceiver(this);
-        this.coreSdkHandler = coreSdkHandler;
         this.uiHandler = uiHandler;
         this.restClient = restClient;
+        this.completionProxyFactory = completionProxyFactory;
     }
 
     @Override
@@ -70,12 +72,7 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
             if (model != null) {
                 restClient.execute(
                         model,
-                        new CoreCompletionHandlerMiddleware(
-                                this,
-                                requestRepository,
-                                uiHandler,
-                                coreSdkHandler,
-                                coreCompletionHandler));
+                        completionProxyFactory.createCompletionHandler(this, coreCompletionHandler));
             } else {
                 unlock();
             }

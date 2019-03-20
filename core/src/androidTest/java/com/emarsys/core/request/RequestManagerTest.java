@@ -16,6 +16,7 @@ import com.emarsys.core.fake.FakeCompletionHandler;
 import com.emarsys.core.fake.FakeRunnableFactory;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.request.factory.CompletionProxyFactory;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
@@ -69,6 +70,7 @@ public class RequestManagerTest {
     private UUIDProvider uuidProvider;
     private RestClient restClientMock;
     private Registry<RequestModel, CompletionListener> callbackRegistry;
+    private CompletionProxyFactory completionProxyFactory;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -100,7 +102,8 @@ public class RequestManagerTest {
         mockDefaultHandler = mock(CoreCompletionHandler.class);
         RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class));
         restClientMock = mock(RestClient.class);
-        worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, coreSdkHandler, handler, restClient);
+        completionProxyFactory = new CompletionProxyFactory(requestRepository, uiHandler, coreSdkHandler, mockDefaultHandler);
+        worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, handler, restClient, completionProxyFactory);
         manager = new RequestManager(
                 coreSdkHandler,
                 requestRepository,
@@ -108,7 +111,7 @@ public class RequestManagerTest {
                 worker,
                 restClientMock,
                 callbackRegistry,
-                mockDefaultHandler);
+                completionProxyFactory);
 
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
@@ -140,36 +143,36 @@ public class RequestManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_coreSdkHandlerShouldNotBeNull() {
-        new RequestManager(null, requestRepository, shardRepository, worker, restClientMock, callbackRegistry, mockDefaultHandler);
+        new RequestManager(null, requestRepository, shardRepository, worker, restClientMock, callbackRegistry, completionProxyFactory);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestRepositoryShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, null, shardRepository, worker, restClientMock, callbackRegistry, mockDefaultHandler);
+        new RequestManager(coreSdkHandler, null, shardRepository, worker, restClientMock, callbackRegistry, completionProxyFactory);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_shardRepositoryShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, null, worker, restClientMock, callbackRegistry, mockDefaultHandler);
+        new RequestManager(coreSdkHandler, requestRepository, null, worker, restClientMock, callbackRegistry, completionProxyFactory);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_workerShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, shardRepository, null, restClientMock, callbackRegistry, mockDefaultHandler);
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, null, restClientMock, callbackRegistry, completionProxyFactory);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_restClientShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, null, callbackRegistry, mockDefaultHandler);
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, null, callbackRegistry, completionProxyFactory);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_registryShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClientMock, null, mockDefaultHandler);
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClientMock, null, completionProxyFactory);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_defaultCompletionHandlerShouldNotBeNull() {
+    public void testConstructor_completionProxyFactory_mustNotBeNull() {
         new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClientMock, callbackRegistry, null);
     }
 

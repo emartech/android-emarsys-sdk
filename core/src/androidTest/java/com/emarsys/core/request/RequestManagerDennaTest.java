@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.Registry;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionProvider;
@@ -16,6 +15,7 @@ import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.fake.FakeCompletionHandler;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.request.factory.CompletionProxyFactory;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
@@ -58,6 +58,7 @@ public class RequestManagerDennaTest {
     private Worker worker;
     private TimestampProvider timestampProvider;
     private UUIDProvider uuidProvider;
+    private CompletionProxyFactory completionProxyFactory;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -78,11 +79,11 @@ public class RequestManagerDennaTest {
         CoreDbHelper coreDbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
         Repository<RequestModel, SqlSpecification> requestRepository = new RequestModelRepository(coreDbHelper);
         Repository<ShardModel, SqlSpecification> shardRepository = new ShardModelRepository(coreDbHelper);
-
         latch = new CountDownLatch(1);
         fakeCompletionHandler = new FakeCompletionHandler(latch);
         RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class));
-        worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, coreSdkHandler, fakeCompletionHandler, restClient);
+        completionProxyFactory = new CompletionProxyFactory(requestRepository, uiHandler, coreSdkHandler, fakeCompletionHandler);
+        worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, fakeCompletionHandler, restClient, completionProxyFactory);
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
         manager = new RequestManager(
@@ -92,7 +93,7 @@ public class RequestManagerDennaTest {
                 worker,
                 restClient,
                 mock(Registry.class),
-                mock(CoreCompletionHandler.class));
+                completionProxyFactory);
         headers = new HashMap<>();
         headers.put("accept", "application/json");
         headers.put("content", "application/x-www-form-urlencoded");

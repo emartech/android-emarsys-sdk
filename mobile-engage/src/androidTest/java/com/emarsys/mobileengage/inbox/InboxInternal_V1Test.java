@@ -19,6 +19,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.RestClient;
+import com.emarsys.core.request.factory.CompletionProxyFactory;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
@@ -873,6 +874,6 @@ public class InboxInternal_V1Test {
                 mock(Worker.class),
                 restClient,
                 mock(Registry.class),
-                mock(CoreCompletionHandler.class));
+                mock(CompletionProxyFactory.class));
     }
 }

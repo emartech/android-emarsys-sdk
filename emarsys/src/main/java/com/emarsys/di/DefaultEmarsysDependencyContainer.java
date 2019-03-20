@@ -32,6 +32,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.RestClient;
+import com.emarsys.core.request.factory.CompletionProxyFactory;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.response.AbstractResponseHandler;
@@ -313,13 +314,19 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         restClient = new RestClient(new ConnectionProvider(), timestampProvider);
 
         ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(application, coreSdkHandler);
+        CompletionProxyFactory completionProxyFactory = new CompletionProxyFactory(
+                requestModelRepository,
+                uiHandler,
+                coreSdkHandler,
+                getCoreCompletionHandler());
+
         Worker worker = new DefaultWorker(
                 requestModelRepository,
                 connectionWatchDog,
                 uiHandler,
-                coreSdkHandler,
                 getCoreCompletionHandler(),
-                restClient);
+                restClient,
+                completionProxyFactory);
 
         requestManager = new RequestManager(
                 coreSdkHandler,
@@ -328,7 +335,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 worker,
                 restClient,
                 getCoreCompletionHandler(),
-                getCoreCompletionHandler());
+                completionProxyFactory);
 
         requestManager.setDefaultHeaders(RequestHeaderUtils_Old.createDefaultHeaders(requestContext));
 
