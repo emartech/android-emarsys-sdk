@@ -37,7 +37,7 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
         Assert.notNull(uiHandler, "UiHandler must not be null!");
         Assert.notNull(coreSdkHandler, "CoreSdkHandler must not be null!");
         Assert.notNull(coreCompletionHandler, "CoreCompletionHandler must not be null!");
-        Assert.notNull(restClient, "Restclient must not be null!");
+        Assert.notNull(restClient, "RestClient must not be null!");
         this.coreCompletionHandler = coreCompletionHandler;
         this.requestRepository = requestRepository;
         this.connectionWatchDog = connectionWatchDog;
