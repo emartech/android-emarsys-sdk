@@ -1069,7 +1069,7 @@ public class InboxInternal_V2Test {
                 mock(Worker.class),
                 restClient,
                 mock(Registry.class),
-                mock(CompletionProxyFactory.class));
+                new CompletionProxyFactory(mock(Repository.class), mock(Handler.class), mock(Handler.class), mock(CoreCompletionHandler.class)));
     }
 
 }
