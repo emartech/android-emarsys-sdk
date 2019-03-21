@@ -9,16 +9,23 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
 import com.emarsys.core.worker.Worker
+import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.matchers.beInstanceOf
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.should
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mockito.*
 import java.util.concurrent.CountDownLatch
 
 class CompletionProxyFactoryTest {
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var mockRequestRepository: Repository<RequestModel, SqlSpecification>
     private lateinit var mockUiHandler: Handler
