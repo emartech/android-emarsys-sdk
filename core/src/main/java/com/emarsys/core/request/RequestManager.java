@@ -7,7 +7,6 @@ import com.emarsys.core.Registry;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
-import com.emarsys.core.request.factory.CompletionProxyFactory;
 import com.emarsys.core.request.factory.DefaultRunnableFactory;
 import com.emarsys.core.request.factory.RunnableFactory;
 import com.emarsys.core.request.model.RequestModel;
@@ -29,7 +28,7 @@ public class RequestManager {
     private final Repository<RequestModel, SqlSpecification> requestRepository;
     private final Repository<ShardModel, SqlSpecification> shardRepository;
     private final Registry<RequestModel, CompletionListener> callbackRegistry;
-    private final CompletionProxyFactory completionProxyFactory;
+    private final CoreCompletionHandler defaultCoreCompletionHandler;
 
     public RequestManager(
             Handler coreSDKHandler,
@@ -38,14 +37,14 @@ public class RequestManager {
             Worker worker,
             RestClient restClient,
             Registry<RequestModel, CompletionListener> callbackRegistry,
-            CompletionProxyFactory completionProxyFactory) {
+            CoreCompletionHandler defaultCoreCompletionHandler) {
         Assert.notNull(coreSDKHandler, "CoreSDKHandler must not be null!");
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(shardRepository, "ShardRepository must not be null!");
         Assert.notNull(worker, "Worker must not be null!");
         Assert.notNull(restClient, "RestClient must not be null!");
         Assert.notNull(callbackRegistry, "CallbackRegistry must not be null!");
-        Assert.notNull(completionProxyFactory, "CompletionProxyFactory must not be null!");
+        Assert.notNull(defaultCoreCompletionHandler, "DefaultCoreCompletionHandler must not be null!");
 
         defaultHeaders = new HashMap<>();
         this.requestRepository = requestRepository;
@@ -55,7 +54,7 @@ public class RequestManager {
         this.restClient = restClient;
         this.runnableFactory = new DefaultRunnableFactory();
         this.callbackRegistry = callbackRegistry;
-        this.completionProxyFactory = completionProxyFactory;
+        this.defaultCoreCompletionHandler = defaultCoreCompletionHandler;
     }
 
     public void setDefaultHeaders(Map<String, String> defaultHeaders) {
@@ -92,14 +91,14 @@ public class RequestManager {
     }
 
     public void submitNow(RequestModel requestModel) {
-        submitNow(requestModel, completionProxyFactory.createCompletionHandler(null, null));
+        submitNow(requestModel, defaultCoreCompletionHandler);
     }
 
     public void submitNow(RequestModel requestModel, CoreCompletionHandler completionHandler) {
         Assert.notNull(requestModel, "RequestModel must not be null!");
         Assert.notNull(completionHandler, "CompletionHandler must not be null!");
 
-        restClient.execute(requestModel, completionProxyFactory.createCompletionHandler(null, completionHandler));
+        restClient.execute(requestModel, completionHandler);
     }
 
     void injectDefaultHeaders(RequestModel model) {

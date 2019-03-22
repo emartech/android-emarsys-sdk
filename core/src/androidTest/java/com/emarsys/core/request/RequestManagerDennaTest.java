@@ -15,7 +15,7 @@ import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.fake.FakeCompletionHandler;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
-import com.emarsys.core.request.factory.CompletionProxyFactory;
+import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
@@ -58,7 +58,7 @@ public class RequestManagerDennaTest {
     private Worker worker;
     private TimestampProvider timestampProvider;
     private UUIDProvider uuidProvider;
-    private CompletionProxyFactory completionProxyFactory;
+    private CoreCompletionHandlerMiddlewareProvider coreCompletionHandlerMiddlewareProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -82,8 +82,8 @@ public class RequestManagerDennaTest {
         latch = new CountDownLatch(1);
         fakeCompletionHandler = new FakeCompletionHandler(latch);
         RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class));
-        completionProxyFactory = new CompletionProxyFactory(requestRepository, uiHandler, coreSdkHandler, fakeCompletionHandler);
-        worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, fakeCompletionHandler, restClient, completionProxyFactory);
+        coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(requestRepository, uiHandler, coreSdkHandler, fakeCompletionHandler);
+        worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, fakeCompletionHandler, restClient, coreCompletionHandlerMiddlewareProvider);
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
         manager = new RequestManager(
@@ -93,7 +93,7 @@ public class RequestManagerDennaTest {
                 worker,
                 restClient,
                 mock(Registry.class),
-                completionProxyFactory);
+                fakeCompletionHandler);
         headers = new HashMap<>();
         headers.put("accept", "application/json");
         headers.put("content", "application/x-www-form-urlencoded");

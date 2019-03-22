@@ -10,14 +10,14 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.core.worker.CoreCompletionHandlerMiddleware;
 import com.emarsys.core.worker.Worker;
 
-public class CompletionProxyFactory {
+public class CoreCompletionHandlerMiddlewareProvider {
 
     private Repository<RequestModel, SqlSpecification> requestRepository;
     private Handler uiHandler;
     private Handler coreSdkHandler;
     private CoreCompletionHandler defaultCoreCompletionHandler;
 
-    public CompletionProxyFactory(Repository<RequestModel, SqlSpecification> requestRepository, Handler uiHandler, Handler coreSdkHandler, CoreCompletionHandler defaultCoreCompletionHandler) {
+    public CoreCompletionHandlerMiddlewareProvider(Repository<RequestModel, SqlSpecification> requestRepository, Handler uiHandler, Handler coreSdkHandler, CoreCompletionHandler defaultCoreCompletionHandler) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(uiHandler, "UiHandler must not be null!");
         Assert.notNull(coreSdkHandler, "CoreSdkHandler must not be null!");
@@ -29,15 +29,7 @@ public class CompletionProxyFactory {
         this.defaultCoreCompletionHandler = defaultCoreCompletionHandler;
     }
 
-    public CoreCompletionHandler createCompletionHandler(Worker worker, CoreCompletionHandler completionHandler) {
-        CoreCompletionHandler result = defaultCoreCompletionHandler;
-
-        if (completionHandler != null) {
-            result = completionHandler;
-        }
-        if (worker != null) {
-            result = new CoreCompletionHandlerMiddleware(worker, requestRepository, uiHandler, coreSdkHandler, result);
-        }
-        return result;
+    public CoreCompletionHandler provideCompletionHandlerMiddleware(Worker worker) {
+        return new CoreCompletionHandlerMiddleware(worker, requestRepository, uiHandler, coreSdkHandler, defaultCoreCompletionHandler);
     }
 }

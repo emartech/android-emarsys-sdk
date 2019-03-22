@@ -10,7 +10,7 @@ import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.fake.FakeCompletionHandler;
 import com.emarsys.core.request.RestClient;
-import com.emarsys.core.request.factory.CompletionProxyFactory;
+import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
@@ -52,7 +52,7 @@ public class DefaultWorkerTest {
     private ConnectionWatchDog watchDogMock;
     private Repository<RequestModel, SqlSpecification> requestRepository;
     private CoreCompletionHandler mockCoreCompletionHandler;
-    private CompletionProxyFactory mockCompletionProxyFactory;
+    private CoreCompletionHandlerMiddlewareProvider mockCoreCompletionHandlerMiddlewareProvider;
     private RestClient restClient;
     private Handler uiHandler;
 
@@ -78,11 +78,11 @@ public class DefaultWorkerTest {
         restClient = mock(RestClient.class);
 
         uiHandler = new Handler(Looper.getMainLooper());
-        mockCompletionProxyFactory = mock(CompletionProxyFactory.class);
+        mockCoreCompletionHandlerMiddlewareProvider = mock(CoreCompletionHandlerMiddlewareProvider.class);
 
-        worker = new DefaultWorker(requestRepository, watchDogMock, uiHandler, mockCoreCompletionHandler, restClient, mockCompletionProxyFactory);
+        worker = new DefaultWorker(requestRepository, watchDogMock, uiHandler, mockCoreCompletionHandler, restClient, mockCoreCompletionHandlerMiddlewareProvider);
 
-        when(mockCompletionProxyFactory.createCompletionHandler(any(Worker.class), eq(mockCoreCompletionHandler))).thenReturn(mock(CoreCompletionHandlerMiddleware.class));
+        when(mockCoreCompletionHandlerMiddlewareProvider.provideCompletionHandlerMiddleware(any(Worker.class))).thenReturn(mock(CoreCompletionHandlerMiddleware.class));
 
         now = System.currentTimeMillis();
 
@@ -111,22 +111,22 @@ public class DefaultWorkerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_queueShouldNotBeNull() {
-        new DefaultWorker(null, mock(ConnectionWatchDog.class), uiHandler, mockCoreCompletionHandler, restClient, mockCompletionProxyFactory);
+        new DefaultWorker(null, mock(ConnectionWatchDog.class), uiHandler, mockCoreCompletionHandler, restClient, mockCoreCompletionHandlerMiddlewareProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_watchDogShouldNotBeNull() {
-        new DefaultWorker(requestRepository, null, uiHandler, mockCoreCompletionHandler, restClient, mockCompletionProxyFactory);
+        new DefaultWorker(requestRepository, null, uiHandler, mockCoreCompletionHandler, restClient, mockCoreCompletionHandlerMiddlewareProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_uiHandlerShouldNotBeNull() {
-        new DefaultWorker(requestRepository, mock(ConnectionWatchDog.class), null, mockCoreCompletionHandler, restClient, mockCompletionProxyFactory);
+        new DefaultWorker(requestRepository, mock(ConnectionWatchDog.class), null, mockCoreCompletionHandler, restClient, mockCoreCompletionHandlerMiddlewareProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_restClientShouldNotBeNull() {
-        new DefaultWorker(requestRepository, mock(ConnectionWatchDog.class), uiHandler, mockCoreCompletionHandler, null, mockCompletionProxyFactory);
+        new DefaultWorker(requestRepository, mock(ConnectionWatchDog.class), uiHandler, mockCoreCompletionHandler, null, mockCoreCompletionHandlerMiddlewareProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -151,14 +151,14 @@ public class DefaultWorkerTest {
 
     @Test
     public void testConstructor_setRepositorySuccessfully() {
-        worker = new DefaultWorker(requestRepository, mock(ConnectionWatchDog.class), uiHandler, mockCoreCompletionHandler, restClient, mockCompletionProxyFactory);
+        worker = new DefaultWorker(requestRepository, mock(ConnectionWatchDog.class), uiHandler, mockCoreCompletionHandler, restClient, mockCoreCompletionHandlerMiddlewareProvider);
         assertEquals(requestRepository, worker.requestRepository);
     }
 
     @Test
     public void testConstructor_setWatchDogSuccessfully() {
         ConnectionWatchDog watchDog = mock(ConnectionWatchDog.class);
-        worker = new DefaultWorker(requestRepository, watchDog, uiHandler, mockCoreCompletionHandler, restClient, mockCompletionProxyFactory);
+        worker = new DefaultWorker(requestRepository, watchDog, uiHandler, mockCoreCompletionHandler, restClient, mockCoreCompletionHandlerMiddlewareProvider);
         assertEquals(watchDog, worker.connectionWatchDog);
     }
 

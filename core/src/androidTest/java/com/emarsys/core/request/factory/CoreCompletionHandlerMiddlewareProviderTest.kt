@@ -12,7 +12,6 @@ import com.emarsys.core.worker.Worker
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.matchers.beInstanceOf
-import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.should
 import org.junit.Before
 import org.junit.Rule
@@ -21,7 +20,7 @@ import org.junit.rules.TestRule
 import org.mockito.Mockito.*
 import java.util.concurrent.CountDownLatch
 
-class CompletionProxyFactoryTest {
+class CoreCompletionHandlerMiddlewareProviderTest {
 
     @Rule
     @JvmField
@@ -35,7 +34,7 @@ class CompletionProxyFactoryTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockResponseModel: ResponseModel
 
-    private lateinit var proxyFactory: CompletionProxyFactory
+    private lateinit var coreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
     private lateinit var latch: CountDownLatch
 
     @Before
@@ -57,12 +56,12 @@ class CompletionProxyFactoryTest {
         }
         mockWorker = mock(Worker::class.java)
 
-        proxyFactory = CompletionProxyFactory(mockRequestRepository, mockUiHandler, mockCoreSdkHandler, mockCoreCompletionHandler)
+        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(mockRequestRepository, mockUiHandler, mockCoreSdkHandler, mockCoreCompletionHandler)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestRepository_mustNotBeNull() {
-        CompletionProxyFactory(
+        CoreCompletionHandlerMiddlewareProvider(
                 null,
                 mockUiHandler,
                 mockCoreSdkHandler,
@@ -72,7 +71,7 @@ class CompletionProxyFactoryTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_uiHandler_mustNotBeNull() {
-        CompletionProxyFactory(
+        CoreCompletionHandlerMiddlewareProvider(
                 mockRequestRepository,
                 null,
                 mockCoreSdkHandler,
@@ -82,7 +81,7 @@ class CompletionProxyFactoryTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_coreSdkHandler_mustNotBeNull() {
-        CompletionProxyFactory(
+        CoreCompletionHandlerMiddlewareProvider(
                 mockRequestRepository,
                 mockUiHandler,
                 null,
@@ -92,7 +91,7 @@ class CompletionProxyFactoryTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_coreCompletionHandler_mustNotBeNull() {
-        CompletionProxyFactory(
+        CoreCompletionHandlerMiddlewareProvider(
                 mockRequestRepository,
                 mockUiHandler,
                 mockCoreSdkHandler,
@@ -100,46 +99,20 @@ class CompletionProxyFactoryTest {
         )
     }
 
-    @Test
-    fun testCreateCompletionHandler_shouldUseDefaultHandler_whenNothingGiven() {
-        val result = proxyFactory.createCompletionHandler(null, null)
-
-        result shouldBeSameInstanceAs mockCoreCompletionHandler
-    }
-
-    @Test
-    fun testCreateCompletionHandler_shouldReturnWithGivenCompletionHandler_whenGiven() {
-        val expectedCompletionHandler = mock(CoreCompletionHandler::class.java)
-        val result = proxyFactory.createCompletionHandler(null, expectedCompletionHandler)
-
-        result shouldBeSameInstanceAs expectedCompletionHandler
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateCompletionHandler_worker_mustNotBeNull() {
+        coreCompletionHandlerMiddlewareProvider.provideCompletionHandlerMiddleware(null)
     }
 
     @Test
     fun testCreateCompletionHandler_shouldReturnWithMiddleware_withDefaultCompletionHandler_whenWorkerIsPresent() {
-        val result = proxyFactory.createCompletionHandler(mockWorker, null)
+        val result = coreCompletionHandlerMiddlewareProvider.provideCompletionHandlerMiddleware(mockWorker)
 
         result should beInstanceOf(CoreCompletionHandlerMiddleware::class)
 
         result.onSuccess("id", mockResponseModel)
         latch.await()
-        
+
         verify(mockCoreCompletionHandler).onSuccess(eq("requestId"), any())
-    }
-
-    @Test
-    fun testCreateCompletionHandler_shouldReturnWithMiddleware_withGivenCompletionHandler_whenWorkerAndCompletionHandlerArePresent() {
-        val expectedCompletionHandler = mock(CoreCompletionHandler::class.java).also {
-            whenever(it.onSuccess(any(), any())).thenAnswer { latch.countDown() }
-        }
-
-        val result = proxyFactory.createCompletionHandler(mockWorker, expectedCompletionHandler)
-
-        result should beInstanceOf(CoreCompletionHandlerMiddleware::class)
-
-        result.onSuccess("id", mockResponseModel)
-        latch.await()
-
-        verify(expectedCompletionHandler).onSuccess(eq("requestId"), any())
     }
 }

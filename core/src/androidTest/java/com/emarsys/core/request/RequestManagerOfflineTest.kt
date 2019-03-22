@@ -16,7 +16,7 @@ import com.emarsys.core.fake.FakeConnectionWatchDog
 import com.emarsys.core.fake.FakeRestClient
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
-import com.emarsys.core.request.factory.CompletionProxyFactory
+import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
@@ -70,7 +70,7 @@ class RequestManagerOfflineTest {
     private lateinit var coreSdkHandler: Handler
     private lateinit var uiHandler: Handler
     private lateinit var worker: Worker
-    private lateinit var completionProxyFactory: CompletionProxyFactory
+    private lateinit var coreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
 
 
     @Before
@@ -242,8 +242,8 @@ class RequestManagerOfflineTest {
         provider = CoreSdkHandlerProvider()
         coreSdkHandler = provider.provideHandler()
 
-        completionProxyFactory = CompletionProxyFactory(requestRepository, uiHandler, coreSdkHandler, completionHandler)
-        worker = DefaultWorker(requestRepository, watchDog, uiHandler, completionHandler, fakeRestClient, completionProxyFactory)
+        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(requestRepository, uiHandler, coreSdkHandler, completionHandler)
+        worker = DefaultWorker(requestRepository, watchDog, uiHandler, completionHandler, fakeRestClient, coreCompletionHandlerMiddlewareProvider)
 
         manager = RequestManager(
                 coreSdkHandler,
@@ -252,7 +252,7 @@ class RequestManagerOfflineTest {
                 worker,
                 fakeRestClient,
                 mock(Registry::class.java) as Registry<RequestModel, CompletionListener>,
-                completionProxyFactory)
+                completionHandler)
 
         coreSdkHandler.post {
             requestModels.forEach(requestRepository::add)
