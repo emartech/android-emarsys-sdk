@@ -36,13 +36,11 @@ public class MobileEngageHeaderMapper implements Mapper<List<RequestModel>, List
                 Map<String, String> updatedHeaders = new HashMap<>(requestModel.getHeaders());
                 updatedHeaders.putAll(headersToInject);
                 if (updatedRequestModel instanceof CompositeRequestModel) {
-                    updatedRequestModel = new CompositeRequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
-                            .from(requestModel)
+                    updatedRequestModel = new CompositeRequestModel.Builder(requestModel)
                             .headers(updatedHeaders)
                             .build();
                 } else {
-                    updatedRequestModel = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
-                            .from(requestModel)
+                    updatedRequestModel = new RequestModel.Builder(requestModel)
                             .headers(updatedHeaders)
                             .build();
                 }

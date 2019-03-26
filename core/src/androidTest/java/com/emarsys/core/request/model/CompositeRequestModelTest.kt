@@ -131,16 +131,14 @@ class CompositeRequestModelTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testBuilder_from_requestModelMustNotBeNull() {
-        CompositeRequestModel.Builder(timestampProvider, uuidProvider).from(null)
+        CompositeRequestModel.Builder(null)
     }
 
     @Test
     fun testBuilder_from() {
         val expected = CompositeRequestModel(URL, METHOD, payload, headers, TIMESTAMP, TTL, ORIGINAL_IDS)
 
-        val result = CompositeRequestModel.Builder(timestampProvider, uuidProvider)
-                .from(expected)
-                .build()
+        val result = CompositeRequestModel.Builder(expected).build()
 
         result shouldBe expected
     }

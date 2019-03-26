@@ -67,6 +67,11 @@ public class RequestModelTest {
         new RequestModel(url, method, payload, headers, timestamp, ttl, null);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuilder_constructor_requestModel_shouldNotBeNull() {
+        new RequestModel.Builder(null);
+    }
+
     @Test
     public void testBuilder_mandatoryArgumentsInitialized() throws Exception {
         RequestModel result = new RequestModel.Builder(timestampProvider, uuidProvider)
@@ -184,18 +189,11 @@ public class RequestModelTest {
         assertEquals("https://emarsys.com", result.getUrl().toString());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testBuilder_from_requestModelMustNotBeNull() {
-        new RequestModel.Builder(timestampProvider, uuidProvider).from(null);
-    }
-
     @Test
     public void testBuilder_from() {
         RequestModel expected = new RequestModel(url, method, payload, headers, timestamp, ttl, id);
 
-        RequestModel result = new RequestModel.Builder(timestampProvider, uuidProvider)
-                .from(expected)
-                .build();
+        RequestModel result = new RequestModel.Builder(expected).build();
 
         assertEquals(expected, result);
     }

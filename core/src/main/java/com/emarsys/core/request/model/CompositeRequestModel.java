@@ -23,15 +23,6 @@ public class CompositeRequestModel extends RequestModel {
         this.originalRequestIds = originalRequestIds;
     }
 
-    public CompositeRequestModel(
-            String url,
-            RequestMethod method,
-            Map<String, Object> payload,
-            Map<String, String> headers,
-            String[] originalRequestIds) {
-        this(url, method, payload, headers, System.currentTimeMillis(), Long.MAX_VALUE, originalRequestIds);
-    }
-
     public String[] getOriginalRequestIds() {
         return originalRequestIds;
     }
@@ -67,6 +58,13 @@ public class CompositeRequestModel extends RequestModel {
 
         public Builder(TimestampProvider timestampProvider, UUIDProvider uuidProvider) {
             super(timestampProvider, uuidProvider);
+        }
+
+        public Builder(RequestModel requestModel) {
+            super(requestModel);
+            Assert.notNull(requestModel, "RequestModel must not be null!");
+
+            this.originalRequestIds = ((CompositeRequestModel) requestModel).getOriginalRequestIds();
         }
 
         @Override
