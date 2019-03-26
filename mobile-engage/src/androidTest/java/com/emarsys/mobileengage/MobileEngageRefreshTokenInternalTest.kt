@@ -9,9 +9,12 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.fake.FakeRequestManager
 import com.emarsys.mobileengage.request.RequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
+import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.*
@@ -22,6 +25,10 @@ class MobileEngageRefreshTokenInternalTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockRequestModelFactory: RequestModelFactory
     private lateinit var mockResponseHandler: MobileEngageTokenResponseHandler
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {
