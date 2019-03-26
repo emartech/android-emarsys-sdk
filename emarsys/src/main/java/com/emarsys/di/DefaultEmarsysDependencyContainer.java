@@ -339,7 +339,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 getCoreCompletionHandler(),
                 getCoreCompletionHandler());
 
-        requestManager.setDefaultHeaders(RequestHeaderUtils_Old.createDefaultHeaders(requestContext));
+        requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(requestContext));
 
         requestModelFactory = new RequestModelFactory(requestContext);
 

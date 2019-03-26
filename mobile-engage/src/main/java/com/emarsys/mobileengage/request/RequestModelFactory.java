@@ -8,6 +8,7 @@ import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class RequestModelFactory {
@@ -68,10 +69,13 @@ public class RequestModelFactory {
     }
 
     public RequestModel createRefreshContactTokenRequest() {
+        Map<String, String> headers = new HashMap<>();
+        headers.putAll(RequestHeaderUtils.createBaseHeaders_V3(requestContext));
+        headers.putAll(RequestHeaderUtils.createDefaultHeaders(requestContext));
         return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(RequestUrlUtils.createRefreshContactTokenUrl(requestContext))
                 .method(RequestMethod.POST)
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
+                .headers(headers)
                 .payload(RequestPayloadUtils.createRefreshContactTokenPayload(requestContext))
                 .build();
     }
