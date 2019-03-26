@@ -194,11 +194,6 @@ public class MobileEngageInternal_V3_Old implements MobileEngageInternal {
 
     }
 
-    @Override
-    public void refreshContactToken() {
-
-    }
-
     String getMessageId(Intent intent) {
         String sid = null;
         Bundle payload = intent.getBundleExtra("payload");

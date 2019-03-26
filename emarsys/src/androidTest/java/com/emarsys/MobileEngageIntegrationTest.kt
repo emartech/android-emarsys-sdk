@@ -26,7 +26,6 @@ import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
 import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
@@ -247,17 +246,6 @@ class MobileEngageIntegrationTest {
         val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
 
         mobileEngageInternal.trackDeviceInfo().also(this::eventuallyAssertCompletionHandlerSuccess)
-    }
-
-    @Test
-    fun testRefreshContactToken() {
-        contactTokenStorage.remove()
-
-        val refreshTokenInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().refreshTokenInternal
-
-        refreshTokenInternal.refreshContactToken().also(this::eventuallyAssertCompletionHandlerSuccess)
-
-        contactTokenStorage.get() shouldNotBe null
     }
 
     private fun eventuallyStoreResult(errorCause: Throwable?) {

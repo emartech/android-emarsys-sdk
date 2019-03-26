@@ -54,6 +54,7 @@ import com.emarsys.mobileengage.MobileEngageClientInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternalV3;
 import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal;
+import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
@@ -82,7 +83,7 @@ import com.emarsys.mobileengage.storage.DeviceInfoHashStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey;
-import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
+import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.predict.shard.PredictShardListMerger;
@@ -134,6 +135,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private CurrentActivityProvider currentActivityProvider;
     private RunnerProxy runnerProxy;
     private Logger logger;
+    private MobileEngageRefreshTokenInternal refreshTokenInternal;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeDependencies(emarsysConfig);
@@ -148,8 +150,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
-    public MobileEngageRefreshTokenInternal getRefreshTokenInternal() {
-        return mobileEngageInternal;
+    public RefreshTokenInternal getRefreshTokenInternal() {
+        return refreshTokenInternal;
     }
 
     @Override
@@ -379,6 +381,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         predictInternal = new PredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);
 
         logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
+
+        refreshTokenInternal = new MobileEngageRefreshTokenInternal(
+                new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage),
+                requestManager,
+                requestModelFactory);
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {

@@ -6,7 +6,7 @@ import com.emarsys.core.api.result.CompletionListener;
 
 import java.util.Map;
 
-public interface MobileEngageInternal extends MobileEngageRefreshTokenInternal, MobileEngageClientInternal {
+public interface MobileEngageInternal extends MobileEngageClientInternal {
     void setPushToken(String pushToken, CompletionListener completionListener);
 
     void removePushToken(CompletionListener completionListener);

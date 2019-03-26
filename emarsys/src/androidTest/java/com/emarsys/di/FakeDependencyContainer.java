@@ -16,7 +16,7 @@ import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.util.log.Logger;
 import com.emarsys.mobileengage.MobileEngageClientInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal;
+import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
@@ -47,6 +47,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final Runnable predictShardTrigger;
     private final RunnerProxy runnerProxy;
     private final Logger logger;
+    private final RefreshTokenInternal refreshTokenInternal;
 
     public FakeDependencyContainer(
             Handler coreSdkHandler,
@@ -69,7 +70,8 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             PredictInternal predictInternal,
             Runnable predictShardTrigger,
             RunnerProxy runnerProxy,
-            Logger logger) {
+            Logger logger,
+            RefreshTokenInternal refreshTokenInternal) {
         this.coreSdkHandler = coreSdkHandler;
         this.activityLifecycleWatchdog = activityLifecycleWatchdog;
         this.currentActivityWatchdog = currentActivityWatchdog;
@@ -91,6 +93,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
         this.predictShardTrigger = predictShardTrigger;
         this.runnerProxy = runnerProxy;
         this.logger = logger;
+        this.refreshTokenInternal = refreshTokenInternal;
     }
 
     @Override
@@ -144,8 +147,8 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     }
 
     @Override
-    public MobileEngageRefreshTokenInternal getRefreshTokenInternal() {
-        return mobileEngageInternal;
+    public RefreshTokenInternal getRefreshTokenInternal() {
+        return refreshTokenInternal;
     }
 
     @Override

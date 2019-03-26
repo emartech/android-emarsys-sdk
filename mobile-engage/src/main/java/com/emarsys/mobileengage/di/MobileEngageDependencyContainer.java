@@ -4,7 +4,7 @@ import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.mobileengage.MobileEngageClientInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal;
+import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
@@ -16,7 +16,7 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
 
     MobileEngageInternal getMobileEngageInternal();
 
-    MobileEngageRefreshTokenInternal getRefreshTokenInternal();
+    RefreshTokenInternal getRefreshTokenInternal();
 
     MobileEngageClientInternal getClientInternal();
 

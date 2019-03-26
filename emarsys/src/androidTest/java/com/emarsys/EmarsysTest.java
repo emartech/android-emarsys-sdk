@@ -33,6 +33,7 @@ import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.di.FakeDependencyContainer;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
+import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.api.inbox.Notification;
@@ -123,6 +124,7 @@ public class EmarsysTest {
     private EmarsysConfig baseConfig;
     private EmarsysConfig configWithInAppEventHandler;
     private EmarsysConfig userCentricInboxConfig;
+    private RefreshTokenInternal mockRefreshTokenInternal;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -149,6 +151,7 @@ public class EmarsysTest {
         inappEventHandler = mock(EventHandler.class);
         runnerProxy = new RunnerProxy();
         logger = mock(Logger.class);
+        mockRefreshTokenInternal = mock(RefreshTokenInternal.class);
 
         baseConfig = createConfig(false);
         configWithInAppEventHandler = createConfig(true);
@@ -179,7 +182,8 @@ public class EmarsysTest {
                 mockPredictInternal,
                 mockPredictShardTrigger,
                 runnerProxy,
-                logger
+                logger,
+                mockRefreshTokenInternal
         ));
     }
 
