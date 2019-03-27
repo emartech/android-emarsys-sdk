@@ -63,14 +63,6 @@ public class CompositeRequestModel extends RequestModel {
         public Builder(RequestModel requestModel) {
             super(requestModel);
             Assert.notNull(requestModel, "RequestModel must not be null!");
-
-            this.originalRequestIds = ((CompositeRequestModel) requestModel).getOriginalRequestIds();
-        }
-
-        @Override
-        public Builder from(RequestModel requestModel) {
-            Assert.notNull(requestModel, "RequestModel must not be null!");
-
             this.url = requestModel.getUrl().toString();
             this.headers = requestModel.getHeaders();
             this.method = requestModel.getMethod();
@@ -78,7 +70,7 @@ public class CompositeRequestModel extends RequestModel {
             this.payload = requestModel.getPayload();
             this.timestamp = requestModel.getTimestamp();
             this.ttl = requestModel.getTtl();
-            return this;
+            this.originalRequestIds = ((CompositeRequestModel) requestModel).getOriginalRequestIds();
         }
 
         @Override

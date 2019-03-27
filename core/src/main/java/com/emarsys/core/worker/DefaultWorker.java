@@ -11,7 +11,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.request.RequestExpiredException;
 import com.emarsys.core.request.RestClient;
-import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider;
+import com.emarsys.core.request.factory.CompletionHandlerProxyProvider;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.FilterByRequestId;
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
@@ -24,7 +24,7 @@ import java.util.List;
 
 public class DefaultWorker implements ConnectionChangeListener, Worker {
 
-    private final CoreCompletionHandlerMiddlewareProvider coreCompletionHandlerMiddlewareProvider;
+    private final CompletionHandlerProxyProvider proxyProvider;
     Repository<RequestModel, SqlSpecification> requestRepository;
     ConnectionWatchDog connectionWatchDog;
     private boolean locked;
@@ -32,13 +32,13 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
     RestClient restClient;
     private Handler uiHandler;
 
-    public DefaultWorker(Repository<RequestModel, SqlSpecification> requestRepository, ConnectionWatchDog connectionWatchDog, Handler uiHandler, CoreCompletionHandler coreCompletionHandler, RestClient restClient, CoreCompletionHandlerMiddlewareProvider coreCompletionHandlerMiddlewareProvider) {
+    public DefaultWorker(Repository<RequestModel, SqlSpecification> requestRepository, ConnectionWatchDog connectionWatchDog, Handler uiHandler, CoreCompletionHandler coreCompletionHandler, RestClient restClient, CompletionHandlerProxyProvider proxyProvider) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(connectionWatchDog, "ConnectionWatchDog must not be null!");
         Assert.notNull(uiHandler, "UiHandler must not be null!");
         Assert.notNull(coreCompletionHandler, "CoreCompletionHandler must not be null!");
         Assert.notNull(restClient, "RestClient must not be null!");
-        Assert.notNull(coreCompletionHandlerMiddlewareProvider, "CoreCompletionHandlerMiddlewareProvider must not be null!");
+        Assert.notNull(proxyProvider, "ProxyProvider must not be null!");
 
         this.coreCompletionHandler = coreCompletionHandler;
         this.requestRepository = requestRepository;
@@ -46,7 +46,7 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
         this.connectionWatchDog.registerReceiver(this);
         this.uiHandler = uiHandler;
         this.restClient = restClient;
-        this.coreCompletionHandlerMiddlewareProvider = coreCompletionHandlerMiddlewareProvider;
+        this.proxyProvider = proxyProvider;
     }
 
     @Override
@@ -72,7 +72,7 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
             if (model != null) {
                 restClient.execute(
                         model,
-                        coreCompletionHandlerMiddlewareProvider.provideCompletionHandlerMiddleware(this));
+                        proxyProvider.provideProxy(this));
             } else {
                 unlock();
             }

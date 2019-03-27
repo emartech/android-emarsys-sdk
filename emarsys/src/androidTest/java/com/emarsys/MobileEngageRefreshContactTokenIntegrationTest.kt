@@ -37,7 +37,6 @@ class MobileEngageRefreshContactTokenIntegrationTest {
         private const val MERCHANT_ID = "1428C8EE286EC34B"
     }
 
-    private var completionHandlerLatch: CountDownLatch? = null
     private lateinit var completionListenerLatch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
     private lateinit var sharedPreferences: SharedPreferences
@@ -97,7 +96,6 @@ class MobileEngageRefreshContactTokenIntegrationTest {
         IntegrationTestUtils.doLogin()
 
         completionListenerLatch = CountDownLatch(1)
-        completionHandlerLatch = CountDownLatch(1)
     }
 
     @After
@@ -125,6 +123,18 @@ class MobileEngageRefreshContactTokenIntegrationTest {
         refreshTokenInternal.refreshContactToken(this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
 
         contactTokenStorage.get() shouldNotBe null
+    }
+
+    @Test
+    fun testRefreshContactToken_shouldUpdateContactToken_whenOutDated() {
+        contactTokenStorage.remove()
+        contactTokenStorage.set("tokenForIntegrationTest")
+
+        val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
+
+        mobileEngageInternal.trackInternalCustomEvent("integrationTest", emptyMap(), this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
+
+        contactTokenStorage.get() shouldNotBe "tokenForIntegrationTest"
     }
 
 

@@ -20,7 +20,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 
-class RequestModelFactoryTest{
+class RequestModelFactoryTest {
 
     private companion object {
         const val TIMESTAMP = 123456789L
@@ -52,6 +52,7 @@ class RequestModelFactoryTest{
         }
         mockDeviceInfo = mock(DeviceInfo::class.java).apply {
             whenever(hwid).thenReturn(HARDWARE_ID)
+            whenever(isDebugMode).thenReturn(true)
         }
         mockRefreshTokenStorage = mock(StringStorage::class.java).apply {
             whenever(get()).thenReturn(REFRESH_TOKEN)
@@ -182,7 +183,7 @@ class RequestModelFactoryTest{
                 RequestUrlUtils.createRefreshContactTokenUrl(mockRequestContext),
                 RequestMethod.POST,
                 RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext),
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + RequestHeaderUtils.createDefaultHeaders(mockRequestContext),
                 TIMESTAMP,
                 Long.MAX_VALUE,
                 REQUEST_ID

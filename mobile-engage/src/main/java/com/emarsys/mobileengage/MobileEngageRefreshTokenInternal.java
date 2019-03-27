@@ -3,7 +3,7 @@ package com.emarsys.mobileengage;
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.core.api.result.CompletionListener;
-import com.emarsys.core.request.RequestManager;
+import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
@@ -12,15 +12,15 @@ import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 
 public class MobileEngageRefreshTokenInternal implements RefreshTokenInternal {
     MobileEngageTokenResponseHandler tokenResponseHandler;
-    private RequestManager requestManager;
+    private RestClient restClient;
     private RequestModelFactory requestModelFactory;
 
-    public MobileEngageRefreshTokenInternal(MobileEngageTokenResponseHandler tokenResponseHandler, RequestManager requestManager, RequestModelFactory requestModelFactory) {
+    public MobileEngageRefreshTokenInternal(MobileEngageTokenResponseHandler tokenResponseHandler, RestClient restClient, RequestModelFactory requestModelFactory) {
         Assert.notNull(tokenResponseHandler, "TokenResponseHandler must not be null!");
-        Assert.notNull(requestManager, "RequestManager must not be null!");
+        Assert.notNull(restClient, "RestClient must not be null!");
         Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");
         this.tokenResponseHandler = tokenResponseHandler;
-        this.requestManager = requestManager;
+        this.restClient = restClient;
         this.requestModelFactory = requestModelFactory;
     }
 
@@ -28,7 +28,7 @@ public class MobileEngageRefreshTokenInternal implements RefreshTokenInternal {
     public void refreshContactToken(final CompletionListener completionListener) {
         final RequestModel requestModel = requestModelFactory.createRefreshContactTokenRequest();
 
-        requestManager.submitNow(requestModel, new CoreCompletionHandler() {
+        restClient.execute(requestModel, new CoreCompletionHandler() {
             @Override
             public void onSuccess(String id, ResponseModel responseModel) {
                 tokenResponseHandler.processResponse(responseModel);

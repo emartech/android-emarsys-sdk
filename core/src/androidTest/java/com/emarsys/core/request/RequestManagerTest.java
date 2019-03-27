@@ -102,7 +102,7 @@ public class RequestManagerTest {
         mockDefaultHandler = mock(CoreCompletionHandler.class);
         RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class));
         restClientMock = mock(RestClient.class);
-        coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(requestRepository, uiHandler, coreSdkHandler, handler);
+        coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(handler, requestRepository, uiHandler, coreSdkHandler);
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, handler, restClient, coreCompletionHandlerMiddlewareProvider);
         manager = new RequestManager(
                 coreSdkHandler,

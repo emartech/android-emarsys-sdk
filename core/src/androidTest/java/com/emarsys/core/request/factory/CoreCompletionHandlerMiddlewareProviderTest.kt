@@ -56,57 +56,57 @@ class CoreCompletionHandlerMiddlewareProviderTest {
         }
         mockWorker = mock(Worker::class.java)
 
-        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(mockRequestRepository, mockUiHandler, mockCoreSdkHandler, mockCoreCompletionHandler)
+        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(mockCoreCompletionHandler, mockRequestRepository, mockUiHandler, mockCoreSdkHandler)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestRepository_mustNotBeNull() {
         CoreCompletionHandlerMiddlewareProvider(
+                mockCoreCompletionHandler,
                 null,
                 mockUiHandler,
-                mockCoreSdkHandler,
-                mockCoreCompletionHandler
+                mockCoreSdkHandler
         )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_uiHandler_mustNotBeNull() {
         CoreCompletionHandlerMiddlewareProvider(
+                mockCoreCompletionHandler,
                 mockRequestRepository,
                 null,
-                mockCoreSdkHandler,
-                mockCoreCompletionHandler
+                mockCoreSdkHandler
         )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_coreSdkHandler_mustNotBeNull() {
         CoreCompletionHandlerMiddlewareProvider(
+                mockCoreCompletionHandler,
                 mockRequestRepository,
                 mockUiHandler,
-                null,
-                mockCoreCompletionHandler
+                null
         )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_coreCompletionHandler_mustNotBeNull() {
         CoreCompletionHandlerMiddlewareProvider(
+                null,
                 mockRequestRepository,
                 mockUiHandler,
-                mockCoreSdkHandler,
-                null
+                mockCoreSdkHandler
         )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testCreateCompletionHandler_worker_mustNotBeNull() {
-        coreCompletionHandlerMiddlewareProvider.provideCompletionHandlerMiddleware(null)
+        coreCompletionHandlerMiddlewareProvider.provideProxy(null)
     }
 
     @Test
     fun testCreateCompletionHandler_shouldReturnWithMiddleware_withDefaultCompletionHandler_whenWorkerIsPresent() {
-        val result = coreCompletionHandlerMiddlewareProvider.provideCompletionHandlerMiddleware(mockWorker)
+        val result = coreCompletionHandlerMiddlewareProvider.provideProxy(mockWorker)
 
         result should beInstanceOf(CoreCompletionHandlerMiddleware::class)
 

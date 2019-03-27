@@ -242,7 +242,7 @@ class RequestManagerOfflineTest {
         provider = CoreSdkHandlerProvider()
         coreSdkHandler = provider.provideHandler()
 
-        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(requestRepository, uiHandler, coreSdkHandler, completionHandler)
+        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(completionHandler, requestRepository, uiHandler, coreSdkHandler)
         worker = DefaultWorker(requestRepository, watchDog, uiHandler, completionHandler, fakeRestClient, coreCompletionHandlerMiddlewareProvider)
 
         manager = RequestManager(

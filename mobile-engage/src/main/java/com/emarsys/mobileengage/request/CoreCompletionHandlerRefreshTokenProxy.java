@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.request;
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RestClient;
+import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.storage.Storage;
@@ -58,11 +59,40 @@ public class CoreCompletionHandlerRefreshTokenProxy implements CoreCompletionHan
         RequestModel originalRequestModel = originalResponseModel.getRequestModel();
         Map<String, String> headers = originalRequestModel.getHeaders();
         headers.put("X-Contact-Token", updatedRefreshToken);
-        return new RequestModel.Builder(originalRequestModel).headers(headers).build();
+        if (originalRequestModel instanceof CompositeRequestModel) {
+            return new CompositeRequestModel.Builder(originalRequestModel).headers(headers).build();
+        } else {
+            return new RequestModel.Builder(originalRequestModel).headers(headers).build();
+        }
     }
 
     @Override
     public void onError(String id, Exception cause) {
         coreCompletionHandler.onError(id, cause);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CoreCompletionHandlerRefreshTokenProxy that = (CoreCompletionHandlerRefreshTokenProxy) o;
+
+        if (coreCompletionHandler != null ? !coreCompletionHandler.equals(that.coreCompletionHandler) : that.coreCompletionHandler != null)
+            return false;
+        if (refreshTokenInternal != null ? !refreshTokenInternal.equals(that.refreshTokenInternal) : that.refreshTokenInternal != null)
+            return false;
+        if (restClient != null ? !restClient.equals(that.restClient) : that.restClient != null)
+            return false;
+        return contactTokenStorage != null ? contactTokenStorage.equals(that.contactTokenStorage) : that.contactTokenStorage == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = coreCompletionHandler != null ? coreCompletionHandler.hashCode() : 0;
+        result = 31 * result + (refreshTokenInternal != null ? refreshTokenInternal.hashCode() : 0);
+        result = 31 * result + (restClient != null ? restClient.hashCode() : 0);
+        result = 31 * result + (contactTokenStorage != null ? contactTokenStorage.hashCode() : 0);
+        return result;
     }
 }

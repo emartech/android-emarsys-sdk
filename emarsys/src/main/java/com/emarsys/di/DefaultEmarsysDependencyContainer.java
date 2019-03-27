@@ -71,6 +71,7 @@ import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestReposito
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternalProvider;
+import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider;
 import com.emarsys.mobileengage.request.MobileEngageHeaderMapper;
 import com.emarsys.mobileengage.request.RequestModelFactory;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
@@ -315,20 +316,33 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         restClient = new RestClient(new ConnectionProvider(), timestampProvider);
 
+        requestModelFactory = new RequestModelFactory(requestContext);
+        refreshTokenInternal = new MobileEngageRefreshTokenInternal(
+                new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage),
+                restClient,
+                requestModelFactory);
+
         ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(application, coreSdkHandler);
         CoreCompletionHandlerMiddlewareProvider coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(
+                getCoreCompletionHandler(),
                 requestModelRepository,
                 uiHandler,
-                coreSdkHandler,
-                getCoreCompletionHandler());
+                coreSdkHandler
+        );
 
+        CoreCompletionHandlerRefreshTokenProxyProvider coreCompletionHandlerRefreshTokenProxyProvider = new CoreCompletionHandlerRefreshTokenProxyProvider(
+                coreCompletionHandlerMiddlewareProvider,
+                refreshTokenInternal,
+                restClient,
+                contactTokenStorage
+        );
         Worker worker = new DefaultWorker(
                 requestModelRepository,
                 connectionWatchDog,
                 uiHandler,
                 getCoreCompletionHandler(),
                 restClient,
-                coreCompletionHandlerMiddlewareProvider);
+                coreCompletionHandlerRefreshTokenProxyProvider);
 
         requestManager = new RequestManager(
                 coreSdkHandler,
@@ -340,8 +354,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 getCoreCompletionHandler());
 
         requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(requestContext));
-
-        requestModelFactory = new RequestModelFactory(requestContext);
 
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
         notificationEventHandler = config.getNotificationEventHandler();
@@ -381,11 +393,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         predictInternal = new PredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);
 
         logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
-
-        refreshTokenInternal = new MobileEngageRefreshTokenInternal(
-                new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage),
-                requestManager,
-                requestModelFactory);
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {

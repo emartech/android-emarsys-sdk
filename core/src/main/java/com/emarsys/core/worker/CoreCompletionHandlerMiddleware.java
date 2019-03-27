@@ -65,9 +65,9 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
             public void run() {
                 if (isNonRetriableError(responseModel.getStatusCode())) {
                     requestRepository.remove(new FilterByRequestId(responseModel.getRequestModel()));
+                    handleError(responseModel);
                     worker.unlock();
                     worker.run();
-                    handleError(responseModel);
                 } else {
                     worker.unlock();
                 }

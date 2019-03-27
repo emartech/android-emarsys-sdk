@@ -82,7 +82,7 @@ public class RequestManagerDennaTest {
         latch = new CountDownLatch(1);
         fakeCompletionHandler = new FakeCompletionHandler(latch);
         RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class));
-        coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(requestRepository, uiHandler, coreSdkHandler, fakeCompletionHandler);
+        coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(fakeCompletionHandler, requestRepository, uiHandler, coreSdkHandler);
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, fakeCompletionHandler, restClient, coreCompletionHandlerMiddlewareProvider);
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
