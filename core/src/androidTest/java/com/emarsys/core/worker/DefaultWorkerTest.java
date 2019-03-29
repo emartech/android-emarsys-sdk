@@ -187,7 +187,7 @@ public class DefaultWorkerTest {
 
         worker.onConnectionChanged(ConnectionState.CONNECTED, true);
 
-        verify(worker.restClient).execute(eq(model), any(CoreCompletionHandlerMiddleware.class));
+        verify(worker.restClient).execute(eq(model), any(CoreCompletionHandler.class));
     }
 
     @Test
