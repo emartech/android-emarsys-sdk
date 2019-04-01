@@ -24,13 +24,13 @@ class DelegatingCoreSQLiteDatabase_triggerRecursion_parameterizedTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Parameterized.Parameter
-    private lateinit var triggerType: TriggerType
+    lateinit var triggerType: TriggerType
 
     @Parameterized.Parameter(1)
-    private lateinit var triggerEvent: TriggerEvent
+    lateinit var triggerEvent: TriggerEvent
 
     @Parameterized.Parameter(2)
-    private lateinit var triggerAction: Runnable
+    lateinit var triggerAction: Runnable
 
     @Before
     fun init() {
