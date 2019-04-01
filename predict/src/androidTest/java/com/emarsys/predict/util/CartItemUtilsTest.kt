@@ -16,9 +16,9 @@ class CartItemUtilsTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    lateinit var cartItem1: CartItem
-    lateinit var cartItem2: CartItem
-    lateinit var cartItem3: CartItem
+    private lateinit var cartItem1: CartItem
+    private lateinit var cartItem2: CartItem
+    private lateinit var cartItem3: CartItem
 
     @Before
     fun init() {

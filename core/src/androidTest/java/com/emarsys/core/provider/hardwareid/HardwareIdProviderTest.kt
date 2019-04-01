@@ -25,10 +25,10 @@ class HardwareIdProviderTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    lateinit var context: Context
-    lateinit var sharedPrefs: SharedPreferences
-    lateinit var sharedPrefsEdit: SharedPreferences.Editor
-    lateinit var hardwareIdProvider: HardwareIdProvider
+    private lateinit var context: Context
+    private lateinit var sharedPrefs: SharedPreferences
+    private lateinit var sharedPrefsEdit: SharedPreferences.Editor
+    private lateinit var hardwareIdProvider: HardwareIdProvider
 
     @Before
     fun init() {

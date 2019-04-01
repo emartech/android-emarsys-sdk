@@ -36,10 +36,10 @@ class RequestPayloadUtilsTest {
         const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
     }
 
-    lateinit var mockDeviceInfo: DeviceInfo
-    lateinit var mockRequestContext: RequestContext
-    lateinit var mockTimestampProvider: TimestampProvider
-    lateinit var mockRefreshTokenStorage: Storage<String>
+    private lateinit var mockDeviceInfo: DeviceInfo
+    private lateinit var mockRequestContext: RequestContext
+    private lateinit var mockTimestampProvider: TimestampProvider
+    private lateinit var mockRefreshTokenStorage: Storage<String>
 
     @Rule
     @JvmField

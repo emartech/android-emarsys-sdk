@@ -20,8 +20,8 @@ class RunnerProxyTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    lateinit var runnerProxy: RunnerProxy
-    lateinit var mockLogger: Logger
+    private lateinit var runnerProxy: RunnerProxy
+    private lateinit var mockLogger: Logger
 
     @Before
     fun setUp() {

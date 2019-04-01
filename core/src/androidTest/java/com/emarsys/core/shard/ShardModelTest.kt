@@ -21,9 +21,9 @@ class ShardModelTest {
         const val TTL = java.lang.Long.MAX_VALUE
     }
 
-    lateinit var timestampProvider: TimestampProvider
-    lateinit var uuidProvider: UUIDProvider
-    lateinit var payload: Map<String, Any>
+    private lateinit var timestampProvider: TimestampProvider
+    private lateinit var uuidProvider: UUIDProvider
+    private lateinit var payload: Map<String, Any>
 
     @Rule
     @JvmField

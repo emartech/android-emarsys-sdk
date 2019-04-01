@@ -51,18 +51,18 @@ class MobileEngageInternalV3Test {
         val EVENT_ATTRIBUTES = emptyMap<String, String>()
     }
 
-    lateinit var mobileEngageInternal: MobileEngageInternalV3
+    private lateinit var mobileEngageInternal: MobileEngageInternalV3
 
-    lateinit var mockRequestManager: RequestManager
-    lateinit var mockRequestContext: RequestContext
-    lateinit var mockTimestampProvider: TimestampProvider
-    lateinit var mockUuidProvider: UUIDProvider
-    lateinit var mockDeviceInfo: DeviceInfo
-    lateinit var mockCompletionListener: CompletionListener
-    lateinit var mockRequestModelFactory: RequestModelFactory
-    lateinit var mockRequestModel: RequestModel
+    private lateinit var mockRequestManager: RequestManager
+    private lateinit var mockRequestContext: RequestContext
+    private lateinit var mockTimestampProvider: TimestampProvider
+    private lateinit var mockUuidProvider: UUIDProvider
+    private lateinit var mockDeviceInfo: DeviceInfo
+    private lateinit var mockCompletionListener: CompletionListener
+    private lateinit var mockRequestModelFactory: RequestModelFactory
+    private lateinit var mockRequestModel: RequestModel
 
-    lateinit var uiHandler: Handler
+    private lateinit var uiHandler: Handler
 
     @Rule
     @JvmField

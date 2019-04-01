@@ -18,7 +18,7 @@ class ConnectionProviderTest {
         const val HTTPS_PATH = "https://emarsys.com"
     }
 
-    lateinit var provider: ConnectionProvider
+    private lateinit var provider: ConnectionProvider
 
     @Rule
     @JvmField

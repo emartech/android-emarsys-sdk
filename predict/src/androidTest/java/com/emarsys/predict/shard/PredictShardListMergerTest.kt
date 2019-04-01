@@ -28,17 +28,17 @@ class PredictShardListMergerTest {
         const val PLATFORM = "android"
     }
 
-    lateinit var merger: PredictShardListMerger
+    private lateinit var merger: PredictShardListMerger
 
-    lateinit var merchantId: String
-    lateinit var store: KeyValueStore
-    lateinit var timestampProvider: TimestampProvider
-    lateinit var uuidProvider: UUIDProvider
-    lateinit var deviceInfo: DeviceInfo
+    private lateinit var merchantId: String
+    private lateinit var store: KeyValueStore
+    private lateinit var timestampProvider: TimestampProvider
+    private lateinit var uuidProvider: UUIDProvider
+    private lateinit var deviceInfo: DeviceInfo
 
-    lateinit var shard1: ShardModel
-    lateinit var shard2: ShardModel
-    lateinit var shard3: ShardModel
+    private lateinit var shard1: ShardModel
+    private lateinit var shard2: ShardModel
+    private lateinit var shard3: ShardModel
 
     @Rule
     @JvmField

@@ -17,8 +17,8 @@ class AbstractStorageTest {
         const val VALUE = "value"
     }
 
-    lateinit var sharedPreferences: SharedPreferences
-    lateinit var storage: AbstractStorage<String, SharedPreferences>
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var storage: AbstractStorage<String, SharedPreferences>
 
     @Rule
     @JvmField

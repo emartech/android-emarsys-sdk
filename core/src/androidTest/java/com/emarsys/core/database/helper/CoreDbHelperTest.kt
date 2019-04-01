@@ -23,8 +23,8 @@ class CoreDbHelperTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    lateinit var dbHelper: CoreDbHelper
-    lateinit var db: SQLiteDatabase
+    private lateinit var dbHelper: CoreDbHelper
+    private lateinit var db: SQLiteDatabase
 
     @Before
     fun init() {

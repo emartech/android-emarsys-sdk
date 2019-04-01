@@ -16,7 +16,7 @@ class RequestUrlUtilsTest {
         const val APPLICATION_CODE = "app_code"
     }
 
-    lateinit var requestContextMock: RequestContext
+    private lateinit var requestContextMock: RequestContext
 
     @Rule
     @JvmField

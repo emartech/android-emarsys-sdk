@@ -26,11 +26,11 @@ class LogShardListMergerTest {
         const val APPLICATION_CODE = "applicationCode"
     }
 
-    lateinit var merger: LogShardListMerger
+    private lateinit var merger: LogShardListMerger
 
-    lateinit var timestampProvider: TimestampProvider
-    lateinit var uuidProvider: UUIDProvider
-    lateinit var deviceInfo: DeviceInfo
+    private lateinit var timestampProvider: TimestampProvider
+    private lateinit var uuidProvider: UUIDProvider
+    private lateinit var deviceInfo: DeviceInfo
 
     @Rule
     @JvmField

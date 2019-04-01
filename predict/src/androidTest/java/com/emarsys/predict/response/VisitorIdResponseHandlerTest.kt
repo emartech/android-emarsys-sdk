@@ -20,8 +20,8 @@ class VisitorIdResponseHandlerTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    lateinit var keyValueStore: KeyValueStore
-    lateinit var responseHandler: VisitorIdResponseHandler
+    private lateinit var keyValueStore: KeyValueStore
+    private lateinit var responseHandler: VisitorIdResponseHandler
 
     @Before
     fun init() {

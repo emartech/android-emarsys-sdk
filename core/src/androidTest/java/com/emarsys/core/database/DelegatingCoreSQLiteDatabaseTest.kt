@@ -19,8 +19,8 @@ class DelegatingCoreSQLiteDatabaseTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    lateinit var db: DelegatingCoreSQLiteDatabase
-    lateinit var triggerMap: MutableMap<TriggerKey, List<Runnable>>
+    private lateinit var db: DelegatingCoreSQLiteDatabase
+    private lateinit var triggerMap: MutableMap<TriggerKey, List<Runnable>>
 
     @Before
     fun init() {

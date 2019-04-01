@@ -21,9 +21,9 @@ class RequestHeaderUtilsTest {
         const val HARDWARE_ID = "hardware_id"
     }
 
-    lateinit var requestContextMock: RequestContext
-    lateinit var deviceInfoMock: DeviceInfo
-    lateinit var timestampProviderMock: TimestampProvider
+    private lateinit var requestContextMock: RequestContext
+    private lateinit var deviceInfoMock: DeviceInfo
+    private lateinit var timestampProviderMock: TimestampProvider
 
     @Rule
     @JvmField
