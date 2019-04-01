@@ -17,7 +17,7 @@ import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
-import com.emarsys.testUtil.mockito.MockitoTestUtils
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.After
@@ -71,10 +71,10 @@ class MobileEngageRefreshContactTokenIntegrationTest {
             override fun getDeviceInfo() = DeviceInfo(
                     application,
                     Mockito.mock(HardwareIdProvider::class.java).apply {
-                        MockitoTestUtils.whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
+                        whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
                     },
                     Mockito.mock(VersionProvider::class.java).apply {
-                        MockitoTestUtils.whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
+                        whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
                     },
                     LanguageProvider()
             )

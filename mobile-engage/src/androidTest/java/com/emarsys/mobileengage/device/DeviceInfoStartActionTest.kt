@@ -5,7 +5,7 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.testUtil.SharedPrefsUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

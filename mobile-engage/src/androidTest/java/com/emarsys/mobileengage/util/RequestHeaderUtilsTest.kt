@@ -5,7 +5,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.BuildConfig
 import com.emarsys.mobileengage.RequestContext
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.Before

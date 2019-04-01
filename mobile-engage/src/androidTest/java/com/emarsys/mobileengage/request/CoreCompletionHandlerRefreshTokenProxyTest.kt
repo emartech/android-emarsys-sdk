@@ -10,7 +10,7 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.fake.FakeMobileEngageRefreshTokenInternal
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

@@ -26,7 +26,7 @@ import com.emarsys.mobileengage.storage.MeIdStorage
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.SharedPrefsUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.data.forall
 import io.kotlintest.shouldBe
 import io.kotlintest.tables.row

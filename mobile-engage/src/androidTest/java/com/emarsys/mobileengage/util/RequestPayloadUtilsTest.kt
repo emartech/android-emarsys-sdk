@@ -11,7 +11,7 @@ import com.emarsys.mobileengage.iam.model.IamConversionUtils
 import com.emarsys.mobileengage.testUtil.RandomMETestUtils
 import com.emarsys.testUtil.RandomTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule

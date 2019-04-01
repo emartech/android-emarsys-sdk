@@ -8,7 +8,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule

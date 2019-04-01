@@ -15,7 +15,7 @@ import com.emarsys.mobileengage.iam.InAppPresenter
 import com.emarsys.mobileengage.iam.PushToInAppAction
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals

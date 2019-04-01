@@ -17,7 +17,7 @@ import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

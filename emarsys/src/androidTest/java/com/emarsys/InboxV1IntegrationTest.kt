@@ -19,7 +19,7 @@ import com.emarsys.mobileengage.storage.AppLoginStorage
 import com.emarsys.mobileengage.storage.MeIdStorage
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONObject

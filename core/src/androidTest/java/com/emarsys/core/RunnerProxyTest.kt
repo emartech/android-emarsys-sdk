@@ -4,7 +4,7 @@ import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.util.log.Logger
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

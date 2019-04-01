@@ -10,7 +10,7 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
 import com.emarsys.core.worker.Worker
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.matchers.beInstanceOf
 import io.kotlintest.should
 import org.junit.Before

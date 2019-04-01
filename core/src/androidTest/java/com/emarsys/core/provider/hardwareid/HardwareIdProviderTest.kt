@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import android.provider.Settings
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule

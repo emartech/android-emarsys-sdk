@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.util
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.Rule
 import org.junit.Test

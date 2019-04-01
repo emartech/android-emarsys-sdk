@@ -10,7 +10,7 @@ import com.emarsys.mobileengage.fake.FakeRestClient
 import com.emarsys.mobileengage.request.RequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

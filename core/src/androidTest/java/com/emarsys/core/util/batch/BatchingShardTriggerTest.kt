@@ -11,7 +11,7 @@ import com.emarsys.core.util.batch.BatchingShardTrigger.RequestStrategy.PERSISTE
 import com.emarsys.core.util.batch.BatchingShardTrigger.RequestStrategy.TRANSIENT
 import com.emarsys.core.util.predicate.Predicate
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

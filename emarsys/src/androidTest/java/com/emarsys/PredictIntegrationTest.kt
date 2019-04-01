@@ -20,7 +20,7 @@ import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before

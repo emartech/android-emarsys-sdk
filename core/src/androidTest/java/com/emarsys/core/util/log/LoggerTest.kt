@@ -11,8 +11,8 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.util.log.entry.LogEntry
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import com.emarsys.testUtil.mockito.ThreadSpy
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before

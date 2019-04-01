@@ -13,8 +13,8 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.fake.FakeCompletionListener
 import com.emarsys.mobileengage.request.RequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
 import com.emarsys.testUtil.mockito.ThreadSpy
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.shouldBe
 import org.junit.Before

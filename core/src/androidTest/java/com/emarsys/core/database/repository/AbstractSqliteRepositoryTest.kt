@@ -14,7 +14,7 @@ import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule

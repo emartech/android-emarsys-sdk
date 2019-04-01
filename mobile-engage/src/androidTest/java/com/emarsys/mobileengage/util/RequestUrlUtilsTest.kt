@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.util
 import com.emarsys.mobileengage.RequestContext
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
@@ -25,7 +25,7 @@ class RequestUrlUtilsTest {
     @Before
     fun setUp() {
         requestContextMock = Mockito.mock(RequestContext::class.java).apply {
-            MockitoTestUtils.whenever(applicationCode).thenReturn(APPLICATION_CODE)
+            whenever(applicationCode).thenReturn(APPLICATION_CODE)
         }
     }
 
@@ -79,7 +79,7 @@ class RequestUrlUtilsTest {
     fun testCreateRefreshContactTokenUrl_requestContext_mustNotBeNull() {
         RequestUrlUtils.createRefreshContactTokenUrl(null)
     }
-    
+
     @Test
     fun testCreateRefreshContactTokenUrl() {
         val url = RequestUrlUtils.createRefreshContactTokenUrl(requestContextMock)

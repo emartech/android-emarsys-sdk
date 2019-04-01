@@ -12,7 +12,7 @@ import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.mobileengage.util.RequestUrlUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule

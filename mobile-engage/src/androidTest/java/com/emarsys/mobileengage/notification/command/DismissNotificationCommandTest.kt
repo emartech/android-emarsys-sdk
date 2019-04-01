@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.MockitoTestUtils.whenever
+import com.emarsys.testUtil.mockito.whenever
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
