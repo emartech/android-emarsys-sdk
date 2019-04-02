@@ -10,7 +10,6 @@ import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.TimestampUtils;
-import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
 import com.emarsys.mobileengage.util.RequestModelUtils_Old;
@@ -74,9 +73,7 @@ public class MobileEngageInternal_V3_Old implements MobileEngageInternal {
     @Override
     public void setPushToken(String pushToken, CompletionListener completionListener) {
         this.pushToken = pushToken;
-        if (requestContext.getAppLoginParameters() != null) {
-            sendAppLogin(null);
-        }
+        sendAppLogin(null);
     }
 
     @Override
@@ -85,13 +82,11 @@ public class MobileEngageInternal_V3_Old implements MobileEngageInternal {
     }
 
     public String setAnonymousContact(CompletionListener completionListener) {
-        requestContext.setAppLoginParameters(new AppLoginParameters());
         return sendAppLogin(completionListener);
     }
 
     @Override
     public void setContact(String contactFieldValue, CompletionListener completionListener) {
-        requestContext.setAppLoginParameters(new AppLoginParameters(requestContext.getContactFieldId(), contactFieldValue));
         sendAppLogin(completionListener);
     }
 
@@ -115,8 +110,6 @@ public class MobileEngageInternal_V3_Old implements MobileEngageInternal {
 
     @Override
     public String clearContact(CompletionListener completionListener) {
-        requestContext.setAppLoginParameters(null);
-
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(ME_LOGOUT_V2)
                 .payload(RequestPayloadUtils_Old.createBasePayload(requestContext))

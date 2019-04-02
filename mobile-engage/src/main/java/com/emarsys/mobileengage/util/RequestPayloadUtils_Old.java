@@ -4,7 +4,6 @@ import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.iam.model.IamConversionUtils;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
@@ -30,10 +29,9 @@ public class RequestPayloadUtils_Old {
         payload.put("application_id", requestContext.getApplicationCode());
         payload.put("hardware_id", requestContext.getDeviceInfo().getHwid());
 
-        AppLoginParameters parameters = requestContext.getAppLoginParameters();
-        if (parameters != null && parameters.hasCredentials()) {
-            payload.put("contact_field_id", parameters.getContactFieldId());
-            payload.put("contact_field_value", parameters.getContactFieldValue());
+        if (requestContext.getContactFieldValueStorage().get() != null) {
+            payload.put("contact_field_id", requestContext.getContactFieldId());
+            payload.put("contact_field_value", requestContext.getContactFieldValueStorage().get());
         }
 
         for (Map.Entry<String, Object> entry : additionalPayload.entrySet()) {

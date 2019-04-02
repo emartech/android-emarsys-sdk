@@ -8,7 +8,6 @@ import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.request.RequestModelFactory;
 
 import org.json.JSONException;
@@ -55,7 +54,7 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
 
     @Override
     public void setContact(String contactFieldValue, CompletionListener completionListener) {
-        requestContext.setAppLoginParameters(new AppLoginParameters(requestContext.getContactFieldId(), contactFieldValue));
+        requestContext.getContactFieldValueStorage().set(contactFieldValue);
         RequestModel requestModel = requestModelFactory.createSetContactRequest(contactFieldValue);
         requestManager.submit(requestModel, completionListener);
     }

@@ -18,7 +18,7 @@ import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
-import com.emarsys.mobileengage.util.RequestPayloadUtils_Old;
+import com.emarsys.mobileengage.util.RequestPayloadUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils_Old;
 
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public class InboxInternal_V1 implements InboxInternal {
     public void fetchNotifications(final ResultListener<Try<NotificationInboxStatus>> resultListener) {
         Assert.notNull(resultListener, "ResultListener should not be null!");
 
-        if (requestContext.getAppLoginParameters() != null && requestContext.getAppLoginParameters().hasCredentials()) {
+        if (requestContext.getContactFieldValueStorage().get() != null) {
             handleFetchRequest(resultListener);
         } else {
             handler.post(new Runnable() {
@@ -94,7 +94,7 @@ public class InboxInternal_V1 implements InboxInternal {
 
     @Override
     public void resetBadgeCount(final CompletionListener completionListener) {
-        if (requestContext.getAppLoginParameters() != null && requestContext.getAppLoginParameters().hasCredentials()) {
+        if (requestContext.getContactFieldValueStorage().get() != null) {
             handleResetRequest(completionListener);
         } else {
             if (completionListener != null) {
@@ -112,7 +112,7 @@ public class InboxInternal_V1 implements InboxInternal {
     public void trackNotificationOpen(Notification notification, CompletionListener completionListener) {
         Assert.notNull(notification, "Notification must not be null!");
 
-        Map<String, Object> payload = RequestPayloadUtils_Old.createBasePayload(requestContext);
+        Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
         payload.put("source", "inbox");
         payload.put("sid", notification.getSid());
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
@@ -167,8 +167,8 @@ public class InboxInternal_V1 implements InboxInternal {
 
         result.put("x-ems-me-hardware-id", requestContext.getDeviceInfo().getHwid());
         result.put("x-ems-me-application-code", requestContext.getApplicationCode());
-        result.put("x-ems-me-contact-field-id", String.valueOf(requestContext.getAppLoginParameters().getContactFieldId()));
-        result.put("x-ems-me-contact-field-value", requestContext.getAppLoginParameters().getContactFieldValue());
+        result.put("x-ems-me-contact-field-id", String.valueOf(requestContext.getContactFieldId()));
+        result.put("x-ems-me-contact-field-value", requestContext.getContactFieldValueStorage().get());
 
         result.putAll(RequestHeaderUtils_Old.createDefaultHeaders(requestContext));
         result.putAll(RequestHeaderUtils_Old.createBaseHeaders_V2(requestContext));

@@ -41,7 +41,7 @@ public class MobileEngageTokenResponseHandler extends AbstractResponseHandler {
     }
 
     private boolean isMobileEngage(RequestModel requestModel) {
-        return RequestModelUtils.isMobileEngageRequest(requestModel);
+        return RequestModelUtils.isMobileEngageV3Request(requestModel);
     }
 
     private boolean hasCorrectBody(JSONObject body) {

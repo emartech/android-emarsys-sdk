@@ -10,7 +10,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.mobileengage.event.applogin.AppLoginParameters
+import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.fake.FakeCompletionListener
 import com.emarsys.mobileengage.request.RequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
@@ -62,6 +62,7 @@ class MobileEngageInternalV3Test {
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var mockRequestModelFactory: RequestModelFactory
     private lateinit var mockRequestModel: RequestModel
+    private lateinit var mockContactFieldValueStorage: Storage<String>
 
     private lateinit var uiHandler: Handler
 
@@ -70,7 +71,10 @@ class MobileEngageInternalV3Test {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
+    @Suppress("UNCHECKED_CAST")
     fun setUp() {
+        mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
+
         mockUuidProvider = mock(UUIDProvider::class.java).apply {
             whenever(provideId()).thenReturn(REQUEST_ID)
         }
@@ -95,6 +99,7 @@ class MobileEngageInternalV3Test {
             whenever(uuidProvider).thenReturn(mockUuidProvider)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
+            whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
         }
 
         mockRequestModel = mock(RequestModel::class.java)
@@ -163,13 +168,10 @@ class MobileEngageInternalV3Test {
     }
 
     @Test
-    fun testSetContact_shouldSetAppLoginParams_toRequestContext() {
-        val expectedAppLoginParameters = AppLoginParameters(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE)
-        whenever(mockRequestContext.contactFieldId).thenReturn(3)
-
+    fun testSetContact_shouldSetContactFieldValue_toContactFieldValueStorage() {
         mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, mockCompletionListener)
 
-        verify(mockRequestContext).appLoginParameters = expectedAppLoginParameters
+        verify(mockContactFieldValueStorage).set(CONTACT_FIELD_VALUE)
     }
 
     @Test

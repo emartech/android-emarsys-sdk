@@ -20,7 +20,7 @@ public class MobileEngageClientStateResponseHandler extends AbstractResponseHand
 
     @Override
     protected boolean shouldHandleResponse(ResponseModel responseModel) {
-        boolean isMobileEngageRequest = RequestModelUtils.isMobileEngageRequest(responseModel.getRequestModel());
+        boolean isMobileEngageRequest = RequestModelUtils.isMobileEngageV3Request(responseModel.getRequestModel());
         boolean hasClientState = getClientState(responseModel) != null;
 
         return isMobileEngageRequest && hasClientState;

@@ -21,7 +21,6 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.TimestampUtils;
-import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
@@ -54,7 +53,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -210,30 +208,6 @@ public class MobileEngageInternal_V3_OldTest {
     }
 
     @Test
-    public void testAppLogin_anonymous_shouldSetAppLoginParametersOnRequestContext() {
-        final RequestContext requestContext = mock(RequestContext.class, RETURNS_DEEP_STUBS);
-        when(requestContext.getApplicationCode()).thenReturn(APPLICATION_ID);
-        when(requestContext.getApplicationPassword()).thenReturn(APPLICATION_PASSWORD);
-        when(requestContext.getUUIDProvider()).thenReturn(uuidProvider);
-
-        MobileEngageInternal internal = new MobileEngageInternal_V3_Old(
-                manager,
-                mock(Handler.class),
-                coreCompletionHandler,
-                requestContext);
-
-        internal.setContact(null, mockCompletionListener);
-
-        ArgumentCaptor<AppLoginParameters> captor = ArgumentCaptor.forClass(AppLoginParameters.class);
-        verify(requestContext).setAppLoginParameters(captor.capture());
-
-        AppLoginParameters actualParameters = captor.getValue();
-        AppLoginParameters expectedParameters = new AppLoginParameters();
-
-        assertEquals(expectedParameters, actualParameters);
-    }
-
-    @Test
     public void testAppLogin_anonymous_returnsRequestModelId() {
         meIdStorage.remove();
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
@@ -246,22 +220,6 @@ public class MobileEngageInternal_V3_OldTest {
     }
 
     @Test
-    public void testAppLogin_withContactFieldValue_requestManagerCalledWithCorrectRequestModel() {
-        meIdStorage.remove();
-        String contactFieldValue = "value";
-        RequestModel expected = createLoginRequestModel(new AppLoginParameters(CONTACT_FIELD_ID, contactFieldValue));
-
-        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
-
-        mobileEngageInternal.setContact(contactFieldValue, null);
-
-        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
-
-        RequestModel result = captor.getValue();
-        assertRequestModels(expected, result);
-    }
-
-    @Test
     public void testAppLogin_withContactFieldValue_requestManagerCalledWithCorrectCompletionHandler() {
         meIdStorage.remove();
         String contactFieldValue = "value";
@@ -271,32 +229,6 @@ public class MobileEngageInternal_V3_OldTest {
         mobileEngageInternal.setContact(contactFieldValue, completionListener);
 
         verify(manager).submit(any(RequestModel.class), eq(completionListener));
-    }
-
-    @Test
-    public void testAppLogin_shouldSetAppLoginParametersOnRequestContext() {
-        final RequestContext requestContext = mock(RequestContext.class, RETURNS_DEEP_STUBS);
-        when(requestContext.getApplicationCode()).thenReturn(APPLICATION_ID);
-        when(requestContext.getApplicationPassword()).thenReturn(APPLICATION_PASSWORD);
-        when(requestContext.getUUIDProvider()).thenReturn(uuidProvider);
-        when(requestContext.getContactFieldId()).thenReturn(CONTACT_FIELD_ID);
-
-        MobileEngageInternal internal = new MobileEngageInternal_V3_Old(
-                manager,
-                mock(Handler.class),
-                coreCompletionHandler,
-                requestContext);
-
-        final String contactFieldValue = "email@address.com";
-        internal.setContact(contactFieldValue, mockCompletionListener);
-
-        ArgumentCaptor<AppLoginParameters> captor = ArgumentCaptor.forClass(AppLoginParameters.class);
-        verify(requestContext).setAppLoginParameters(captor.capture());
-
-        AppLoginParameters actualParameters = captor.getValue();
-        AppLoginParameters expectedParameters = new AppLoginParameters(CONTACT_FIELD_ID, contactFieldValue);
-
-        assertEquals(expectedParameters, actualParameters);
     }
 
     @Test
@@ -627,7 +559,6 @@ public class MobileEngageInternal_V3_OldTest {
     public void testSetPushToken_whenAppLoginParameters_isEmpty() {
         MobileEngageInternal_V3_Old spy = spy(mobileEngageInternal);
 
-        requestContext.setAppLoginParameters(new AppLoginParameters());
         spy.setPushToken("123456789", null);
 
         verify(spy).sendAppLogin((CompletionListener) isNull());
@@ -639,7 +570,6 @@ public class MobileEngageInternal_V3_OldTest {
         String contactFieldValue = "asdf";
         MobileEngageInternal_V3_Old spy = spy(mobileEngageInternal);
 
-        requestContext.setAppLoginParameters(new AppLoginParameters(contactFieldId, contactFieldValue));
         spy.setPushToken("123456789", null);
 
         verify(spy).sendAppLogin((CompletionListener) isNull());
@@ -649,7 +579,6 @@ public class MobileEngageInternal_V3_OldTest {
     public void testSetPushToken_doesNotCallAppLogins_whenApploginParameters_isNull() {
         MobileEngageInternal_V3_Old spy = spy(mobileEngageInternal);
 
-        requestContext.setAppLoginParameters(null);
         spy.setPushToken("123456789", null);
 
         verify(spy, times(0)).sendAppLogin(any(CompletionListener.class));
@@ -689,17 +618,6 @@ public class MobileEngageInternal_V3_OldTest {
         }
 
         return payload;
-    }
-
-    private RequestModel createLoginRequestModel(AppLoginParameters appLoginParameters) {
-        Map<String, Object> payload = injectLoginPayload(createBasePayload());
-        payload.put("contact_field_id", CONTACT_FIELD_ID);
-        payload.put("contact_field_value", appLoginParameters.getContactFieldValue());
-        return new RequestModel.Builder(timestampProvider, uuidProvider)
-                .url(ENDPOINT_LOGIN)
-                .payload(payload)
-                .headers(defaultHeaders)
-                .build();
     }
 
     private void assertRequestModels(RequestModel expected, RequestModel result) {

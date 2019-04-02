@@ -4,7 +4,6 @@ package com.emarsys.mobileengage.util
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.storage.Storage
-import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.RequestContext
 import com.emarsys.mobileengage.iam.model.IamConversionUtils
@@ -22,6 +21,8 @@ import org.mockito.Mockito.mock
 class RequestPayloadUtilsTest {
     companion object {
         const val PUSH_TOKEN = "pushToken"
+        const val APPLICATION_CODE = "applicationCode"
+        const val HARDWARE_ID = "hardwareId"
         const val PLATFORM = "android"
         const val APPLICATION_VERSION = "1.0.2"
         const val DEVICE_MODEL = "GT-9100"
@@ -40,12 +41,14 @@ class RequestPayloadUtilsTest {
     private lateinit var mockRequestContext: RequestContext
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockRefreshTokenStorage: Storage<String>
+    private lateinit var mockContactFieldValueStorage: Storage<String>
 
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
+    @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockDeviceInfo = mock(DeviceInfo::class.java).apply {
             whenever(platform).thenReturn(PLATFORM)
@@ -55,22 +58,57 @@ class RequestPayloadUtilsTest {
             whenever(sdkVersion).thenReturn(SDK_VERSION)
             whenever(language).thenReturn(LANGUAGE)
             whenever(timezone).thenReturn(TIMEZONE)
+            whenever(hwid).thenReturn(HARDWARE_ID)
         }
 
         mockTimestampProvider = mock(TimestampProvider::class.java).apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
 
-        mockRefreshTokenStorage = mock(StringStorage::class.java).apply {
+        mockRefreshTokenStorage = (mock(Storage::class.java) as Storage<String>).apply {
             whenever(get()).thenReturn(REFRESH_TOKEN)
         }
+        mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
 
         mockRequestContext = mock(RequestContext::class.java).apply {
+            whenever(applicationCode).thenReturn(APPLICATION_CODE)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
             whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
             whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
+            whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
         }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateBasePayload_requestContext_ShouldNotBeNull() {
+        RequestPayloadUtils.createBasePayload(null)
+    }
+
+    @Test
+    fun testCreateBasePayload_shouldReturnTheCorrectPayload_withoutLogin() {
+        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
+
+        val payload = RequestPayloadUtils.createBasePayload(mockRequestContext)
+        val expected = mapOf(
+                "application_id" to APPLICATION_CODE,
+                "hardware_id" to HARDWARE_ID
+        )
+        payload shouldBe expected
+    }
+
+    @Test
+    fun testCreateBasePayload_shouldReturnTheCorrectPayload_withLogin() {
+        whenever(mockContactFieldValueStorage.get()).thenReturn(CONTACT_FIELD_VALUE)
+
+        val payload = RequestPayloadUtils.createBasePayload(mockRequestContext)
+        val expected = mapOf(
+                "application_id" to APPLICATION_CODE,
+                "hardware_id" to HARDWARE_ID,
+                "contact_field_id" to CONTACT_FIELD_ID,
+                "contact_field_value" to CONTACT_FIELD_VALUE
+        )
+        payload shouldBe expected
     }
 
     @Test(expected = IllegalArgumentException::class)

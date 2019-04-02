@@ -11,7 +11,6 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
@@ -83,8 +82,6 @@ public class RequestModelUtilsOldTest {
                 mock(Storage.class),
                 mock(Storage.class)
         );
-
-        requestContext.setAppLoginParameters(new AppLoginParameters(3, "test@test.com"));
     }
 
     @After

@@ -5,7 +5,6 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
@@ -24,7 +23,6 @@ public class RequestContext {
     private final Storage<String> contactTokenStorage;
     private final Storage<String> refreshTokenStorage;
     private final Storage<String> contactFieldValueStorage;
-    private AppLoginParameters appLoginParameters;
 
     public RequestContext(
             String applicationCode,
@@ -104,14 +102,6 @@ public class RequestContext {
         return uuidProvider;
     }
 
-    public AppLoginParameters getAppLoginParameters() {
-        return appLoginParameters;
-    }
-
-    public void setAppLoginParameters(AppLoginParameters appLoginParameters) {
-        this.appLoginParameters = appLoginParameters;
-    }
-
     public Storage<String> getClientStateStorage() {
         return clientStateStorage;
     }
@@ -120,7 +110,9 @@ public class RequestContext {
         return contactTokenStorage;
     }
 
-    public Storage<String> getRefreshTokenStorage() { return refreshTokenStorage; }
+    public Storage<String> getRefreshTokenStorage() {
+        return refreshTokenStorage;
+    }
 
     public Storage<String> getContactFieldValueStorage() {
         return contactFieldValueStorage;
@@ -142,7 +134,6 @@ public class RequestContext {
                 ", contactTokenStorage=" + contactTokenStorage +
                 ", refreshTokenStorage=" + refreshTokenStorage +
                 ", contactFieldValueStorage=" + contactFieldValueStorage +
-                ", appLoginParameters=" + appLoginParameters +
                 '}';
     }
 }

@@ -10,7 +10,6 @@ import com.emarsys.core.storage.Storage;
 import com.emarsys.mobileengage.BuildConfig;
 import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.iam.model.IamConversionUtils;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
@@ -48,6 +47,7 @@ public class RequestPayloadUtilsOldTest {
 
     private RequestContext requestContext;
     private UUIDProvider uuidProvider;
+    private Storage<String> mockContactFieldValueStorage;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -59,7 +59,8 @@ public class RequestPayloadUtilsOldTest {
 
         uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn(REQUEST_ID);
-
+        mockContactFieldValueStorage = mock(Storage.class);
+        when(mockContactFieldValueStorage.get()).thenReturn("test@test.com");
         requestContext = new RequestContext(
                 APPLICATION_CODE,
                 APPLICATION_PASSWORD,
@@ -76,10 +77,8 @@ public class RequestPayloadUtilsOldTest {
                 mock(Storage.class),
                 mock(Storage.class),
                 mock(Storage.class),
-                mock(Storage.class)
-                );
-
-        requestContext.setAppLoginParameters(new AppLoginParameters(3, "test@test.com"));
+                mockContactFieldValueStorage
+        );
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -106,7 +105,8 @@ public class RequestPayloadUtilsOldTest {
 
     @Test
     public void testCreateBasePayload_map_shouldReturnTheCorrectMap() {
-        requestContext.setAppLoginParameters(new AppLoginParameters());
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
+
         Map<String, Object> expected = new HashMap<>();
         expected.put("application_id", requestContext.getApplicationCode());
         expected.put("hardware_id", requestContext.getDeviceInfo().getHwid());
@@ -123,17 +123,12 @@ public class RequestPayloadUtilsOldTest {
     }
 
     @Test
-    public void testCreateBasePayload_appLoginParameters_hasCredentials() {
-        int contactFieldId = 123;
-        String contactFieldValue = "contactFieldValue";
-
-        requestContext.setAppLoginParameters(new AppLoginParameters(contactFieldId, contactFieldValue));
-
+    public void testCreateBasePayload_hasCredentials() {
         Map<String, Object> expected = new HashMap<>();
         expected.put("application_id", requestContext.getApplicationCode());
         expected.put("hardware_id", requestContext.getDeviceInfo().getHwid());
-        expected.put("contact_field_id", contactFieldId);
-        expected.put("contact_field_value", contactFieldValue);
+        expected.put("contact_field_id", requestContext.getContactFieldId());
+        expected.put("contact_field_value", requestContext.getContactFieldValueStorage().get());
 
         Map<String, Object> result = RequestPayloadUtils_Old.createBasePayload(requestContext);
 
@@ -142,7 +137,7 @@ public class RequestPayloadUtilsOldTest {
 
     @Test
     public void testCreateBasePayload_appLoginParameters_withoutCredentials() {
-        requestContext.setAppLoginParameters(new AppLoginParameters());
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
 
         Map<String, Object> expected = new HashMap<>();
         expected.put("application_id", requestContext.getApplicationCode());
@@ -155,7 +150,8 @@ public class RequestPayloadUtilsOldTest {
 
     @Test
     public void testCreateBasePayload_whenAppLoginParameters_isNull() {
-        requestContext.setAppLoginParameters(new AppLoginParameters());
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
+
         Map<String, Object> expected = new HashMap<>();
         expected.put("application_id", requestContext.getApplicationCode());
         expected.put("hardware_id", requestContext.getDeviceInfo().getHwid());

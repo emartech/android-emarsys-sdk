@@ -27,7 +27,6 @@ import com.emarsys.core.worker.Worker;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
-import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.fake.FakeInboxResultListener;
 import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener;
 import com.emarsys.mobileengage.fake.FakeRestClient;
@@ -35,6 +34,7 @@ import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
 import com.emarsys.mobileengage.storage.MeIdStorage;
+import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.SharedPrefsUtils;
@@ -83,10 +83,6 @@ public class InboxInternal_V1Test {
     private CountDownLatch latch;
     private InboxInternal_V1 inbox;
 
-    private AppLoginParameters appLoginParameters_withCredentials;
-    private AppLoginParameters appLoginParameters_noCredentials;
-    private AppLoginParameters appLoginParameters_missing;
-
     private Application application;
     private NotificationCache cache;
     private DeviceInfo deviceInfo;
@@ -95,6 +91,7 @@ public class InboxInternal_V1Test {
     private TimestampProvider timestampProvider;
     private LanguageProvider languageProvider;
     private HardwareIdProvider hardwareIdProvider;
+    private Storage<String> mockContactFieldValueStorage;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -120,7 +117,8 @@ public class InboxInternal_V1Test {
 
         timestampProvider = mock(TimestampProvider.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
-
+        mockContactFieldValueStorage = mock(Storage.class);
+        when(mockContactFieldValueStorage.get()).thenReturn("test@test.com");
         requestContext = new RequestContext(
                 APPLICATION_ID,
                 "applicationPassword",
@@ -134,18 +132,15 @@ public class InboxInternal_V1Test {
                 mock(Storage.class),
                 mock(Storage.class),
                 mock(Storage.class),
-                mock(Storage.class)
+                mockContactFieldValueStorage
         );
 
-        defaultHeaders = RequestHeaderUtils_Old.createDefaultHeaders(requestContext);
+        defaultHeaders = RequestHeaderUtils.createDefaultHeaders(requestContext);
 
         inbox = new InboxInternal_V1(manager, requestContext);
 
         resultListenerMock = mock(ResultListener.class);
         resetListenerMock = mock(CompletionListener.class);
-        appLoginParameters_withCredentials = new AppLoginParameters(30, "value");
-        appLoginParameters_noCredentials = new AppLoginParameters();
-        appLoginParameters_missing = null;
 
         Field cacheField = NotificationCache.class.getDeclaredField("internalCache");
         cacheField.setAccessible(true);
@@ -178,7 +173,6 @@ public class InboxInternal_V1Test {
     public void testFetchNotifications_shouldMakeRequest_viaRequestManager_submitNow() {
         RequestModel expected = createRequestModel("https://me-inbox.eservice.emarsys.net/api/notifications", RequestMethod.GET);
 
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
         inbox.fetchNotifications(resultListenerMock);
 
         ArgumentCaptor<RequestModel> requestCaptor = ArgumentCaptor.forClass(RequestModel.class);
@@ -194,8 +188,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testFetchNotifications_listener_success() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         inbox = new InboxInternal_V1(
                 requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext
@@ -212,8 +204,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testFetchNotifications_listener_success_shouldBeCalledOnMainThread() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         inbox = new InboxInternal_V1(
                 requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext
@@ -233,8 +223,6 @@ public class InboxInternal_V1Test {
         for (int i = cachedNotifications.size() - 1; i >= 0; --i) {
             cache.cache(cachedNotifications.get(i));
         }
-
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
 
         inbox = new InboxInternal_V1(
                 requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
@@ -256,8 +244,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testFetchNotifications_listener_failureWithException() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         Exception expectedException = new Exception("FakeRestClientException");
         inbox = new InboxInternal_V1(
                 requestManagerWithRestClient(new FakeRestClient(expectedException)),
@@ -275,8 +261,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testFetchNotifications_listener_failureWithException_shouldBeCalledOnMainThread() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         inbox = new InboxInternal_V1(
                 requestManagerWithRestClient(new FakeRestClient(new Exception())),
                 requestContext
@@ -292,8 +276,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testFetchNotification_listener_failureWithResponseModel() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         ResponseModel responseModel = new ResponseModel.Builder()
                 .statusCode(400)
                 .message("Bad request")
@@ -324,8 +306,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testFetchNotification_listener_failureWithResponseModel_shouldBeCalledOnMainThread() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         ResponseModel responseModel = new ResponseModel.Builder()
                 .statusCode(400)
                 .message("Bad request")
@@ -346,7 +326,7 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testFetchNotification_listener_failureWithParametersNotSet() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_missing);
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch);
         inbox.fetchNotifications(listener);
@@ -359,7 +339,7 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testFetchNotification_listener_failureWithParametersNotSet_shouldBeCalledOnMainThread() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_missing);
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch, Mode.MAIN_THREAD);
         inbox.fetchNotifications(listener);
@@ -371,7 +351,7 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testFetchNotification_listener_failureWithParametersSet_butLacksCredentials() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_noCredentials);
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch);
         inbox.fetchNotifications(listener);
@@ -384,7 +364,7 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testFetchNotification_listener_failureWithParametersSet_butLacksCredentials_shouldBeCalledOnMainThread() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_noCredentials);
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
 
         FakeInboxResultListener listener = new FakeInboxResultListener(latch, Mode.MAIN_THREAD);
         inbox.fetchNotifications(listener);
@@ -398,7 +378,6 @@ public class InboxInternal_V1Test {
     public void testResetBadgeCount_shouldMakeRequest_viaRequestManager_submitNow() {
         RequestModel expected = createRequestModel("https://me-inbox.eservice.emarsys.net/api/reset-badge-count", RequestMethod.POST);
 
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
         inbox.resetBadgeCount(resetListenerMock);
 
         ArgumentCaptor<RequestModel> requestCaptor = ArgumentCaptor.forClass(RequestModel.class);
@@ -414,8 +393,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_listener_success() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         inbox = new InboxInternal_V1(
                 requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext
@@ -431,8 +408,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_listener_success_shouldBeCalledOnMainThread() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         inbox = new InboxInternal_V1(
                 requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext
@@ -448,8 +423,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_listener_failureWithException() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         Exception expectedException = new Exception("FakeRestClientException");
         inbox = new InboxInternal_V1(
                 requestManagerWithRestClient(new FakeRestClient(expectedException)),
@@ -467,8 +440,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_listener_failureWithException_shouldBeCalledOnMainThread() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         inbox = new InboxInternal_V1(
                 requestManagerWithRestClient(new FakeRestClient(new Exception())),
                 requestContext
@@ -484,8 +455,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_listener_failureWithResponseModel() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         ResponseModel responseModel = new ResponseModel.Builder()
                 .statusCode(400)
                 .message("Bad request")
@@ -516,8 +485,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_listener_failureWithResponseModel_shouldBeCalledOnMainThread() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         ResponseModel responseModel = new ResponseModel.Builder()
                 .statusCode(400)
                 .message("Bad request")
@@ -538,7 +505,7 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_listener_failureWithParametersNotSet() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_missing);
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch);
         inbox.resetBadgeCount(listener);
@@ -551,7 +518,7 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_listener_failureWithParametersNotSet_shouldBeCalledOnMainThread() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_missing);
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch, FakeResetBadgeCountResultListener.Mode.MAIN_THREAD);
         inbox.resetBadgeCount(listener);
@@ -563,7 +530,7 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_listener_failureWithParametersSet_butLacksCredentials() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_noCredentials);
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch);
         inbox.resetBadgeCount(listener);
@@ -576,7 +543,7 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_listener_failureWithParametersSet_butLacksCredentials_shouldBeCalledOnMainThread() throws InterruptedException {
-        requestContext.setAppLoginParameters(appLoginParameters_noCredentials);
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
 
         FakeResetBadgeCountResultListener listener = new FakeResetBadgeCountResultListener(latch, FakeResetBadgeCountResultListener.Mode.MAIN_THREAD);
         inbox.resetBadgeCount(listener);
@@ -588,8 +555,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_shouldNotFail_withNullListener_success() {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         inbox = new InboxInternal_V1(
                 requestManagerWithRestClient(new FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext
@@ -605,8 +570,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_shouldNotFail_withNullListener_failureWithException() {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         Exception expectedException = new Exception("FakeRestClientException");
         inbox = new InboxInternal_V1(
                 requestManagerWithRestClient(new FakeRestClient(expectedException)),
@@ -623,8 +586,6 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_shouldNotFail_withNullListener_failureWithResponseModel() {
-        requestContext.setAppLoginParameters(appLoginParameters_withCredentials);
-
         ResponseModel responseModel = new ResponseModel.Builder()
                 .statusCode(400)
                 .message("Bad request")
@@ -645,7 +606,7 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_shouldNotFail_withNullListener_failureWithParametersNotSet() {
-        requestContext.setAppLoginParameters(appLoginParameters_missing);
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
 
         try {
             inbox.resetBadgeCount(null);
@@ -657,7 +618,7 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testResetBadgeCount_shouldNotFail_withNullListener_failureWithParametersSet_butLacksCredentials() {
-        requestContext.setAppLoginParameters(appLoginParameters_noCredentials);
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
 
         try {
             inbox.resetBadgeCount(null);
@@ -674,6 +635,8 @@ public class InboxInternal_V1Test {
 
     @Test
     public void testTrackNotificationOpen_requestManagerCalledWithCorrectRequestModel() {
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
+
         Notification message = new Notification("id1", "sid1", "title", null, new HashMap<String, String>(), new JSONObject(), 7200, new Date().getTime());
 
         Map<String, Object> payload = new HashMap<>();
@@ -720,26 +683,42 @@ public class InboxInternal_V1Test {
     }
 
     @Test
-    public void testTrackNotificationOpen_containsCredentials_fromApploginParameters() {
-        int contactFieldId = 3;
-        String contactFieldValue = "test@test.com";
-        requestContext.setAppLoginParameters(new AppLoginParameters(contactFieldId, contactFieldValue));
+    public void testTrackNotificationOpen_containsCredentials_fromRequestContext() {
+        requestContext = new RequestContext(
+                APPLICATION_ID,
+                "applicationPassword",
+                3,
+                deviceInfo,
+                new AppLoginStorage(application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)),
+                mock(MeIdStorage.class),
+                mock(MeIdSignatureStorage.class),
+                timestampProvider,
+                uuidProvider,
+                mock(Storage.class),
+                mock(Storage.class),
+                mock(Storage.class),
+                mockContactFieldValueStorage
+        );
+        inbox = new InboxInternal_V1(manager, requestContext);
+
+        when(mockContactFieldValueStorage.get()).thenReturn("test@test.com");
+
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
         inbox.trackNotificationOpen(mock(Notification.class), null);
         verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
         Map<String, Object> payload = captor.getValue().getPayload();
-        Assert.assertEquals(payload.get("contact_field_id"), contactFieldId);
-        Assert.assertEquals(payload.get("contact_field_value"), contactFieldValue);
+        Assert.assertEquals(payload.get("contact_field_id"), 3);
+        Assert.assertEquals(payload.get("contact_field_value"), "test@test.com");
     }
 
     private RequestModel createRequestModel(String path, RequestMethod method) {
         Map<String, String> headers = new HashMap<>();
         headers.put("x-ems-me-hardware-id", deviceInfo.getHwid());
         headers.put("x-ems-me-application-code", requestContext.getApplicationCode());
-        headers.put("x-ems-me-contact-field-id", String.valueOf(appLoginParameters_withCredentials.getContactFieldId()));
-        headers.put("x-ems-me-contact-field-value", appLoginParameters_withCredentials.getContactFieldValue());
+        headers.put("x-ems-me-contact-field-id", String.valueOf(requestContext.getContactFieldId()));
+        headers.put("x-ems-me-contact-field-value", requestContext.getContactFieldValueStorage().get());
         headers.putAll(RequestHeaderUtils_Old.createDefaultHeaders(requestContext));
         headers.putAll(RequestHeaderUtils_Old.createBaseHeaders_V2(requestContext));
 

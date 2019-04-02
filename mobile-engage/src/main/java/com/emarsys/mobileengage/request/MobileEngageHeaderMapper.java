@@ -31,7 +31,7 @@ public class MobileEngageHeaderMapper implements Mapper<List<RequestModel>, List
 
         for (RequestModel requestModel : requestModels) {
             RequestModel updatedRequestModel = requestModel;
-            if (RequestModelUtils.isMobileEngageRequest(requestModel)) {
+            if (RequestModelUtils.isMobileEngageV3Request(requestModel)) {
 
                 Map<String, String> updatedHeaders = new HashMap<>(requestModel.getHeaders());
                 updatedHeaders.putAll(headersToInject);

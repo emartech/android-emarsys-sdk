@@ -174,7 +174,7 @@ public class RequestHeaderUtilsOldTest {
         expected.put("X-ME-ID-SIGNATURE", meIdSignature);
         expected.put("X-ME-APPLICATIONCODE", APPLICATION_CODE);
 
-        Map<String, String> result = RequestHeaderUtils.createBaseHeaders_V3(requestContext);
+        Map<String, String> result = RequestHeaderUtils_Old.createBaseHeaders_V3(requestContext);
 
         assertEquals(expected, result);
     }

@@ -31,7 +31,6 @@ import java.util.concurrent.CountDownLatch
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.jvm.isAccessible
 
-@Ignore
 class InboxV1IntegrationTest {
 
     companion object {
@@ -113,7 +112,7 @@ class InboxV1IntegrationTest {
 
     @Test
     fun testFetchNotifications() {
-        IntegrationTestUtils.doAppLogin()
+        IntegrationTestUtils.doLogin()
 
         Emarsys.Inbox.fetchNotifications(eventuallyStoreResultInProperty(this::triedNotificationInboxStatus.setter)).eventuallyAssert {
             triedNotificationInboxStatus.errorCause shouldBe null
@@ -123,7 +122,7 @@ class InboxV1IntegrationTest {
 
     @Test
     fun testResetBadgeCount() {
-        IntegrationTestUtils.doAppLogin()
+        IntegrationTestUtils.doLogin()
 
         Emarsys.Inbox.resetBadgeCount(eventuallyStoreResultInProperty(this::errorCause.setter)).eventuallyAssert {
             errorCause shouldBe null
@@ -131,6 +130,7 @@ class InboxV1IntegrationTest {
     }
 
     @Test
+    @Ignore
     fun testTrackNotificationOpen() {
         val notification = Notification(
                 "id",

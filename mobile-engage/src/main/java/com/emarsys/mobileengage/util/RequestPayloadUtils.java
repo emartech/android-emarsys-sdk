@@ -14,6 +14,21 @@ import java.util.List;
 import java.util.Map;
 
 public class RequestPayloadUtils {
+
+    public static Map<String, Object> createBasePayload(RequestContext requestContext) {
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("application_id", requestContext.getApplicationCode());
+        payload.put("hardware_id", requestContext.getDeviceInfo().getHwid());
+
+        if (requestContext.getContactFieldValueStorage().get() != null) {
+            payload.put("contact_field_id", requestContext.getContactFieldId());
+            payload.put("contact_field_value", requestContext.getContactFieldValueStorage().get());
+        }
+        return payload;
+    }
+
     public static Map<String, Object> createSetPushTokenPayload(String pushToken) {
         Assert.notNull(pushToken, "PushToken must not be null!");
 

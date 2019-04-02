@@ -25,22 +25,22 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Parameterized.Parameter
-    private lateinit var tableName: String
+    lateinit var tableName: String
 
     @Parameterized.Parameter(1)
-    private lateinit var triggerType: TriggerType
+    lateinit var triggerType: TriggerType
 
     @Parameterized.Parameter(2)
-    private lateinit var triggerEvent: TriggerEvent
+    lateinit var triggerEvent: TriggerEvent
 
     @Parameterized.Parameter(3)
-    private lateinit var setup: Runnable
+    lateinit var setup: Runnable
 
     @Parameterized.Parameter(4)
-    private lateinit var trigger: Runnable
+    lateinit var trigger: Runnable
 
     @Parameterized.Parameter(5)
-    private lateinit var action: Runnable
+    lateinit var action: Runnable
 
     private lateinit var registeredTriggerMap: MutableMap<TriggerKey, MutableList<Runnable>>
 
