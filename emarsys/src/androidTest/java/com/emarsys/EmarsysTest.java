@@ -32,7 +32,6 @@ import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.di.FakeDependencyContainer;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
@@ -450,25 +449,6 @@ public class EmarsysTest {
         Emarsys.setContact(CONTACT_ID, completionListener);
 
         verify(mockPredictInternal).setContact(CONTACT_ID);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testSetAnonymousContactWithCompletionListener_completionListener_mustNotBeNull() {
-        Emarsys.setAnonymousContact(null);
-    }
-
-    @Test
-    public void testSetAnonymousContact_delegatesToMobileEngageInternal() {
-        Emarsys.setAnonymousContact();
-
-        verify(mockMobileEngageInternal).setAnonymousContact(null);
-    }
-
-    @Test
-    public void testSetAnonymousContactWithCompletionListener_delegatesToMobileEngageInternal() {
-        Emarsys.setAnonymousContact(completionListener);
-
-        verify(mockMobileEngageInternal).setAnonymousContact(completionListener);
     }
 
     @Test(expected = IllegalArgumentException.class)

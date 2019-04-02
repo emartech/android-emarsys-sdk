@@ -80,27 +80,6 @@ public class Emarsys {
         });
     }
 
-    public static void setAnonymousContact() {
-        getRunnerProxy().logException(new Runnable() {
-            @Override
-            public void run() {
-
-                getMobileEngageInternal().setAnonymousContact(null);
-            }
-        });
-    }
-
-    public static void setAnonymousContact(@NonNull final CompletionListener completionListener) {
-        getRunnerProxy().logException(new Runnable() {
-            @Override
-            public void run() {
-                Assert.notNull(completionListener, "CompletionListener must not be null!");
-
-                getMobileEngageInternal().setAnonymousContact(completionListener);
-            }
-        });
-    }
-
     public static void clearContact() {
         getRunnerProxy().logException(new Runnable() {
             @Override

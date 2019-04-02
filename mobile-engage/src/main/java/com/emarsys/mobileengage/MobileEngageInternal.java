@@ -11,8 +11,6 @@ public interface MobileEngageInternal extends MobileEngageClientInternal {
 
     void removePushToken(CompletionListener completionListener);
 
-    String setAnonymousContact(CompletionListener completionListener);
-
     void setContact(String contactFieldValue, CompletionListener completionListener);
 
     String removeContact(CompletionListener completionListener);

@@ -42,14 +42,18 @@ public class RequestModelFactory {
     }
 
     public RequestModel createSetContactRequest(String contactFieldValue) {
-        Assert.notNull(contactFieldValue, "ContactFieldValue must not be null!");
-
-        return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
+        RequestModel.Builder builder = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(RequestUrlUtils.createSetContactUrl(requestContext))
                 .method(RequestMethod.POST)
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
-                .payload(RequestPayloadUtils.createSetContactPayload(contactFieldValue, requestContext))
-                .build();
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext));
+        if (contactFieldValue == null) {
+            Map<String, String> queryParams = new HashMap<>();
+            queryParams.put("anonymous", "true");
+            builder.queryParams(queryParams);
+        } else {
+            builder.payload(RequestPayloadUtils.createSetContactPayload(contactFieldValue, requestContext));
+        }
+        return builder.build();
     }
 
     public RequestModel createCustomEventRequest(String eventName, Map<String, String> eventAttributes) {

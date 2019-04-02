@@ -8,6 +8,7 @@ import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
+import com.emarsys.mobileengage.event.applogin.AppLoginParameters;
 import com.emarsys.mobileengage.request.RequestModelFactory;
 
 import org.json.JSONException;
@@ -21,17 +22,21 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
     private final RequestManager requestManager;
     private final Handler uiHandler;
     private final RequestModelFactory requestModelFactory;
+    private final RequestContext requestContext;
 
     public MobileEngageInternalV3(RequestManager requestManager,
                                   Handler uiHandler,
-                                  RequestModelFactory requestModelFactory) {
+                                  RequestModelFactory requestModelFactory,
+                                  RequestContext requestContext) {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(uiHandler, "UiHandler must not be null!");
         Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");
+        Assert.notNull(requestContext, "RequestContext must not be null!");
 
         this.requestManager = requestManager;
         this.uiHandler = uiHandler;
         this.requestModelFactory = requestModelFactory;
+        this.requestContext = requestContext;
     }
 
     @Override
@@ -49,16 +54,9 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
     }
 
     @Override
-    public String setAnonymousContact(CompletionListener completionListener) {
-        return null;
-    }
-
-    @Override
     public void setContact(String contactFieldValue, CompletionListener completionListener) {
-        Assert.notNull(contactFieldValue, "ContactFieldValue must not be null!");
-
+        requestContext.setAppLoginParameters(new AppLoginParameters(requestContext.getContactFieldId(), contactFieldValue));
         RequestModel requestModel = requestModelFactory.createSetContactRequest(contactFieldValue);
-
         requestManager.submit(requestModel, completionListener);
     }
 

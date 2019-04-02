@@ -112,11 +112,6 @@ class RequestModelFactoryTest {
         result shouldBe expected
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateSetContactRequest_contactFieldValue_mustNotBeNull() {
-        requestFactory.createSetContactRequest(null)
-    }
-
     @Test
     fun testCreateSetContactRequest() {
         val expected = RequestModel(
@@ -129,6 +124,22 @@ class RequestModelFactoryTest {
                 REQUEST_ID
         )
         val result = requestFactory.createSetContactRequest("contactFieldValue")
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateSetContactRequest_withoutContactFieldValue() {
+        val expected = RequestModel(
+                RequestUrlUtils.createSetContactUrl(mockRequestContext) + "?anonymous=true",
+                RequestMethod.POST,
+                null,
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+        val result = requestFactory.createSetContactRequest(null)
 
         result shouldBe expected
     }

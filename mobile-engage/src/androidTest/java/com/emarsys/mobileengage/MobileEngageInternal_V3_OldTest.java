@@ -220,7 +220,7 @@ public class MobileEngageInternal_V3_OldTest {
                 coreCompletionHandler,
                 requestContext);
 
-        internal.setAnonymousContact(mockCompletionListener);
+        internal.setContact(null, mockCompletionListener);
 
         ArgumentCaptor<AppLoginParameters> captor = ArgumentCaptor.forClass(AppLoginParameters.class);
         verify(requestContext).setAppLoginParameters(captor.capture());

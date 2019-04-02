@@ -84,7 +84,6 @@ public class MobileEngageInternal_V3_Old implements MobileEngageInternal {
 
     }
 
-    @Override
     public String setAnonymousContact(CompletionListener completionListener) {
         requestContext.setAppLoginParameters(new AppLoginParameters());
         return sendAppLogin(completionListener);

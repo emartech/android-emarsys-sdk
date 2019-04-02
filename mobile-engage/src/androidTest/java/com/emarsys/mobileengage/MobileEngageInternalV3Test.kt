@@ -10,6 +10,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
+import com.emarsys.mobileengage.event.applogin.AppLoginParameters
 import com.emarsys.mobileengage.fake.FakeCompletionListener
 import com.emarsys.mobileengage.request.RequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
@@ -110,22 +111,27 @@ class MobileEngageInternalV3Test {
 
         mockCompletionListener = mock(CompletionListener::class.java)
 
-        mobileEngageInternal = MobileEngageInternalV3(mockRequestManager, uiHandler, mockRequestModelFactory)
+        mobileEngageInternal = MobileEngageInternalV3(mockRequestManager, uiHandler, mockRequestModelFactory, mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestManager_mustNotBeNull() {
-        MobileEngageInternalV3(null, uiHandler, mockRequestModelFactory)
+        MobileEngageInternalV3(null, uiHandler, mockRequestModelFactory, mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_uiHandler_mustNotBeNull() {
-        MobileEngageInternalV3(mockRequestManager, null, mockRequestModelFactory)
+        MobileEngageInternalV3(mockRequestManager, null, mockRequestModelFactory, mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestModelFactory_mustNotBeNull() {
-        MobileEngageInternalV3(mockRequestManager, uiHandler, null)
+        MobileEngageInternalV3(mockRequestManager, uiHandler, null, mockRequestContext)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_requestContext_mustNotBeNull() {
+        MobileEngageInternalV3(mockRequestManager, uiHandler, mockRequestModelFactory, null)
     }
 
     @Test
@@ -149,16 +155,21 @@ class MobileEngageInternalV3Test {
         verifyZeroInteractions(mockRequestManager)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testSetContact_contactFieldValue_mustNotBeNull() {
-        mobileEngageInternal.setContact(null, mockCompletionListener)
-    }
-
     @Test
     fun testSetContact() {
         mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, mockCompletionListener)
 
         verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+    }
+
+    @Test
+    fun testSetContact_shouldSetAppLoginParams_toRequestContext() {
+        val expectedAppLoginParameters = AppLoginParameters(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE)
+        whenever(mockRequestContext.contactFieldId).thenReturn(3)
+
+        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, mockCompletionListener)
+
+        verify(mockRequestContext).appLoginParameters = expectedAppLoginParameters
     }
 
     @Test
