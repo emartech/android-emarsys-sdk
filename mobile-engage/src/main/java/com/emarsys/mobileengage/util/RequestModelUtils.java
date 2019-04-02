@@ -5,12 +5,12 @@ import com.emarsys.core.util.Assert;
 
 public class RequestModelUtils {
 
-    public static boolean isMobileEngageRequest(RequestModel requestModel) {
+    public static boolean isMobileEngageV3Request(RequestModel requestModel) {
         Assert.notNull(requestModel, "RequestModel must not be null!");
 
         String url = requestModel.getUrl().toString();
 
-        return RequestUrlUtils.isMobileEngageUrl(url);
+        return RequestUrlUtils.isMobileEngageV3Url(url);
     }
 
     public static boolean isCustomEvent_V3(RequestModel requestModel) {

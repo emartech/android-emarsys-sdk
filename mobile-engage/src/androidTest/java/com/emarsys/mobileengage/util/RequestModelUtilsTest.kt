@@ -19,7 +19,7 @@ class RequestModelUtilsTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testIsMobileEngageRequest_requestModel_mustNotBeNull() {
-        RequestModelUtils.isMobileEngageRequest(null)
+        RequestModelUtils.isMobileEngageV3Request(null)
     }
 
     @Test
@@ -27,7 +27,7 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(Endpoint.ME_V3_CLIENT_BASE))
         }
-        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel)
+        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel)
 
         result shouldBe true
     }
@@ -37,7 +37,7 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(Endpoint.ME_V3_EVENT_BASE))
         }
-        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel)
+        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel)
 
         result shouldBe true
     }
@@ -47,7 +47,7 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL("https://not-mobile-engage.com"))
         }
-        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel)
+        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel)
 
         result shouldBe false
     }

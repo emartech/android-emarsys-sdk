@@ -40,7 +40,7 @@ public class RequestUrlUtils {
         return String.format(Endpoint.ME_V3_CLIENT_BASE + "/contact-token", requestContext.getApplicationCode());
     }
 
-    public static boolean isMobileEngageUrl(String url) {
+    public static boolean isMobileEngageV3Url(String url) {
         Assert.notNull(url, "Url must not be null!");
 
         return url.startsWith(Endpoint.ME_V3_CLIENT_HOST) || url.startsWith(Endpoint.ME_V3_EVENT_HOST);

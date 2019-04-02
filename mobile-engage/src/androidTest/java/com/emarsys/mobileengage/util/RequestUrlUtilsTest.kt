@@ -89,26 +89,26 @@ class RequestUrlUtilsTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testIsMobileEngageUrl_url_mustNotBeNull() {
-        RequestUrlUtils.isMobileEngageUrl(null)
+        RequestUrlUtils.isMobileEngageV3Url(null)
     }
 
     @Test
     fun testIsMobileEngageUrl_true_whenItIsMobileEngageClient() {
-        val result = RequestUrlUtils.isMobileEngageUrl(Endpoint.ME_V3_CLIENT_BASE)
+        val result = RequestUrlUtils.isMobileEngageV3Url(Endpoint.ME_V3_CLIENT_BASE)
 
         result shouldBe true
     }
 
     @Test
     fun testIsMobileEngageUrl_true_whenItIsMobileEngageEvent() {
-        val result = RequestUrlUtils.isMobileEngageUrl(Endpoint.ME_V3_EVENT_BASE)
+        val result = RequestUrlUtils.isMobileEngageV3Url(Endpoint.ME_V3_EVENT_BASE)
 
         result shouldBe true
     }
 
     @Test
     fun testIsMobileEngageUrl_false_whenItIsNotMobileEngage() {
-        val result = RequestUrlUtils.isMobileEngageUrl("https://not-mobile-engage.com")
+        val result = RequestUrlUtils.isMobileEngageV3Url("https://not-mobile-engage.com")
 
         result shouldBe false
     }
