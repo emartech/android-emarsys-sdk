@@ -135,14 +135,6 @@ class MobileEngageIntegrationTest {
         DependencyInjection.tearDown()
     }
 
-    @Ignore
-    @Test
-    fun testSetAnonymousContact() {
-        Emarsys.setAnonymousContact(
-                this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
-    }
-
     @Test
     fun testSetContact() {
         contactTokenStorage.remove()

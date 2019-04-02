@@ -23,6 +23,7 @@ public class RequestContext {
     private final Storage<String> clientStateStorage;
     private final Storage<String> contactTokenStorage;
     private final Storage<String> refreshTokenStorage;
+    private final Storage<String> contactFieldValueStorage;
     private AppLoginParameters appLoginParameters;
 
     public RequestContext(
@@ -37,7 +38,8 @@ public class RequestContext {
             UUIDProvider uuidProvider,
             Storage<String> clientStateStorage,
             Storage<String> contactTokenStorage,
-            Storage<String> refreshTokenStorage) {
+            Storage<String> refreshTokenStorage,
+            Storage<String> contactFieldValueStorage) {
         Assert.notNull(applicationCode, "ApplicationCode must not be null!");
         Assert.notNull(applicationPassword, "ApplicationPassword must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
@@ -48,6 +50,8 @@ public class RequestContext {
         Assert.notNull(uuidProvider, "UUIDProvider must not be null!");
         Assert.notNull(clientStateStorage, "ClientStateStorage must not be null!");
         Assert.notNull(contactTokenStorage, "ContactTokenStorage must not be null!");
+        Assert.notNull(refreshTokenStorage, "RefreshTokenStorage must not be null!");
+        Assert.notNull(contactFieldValueStorage, "ContactFieldValueStorage must not be null!");
 
         this.applicationCode = applicationCode;
         this.applicationPassword = applicationPassword;
@@ -61,6 +65,7 @@ public class RequestContext {
         this.clientStateStorage = clientStateStorage;
         this.contactTokenStorage = contactTokenStorage;
         this.refreshTokenStorage = refreshTokenStorage;
+        this.contactFieldValueStorage = contactFieldValueStorage;
     }
 
     public String getApplicationCode() {
@@ -117,6 +122,10 @@ public class RequestContext {
 
     public Storage<String> getRefreshTokenStorage() { return refreshTokenStorage; }
 
+    public Storage<String> getContactFieldValueStorage() {
+        return contactFieldValueStorage;
+    }
+
     @Override
     public String toString() {
         return "RequestContext{" +
@@ -132,6 +141,7 @@ public class RequestContext {
                 ", clientStateStorage=" + clientStateStorage +
                 ", contactTokenStorage=" + contactTokenStorage +
                 ", refreshTokenStorage=" + refreshTokenStorage +
+                ", contactFieldValueStorage=" + contactFieldValueStorage +
                 ", appLoginParameters=" + appLoginParameters +
                 '}';
     }

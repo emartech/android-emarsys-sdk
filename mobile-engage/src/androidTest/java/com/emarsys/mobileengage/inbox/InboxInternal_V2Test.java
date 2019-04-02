@@ -170,6 +170,7 @@ public class InboxInternal_V2Test {
                 uuidProvider,
                 mock(Storage.class),
                 mock(Storage.class),
+                mock(Storage.class),
                 mock(Storage.class)
         );
 

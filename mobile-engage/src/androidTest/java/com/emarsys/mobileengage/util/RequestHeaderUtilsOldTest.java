@@ -44,6 +44,7 @@ public class RequestHeaderUtilsOldTest {
     private Storage<String> clientStateStorage;
     private Storage<String> contactTokenStorage;
     private Storage<String> refreshTokenStorage;
+    private Storage<String> contactFieldValueStorage;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -65,6 +66,7 @@ public class RequestHeaderUtilsOldTest {
         clientStateStorage = new StringStorage(MobileEngageStorageKey.CLIENT_STATE, sharedPreferences);
         contactTokenStorage = new StringStorage(MobileEngageStorageKey.CONTACT_TOKEN, sharedPreferences);
         refreshTokenStorage = new StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, sharedPreferences);
+        contactFieldValueStorage = new StringStorage(MobileEngageStorageKey.CONTACT_FIELD_VALUE, sharedPreferences);
 
         UUIDProvider uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
@@ -87,7 +89,8 @@ public class RequestHeaderUtilsOldTest {
                 uuidProvider,
                 clientStateStorage,
                 contactTokenStorage,
-                refreshTokenStorage);
+                refreshTokenStorage,
+                contactFieldValueStorage);
 
         DeviceInfo releaseDeviceInfo = mock(DeviceInfo.class);
         when(releaseDeviceInfo.isDebugMode()).thenReturn(false);
@@ -104,7 +107,8 @@ public class RequestHeaderUtilsOldTest {
                 uuidProvider,
                 clientStateStorage,
                 contactTokenStorage,
-                refreshTokenStorage);
+                refreshTokenStorage,
+                contactFieldValueStorage);
 
 
     }
@@ -131,7 +135,7 @@ public class RequestHeaderUtilsOldTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateBaseHeaders_V3_requestContextShouldNotBeNull() {
-        RequestHeaderUtils_Old.createBaseHeaders_V3(null);
+        RequestHeaderUtils.createBaseHeaders_V3(null);
     }
 
     @Test
@@ -161,26 +165,28 @@ public class RequestHeaderUtilsOldTest {
                 uuidProvider,
                 clientStateStorage,
                 contactTokenStorage,
-                refreshTokenStorage);
+                refreshTokenStorage,
+                contactFieldValueStorage
+        );
 
         Map<String, String> expected = new HashMap<>();
         expected.put("X-ME-ID", meId);
         expected.put("X-ME-ID-SIGNATURE", meIdSignature);
         expected.put("X-ME-APPLICATIONCODE", APPLICATION_CODE);
 
-        Map<String, String> result = RequestHeaderUtils_Old.createBaseHeaders_V3(requestContext);
+        Map<String, String> result = RequestHeaderUtils.createBaseHeaders_V3(requestContext);
 
         assertEquals(expected, result);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateDefaultHeaders_configShouldNotBeNull() {
-        RequestHeaderUtils_Old.createDefaultHeaders(null);
+        RequestHeaderUtils.createDefaultHeaders(null);
     }
 
     @Test
     public void testCreateDefaultHeaders_returnedValueShouldNotBeNull() {
-        assertNotNull(RequestHeaderUtils_Old.createDefaultHeaders(debugRequestContext));
+        assertNotNull(RequestHeaderUtils.createDefaultHeaders(debugRequestContext));
     }
 
     @Test
@@ -190,7 +196,7 @@ public class RequestHeaderUtilsOldTest {
         expected.put("X-EMARSYS-SDK-VERSION", BuildConfig.VERSION_NAME);
         expected.put("X-EMARSYS-SDK-MODE", "debug");
 
-        Map<String, String> result = RequestHeaderUtils_Old.createDefaultHeaders(debugRequestContext);
+        Map<String, String> result = RequestHeaderUtils.createDefaultHeaders(debugRequestContext);
 
         assertEquals(expected, result);
     }
@@ -202,7 +208,7 @@ public class RequestHeaderUtilsOldTest {
         expected.put("X-EMARSYS-SDK-VERSION", BuildConfig.VERSION_NAME);
         expected.put("X-EMARSYS-SDK-MODE", "production");
 
-        Map<String, String> result = RequestHeaderUtils_Old.createDefaultHeaders(releaseRequestContext);
+        Map<String, String> result = RequestHeaderUtils.createDefaultHeaders(releaseRequestContext);
 
         assertEquals(expected, result);
     }

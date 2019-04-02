@@ -139,7 +139,9 @@ public class MobileEngageInternal_V3_OldTest {
                 uuidProvider,
                 mock(Storage.class),
                 mock(Storage.class),
-                mock(Storage.class));
+                mock(Storage.class),
+                mock(Storage.class)
+        );
 
         defaultHeaders = RequestHeaderUtils_Old.createDefaultHeaders(requestContext);
 

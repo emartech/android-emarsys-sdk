@@ -61,7 +61,7 @@ public class DeepLinkInternalTest {
         timestampProvider = mock(TimestampProvider.class);
         uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
-                requestContext = new RequestContext(
+        requestContext = new RequestContext(
                 "",
                 "",
                 1,
@@ -73,7 +73,9 @@ public class DeepLinkInternalTest {
                 uuidProvider,
                 mock(Storage.class),
                 mock(Storage.class),
-                mock(Storage.class));
+                mock(Storage.class),
+                mock(Storage.class)
+        );
 
         deepLinkInternal = new DeepLinkInternal(manager, requestContext);
     }

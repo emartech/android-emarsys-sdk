@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.storage;
 import com.emarsys.core.storage.StorageKey;
 
 public enum MobileEngageStorageKey implements StorageKey {
-    REFRESH_TOKEN, CONTACT_TOKEN, CLIENT_STATE;
+    REFRESH_TOKEN, CONTACT_TOKEN, CLIENT_STATE, CONTACT_FIELD_VALUE;
 
     @Override
     public String getKey() {

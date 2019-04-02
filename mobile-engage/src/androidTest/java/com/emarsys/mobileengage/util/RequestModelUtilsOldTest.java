@@ -80,7 +80,9 @@ public class RequestModelUtilsOldTest {
                 uuidProvider,
                 mock(Storage.class),
                 mock(Storage.class),
-                mock(Storage.class));
+                mock(Storage.class),
+                mock(Storage.class)
+        );
 
         requestContext.setAppLoginParameters(new AppLoginParameters(3, "test@test.com"));
     }
@@ -92,7 +94,7 @@ public class RequestModelUtilsOldTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testIsCustomEvent_V3_mustNotBeNull() {
-        RequestModelUtils_Old.isCustomEvent_V3(null);
+        RequestModelUtils.isCustomEvent_V3(null);
     }
 
     @Test
@@ -101,7 +103,7 @@ public class RequestModelUtilsOldTest {
                 .url(VALID_CUSTOM_EVENT_V3)
                 .build();
 
-        assertTrue(RequestModelUtils_Old.isCustomEvent_V3(requestModel));
+        assertTrue(RequestModelUtils.isCustomEvent_V3(requestModel));
     }
 
     @Test
@@ -110,7 +112,7 @@ public class RequestModelUtilsOldTest {
                 .url("https://www.google.com")
                 .build();
 
-        assertFalse(RequestModelUtils_Old.isCustomEvent_V3(requestModel));
+        assertFalse(RequestModelUtils.isCustomEvent_V3(requestModel));
     }
 
     @Test(expected = IllegalArgumentException.class)

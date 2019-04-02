@@ -75,7 +75,9 @@ public class RequestPayloadUtilsOldTest {
                 uuidProvider,
                 mock(Storage.class),
                 mock(Storage.class),
-                mock(Storage.class));
+                mock(Storage.class),
+                mock(Storage.class)
+                );
 
         requestContext.setAppLoginParameters(new AppLoginParameters(3, "test@test.com"));
     }

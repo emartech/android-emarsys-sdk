@@ -123,6 +123,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private Storage<String> contactTokenStorage;
     private Storage<String> refreshTokenStorage;
     private Storage<String> clientStateStorage;
+    private Storage<String> contactFieldValueStorage;
     private RequestManager requestManager;
     private RequestModelFactory requestModelFactory;
     private ButtonClickedRepository buttonClickedRepository;
@@ -281,6 +282,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         contactTokenStorage = new StringStorage(MobileEngageStorageKey.CONTACT_TOKEN, prefs);
         refreshTokenStorage = new StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, prefs);
         clientStateStorage = new StringStorage(MobileEngageStorageKey.CLIENT_STATE, prefs);
+        contactFieldValueStorage = new StringStorage(MobileEngageStorageKey.CONTACT_FIELD_VALUE, prefs);
 
         LanguageProvider languageProvider = new LanguageProvider();
         HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, prefs);
@@ -309,7 +311,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 uuidProvider,
                 clientStateStorage,
                 contactTokenStorage,
-                refreshTokenStorage);
+                refreshTokenStorage,
+                contactFieldValueStorage);
 
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
