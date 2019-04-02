@@ -61,7 +61,8 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
     }
 
     @Override
-    public String removeContact(CompletionListener completionListener) {
+    public String clearContact(CompletionListener completionListener) {
+        setContact(null, completionListener);
         return null;
     }
 

@@ -308,7 +308,7 @@ public class MobileEngageInternal_V3_OldTest {
 
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        mobileEngageInternal.removeContact(null);
+        mobileEngageInternal.clearContact(null);
 
         verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
@@ -320,7 +320,7 @@ public class MobileEngageInternal_V3_OldTest {
     public void testAppLogout_requestManagerCalledWithCompletionListener() {
         CompletionListener completionListener = mock(CompletionListener.class);
 
-        mobileEngageInternal.removeContact(completionListener);
+        mobileEngageInternal.clearContact(completionListener);
 
         verify(manager).submit(any(RequestModel.class), eq(completionListener));
     }
@@ -329,7 +329,7 @@ public class MobileEngageInternal_V3_OldTest {
     public void testAppLogout_returnsRequestModelId() {
         ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
 
-        String result = mobileEngageInternal.removeContact(null);
+        String result = mobileEngageInternal.clearContact(null);
 
         verify(manager).submit(captor.capture(), (CompletionListener) isNull());
 
@@ -341,7 +341,7 @@ public class MobileEngageInternal_V3_OldTest {
         AppLoginStorage storage = new AppLoginStorage(sharedPreferences);
         storage.set(42);
 
-        mobileEngageInternal.removeContact(null);
+        mobileEngageInternal.clearContact(null);
         assertEquals(storage.get(), null);
     }
 
@@ -350,7 +350,7 @@ public class MobileEngageInternal_V3_OldTest {
         MeIdStorage storage = new MeIdStorage(sharedPreferences);
         storage.set("testMeID");
 
-        mobileEngageInternal.removeContact(null);
+        mobileEngageInternal.clearContact(null);
         assertEquals(storage.get(), null);
     }
 
@@ -359,7 +359,7 @@ public class MobileEngageInternal_V3_OldTest {
         MeIdSignatureStorage storage = new MeIdSignatureStorage(sharedPreferences);
         storage.set("testMeID");
 
-        mobileEngageInternal.removeContact(null);
+        mobileEngageInternal.clearContact(null);
         assertEquals(storage.get(), null);
     }
 

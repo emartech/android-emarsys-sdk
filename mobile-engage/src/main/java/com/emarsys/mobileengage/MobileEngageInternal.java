@@ -13,7 +13,7 @@ public interface MobileEngageInternal extends MobileEngageClientInternal {
 
     void setContact(String contactFieldValue, CompletionListener completionListener);
 
-    String removeContact(CompletionListener completionListener);
+    String clearContact(CompletionListener completionListener);
 
     String trackCustomEvent(
             String eventName,

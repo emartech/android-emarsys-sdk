@@ -336,6 +336,15 @@ class MobileEngageInternalV3Test {
         verify(mockRequestManager).submit(mockRequestModel, null)
     }
 
+    @Test
+    fun testClearContact_shouldCall_setContactWithNull() {
+        mobileEngageInternal = spy(mobileEngageInternal)
+
+        mobileEngageInternal.clearContact(mockCompletionListener)
+
+        verify(mobileEngageInternal).setContact(null, mockCompletionListener)
+    }
+
     private fun createTestIntent(): Intent {
         val bundlePayload = Bundle().apply {
             putString("key1", "value1")

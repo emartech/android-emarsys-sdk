@@ -114,7 +114,7 @@ public class MobileEngageInternal_V3_Old implements MobileEngageInternal {
     }
 
     @Override
-    public String removeContact(CompletionListener completionListener) {
+    public String clearContact(CompletionListener completionListener) {
         requestContext.setAppLoginParameters(null);
 
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())

@@ -137,7 +137,7 @@ public class EmarsysTest {
         mockCoreSdkHandler = mock(CoreSdkHandler.class);
         activityLifecycleWatchdog = mock(ActivityLifecycleWatchdog.class);
         currentActivityWatchdog = mock(CurrentActivityWatchdog.class);
-        mockMobileEngageInternal = mock(MobileEngageInternal_V3_Old.class);
+        mockMobileEngageInternal = mock(MobileEngageInternal.class);
         mockInboxInternal = mock(InboxInternal.class);
         mockInAppInternal = mock(InAppInternal.class);
         mockDeepLinkInternal = mock(DeepLinkInternal.class);
@@ -460,14 +460,14 @@ public class EmarsysTest {
     public void testClearContact_delegatesTo_mobileEngageInternal() {
         Emarsys.clearContact();
 
-        verify(mockMobileEngageInternal).removeContact(null);
+        verify(mockMobileEngageInternal).clearContact(null);
     }
 
     @Test
     public void testClearContactWithCompletionListener_delegatesTo_mobileEngageInternal() {
         Emarsys.clearContact(completionListener);
 
-        verify(mockMobileEngageInternal).removeContact(completionListener);
+        verify(mockMobileEngageInternal).clearContact(completionListener);
     }
 
     @Test

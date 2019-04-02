@@ -84,7 +84,7 @@ public class Emarsys {
         getRunnerProxy().logException(new Runnable() {
             @Override
             public void run() {
-                getMobileEngageInternal().removeContact(null);
+                getMobileEngageInternal().clearContact(null);
                 getPredictInternal().clearContact();
             }
         });
@@ -96,7 +96,7 @@ public class Emarsys {
             public void run() {
                 Assert.notNull(completionListener, "CompletionListener must not be null!");
 
-                getMobileEngageInternal().removeContact(completionListener);
+                getMobileEngageInternal().clearContact(completionListener);
                 getPredictInternal().clearContact();
             }
         });
