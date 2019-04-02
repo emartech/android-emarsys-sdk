@@ -17,8 +17,8 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
+import java.net.URL
 
 class CoreCompletionHandlerRefreshTokenProxyTest {
 
@@ -34,13 +34,17 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     private lateinit var proxy: CoreCompletionHandlerRefreshTokenProxy
     private lateinit var mockRefreshTokenInternal: RefreshTokenInternal
     private lateinit var mockResponseModel: ResponseModel
+    private lateinit var mockRequestModel: RequestModel
     private lateinit var mockRestClient: RestClient
     private lateinit var mockContactTokenStorage: Storage<String>
 
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        mockResponseModel = mock(ResponseModel::class.java)
+        mockRequestModel = mock(RequestModel::class.java)
+        mockResponseModel = mock(ResponseModel::class.java).apply {
+            whenever(requestModel).thenReturn(mockRequestModel)
+        }
 
         mockCoreCompletionHandler = mock(CoreCompletionHandler::class.java)
         mockRefreshTokenInternal = mock(RefreshTokenInternal::class.java)
@@ -88,7 +92,8 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     }
 
     @Test
-    fun testOnError_shouldCall_createRefreshTokenRequest_whenStatusCodeIs401() {
+    fun testOnError_shouldCall_createRefreshTokenRequest_whenStatusCodeIs401_andV3EventUrl() {
+        whenever(mockRequestModel.url).thenReturn(URL("https://mobile-events.eservice.emarsys.net"))
         whenever(mockResponseModel.statusCode).thenReturn(401)
 
         proxy.onError(REQUEST_ID, mockResponseModel)
@@ -97,10 +102,42 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     }
 
     @Test
+    fun testOnError_shouldCall_createRefreshTokenRequest_whenStatusCodeIs401_andV3ClientUrl() {
+        whenever(mockRequestModel.url).thenReturn(URL("https://ems-me-client.herokuapp.com"))
+        whenever(mockResponseModel.statusCode).thenReturn(401)
+
+        proxy.onError(REQUEST_ID, mockResponseModel)
+
+        verify(mockRefreshTokenInternal).refreshContactToken(any(CompletionListener::class.java))
+    }
+
+    @Test
+    fun testOnError_shouldCall_houldGiveTheResponseToNextLevel_whenStatusCodeIs401_andNotV3Url() {
+        whenever(mockRequestModel.url).thenReturn(URL("https://www.emarsys.com"))
+        whenever(mockResponseModel.statusCode).thenReturn(401)
+
+        proxy.onError(REQUEST_ID, mockResponseModel)
+
+        verifyZeroInteractions(mockRefreshTokenInternal)
+        verify(mockCoreCompletionHandler).onError(REQUEST_ID, mockResponseModel)
+    }
+
+    @Test
+    fun testOnError_shouldGiveTheResponseToNextLevel_whenStatusCodeIsNot401() {
+        whenever(mockResponseModel.statusCode).thenReturn(400)
+
+        proxy.onError(REQUEST_ID, mockResponseModel)
+
+        verifyZeroInteractions(mockRefreshTokenInternal)
+        verify(mockCoreCompletionHandler).onError(REQUEST_ID, mockResponseModel)
+
+    }
+
+    @Test
     fun testOnError_shouldModifyRequestModelsContactToken_whenStatusCodeIs401() {
         proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, FakeMobileEngageRefreshTokenInternal(true), mockRestClient, mockContactTokenStorage)
-        val requestModel = RequestModel("https://www.emarsys.com", RequestMethod.POST, emptyMap(), mapOf("X-Contact-Token" to "testContactToken", "X-Client-State" to "testClientState"), 12345, Long.MAX_VALUE, REQUEST_ID)
-        val expectedRequestModel = RequestModel("https://www.emarsys.com", RequestMethod.POST, emptyMap(), mapOf("X-Contact-Token" to "modifiedTestContactToken", "X-Client-State" to "testClientState"), 12345, Long.MAX_VALUE, REQUEST_ID)
+        val requestModel = RequestModel("https://mobile-events.eservice.emarsys.net", RequestMethod.POST, emptyMap(), mapOf("X-Contact-Token" to "testContactToken", "X-Client-State" to "testClientState"), 12345, Long.MAX_VALUE, REQUEST_ID)
+        val expectedRequestModel = RequestModel("https://mobile-events.eservice.emarsys.net", RequestMethod.POST, emptyMap(), mapOf("X-Contact-Token" to "modifiedTestContactToken", "X-Client-State" to "testClientState"), 12345, Long.MAX_VALUE, REQUEST_ID)
 
         whenever(mockResponseModel.statusCode).thenReturn(401)
         whenever(mockResponseModel.requestModel).thenReturn(requestModel)
@@ -113,6 +150,9 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
     @Test
     fun testOnError_shouldCall_coreCompletionHandler_withError_whenExceptionThrown() {
+        whenever(mockRequestModel.url).thenReturn(URL("https://mobile-events.eservice.emarsys.net"))
+        whenever(mockResponseModel.statusCode).thenReturn(401)
+
         proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, FakeMobileEngageRefreshTokenInternal(), mockRestClient, mockContactTokenStorage)
 
         proxy.onError(REQUEST_ID, mockResponseModel)

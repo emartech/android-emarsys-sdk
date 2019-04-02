@@ -9,6 +9,7 @@ import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.RefreshTokenInternal;
+import com.emarsys.mobileengage.util.RequestModelUtils;
 
 import java.util.Map;
 
@@ -40,18 +41,22 @@ public class CoreCompletionHandlerRefreshTokenProxy implements CoreCompletionHan
 
     @Override
     public void onError(final String originalId, final ResponseModel originalResponseModel) {
-        refreshTokenInternal.refreshContactToken(new CompletionListener() {
-            @Override
-            public void onCompleted(@Nullable Throwable errorCause) {
-                if (errorCause == null) {
-                    RequestModel updatedRequestModel = getUpdatedRequestModel(originalResponseModel);
+        if (originalResponseModel.getStatusCode() == 401 && RequestModelUtils.isMobileEngageV3Request(originalResponseModel.getRequestModel())) {
+            refreshTokenInternal.refreshContactToken(new CompletionListener() {
+                @Override
+                public void onCompleted(@Nullable Throwable errorCause) {
+                    if (errorCause == null) {
+                        RequestModel updatedRequestModel = getUpdatedRequestModel(originalResponseModel);
 
-                    restClient.execute(updatedRequestModel, CoreCompletionHandlerRefreshTokenProxy.this);
-                } else {
-                    coreCompletionHandler.onError(originalId, new Exception(errorCause));
+                        restClient.execute(updatedRequestModel, CoreCompletionHandlerRefreshTokenProxy.this);
+                    } else {
+                        coreCompletionHandler.onError(originalId, new Exception(errorCause));
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            coreCompletionHandler.onError(originalId, originalResponseModel);
+        }
     }
 
     private RequestModel getUpdatedRequestModel(ResponseModel originalResponseModel) {
