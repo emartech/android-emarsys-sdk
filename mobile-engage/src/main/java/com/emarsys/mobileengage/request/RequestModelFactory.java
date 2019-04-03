@@ -49,6 +49,7 @@ public class RequestModelFactory {
         if (contactFieldValue == null) {
             Map<String, String> queryParams = new HashMap<>();
             queryParams.put("anonymous", "true");
+            builder.payload(new HashMap<String, Object>());
             builder.queryParams(queryParams);
         } else {
             builder.payload(RequestPayloadUtils.createSetContactPayload(contactFieldValue, requestContext));

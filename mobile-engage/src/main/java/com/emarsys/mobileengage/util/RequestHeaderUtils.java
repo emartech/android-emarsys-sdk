@@ -19,7 +19,6 @@ public class RequestHeaderUtils {
         return baseHeaders;
     }
 
-
     public static Map<String, String> createDefaultHeaders(RequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 

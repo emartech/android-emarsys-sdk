@@ -13,7 +13,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito
-import java.util.*
 
 class RequestHeaderUtilsTest {
     companion object {
@@ -74,10 +73,10 @@ class RequestHeaderUtilsTest {
     @Test
     fun testCreateDefaultHeaders_debug_shouldReturnCorrectMap() {
         whenever(deviceInfoMock.isDebugMode).thenReturn(true)
-        val expected = HashMap<String, String>()
-        expected["Content-Type"] = "application/json"
-        expected["X-EMARSYS-SDK-VERSION"] = BuildConfig.VERSION_NAME
-        expected["X-EMARSYS-SDK-MODE"] = "debug"
+        val expected = mapOf(
+                "Content-Type" to "application/json",
+                "X-EMARSYS-SDK-VERSION" to BuildConfig.VERSION_NAME,
+                "X-EMARSYS-SDK-MODE" to "debug")
 
         val result = RequestHeaderUtils.createDefaultHeaders(requestContextMock)
 
@@ -88,10 +87,10 @@ class RequestHeaderUtilsTest {
     fun testCreateDefaultHeaders_release_shouldReturnCorrectMap() {
         whenever(deviceInfoMock.isDebugMode).thenReturn(false)
 
-        val expected = HashMap<String, String>()
-        expected["Content-Type"] = "application/json"
-        expected["X-EMARSYS-SDK-VERSION"] = BuildConfig.VERSION_NAME
-        expected["X-EMARSYS-SDK-MODE"] = "production"
+        val expected = mapOf(
+                "Content-Type" to "application/json",
+                "X-EMARSYS-SDK-VERSION" to BuildConfig.VERSION_NAME,
+                "X-EMARSYS-SDK-MODE" to "production")
 
         val result = RequestHeaderUtils.createDefaultHeaders(requestContextMock)
 

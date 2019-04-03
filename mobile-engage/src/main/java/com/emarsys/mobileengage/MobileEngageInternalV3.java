@@ -136,7 +136,6 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
     public void resetContext() {
         requestContext.getRefreshTokenStorage().remove();
         requestContext.getContactTokenStorage().remove();
-        requestContext.getClientStateStorage().remove();
         requestContext.getContactFieldValueStorage().remove();
     }
 

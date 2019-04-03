@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -117,7 +118,7 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
 
     private void sendBody(HttpsURLConnection connection, RequestModel model) throws IOException {
         if (model.getPayload() != null) {
-            byte[] payload = JsonUtils.fromMap(model.getPayload()).toString().getBytes("UTF-8");
+            byte[] payload = JsonUtils.fromMap(model.getPayload()).toString().getBytes(StandardCharsets.UTF_8);
             BufferedOutputStream writer = new BufferedOutputStream(connection.getOutputStream());
             writer.write(payload);
             writer.close();
