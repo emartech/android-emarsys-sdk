@@ -109,7 +109,7 @@ public class MobileEngageInternal_V3_Old implements MobileEngageInternal {
     }
 
     @Override
-    public String clearContact(CompletionListener completionListener) {
+    public void clearContact(CompletionListener completionListener) {
         RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(ME_LOGOUT_V2)
                 .payload(RequestPayloadUtils_Old.createBasePayload(requestContext))
@@ -120,7 +120,6 @@ public class MobileEngageInternal_V3_Old implements MobileEngageInternal {
         requestContext.getMeIdStorage().remove();
         requestContext.getMeIdSignatureStorage().remove();
         requestContext.getAppLoginStorage().remove();
-        return model.getId();
     }
 
     @Override

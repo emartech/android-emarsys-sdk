@@ -261,13 +261,9 @@ public class MobileEngageInternal_V3_OldTest {
 
     @Test
     public void testAppLogout_returnsRequestModelId() {
-        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
+        mobileEngageInternal.clearContact(null);
 
-        String result = mobileEngageInternal.clearContact(null);
-
-        verify(manager).submit(captor.capture(), (CompletionListener) isNull());
-
-        assertEquals(captor.getValue().getId(), result);
+        verify(manager).submit(any(RequestModel.class), (CompletionListener) isNull());
     }
 
     @Test
