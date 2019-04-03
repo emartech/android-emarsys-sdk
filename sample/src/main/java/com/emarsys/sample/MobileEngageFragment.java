@@ -70,11 +70,6 @@ public class MobileEngageFragment extends BaseFragment {
         eventAttributes = root.findViewById(R.id.eventAttributes);
         messageId = root.findViewById(R.id.messageId);
 
-        root.findViewById(R.id.appLoginAnonymous).setOnClickListener(v -> {
-            Emarsys.setAnonymousContact(completionListener);
-            handleRequestSent("Anonymous login: ");
-        });
-
         root.findViewById(R.id.appLogin).setOnClickListener(v -> {
             String id = contactFieldValue.getText().toString();
             Emarsys.setContact(id, errorCause -> {

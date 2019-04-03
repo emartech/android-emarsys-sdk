@@ -6,4 +6,5 @@
     <color name="colorAction">#304ffe</color>
     <color name="colorPrimaryText">#000000</color>
     <color name="colorSecondaryText">#ffffff</color>
+    <color name="defaultBackground">#efefef</color>
 </resources>

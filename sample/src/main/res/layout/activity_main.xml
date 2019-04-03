@@ -15,29 +15,29 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:titleTextColor="@color/colorSecondaryText"
             app:tabIndicatorColor="@color/colorAccent"
             app:tabSelectedTextColor="@color/colorSecondaryText"
             app:tabTextColor="@color/colorSecondaryText"
-            app:title="@string/app_name">
-
+            app:title="@string/app_name"
+            app:titleTextColor="@color/colorSecondaryText">
 
         </androidx.appcompat.widget.Toolbar>
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
             app:tabIndicatorColor="@color/colorAccent"
             app:tabSelectedTextColor="@color/colorSecondaryText"
-            app:tabTextColor="@color/colorSecondaryText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            app:tabTextColor="@color/colorSecondaryText" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/defaultBackground"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     </androidx.viewpager.widget.ViewPager>

@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
@@ -38,12 +37,6 @@ public class MainActivityUITest {
     @After
     public void tearDown() {
         logout();
-    }
-
-    @Test
-    public void testAnonymousLogin() {
-        onView(ViewMatchers.withId(R.id.appLoginAnonymous)).perform(scrollTo(), click());
-        onView(withId(R.id.mobileEngageStatusLabel)).check(matches(withText("Anonymous login: OK")));
     }
 
     @Test

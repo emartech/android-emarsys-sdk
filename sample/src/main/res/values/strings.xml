@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">android-mobile-engage-sample-app</string>
-    <string name="anonymousApplogin">anonymous login</string>
+    <string name="app_name">android-emarsys-sample-app</string>
     <string name="applogin">login</string>
     <string name="applogout">logout</string>
     <string name="customevent">track custom event</string>
