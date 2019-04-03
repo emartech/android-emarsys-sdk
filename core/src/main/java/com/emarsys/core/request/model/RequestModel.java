@@ -138,20 +138,6 @@ public class RequestModel implements Serializable {
             id = requestModel.id;
         }
 
-        public Builder from(RequestModel requestModel) {
-            Assert.notNull(requestModel, "RequestModel must not be null!");
-
-            url = requestModel.url.toString();
-            method = requestModel.method;
-            payload = requestModel.payload;
-            headers = requestModel.headers;
-            timestamp = requestModel.timestamp;
-            ttl = requestModel.ttl;
-            id = requestModel.id;
-
-            return this;
-        }
-
         public Builder url(String url) {
             this.url = url;
             return this;
