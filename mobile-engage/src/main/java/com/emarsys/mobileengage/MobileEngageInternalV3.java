@@ -61,6 +61,7 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
 
     @Override
     public String clearContact(CompletionListener completionListener) {
+        resetContext();
         setContact(null, completionListener);
         return null;
     }
@@ -131,6 +132,13 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
         RequestModel requestModel = requestModelFactory.createTrackDeviceInfoRequest();
 
         requestManager.submit(requestModel, null);
+    }
+
+    public void resetContext() {
+        requestContext.getRefreshTokenStorage().remove();
+        requestContext.getContactTokenStorage().remove();
+        requestContext.getClientStateStorage().remove();
+        requestContext.getContactFieldValueStorage().remove();
     }
 
 }

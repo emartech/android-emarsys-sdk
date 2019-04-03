@@ -63,6 +63,9 @@ class MobileEngageInternalV3Test {
     private lateinit var mockRequestModelFactory: RequestModelFactory
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockContactFieldValueStorage: Storage<String>
+    private lateinit var mockRefreshTokenStorage: Storage<String>
+    private lateinit var mockContactTokenStorage: Storage<String>
+    private lateinit var mockClientStateStorage: Storage<String>
 
     private lateinit var uiHandler: Handler
 
@@ -74,6 +77,9 @@ class MobileEngageInternalV3Test {
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
+        mockRefreshTokenStorage = mock(Storage::class.java) as Storage<String>
+        mockContactTokenStorage = mock(Storage::class.java) as Storage<String>
+        mockClientStateStorage = mock(Storage::class.java) as Storage<String>
 
         mockUuidProvider = mock(UUIDProvider::class.java).apply {
             whenever(provideId()).thenReturn(REQUEST_ID)
@@ -100,6 +106,9 @@ class MobileEngageInternalV3Test {
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
+            whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
+            whenever(contactTokenStorage).thenReturn(mockContactTokenStorage)
+            whenever(clientStateStorage).thenReturn(mockClientStateStorage)
         }
 
         mockRequestModel = mock(RequestModel::class.java)
@@ -339,12 +348,27 @@ class MobileEngageInternalV3Test {
     }
 
     @Test
-    fun testClearContact_shouldCall_setContactWithNull() {
+    fun testClearContact() {
         mobileEngageInternal = spy(mobileEngageInternal)
 
         mobileEngageInternal.clearContact(mockCompletionListener)
 
-        verify(mobileEngageInternal).setContact(null, mockCompletionListener)
+        inOrder(mobileEngageInternal).run {
+            verify(mobileEngageInternal).clearContact(mockCompletionListener)
+            verify(mobileEngageInternal).resetContext()
+            verify(mobileEngageInternal).setContact(null, mockCompletionListener)
+            verifyNoMoreInteractions(mobileEngageInternal)
+        }
+    }
+
+    @Test
+    fun testResetContext_shouldClearTokenStorages() {
+        mobileEngageInternal.resetContext()
+
+        verify(mockRefreshTokenStorage).remove()
+        verify(mockContactTokenStorage).remove()
+        verify(mockContactFieldValueStorage).remove()
+        verify(mockClientStateStorage).remove()
     }
 
     private fun createTestIntent(): Intent {
