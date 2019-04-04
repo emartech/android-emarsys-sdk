@@ -368,7 +368,6 @@ class MobileEngageInternalV3Test {
         verify(mockRefreshTokenStorage).remove()
         verify(mockContactTokenStorage).remove()
         verify(mockContactFieldValueStorage).remove()
-        verify(mockClientStateStorage).remove()
     }
 
     private fun createTestIntent(): Intent {

@@ -133,7 +133,7 @@ class RequestModelFactoryTest {
         val expected = RequestModel(
                 RequestUrlUtils.createSetContactUrl(mockRequestContext) + "?anonymous=true",
                 RequestMethod.POST,
-                null,
+                emptyMap(),
                 RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
                 TIMESTAMP,
                 Long.MAX_VALUE,
