@@ -36,6 +36,7 @@ import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.response.AbstractResponseHandler;
+import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.shard.ShardModelRepository;
 import com.emarsys.core.shard.specification.FilterByShardType;
@@ -74,6 +75,7 @@ import com.emarsys.mobileengage.inbox.InboxInternalProvider;
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider;
 import com.emarsys.mobileengage.request.MobileEngageHeaderMapper;
 import com.emarsys.mobileengage.request.RequestModelFactory;
+import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
@@ -119,7 +121,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private AppLoginStorage appLoginStorage;
     private MeIdStorage meIdStorage;
     private MeIdSignatureStorage meIdSignatureStorage;
-    private DeviceInfoHashStorage deviceInfoHashStorage;
+    private Storage<Integer> deviceInfoHashStorage;
     private Storage<String> contactTokenStorage;
     private Storage<String> refreshTokenStorage;
     private Storage<String> clientStateStorage;
@@ -138,6 +140,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private RunnerProxy runnerProxy;
     private Logger logger;
     private MobileEngageRefreshTokenInternal refreshTokenInternal;
+    private ResponseHandlersProcessor responseHandlersProcessor;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeDependencies(emarsysConfig);
@@ -199,7 +202,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     @Override
     public DefaultCoreCompletionHandler getCoreCompletionHandler() {
         if (completionHandler == null) {
-            completionHandler = new DefaultCoreCompletionHandler(new ArrayList<AbstractResponseHandler>(), new HashMap<String, CompletionListener>());
+            completionHandler = new DefaultCoreCompletionHandler(new HashMap<String, CompletionListener>());
         }
         return completionHandler;
     }
@@ -255,6 +258,26 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
+    public Storage<Integer> getDeviceInfoHashStorage() {
+        return deviceInfoHashStorage;
+    }
+
+    @Override
+    public Storage<String> getContactFieldValueStorage() {
+        return contactFieldValueStorage;
+    }
+
+    @Override
+    public Storage<String> getContactTokenStorage() {
+        return contactTokenStorage;
+    }
+
+    @Override
+    public Storage<String> getClientStateStorage() {
+        return clientStateStorage;
+    }
+
+    @Override
     public Logger getLogger() {
         return logger;
     }
@@ -262,6 +285,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     @Override
     public RunnerProxy getRunnerProxy() {
         return runnerProxy;
+    }
+
+    @Override
+    public ResponseHandlersProcessor getResponseHandlersProcessor() {
+        return responseHandlersProcessor;
     }
 
     private void initializeDependencies(EmarsysConfig config) {
@@ -283,6 +311,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         refreshTokenStorage = new StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, prefs);
         clientStateStorage = new StringStorage(MobileEngageStorageKey.CLIENT_STATE, prefs);
         contactFieldValueStorage = new StringStorage(MobileEngageStorageKey.CONTACT_FIELD_VALUE, prefs);
+
+        responseHandlersProcessor = new ResponseHandlersProcessor(new ArrayList<AbstractResponseHandler>());
 
         LanguageProvider languageProvider = new LanguageProvider();
         HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, prefs);
@@ -317,7 +347,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
 
-        restClient = new RestClient(new ConnectionProvider(), timestampProvider);
+        restClient = new RestClient(new ConnectionProvider(), timestampProvider, getResponseHandlersProcessor());
 
         requestModelFactory = new RequestModelFactory(requestContext);
         refreshTokenInternal = new MobileEngageRefreshTokenInternal(
@@ -444,13 +474,15 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     private void initializeResponseHandlers() {
+
         List<AbstractResponseHandler> responseHandlers = new ArrayList<>();
 
         responseHandlers.add(new VisitorIdResponseHandler(sharedPrefsKeyStore));
 
         responseHandlers.add(new MobileEngageTokenResponseHandler("refreshToken", refreshTokenStorage));
-        responseHandlers.add(new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage));
-        responseHandlers.add(new MobileEngageClientStateResponseHandler(clientStateStorage));
+        responseHandlers.add(new MobileEngageTokenResponseHandler("contactToken", getContactTokenStorage()));
+        responseHandlers.add(new MobileEngageClientStateResponseHandler(getClientStateStorage()));
+        responseHandlers.add(new ClientInfoResponseHandler(getDeviceInfo(), getDeviceInfoHashStorage()));
 
         responseHandlers.add(new MeIdResponseHandler(
                 meIdStorage,
@@ -464,7 +496,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 displayedIamRepository,
                 buttonClickedRepository
         ));
-
-        getCoreCompletionHandler().addResponseHandlers(responseHandlers);
+        responseHandlersProcessor.addResponseHandlers(responseHandlers);
     }
 }

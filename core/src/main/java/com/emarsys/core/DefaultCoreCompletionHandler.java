@@ -3,30 +3,17 @@ package com.emarsys.core;
 import com.emarsys.core.api.ResponseErrorException;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 
-import java.util.List;
 import java.util.Map;
 
-public class DefaultCoreCompletionHandler implements CoreCompletionHandler, Registry<RequestModel,CompletionListener> {
+public class DefaultCoreCompletionHandler implements CoreCompletionHandler, Registry<RequestModel, CompletionListener> {
     private final Map<String, CompletionListener> completionListenerMap;
-    List<AbstractResponseHandler> responseHandlers;
 
-    public DefaultCoreCompletionHandler(List<AbstractResponseHandler> responseHandlers, Map<String, CompletionListener> completionListenerMap) {
-        Assert.notNull(responseHandlers, "ResponseHandlers must not be null!");
+    public DefaultCoreCompletionHandler(Map<String, CompletionListener> completionListenerMap) {
         Assert.notNull(completionListenerMap, "CompletionListenerMap must not be null!");
-        this.responseHandlers = responseHandlers;
         this.completionListenerMap = completionListenerMap;
-    }
-
-    public void addResponseHandlers(List<AbstractResponseHandler> additionalResponseHandlers) {
-        this.responseHandlers.addAll(additionalResponseHandlers);
-    }
-
-    public List<AbstractResponseHandler> getResponseHandlers() {
-        return responseHandlers;
     }
 
     public void register(RequestModel model, CompletionListener listener) {
@@ -38,10 +25,6 @@ public class DefaultCoreCompletionHandler implements CoreCompletionHandler, Regi
 
     @Override
     public void onSuccess(final String id, final ResponseModel responseModel) {
-        for (AbstractResponseHandler responseHandler : responseHandlers) {
-            responseHandler.processResponse(responseModel);
-        }
-
         callCompletionListener(id, null);
     }
 

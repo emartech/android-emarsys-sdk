@@ -7,6 +7,7 @@ import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.JsonUtils;
@@ -32,6 +33,7 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
     private final RequestModel requestModel;
     private final CoreCompletionHandler handler;
     private final ConnectionProvider connectionProvider;
+    private final ResponseHandlersProcessor responseHandlersProcessor;
     private TimestampProvider timestampProvider;
 
     private ResponseModel responseModel;
@@ -41,15 +43,19 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
             RequestModel requestModel,
             CoreCompletionHandler handler,
             ConnectionProvider connectionProvider,
-            TimestampProvider timestampProvider) {
+            TimestampProvider timestampProvider,
+            ResponseHandlersProcessor responseHandlersProcessor) {
         Assert.notNull(requestModel, "RequestModel must not be null!");
         Assert.notNull(handler, "CoreCompletionHandler must not be null!");
         Assert.notNull(connectionProvider, "ConnectionProvider must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
+        Assert.notNull(responseHandlersProcessor, "ResponseHandlersProcessor must not be null!");
+
         this.requestModel = requestModel;
         this.handler = handler;
         this.connectionProvider = connectionProvider;
         this.timestampProvider = timestampProvider;
+        this.responseHandlersProcessor = responseHandlersProcessor;
     }
 
     @Override
@@ -81,8 +87,8 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
     protected void onPostExecute(Void result) {
         if (exception != null) {
             handler.onError(requestModel.getId(), exception);
-
         } else if (responseModel != null) {
+            responseHandlersProcessor.process(responseModel);
             if (isStatusCodeOK(responseModel.getStatusCode())) {
                 handler.onSuccess(requestModel.getId(), responseModel);
             } else {

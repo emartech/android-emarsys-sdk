@@ -5,6 +5,7 @@ import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Assert;
@@ -33,6 +34,7 @@ public class RequestTaskTest {
     private CoreCompletionHandler coreCompletionHandler;
     private ConnectionProvider connectionProvider;
     private TimestampProvider timestampProvider;
+    private ResponseHandlersProcessor mockResponseHandlersProcessor;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -44,6 +46,7 @@ public class RequestTaskTest {
         coreCompletionHandler = mock(CoreCompletionHandler.class);
         connectionProvider = new ConnectionProvider();
         timestampProvider = mock(TimestampProvider.class);
+        mockResponseHandlersProcessor = mock(ResponseHandlersProcessor.class);
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP_1, TIMESTAMP_2);
     }
 
@@ -53,7 +56,8 @@ public class RequestTaskTest {
                 null,
                 coreCompletionHandler,
                 connectionProvider,
-                timestampProvider);
+                timestampProvider,
+                mockResponseHandlersProcessor);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -62,7 +66,8 @@ public class RequestTaskTest {
                 requestModel,
                 null,
                 connectionProvider,
-                timestampProvider);
+                timestampProvider,
+                mockResponseHandlersProcessor);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -71,7 +76,8 @@ public class RequestTaskTest {
                 requestModel,
                 coreCompletionHandler,
                 null,
-                timestampProvider);
+                timestampProvider,
+                mockResponseHandlersProcessor);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -80,6 +86,17 @@ public class RequestTaskTest {
                 requestModel,
                 coreCompletionHandler,
                 connectionProvider,
+                null,
+                mockResponseHandlersProcessor);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_responseHandlersRunnerMustNotBeNull() {
+        new RequestTask(
+                requestModel,
+                coreCompletionHandler,
+                connectionProvider,
+                timestampProvider,
                 null);
     }
 
@@ -102,7 +119,7 @@ public class RequestTaskTest {
 
         when(connectionProvider.provideConnection(requestModel)).thenReturn(connection);
 
-        RequestTask requestTask = new RequestTask(requestModel, coreCompletionHandler, connectionProvider, timestampProvider);
+        RequestTask requestTask = new RequestTask(requestModel, coreCompletionHandler, connectionProvider, timestampProvider, mockResponseHandlersProcessor);
 
         try {
             requestTask.doInBackground();

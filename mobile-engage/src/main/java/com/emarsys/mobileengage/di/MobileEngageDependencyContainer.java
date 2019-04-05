@@ -2,6 +2,8 @@ package com.emarsys.mobileengage.di;
 
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.di.DependencyContainer;
+import com.emarsys.core.response.ResponseHandlersProcessor;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.mobileengage.MobileEngageClientInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RefreshTokenInternal;
@@ -33,4 +35,14 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
     InAppPresenter getInAppPresenter();
 
     NotificationEventHandler getNotificationEventHandler();
+
+    Storage<Integer> getDeviceInfoHashStorage();
+
+    Storage<String> getContactFieldValueStorage();
+
+    Storage<String> getContactTokenStorage();
+
+    Storage<String> getClientStateStorage();
+
+    ResponseHandlersProcessor getResponseHandlersProcessor();
 }

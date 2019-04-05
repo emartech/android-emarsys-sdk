@@ -12,7 +12,9 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.shard.ShardModel;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.log.Logger;
 import com.emarsys.mobileengage.MobileEngageClientInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
@@ -48,6 +50,11 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final RunnerProxy runnerProxy;
     private final Logger logger;
     private final RefreshTokenInternal refreshTokenInternal;
+    private final Storage<Integer> deviceInfoHashStorage;
+    private final Storage<String> contactFieldValueStorage;
+    private final Storage<String> contactTokenStorage;
+    private final Storage<String> clientStateStorage;
+    private final ResponseHandlersProcessor responseHandlersProcessor;
 
     public FakeDependencyContainer(
             Handler coreSdkHandler,
@@ -71,7 +78,11 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             Runnable predictShardTrigger,
             RunnerProxy runnerProxy,
             Logger logger,
-            RefreshTokenInternal refreshTokenInternal) {
+            RefreshTokenInternal refreshTokenInternal,
+            Storage<Integer> deviceInfoHashStorage,
+            Storage<String> contactFieldValueStorage,
+            Storage<String> contactTokenStorage, Storage<String> clientStateStorage,
+            ResponseHandlersProcessor responseHandlersProcessor) {
         this.coreSdkHandler = coreSdkHandler;
         this.activityLifecycleWatchdog = activityLifecycleWatchdog;
         this.currentActivityWatchdog = currentActivityWatchdog;
@@ -94,6 +105,11 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
         this.runnerProxy = runnerProxy;
         this.logger = logger;
         this.refreshTokenInternal = refreshTokenInternal;
+        this.deviceInfoHashStorage = deviceInfoHashStorage;
+        this.contactFieldValueStorage = contactFieldValueStorage;
+        this.contactTokenStorage = contactTokenStorage;
+        this.clientStateStorage = clientStateStorage;
+        this.responseHandlersProcessor = responseHandlersProcessor;
     }
 
     @Override
@@ -209,5 +225,30 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     @Override
     public Logger getLogger() {
         return logger;
+    }
+
+    @Override
+    public Storage<Integer> getDeviceInfoHashStorage() {
+        return deviceInfoHashStorage;
+    }
+
+    @Override
+    public Storage<String> getContactFieldValueStorage() {
+        return contactFieldValueStorage;
+    }
+
+    @Override
+    public Storage<String> getContactTokenStorage() {
+        return contactTokenStorage;
+    }
+
+    @Override
+    public Storage<String> getClientStateStorage() {
+        return clientStateStorage;
+    }
+
+    @Override
+    public ResponseHandlersProcessor getResponseHandlersProcessor() {
+        return responseHandlersProcessor;
     }
 }

@@ -6,6 +6,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.RequestTask;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.core.response.ResponseHandlersProcessor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +20,7 @@ public class FakeRestClient extends RestClient {
 
     @SuppressWarnings("unchecked")
     public FakeRestClient(Object... fakeResults) {
-        super(mock(ConnectionProvider.class), mock(TimestampProvider.class));
+        super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class));
         for (Object o : fakeResults) {
             if (!(o instanceof Integer || o instanceof Exception)) {
                 throw new IllegalArgumentException("FakeResults list can only contain Integers and Exceptions!");

@@ -8,6 +8,7 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestResult
 import com.emarsys.core.request.model.asRequestResult
+import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.testUtil.RequestModelTestUtils
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
@@ -29,6 +30,7 @@ class RestClientTest {
 
     private lateinit var timestampProvider: TimestampProvider
     private lateinit var connectionProvider: ConnectionProvider
+    private lateinit var responseHandlersProcessor: ResponseHandlersProcessor
 
     @Rule
     @JvmField
@@ -41,18 +43,25 @@ class RestClientTest {
 
         timestampProvider = mock(TimestampProvider::class.java)
         connectionProvider = ConnectionProvider()
-        client = RestClient(connectionProvider, timestampProvider)
+        responseHandlersProcessor = mock(ResponseHandlersProcessor::class.java)
+
+        client = RestClient(connectionProvider, timestampProvider, responseHandlersProcessor)
         latch = CountDownLatch(1)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_connectionProvider_mustNotBeNull() {
-        RestClient(null, timestampProvider)
+        RestClient(null, timestampProvider, responseHandlersProcessor)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_timestampProvider_mustNotBeNull() {
-        RestClient(connectionProvider, null)
+        RestClient(connectionProvider, null, responseHandlersProcessor)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_responseHandlersRunner_mustNotBeNull() {
+        RestClient(connectionProvider, timestampProvider, null)
     }
 
     @Test

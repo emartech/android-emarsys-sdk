@@ -3,7 +3,6 @@ package com.emarsys.core
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -23,9 +22,6 @@ class DefaultCoreCompletionHandlerTest {
         const val REQUEST_ID = "requestId"
     }
 
-    private lateinit var abstractResponseHandler1: AbstractResponseHandler
-    private lateinit var abstractResponseHandler2: AbstractResponseHandler
-    private lateinit var handlers: List<AbstractResponseHandler>
     private lateinit var mockMap: MutableMap<String, CompletionListener>
     private lateinit var mockRequestModel: RequestModel
     private lateinit var coreCompletionHandler: DefaultCoreCompletionHandler
@@ -38,37 +34,21 @@ class DefaultCoreCompletionHandlerTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun init() {
-        abstractResponseHandler1 = mock(AbstractResponseHandler::class.java)
-        abstractResponseHandler2 = mock(AbstractResponseHandler::class.java)
-        handlers = listOf(abstractResponseHandler1, abstractResponseHandler2)
         mockMap = mock(MutableMap::class.java) as MutableMap<String, CompletionListener>
         mockRequestModel = createRequestModelMock(REQUEST_ID)
-        coreCompletionHandler = DefaultCoreCompletionHandler(listOf(), mutableMapOf())
+        coreCompletionHandler = DefaultCoreCompletionHandler(mutableMapOf())
         responseErrorException = ResponseErrorException(429, "Some Errors", "body")
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_handlersShouldNotBeNull() {
-        DefaultCoreCompletionHandler(null, mapOf())
-    }
-
-    @Test(expected = IllegalArgumentException::class)
     fun testConstructor_completionListenerMapShouldNotBeNull() {
-        DefaultCoreCompletionHandler(listOf(), null)
-    }
-
-    @Test
-    fun testAddResponseHandlers() {
-        val coreCompletionHandler = DefaultCoreCompletionHandler(mutableListOf(), mapOf())
-        coreCompletionHandler.addResponseHandlers(handlers)
-
-        coreCompletionHandler.responseHandlers shouldBe handlers
+        DefaultCoreCompletionHandler(null)
     }
 
     @Test
     fun testRegisterCompletionListener_addsListenerToMap() {
         val completionListenerMap = mutableMapOf<String, CompletionListener>()
-        val coreCompletionHandler = DefaultCoreCompletionHandler(listOf(), completionListenerMap)
+        val coreCompletionHandler = DefaultCoreCompletionHandler(completionListenerMap)
         val callback = mock(CompletionListener::class.java)
         coreCompletionHandler.register(mockRequestModel, callback)
 
@@ -82,7 +62,7 @@ class DefaultCoreCompletionHandlerTest {
 
     @Test
     fun testRegisterCompletionListener_withNullCompletionListener() {
-        val coreCompletionHandler = DefaultCoreCompletionHandler(listOf(), mockMap)
+        val coreCompletionHandler = DefaultCoreCompletionHandler(mockMap)
         coreCompletionHandler.register(mockRequestModel, null)
         verifyZeroInteractions(mockMap)
     }
@@ -99,7 +79,7 @@ class DefaultCoreCompletionHandlerTest {
 
     @Test
     fun testOnSuccess_should_call_nothing_whenNotRegistered() {
-        val coreCompletionHandler = DefaultCoreCompletionHandler(listOf(), mockMap)
+        val coreCompletionHandler = DefaultCoreCompletionHandler(mockMap)
 
         coreCompletionHandler.onSuccess(REQUEST_ID, null)
 
@@ -130,7 +110,7 @@ class DefaultCoreCompletionHandlerTest {
         val spyMap = spy(HashMap<String, CompletionListener>().apply {
             put(REQUEST_ID, listener)
         })
-        val coreCompletionHandler = DefaultCoreCompletionHandler(listOf(), spyMap)
+        val coreCompletionHandler = DefaultCoreCompletionHandler(spyMap)
 
         coreCompletionHandler.onSuccess(REQUEST_ID, createAnyResponseModel())
         coreCompletionHandler.onSuccess(REQUEST_ID, createAnyResponseModel())
@@ -154,7 +134,7 @@ class DefaultCoreCompletionHandlerTest {
 
     @Test
     fun testOnError_withException_should_not_callRegisteredCompletionListener_whenNotRegistered() {
-        val coreCompletionListener = DefaultCoreCompletionHandler(listOf(), mockMap)
+        val coreCompletionListener = DefaultCoreCompletionHandler(mockMap)
 
         coreCompletionListener.onError(REQUEST_ID, responseErrorException)
         verify(mockMap)[REQUEST_ID]
@@ -167,7 +147,7 @@ class DefaultCoreCompletionHandlerTest {
         val spyMap = spy(HashMap<String, CompletionListener>().apply {
             put(REQUEST_ID, listener)
         })
-        val coreCompletionHandler = DefaultCoreCompletionHandler(listOf(), spyMap)
+        val coreCompletionHandler = DefaultCoreCompletionHandler(spyMap)
 
         coreCompletionHandler.onError(REQUEST_ID, responseErrorException)
         coreCompletionHandler.onError(REQUEST_ID, responseErrorException)
@@ -192,7 +172,7 @@ class DefaultCoreCompletionHandlerTest {
 
     @Test
     fun testOnError_withResponseModel_should_not_callRegisteredCompletionListener_whenNotRegistered() {
-        val coreCompletionListener = DefaultCoreCompletionHandler(listOf(), mockMap)
+        val coreCompletionListener = DefaultCoreCompletionHandler(mockMap)
         coreCompletionListener.onError(REQUEST_ID, createResponseModel(500, "", ""))
         verify(mockMap)[REQUEST_ID]
         verifyNoMoreInteractions(mockMap)
@@ -204,7 +184,7 @@ class DefaultCoreCompletionHandlerTest {
         val spyMap = spy(HashMap<String, CompletionListener>().apply {
             put(REQUEST_ID, listener)
         })
-        val coreCompletionHandler = DefaultCoreCompletionHandler(listOf(), spyMap)
+        val coreCompletionHandler = DefaultCoreCompletionHandler(spyMap)
 
         val responseModel = createResponseModel(400, "", "")
         coreCompletionHandler.onError(REQUEST_ID, responseModel)

@@ -20,6 +20,7 @@ import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
+import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
@@ -100,7 +101,7 @@ public class RequestManagerTest {
         completionHandlerLatch = new CountDownLatch(1);
         handler = new FakeCompletionHandler(completionHandlerLatch);
         mockDefaultHandler = mock(CoreCompletionHandler.class);
-        RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class));
+        RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class));
         restClientMock = mock(RestClient.class);
         coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(handler, requestRepository, uiHandler, coreSdkHandler);
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, handler, restClient, coreCompletionHandlerMiddlewareProvider);

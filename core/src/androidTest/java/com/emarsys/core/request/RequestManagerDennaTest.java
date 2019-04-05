@@ -19,6 +19,7 @@ import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
+import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.shard.ShardModelRepository;
 import com.emarsys.core.worker.DefaultWorker;
@@ -81,7 +82,7 @@ public class RequestManagerDennaTest {
         Repository<ShardModel, SqlSpecification> shardRepository = new ShardModelRepository(coreDbHelper);
         latch = new CountDownLatch(1);
         fakeCompletionHandler = new FakeCompletionHandler(latch);
-        RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class));
+        RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class));
         coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(fakeCompletionHandler, requestRepository, uiHandler, coreSdkHandler);
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, fakeCompletionHandler, restClient, coreCompletionHandlerMiddlewareProvider);
         timestampProvider = new TimestampProvider();

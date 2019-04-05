@@ -5,6 +5,7 @@ import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.RequestTask;
 import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.response.ResponseModel;
 
 import java.util.HashMap;
@@ -24,7 +25,8 @@ public class FakeRequestTask extends RequestTask {
         super(requestModel,
                 handler,
                 mock(ConnectionProvider.class),
-                mock(TimestampProvider.class));
+                mock(TimestampProvider.class),
+                mock(ResponseHandlersProcessor.class));
         this.fakeResult = fakeResult;
         this.requestModel = requestModel;
         this.handler = handler;
