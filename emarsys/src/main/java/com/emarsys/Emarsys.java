@@ -13,6 +13,7 @@ import com.emarsys.core.api.result.Try;
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.trigger.TriggerEvent;
 import com.emarsys.core.database.trigger.TriggerType;
+import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.util.Assert;
@@ -50,6 +51,8 @@ public class Emarsys {
         registerWatchDogs(config);
 
         registerDatabaseTriggers();
+
+        initializeContact();
     }
 
     public static void setContact(@NonNull final String contactId) {
@@ -437,5 +440,20 @@ public class Emarsys {
                 TriggerType.AFTER,
                 TriggerEvent.INSERT,
                 getContainer().getLogShardTrigger());
+    }
+
+    private static void initializeContact() {
+        Integer deviceInfoHash = getContainer().getDeviceInfoHashStorage().get();
+        String contactToken = getContainer().getContactTokenStorage().get();
+        String contactFieldValue = getContainer().getContactFieldValueStorage().get();
+        String clientState = getContainer().getClientStateStorage().get();
+        DeviceInfo deviceInfo = getContainer().getDeviceInfo();
+
+        if (contactToken == null && contactFieldValue == null) {
+            if (clientState == null || deviceInfoHash != null && !deviceInfoHash.equals(deviceInfo.getHash())) {
+                getMobileEngageInternal().trackDeviceInfo();
+            }
+            getMobileEngageInternal().setContact(null, null);
+        }
     }
 }

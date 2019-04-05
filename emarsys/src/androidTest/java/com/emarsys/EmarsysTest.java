@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Looper;
 
 import com.emarsys.config.EmarsysConfig;
-import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.RunnerProxy;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
@@ -26,6 +25,8 @@ import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.RequestManager;
+import com.emarsys.core.response.ResponseHandlersProcessor;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.batch.BatchingShardTrigger;
 import com.emarsys.core.util.log.Logger;
 import com.emarsys.di.DefaultEmarsysDependencyContainer;
@@ -45,6 +46,7 @@ import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestReposito
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternal_V1;
 import com.emarsys.mobileengage.inbox.InboxInternal_V2;
+import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
@@ -68,6 +70,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,7 +82,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -124,11 +129,17 @@ public class EmarsysTest {
     private EmarsysConfig configWithInAppEventHandler;
     private EmarsysConfig userCentricInboxConfig;
     private RefreshTokenInternal mockRefreshTokenInternal;
-
+    private Storage<Integer> mockDeviceInfoHashStorage;
+    private Storage<String> mockContactFieldValueStorage;
+    private Storage<String> mockContactTokenStorage;
+    private Storage<String> mockClientStateStorage;
+    private ResponseHandlersProcessor mockResponseHandlersProcessor;
+    private DeviceInfo deviceInfo;
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
+    @SuppressWarnings("unchecked")
     public void init() {
         application = spy((Application) InstrumentationRegistry.getTargetContext().getApplicationContext());
 
@@ -151,14 +162,23 @@ public class EmarsysTest {
         runnerProxy = new RunnerProxy();
         logger = mock(Logger.class);
         mockRefreshTokenInternal = mock(RefreshTokenInternal.class);
+        mockDeviceInfoHashStorage = mock(Storage.class);
+        mockContactFieldValueStorage = mock(Storage.class);
+        mockContactTokenStorage = mock(Storage.class);
+        mockClientStateStorage = mock(Storage.class);
+        mockResponseHandlersProcessor = mock(ResponseHandlersProcessor.class);
 
         baseConfig = createConfig(false);
         configWithInAppEventHandler = createConfig(true);
         userCentricInboxConfig = createConfig(false, MobileEngageFeature.USER_CENTRIC_INBOX);
-        when(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION);
 
         HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
-        DeviceInfo deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider);
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider);
+
+        when(mockDeviceInfoHashStorage.get()).thenReturn(deviceInfo.getHash());
+        when(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION);
+        when(mockContactFieldValueStorage.get()).thenReturn("test@test.com");
+        when(mockContactTokenStorage.get()).thenReturn("asdfasfaghdsgf");
 
         DependencyInjection.setup(new FakeDependencyContainer(
                 mockCoreSdkHandler,
@@ -182,7 +202,12 @@ public class EmarsysTest {
                 mockPredictShardTrigger,
                 runnerProxy,
                 logger,
-                mockRefreshTokenInternal
+                mockRefreshTokenInternal,
+                mockDeviceInfoHashStorage,
+                mockContactFieldValueStorage,
+                mockContactTokenStorage,
+                mockClientStateStorage,
+                mockResponseHandlersProcessor
         ));
     }
 
@@ -301,18 +326,19 @@ public class EmarsysTest {
 
         Emarsys.setup(baseConfig);
 
-        DefaultCoreCompletionHandler coreCompletionHandler = DependencyInjection
+        ResponseHandlersProcessor responseHandlersProcessor = DependencyInjection
                 .<DefaultEmarsysDependencyContainer>getContainer()
-                .getCoreCompletionHandler();
+                .getResponseHandlersProcessor();
 
-        assertNotNull(coreCompletionHandler);
-        assertEquals(7, coreCompletionHandler.getResponseHandlers().size());
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), VisitorIdResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MeIdResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppMessageResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppCleanUpResponseHandler.class));
-        assertEquals(2, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MobileEngageTokenResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MobileEngageClientStateResponseHandler.class));
+        assertNotNull(responseHandlersProcessor);
+        assertEquals(8, responseHandlersProcessor.getResponseHandlers().size());
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), VisitorIdResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MeIdResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), InAppMessageResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), InAppCleanUpResponseHandler.class));
+        assertEquals(2, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MobileEngageTokenResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MobileEngageClientStateResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), ClientInfoResponseHandler.class));
 
     }
 
@@ -323,18 +349,19 @@ public class EmarsysTest {
 
         Emarsys.setup(userCentricInboxConfig);
 
-        DefaultCoreCompletionHandler coreCompletionHandler = DependencyInjection
+        ResponseHandlersProcessor responseHandlersProcessor = DependencyInjection
                 .<DefaultEmarsysDependencyContainer>getContainer()
-                .getCoreCompletionHandler();
+                .getResponseHandlersProcessor();
 
-        assertNotNull(coreCompletionHandler);
-        assertEquals(7, coreCompletionHandler.getResponseHandlers().size());
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), VisitorIdResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MeIdResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppMessageResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), InAppCleanUpResponseHandler.class));
-        assertEquals(2, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MobileEngageTokenResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(coreCompletionHandler.getResponseHandlers(), MobileEngageClientStateResponseHandler.class));
+        assertNotNull(responseHandlersProcessor);
+        assertEquals(8, responseHandlersProcessor.getResponseHandlers().size());
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), VisitorIdResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MeIdResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), InAppMessageResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), InAppCleanUpResponseHandler.class));
+        assertEquals(2, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MobileEngageTokenResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MobileEngageClientStateResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), ClientInfoResponseHandler.class));
     }
 
     @Test
@@ -405,6 +432,78 @@ public class EmarsysTest {
         Emarsys.setup(baseConfig);
 
         verifyZeroInteractions(mockInAppInternal);
+    }
+
+    @Test
+    public void testSetup_sendClientInfo() {
+        when(mockClientStateStorage.get()).thenReturn(null);
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
+        when(mockContactTokenStorage.get()).thenReturn(null);
+
+        Emarsys.setup(baseConfig);
+
+        verify(mockMobileEngageInternal).trackDeviceInfo();
+    }
+
+    @Test
+    public void testSetup_doNotSendClientInfo_whenHashIsUnChanged() {
+        when(mockClientStateStorage.get()).thenReturn("asdfsaf");
+
+        Emarsys.setup(baseConfig);
+
+        verify(mockMobileEngageInternal, never()).trackDeviceInfo();
+    }
+
+    @Test
+    public void testSetup_doNotSendClientInfo_whenAnonymousContactIsNotNeededToSend() {
+        when(mockClientStateStorage.get()).thenReturn(null);
+        when(mockContactFieldValueStorage.get()).thenReturn("asdf");
+        when(mockContactTokenStorage.get()).thenReturn("asdf");
+
+        Emarsys.setup(baseConfig);
+
+        verify(mockMobileEngageInternal, never()).trackDeviceInfo();
+
+    }
+
+    @Test
+    public void testSetup_sendAnonymousContact() {
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
+        when(mockContactTokenStorage.get()).thenReturn(null);
+
+        Emarsys.setup(baseConfig);
+
+        verify(mockMobileEngageInternal).setContact(null, null);
+    }
+
+    @Test
+    public void testSetup_sendDeviceInfoAndAnonymousContact_inOrder() {
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
+        when(mockContactTokenStorage.get()).thenReturn(null);
+        when(mockDeviceInfoHashStorage.get()).thenReturn(2345);
+
+        Emarsys.setup(baseConfig);
+
+        InOrder inOrder = inOrder(mockMobileEngageInternal);
+        inOrder.verify(mockMobileEngageInternal).trackDeviceInfo();
+        inOrder.verify(mockMobileEngageInternal).setContact(null, null);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testSetup_doNotSendAnonymousContact_whenContactFieldValueIsPresent() {
+        Emarsys.setup(baseConfig);
+
+        verify(mockMobileEngageInternal, never()).setContact(null, null);
+    }
+
+    @Test
+    public void testSetup_doNotSendAnonymousContact_whenContactTokenIsPresent() {
+        when(mockContactFieldValueStorage.get()).thenReturn(null);
+
+        Emarsys.setup(baseConfig);
+
+        verify(mockMobileEngageInternal, never()).setContact(null, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
