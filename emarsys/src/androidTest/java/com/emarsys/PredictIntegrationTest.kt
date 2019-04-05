@@ -12,6 +12,7 @@ import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
@@ -48,6 +49,10 @@ class PredictIntegrationTest {
     private lateinit var responseModelMatches: (ResponseModel) -> Boolean
     private var errorCause: Throwable? = null
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var clientStateStorage: Storage<String>
+    private lateinit var contactTokenStorage: Storage<String>
+    private lateinit var refreshTokenStorage: Storage<String>
+    private lateinit var deviceInfoHashStorage: Storage<Int>
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
@@ -81,8 +86,10 @@ class PredictIntegrationTest {
 
         ConnectionTestUtils.checkConnection(application)
         ExperimentalTestUtils.resetExperimentalFeatures()
-
-        completionHandler = object : DefaultCoreCompletionHandler(mutableListOf(), mutableMapOf()) {
+        responseModelMatches = {
+            false
+        }
+        completionHandler = object : DefaultCoreCompletionHandler(mutableMapOf()) {
             override fun onSuccess(id: String?, responseModel: ResponseModel) {
                 super.onSuccess(id, responseModel)
                 if (responseModel.isPredictRequest and this@PredictIntegrationTest.responseModelMatches(responseModel)) {
@@ -113,13 +120,21 @@ class PredictIntegrationTest {
                     },
                     mock(VersionProvider::class.java),
                     mock(LanguageProvider::class.java).apply {
-                        whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("")
+                        whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
                     }
             )
         })
 
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
         StringStorage(MobileEngageStorageKey.CLIENT_STATE, sharedPreferences).remove()
+        clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.clientStateStorage
+        contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.contactTokenStorage
+        refreshTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.refreshTokenStorage
+        deviceInfoHashStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().deviceInfoHashStorage
+        clientStateStorage.remove()
+        contactTokenStorage.remove()
+        refreshTokenStorage.remove()
+        deviceInfoHashStorage.remove()
 
         Emarsys.setup(baseConfig)
     }
@@ -131,6 +146,11 @@ class PredictIntegrationTest {
             application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
             coreSdkHandler.looper.quit()
         }
+
+        clientStateStorage.remove()
+        contactTokenStorage.remove()
+        refreshTokenStorage.remove()
+        deviceInfoHashStorage.remove()
 
         DependencyInjection.tearDown()
     }

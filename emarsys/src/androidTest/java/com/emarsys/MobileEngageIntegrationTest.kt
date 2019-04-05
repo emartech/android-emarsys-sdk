@@ -52,6 +52,7 @@ class MobileEngageIntegrationTest {
     private lateinit var clientStateStorage: Storage<String>
     private lateinit var contactTokenStorage: Storage<String>
     private lateinit var refreshTokenStorage: Storage<String>
+    private lateinit var deviceInfoHashStorage: Storage<Int>
 
     private var errorCause: Throwable? = null
 
@@ -110,9 +111,12 @@ class MobileEngageIntegrationTest {
         clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.clientStateStorage
         contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.contactTokenStorage
         refreshTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.refreshTokenStorage
+        deviceInfoHashStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().deviceInfoHashStorage
+
         clientStateStorage.remove()
         contactTokenStorage.remove()
         refreshTokenStorage.remove()
+        deviceInfoHashStorage.remove()
 
         IntegrationTestUtils.doLogin()
 
@@ -132,8 +136,11 @@ class MobileEngageIntegrationTest {
 
         MeIdStorage(sharedPreferences).remove()
         AppLoginStorage(sharedPreferences).remove()
+
         clientStateStorage.remove()
         contactTokenStorage.remove()
+        refreshTokenStorage.remove()
+        deviceInfoHashStorage.remove()
 
         DependencyInjection.tearDown()
     }
@@ -258,7 +265,7 @@ class MobileEngageIntegrationTest {
     }
 
     private fun createDefaultCoreCompletionHandler(): DefaultCoreCompletionHandler {
-        return object : DefaultCoreCompletionHandler(mutableListOf(), mutableMapOf()) {
+        return object : DefaultCoreCompletionHandler(mutableMapOf()) {
             override fun onSuccess(id: String?, responseModel: ResponseModel) {
                 super.onSuccess(id, responseModel)
                 this@MobileEngageIntegrationTest.responseModel = responseModel
