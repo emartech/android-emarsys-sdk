@@ -37,7 +37,7 @@ class RequestUrlUtilsTest {
     @Test
     fun testCreateSetPushTokenUrl() {
         val url = RequestUrlUtils.createSetPushTokenUrl(requestContextMock)
-        url shouldBe "https://ems-me-client.herokuapp.com/v3/apps/$APPLICATION_CODE/client/push-token"
+        url shouldBe "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/push-token"
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -48,7 +48,7 @@ class RequestUrlUtilsTest {
     @Test
     fun testCreateTrackDeviceInfoUrl() {
         val url = RequestUrlUtils.createTrackDeviceInfoUrl(requestContextMock)
-        url shouldBe "https://ems-me-client.herokuapp.com/v3/apps/$APPLICATION_CODE/client"
+        url shouldBe "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client"
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -60,7 +60,7 @@ class RequestUrlUtilsTest {
     fun testCreateSetContactUrl() {
         val url = RequestUrlUtils.createSetContactUrl(requestContextMock)
 
-        url shouldBe "https://ems-me-client.herokuapp.com/v3/apps/$APPLICATION_CODE/client/contact"
+        url shouldBe "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact"
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -84,7 +84,7 @@ class RequestUrlUtilsTest {
     fun testCreateRefreshContactTokenUrl() {
         val url = RequestUrlUtils.createRefreshContactTokenUrl(requestContextMock)
 
-        url shouldBe "https://ems-me-client.herokuapp.com/v3/apps/$APPLICATION_CODE/client/contact-token"
+        url shouldBe "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact-token"
     }
 
     @Test(expected = IllegalArgumentException::class)

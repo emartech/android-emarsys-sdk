@@ -103,7 +103,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
     @Test
     fun testOnError_shouldCall_createRefreshTokenRequest_whenStatusCodeIs401_andV3ClientUrl() {
-        whenever(mockRequestModel.url).thenReturn(URL("https://ems-me-client.herokuapp.com"))
+        whenever(mockRequestModel.url).thenReturn(URL("https://me-client.eservice.emarsys.net"))
         whenever(mockResponseModel.statusCode).thenReturn(401)
 
         proxy.onError(REQUEST_ID, mockResponseModel)

@@ -18,7 +18,7 @@ import java.net.URL
 class ClientInfoResponseHandlerTest {
 
     companion object {
-        val URL: URL = URL("https://ems-me-client.herokuapp.com/v3/apps/12341/client")
+        val URL: URL = URL("https://me-client.eservice.emarsys.net/v3/apps/12341/client")
     }
 
     @Rule

@@ -19,7 +19,7 @@ public class Endpoint {
     public static final String DEEP_LINK_BASE = BuildConfig.DEEP_LINK_BASE_URL;
     public static final String DEEP_LINK_CLICK = DEEP_LINK_BASE + "clicks";
 
-    public static final String ME_V3_CLIENT_HOST = "https://ems-me-client.herokuapp.com";
+    public static final String ME_V3_CLIENT_HOST = "https://me-client.eservice.emarsys.net";
     public static final String ME_V3_CLIENT_BASE = ME_V3_CLIENT_HOST + "/v3/apps/%s/client";
 
     public static final String ME_V3_EVENT_HOST = "https://mobile-events.eservice.emarsys.net";
