@@ -76,7 +76,7 @@ public class SendDisplayedIamActionTest {
 
         String eventName = "inapp:viewed";
         Map<String, String> attributes = new HashMap<>();
-        attributes.put("message_id", CAMPAIGN_ID);
+        attributes.put("campaignId", CAMPAIGN_ID);
 
         verify(mobileEngageInternal, Mockito.timeout(500)).trackInternalCustomEvent(
                 eventName,

@@ -46,9 +46,9 @@ public class InAppMessageResponseHandler extends AbstractResponseHandler {
         try {
             JSONObject message = responseBody.getJSONObject("message");
             String html = message.getString("html");
-            final String id = message.getString("id");
+            final String campaignId = message.getString("campaignId");
             final String requestId = responseModel.getRequestModel().getId();
-            inAppPresenter.present(id, requestId, responseModel.getTimestamp(), html, null);
+            inAppPresenter.present(campaignId, requestId, responseModel.getTimestamp(), html, null);
         } catch (JSONException ignored) {
         }
     }

@@ -15,7 +15,7 @@ import org.json.JSONObject;
 
 public class InAppCleanUpResponseHandler extends AbstractResponseHandler {
 
-    private static final String OLD_MESSAGES = "old_messages";
+    private static final String OLD_MESSAGES = "oldCampaigns";
 
     private final Repository<DisplayedIam, SqlSpecification> displayedIamRepository;
     private final Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;

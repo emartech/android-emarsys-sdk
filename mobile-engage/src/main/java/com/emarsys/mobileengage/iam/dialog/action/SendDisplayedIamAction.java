@@ -29,7 +29,7 @@ public class SendDisplayedIamAction implements OnDialogShownAction {
             @Override
             public void run() {
                 Map<String, String> attributes = new HashMap<>();
-                attributes.put("message_id", campaignId);
+                attributes.put("campaignId", campaignId);
 
                 String eventName = "inapp:viewed";
                 mobileEngageInternal.trackInternalCustomEvent(eventName, attributes, null);

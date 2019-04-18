@@ -3,6 +3,8 @@ package com.emarsys.mobileengage.responsehandler;
 import android.os.Build;
 import android.os.Handler;
 
+import androidx.test.filters.SdkSuppress;
+
 import com.emarsys.core.provider.Gettable;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
@@ -31,8 +33,6 @@ import org.junit.rules.TestRule;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
-
-import androidx.test.filters.SdkSuppress;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static junit.framework.Assert.assertEquals;
@@ -130,7 +130,7 @@ public class InAppMessageResponseHandlerTest {
     @SdkSuppress(minSdkVersion = KITKAT)
     public void testHandleResponse_shouldCallLoadMessageAsync_withCorrectArguments() {
         String html = "<p>hello</p>";
-        String responseBody = String.format("{'message': {'html':'%s', 'id': '123'} }", html);
+        String responseBody = String.format("{'message': {'html':'%s', 'campaignId': '123'} }", html);
         ResponseModel response = buildResponseModel(responseBody);
 
         handler.handleResponse(response);
@@ -145,7 +145,7 @@ public class InAppMessageResponseHandlerTest {
         ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
 
         String html = "<p>hello</p>";
-        String responseBody = String.format("{'message': {'html':'%s', 'id': '123'} }", html);
+        String responseBody = String.format("{'message': {'html':'%s', 'campaignId': '123'} }", html);
         ResponseModel response = buildResponseModel(responseBody);
 
         handler.handleResponse(response);
@@ -163,7 +163,7 @@ public class InAppMessageResponseHandlerTest {
         ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
 
         String html = "<p>hello</p>";
-        String responseBody = String.format("{'message': {'html':'%s', 'id': '123'} }", html);
+        String responseBody = String.format("{'message': {'html':'%s', 'campaignId': '123'} }", html);
         ResponseModel response = buildResponseModel(responseBody);
 
         handler.handleResponse(response);

@@ -25,58 +25,58 @@ import static org.mockito.Mockito.when;
 
 public class InAppCleanUpResponseHandlerTest {
 
-    InAppCleanUpResponseHandler handler;
-    Repository<DisplayedIam, SqlSpecification> displayedIamRepository;
-    Repository<ButtonClicked, SqlSpecification> buttonClickRepository;
+    private InAppCleanUpResponseHandler handler;
+    private Repository<DisplayedIam, SqlSpecification> mockDisplayedIamRepository;
+    private Repository<ButtonClicked, SqlSpecification> mockButtonClickRepository;
 
-    RequestModel customEventRequestModel;
+    private RequestModel mockRequestModel;
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     @SuppressWarnings("unchecked")
     public void init() throws Exception {
-        customEventRequestModel = mock(RequestModel.class);
+        mockRequestModel = mock(RequestModel.class);
 
-        when(customEventRequestModel.getUrl()).thenReturn(new URL(Endpoint.ME_V3_EVENT_BASE));
+        when(mockRequestModel.getUrl()).thenReturn(new URL(Endpoint.ME_V3_EVENT_BASE));
 
-        displayedIamRepository = mock(Repository.class);
-        buttonClickRepository = mock(Repository.class);
+        mockDisplayedIamRepository = mock(Repository.class);
+        mockButtonClickRepository = mock(Repository.class);
 
-        handler = new InAppCleanUpResponseHandler(displayedIamRepository, buttonClickRepository);
+        handler = new InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_inappRepository_shouldNotBeNull() {
-        new InAppCleanUpResponseHandler(null, buttonClickRepository);
+        new InAppCleanUpResponseHandler(null, mockButtonClickRepository);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_buttonClickedRepository_shouldNotBeNull() {
-        new InAppCleanUpResponseHandler(displayedIamRepository, null);
+        new InAppCleanUpResponseHandler(mockDisplayedIamRepository, null);
     }
 
     @Test
     public void testShouldHandleResponse_shouldReturnFalse_parsedJsonIsNull() {
-        ResponseModel response = buildResponseModel("html", customEventRequestModel);
+        ResponseModel response = buildResponseModel("html", mockRequestModel);
         assertFalse(handler.shouldHandleResponse(response));
     }
 
     @Test
     public void testShouldHandleResponse_shouldReturnFalse_responseHasNotOldMessages() {
-        ResponseModel response = buildResponseModel("{}", customEventRequestModel);
+        ResponseModel response = buildResponseModel("{}", mockRequestModel);
         assertFalse(handler.shouldHandleResponse(response));
     }
 
     @Test
     public void testShouldHandleResponse_shouldReturnTrueWhen_responseHasOldMessages() {
-        ResponseModel response = buildResponseModel("{'old_messages': ['123', '456', '78910']}", customEventRequestModel);
+        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123', '456', '78910']}", mockRequestModel);
         assertTrue(handler.shouldHandleResponse(response));
     }
 
     @Test
     public void testShouldHandleResponse_shouldReturnFalseWhen_oldMessagesIsEmpty() {
-        ResponseModel response = buildResponseModel("{'old_messages': []}", customEventRequestModel);
+        ResponseModel response = buildResponseModel("{'oldCampaigns': []}", mockRequestModel);
         assertFalse(handler.shouldHandleResponse(response));
     }
 
@@ -84,42 +84,42 @@ public class InAppCleanUpResponseHandlerTest {
     public void testShouldHandleResponse_shouldReturnFalseWhen_UrlIsNotCustomEventUrl() throws Exception {
         RequestModel requestModel = mock(RequestModel.class);
         when(requestModel.getUrl()).thenReturn(new URL("https://www.emarsys.com"));
-        ResponseModel response = buildResponseModel("{'old_messages': ['123', '456', '78910']}", requestModel);
+        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123', '456', '78910']}", requestModel);
         assertFalse(handler.shouldHandleResponse(response));
     }
 
     @Test
     public void testShouldHandleResponse_shouldReturnTrueWhen_UrlIsCustomEventUrl() {
-        ResponseModel response = buildResponseModel("{'old_messages': ['123', '456', '78910']}", customEventRequestModel);
+        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123', '456', '78910']}", mockRequestModel);
         assertTrue(handler.shouldHandleResponse(response));
     }
 
     @Test
     public void testHandleResponse_shouldDelete_oldInApp() {
-        ResponseModel response = buildResponseModel("{'old_messages': ['123']}", customEventRequestModel);
+        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123']}", mockRequestModel);
         handler.handleResponse(response);
-        verify(displayedIamRepository).remove(new FilterByCampaignId("123"));
+        verify(mockDisplayedIamRepository).remove(new FilterByCampaignId("123"));
     }
 
     @Test
     public void testHandleResponse_shouldDelete_multiple_oldInApps() {
-        ResponseModel response = buildResponseModel("{'old_messages': ['123', '456', '78910']}", customEventRequestModel);
+        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123', '456', '78910']}", mockRequestModel);
         handler.handleResponse(response);
-        verify(displayedIamRepository).remove(new FilterByCampaignId("123", "456", "78910"));
+        verify(mockDisplayedIamRepository).remove(new FilterByCampaignId("123", "456", "78910"));
     }
 
     @Test
     public void testHandleResponse_shouldDelete_oldButtonClick() {
-        ResponseModel response = buildResponseModel("{'old_messages': ['123']}", customEventRequestModel);
+        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123']}", mockRequestModel);
         handler.handleResponse(response);
-        verify(buttonClickRepository).remove(new FilterByCampaignId("123"));
+        verify(mockButtonClickRepository).remove(new FilterByCampaignId("123"));
     }
 
     @Test
     public void testHandleResponse_shouldDelete_multiple_oldButtonClicks() {
-        ResponseModel response = buildResponseModel("{'old_messages': ['123', '456', '78910']}", customEventRequestModel);
+        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123', '456', '78910']}", mockRequestModel);
         handler.handleResponse(response);
-        verify(buttonClickRepository).remove(new FilterByCampaignId("123", "456", "78910"));
+        verify(mockButtonClickRepository).remove(new FilterByCampaignId("123", "456", "78910"));
     }
 
     private ResponseModel buildResponseModel(String responseBody, RequestModel requestModel) {
