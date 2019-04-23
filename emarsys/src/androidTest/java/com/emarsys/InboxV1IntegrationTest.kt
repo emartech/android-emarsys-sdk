@@ -23,7 +23,10 @@ import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONObject
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 import java.util.*
@@ -130,7 +133,6 @@ class InboxV1IntegrationTest {
     }
 
     @Test
-    @Ignore
     fun testTrackNotificationOpen() {
         val notification = Notification(
                 "id",
