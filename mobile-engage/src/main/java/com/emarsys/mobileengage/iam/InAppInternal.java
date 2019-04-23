@@ -1,29 +1,57 @@
 package com.emarsys.mobileengage.iam;
 
+import com.emarsys.core.api.result.CompletionListener;
+import com.emarsys.core.util.Assert;
+import com.emarsys.mobileengage.EventServiceInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 
-public class InAppInternal {
+import java.util.Map;
 
-    private boolean isPaused;
-    private EventHandler eventHandler;
+public class InAppInternal implements InAppEventHandler, EventServiceInternal {
+    private final InAppEventHandlerInternal inAppEventHandlerInternal;
+    private final EventServiceInternal eventServiceInternal;
 
+    public InAppInternal(InAppEventHandlerInternal inAppEventHandlerInternal, EventServiceInternal eventServiceInternal) {
+        this.inAppEventHandlerInternal = inAppEventHandlerInternal;
+        this.eventServiceInternal = eventServiceInternal;
+    }
+
+    @Override
     public void pause() {
-        isPaused = true;
+        inAppEventHandlerInternal.pause();
     }
 
+    @Override
     public void resume() {
-        isPaused = false;
+        inAppEventHandlerInternal.resume();
     }
 
+    @Override
     public boolean isPaused() {
-        return isPaused;
+        return inAppEventHandlerInternal.isPaused();
     }
 
+    @Override
     public void setEventHandler(EventHandler eventHandler) {
-        this.eventHandler = eventHandler;
+        inAppEventHandlerInternal.setEventHandler(eventHandler);
     }
 
+    @Override
     public EventHandler getEventHandler() {
-        return eventHandler;
+        return inAppEventHandlerInternal.getEventHandler();
+    }
+
+    @Override
+    public String trackCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
+        Assert.notNull(eventName, "EventName must not be null!");
+
+        return eventServiceInternal.trackCustomEvent(eventName, eventAttributes, completionListener);
+    }
+
+    @Override
+    public String trackInternalCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
+        Assert.notNull(eventName, "EventName must not be null!");
+
+        return eventServiceInternal.trackInternalCustomEvent(eventName, eventAttributes, completionListener);
     }
 }
