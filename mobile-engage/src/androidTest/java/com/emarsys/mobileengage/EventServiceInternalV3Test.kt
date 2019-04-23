@@ -4,9 +4,12 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.request.RequestModelFactory
+import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 
@@ -16,6 +19,10 @@ class EventServiceInternalV3Test {
     private lateinit var mockRequestModelFactory: RequestModelFactory
     private lateinit var mockRequestModel: RequestModel
     private lateinit var eventServiceInternal: EventServiceInternal
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {
