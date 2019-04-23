@@ -22,20 +22,24 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
     private final Handler uiHandler;
     private final RequestModelFactory requestModelFactory;
     private final RequestContext requestContext;
+    private final EventServiceInternal eventServiceInternal;
 
     public MobileEngageInternalV3(RequestManager requestManager,
                                   Handler uiHandler,
                                   RequestModelFactory requestModelFactory,
-                                  RequestContext requestContext) {
+                                  RequestContext requestContext,
+                                  EventServiceInternal eventServiceInternal) {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(uiHandler, "UiHandler must not be null!");
         Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
+        Assert.notNull(eventServiceInternal, "EventServiceInternal must not be null!");
 
         this.requestManager = requestManager;
         this.uiHandler = uiHandler;
         this.requestModelFactory = requestModelFactory;
         this.requestContext = requestContext;
+        this.eventServiceInternal = eventServiceInternal;
     }
 
     @Override
@@ -69,20 +73,14 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
     public String trackCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
         Assert.notNull(eventName, "EventName must not be null!");
 
-        RequestModel requestModel = requestModelFactory.createCustomEventRequest(eventName, eventAttributes);
-        requestManager.submit(requestModel, completionListener);
-
-        return requestModel.getId();
+        return eventServiceInternal.trackCustomEvent(eventName, eventAttributes, completionListener);
     }
 
     @Override
     public String trackInternalCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
         Assert.notNull(eventName, "EventName must not be null!");
 
-        RequestModel requestModel = requestModelFactory.createInternalCustomEventRequest(eventName, eventAttributes);
-        requestManager.submit(requestModel, completionListener);
-
-        return requestModel.getId();
+        return eventServiceInternal.trackInternalCustomEvent(eventName, eventAttributes, completionListener);
     }
 
     @Override
@@ -122,8 +120,7 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
         HashMap<String, String> attributes = new HashMap<>();
         attributes.put("sid", messageId);
         attributes.put("origin", "main");
-        RequestModel requestModel = requestModelFactory.createInternalCustomEventRequest("push:click", attributes);
-        requestManager.submit(requestModel, completionListener);
+        eventServiceInternal.trackInternalCustomEvent("push:click", attributes, completionListener);
     }
 
     @Override

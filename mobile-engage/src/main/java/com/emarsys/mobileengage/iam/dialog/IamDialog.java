@@ -13,6 +13,9 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
+import androidx.annotation.RequiresApi;
+import androidx.fragment.app.DialogFragment;
+
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.Logger;
@@ -22,9 +25,6 @@ import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 
 import java.util.List;
-
-import androidx.annotation.RequiresApi;
-import androidx.fragment.app.DialogFragment;
 
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class IamDialog extends DialogFragment {
@@ -42,6 +42,7 @@ public class IamDialog extends DialogFragment {
     private boolean dismissed;
 
     TimestampProvider timestampProvider;
+
     public static IamDialog create(String campaignId, String requestId) {
         Assert.notNull(campaignId, "CampaignId must not be null!");
 

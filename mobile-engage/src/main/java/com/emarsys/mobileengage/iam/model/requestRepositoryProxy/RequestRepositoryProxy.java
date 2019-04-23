@@ -10,7 +10,7 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.FilterByUrlPattern;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.endpoint.Endpoint;
-import com.emarsys.mobileengage.iam.InAppInternal;
+import com.emarsys.mobileengage.iam.InAppEventHandlerInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.util.RequestModelUtils;
@@ -29,7 +29,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private final Repository<DisplayedIam, SqlSpecification> iamRepository;
     private final Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
     private final TimestampProvider timestampProvider;
-    private final InAppInternal inAppInternal;
+    private final InAppEventHandlerInternal inAppEventHandlerInternal;
     private final List<Mapper<List<RequestModel>, List<RequestModel>>> requestModelMappers;
 
     public RequestRepositoryProxy(
@@ -37,20 +37,20 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
             Repository<DisplayedIam, SqlSpecification> iamRepository,
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             TimestampProvider timestampProvider,
-            InAppInternal inAppInternal,
+            InAppEventHandlerInternal inAppEventHandlerInternal,
             List<Mapper<List<RequestModel>, List<RequestModel>>> requestModelMappers) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(iamRepository, "IamRepository must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
-        Assert.notNull(inAppInternal, "InAppInternal must not be null!");
+        Assert.notNull(inAppEventHandlerInternal, "InAppEventHandlerInternal must not be null!");
         Assert.notNull(requestModelMappers, "RequestModelMappers must not be null!");
 
         this.requestRepository = requestRepository;
         this.iamRepository = iamRepository;
         this.buttonClickedRepository = buttonClickedRepository;
         this.timestampProvider = timestampProvider;
-        this.inAppInternal = inAppInternal;
+        this.inAppEventHandlerInternal = inAppEventHandlerInternal;
         this.requestModelMappers = requestModelMappers;
     }
 
@@ -137,7 +137,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
                 events,
                 iamRepository.query(new Everything()),
                 buttonClickedRepository.query(new Everything()),
-                inAppInternal.isPaused()
+                inAppEventHandlerInternal.isPaused()
         );
     }
 

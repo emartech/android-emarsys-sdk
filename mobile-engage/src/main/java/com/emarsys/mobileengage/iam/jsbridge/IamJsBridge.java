@@ -9,12 +9,16 @@ import android.os.Looper;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.Gettable;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.JsonUtils;
-import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
@@ -27,11 +31,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class IamJsBridge {
     private final Gettable<Activity> currentActivityProvider;
@@ -41,27 +40,23 @@ public class IamJsBridge {
     private Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
     private String campaignId;
     private Handler coreSdkHandler;
-    private MobileEngageInternal mobileEngageInternal;
 
     public IamJsBridge(
             InAppInternal inAppInternal,
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             String campaignId,
             Handler coreSdkHandler,
-            MobileEngageInternal mobileEngageInternal,
             Gettable<Activity> currentActivityProvider) {
         Assert.notNull(inAppInternal, "InAppInternal must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
         Assert.notNull(campaignId, "CampaignId must not be null!");
         Assert.notNull(coreSdkHandler, "CoreSdkHandler must not be null!");
-        Assert.notNull(mobileEngageInternal, "MobileEngageInternal must not be null!");
         Assert.notNull(currentActivityProvider, "CurrentActivityProvider must not be null!");
         this.inAppInternal = inAppInternal;
         this.uiHandler = new Handler(Looper.getMainLooper());
         this.buttonClickedRepository = buttonClickedRepository;
         this.campaignId = campaignId;
         this.coreSdkHandler = coreSdkHandler;
-        this.mobileEngageInternal = mobileEngageInternal;
         this.currentActivityProvider = currentActivityProvider;
     }
 
@@ -87,7 +82,7 @@ public class IamJsBridge {
 
     @JavascriptInterface
     public void triggerAppEvent(final String jsonString) {
-        final EventHandler inAppEventHandler = inAppInternal.getEventHandler();
+        final EventHandler inAppEventHandler = this.inAppInternal.getEventHandler();
         if (inAppEventHandler != null) {
             handleJsBridgeEvent(jsonString, "name", uiHandler, new JsBridgeEventAction() {
                 @Override
@@ -106,7 +101,7 @@ public class IamJsBridge {
             @Override
             public JSONObject execute(String property, JSONObject json) throws Exception {
                 Map<String, String> attributes = extractAttributes(json);
-                String eventId = mobileEngageInternal.trackCustomEvent(property, attributes, null);
+                String eventId = inAppInternal.trackCustomEvent(property, attributes, null);
                 return new JSONObject().put("meEventId", eventId);
             }
         });
@@ -122,7 +117,7 @@ public class IamJsBridge {
                 Map<String, String> attributes = new HashMap<>();
                 attributes.put("message_id", campaignId);
                 attributes.put("button_id", property);
-                mobileEngageInternal.trackInternalCustomEvent(eventName, attributes, null);
+                inAppInternal.trackInternalCustomEvent(eventName, attributes, null);
                 return null;
             }
         });

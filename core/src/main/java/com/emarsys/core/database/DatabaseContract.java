@@ -67,7 +67,7 @@ public final class DatabaseContract {
                     "campaign_id TEXT," +
                     "timestamp INTEGER);";
 
-    private static final String UPGRADE_TO_4_CREATE_TABLE_BUTTON_CLICKED  =
+    private static final String UPGRADE_TO_4_CREATE_TABLE_BUTTON_CLICKED =
             "CREATE TABLE IF NOT EXISTS button_clicked (" +
                     "campaign_id TEXT," +
                     "button_id TEXT," +

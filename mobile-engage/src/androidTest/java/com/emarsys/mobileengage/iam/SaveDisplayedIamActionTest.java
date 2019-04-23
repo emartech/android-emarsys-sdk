@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.iam;
 
 import android.os.Handler;
+
 import androidx.test.filters.SdkSuppress;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
@@ -28,9 +29,9 @@ import static org.mockito.Mockito.when;
 @SdkSuppress(minSdkVersion = KITKAT)
 public class SaveDisplayedIamActionTest {
 
-    private static final String ID = "id";
+    private static final String CAMPAIGN_ID = "123";
     private static final long TIMESTAMP = 123;
-    private static final DisplayedIam IAM = new DisplayedIam(ID, TIMESTAMP);
+    private static final DisplayedIam IAM = new DisplayedIam(CAMPAIGN_ID, TIMESTAMP);
 
     private SaveDisplayedIamAction action;
     private Repository<DisplayedIam, SqlSpecification> repository;
@@ -81,13 +82,13 @@ public class SaveDisplayedIamActionTest {
 
     @Test
     public void testExecute_callsRepository() {
-        action.execute(ID);
+        action.execute(CAMPAIGN_ID);
         verify(repository, timeout(1000)).add(IAM);
     }
 
     @Test
     public void testExecute_callsRepository_onCoreSdkThread() throws InterruptedException {
-        action.execute(ID);
+        action.execute(CAMPAIGN_ID);
         threadSpy.verifyCalledOnCoreSdkThread();
     }
 

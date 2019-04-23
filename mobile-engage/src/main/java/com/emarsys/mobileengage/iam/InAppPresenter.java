@@ -5,6 +5,10 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Handler;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.Gettable;
@@ -12,7 +16,6 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.log.entry.InAppLoadingTime;
-import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider;
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
@@ -26,10 +29,6 @@ import com.emarsys.mobileengage.iam.webview.MessageLoadedListener;
 
 import java.util.Arrays;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
 public class InAppPresenter {
 
     private final Gettable<Activity> currentActivityProvider;
@@ -40,7 +39,6 @@ public class InAppPresenter {
     private Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
     private Repository<DisplayedIam, SqlSpecification> displayedIamRepository;
     private TimestampProvider timestampProvider;
-    private MobileEngageInternal mobileEngageInternal;
 
     public InAppPresenter(
             Handler coreSdkHandler,
@@ -50,7 +48,6 @@ public class InAppPresenter {
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             Repository<DisplayedIam, SqlSpecification> displayedIamRepository,
             TimestampProvider timestampProvider,
-            MobileEngageInternal mobileEngageInternal,
             Gettable<Activity> currentActivityProvider) {
         Assert.notNull(webViewProvider, "WebViewProvider must not be null!");
         Assert.notNull(inAppInternal, "InAppInternal must not be null!");
@@ -59,7 +56,6 @@ public class InAppPresenter {
         Assert.notNull(buttonClickedRepository, "ButtonClickRepository must not be null!");
         Assert.notNull(displayedIamRepository, "DisplayedIamRepository must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
-        Assert.notNull(mobileEngageInternal, "MobileEngageInternal must not be null!");
         Assert.notNull(currentActivityProvider, "CurrentActivityProvider must not be null!");
         this.webViewProvider = webViewProvider;
         this.inAppInternal = inAppInternal;
@@ -68,7 +64,6 @@ public class InAppPresenter {
         this.buttonClickedRepository = buttonClickedRepository;
         this.displayedIamRepository = displayedIamRepository;
         this.timestampProvider = timestampProvider;
-        this.mobileEngageInternal = mobileEngageInternal;
         this.currentActivityProvider = currentActivityProvider;
     }
 
@@ -82,7 +77,6 @@ public class InAppPresenter {
                 buttonClickedRepository,
                 campaignId,
                 coreSdkHandler,
-                mobileEngageInternal,
                 currentActivityProvider);
         webViewProvider.loadMessageAsync(html, jsBridge, new MessageLoadedListener() {
             @Override
@@ -113,7 +107,7 @@ public class InAppPresenter {
 
         OnDialogShownAction sendDisplayedIamAction = new SendDisplayedIamAction(
                 coreSdkHandler,
-                mobileEngageInternal);
+                inAppInternal);
 
         iamDialog.setActions(Arrays.asList(
                 saveDisplayedIamAction,

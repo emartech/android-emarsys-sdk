@@ -18,7 +18,7 @@ import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.iam.InAppInternal;
+import com.emarsys.mobileengage.iam.InAppEventHandlerInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
@@ -69,7 +69,7 @@ public class RequestRepositoryProxyTest {
     private Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
 
     private TimestampProvider timestampProvider;
-    private InAppInternal inAppInternal;
+    private InAppEventHandlerInternal inAppEventHandlerInternal;
 
     private RequestRepositoryProxy compositeRepository;
     private UUIDProvider uuidProvider;
@@ -114,7 +114,7 @@ public class RequestRepositoryProxyTest {
         uuidProvider = mock(UUIDProvider.class);
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
 
-        inAppInternal = mock(InAppInternal.class);
+        inAppEventHandlerInternal = mock(InAppEventHandlerInternal.class);
 
         Collections.addAll(requestModelMappers, mockRequestModelMapper);
 
@@ -123,29 +123,29 @@ public class RequestRepositoryProxyTest {
                 mockDisplayedIamRepository,
                 mockButtonClickedRepository,
                 timestampProvider,
-                inAppInternal,
+                inAppEventHandlerInternal,
                 requestModelMappers
         );
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(null, mockDisplayedIamRepository, mockButtonClickedRepository, timestampProvider, inAppInternal, requestModelMappers);
+        new RequestRepositoryProxy(null, mockDisplayedIamRepository, mockButtonClickedRepository, timestampProvider, inAppEventHandlerInternal, requestModelMappers);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_displayedIamRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, null, mockButtonClickedRepository, timestampProvider, inAppInternal, requestModelMappers);
+        new RequestRepositoryProxy(mockRequestModelRepository, null, mockButtonClickedRepository, timestampProvider, inAppEventHandlerInternal, requestModelMappers);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_buttonClickedRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, null, timestampProvider, inAppInternal, requestModelMappers);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, null, timestampProvider, inAppEventHandlerInternal, requestModelMappers);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_timestampProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, null, inAppInternal, requestModelMappers);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, null, inAppEventHandlerInternal, requestModelMappers);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -155,7 +155,7 @@ public class RequestRepositoryProxyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestModelDecorators_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, inAppInternal, null);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, inAppEventHandlerInternal, null);
     }
 
     @Test
@@ -442,7 +442,7 @@ public class RequestRepositoryProxyTest {
 
     @Test
     public void testQuery_resultPayloadShouldContainDoNotDisturbWithTrue_whenDoNotDisturbIsOn() {
-        when(inAppInternal.isPaused()).thenReturn(true);
+        when(inAppEventHandlerInternal.isPaused()).thenReturn(true);
         compositeRepository = compositeRepositoryWithRealRepositories();
 
         final RequestModel customEvent1 = customEvent_V3(900, "event1");
@@ -456,7 +456,7 @@ public class RequestRepositoryProxyTest {
 
     @Test
     public void testQuery_resultPayloadShouldNotContainDoNotDisturb_whenDoNotDisturbIsOff() {
-        when(inAppInternal.isPaused()).thenReturn(false);
+        when(inAppEventHandlerInternal.isPaused()).thenReturn(false);
         compositeRepository = compositeRepositoryWithRealRepositories();
 
         final RequestModel customEvent1 = customEvent_V3(900, "event1");
@@ -505,7 +505,7 @@ public class RequestRepositoryProxyTest {
                 mockDisplayedIamRepository,
                 mockButtonClickedRepository,
                 timestampProvider,
-                inAppInternal,
+                inAppEventHandlerInternal,
                 requestModelMappers
         );
 
@@ -522,7 +522,7 @@ public class RequestRepositoryProxyTest {
                 displayedIamRepository,
                 buttonClickedRepository,
                 timestampProvider,
-                inAppInternal,
+                inAppEventHandlerInternal,
                 requestModelMappers
         );
     }

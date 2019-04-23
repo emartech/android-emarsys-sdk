@@ -4,8 +4,7 @@ import android.os.Handler;
 
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
-import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
+import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.testUtil.TimeoutUtils;
 import com.emarsys.testUtil.mockito.ThreadSpy;
 
@@ -32,7 +31,7 @@ public class SendDisplayedIamActionTest {
     private SendDisplayedIamAction action;
 
     private Handler handler;
-    private MobileEngageInternal mobileEngageInternal;
+    private InAppInternal inAppInternal;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -40,8 +39,8 @@ public class SendDisplayedIamActionTest {
     @Before
     public void init() {
         handler = new CoreSdkHandlerProvider().provideHandler();
-        mobileEngageInternal = mock(MobileEngageInternal_V3_Old.class);
-        action = new SendDisplayedIamAction(handler, mobileEngageInternal);
+        inAppInternal = mock(InAppInternal.class);
+        action = new SendDisplayedIamAction(handler, inAppInternal);
     }
 
     @After
@@ -53,12 +52,12 @@ public class SendDisplayedIamActionTest {
     public void testConstructor_handler_mustNotBeNull() {
         new SendDisplayedIamAction(
                 null,
-                mock(MobileEngageInternal_V3_Old.class)
+                mock(InAppInternal.class)
         );
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_mobileEngageInternal_mustNotBeNull() {
+    public void testConstructor_inAppInternal_mustNotBeNull() {
         new SendDisplayedIamAction(
                 mock(Handler.class),
                 null
@@ -78,7 +77,7 @@ public class SendDisplayedIamActionTest {
         Map<String, String> attributes = new HashMap<>();
         attributes.put("campaignId", CAMPAIGN_ID);
 
-        verify(mobileEngageInternal, Mockito.timeout(500)).trackInternalCustomEvent(
+        verify(inAppInternal, Mockito.timeout(500)).trackInternalCustomEvent(
                 eventName,
                 attributes,
                 null);
@@ -88,10 +87,10 @@ public class SendDisplayedIamActionTest {
     @SuppressWarnings("unchecked")
     public void testExecute_callsRequestManager_onCoreSdkThread() {
         ThreadSpy threadSpy = new ThreadSpy();
-        doAnswer(threadSpy).when(mobileEngageInternal).trackInternalCustomEvent(
+        doAnswer(threadSpy).when(inAppInternal).trackInternalCustomEvent(
                 any(String.class),
                 any(Map.class),
-                (CompletionListener)isNull());
+                (CompletionListener) isNull());
 
         action.execute(CAMPAIGN_ID);
 

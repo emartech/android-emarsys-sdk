@@ -54,6 +54,7 @@ class MobileEngageInternalV3Test {
 
     private lateinit var mobileEngageInternal: MobileEngageInternalV3
 
+    private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockRequestManager: RequestManager
     private lateinit var mockRequestContext: RequestContext
     private lateinit var mockTimestampProvider: TimestampProvider
@@ -76,6 +77,8 @@ class MobileEngageInternalV3Test {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
+        mockEventServiceInternal = mock(EventServiceInternal::class.java)
+
         mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
         mockRefreshTokenStorage = mock(Storage::class.java) as Storage<String>
         mockContactTokenStorage = mock(Storage::class.java) as Storage<String>
@@ -125,27 +128,32 @@ class MobileEngageInternalV3Test {
 
         mockCompletionListener = mock(CompletionListener::class.java)
 
-        mobileEngageInternal = MobileEngageInternalV3(mockRequestManager, uiHandler, mockRequestModelFactory, mockRequestContext)
+        mobileEngageInternal = MobileEngageInternalV3(mockRequestManager, uiHandler, mockRequestModelFactory, mockRequestContext, mockEventServiceInternal)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestManager_mustNotBeNull() {
-        MobileEngageInternalV3(null, uiHandler, mockRequestModelFactory, mockRequestContext)
+        MobileEngageInternalV3(null, uiHandler, mockRequestModelFactory, mockRequestContext, mockEventServiceInternal)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_uiHandler_mustNotBeNull() {
-        MobileEngageInternalV3(mockRequestManager, null, mockRequestModelFactory, mockRequestContext)
+        MobileEngageInternalV3(mockRequestManager, null, mockRequestModelFactory, mockRequestContext, mockEventServiceInternal)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestModelFactory_mustNotBeNull() {
-        MobileEngageInternalV3(mockRequestManager, uiHandler, null, mockRequestContext)
+        MobileEngageInternalV3(mockRequestManager, uiHandler, null, mockRequestContext, mockEventServiceInternal)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestContext_mustNotBeNull() {
-        MobileEngageInternalV3(mockRequestManager, uiHandler, mockRequestModelFactory, null)
+        MobileEngageInternalV3(mockRequestManager, uiHandler, mockRequestModelFactory, null, mockEventServiceInternal)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_eventServiceInternal_mustNotBeNull() {
+        MobileEngageInternalV3(mockRequestManager, uiHandler, mockRequestModelFactory, mockRequestContext, null)
     }
 
     @Test
@@ -199,14 +207,15 @@ class MobileEngageInternalV3Test {
     fun testTrackCustomEvent() {
         mobileEngageInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
 
-        verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+        verify(mockEventServiceInternal).trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
+
     }
 
     @Test
     fun testTrackCustomEvent_completionListener_canBeNull() {
         mobileEngageInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, null)
 
-        verify(mockRequestManager).submit(mockRequestModel, null)
+        verify(mockEventServiceInternal).trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -218,14 +227,14 @@ class MobileEngageInternalV3Test {
     fun testTrackInternalCustomEvent() {
         mobileEngageInternal.trackInternalCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
 
-        verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+        verify(mockEventServiceInternal).trackInternalCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
     }
 
     @Test
     fun testTrackInternalCustomEvent_completionListener_canBeNull() {
         mobileEngageInternal.trackInternalCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, null)
 
-        verify(mockRequestManager).submit(mockRequestModel, null)
+        verify(mockEventServiceInternal).trackInternalCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, null)
     }
 
     @Test
@@ -295,20 +304,22 @@ class MobileEngageInternalV3Test {
 
     @Test
     fun testTrackMessageOpen() {
-        whenever(mockRequestModelFactory.createInternalCustomEventRequest(MESSAGE_OPEN_EVENT_NAME, mapOf("sid" to SID, "origin" to "main"))).thenReturn(mockRequestModel)
+        val attributes = mapOf("sid" to SID, "origin" to "main")
+        whenever(mockRequestModelFactory.createInternalCustomEventRequest(MESSAGE_OPEN_EVENT_NAME, attributes)).thenReturn(mockRequestModel)
 
         mobileEngageInternal.trackMessageOpen(createTestIntent(), mockCompletionListener)
 
-        verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+        verify(mockEventServiceInternal).trackInternalCustomEvent(MESSAGE_OPEN_EVENT_NAME, attributes, mockCompletionListener)
     }
 
     @Test
     fun testTrackMessageOpen_completionListener_canBeNull() {
-        whenever(mockRequestModelFactory.createInternalCustomEventRequest(MESSAGE_OPEN_EVENT_NAME, mapOf("sid" to SID, "origin" to "main"))).thenReturn(mockRequestModel)
+        val attributes = mapOf("sid" to SID, "origin" to "main")
+        whenever(mockRequestModelFactory.createInternalCustomEventRequest(MESSAGE_OPEN_EVENT_NAME, attributes)).thenReturn(mockRequestModel)
 
         mobileEngageInternal.trackMessageOpen(createTestIntent(), null)
 
-        verify(mockRequestManager).submit(mockRequestModel, null)
+        verify(mockEventServiceInternal).trackInternalCustomEvent(MESSAGE_OPEN_EVENT_NAME, attributes, null)
     }
 
     @Test

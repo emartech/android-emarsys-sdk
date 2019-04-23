@@ -67,7 +67,6 @@ class InAppPresenterTest {
                 buttonClickedRepository,
                 displayedIamRepository,
                 timestampProvider,
-                mobileEngageInternal,
                 activityProvider
         )
     }
@@ -81,7 +80,6 @@ class InAppPresenterTest {
                 buttonClickedRepository,
                 displayedIamRepository,
                 timestampProvider,
-                mobileEngageInternal,
                 activityProvider
         )
     }
@@ -95,7 +93,6 @@ class InAppPresenterTest {
                 buttonClickedRepository,
                 displayedIamRepository,
                 timestampProvider,
-                mobileEngageInternal,
                 activityProvider
         )
     }
@@ -109,7 +106,6 @@ class InAppPresenterTest {
                 buttonClickedRepository,
                 displayedIamRepository,
                 timestampProvider,
-                mobileEngageInternal,
                 activityProvider
         )
     }
@@ -123,7 +119,6 @@ class InAppPresenterTest {
                 buttonClickedRepository,
                 displayedIamRepository,
                 timestampProvider,
-                mobileEngageInternal,
                 activityProvider
         )
     }
@@ -137,7 +132,6 @@ class InAppPresenterTest {
                 null,
                 displayedIamRepository,
                 timestampProvider,
-                mobileEngageInternal,
                 activityProvider
         )
     }
@@ -151,7 +145,6 @@ class InAppPresenterTest {
                 buttonClickedRepository,
                 null,
                 timestampProvider,
-                mobileEngageInternal,
                 activityProvider
         )
     }
@@ -164,21 +157,6 @@ class InAppPresenterTest {
                 iamDialogProvider,
                 buttonClickedRepository,
                 displayedIamRepository,
-                null,
-                mobileEngageInternal,
-                activityProvider
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_mobileEngageInternal_mustNotBeNull() {
-        InAppPresenter(coreSdkHandler,
-                iamWebViewProvider,
-                inAppInternal,
-                iamDialogProvider,
-                buttonClickedRepository,
-                displayedIamRepository,
-                timestampProvider,
                 null,
                 activityProvider
         )
@@ -193,7 +171,6 @@ class InAppPresenterTest {
                 buttonClickedRepository,
                 displayedIamRepository,
                 timestampProvider,
-                mobileEngageInternal,
                 null
         )
     }

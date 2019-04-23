@@ -51,6 +51,8 @@ import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.predicate.ListSizeAtLeast;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
+import com.emarsys.mobileengage.EventServiceInternal;
+import com.emarsys.mobileengage.EventServiceInternalV3;
 import com.emarsys.mobileengage.MobileEngageClientInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternalV3;
@@ -62,6 +64,7 @@ import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.device.DeviceInfoStartAction;
+import com.emarsys.mobileengage.iam.InAppEventHandlerInternal;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.InAppStartAction;
@@ -101,7 +104,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
     private MobileEngageInternal mobileEngageInternal;
     private InboxInternal inboxInternal;
-    private InAppInternal inAppInternal;
+    private InAppEventHandlerInternal inAppEventHandler;
     private DeepLinkInternal deepLinkInternal;
     private PredictInternal predictInternal;
     private Handler coreSdkHandler;
@@ -141,6 +144,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private Logger logger;
     private MobileEngageRefreshTokenInternal refreshTokenInternal;
     private ResponseHandlersProcessor responseHandlersProcessor;
+    private EventServiceInternal eventServiceInternal;
+    private InAppInternal inAppInternal;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeDependencies(emarsysConfig);
@@ -297,8 +302,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         runnerProxy = new RunnerProxy();
         SharedPreferences prefs = application.getSharedPreferences(EMARSYS_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
 
-        inAppInternal = new InAppInternal();
-
         uiHandler = new Handler(Looper.getMainLooper());
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
         timestampProvider = new TimestampProvider();
@@ -343,6 +346,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 contactTokenStorage,
                 refreshTokenStorage,
                 contactFieldValueStorage);
+
+        inAppEventHandler = new InAppEventHandlerInternal();
 
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
@@ -414,7 +419,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 requestManager,
                 BatchingShardTrigger.RequestStrategy.TRANSIENT);
 
-        mobileEngageInternal = new MobileEngageInternalV3(requestManager, uiHandler, requestModelFactory, requestContext);
+        eventServiceInternal = new EventServiceInternalV3(requestModelFactory, requestManager);
+
+        inAppInternal = new InAppInternal(inAppEventHandler, eventServiceInternal);
+
+        mobileEngageInternal = new MobileEngageInternalV3(requestManager, uiHandler, requestModelFactory, requestContext, eventServiceInternal);
         inboxInternal = new InboxInternalProvider().provideInboxInternal(
                 ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX),
                 requestManager,
@@ -435,7 +444,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 displayedIamRepository,
                 buttonClickedRepository,
                 timestampProvider,
-                inAppInternal,
+                inAppEventHandler,
                 createRequestModelMappers());
     }
 
@@ -469,7 +478,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 buttonClickedRepository,
                 displayedIamRepository,
                 timestampProvider,
-                mobileEngageInternal,
                 currentActivityProvider);
     }
 

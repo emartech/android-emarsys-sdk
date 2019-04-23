@@ -5,8 +5,9 @@ import android.os.Looper;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
+import androidx.test.filters.SdkSuppress;
+
 import com.emarsys.core.provider.Gettable;
-import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
@@ -22,8 +23,6 @@ import org.junit.rules.TestRule;
 
 import java.util.concurrent.CountDownLatch;
 
-import androidx.test.filters.SdkSuppress;
-
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -36,9 +35,8 @@ class TestJSInterface extends IamJsBridge {
         super(
                 mock(InAppInternal.class),
                 mock(ButtonClickedRepository.class),
-                "123",
+                    "123",
                 mock(Handler.class),
-                mock(MobileEngageInternal_V3_Old.class),
                 mock(Gettable.class));
     }
 

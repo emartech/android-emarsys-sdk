@@ -7,13 +7,15 @@ import android.net.Uri;
 import android.os.Handler;
 import android.webkit.WebView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.rule.ActivityTestRule;
+
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.Gettable;
-import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
@@ -34,10 +36,6 @@ import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.test.filters.SdkSuppress;
-import androidx.test.rule.ActivityTestRule;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static org.hamcrest.Matchers.allOf;
@@ -72,7 +70,6 @@ public class IamJsBridgeTest {
     private WebView webView;
     private Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
     private Handler coreSdkHandler;
-    private MobileEngageInternal mobileEngageInternal;
     private Gettable<Activity> currentActivityProvider;
 
     @Rule
@@ -91,14 +88,12 @@ public class IamJsBridgeTest {
         buttonClickedRepository = mock(Repository.class);
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
 
-        mobileEngageInternal = mock(MobileEngageInternal_V3_Old.class);
         currentActivityProvider = mock(Gettable.class);
         jsBridge = new IamJsBridge(
                 inAppInternal,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
-                mobileEngageInternal,
                 currentActivityProvider);
         webView = mock(WebView.class);
         jsBridge.setWebView(webView);
@@ -116,7 +111,6 @@ public class IamJsBridgeTest {
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
-                mobileEngageInternal,
                 currentActivityProvider);
     }
 
@@ -127,7 +121,6 @@ public class IamJsBridgeTest {
                 null,
                 CAMPAIGN_ID,
                 coreSdkHandler,
-                mobileEngageInternal,
                 currentActivityProvider);
     }
 
@@ -138,7 +131,6 @@ public class IamJsBridgeTest {
                 buttonClickedRepository,
                 null,
                 coreSdkHandler,
-                mobileEngageInternal,
                 currentActivityProvider);
     }
 
@@ -148,18 +140,6 @@ public class IamJsBridgeTest {
                 inAppInternal,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
-                null,
-                mobileEngageInternal,
-                currentActivityProvider);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_mobileEngageInternal_shouldNotAcceptNull() {
-        new IamJsBridge(
-                inAppInternal,
-                buttonClickedRepository,
-                CAMPAIGN_ID,
-                coreSdkHandler,
                 null,
                 currentActivityProvider);
     }
@@ -171,7 +151,6 @@ public class IamJsBridgeTest {
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
-                mobileEngageInternal,
                 null);
     }
 
@@ -232,7 +211,7 @@ public class IamJsBridgeTest {
 
         jsBridge.triggerMEEvent(json.toString());
 
-        verify(mobileEngageInternal, Mockito.timeout(1000)).trackCustomEvent("eventName", eventAttributes, null);
+        verify(inAppInternal, Mockito.timeout(1000)).trackCustomEvent("eventName", eventAttributes, null);
     }
 
     @Test
@@ -244,14 +223,14 @@ public class IamJsBridgeTest {
 
         jsBridge.triggerMEEvent(json.toString());
 
-        verify(mobileEngageInternal, Mockito.timeout(1000)).trackCustomEvent("eventName", null, null);
+        verify(inAppInternal, Mockito.timeout(1000)).trackCustomEvent("eventName", null, null);
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testTriggerMeEvent_shouldCallMobileEngageInternal_onCoreSDKThread() throws JSONException, InterruptedException {
         ThreadSpy threadSpy = new ThreadSpy();
-        doAnswer(threadSpy).when(mobileEngageInternal).trackCustomEvent(
+        doAnswer(threadSpy).when(inAppInternal).trackCustomEvent(
                 any(String.class),
                 nullable(Map.class),
                 (CompletionListener) isNull());
@@ -287,7 +266,7 @@ public class IamJsBridgeTest {
         JSONObject json = new JSONObject().put("id", id).put("name", "value");
 
         String requestId = "eventId";
-        when(mobileEngageInternal.trackCustomEvent(
+        when(inAppInternal.trackCustomEvent(
                 any(String.class),
                 nullable(Map.class),
                 (CompletionListener) isNull())).thenReturn(requestId);
@@ -314,7 +293,6 @@ public class IamJsBridgeTest {
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
-                mobileEngageInternal,
                 currentActivityProvider);
         jsBridge.triggerAppEvent(json.toString());
     }
@@ -335,7 +313,6 @@ public class IamJsBridgeTest {
                 buttonClickedRepository,
                 CAMPAIGN_ID,
                 coreSdkHandler,
-                mobileEngageInternal,
                 currentActivityProvider);
         jsBridge.setWebView(webView);
         jsBridge.triggerAppEvent(json.toString());
@@ -402,7 +379,7 @@ public class IamJsBridgeTest {
 
         jsBridge.buttonClicked(json.toString());
 
-        verify(mobileEngageInternal, Mockito.timeout(1000)).trackInternalCustomEvent("inapp:click", attributes, null);
+        verify(inAppInternal, Mockito.timeout(1000)).trackInternalCustomEvent("inapp:click", attributes, null);
     }
 
     @Test
