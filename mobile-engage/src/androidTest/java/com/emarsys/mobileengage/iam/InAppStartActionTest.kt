@@ -1,24 +1,19 @@
 package com.emarsys.mobileengage.iam
 
-import com.emarsys.mobileengage.MobileEngageInternal
-import com.emarsys.testUtil.DatabaseTestUtils
-import com.emarsys.testUtil.SharedPrefsUtils
+import com.emarsys.core.storage.Storage
+import com.emarsys.mobileengage.EventServiceInternal
 import com.emarsys.testUtil.TimeoutUtils
-import org.junit.After
+import com.emarsys.testUtil.mockito.whenever
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 
 class InAppStartActionTest {
 
-    companion object {
-        private val EMARSYS_SHARED_PREFERENCES = "emarsys_shared_preferences"
-    }
-
-    private lateinit var mobileEngageInternal: MobileEngageInternal
+    private lateinit var mockEventServiceInternal: EventServiceInternal
+    private lateinit var mockContactTokenStorage: Storage<String>
     private lateinit var startAction: InAppStartAction
 
     @Rule
@@ -26,31 +21,39 @@ class InAppStartActionTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
+    @Suppress("UNCHECKED_CAST")
     fun init() {
-        DatabaseTestUtils.deleteCoreDatabase()
-        SharedPrefsUtils.clearSharedPrefs(EMARSYS_SHARED_PREFERENCES)
+        mockEventServiceInternal = mock(EventServiceInternal::class.java)
+        mockContactTokenStorage = mock(Storage::class.java) as Storage<String>
 
-        mobileEngageInternal = mock(MobileEngageInternal::class.java)
-
-        startAction = InAppStartAction(mobileEngageInternal)
-    }
-
-    @After
-    fun tearDown() {
-        DatabaseTestUtils.deleteCoreDatabase()
-        DatabaseTestUtils.deleteCoreDatabase()
-        SharedPrefsUtils.clearSharedPrefs(EMARSYS_SHARED_PREFERENCES)
+        startAction = InAppStartAction(mockEventServiceInternal, mockContactTokenStorage)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_mobileEngageInternal_MustNotBeNull() {
-        InAppStartAction(null)
+    fun testConstructor_eventServiceInternal_mustNotBeNull() {
+        InAppStartAction(null, mockContactTokenStorage)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_contactTokenStorage_mustNotBeNull() {
+        InAppStartAction(mockEventServiceInternal, null)
     }
 
     @Test
-    fun testExecute_callsMobileEngageInternal() {
+    fun testExecute_callsEventServiceInternal_whenContactTokenIsPresent() {
+        whenever(mockContactTokenStorage.get()).thenReturn("contactToken")
+
         startAction.execute(null)
 
-        verify<MobileEngageInternal>(mobileEngageInternal).trackInternalCustomEvent("app:start", null, null)
+        verify(mockEventServiceInternal).trackInternalCustomEvent("app:start", null, null)
+    }
+
+    @Test
+    fun testExecute_EventServiceInternal_shouldNotBeCalled_whenContactTokenIsNotPresent() {
+        whenever(mockContactTokenStorage.get()).thenReturn(null)
+
+        startAction.execute(null)
+
+        verifyZeroInteractions(mockEventServiceInternal)
     }
 }

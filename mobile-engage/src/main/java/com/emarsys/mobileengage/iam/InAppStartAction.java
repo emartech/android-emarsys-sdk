@@ -3,20 +3,27 @@ package com.emarsys.mobileengage.iam;
 import android.app.Activity;
 
 import com.emarsys.core.activity.ActivityLifecycleAction;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.EventServiceInternal;
 
 public class InAppStartAction implements ActivityLifecycleAction {
 
-    private MobileEngageInternal mobileEngageInternal;
+    private EventServiceInternal eventServiceInternal;
+    private Storage<String> contactTokenStorage;
 
-    public InAppStartAction(MobileEngageInternal mobileEngageInternal) {
-        Assert.notNull(mobileEngageInternal, "MobileEngageInternal must not be null!");
-        this.mobileEngageInternal = mobileEngageInternal;
+    public InAppStartAction(EventServiceInternal eventServiceInternal, Storage<String> contactTokenStorage) {
+        Assert.notNull(eventServiceInternal, "EventServiceInternal must not be null!");
+        Assert.notNull(contactTokenStorage, "ContactTokenStorage must not be null!");
+
+        this.eventServiceInternal = eventServiceInternal;
+        this.contactTokenStorage = contactTokenStorage;
     }
 
     @Override
     public void execute(Activity activity) {
-        mobileEngageInternal.trackInternalCustomEvent("app:start", null, null);
+        if (contactTokenStorage.get() != null) {
+            eventServiceInternal.trackInternalCustomEvent("app:start", null, null);
+        }
     }
 }
