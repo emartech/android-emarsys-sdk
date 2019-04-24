@@ -3,6 +3,9 @@ package com.emarsys;
 import android.app.Activity;
 import android.content.Intent;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.Callable;
 import com.emarsys.core.RunnerProxy;
@@ -31,9 +34,6 @@ import com.emarsys.predict.api.model.CartItem;
 
 import java.util.List;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public class Emarsys {
 
@@ -210,6 +210,26 @@ public class Emarsys {
                     Assert.notNull(completionListener, "CompletionListener must not be null!");
 
                     getMobileEngageInternal().setPushToken(pushToken, completionListener);
+                }
+            });
+        }
+
+        public static void removePushToken() {
+            getRunnerProxy().logException(new Runnable() {
+                @Override
+                public void run() {
+                    getMobileEngageInternal().removePushToken(null);
+                }
+            });
+        }
+
+        public static void removePushToken(final CompletionListener completionListener) {
+            getRunnerProxy().logException(new Runnable() {
+                @Override
+                public void run() {
+                    Assert.notNull(completionListener, "CompletionListener must not be null!");
+
+                    getMobileEngageInternal().removePushToken(completionListener);
                 }
             });
         }

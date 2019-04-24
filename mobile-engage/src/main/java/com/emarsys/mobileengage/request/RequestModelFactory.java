@@ -8,6 +8,7 @@ import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +33,15 @@ public class RequestModelFactory {
                 .build();
     }
 
+    public RequestModel createRemovePushTokenRequest() {
+        return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
+                .url(RequestUrlUtils.createRemovePushTokenUrl(requestContext))
+                .method(RequestMethod.DELETE)
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
+                .payload(Collections.<String, Object>emptyMap())
+                .build();
+    }
+
     public RequestModel createTrackDeviceInfoRequest() {
         return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(RequestUrlUtils.createTrackDeviceInfoUrl(requestContext))
@@ -49,7 +59,7 @@ public class RequestModelFactory {
         if (contactFieldValue == null) {
             Map<String, String> queryParams = new HashMap<>();
             queryParams.put("anonymous", "true");
-            builder.payload(new HashMap<String, Object>());
+            builder.payload(Collections.<String, Object>emptyMap());
             builder.queryParams(queryParams);
         } else {
             builder.payload(RequestPayloadUtils.createSetContactPayload(contactFieldValue, requestContext));

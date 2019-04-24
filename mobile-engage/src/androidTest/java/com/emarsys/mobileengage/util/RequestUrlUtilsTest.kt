@@ -16,7 +16,7 @@ class RequestUrlUtilsTest {
         const val APPLICATION_CODE = "app_code"
     }
 
-    private lateinit var requestContextMock: RequestContext
+    private lateinit var mockRequestContext: RequestContext
 
     @Rule
     @JvmField
@@ -24,7 +24,7 @@ class RequestUrlUtilsTest {
 
     @Before
     fun setUp() {
-        requestContextMock = Mockito.mock(RequestContext::class.java).apply {
+        mockRequestContext = Mockito.mock(RequestContext::class.java).apply {
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
         }
     }
@@ -36,7 +36,18 @@ class RequestUrlUtilsTest {
 
     @Test
     fun testCreateSetPushTokenUrl() {
-        val url = RequestUrlUtils.createSetPushTokenUrl(requestContextMock)
+        val url = RequestUrlUtils.createSetPushTokenUrl(mockRequestContext)
+        url shouldBe "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/push-token"
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateRemovePushTokenUrl_requestContext_mustNotBeNull() {
+        RequestUrlUtils.createRemovePushTokenUrl(null)
+    }
+
+    @Test
+    fun testCreateRemovePushTokenUrl() {
+        val url = RequestUrlUtils.createRemovePushTokenUrl(mockRequestContext)
         url shouldBe "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/push-token"
     }
 
@@ -47,7 +58,7 @@ class RequestUrlUtilsTest {
 
     @Test
     fun testCreateTrackDeviceInfoUrl() {
-        val url = RequestUrlUtils.createTrackDeviceInfoUrl(requestContextMock)
+        val url = RequestUrlUtils.createTrackDeviceInfoUrl(mockRequestContext)
         url shouldBe "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client"
     }
 
@@ -58,7 +69,7 @@ class RequestUrlUtilsTest {
 
     @Test
     fun testCreateSetContactUrl() {
-        val url = RequestUrlUtils.createSetContactUrl(requestContextMock)
+        val url = RequestUrlUtils.createSetContactUrl(mockRequestContext)
 
         url shouldBe "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact"
     }
@@ -70,7 +81,7 @@ class RequestUrlUtilsTest {
 
     @Test
     fun testCreateTrackCustomEventUrl() {
-        val url = RequestUrlUtils.createCustomEventUrl(requestContextMock)
+        val url = RequestUrlUtils.createCustomEventUrl(mockRequestContext)
 
         url shouldBe "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events"
     }
@@ -82,7 +93,7 @@ class RequestUrlUtilsTest {
 
     @Test
     fun testCreateRefreshContactTokenUrl() {
-        val url = RequestUrlUtils.createRefreshContactTokenUrl(requestContextMock)
+        val url = RequestUrlUtils.createRefreshContactTokenUrl(mockRequestContext)
 
         url shouldBe "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact-token"
     }

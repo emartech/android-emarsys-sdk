@@ -5,6 +5,8 @@ import android.app.Application;
 import android.content.Intent;
 import android.os.Looper;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.RunnerProxy;
 import com.emarsys.core.activity.ActivityLifecycleAction;
@@ -76,8 +78,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -727,6 +727,25 @@ public class EmarsysTest {
         Emarsys.Push.setPushToken(pushToken, completionListener);
 
         verify(mockMobileEngageInternal).setPushToken(pushToken, completionListener);
+    }
+
+    @Test
+    public void testPush_removePushToken_delegatesTo_mobileEngageInternal() {
+        Emarsys.Push.removePushToken();
+
+        verify(mockMobileEngageInternal).removePushToken(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPush_removePushTokenWithCompletionListener_completionListener_mustNotBeNull() {
+        Emarsys.Push.removePushToken(null);
+    }
+
+    @Test
+    public void testPush_removePushTokenWithCompletionListener_delegatesTo_mobileEngageInternal() {
+        Emarsys.Push.removePushToken(completionListener);
+
+        verify(mockMobileEngageInternal).removePushToken(completionListener);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -97,6 +97,23 @@ class RequestModelFactoryTest {
     }
 
     @Test
+    fun testCreateRemovePushTokenRequest() {
+        val expected = RequestModel(
+                RequestUrlUtils.createRemovePushTokenUrl(mockRequestContext),
+                RequestMethod.DELETE,
+                emptyMap(),
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+
+        val result = requestFactory.createRemovePushTokenRequest()
+
+        result shouldBe expected
+    }
+
+    @Test
     fun testCreateTrackDeviceInfoRequest() {
         val expected = RequestModel(
                 RequestUrlUtils.createTrackDeviceInfoUrl(mockRequestContext),

@@ -227,6 +227,13 @@ class MobileEngageIntegrationTest {
     }
 
     @Test
+    fun testRemovePushToken() {
+        Emarsys.Push.removePushToken(
+                this::eventuallyStoreResult
+        ).also(this::eventuallyAssertSuccess)
+    }
+
+    @Test
     fun testDeepLinkOpen() {
         val intent = Intent(
                 Intent.ACTION_VIEW,

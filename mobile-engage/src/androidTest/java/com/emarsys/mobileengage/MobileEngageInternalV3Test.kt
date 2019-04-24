@@ -122,6 +122,7 @@ class MobileEngageInternalV3Test {
             whenever(createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
             whenever(createTrackDeviceInfoRequest()).thenReturn(mockRequestModel)
             whenever(createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
+            whenever(createRemovePushTokenRequest()).thenReturn(mockRequestModel)
         }
 
         uiHandler = Handler(Looper.getMainLooper())
@@ -175,6 +176,20 @@ class MobileEngageInternalV3Test {
         mobileEngageInternal.setPushToken(null, mockCompletionListener)
 
         verifyZeroInteractions(mockRequestManager)
+    }
+
+    @Test
+    fun testRemovePushToken() {
+        mobileEngageInternal.removePushToken(mockCompletionListener)
+
+        verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+    }
+
+    @Test
+    fun testRemovePushToken_completionListener_canBeNull() {
+        mobileEngageInternal.removePushToken(null)
+
+        verify(mockRequestManager).submit(mockRequestModel, null)
     }
 
     @Test
