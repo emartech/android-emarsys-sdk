@@ -140,6 +140,13 @@ public class IamDialog extends DialogFragment {
         super.onStop();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        webView.removeAllViews();
+        webView.destroy();
+    }
+
     private void updateOnScreenTime() {
         if (!dismissed) {
             long currentDuration = timestampProvider.provideTimestamp() - startTime;

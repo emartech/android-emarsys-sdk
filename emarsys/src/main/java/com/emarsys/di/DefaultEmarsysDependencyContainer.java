@@ -146,6 +146,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private ResponseHandlersProcessor responseHandlersProcessor;
     private EventServiceInternal eventServiceInternal;
     private InAppInternal inAppInternal;
+    private MobileEngageTokenResponseHandler contactTokenResponseHandler;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeDependencies(emarsysConfig);
@@ -355,8 +356,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         restClient = new RestClient(new ConnectionProvider(), timestampProvider, getResponseHandlersProcessor());
 
         requestModelFactory = new RequestModelFactory(requestContext);
+
+        contactTokenResponseHandler = new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage);
+
         refreshTokenInternal = new MobileEngageRefreshTokenInternal(
-                new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage),
+                contactTokenResponseHandler,
                 restClient,
                 requestModelFactory);
 
@@ -488,7 +492,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         responseHandlers.add(new VisitorIdResponseHandler(sharedPrefsKeyStore));
 
         responseHandlers.add(new MobileEngageTokenResponseHandler("refreshToken", refreshTokenStorage));
-        responseHandlers.add(new MobileEngageTokenResponseHandler("contactToken", getContactTokenStorage()));
+        responseHandlers.add(contactTokenResponseHandler);
         responseHandlers.add(new MobileEngageClientStateResponseHandler(getClientStateStorage()));
         responseHandlers.add(new ClientInfoResponseHandler(getDeviceInfo(), getDeviceInfoHashStorage()));
 
