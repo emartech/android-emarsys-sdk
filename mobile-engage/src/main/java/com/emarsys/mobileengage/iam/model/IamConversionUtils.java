@@ -21,8 +21,8 @@ public class IamConversionUtils {
 
     public static Map<String, Object> buttonClickToJson(ButtonClicked buttonClicked) {
         Map<String, Object> result = new HashMap<>();
-            result.put("message_id", buttonClicked.getCampaignId());
-            result.put("button_id", buttonClicked.getButtonId());
+            result.put("campaignId", buttonClicked.getCampaignId());
+            result.put("buttonId", buttonClicked.getButtonId());
             result.put("timestamp", TimestampUtils.formatTimestampWithUTC(buttonClicked.getTimestamp()));
         return result;
     }
@@ -37,7 +37,7 @@ public class IamConversionUtils {
 
     public static Map<String, Object> displayedIamToJson(DisplayedIam displayedIam) {
         Map<String, Object> result = new HashMap<>();
-            result.put("message_id", displayedIam.getCampaignId());
+            result.put("campaignId", displayedIam.getCampaignId());
             result.put("timestamp", TimestampUtils.formatTimestampWithUTC(displayedIam.getTimestamp()));
         return result;
     }

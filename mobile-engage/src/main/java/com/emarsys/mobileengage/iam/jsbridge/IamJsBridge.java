@@ -115,8 +115,8 @@ public class IamJsBridge {
                 buttonClickedRepository.add(new ButtonClicked(campaignId, property, System.currentTimeMillis()));
                 String eventName = "inapp:click";
                 Map<String, String> attributes = new HashMap<>();
-                attributes.put("message_id", campaignId);
-                attributes.put("button_id", property);
+                attributes.put("campaignId", campaignId);
+                attributes.put("buttonId", property);
                 inAppInternal.trackInternalCustomEvent(eventName, attributes, null);
                 return null;
             }

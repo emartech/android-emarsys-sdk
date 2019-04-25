@@ -42,19 +42,19 @@ public class IamConversionUtilsTest {
     }
 
     @Test
-    public void testConvert_buttonClick() throws Exception {
+    public void testConvert_buttonClick() {
         Map<String, Object> json = IamConversionUtils.buttonClickToJson(buttonClicked1);
 
         Map<String, Object> expected = new HashMap<>();
-        expected.put("message_id", buttonClicked1.getCampaignId());
-        expected.put("button_id", buttonClicked1.getButtonId());
+        expected.put("campaignId", buttonClicked1.getCampaignId());
+        expected.put("buttonId", buttonClicked1.getButtonId());
         expected.put("timestamp", TimestampUtils.formatTimestampWithUTC(buttonClicked1.getTimestamp()));
 
         assertEquals(expected, json);
     }
 
     @Test
-    public void testConvert_buttonClickList() throws Exception {
+    public void testConvert_buttonClickList() {
         List<Map<String, Object>> result = IamConversionUtils.buttonClicksToArray(Arrays.asList(
                 buttonClicked1,
                 buttonClicked2,
@@ -62,18 +62,18 @@ public class IamConversionUtilsTest {
         ));
 
         Map<String, Object> click1 = new HashMap<>();
-        click1.put("message_id", buttonClicked1.getCampaignId());
-        click1.put("button_id", buttonClicked1.getButtonId());
+        click1.put("campaignId", buttonClicked1.getCampaignId());
+        click1.put("buttonId", buttonClicked1.getButtonId());
         click1.put("timestamp", TimestampUtils.formatTimestampWithUTC(buttonClicked1.getTimestamp()));
 
         Map<String, Object> click2 = new HashMap<>();
-        click2.put("message_id", buttonClicked2.getCampaignId());
-        click2.put("button_id", buttonClicked2.getButtonId());
+        click2.put("campaignId", buttonClicked2.getCampaignId());
+        click2.put("buttonId", buttonClicked2.getButtonId());
         click2.put("timestamp", TimestampUtils.formatTimestampWithUTC(buttonClicked2.getTimestamp()));
 
         Map<String, Object> click3 = new HashMap<>();
-        click3.put("message_id", buttonClicked3.getCampaignId());
-        click3.put("button_id", buttonClicked3.getButtonId());
+        click3.put("campaignId", buttonClicked3.getCampaignId());
+        click3.put("buttonId", buttonClicked3.getButtonId());
         click3.put("timestamp", TimestampUtils.formatTimestampWithUTC(buttonClicked3.getTimestamp()));
 
         List<Map<String, Object>> expected = Arrays.asList(click1, click2, click3);
@@ -81,18 +81,18 @@ public class IamConversionUtilsTest {
     }
 
     @Test
-    public void testConvert_displayedIam() throws Exception {
+    public void testConvert_displayedIam() {
         Map<String, Object> json = IamConversionUtils.displayedIamToJson(displayedIam1);
 
         Map<String, Object> expected = new HashMap<>();
-        expected.put("message_id", displayedIam1.getCampaignId());
+        expected.put("campaignId", displayedIam1.getCampaignId());
         expected.put("timestamp", TimestampUtils.formatTimestampWithUTC(displayedIam1.getTimestamp()));
 
         assertEquals(expected, json);
     }
 
     @Test
-    public void testConvert_displayedIamList() throws Exception {
+    public void testConvert_displayedIamList() {
         List<Map<String, Object>> result = IamConversionUtils.displayedIamsToArray(Arrays.asList(
                 displayedIam1,
                 displayedIam2,
@@ -100,15 +100,15 @@ public class IamConversionUtilsTest {
         ));
 
         Map<String, Object> iam1 = new HashMap<>();
-        iam1.put("message_id", displayedIam1.getCampaignId());
+        iam1.put("campaignId", displayedIam1.getCampaignId());
         iam1.put("timestamp", TimestampUtils.formatTimestampWithUTC(displayedIam1.getTimestamp()));
 
         Map<String, Object> iam2 = new HashMap<>();
-        iam2.put("message_id", displayedIam2.getCampaignId());
+        iam2.put("campaignId", displayedIam2.getCampaignId());
         iam2.put("timestamp", TimestampUtils.formatTimestampWithUTC(displayedIam2.getTimestamp()));
 
         Map<String, Object> iam3 = new HashMap<>();
-        iam3.put("message_id", displayedIam3.getCampaignId());
+        iam3.put("campaignId", displayedIam3.getCampaignId());
         iam3.put("timestamp", TimestampUtils.formatTimestampWithUTC(displayedIam3.getTimestamp()));
 
         List<Map<String, Object>> expected = Arrays.asList(iam1, iam2, iam3);
