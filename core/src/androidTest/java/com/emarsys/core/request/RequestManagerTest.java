@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.Mapper;
 import com.emarsys.core.Registry;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
@@ -35,10 +36,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -72,7 +77,7 @@ public class RequestManagerTest {
     private RestClient restClientMock;
     private Registry<RequestModel, CompletionListener> callbackRegistry;
     private CoreCompletionHandlerMiddlewareProvider coreCompletionHandlerMiddlewareProvider;
-
+    private Mapper<RequestModel, RequestModel> mockRequestModelMapper;
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
@@ -80,6 +85,18 @@ public class RequestManagerTest {
     @SuppressWarnings("unchecked")
     public void init() {
         DatabaseTestUtils.deleteCoreDatabase();
+
+        List<Mapper<RequestModel, RequestModel>> requestModelMappers = new ArrayList<>();
+        mockRequestModelMapper = mock(Mapper.class);
+        requestModelMappers.add(mockRequestModelMapper);
+
+        when(mockRequestModelMapper.map(any(RequestModel.class))).thenAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+                return args[0];
+            }
+        });
 
         Context context = InstrumentationRegistry.getTargetContext();
         ConnectionTestUtils.checkConnection(context);
@@ -101,7 +118,7 @@ public class RequestManagerTest {
         completionHandlerLatch = new CountDownLatch(1);
         handler = new FakeCompletionHandler(completionHandlerLatch);
         mockDefaultHandler = mock(CoreCompletionHandler.class);
-        RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class));
+        RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), requestModelMappers);
         restClientMock = mock(RestClient.class);
         coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(handler, requestRepository, uiHandler, coreSdkHandler);
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, handler, restClient, coreCompletionHandlerMiddlewareProvider);

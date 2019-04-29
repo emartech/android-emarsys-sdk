@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.emarsys.core.Mapper;
 import com.emarsys.core.Registry;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionProvider;
@@ -35,7 +36,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +48,9 @@ import java.util.concurrent.CountDownLatch;
 import static com.emarsys.testUtil.TestUrls.DENNA_ECHO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RequestManagerDennaTest {
 
@@ -63,11 +69,25 @@ public class RequestManagerDennaTest {
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
+    private Mapper<RequestModel, RequestModel> mockRequestModelMapper;
 
     @Before
     @SuppressWarnings("unchecked")
     public void init() {
         DatabaseTestUtils.deleteCoreDatabase();
+
+        List<Mapper<RequestModel, RequestModel>> requestModelMappers = new ArrayList<>();
+        mockRequestModelMapper = mock(Mapper.class);
+
+        when(mockRequestModelMapper.map(any(RequestModel.class))).thenAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+                return args[0];
+            }
+        });
+
+        requestModelMappers.add(mockRequestModelMapper);
 
         Context context = InstrumentationRegistry.getTargetContext();
         ConnectionTestUtils.checkConnection(context);
@@ -82,7 +102,7 @@ public class RequestManagerDennaTest {
         Repository<ShardModel, SqlSpecification> shardRepository = new ShardModelRepository(coreDbHelper);
         latch = new CountDownLatch(1);
         fakeCompletionHandler = new FakeCompletionHandler(latch);
-        RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class));
+        RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), requestModelMappers);
         coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(fakeCompletionHandler, requestRepository, uiHandler, coreSdkHandler);
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, fakeCompletionHandler, restClient, coreCompletionHandlerMiddlewareProvider);
         timestampProvider = new TimestampProvider();

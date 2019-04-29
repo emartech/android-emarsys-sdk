@@ -353,7 +353,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         requestModelRepository = createRequestModelRepository(coreDbHelper);
         shardModelRepository = new ShardModelRepository(coreDbHelper);
 
-        restClient = new RestClient(new ConnectionProvider(), timestampProvider, getResponseHandlersProcessor());
+        restClient = new RestClient(new ConnectionProvider(), timestampProvider, getResponseHandlersProcessor(), createRequestModelMappers());
 
         requestModelFactory = new RequestModelFactory(requestContext);
 
@@ -448,12 +448,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 displayedIamRepository,
                 buttonClickedRepository,
                 timestampProvider,
-                inAppEventHandler,
-                createRequestModelMappers());
+                inAppEventHandler);
     }
 
-    private List<Mapper<List<RequestModel>, List<RequestModel>>> createRequestModelMappers() {
-        List<Mapper<List<RequestModel>, List<RequestModel>>> mappers = new ArrayList<>();
+    private List<Mapper<RequestModel, RequestModel>> createRequestModelMappers() {
+        List<Mapper<RequestModel, RequestModel>> mappers = new ArrayList<>();
         mappers.add(new MobileEngageHeaderMapper(requestContext));
         return mappers;
     }

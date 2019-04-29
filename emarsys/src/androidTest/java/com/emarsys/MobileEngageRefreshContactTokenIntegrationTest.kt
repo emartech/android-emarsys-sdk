@@ -113,7 +113,6 @@ class MobileEngageRefreshContactTokenIntegrationTest {
         DependencyInjection.tearDown()
     }
 
-
     @Test
     fun testRefreshContactToken() {
         contactTokenStorage.remove()
@@ -136,7 +135,6 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
         contactTokenStorage.get() shouldNotBe "tokenForIntegrationTest"
     }
-
 
     private fun eventuallyStoreResult(errorCause: Throwable?) {
         this.errorCause = errorCause

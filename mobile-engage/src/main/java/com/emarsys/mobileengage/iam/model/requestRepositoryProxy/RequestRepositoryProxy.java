@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.iam.model.requestRepositoryProxy;
 
-import com.emarsys.core.Mapper;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;
@@ -30,28 +29,24 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private final Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
     private final TimestampProvider timestampProvider;
     private final InAppEventHandlerInternal inAppEventHandlerInternal;
-    private final List<Mapper<List<RequestModel>, List<RequestModel>>> requestModelMappers;
 
     public RequestRepositoryProxy(
             Repository<RequestModel, SqlSpecification> requestRepository,
             Repository<DisplayedIam, SqlSpecification> iamRepository,
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             TimestampProvider timestampProvider,
-            InAppEventHandlerInternal inAppEventHandlerInternal,
-            List<Mapper<List<RequestModel>, List<RequestModel>>> requestModelMappers) {
+            InAppEventHandlerInternal inAppEventHandlerInternal) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(iamRepository, "IamRepository must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(inAppEventHandlerInternal, "InAppEventHandlerInternal must not be null!");
-        Assert.notNull(requestModelMappers, "RequestModelMappers must not be null!");
 
         this.requestRepository = requestRepository;
         this.iamRepository = iamRepository;
         this.buttonClickedRepository = buttonClickedRepository;
         this.timestampProvider = timestampProvider;
         this.inAppEventHandlerInternal = inAppEventHandlerInternal;
-        this.requestModelMappers = requestModelMappers;
     }
 
     @Override
@@ -86,7 +81,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
 
             result.removeAll(customEventsInResult);
         }
-        return mapRequestModels(result);
+        return result;
     }
 
     private List<RequestModel> collectCustomEvents(List<RequestModel> models) {
@@ -97,14 +92,6 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
             }
         }
         return result;
-    }
-
-    private List<RequestModel> mapRequestModels(List<RequestModel> models) {
-        List<RequestModel> requestModels = models;
-        for (Mapper<List<RequestModel>, List<RequestModel>> mapper : requestModelMappers) {
-            requestModels = mapper.map(requestModels);
-        }
-        return requestModels;
     }
 
     private CompositeRequestModel createCompositeCustomEvent(List<RequestModel> models) {

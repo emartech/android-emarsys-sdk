@@ -26,7 +26,8 @@ public class FakeRequestTask extends RequestTask {
                 handler,
                 mock(ConnectionProvider.class),
                 mock(TimestampProvider.class),
-                mock(ResponseHandlersProcessor.class));
+                mock(ResponseHandlersProcessor.class),
+                mock(List.class));
         this.fakeResult = fakeResult;
         this.requestModel = requestModel;
         this.handler = handler;

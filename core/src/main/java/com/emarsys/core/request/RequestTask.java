@@ -3,6 +3,7 @@ package com.emarsys.core.request;
 import android.os.AsyncTask;
 
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.Mapper;
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.model.RequestMethod;
@@ -34,6 +35,7 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
     private final CoreCompletionHandler handler;
     private final ConnectionProvider connectionProvider;
     private final ResponseHandlersProcessor responseHandlersProcessor;
+    private final List<Mapper<RequestModel, RequestModel>> requestModelMappers;
     private TimestampProvider timestampProvider;
 
     private ResponseModel responseModel;
@@ -44,18 +46,21 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
             CoreCompletionHandler handler,
             ConnectionProvider connectionProvider,
             TimestampProvider timestampProvider,
-            ResponseHandlersProcessor responseHandlersProcessor) {
+            ResponseHandlersProcessor responseHandlersProcessor,
+            List<Mapper<RequestModel, RequestModel>> requestModelMappers) {
         Assert.notNull(requestModel, "RequestModel must not be null!");
         Assert.notNull(handler, "CoreCompletionHandler must not be null!");
         Assert.notNull(connectionProvider, "ConnectionProvider must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(responseHandlersProcessor, "ResponseHandlersProcessor must not be null!");
+        Assert.notNull(requestModelMappers, "RequestModelMappers must not be null!");
 
         this.requestModel = requestModel;
         this.handler = handler;
         this.connectionProvider = connectionProvider;
         this.timestampProvider = timestampProvider;
         this.responseHandlersProcessor = responseHandlersProcessor;
+        this.requestModelMappers = requestModelMappers;
     }
 
     @Override
@@ -65,11 +70,14 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
 
         HttpsURLConnection connection = null;
         try {
-            connection = connectionProvider.provideConnection(requestModel);
-            initializeConnection(connection, requestModel);
+            RequestModel updatedRequestModel = mapRequestModel(requestModel);
+
+            connection = connectionProvider.provideConnection(updatedRequestModel);
+
+            initializeConnection(connection, updatedRequestModel);
             connection.setConnectTimeout(20_000);
             connection.connect();
-            sendBody(connection, requestModel);
+            sendBody(connection, updatedRequestModel);
             responseModel = readResponse(connection);
 
             Logger.log(new NetworkingTime(responseModel, dbEnd));
@@ -167,5 +175,15 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
 
     private boolean isStatusCodeOK(int responseCode) {
         return 200 <= responseCode && responseCode < 300;
+    }
+
+    private RequestModel mapRequestModel(RequestModel requestModel) {
+        RequestModel updatedRequestModel = requestModel;
+
+        for (Mapper<RequestModel, RequestModel> mapper : requestModelMappers) {
+            updatedRequestModel = mapper.map(updatedRequestModel);
+        }
+
+        return updatedRequestModel;
     }
 }

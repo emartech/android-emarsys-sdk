@@ -20,7 +20,7 @@ public class FakeRestClient extends RestClient {
 
     @SuppressWarnings("unchecked")
     public FakeRestClient(Object... fakeResults) {
-        super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class));
+        super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), mock(List.class));
         for (Object o : fakeResults) {
             if (!(o instanceof Integer || o instanceof Exception)) {
                 throw new IllegalArgumentException("FakeResults list can only contain Integers and Exceptions!");
