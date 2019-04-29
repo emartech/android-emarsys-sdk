@@ -8,7 +8,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RequestUrlUtils {
-    private static Pattern customEventPattern = Pattern.compile("https:\\/\\/mobile-events\\.eservice\\.emarsys\\.net(.+)\\/events");
+    private static Pattern customEventPattern = Pattern.compile("https://mobile-events\\.eservice\\.emarsys\\.net(.+)/events");
+    private static Pattern refreshContactTokenPattern = Pattern.compile("https://me-client\\.eservice\\.emarsys\\.net(.+)/contact-token");
 
     public static String createSetPushTokenUrl(RequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
@@ -53,8 +54,18 @@ public class RequestUrlUtils {
     }
 
     public static boolean isCustomEvent_V3(String url) {
-        Assert.notNull(url, "Url must not be null");
+        Assert.notNull(url, "Url must not be null!");
+
         Matcher matcher = customEventPattern.matcher(url);
+
+        return matcher.matches();
+    }
+
+    public static boolean isRefreshContactTokenUrl(String url) {
+        Assert.notNull(url, "Url must not be null!");
+
+        Matcher matcher = refreshContactTokenPattern.matcher(url);
+
         return matcher.matches();
     }
 }

@@ -142,4 +142,24 @@ class RequestUrlUtilsTest {
 
         result shouldBe false
     }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testIsRefreshContactTokenUrl_url_mustNotBeNull() {
+        RequestUrlUtils.isRefreshContactTokenUrl(null)
+    }
+
+    @Test
+    fun testIsRefreshContactTokenUrl_shouldBeTrue() {
+        val result = RequestUrlUtils.isRefreshContactTokenUrl("https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact-token")
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsRefreshContactTokenUrl_shouldBeFalse() {
+        val result = RequestUrlUtils.isRefreshContactTokenUrl("https://not-refresh-token.com")
+
+        result shouldBe false
+    }
+
 }

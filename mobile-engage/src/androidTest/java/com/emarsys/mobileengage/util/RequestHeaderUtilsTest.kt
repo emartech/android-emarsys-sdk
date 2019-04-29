@@ -1,7 +1,6 @@
 package com.emarsys.mobileengage.util
 
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.BuildConfig
 import com.emarsys.mobileengage.RequestContext
 import com.emarsys.testUtil.TimeoutUtils
@@ -15,14 +14,12 @@ import org.junit.rules.TestRule
 import org.mockito.Mockito
 
 class RequestHeaderUtilsTest {
-    companion object {
-        const val TIMESTAMP = 123456789L
+    private companion object {
         const val HARDWARE_ID = "hardware_id"
     }
 
     private lateinit var requestContextMock: RequestContext
     private lateinit var deviceInfoMock: DeviceInfo
-    private lateinit var timestampProviderMock: TimestampProvider
 
     @Rule
     @JvmField
@@ -34,13 +31,9 @@ class RequestHeaderUtilsTest {
         deviceInfoMock = Mockito.mock(DeviceInfo::class.java).apply {
             whenever(hwid).thenReturn(HARDWARE_ID)
         }
-        timestampProviderMock = Mockito.mock(TimestampProvider::class.java).apply {
-            whenever(provideTimestamp()).thenReturn(TIMESTAMP)
-        }
 
         requestContextMock = Mockito.mock(RequestContext::class.java).apply {
             whenever(deviceInfo).thenReturn(deviceInfoMock)
-            whenever(timestampProvider).thenReturn(timestampProviderMock)
         }
     }
 
@@ -54,8 +47,7 @@ class RequestHeaderUtilsTest {
         val headers = RequestHeaderUtils.createBaseHeaders_V3(requestContextMock)
 
         headers shouldBe mapOf(
-                "X-Client-Id" to HARDWARE_ID,
-                "X-Request-Order" to TIMESTAMP.toString())
+                "X-Client-Id" to HARDWARE_ID)
     }
 
     @Test(expected = IllegalArgumentException::class)

@@ -76,4 +76,30 @@ class RequestModelUtilsTest {
 
         result shouldBe false
     }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testIsRefreshContactTokenRequest_mustNotBeNull() {
+        RequestModelUtils.isRefreshContactTokenRequest(null)
+    }
+
+    @Test
+    fun testIsRefreshContactTokenRequest_true_whenItIsRefreshContactTokenRequest() {
+        val requestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("${Endpoint.ME_V3_CLIENT_BASE}/contact-token"))
+        }
+        val result = RequestModelUtils.isRefreshContactTokenRequest(requestModel)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsRefreshContactTokenRequest_false_whenItIsNotRefreshContactTokenRequest() {
+        val requestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("${Endpoint.ME_V3_CLIENT_BASE}/contact"))
+        }
+        val result = RequestModelUtils.isRefreshContactTokenRequest(requestModel)
+
+        result shouldBe false
+    }
+
 }

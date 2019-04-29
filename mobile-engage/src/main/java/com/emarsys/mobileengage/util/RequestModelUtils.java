@@ -14,9 +14,18 @@ public class RequestModelUtils {
     }
 
     public static boolean isCustomEvent_V3(RequestModel requestModel) {
-        Assert.notNull(requestModel, "RequestModel must not be null");
+        Assert.notNull(requestModel, "RequestModel must not be null!");
 
         String url = requestModel.getUrl().toString();
+
         return RequestUrlUtils.isCustomEvent_V3(url);
+    }
+
+    public static boolean isRefreshContactTokenRequest(RequestModel requestModel) {
+        Assert.notNull(requestModel, "RequestModel must not be null!");
+
+        String url = requestModel.getUrl().toString();
+
+        return RequestUrlUtils.isRefreshContactTokenUrl(url);
     }
 }

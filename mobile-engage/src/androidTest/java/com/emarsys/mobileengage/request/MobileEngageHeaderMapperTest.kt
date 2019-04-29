@@ -10,6 +10,8 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.RequestContext
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.util.RequestHeaderUtils
+import com.emarsys.mobileengage.util.RequestPayloadUtils
+import com.emarsys.mobileengage.util.RequestUrlUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -24,6 +26,7 @@ class MobileEngageHeaderMapperTest {
     private companion object {
         const val CLIENT_STATE = "aslfjasglsdlfk"
         const val CONTACT_TOKEN = "contact-token"
+        const val REFRESH_TOKEN = "refresh-token"
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
         const val HARDWARE_ID = "hwid"
@@ -36,6 +39,7 @@ class MobileEngageHeaderMapperTest {
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockClientStateStorage: Storage<String>
     private lateinit var mockContactTokenStorage: Storage<String>
+    private lateinit var mockRefreshTokenStorage: Storage<String>
     private lateinit var mockDeviceInfo: DeviceInfo
 
     @Rule
@@ -52,6 +56,10 @@ class MobileEngageHeaderMapperTest {
 
         mockContactTokenStorage = (mock(Storage::class.java) as Storage<String>).apply {
             whenever(get()).thenReturn(CONTACT_TOKEN)
+        }
+
+        mockRefreshTokenStorage = (mock(Storage::class.java) as Storage<String>).apply {
+            whenever(get()).thenReturn(REFRESH_TOKEN)
         }
 
         mockDeviceInfo = mock(DeviceInfo::class.java).apply {
@@ -71,6 +79,7 @@ class MobileEngageHeaderMapperTest {
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
             whenever(clientStateStorage).thenReturn(mockClientStateStorage)
             whenever(contactTokenStorage).thenReturn(mockContactTokenStorage)
+            whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
         }
 
         mobileEngageHeaderMapper = MobileEngageHeaderMapper(mockRequestContext)
@@ -92,7 +101,8 @@ class MobileEngageHeaderMapperTest {
 
         val expectedRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
                 "X-Client-State" to CLIENT_STATE,
-                "X-Contact-Token" to CONTACT_TOKEN
+                "X-Contact-Token" to CONTACT_TOKEN,
+                "X-Request-Order" to TIMESTAMP.toString()
         ))
 
         val result = mobileEngageHeaderMapper.map(originalRequestModels)
@@ -107,7 +117,22 @@ class MobileEngageHeaderMapperTest {
         whenever(mockContactTokenStorage.get()).thenReturn(null)
 
         val expectedRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
-                "X-Client-State" to CLIENT_STATE
+                "X-Client-State" to CLIENT_STATE,
+                "X-Request-Order" to TIMESTAMP.toString()
+        ))
+
+        val result = mobileEngageHeaderMapper.map(originalRequestModels)
+
+        result shouldBe expectedRequestModels
+    }
+
+    @Test
+    fun testMap_shouldLeaveOutContactTokenHeader_whenRequestIsRefreshContactToken() {
+        val originalRequestModels = createRefreshContactTokenRequest()
+
+        val expectedRequestModels = createRefreshContactTokenRequest(extraHeaders = mapOf(
+                "X-Client-State" to CLIENT_STATE,
+                "X-Request-Order" to TIMESTAMP.toString()
         ))
 
         val result = mobileEngageHeaderMapper.map(originalRequestModels)
@@ -122,7 +147,8 @@ class MobileEngageHeaderMapperTest {
         whenever(mockClientStateStorage.get()).thenReturn(null)
 
         val expectedRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
-                "X-Contact-Token" to CONTACT_TOKEN
+                "X-Contact-Token" to CONTACT_TOKEN,
+                "X-Request-Order" to TIMESTAMP.toString()
         ))
 
         val result = mobileEngageHeaderMapper.map(originalRequestModels)
@@ -132,12 +158,9 @@ class MobileEngageHeaderMapperTest {
 
     @Test
     fun testMap_shouldIgnoreRequest_whenRequestWasNotForMobileEngage() {
-        val originalRequestModels = createNonMobileEngageRequest() + createMobileEngageRequest()
+        val originalRequestModels = createNonMobileEngageRequest()
 
-        val expectedRequestModels = createNonMobileEngageRequest() + createMobileEngageRequest(extraHeaders = mapOf(
-                "X-Client-State" to CLIENT_STATE,
-                "X-Contact-Token" to CONTACT_TOKEN
-        ))
+        val expectedRequestModels = createNonMobileEngageRequest()
 
         val result = mobileEngageHeaderMapper.map(originalRequestModels)
 
@@ -150,7 +173,8 @@ class MobileEngageHeaderMapperTest {
 
         val expectedRequestModels = createCustomEventCompositeRequest(extraHeaders = mapOf(
                 "X-Client-State" to CLIENT_STATE,
-                "X-Contact-Token" to CONTACT_TOKEN
+                "X-Contact-Token" to CONTACT_TOKEN,
+                "X-Request-Order" to TIMESTAMP.toString()
         ))
 
         val result = mobileEngageHeaderMapper.map(originalRequestModels)
@@ -166,7 +190,18 @@ class MobileEngageHeaderMapperTest {
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
-    ).let { listOf(it) }
+    )
+
+
+    private fun createRefreshContactTokenRequest(extraHeaders: Map<String, String> = mapOf()) = RequestModel(
+            RequestUrlUtils.createRefreshContactTokenUrl(mockRequestContext),
+            RequestMethod.POST,
+            RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext),
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
+    )
 
     private fun createCustomEventCompositeRequest(extraHeaders: Map<String, String> = mapOf()) = CompositeRequestModel(
             Endpoint.ME_V3_CLIENT_BASE,
@@ -176,7 +211,7 @@ class MobileEngageHeaderMapperTest {
             TIMESTAMP,
             Long.MAX_VALUE,
             arrayOf(REQUEST_ID)
-    ).let { listOf(it) }
+    )
 
     private fun createNonMobileEngageRequest() = RequestModel(
             "https://not-mobile-engage.com",
@@ -186,5 +221,5 @@ class MobileEngageHeaderMapperTest {
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
-    ).let { listOf(it) }
+    )
 }

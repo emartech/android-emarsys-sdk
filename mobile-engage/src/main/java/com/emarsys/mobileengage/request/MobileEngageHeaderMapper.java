@@ -7,12 +7,10 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.util.RequestModelUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class MobileEngageHeaderMapper implements Mapper<List<RequestModel>, List<RequestModel>> {
+public class MobileEngageHeaderMapper implements Mapper<RequestModel, RequestModel> {
 
     private final RequestContext requestContext;
 
@@ -23,34 +21,31 @@ public class MobileEngageHeaderMapper implements Mapper<List<RequestModel>, List
     }
 
     @Override
-    public List<RequestModel> map(List<RequestModel> requestModels) {
-        Assert.notNull(requestModels, "RequestModels must not be null!");
+    public RequestModel map(RequestModel requestModel) {
+        Assert.notNull(requestModel, "RequestModel must not be null!");
 
-        List<RequestModel> result = new ArrayList<>();
-        Map<String, String> headersToInject = getHeadersToInject();
+        Map<String, String> headersToInject = getHeadersToInject(requestModel);
 
-        for (RequestModel requestModel : requestModels) {
-            RequestModel updatedRequestModel = requestModel;
-            if (RequestModelUtils.isMobileEngageV3Request(requestModel)) {
+        RequestModel updatedRequestModel = requestModel;
+        if (RequestModelUtils.isMobileEngageV3Request(requestModel)) {
 
-                Map<String, String> updatedHeaders = new HashMap<>(requestModel.getHeaders());
-                updatedHeaders.putAll(headersToInject);
-                if (updatedRequestModel instanceof CompositeRequestModel) {
-                    updatedRequestModel = new CompositeRequestModel.Builder(requestModel)
-                            .headers(updatedHeaders)
-                            .build();
-                } else {
-                    updatedRequestModel = new RequestModel.Builder(requestModel)
-                            .headers(updatedHeaders)
-                            .build();
-                }
+            Map<String, String> updatedHeaders = new HashMap<>(requestModel.getHeaders());
+            updatedHeaders.putAll(headersToInject);
+            if (updatedRequestModel instanceof CompositeRequestModel) {
+                updatedRequestModel = new CompositeRequestModel.Builder(requestModel)
+                        .headers(updatedHeaders)
+                        .build();
+            } else {
+                updatedRequestModel = new RequestModel.Builder(requestModel)
+                        .headers(updatedHeaders)
+                        .build();
             }
-            result.add(updatedRequestModel);
+
         }
-        return result;
+        return updatedRequestModel;
     }
 
-    private Map<String, String> getHeadersToInject() {
+    private Map<String, String> getHeadersToInject(RequestModel requestModel) {
         Map<String, String> headersToInject = new HashMap<>();
 
         String clientState = requestContext.getClientStateStorage().get();
@@ -58,9 +53,10 @@ public class MobileEngageHeaderMapper implements Mapper<List<RequestModel>, List
             headersToInject.put("X-Client-State", clientState);
         }
         String contactToken = requestContext.getContactTokenStorage().get();
-        if (contactToken != null) {
+        if (contactToken != null && !RequestModelUtils.isRefreshContactTokenRequest(requestModel)) {
             headersToInject.put("X-Contact-Token", contactToken);
         }
+        headersToInject.put("X-Request-Order", String.valueOf(requestContext.getTimestampProvider().provideTimestamp()));
         return headersToInject;
     }
 }
