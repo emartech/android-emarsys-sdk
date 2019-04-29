@@ -374,8 +374,8 @@ public class IamJsBridgeTest {
         JSONObject json = new JSONObject().put("id", id).put("buttonId", buttonId);
 
         Map<String, String> attributes = new HashMap<>();
-        attributes.put("message_id", CAMPAIGN_ID);
-        attributes.put("button_id", buttonId);
+        attributes.put("campaignId", CAMPAIGN_ID);
+        attributes.put("buttonId", buttonId);
 
         jsBridge.buttonClicked(json.toString());
 
