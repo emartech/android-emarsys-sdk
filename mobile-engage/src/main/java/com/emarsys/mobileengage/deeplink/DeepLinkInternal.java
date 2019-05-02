@@ -9,7 +9,6 @@ import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.MobileEngageInternal_V3_Old;
 import com.emarsys.mobileengage.RequestContext;
 
 import java.util.HashMap;
@@ -60,8 +59,8 @@ public class DeepLinkInternal {
         Map<String, String> headers = new HashMap<>();
 
         String userAgentValue = String.format(
-                "Mobile Engage SDK %s Android %s",
-                MobileEngageInternal_V3_Old.MOBILEENGAGE_SDK_VERSION,
+                "Emarsys SDK %s Android %s",
+                requestContext.getDeviceInfo().getSdkVersion(),
                 Build.VERSION.SDK_INT);
         headers.put("User-Agent", userAgentValue);
 
