@@ -5,16 +5,16 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.emarsys.Emarsys;
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.sample.configuration.MobileEngageCredentials;
 
 import org.json.JSONObject;
@@ -34,7 +34,6 @@ public class SampleApplication extends Application implements EventHandler, Noti
                 .contactFieldId(3)
                 .predictMerchantId("1428C8EE286EC34B")
                 .inAppEventHandler(this)
-                .enableExperimentalFeatures(MobileEngageFeature.USER_CENTRIC_INBOX)
                 .notificationEventHandler(this)
                 .build();
 
