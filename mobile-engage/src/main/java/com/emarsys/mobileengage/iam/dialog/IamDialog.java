@@ -34,6 +34,7 @@ public class IamDialog extends DialogFragment {
     public static final String REQUEST_ID = "request_id";
     public static final String IS_SHOWN = "isShown";
     public static final String ON_SCREEN_TIME = "on_screen_time";
+    public static final String END_SCREEN_TIME = "end_screen_time";
 
     private List<OnDialogShownAction> actions;
     private FrameLayout webViewContainer;
@@ -149,9 +150,11 @@ public class IamDialog extends DialogFragment {
 
     private void updateOnScreenTime() {
         if (!dismissed) {
-            long currentDuration = timestampProvider.provideTimestamp() - startTime;
+            long endScreenTime = timestampProvider.provideTimestamp();
+            long currentDuration = endScreenTime - startTime;
             long previousDuration = getArguments().getLong(ON_SCREEN_TIME);
             getArguments().putLong(ON_SCREEN_TIME, previousDuration + currentDuration);
+            getArguments().putLong(END_SCREEN_TIME, endScreenTime);
         }
     }
 
@@ -160,6 +163,8 @@ public class IamDialog extends DialogFragment {
         Bundle args = getArguments();
         Logger.log(new OnScreenTime(
                 args.getLong(ON_SCREEN_TIME),
+                startTime,
+                args.getLong(END_SCREEN_TIME),
                 args.getString(CAMPAIGN_ID),
                 args.getString(REQUEST_ID)));
         dismissed = true;

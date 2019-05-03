@@ -7,6 +7,11 @@ import org.junit.Test
 import org.junit.rules.TestRule
 
 class InAppLoadingTimeTest {
+    private companion object {
+        const val endTime = 10L
+        const val startTime = 0L
+        const val duration = 10L
+    }
 
     @Rule
     @JvmField
@@ -14,17 +19,19 @@ class InAppLoadingTimeTest {
 
     @Test
     fun testTopic() {
-        val result = InAppLoadingTime(0L, "", "").topic
+        val result = InAppLoadingTime(startTime, endTime, "", "").topic
 
         result shouldBe "log_inapp_loading_time"
     }
 
     @Test
     fun testData_when_requestIsNull() {
-        val data = InAppLoadingTime(10L, "campaignId", null).data
+        val data = InAppLoadingTime(startTime, endTime, "campaignId", null).data
 
         data shouldBe mapOf(
-                "duration" to 10L,
+                "duration" to duration,
+                "start" to startTime,
+                "end" to endTime,
                 "campaign_id" to "campaignId",
                 "source" to "push"
         )
@@ -32,10 +39,12 @@ class InAppLoadingTimeTest {
 
     @Test
     fun testData_when_requestIsAvailable() {
-        val data = InAppLoadingTime(10L, "campaignId", "requestId").data
+        val data = InAppLoadingTime(startTime, endTime, "campaignId", "requestId").data
 
         data shouldBe mapOf(
-                "duration" to 10L,
+                "duration" to duration,
+                "start" to startTime,
+                "end" to endTime,
                 "campaign_id" to "campaignId",
                 "source" to "customEvent",
                 "request_id" to "requestId"

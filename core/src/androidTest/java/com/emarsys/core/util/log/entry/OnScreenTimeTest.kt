@@ -14,17 +14,19 @@ class OnScreenTimeTest {
 
     @Test
     fun testTopic() {
-        val result = OnScreenTime(1, "campaignId", "requestId")
+        val result = OnScreenTime(1, 0, 0, "campaignId", "requestId")
 
         result.topic shouldBe "log_inapp_on_screen_time"
     }
 
     @Test
     fun testData_when_requestIsNull() {
-        val actual = OnScreenTime(30L, "campaignId", null).data
+        val actual = OnScreenTime(30L, 0L, 30L, "campaignId", null).data
         val expected = mapOf(
                 "campaign_id" to "campaignId",
                 "duration" to 30L,
+                "start" to 0L,
+                "end" to 30L,
                 "source" to "push"
         )
 
@@ -33,10 +35,12 @@ class OnScreenTimeTest {
 
     @Test
     fun testData_when_requestIsAvailable() {
-        val actual = OnScreenTime(130L, "realCampaignId", "requestId").data
+        val actual = OnScreenTime(130L, 0L, 130L, "realCampaignId", "requestId").data
         val expected = mapOf(
                 "campaign_id" to "realCampaignId",
                 "duration" to 130L,
+                "start" to 0L,
+                "end" to 130L,
                 "source" to "customEvent",
                 "request_id" to "requestId"
         )

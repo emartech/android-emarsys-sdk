@@ -7,9 +7,11 @@ public class InAppLoadingTime implements LogEntry {
 
     private final Map<String, Object> data;
 
-    public InAppLoadingTime(long loadingTime, String campaignId, String requestId) {
+    public InAppLoadingTime(long startTime, long endTime, String campaignId, String requestId) {
         data = new HashMap<>();
-        data.put("duration", loadingTime);
+        data.put("duration", endTime - startTime);
+        data.put("start", startTime);
+        data.put("end", endTime);
         data.put("campaign_id", campaignId);
         if (requestId == null) {
             data.put("source", "push");

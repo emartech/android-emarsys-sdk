@@ -82,8 +82,8 @@ public class InAppPresenter {
             @Override
             public void onMessageLoaded() {
                 Activity currentActivity = currentActivityProvider.get();
-                long loadingTime = timestampProvider.provideTimestamp() - startTimestamp;
-                Logger.log(new InAppLoadingTime(loadingTime, campaignId, requestId));
+                long endTimestamp = timestampProvider.provideTimestamp();
+                Logger.log(new InAppLoadingTime(startTimestamp, endTimestamp, campaignId, requestId));
                 if (currentActivity instanceof AppCompatActivity) {
                     FragmentManager fragmentManager = ((AppCompatActivity) currentActivity).getSupportFragmentManager();
                     Fragment fragment = fragmentManager.findFragmentByTag(IamDialog.TAG);
