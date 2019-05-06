@@ -1,7 +1,9 @@
 package com.emarsys.config;
 
 import android.app.Application;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.util.Assert;
@@ -35,7 +37,6 @@ public class EmarsysConfig {
         Assert.notNull(applicationCode, "ApplicationCode must not be null");
         Assert.notNull(applicationPassword, "ApplicationPassword must not be null");
         Assert.notNull(contactFieldId, "ContactFieldId must not be null");
-        Assert.notNull(predictMerchantId, "PredictMerchantId must not be null");
         Assert.notNull(experimentalFeatures, "ExperimentalFeatures must not be null");
         Assert.elementsNotNull(experimentalFeatures, "ExperimentalFeatures must not contain null elements!");
 
@@ -181,7 +182,7 @@ public class EmarsysConfig {
             return this;
         }
 
-        public Builder predictMerchantId(@NonNull String predictMerchantId) {
+        public Builder predictMerchantId(@Nullable String predictMerchantId) {
             this.predictMerchantId = predictMerchantId;
             return this;
         }

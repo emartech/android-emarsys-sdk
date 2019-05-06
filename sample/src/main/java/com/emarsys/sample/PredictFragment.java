@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import com.emarsys.Emarsys;
 import com.emarsys.predict.api.model.CartItem;
 
 import java.util.ArrayList;
@@ -41,21 +40,21 @@ public class PredictFragment extends BaseFragment {
         root.findViewById(R.id.trackItemView).setOnClickListener(view -> {
             String itemId = itemView.getText().toString();
             if (!itemId.isEmpty()) {
-                Emarsys.Predict.trackItemView(itemId);
+//                Emarsys.Predict.trackItemView(itemId);
             }
         });
 
         root.findViewById(R.id.trackCategoryView).setOnClickListener(view -> {
             String categoryText = categoryView.getText().toString();
             if (!categoryText.isEmpty()) {
-                Emarsys.Predict.trackCategoryView(categoryView.getText().toString());
+//                Emarsys.Predict.trackCategoryView(categoryView.getText().toString());
             }
         });
 
         root.findViewById(R.id.trackSearchTerm).setOnClickListener(view -> {
             String searchTermText = searchTerm.getText().toString();
             if (!searchTermText.isEmpty()) {
-                Emarsys.Predict.trackSearchTerm(searchTerm.getText().toString());
+//                Emarsys.Predict.trackSearchTerm(searchTerm.getText().toString());
             }
         });
 
@@ -68,14 +67,14 @@ public class PredictFragment extends BaseFragment {
 
         root.findViewById(R.id.trackCartItems).setOnClickListener(view -> {
             if (!cartItems.isEmpty()) {
-                Emarsys.Predict.trackCart(cartItems);
+//                Emarsys.Predict.trackCart(cartItems);
             }
         });
 
         root.findViewById(R.id.trackPurchase).setOnClickListener(view -> {
             String orderIdText = orderId.getText().toString();
             if (!cartItems.isEmpty()) {
-                Emarsys.Predict.trackPurchase(orderIdText, cartItems);
+//                Emarsys.Predict.trackPurchase(orderIdText, cartItems);
             }
         });
         return root;

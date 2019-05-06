@@ -50,7 +50,8 @@ public class Emarsys {
 
         registerWatchDogs(config);
 
-        registerDatabaseTriggers();
+        registerDatabaseTriggers(config);
+
 
         initializeContact();
     }
@@ -62,6 +63,7 @@ public class Emarsys {
                 Assert.notNull(contactId, "ContactId must not be null!");
 
                 getMobileEngageInternal().setContact(contactId, null);
+
                 getPredictInternal().setContact(contactId);
             }
         });
@@ -345,7 +347,7 @@ public class Emarsys {
         }
     }
 
-    public static class Predict {
+    static class Predict {
 
         public static void trackCart(@NonNull final List<CartItem> items) {
             getRunnerProxy().logException(new Runnable() {
@@ -448,12 +450,16 @@ public class Emarsys {
         config.getApplication().registerActivityLifecycleCallbacks(getContainer().getCurrentActivityWatchdog());
     }
 
-    private static void registerDatabaseTriggers() {
-        getContainer().getCoreSQLiteDatabase().registerTrigger(
-                DatabaseContract.SHARD_TABLE_NAME,
-                TriggerType.AFTER,
-                TriggerEvent.INSERT,
-                getContainer().getPredictShardTrigger());
+    private static void registerDatabaseTriggers(EmarsysConfig config) {
+        boolean isPredictEnabled = config.getPredictMerchantId() != null;
+
+        if (isPredictEnabled) {
+            getContainer().getCoreSQLiteDatabase().registerTrigger(
+                    DatabaseContract.SHARD_TABLE_NAME,
+                    TriggerType.AFTER,
+                    TriggerEvent.INSERT,
+                    getContainer().getPredictShardTrigger());
+        }
 
         getContainer().getCoreSQLiteDatabase().registerTrigger(
                 DatabaseContract.SHARD_TABLE_NAME,

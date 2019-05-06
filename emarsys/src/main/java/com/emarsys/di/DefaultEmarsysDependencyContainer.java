@@ -397,21 +397,21 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
         notificationEventHandler = config.getNotificationEventHandler();
-
-        predictShardTrigger = new BatchingShardTrigger(
-                shardModelRepository,
-                new ListSizeAtLeast<ShardModel>(1),
-                new FilterByShardType(FilterByShardType.SHARD_TYPE_PREDICT),
-                new ListChunker<ShardModel>(1),
-                new PredictShardListMerger(
-                        config.getPredictMerchantId(),
-                        sharedPrefsKeyStore,
-                        timestampProvider,
-                        uuidProvider,
-                        getDeviceInfo()),
-                requestManager,
-                BatchingShardTrigger.RequestStrategy.PERSISTENT);
-
+        if (isPredictEnabled(config)) {
+            predictShardTrigger = new BatchingShardTrigger(
+                    shardModelRepository,
+                    new ListSizeAtLeast<ShardModel>(1),
+                    new FilterByShardType(FilterByShardType.SHARD_TYPE_PREDICT),
+                    new ListChunker<ShardModel>(1),
+                    new PredictShardListMerger(
+                            config.getPredictMerchantId(),
+                            sharedPrefsKeyStore,
+                            timestampProvider,
+                            uuidProvider,
+                            getDeviceInfo()),
+                    requestManager,
+                    BatchingShardTrigger.RequestStrategy.PERSISTENT);
+        }
         logShardTrigger = new BatchingShardTrigger(
                 shardModelRepository,
                 new ListSizeAtLeast<ShardModel>(10),
@@ -435,6 +435,10 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         predictInternal = new PredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);
 
         logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
+    }
+
+    private boolean isPredictEnabled(EmarsysConfig config) {
+        return config.getPredictMerchantId() != null;
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {

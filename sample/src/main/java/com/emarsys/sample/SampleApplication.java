@@ -32,7 +32,6 @@ public class SampleApplication extends Application implements EventHandler, Noti
                 .application(this)
                 .mobileEngageCredentials(MobileEngageCredentials.INTEGRATION_APPLICATION_CODE, MobileEngageCredentials.INTEGRATION_APPLICATION_PASSWORD)
                 .contactFieldId(3)
-                .predictMerchantId("1428C8EE286EC34B")
                 .inAppEventHandler(this)
                 .notificationEventHandler(this)
                 .build();
@@ -58,7 +57,7 @@ public class SampleApplication extends Application implements EventHandler, Noti
     }
 
     @Override
-    public void handleEvent(String eventName, JSONObject payload) {
+    public void  handleEvent(String eventName, JSONObject payload) {
         Toast.makeText(this, eventName + " - " + payload.toString(), Toast.LENGTH_LONG).show();
     }
 
