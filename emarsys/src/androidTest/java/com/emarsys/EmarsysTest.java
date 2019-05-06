@@ -37,7 +37,6 @@ import com.emarsys.di.FakeDependencyContainer;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.api.EventHandler;
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
@@ -47,7 +46,6 @@ import com.emarsys.mobileengage.iam.InAppStartAction;
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternal_V1;
-import com.emarsys.mobileengage.inbox.InboxInternal_V2;
 import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
@@ -127,7 +125,6 @@ public class EmarsysTest {
 
     private EmarsysConfig baseConfig;
     private EmarsysConfig configWithInAppEventHandler;
-    private EmarsysConfig userCentricInboxConfig;
     private RefreshTokenInternal mockRefreshTokenInternal;
     private Storage<Integer> mockDeviceInfoHashStorage;
     private Storage<String> mockContactFieldValueStorage;
@@ -170,7 +167,6 @@ public class EmarsysTest {
 
         baseConfig = createConfig(false);
         configWithInAppEventHandler = createConfig(true);
-        userCentricInboxConfig = createConfig(false, MobileEngageFeature.USER_CENTRIC_INBOX);
 
         HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
         deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider);
@@ -257,18 +253,6 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testSetup_initializes_inboxInstance_V2() {
-        DependencyInjection.tearDown();
-        ExperimentalTestUtils.resetExperimentalFeatures();
-
-        Emarsys.setup(userCentricInboxConfig);
-
-        InboxInternal inboxInternal = DependencyInjection.<EmarysDependencyContainer>getContainer().getInboxInternal();
-        assertNotNull(inboxInternal);
-        assertEquals(InboxInternal_V2.class, inboxInternal.getClass());
-    }
-
-    @Test
     public void testSetup_initializes_deepLinkInstance() {
         DependencyInjection.tearDown();
         ExperimentalTestUtils.resetExperimentalFeatures();
@@ -304,22 +288,6 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testSetup_initializesRequestManager_withRequestModelRepositoryProxy_withInboxFlipper() {
-        DependencyInjection.tearDown();
-        ExperimentalTestUtils.resetExperimentalFeatures();
-
-        Emarsys.setup(userCentricInboxConfig);
-
-        RequestManager requestManager = ReflectionTestUtils.getInstanceField(
-                DependencyInjection.<DefaultEmarsysDependencyContainer>getContainer(),
-                "requestManager");
-        Object repository = ReflectionTestUtils.getInstanceField(
-                requestManager,
-                "requestRepository");
-        assertEquals(RequestRepositoryProxy.class, repository.getClass());
-    }
-
-    @Test
     public void testSetup_initializesCoreCompletionHandler_withNoFlippers() {
         DependencyInjection.tearDown();
         ExperimentalTestUtils.resetExperimentalFeatures();
@@ -340,28 +308,6 @@ public class EmarsysTest {
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MobileEngageClientStateResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), ClientInfoResponseHandler.class));
 
-    }
-
-    @Test
-    public void testSetup_initializesCoreCompletionHandler_whenUserCentricInboxIsOn() {
-        DependencyInjection.tearDown();
-        ExperimentalTestUtils.resetExperimentalFeatures();
-
-        Emarsys.setup(userCentricInboxConfig);
-
-        ResponseHandlersProcessor responseHandlersProcessor = DependencyInjection
-                .<DefaultEmarsysDependencyContainer>getContainer()
-                .getResponseHandlersProcessor();
-
-        assertNotNull(responseHandlersProcessor);
-        assertEquals(8, responseHandlersProcessor.getResponseHandlers().size());
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), VisitorIdResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MeIdResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), InAppMessageResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), InAppCleanUpResponseHandler.class));
-        assertEquals(2, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MobileEngageTokenResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MobileEngageClientStateResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), ClientInfoResponseHandler.class));
     }
 
     @Test

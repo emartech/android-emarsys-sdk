@@ -13,13 +13,11 @@ import androidx.core.app.NotificationCompat.Action;
 import androidx.core.content.ContextCompat;
 
 import com.emarsys.core.device.DeviceInfo;
-import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.FileUtils;
 import com.emarsys.core.util.ImageUtils;
 import com.emarsys.core.validate.JsonObjectValidator;
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.inbox.InboxParseUtils;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.util.AndroidVersionUtils;
@@ -202,8 +200,7 @@ public class MessagingServiceUtils {
 
     static void cacheNotification(Map<String, String> remoteMessageData) {
         Assert.notNull(remoteMessageData, "RemoteMessageData must not be null!");
-        boolean isUserCentric = ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX);
-        notificationCache.cache(InboxParseUtils.parseNotificationFromPushMessage(remoteMessageData, isUserCentric));
+        notificationCache.cache(InboxParseUtils.parseNotificationFromPushMessage(remoteMessageData, false));
     }
 
 }

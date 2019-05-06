@@ -24,7 +24,6 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
-import com.emarsys.core.experimental.ExperimentalFeatures;
 import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
@@ -60,7 +59,6 @@ import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal;
 import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
-import com.emarsys.mobileengage.api.experimental.MobileEngageFeature;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.device.DeviceInfoStartAction;
@@ -429,10 +427,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         mobileEngageInternal = new MobileEngageInternalV3(requestManager, uiHandler, requestModelFactory, requestContext, eventServiceInternal);
         inboxInternal = new InboxInternalProvider().provideInboxInternal(
-                ExperimentalFeatures.isFeatureEnabled(MobileEngageFeature.USER_CENTRIC_INBOX),
                 requestManager,
-                requestContext,
-                requestModelFactory
+                requestContext
         );
 
         deepLinkInternal = new DeepLinkInternal(requestManager, requestContext);
