@@ -1,8 +1,10 @@
 package com.emarsys.core.provider.version;
 
+import com.emarsys.core.BuildConfig;
+
 public class VersionProvider {
 
     public String provideSdkVersion() {
-        return "0.0.1";
+        return BuildConfig.VERSION_NAME;
     }
 }
