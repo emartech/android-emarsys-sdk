@@ -53,6 +53,7 @@ node('master') {
                         }
                     }
                     def tasks = [
+                            'emarsys-sdk'      : createTask('emarsys-sdk'),
                             'core'             : createTask('core'),
                             'core-api'         : createTask('core-api'),
                             'mobile-engage'    : createTask('mobile-engage'),
