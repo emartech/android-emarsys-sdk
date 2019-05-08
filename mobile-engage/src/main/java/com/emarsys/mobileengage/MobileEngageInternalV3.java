@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
+import androidx.annotation.RequiresApi;
+
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
@@ -52,6 +54,7 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
     }
 
     @Override
+    @RequiresApi(api = 21)
     public void removePushToken(CompletionListener completionListener) {
         RequestModel requestModel = requestModelFactory.createRemovePushTokenRequest();
 
