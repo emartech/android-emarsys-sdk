@@ -264,14 +264,14 @@ public class Emarsys {
 
         public static void trackNotificationOpen(
                 @NonNull final Notification notification,
-                @NonNull final CompletionListener resultListener) {
+                @NonNull final CompletionListener completionListener) {
             getRunnerProxy().logException(new Runnable() {
                 @Override
                 public void run() {
                     Assert.notNull(notification, "Notification must not be null!");
-                    Assert.notNull(resultListener, "ResultListener must not be null!");
+                    Assert.notNull(completionListener, "CompletionListener must not be null!");
 
-                    getInboxInternal().trackNotificationOpen(notification, resultListener);
+                    getInboxInternal().trackNotificationOpen(notification, completionListener);
                 }
             });
         }
@@ -285,13 +285,13 @@ public class Emarsys {
             });
         }
 
-        public static void resetBadgeCount(@NonNull final CompletionListener resultListener) {
+        public static void resetBadgeCount(@NonNull final CompletionListener completionListener) {
             getRunnerProxy().logException(new Runnable() {
                 @Override
                 public void run() {
-                    Assert.notNull(resultListener, "ResultListener must not be null!");
+                    Assert.notNull(completionListener, "CompletionListener must not be null!");
 
-                    getInboxInternal().resetBadgeCount(resultListener);
+                    getInboxInternal().resetBadgeCount(completionListener);
                 }
             });
         }
