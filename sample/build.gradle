@@ -61,7 +61,7 @@ repositories {
 
 dependencies {
     if (project.devConfig.useLocalDependency || System.env.DEVELOPMENT_MODE) {
-        implementation project(':emarsys')
+        implementation project(':emarsys-sdk')
     } else {
         implementation 'com.emarsys:emarsys-sdk:+'
     }
