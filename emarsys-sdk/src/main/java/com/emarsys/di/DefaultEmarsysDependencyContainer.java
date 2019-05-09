@@ -79,13 +79,9 @@ import com.emarsys.mobileengage.request.RequestModelFactory;
 import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
-import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MobileEngageClientStateResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler;
-import com.emarsys.mobileengage.storage.AppLoginStorage;
 import com.emarsys.mobileengage.storage.DeviceInfoHashStorage;
-import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
-import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.predict.PredictInternal;
@@ -119,9 +115,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private Runnable predictShardTrigger;
 
     private Handler uiHandler;
-    private AppLoginStorage appLoginStorage;
-    private MeIdStorage meIdStorage;
-    private MeIdSignatureStorage meIdSignatureStorage;
     private Storage<Integer> deviceInfoHashStorage;
     private Storage<String> contactTokenStorage;
     private Storage<String> refreshTokenStorage;
@@ -305,9 +298,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
-        appLoginStorage = new AppLoginStorage(prefs);
-        meIdStorage = new MeIdStorage(prefs);
-        meIdSignatureStorage = new MeIdSignatureStorage(prefs);
         deviceInfoHashStorage = new DeviceInfoHashStorage(prefs);
         contactTokenStorage = new StringStorage(MobileEngageStorageKey.CONTACT_TOKEN, prefs);
         refreshTokenStorage = new StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, prefs);
@@ -336,9 +326,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 config.getApplicationPassword(),
                 config.getContactFieldId(),
                 getDeviceInfo(),
-                appLoginStorage,
-                meIdStorage,
-                meIdSignatureStorage,
                 timestampProvider,
                 uuidProvider,
                 clientStateStorage,
@@ -495,10 +482,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         responseHandlers.add(contactTokenResponseHandler);
         responseHandlers.add(new MobileEngageClientStateResponseHandler(getClientStateStorage()));
         responseHandlers.add(new ClientInfoResponseHandler(getDeviceInfo(), getDeviceInfoHashStorage()));
-
-        responseHandlers.add(new MeIdResponseHandler(
-                meIdStorage,
-                meIdSignatureStorage));
 
         responseHandlers.add(new InAppMessageResponseHandler(
                 inAppPresenter

@@ -13,9 +13,6 @@ import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.mobileengage.RequestContext;
-import com.emarsys.mobileengage.storage.AppLoginStorage;
-import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
-import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -68,9 +65,6 @@ public class DeepLinkInternalTest {
                 "",
                 1,
                 mockDeviceInfo,
-                mock(AppLoginStorage.class),
-                mock(MeIdStorage.class),
-                mock(MeIdSignatureStorage.class),
                 timestampProvider,
                 uuidProvider,
                 mock(Storage.class),

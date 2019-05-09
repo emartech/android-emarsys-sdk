@@ -20,8 +20,6 @@ import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
-import com.emarsys.mobileengage.storage.AppLoginStorage
-import com.emarsys.mobileengage.storage.MeIdStorage
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
@@ -101,8 +99,6 @@ class MobileEngageIntegrationTest {
         ConnectionTestUtils.checkConnection(application)
 
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
-        MeIdStorage(sharedPreferences).remove()
-        AppLoginStorage(sharedPreferences).remove()
 
         ExperimentalTestUtils.resetExperimentalFeatures()
 
@@ -133,9 +129,6 @@ class MobileEngageIntegrationTest {
             application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
             coreSdkHandler.looper.quit()
         }
-
-        MeIdStorage(sharedPreferences).remove()
-        AppLoginStorage(sharedPreferences).remove()
 
         clientStateStorage.remove()
         contactTokenStorage.remove()

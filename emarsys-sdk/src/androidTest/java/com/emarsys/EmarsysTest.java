@@ -49,7 +49,6 @@ import com.emarsys.mobileengage.inbox.InboxInternal_V1;
 import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
-import com.emarsys.mobileengage.responsehandler.MeIdResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MobileEngageClientStateResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler;
 import com.emarsys.predict.PredictInternal;
@@ -299,9 +298,8 @@ public class EmarsysTest {
                 .getResponseHandlersProcessor();
 
         assertNotNull(responseHandlersProcessor);
-        assertEquals(8, responseHandlersProcessor.getResponseHandlers().size());
+        assertEquals(7, responseHandlersProcessor.getResponseHandlers().size());
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), VisitorIdResponseHandler.class));
-        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MeIdResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), InAppMessageResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), InAppCleanUpResponseHandler.class));
         assertEquals(2, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MobileEngageTokenResponseHandler.class));

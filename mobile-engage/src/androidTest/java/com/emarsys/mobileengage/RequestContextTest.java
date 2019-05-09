@@ -4,9 +4,6 @@ import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.storage.Storage;
-import com.emarsys.mobileengage.storage.AppLoginStorage;
-import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
-import com.emarsys.mobileengage.storage.MeIdStorage;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Rule;
@@ -18,7 +15,7 @@ import static org.mockito.Mockito.mock;
 @SuppressWarnings("unchecked")
 public class RequestContextTest {
 
-    int contactFieldId = 2;
+    private int contactFieldId = 2;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -30,9 +27,6 @@ public class RequestContextTest {
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
-                mock(AppLoginStorage.class),
-                mock(MeIdStorage.class),
-                mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
                 mock(Storage.class),
@@ -49,9 +43,6 @@ public class RequestContextTest {
                 null,
                 contactFieldId,
                 mock(DeviceInfo.class),
-                mock(AppLoginStorage.class),
-                mock(MeIdStorage.class),
-                mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
                 mock(Storage.class),
@@ -67,66 +58,6 @@ public class RequestContextTest {
                 "",
                 "",
                 contactFieldId,
-                null,
-                mock(AppLoginStorage.class),
-                mock(MeIdStorage.class),
-                mock(MeIdSignatureStorage.class),
-                mock(TimestampProvider.class),
-                mock(UUIDProvider.class),
-                mock(Storage.class),
-                mock(Storage.class),
-                mock(Storage.class),
-                mock(Storage.class)
-        );
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_AppLoginStorage_mustNotBeNull() {
-        new RequestContext(
-                "",
-                "",
-                contactFieldId,
-                mock(DeviceInfo.class),
-                null,
-                mock(MeIdStorage.class),
-                mock(MeIdSignatureStorage.class),
-                mock(TimestampProvider.class),
-                mock(UUIDProvider.class),
-                mock(Storage.class),
-                mock(Storage.class),
-                mock(Storage.class),
-                mock(Storage.class)
-        );
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_MeIdStorage_mustNotBeNull() {
-        new RequestContext(
-                "",
-                "",
-                contactFieldId,
-                mock(DeviceInfo.class),
-                mock(AppLoginStorage.class),
-                null,
-                mock(MeIdSignatureStorage.class),
-                mock(TimestampProvider.class),
-                mock(UUIDProvider.class),
-                mock(Storage.class),
-                mock(Storage.class),
-                mock(Storage.class),
-                mock(Storage.class)
-        );
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_MeIdSignatureStorage_mustNotBeNull() {
-        new RequestContext(
-                "",
-                "",
-                contactFieldId,
-                mock(DeviceInfo.class),
-                mock(AppLoginStorage.class),
-                mock(MeIdStorage.class),
                 null,
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
@@ -144,9 +75,6 @@ public class RequestContextTest {
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
-                mock(AppLoginStorage.class),
-                mock(MeIdStorage.class),
-                mock(MeIdSignatureStorage.class),
                 null,
                 mock(UUIDProvider.class),
                 mock(Storage.class),
@@ -163,9 +91,6 @@ public class RequestContextTest {
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
-                mock(AppLoginStorage.class),
-                mock(MeIdStorage.class),
-                mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
                 null,
                 mock(Storage.class),
@@ -182,9 +107,6 @@ public class RequestContextTest {
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
-                mock(AppLoginStorage.class),
-                mock(MeIdStorage.class),
-                mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
                 null,
@@ -201,9 +123,6 @@ public class RequestContextTest {
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
-                mock(AppLoginStorage.class),
-                mock(MeIdStorage.class),
-                mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
                 mock(Storage.class),
@@ -220,9 +139,6 @@ public class RequestContextTest {
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
-                mock(AppLoginStorage.class),
-                mock(MeIdStorage.class),
-                mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
                 mock(Storage.class),
@@ -239,9 +155,6 @@ public class RequestContextTest {
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
-                mock(AppLoginStorage.class),
-                mock(MeIdStorage.class),
-                mock(MeIdSignatureStorage.class),
                 mock(TimestampProvider.class),
                 mock(UUIDProvider.class),
                 mock(Storage.class),

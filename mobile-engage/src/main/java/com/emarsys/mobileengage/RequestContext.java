@@ -5,18 +5,12 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.storage.AppLoginStorage;
-import com.emarsys.mobileengage.storage.MeIdSignatureStorage;
-import com.emarsys.mobileengage.storage.MeIdStorage;
 
 public class RequestContext {
     private final String applicationCode;
     private final String applicationPassword;
     private final int contactFieldId;
     private final DeviceInfo deviceInfo;
-    private final AppLoginStorage appLoginStorage;
-    private final MeIdStorage meIdStorage;
-    private final MeIdSignatureStorage meIdSignatureStorage;
     private final TimestampProvider timestampProvider;
     private final UUIDProvider uuidProvider;
     private final Storage<String> clientStateStorage;
@@ -29,9 +23,6 @@ public class RequestContext {
             String applicationPassword,
             int contactFieldId,
             DeviceInfo deviceInfo,
-            AppLoginStorage appLoginStorage,
-            MeIdStorage meIdStorage,
-            MeIdSignatureStorage meIdSignatureStorage,
             TimestampProvider timestampProvider,
             UUIDProvider uuidProvider,
             Storage<String> clientStateStorage,
@@ -41,9 +32,6 @@ public class RequestContext {
         Assert.notNull(applicationCode, "ApplicationCode must not be null!");
         Assert.notNull(applicationPassword, "ApplicationPassword must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
-        Assert.notNull(appLoginStorage, "AppLoginStorage must not be null!");
-        Assert.notNull(meIdStorage, "MeIdStorage must not be null!");
-        Assert.notNull(meIdSignatureStorage, "MeIdSignatureStorage must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(uuidProvider, "UUIDProvider must not be null!");
         Assert.notNull(clientStateStorage, "ClientStateStorage must not be null!");
@@ -55,9 +43,6 @@ public class RequestContext {
         this.applicationPassword = applicationPassword;
         this.contactFieldId = contactFieldId;
         this.deviceInfo = deviceInfo;
-        this.appLoginStorage = appLoginStorage;
-        this.meIdStorage = meIdStorage;
-        this.meIdSignatureStorage = meIdSignatureStorage;
         this.timestampProvider = timestampProvider;
         this.uuidProvider = uuidProvider;
         this.clientStateStorage = clientStateStorage;
@@ -80,18 +65,6 @@ public class RequestContext {
 
     public DeviceInfo getDeviceInfo() {
         return deviceInfo;
-    }
-
-    public AppLoginStorage getAppLoginStorage() {
-        return appLoginStorage;
-    }
-
-    public MeIdStorage getMeIdStorage() {
-        return meIdStorage;
-    }
-
-    public MeIdSignatureStorage getMeIdSignatureStorage() {
-        return meIdSignatureStorage;
     }
 
     public TimestampProvider getTimestampProvider() {
@@ -125,9 +98,6 @@ public class RequestContext {
                 ", applicationPassword='" + applicationPassword + '\'' +
                 ", contactFieldId=" + contactFieldId +
                 ", deviceInfo=" + deviceInfo +
-                ", appLoginStorage=" + appLoginStorage +
-                ", meIdStorage=" + meIdStorage +
-                ", meIdSignatureStorage=" + meIdSignatureStorage +
                 ", timestampProvider=" + timestampProvider +
                 ", uuidProvider=" + uuidProvider +
                 ", clientStateStorage=" + clientStateStorage +

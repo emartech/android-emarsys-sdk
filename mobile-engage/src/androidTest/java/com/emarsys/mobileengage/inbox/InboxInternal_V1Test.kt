@@ -1,7 +1,6 @@
 package com.emarsys.mobileengage.inbox
 
 import android.app.Application
-import android.content.Context
 import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
@@ -33,9 +32,6 @@ import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener
 import com.emarsys.mobileengage.fake.FakeRestClient
 import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.request.RequestModelFactory
-import com.emarsys.mobileengage.storage.AppLoginStorage
-import com.emarsys.mobileengage.storage.MeIdSignatureStorage
-import com.emarsys.mobileengage.storage.MeIdStorage
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.SharedPrefsUtils
@@ -116,9 +112,6 @@ class InboxInternal_V1Test {
                 "applicationPassword",
                 1,
                 deviceInfo,
-                AppLoginStorage(application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)),
-                mock(MeIdStorage::class.java),
-                mock(MeIdSignatureStorage::class.java),
                 mockTimestampProvider,
                 mockUuidProvider,
                 mock(Storage::class.java) as Storage<String>,
