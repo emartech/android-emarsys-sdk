@@ -38,7 +38,7 @@ node('master') {
                     def app = "--app 'sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk'"
                     def path = "build/outputs/apk/androidTest/debug"
                     def devices = [
-                            "--device model=victara,version=19,locale=en,orientation=portrait",
+                            "--device model=g3,version=19,locale=en,orientation=portrait",
                             "--device model=shamu,version=21,locale=en,orientation=portrait",
                             "--device model=A0001,version=22,locale=en,orientation=portrait",
                             "--device model=j7xelte,version=23,locale=en,orientation=portrait",
