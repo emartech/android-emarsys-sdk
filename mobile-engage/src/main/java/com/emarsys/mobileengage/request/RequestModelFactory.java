@@ -12,6 +12,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.emarsys.mobileengage.endpoint.Endpoint.INBOX_FETCH_V1;
+import static com.emarsys.mobileengage.endpoint.Endpoint.INBOX_RESET_BADGE_COUNT_V1;
+
 public class RequestModelFactory {
     private RequestContext requestContext;
 
@@ -38,7 +41,6 @@ public class RequestModelFactory {
                 .url(RequestUrlUtils.createRemovePushTokenUrl(requestContext))
                 .method(RequestMethod.DELETE)
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
-                .payload(Collections.<String, Object>emptyMap())
                 .build();
     }
 
@@ -65,6 +67,24 @@ public class RequestModelFactory {
             builder.payload(RequestPayloadUtils.createSetContactPayload(contactFieldValue, requestContext));
         }
         return builder.build();
+    }
+
+    public RequestModel createTrackNotificationOpenRequest(String sid) {
+        Assert.notNull(sid, "Sid must not be null!");
+
+        return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
+                .url(RequestUrlUtils.createEventUrl_V2("message_open"))
+                .payload(RequestPayloadUtils.createTrackNotificationOpenPayload(sid, requestContext))
+                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
+                .build();
+    }
+
+    public RequestModel createResetBadgeCountRequest() {
+        return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
+                .url(INBOX_RESET_BADGE_COUNT_V1)
+                .headers(RequestHeaderUtils.createInboxHeaders(requestContext))
+                .method(RequestMethod.POST)
+                .build();
     }
 
     public RequestModel createCustomEventRequest(String eventName, Map<String, String> eventAttributes) {
@@ -101,6 +121,14 @@ public class RequestModelFactory {
                 .method(RequestMethod.POST)
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .payload(payload)
+                .build();
+    }
+
+    public RequestModel createFetchNotificationsRequest() {
+        return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
+                .url(INBOX_FETCH_V1)
+                .headers(RequestHeaderUtils.createInboxHeaders(requestContext))
+                .method(RequestMethod.GET)
                 .build();
     }
 }

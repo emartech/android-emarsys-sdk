@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.notification.command
 
 import android.content.Intent
-import com.emarsys.mobileengage.MobileEngageInternal_V3_Old
+import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Rule
 import org.junit.Test
@@ -23,12 +23,12 @@ class TrackMessageOpenCommandTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_intent_mustNotBeNull() {
-        TrackMessageOpenCommand(mock(MobileEngageInternal_V3_Old::class.java), null)
+        TrackMessageOpenCommand(mock(MobileEngageInternal::class.java), null)
     }
     
     @Test
     fun testRun_callsMobileEngageInternal() {
-        val mobileEngageInternal = mock(MobileEngageInternal_V3_Old::class.java)
+        val mobileEngageInternal = mock(MobileEngageInternal::class.java)
         val intent = mock(Intent::class.java)
         val command = TrackMessageOpenCommand(mobileEngageInternal, intent)
 

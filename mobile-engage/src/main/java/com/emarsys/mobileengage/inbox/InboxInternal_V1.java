@@ -9,7 +9,6 @@ import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
 import com.emarsys.core.api.result.Try;
 import com.emarsys.core.request.RequestManager;
-import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
@@ -17,15 +16,7 @@ import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
-import com.emarsys.mobileengage.util.RequestHeaderUtils_Old;
-import com.emarsys.mobileengage.util.RequestPayloadUtils;
-import com.emarsys.mobileengage.util.RequestUrlUtils_Old;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.emarsys.mobileengage.endpoint.Endpoint.INBOX_FETCH_V1;
-import static com.emarsys.mobileengage.endpoint.Endpoint.INBOX_RESET_BADGE_COUNT_V1;
+import com.emarsys.mobileengage.request.RequestModelFactory;
 
 public class InboxInternal_V1 implements InboxInternal {
 
@@ -33,17 +24,21 @@ public class InboxInternal_V1 implements InboxInternal {
     private NotificationCache cache;
     private RequestManager manager;
     private RequestContext requestContext;
+    private RequestModelFactory requestModelFactory;
 
     public InboxInternal_V1(
             RequestManager requestManager,
-            RequestContext requestContext) {
+            RequestContext requestContext,
+            RequestModelFactory requestModelFactory) {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
+        Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");
 
         this.handler = new Handler(Looper.getMainLooper());
         this.cache = new NotificationCache();
         this.manager = requestManager;
         this.requestContext = requestContext;
+        this.requestModelFactory = requestModelFactory;
     }
 
     @Override
@@ -63,11 +58,7 @@ public class InboxInternal_V1 implements InboxInternal {
     }
 
     private void handleFetchRequest(final ResultListener<Try<NotificationInboxStatus>> resultListener) {
-        RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
-                .url(INBOX_FETCH_V1)
-                .headers(createBaseHeaders(requestContext))
-                .method(RequestMethod.GET)
-                .build();
+        RequestModel model = requestModelFactory.createFetchNotificationsRequest();
 
         manager.submitNow(model, new CoreCompletionHandler() {
             @Override
@@ -112,14 +103,7 @@ public class InboxInternal_V1 implements InboxInternal {
     public void trackNotificationOpen(Notification notification, CompletionListener completionListener) {
         Assert.notNull(notification, "Notification must not be null!");
 
-        Map<String, Object> payload = RequestPayloadUtils.createBasePayload(requestContext);
-        payload.put("source", "inbox");
-        payload.put("sid", notification.getSid());
-        RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
-                .url(RequestUrlUtils_Old.createEventUrl_V2("message_open"))
-                .payload(payload)
-                .headers(RequestHeaderUtils_Old.createBaseHeaders_V2(requestContext))
-                .build();
+        RequestModel model = requestModelFactory.createTrackNotificationOpenRequest(notification.getSid());
 
         manager.submit(model, completionListener);
     }
@@ -129,11 +113,7 @@ public class InboxInternal_V1 implements InboxInternal {
     }
 
     private void handleResetRequest(final CompletionListener resultListener) {
-        RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
-                .url(INBOX_RESET_BADGE_COUNT_V1)
-                .headers(createBaseHeaders(requestContext))
-                .method(RequestMethod.POST)
-                .build();
+        RequestModel model = requestModelFactory.createResetBadgeCountRequest();
 
         manager.submitNow(model, new CoreCompletionHandler() {
             @Override
@@ -160,20 +140,6 @@ public class InboxInternal_V1 implements InboxInternal {
                 }
             }
         });
-    }
-
-    private Map<String, String> createBaseHeaders(RequestContext requestContext) {
-        Map<String, String> result = new HashMap<>();
-
-        result.put("x-ems-me-hardware-id", requestContext.getDeviceInfo().getHwid());
-        result.put("x-ems-me-application-code", requestContext.getApplicationCode());
-        result.put("x-ems-me-contact-field-id", String.valueOf(requestContext.getContactFieldId()));
-        result.put("x-ems-me-contact-field-value", requestContext.getContactFieldValueStorage().get());
-
-        result.putAll(RequestHeaderUtils_Old.createDefaultHeaders(requestContext));
-        result.putAll(RequestHeaderUtils_Old.createBaseHeaders_V2(requestContext));
-
-        return result;
     }
 
     public RequestContext getRequestContext() {

@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import com.emarsys.mobileengage.MobileEngageInternal_V3_Old
+import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.api.NotificationEventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.notification.command.*
@@ -37,26 +37,27 @@ class NotificationCommandFactoryTest {
 
     private lateinit var factory: NotificationCommandFactory
     private lateinit var context: Context
-    private lateinit var dependencyContainer: MobileEngageDependencyContainer
-    private lateinit var mobileEngageInternal: MobileEngageInternal_V3_Old
-    private lateinit var notificationEventHandler: NotificationEventHandler
+    private lateinit var mockDependencyContainer: MobileEngageDependencyContainer
+    private lateinit var mockMobileEngageInternal: MobileEngageInternal
+    private lateinit var mockNotificationEventHandler: NotificationEventHandler
 
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
 
-        mobileEngageInternal = mock(MobileEngageInternal_V3_Old::class.java)
-        notificationEventHandler = mock(NotificationEventHandler::class.java)
-        dependencyContainer = mock(MobileEngageDependencyContainer::class.java)
-        whenever(dependencyContainer.mobileEngageInternal).thenReturn(mobileEngageInternal)
-        whenever(dependencyContainer.notificationEventHandler).thenReturn(notificationEventHandler)
+        mockMobileEngageInternal = mock(MobileEngageInternal::class.java)
+        mockNotificationEventHandler = mock(NotificationEventHandler::class.java)
+        mockDependencyContainer = mock(MobileEngageDependencyContainer::class.java)
 
-        factory = NotificationCommandFactory(context, dependencyContainer)
+        whenever(mockDependencyContainer.mobileEngageInternal).thenReturn(mockMobileEngageInternal)
+        whenever(mockDependencyContainer.notificationEventHandler).thenReturn(mockNotificationEventHandler)
+
+        factory = NotificationCommandFactory(context, mockDependencyContainer)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_context_mustNotBeNull() {
-        NotificationCommandFactory(null, dependencyContainer)
+        NotificationCommandFactory(null, mockDependencyContainer)
     }
 
     @Test(expected = java.lang.IllegalArgumentException::class)
@@ -133,7 +134,7 @@ class NotificationCommandFactoryTest {
 
         val handler = command.notificationEventHandler
 
-        handler shouldBe notificationEventHandler
+        handler shouldBe mockNotificationEventHandler
     }
 
     @Test
@@ -292,7 +293,7 @@ class NotificationCommandFactoryTest {
 
         val handler = command.notificationEventHandler
 
-        handler shouldBe notificationEventHandler
+        handler shouldBe mockNotificationEventHandler
     }
 
     @Test

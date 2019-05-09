@@ -9,7 +9,7 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.provider.Gettable
 import com.emarsys.core.provider.timestamp.TimestampProvider
-import com.emarsys.mobileengage.MobileEngageInternal_V3_Old
+import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
@@ -44,7 +44,7 @@ class InAppPresenterTest {
     private lateinit var buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>
     private lateinit var displayedIamRepository: Repository<DisplayedIam, SqlSpecification>
     private lateinit var timestampProvider: TimestampProvider
-    private lateinit var mobileEngageInternal: MobileEngageInternal_V3_Old
+    private lateinit var mobileEngageInternal: MobileEngageInternal
     private lateinit var activityProvider: Gettable<Activity>
     private lateinit var presenter: InAppPresenter
 
@@ -58,7 +58,7 @@ class InAppPresenterTest {
         buttonClickedRepository = mock(Repository::class.java) as Repository<ButtonClicked, SqlSpecification>
         displayedIamRepository = mock(Repository::class.java) as Repository<DisplayedIam, SqlSpecification>
         timestampProvider = mock(TimestampProvider::class.java)
-        mobileEngageInternal = mock(MobileEngageInternal_V3_Old::class.java)
+        mobileEngageInternal = mock(MobileEngageInternal::class.java)
         activityProvider = mock(Gettable::class.java) as Gettable<Activity>
         presenter = InAppPresenter(coreSdkHandler,
                 iamWebViewProvider,

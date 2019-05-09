@@ -126,6 +126,16 @@ public class RequestPayloadUtils {
         payload.put("refreshToken", requestContext.getRefreshTokenStorage().get());
         return payload;
     }
+
+    public static Map<String, Object> createTrackNotificationOpenPayload(String sid, RequestContext requestContext) {
+        Assert.notNull(sid, "Sid must not be null!");
+        Assert.notNull(requestContext, "RequestContext must not be null!");
+
+        Map<String, Object> payload = createBasePayload(requestContext);
+        payload.put("source", "inbox");
+        payload.put("sid", sid);
+        return payload;
+    }
 }
 
 enum EventType {

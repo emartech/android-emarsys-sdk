@@ -8,6 +8,8 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.endpoint.Endpoint.INBOX_FETCH_V1
+import com.emarsys.mobileengage.endpoint.Endpoint.INBOX_RESET_BADGE_COUNT_V1
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.mobileengage.util.RequestUrlUtils
@@ -27,8 +29,10 @@ class RequestModelFactoryTest {
         const val REQUEST_ID = "request_id"
         const val HARDWARE_ID = "hardware_id"
         const val APPLICATION_CODE = "app_code"
+        const val APPLICATION_PASSWORD = "appPassword"
         const val PUSH_TOKEN = "kjhygtfdrtrtdtguyihoj3iurf8y7t6fqyua2gyi8fhu"
         const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
+        const val CONTACT_FIELD_VALUE = "contactFieldValue"
     }
 
     lateinit var mockRequestContext: RequestContext
@@ -43,6 +47,7 @@ class RequestModelFactoryTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
+    @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockUuidProvider = mock(UUIDProvider::class.java).apply {
             whenever(provideId()).thenReturn(REQUEST_ID)
@@ -58,12 +63,17 @@ class RequestModelFactoryTest {
             whenever(get()).thenReturn(REFRESH_TOKEN)
         }
 
+        val mockContactFieldValueStorage = (mock(Storage::class.java) as Storage<String>).apply {
+            whenever(get()).thenReturn(CONTACT_FIELD_VALUE)
+        }
         mockRequestContext = mock(RequestContext::class.java).apply {
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
             whenever(uuidProvider).thenReturn(mockUuidProvider)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
             whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
+            whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
+            whenever(applicationPassword).thenReturn(APPLICATION_PASSWORD)
         }
 
         requestFactory = RequestModelFactory(mockRequestContext)
@@ -101,7 +111,7 @@ class RequestModelFactoryTest {
         val expected = RequestModel(
                 RequestUrlUtils.createRemovePushTokenUrl(mockRequestContext),
                 RequestMethod.DELETE,
-                emptyMap(),
+                null,
                 RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
                 TIMESTAMP,
                 Long.MAX_VALUE,
@@ -218,6 +228,62 @@ class RequestModelFactoryTest {
         )
 
         val result = requestFactory.createRefreshContactTokenRequest()
+
+        result shouldBe expected
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateTrackNotificationOpenRequest_sid_mustNotBeNull() {
+        requestFactory.createTrackNotificationOpenRequest(null)
+    }
+
+    @Test
+    fun testCreateTrackNotificationOpenRequest() {
+        val expected = RequestModel(
+                RequestUrlUtils.createEventUrl_V2("message_open"),
+                RequestMethod.POST,
+                RequestPayloadUtils.createTrackNotificationOpenPayload("sid", mockRequestContext),
+                RequestHeaderUtils.createBaseHeaders_V2(mockRequestContext),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+
+        val result = requestFactory.createTrackNotificationOpenRequest("sid")
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateResetBadgeCountRequest() {
+        val expected = RequestModel(
+                INBOX_RESET_BADGE_COUNT_V1,
+                RequestMethod.POST,
+                null,
+                RequestHeaderUtils.createInboxHeaders(mockRequestContext),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+
+        val result = requestFactory.createResetBadgeCountRequest()
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateFetchNotificationsRequest() {
+        val expected = RequestModel(
+                INBOX_FETCH_V1,
+                RequestMethod.GET,
+                null,
+                RequestHeaderUtils.createInboxHeaders(mockRequestContext),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+
+        val result = requestFactory.createFetchNotificationsRequest()
 
         result shouldBe expected
     }

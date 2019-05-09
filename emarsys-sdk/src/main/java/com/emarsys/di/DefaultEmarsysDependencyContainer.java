@@ -428,7 +428,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         mobileEngageInternal = new MobileEngageInternalV3(requestManager, uiHandler, requestModelFactory, requestContext, eventServiceInternal);
         inboxInternal = new InboxInternalProvider().provideInboxInternal(
                 requestManager,
-                requestContext
+                requestContext,
+                requestModelFactory
         );
 
         deepLinkInternal = new DeepLinkInternal(requestManager, requestContext);

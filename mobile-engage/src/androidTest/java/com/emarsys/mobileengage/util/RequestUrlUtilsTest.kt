@@ -162,4 +162,16 @@ class RequestUrlUtilsTest {
         result shouldBe false
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateEventUrl_V2_shouldNotAcceptNull() {
+        RequestUrlUtils.createEventUrl_V2(null)
+    }
+
+    @Test
+    fun testCreateEventUrl_V2_shouldReturnTheCorrectEventUrl() {
+        val url = RequestUrlUtils.createEventUrl_V2("my-custom-event")
+        val expected = "https://push.eservice.emarsys.net/api/mobileengage/v2/events/my-custom-event"
+        url shouldBe expected
+    }
+
 }

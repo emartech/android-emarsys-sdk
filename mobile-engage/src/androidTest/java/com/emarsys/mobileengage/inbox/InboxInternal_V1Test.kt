@@ -19,7 +19,6 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
-import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
@@ -33,6 +32,7 @@ import com.emarsys.mobileengage.fake.FakeInboxResultListener.Mode
 import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener
 import com.emarsys.mobileengage.fake.FakeRestClient
 import com.emarsys.mobileengage.inbox.model.NotificationCache
+import com.emarsys.mobileengage.request.RequestModelFactory
 import com.emarsys.mobileengage.storage.AppLoginStorage
 import com.emarsys.mobileengage.storage.MeIdSignatureStorage
 import com.emarsys.mobileengage.storage.MeIdStorage
@@ -42,11 +42,9 @@ import com.emarsys.testUtil.SharedPrefsUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
 import org.json.JSONObject
 import org.junit.*
 import org.junit.rules.TestRule
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -79,6 +77,7 @@ class InboxInternal_V1Test {
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockHardwareIdProvider: HardwareIdProvider
     private lateinit var mockContactFieldValueStorage: Storage<String>
+    private lateinit var mockRequestModelFactory: RequestModelFactory
     private lateinit var notificationList: List<Notification>
 
     @Rule
@@ -108,6 +107,10 @@ class InboxInternal_V1Test {
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
         mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
         whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
+        mockRequestModelFactory = mock(RequestModelFactory::class.java).apply {
+            whenever(createResetBadgeCountRequest()).thenReturn(mock(RequestModel::class.java))
+            whenever(createFetchNotificationsRequest()).thenReturn(mock(RequestModel::class.java))
+        }
         requestContext = RequestContext(
                 APPLICATION_ID,
                 "applicationPassword",
@@ -126,7 +129,7 @@ class InboxInternal_V1Test {
 
         defaultHeaders = RequestHeaderUtils.createDefaultHeaders(requestContext)
 
-        inbox = InboxInternal_V1(mockRequestManager, requestContext)
+        inbox = InboxInternal_V1(mockRequestManager, requestContext, mockRequestModelFactory)
 
         mockResultListener = mock(ResultListener::class.java) as ResultListener<Try<NotificationInboxStatus>>
         mockResetListener = mock(CompletionListener::class.java)
@@ -145,12 +148,17 @@ class InboxInternal_V1Test {
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestManager_shouldNotBeNull() {
-        InboxInternal_V1(null, requestContext)
+        InboxInternal_V1(null, requestContext, mockRequestModelFactory)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestContext_shouldNotBeNull() {
-        InboxInternal_V1(mockRequestManager, null)
+        InboxInternal_V1(mockRequestManager, null, mockRequestModelFactory)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_requestModelFactory_mustNotBeNull() {
+        InboxInternal_V1(mockRequestManager, requestContext, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -160,27 +168,19 @@ class InboxInternal_V1Test {
 
     @Test
     fun testFetchNotifications_shouldMakeRequest_viaRequestManager_submitNow() {
-        val expected = createRequestModel("https://me-inbox.eservice.emarsys.net/api/notifications", RequestMethod.GET)
-
         inbox.fetchNotifications(mockResultListener)
 
-        val requestCaptor = ArgumentCaptor.forClass(RequestModel::class.java)
-        verify(mockRequestManager).submitNow(requestCaptor.capture(), any(CoreCompletionHandler::class.java))
+        verify(mockRequestModelFactory).createFetchNotificationsRequest()
+        verify(mockRequestManager).submitNow(any(), any(CoreCompletionHandler::class.java))
 
-        val requestModel = requestCaptor.value
-
-        requestModel.id shouldNotBe null
-        requestModel.timestamp shouldNotBe null
-        requestModel.url shouldBe expected.url
-        requestModel.headers shouldBe expected.headers
-        requestModel.method shouldBe expected.method
     }
 
     @Test
     fun testFetchNotifications_listener_success() {
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         val listener = FakeInboxResultListener(latch)
@@ -196,7 +196,8 @@ class InboxInternal_V1Test {
     fun testFetchNotifications_listener_success_shouldBeCalledOnMainThread() {
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         val listener = FakeInboxResultListener(latch, Mode.MAIN_THREAD)
@@ -217,7 +218,8 @@ class InboxInternal_V1Test {
 
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         val listener = FakeInboxResultListener(latch, Mode.MAIN_THREAD)
@@ -238,7 +240,8 @@ class InboxInternal_V1Test {
         val expectedException = Exception("FakeRestClientException")
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(expectedException)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         val listener = FakeInboxResultListener(latch)
@@ -255,7 +258,8 @@ class InboxInternal_V1Test {
     fun testFetchNotifications_listener_failureWithException_shouldBeCalledOnMainThread() {
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(Exception())),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         val listener = FakeInboxResultListener(latch, Mode.MAIN_THREAD)
@@ -276,7 +280,8 @@ class InboxInternal_V1Test {
 
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         val listener = FakeInboxResultListener(latch)
@@ -306,7 +311,8 @@ class InboxInternal_V1Test {
                 .build()
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         val listener = FakeInboxResultListener(latch, Mode.MAIN_THREAD)
@@ -371,27 +377,18 @@ class InboxInternal_V1Test {
 
     @Test
     fun testResetBadgeCount_shouldMakeRequest_viaRequestManager_submitNow() {
-        val expected = createRequestModel("https://me-inbox.eservice.emarsys.net/api/reset-badge-count", RequestMethod.POST)
-
         inbox.resetBadgeCount(mockResetListener)
 
-        val requestCaptor = ArgumentCaptor.forClass(RequestModel::class.java)
-        verify<RequestManager>(mockRequestManager).submitNow(requestCaptor.capture(), any(CoreCompletionHandler::class.java))
-
-        val requestModel = requestCaptor.value
-
-        requestModel.id shouldNotBe null
-        requestModel.timestamp shouldNotBe null
-        requestModel.url shouldBe expected.url
-        requestModel.headers shouldBe expected.headers
-        requestModel.method shouldBe expected.method
+        verify(mockRequestModelFactory).createResetBadgeCountRequest()
+        verify(mockRequestManager).submitNow(any(), any(CoreCompletionHandler::class.java))
     }
 
     @Test
     fun testResetBadgeCount_listener_success() {
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         val listener = FakeResetBadgeCountResultListener(latch)
@@ -406,7 +403,8 @@ class InboxInternal_V1Test {
     fun testResetBadgeCount_listener_success_shouldBeCalledOnMainThread() {
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         val listener = FakeResetBadgeCountResultListener(latch, FakeResetBadgeCountResultListener.Mode.MAIN_THREAD)
@@ -422,7 +420,8 @@ class InboxInternal_V1Test {
         val expectedException = Exception("FakeRestClientException")
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(expectedException)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         val listener = FakeResetBadgeCountResultListener(latch)
@@ -438,7 +437,8 @@ class InboxInternal_V1Test {
     fun testResetBadgeCount_listener_failureWithException_shouldBeCalledOnMainThread() {
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(Exception())),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         val listener = FakeResetBadgeCountResultListener(latch, FakeResetBadgeCountResultListener.Mode.MAIN_THREAD)
@@ -459,7 +459,8 @@ class InboxInternal_V1Test {
 
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         val listener = FakeResetBadgeCountResultListener(latch)
@@ -489,7 +490,8 @@ class InboxInternal_V1Test {
                 .build()
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         val listener = FakeResetBadgeCountResultListener(latch, FakeResetBadgeCountResultListener.Mode.MAIN_THREAD)
@@ -555,7 +557,8 @@ class InboxInternal_V1Test {
     fun testResetBadgeCount_shouldNotFail_withNullListener_success() {
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         try {
@@ -572,7 +575,8 @@ class InboxInternal_V1Test {
         val expectedException = Exception("FakeRestClientException")
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(expectedException)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         try {
@@ -593,7 +597,8 @@ class InboxInternal_V1Test {
                 .build()
         inbox = InboxInternal_V1(
                 requestManagerWithRestClient(FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
-                requestContext
+                requestContext,
+                mockRequestModelFactory
         )
 
         try {
@@ -615,7 +620,6 @@ class InboxInternal_V1Test {
         } catch (e: Exception) {
             Assert.fail("Should not throw exception!")
         }
-
     }
 
     @Test
@@ -637,100 +641,26 @@ class InboxInternal_V1Test {
     }
 
     @Test
-    fun testTrackNotificationOpen_requestManagerCalledWithCorrectRequestModel() {
-        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
+    fun testTrackNotificationOpen() {
 
         val message = Notification("id1", "sid1", "title", null, HashMap(), JSONObject(), 7200, Date().time)
 
-        val payload = HashMap<String, Any>()
-        payload["application_id"] = APPLICATION_ID
-        payload["hardware_id"] = deviceInfo.hwid
-        payload["sid"] = "sid1"
-        payload["source"] = "inbox"
-
-        val expected = RequestModel.Builder(mockTimestampProvider, mockUuidProvider)
-                .url("https://push.eservice.emarsys.net/api/mobileengage/v2/events/message_open")
-                .payload(payload)
-                .headers(defaultHeaders)
-                .build()
-
-        val captor = ArgumentCaptor.forClass(RequestModel::class.java)
-
         inbox.trackNotificationOpen(message, null)
 
-        verify(mockRequestManager).submit(captor.capture(), isNull<CompletionListener>())
+        verify(mockRequestModelFactory).createTrackNotificationOpenRequest("sid1")
+        verify(mockRequestManager).submit(any(), isNull<CompletionListener>())
 
-        val result = captor.value
-        result.url shouldBe expected.url
-        result.method shouldBe expected.method
-        result.payload shouldBe expected.payload
     }
 
     @Test
-    fun testTrackNotificationOpen_requestManagerCalledWithCorrectCompletionListener() {
-        val message = Notification(
-                "id1",
-                "sid1",
-                "title", null,
-                HashMap(),
-                JSONObject(),
-                7200,
-                Date().time)
-
+    fun testTrackNotificationOpen_withCorrectCompletionListener() {
         val completionListener = mock(CompletionListener::class.java)
+        val message = Notification("id1", "sid1", "title", null, HashMap(), JSONObject(), 7200, Date().time)
 
         inbox.trackNotificationOpen(message, completionListener)
 
-        verify(mockRequestManager).submit(any(RequestModel::class.java), eq(completionListener))
-    }
-
-    @Test
-    @Suppress("UNCHECKED_CAST")
-    fun testTrackNotificationOpen_containsCredentials_fromRequestContext() {
-        requestContext = RequestContext(
-                APPLICATION_ID,
-                "applicationPassword",
-                3,
-                deviceInfo,
-                AppLoginStorage(application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)),
-                mock(MeIdStorage::class.java),
-                mock(MeIdSignatureStorage::class.java),
-                mockTimestampProvider,
-                mockUuidProvider,
-                mock(Storage::class.java) as Storage<String>,
-                mock(Storage::class.java) as Storage<String>,
-                mock(Storage::class.java) as Storage<String>,
-                mockContactFieldValueStorage
-        )
-        inbox = InboxInternal_V1(mockRequestManager, requestContext)
-
-        whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
-
-        val captor = ArgumentCaptor.forClass(RequestModel::class.java)
-
-        inbox.trackNotificationOpen(mock(Notification::class.java), null)
-        verify(mockRequestManager).submit(captor.capture(), isNull<CompletionListener>())
-
-        val payload = captor.value.payload
-
-        payload["contact_field_id"] shouldBe 3
-        payload["contact_field_value"] shouldBe "test@test.com"
-    }
-
-    private fun createRequestModel(path: String, method: RequestMethod): RequestModel {
-        val headers = HashMap<String, String>()
-        headers["x-ems-me-hardware-id"] = deviceInfo.hwid
-        headers["x-ems-me-application-code"] = requestContext.applicationCode
-        headers["x-ems-me-contact-field-id"] = requestContext.contactFieldId.toString()
-        headers["x-ems-me-contact-field-value"] = requestContext.contactFieldValueStorage.get()
-        headers.putAll(RequestHeaderUtils.createDefaultHeaders(requestContext))
-        headers.putAll(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
-
-        return RequestModel.Builder(mockTimestampProvider, mockUuidProvider)
-                .url(path)
-                .headers(headers)
-                .method(method)
-                .build()
+        verify(mockRequestModelFactory).createTrackNotificationOpenRequest("sid1")
+        verify(mockRequestManager).submit(any(), eq(completionListener))
     }
 
     private fun createNotificationList(): List<Notification> {

@@ -35,6 +35,7 @@ class RequestPayloadUtilsTest {
         const val EVENT_NAME = "testEventName"
         const val TIMESTAMP = 123456789L
         const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
+        const val SID = "sid"
     }
 
     private lateinit var mockDeviceInfo: DeviceInfo
@@ -384,6 +385,34 @@ class RequestPayloadUtilsTest {
         )
 
         val resultPayload = RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext)
+
+        resultPayload shouldBe expectedPayload
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateTrackNotificationOpenPayload_sid_mustNotBeNull() {
+        RequestPayloadUtils.createTrackNotificationOpenPayload(null, mockRequestContext)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testCreateTrackNotificationOpenPayload_requestContext_mustNotBeNull() {
+        RequestPayloadUtils.createTrackNotificationOpenPayload("sid", null)
+    }
+
+    @Test
+    fun testCreateTrackNotificationOpenPayload() {
+        whenever(mockContactFieldValueStorage.get()).thenReturn(CONTACT_FIELD_VALUE)
+
+        val expectedPayload = mapOf(
+                "application_id" to APPLICATION_CODE,
+                "hardware_id" to HARDWARE_ID,
+                "contact_field_id" to CONTACT_FIELD_ID,
+                "contact_field_value" to CONTACT_FIELD_VALUE,
+                "source" to "inbox",
+                "sid" to SID
+        )
+
+        val resultPayload = RequestPayloadUtils.createTrackNotificationOpenPayload(SID, mockRequestContext)
 
         resultPayload shouldBe expectedPayload
     }
