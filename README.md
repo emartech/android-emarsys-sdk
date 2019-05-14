@@ -210,7 +210,7 @@ public void onCompleted(@Nullable Throwable errorCause) {
 }
 ```
 #### 3.3 setContact
-After application setup is finished, you can use `setContact` method to identify the user with a `contactFieldValue`. Without `setContact` all event will be tracked as anonymous usage. Please note that `contactFieldValue` parameter is required but the [CompletionListener](#3.2-completionlistener) is optional
+After application setup is finished, you can use `setContact` method to identify the user with a `contactFieldValue`. Without `setContact` all event will be tracked as anonymous usage. Please note that `contactFieldValue` parameter is required but the [CompletionListener](#32-completionlistener) is optional
 
 
 ```java
@@ -221,7 +221,7 @@ Emarsys.setContact(String contactFieldValue, CompletionListener completionListen
 Emarsys.setContact(contactFieldValue: String, completionListener:CompletionListener? = null)
 ```
 #### 3.4 clearContact
-When the user sign out, we should use the `clearContact` method with the [CompletionListener](#3.2-completionlistener) which is optional. The method is going to automatically log in an anonymous user instead of the one leaving. 
+When the user sign out, we should use the `clearContact` method with the [CompletionListener](#32-completionlistener) which is optional. The method is going to automatically log in an anonymous user instead of the one leaving. 
 
 ```
 Emarsys.clearContact(CompletionListener completionListener);
@@ -230,7 +230,7 @@ Emarsys.clearContact(CompletionListener completionListener);
 Emarsys.clearContact(completionListener:CompletionListener? = null)
 ```
 #### 3.5 trackCustomEvent
-If you want to track custom events, the `trackCustomEvent` method should be used, where the `eventName` parameter is required, but the `attributes` and the [CompletionListener](#3.2-completionlistener) are optional.
+If you want to track custom events, the `trackCustomEvent` method should be used, where the `eventName` parameter is required, but the `attributes` and the [CompletionListener](#32-completionlistener) are optional.
 
 ```java
 Emarsys.trackCustomEvent(String eventName, Map<String,String> attributes, CompletionListener completionListener);
@@ -242,7 +242,7 @@ Emarsys.trackCustomEvent(eventName: String, attributes: Map<String, String>?, co
 ### 4. Push
 
 #### 4.1 setPushToken
-Emarsys SDK automatically handles `setPushToken` for the device and it is recommended to leave this to the SDK. However if you have your custom implementation of [MessagingService](#2.2-firebase), please use `setPushToken()` method where [CompletionListener](#3.2-completionlistener) parameter is optional, to set the `pushToken`.
+Emarsys SDK automatically handles `setPushToken` for the device and it is recommended to leave this to the SDK. However if you have your custom implementation of [MessagingService](#22-firebase), please use `setPushToken()` method where [CompletionListener](#32-completionlistener) parameter is optional, to set the `pushToken`.
 
 ```java
 Emarsys.Push.setPushToken(String pushToken,CompletionListener completionListener);
@@ -252,7 +252,7 @@ Emarsys.Push.setPushToken(pushToken:String, completionListener:CompletionListene
 ```
 
 #### 4.2 clearPushToken
-If you want to remove `pushToken` for the Contact, please use `clearPushToken()` method where [CompletionListener](#3.2-completionlistener) parameter is optional
+If you want to remove `pushToken` for the Contact, please use `clearPushToken()` method where [CompletionListener](#32-completionlistener) parameter is optional
 
 ```java
 Emarsys.Push.removePushToken(CompletionListener completionListener);
@@ -262,7 +262,7 @@ Emarsys.Push.removePushToken(completionListener:CompletionListener? = null)
 ```
 
 #### 4.3 trackMessageOpen
-Emasrys SDK automatically handles whether the push messages have been opened, however if you want to track it manually the `trackMessageOpen` method should be used, where the `intent` parameter is required but the [CompletionListener](#3.2-completionlistener) is optional
+Emasrys SDK automatically handles whether the push messages have been opened, however if you want to track it manually the `trackMessageOpen` method should be used, where the `intent` parameter is required but the [CompletionListener](#32-completionlistener) is optional
 
 ```java
 Emarsys.Push.trackMessageOpen(Intent intent, CompletionListener completionListener);
@@ -305,7 +305,7 @@ Emarsys.Inbox.fetchNotifications(new ResultListener<Try<NotificationInboxStatus>
 ```
 #### 5.2 resetBadgeCount
 
-When your user opened the application inbox you might want to reset the unread count (badge). To do so you can use the `resetBadgeCount` method with an optional [CompletionListener](#3.2-completionlistener).
+When your user opened the application inbox you might want to reset the unread count (badge). To do so you can use the `resetBadgeCount` method with an optional [CompletionListener](#32-completionlistener).
 
 ```java
 Emarsys.Inbox.resetBadgeCount(CompletionListener completionListener);
@@ -315,7 +315,7 @@ Emarsys.Inbox.resetBadgeCount(completionListener:CompletionListener? = null)
 ```
 #### 5.3 trackNotificationOpen
 
-To track the notification opens in inbox, use the following `trackNotificationOpen` method Where the `notification` that's being viewed is required but the [CompletionListener](#3.2-completionlistener) is optional.
+To track the notification opens in inbox, use the following `trackNotificationOpen` method Where the `notification` that's being viewed is required but the [CompletionListener](#32-completionlistener) is optional.
 
 ```java
 Emarsys.Inbox.trackNotificationOpen(Notification notification, CompletionListener completionListener);
@@ -425,7 +425,7 @@ Emarsys.Predict.trackSearchTerm(searchTerm: String)
 
 #### 7.7 trackCustomEvent
 
-When we want to track custom events, we should use the `trackCustomEvent` method, where, the `eventName` parameter is required, but the `attributes` and [CompletionListener](#3.2-completionlistener) are optional.
+When we want to track custom events, we should use the `trackCustomEvent` method, where, the `eventName` parameter is required, but the `attributes` and [CompletionListener](#32-completionlistener) are optional.
 
 ```java
 Emarsys.trackCustomEvent(String eventName, Map<String,String> attributes,CompletionListener completionListener);
