@@ -91,6 +91,7 @@ The recommended way of using the SDK is to enable the Emarsys SDK to automatical
     </intent-filter>
 </service>
 ```
+
 Additionally, you can set a custom notification icon, by specifying it as a meta-data between your application tag:
 
 ```xml
@@ -98,9 +99,10 @@ Additionally, you can set a custom notification icon, by specifying it as a meta
 android:name="com.emarsys.small_notification_icon"
 android:resource="@drawable/notification_icon" />
 ```
+
 If it is needed, you can add your custom implementation to handle `setPushToken` and `trackMessageOpen`.
 
-###### java
+###### Java
 ```java
 public class MyMessagingService extends FirebaseMessagingService {
 
@@ -126,7 +128,7 @@ public class MyMessagingService extends FirebaseMessagingService {
 }
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 class MyMessagingService : FirebaseMessagingService() {
 
@@ -152,7 +154,7 @@ class MyMessagingService : FirebaseMessagingService() {
 #### 3.1 Initialization
 To configure the SDK, we should do the following in the `onCreate` method in the application class:
 
-###### java
+###### Java
 ```java
 public class SampleApplication extends Application {
 
@@ -175,7 +177,7 @@ super.onCreate();
 }
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 class SampleApplication: Application() {
 
@@ -198,7 +200,7 @@ class SampleApplication: Application() {
 Most calls can receive a `completionListener` as parameter, that we could use to track our calls. The `CompletionListener` defines one
 method:
 
-###### java
+###### Java
 ```java
 @Override
 public void onCompleted(@Nullable Throwable errorCause) {
@@ -211,11 +213,11 @@ public void onCompleted(@Nullable Throwable errorCause) {
 #### 3.3 setContact
 After application setup is finished, you can use `setContact` method to identify the user with a `contactFieldValue`. Without `setContact` all event will be tracked as anonymous usage. Please note that `contactFieldValue` parameter is required but the [CompletionListener](#32-completionlistener) is optional
 
-###### java
+###### Java
 ```java
 Emarsys.setContact(String contactFieldValue, CompletionListener completionListener);
 ```
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.setContact(contactFieldValue: String, completionListener: CompletionListener? = null)
 ```
@@ -223,12 +225,12 @@ Emarsys.setContact(contactFieldValue: String, completionListener: CompletionList
 #### 3.4 clearContact
 When the user sign out, we should use the `clearContact` method with the [CompletionListener](#32-completionlistener) which is optional. The method is going to automatically log in an anonymous user instead of the one leaving. 
 
-###### java
+###### Java
 ```java
 Emarsys.clearContact(CompletionListener completionListener);
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.clearContact(completionListener: CompletionListener? = null)
 ```
@@ -236,11 +238,11 @@ Emarsys.clearContact(completionListener: CompletionListener? = null)
 #### 3.5 trackCustomEvent
 If you want to track custom events, the `trackCustomEvent` method should be used, where the `eventName` parameter is required, but the `attributes` and the [CompletionListener](#32-completionlistener) are optional.
 
-###### java
+###### Java
 ```java
 Emarsys.trackCustomEvent(String eventName, Map<String,String> attributes, CompletionListener completionListener);
 ```
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.trackCustomEvent(eventName: String, attributes: Map<String, String>?, completionListener: CompletionListener? = null)
 ```
@@ -250,12 +252,12 @@ Emarsys.trackCustomEvent(eventName: String, attributes: Map<String, String>?, co
 #### 4.1 setPushToken
 Emarsys SDK automatically handles `setPushToken` for the device and it is recommended to leave this to the SDK. However if you have your custom implementation of [MessagingService](#22-firebase), please use `setPushToken()` method where [CompletionListener](#32-completionlistener) parameter is optional, to set the `pushToken`.
 
-###### java
+###### Java
 ```java
 Emarsys.Push.setPushToken(String pushToken,CompletionListener completionListener);
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.Push.setPushToken(pushToken:String, completionListener: CompletionListener? = null)
 ```
@@ -263,12 +265,12 @@ Emarsys.Push.setPushToken(pushToken:String, completionListener: CompletionListen
 #### 4.2 clearPushToken
 If you want to remove `pushToken` for the Contact, please use `clearPushToken()` method where [CompletionListener](#32-completionlistener) parameter is optional
 
-###### java
+###### Java
 ```java
 Emarsys.Push.removePushToken(CompletionListener completionListener);
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.Push.removePushToken(completionListener: CompletionListener? = null)
 ```
@@ -276,12 +278,12 @@ Emarsys.Push.removePushToken(completionListener: CompletionListener? = null)
 #### 4.3 trackMessageOpen
 Emasrys SDK automatically handles whether the push messages have been opened, however if you want to track it manually the `trackMessageOpen` method should be used, where the `intent` parameter is required but the [CompletionListener](#32-completionlistener) is optional
 
-###### java
+###### Java
 ```java
 Emarsys.Push.trackMessageOpen(Intent intent, CompletionListener completionListener);
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.Push.trackMessageOpen(intent: Intent, completionListener: CompletionListener? = null)
 ```
@@ -291,7 +293,7 @@ Emarsys.Push.trackMessageOpen(intent: Intent, completionListener: CompletionList
 #### 5.1 fetchNotifications
 In order to receive the inbox content, you can use the `fetchNotifications` method.
 
-###### java
+###### Java
 ```java
 Emarsys.Inbox.fetchNotifications(new ResultListener<Try<NotificationInboxStatus>>() {
     @Override
@@ -309,7 +311,7 @@ Emarsys.Inbox.fetchNotifications(new ResultListener<Try<NotificationInboxStatus>
 });
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin 
     Emarsys.Inbox.fetchNotifications { result ->
         result.result?.let { inboxStatus ->
@@ -325,12 +327,12 @@ Emarsys.Inbox.fetchNotifications(new ResultListener<Try<NotificationInboxStatus>
 
 When your user opened the application inbox you might want to reset the unread count (badge). To do so you can use the `resetBadgeCount` method with an optional [CompletionListener](#32-completionlistener).
 
-###### java
+###### Java
 ```java
 Emarsys.Inbox.resetBadgeCount(CompletionListener completionListener);
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.Inbox.resetBadgeCount(completionListener: CompletionListener? = null)
 ```
@@ -339,12 +341,12 @@ Emarsys.Inbox.resetBadgeCount(completionListener: CompletionListener? = null)
 
 To track the notification opens in inbox, use the following `trackNotificationOpen` method Where the `notification` that's being viewed is required but the [CompletionListener](#32-completionlistener) is optional.
 
-###### java
+###### Java
 ```java
 Emarsys.Inbox.trackNotificationOpen(Notification notification, CompletionListener completionListener);
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.Inbox.trackNotificationOpen(notification: Notification, completionListener: CompletionListener? = null)
 ```
@@ -353,12 +355,12 @@ Emarsys.Inbox.trackNotificationOpen(notification: Notification, completionListen
 #### 6.1 pause
 When a critical activity starts and should not be interrupted by InApp, use `pause` to pause InApp messages.
 
-###### java
+###### Java
 ```java
 Emarsys.InApp.pause();
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.InApp.pause()
 ```
@@ -367,12 +369,12 @@ Emarsys.InApp.pause()
 
 In order to show inApp messages after being paused use the `resume` method.
 
-###### java
+###### Java
 ```java
 Emarsys.InApp.resume();
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.InApp.resume()
 ```
@@ -381,7 +383,7 @@ Emarsys.InApp.resume()
 
 In order to get an event, triggered from the InApp message, you can register for it using the `setEventHandler` method.
 
-###### java
+###### Java
 ```java
 Emarsys.InApp.setEventHandler(EventHandler() {
     
@@ -392,7 +394,7 @@ Emarsys.InApp.setEventHandler(EventHandler() {
 });
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.InApp.setEventHandler { eventName, payload -> ...}
 ```
@@ -412,12 +414,12 @@ In order to track Predict events you can use the methods available on our Predic
 When you want to track the cart items in the basket you can call the `trackCart` method with a list of CartItems. `CartItem` is an interface
 which can be used in your application for your own CartItems and then simply use the same items with the SDK.
 
-###### java
+###### Java
 ```java
 Emarsys.Predict.trackCart(List<CartItem> items);
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.Predict.trackCart(items: List<CartItem>)
 ```
@@ -426,12 +428,12 @@ Emarsys.Predict.trackCart(items: List<CartItem>)
 
 To report a purchase event you should call `trackPurchase` with the items purchased and with an `orderId`.
 
-###### java
+###### Java
 ```java
 Emarsys.Predict.trackPurchase(String orderId, List<CartItem> items);
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.Predict.trackPurchase(orderId: String, items: List<CartItem>)
 ```
@@ -440,12 +442,12 @@ Emarsys.Predict.trackPurchase(orderId: String, items: List<CartItem>)
 
 If an item was viewed use the `trackItemView` method with an `itemId` as required parameter
 
-###### java
+###### Java
 ```java
 Emarsys.Predict.trackItemView(String itemId);
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.Predict.trackItemView(itemId: String)
 ```
@@ -455,12 +457,12 @@ Emarsys.Predict.trackItemView(itemId: String)
 When the user navigates between the categories you should call `trackCategoryView` in every navigation. Be aware to send `categoryPath`
 in the required format. Please visit [Predict's documentation]((https://dev.emarsys.com/v2/web-extend-command-reference) "Predict documentation") for more information .
 
-###### java
+###### Java
 ```java
 Emarsys.Predict.trackCategoryView(String categoryPath)
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.Predict.trackCategoryView(categoryPath: String)
 ```
@@ -469,12 +471,12 @@ Emarsys.Predict.trackCategoryView(categoryPath: String)
 
 To report search terms entered by the contact use `trackSearchTerm` method.
 
-###### java
+###### Java
 ```java
 Emarsys.Predict.trackSearchTerm(String searchTerm)
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.Predict.trackSearchTerm(searchTerm: String)
 ```
@@ -483,12 +485,12 @@ Emarsys.Predict.trackSearchTerm(searchTerm: String)
 
 When we want to track custom events, we should use the `trackCustomEvent` method, where, the `eventName` parameter is required, but the `attributes` and [CompletionListener](#32-completionlistener) are optional.
 
-###### java
+###### Java
 ```java
 Emarsys.trackCustomEvent(String eventName, Map<String,String> attributes,CompletionListener completionListener);
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 Emarsys.trackCustomEvent(eventName: String, attributes: Map<String,String>?, completionListener: CompletionListener? = null)
 ```
@@ -497,7 +499,7 @@ Emarsys.trackCustomEvent(eventName: String, attributes: Map<String,String>?, com
 #### 8.1 Handle DeepLinks
 Emasrys SDK automatically handles deep link tracking with most use cases, with only one exception: manual tracking is needed when your Activity has onNewIntent overriden. In that case, you can track the deep link using the `trackDeepLink` method like below:
 
-###### java
+###### Java
 ```java
 @Override
 protected void onNewIntent(Intent intent) {
@@ -512,7 +514,7 @@ protected void onNewIntent(Intent intent) {
 }
 ```
 
-###### kotlin
+###### Kotlin
 ```kotlin
 override fun onNewIntent(intent:Intent) {
     super.onNewIntent(intent)
