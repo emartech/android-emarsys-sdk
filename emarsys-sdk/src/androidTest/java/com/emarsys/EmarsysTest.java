@@ -864,13 +864,6 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testInbox_purgeNotificationCache_delegatesTo_inboxInternal() {
-        Emarsys.Inbox.purgeNotificationCache();
-
-        verify(mockInboxInternal).purgeNotificationCache();
-    }
-
-    @Test
     public void testInApp_pause_delegatesToInternal() {
         Emarsys.InApp.pause();
 
