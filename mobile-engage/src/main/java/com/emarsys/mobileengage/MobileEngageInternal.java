@@ -9,7 +9,7 @@ import java.util.Map;
 public interface MobileEngageInternal extends MobileEngageClientInternal {
     void setPushToken(String pushToken, CompletionListener completionListener);
 
-    void removePushToken(CompletionListener completionListener);
+    void clearPushToken(CompletionListener completionListener);
 
     void setContact(String contactFieldValue, CompletionListener completionListener);
 

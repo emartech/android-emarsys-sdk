@@ -221,7 +221,7 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testRemovePushToken() {
-        Emarsys.Push.removePushToken(
+        Emarsys.Push.clearPushToken(
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
     }

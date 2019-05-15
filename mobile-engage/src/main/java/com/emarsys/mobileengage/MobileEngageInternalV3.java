@@ -52,7 +52,7 @@ public class MobileEngageInternalV3 implements MobileEngageInternal {
     }
 
     @Override
-    public void removePushToken(CompletionListener completionListener) {
+    public void clearPushToken(CompletionListener completionListener) {
         RequestModel requestModel = requestModelFactory.createRemovePushTokenRequest();
 
         requestManager.submit(requestModel, completionListener);

@@ -180,14 +180,14 @@ class MobileEngageInternalV3Test {
 
     @Test
     fun testRemovePushToken() {
-        mobileEngageInternal.removePushToken(mockCompletionListener)
+        mobileEngageInternal.clearPushToken(mockCompletionListener)
 
         verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
     }
 
     @Test
     fun testRemovePushToken_completionListener_canBeNull() {
-        mobileEngageInternal.removePushToken(null)
+        mobileEngageInternal.clearPushToken(null)
 
         verify(mockRequestManager).submit(mockRequestModel, null)
     }

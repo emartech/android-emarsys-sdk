@@ -52,7 +52,6 @@ public class Emarsys {
 
         registerDatabaseTriggers(config);
 
-
         initializeContact();
     }
 
@@ -216,22 +215,22 @@ public class Emarsys {
             });
         }
 
-        public static void removePushToken() {
+        public static void clearPushToken() {
             getRunnerProxy().logException(new Runnable() {
                 @Override
                 public void run() {
-                    getMobileEngageInternal().removePushToken(null);
+                    getMobileEngageInternal().clearPushToken(null);
                 }
             });
         }
 
-        public static void removePushToken(final CompletionListener completionListener) {
+        public static void clearPushToken(final CompletionListener completionListener) {
             getRunnerProxy().logException(new Runnable() {
                 @Override
                 public void run() {
                     Assert.notNull(completionListener, "CompletionListener must not be null!");
 
-                    getMobileEngageInternal().removePushToken(completionListener);
+                    getMobileEngageInternal().clearPushToken(completionListener);
                 }
             });
         }

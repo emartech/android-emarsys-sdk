@@ -675,21 +675,21 @@ public class EmarsysTest {
 
     @Test
     public void testPush_removePushToken_delegatesTo_mobileEngageInternal() {
-        Emarsys.Push.removePushToken();
+        Emarsys.Push.clearPushToken();
 
-        verify(mockMobileEngageInternal).removePushToken(null);
+        verify(mockMobileEngageInternal).clearPushToken(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPush_removePushTokenWithCompletionListener_completionListener_mustNotBeNull() {
-        Emarsys.Push.removePushToken(null);
+        Emarsys.Push.clearPushToken(null);
     }
 
     @Test
     public void testPush_removePushTokenWithCompletionListener_delegatesTo_mobileEngageInternal() {
-        Emarsys.Push.removePushToken(completionListener);
+        Emarsys.Push.clearPushToken(completionListener);
 
-        verify(mockMobileEngageInternal).removePushToken(completionListener);
+        verify(mockMobileEngageInternal).clearPushToken(completionListener);
     }
 
     @Test(expected = IllegalArgumentException.class)
