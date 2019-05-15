@@ -1,6 +1,6 @@
 # PILOT VERSION
 
-This SDK is still in Pilot phase, please do not use!
+This SDK is still in Pilot phase, please only use if you have a pilot agreement contract in place!
 
 If you are looking for our recommended SDK then please head to [Mobile Engage SDK](https://github.com/emartech/android-mobile-engage-sdk "Mobile Engage SDK")
 
@@ -12,22 +12,15 @@ logouts in the app.
 The Emarsys SDK is open sourced to enhance transparency and to remove privacy concerns. This also means that you can always
 be up-to-date with what we are working on.
 
-Using the SDK is also beneficial from the product aspect: it simply makes it much easier to send push messages through your app.
-You do not have to follow and implement changes in our API calls, endpoints and parameters: we do it for you in the SDK. Your only
-task is to use the latest version of the SDK in your app and we take care of everything else.
+Using the SDK is also beneficial from the product aspect: it simply makes it much easier to send push messages through your app. Please always use the latest version of the SDK in your app.
 
 ## Why Emarsys SDK over Mobile Engage SDK?
 
-We learned a lot from running Mobile Engage SDK in the past 2 years and managed to implement
-many solutions to the challenges customers were facing in the Emarsys SDK.
+We learned a lot from running Mobile Engage SDK in the past 2 years and managed to apply these learnings and feedbacks in our new SDK.
 
-##### The workflow for linking a contact to a device was sensitive to race conditions:
+##### The workflow for linking/unlinking a contact to a device was too complex:
 
-* We have automated the anonymous contact creation and linking in a more sensitive way that is race condition proof
-
-##### The workflow for setting the push token in our backend was sensitive to race conditions
-
-* The new workflow cannot accidentally reset the push token even when the network is causing problems
+* We removed anonymous contacts from our API. This way you can always send behaviour events, opens without having the complexity to login first with an identified contact or use hard-to-understand anonymous contact concept.
 
 ##### The API was stateful and limited our scalability
 
@@ -62,7 +55,7 @@ To integrate EmarsysSDK into your Android project using Gradle, specify it in yo
 
 ```groovy
 dependencies {
-	implement 'com.emarsys:emarsys-sdk:2.0.0'
+	implementation 'com.emarsys:emarsys-sdk:2.0.0'
 }
 ```
 
@@ -197,6 +190,7 @@ class SampleApplication: Application() {
     }
 }
 ```
+
 #### 3.2 CompletionListener
 Most calls can receive a `completionListener` as parameter, that we could use to track our calls. The `CompletionListener` defines one
 method:
@@ -209,26 +203,28 @@ public void onCompleted(@Nullable Throwable errorCause) {
     }
 }
 ```
+
 #### 3.3 setContact
 After application setup is finished, you can use `setContact` method to identify the user with a `contactFieldValue`. Without `setContact` all event will be tracked as anonymous usage. Please note that `contactFieldValue` parameter is required but the [CompletionListener](#32-completionlistener) is optional
-
 
 ```java
 Emarsys.setContact(String contactFieldValue, CompletionListener completionListener);
 ```
 
 ```kotlin
-Emarsys.setContact(contactFieldValue: String, completionListener:CompletionListener? = null)
+Emarsys.setContact(contactFieldValue: String, completionListener: CompletionListener? = null)
 ```
+
 #### 3.4 clearContact
 When the user sign out, we should use the `clearContact` method with the [CompletionListener](#32-completionlistener) which is optional. The method is going to automatically log in an anonymous user instead of the one leaving. 
 
-```
+```java
 Emarsys.clearContact(CompletionListener completionListener);
 ```
+```kotlin
+Emarsys.clearContact(completionListener: CompletionListener? = null)
 ```
-Emarsys.clearContact(completionListener:CompletionListener? = null)
-```
+
 #### 3.5 trackCustomEvent
 If you want to track custom events, the `trackCustomEvent` method should be used, where the `eventName` parameter is required, but the `attributes` and the [CompletionListener](#32-completionlistener) are optional.
 
@@ -248,7 +244,7 @@ Emarsys SDK automatically handles `setPushToken` for the device and it is recomm
 Emarsys.Push.setPushToken(String pushToken,CompletionListener completionListener);
 ```
 ```kotlin
-Emarsys.Push.setPushToken(pushToken:String, completionListener:CompletionListener? = null)
+Emarsys.Push.setPushToken(pushToken:String, completionListener: CompletionListener? = null)
 ```
 
 #### 4.2 clearPushToken
@@ -258,7 +254,7 @@ If you want to remove `pushToken` for the Contact, please use `clearPushToken()`
 Emarsys.Push.removePushToken(CompletionListener completionListener);
 ```
 ```kotlin
-Emarsys.Push.removePushToken(completionListener:CompletionListener? = null)
+Emarsys.Push.removePushToken(completionListener: CompletionListener? = null)
 ```
 
 #### 4.3 trackMessageOpen
@@ -268,7 +264,7 @@ Emasrys SDK automatically handles whether the push messages have been opened, ho
 Emarsys.Push.trackMessageOpen(Intent intent, CompletionListener completionListener);
 ```
 ```kotlin
-Emarsys.Push.trackMessageOpen(intent: Intent, completionListener:CompletionListener? = null)
+Emarsys.Push.trackMessageOpen(intent: Intent, completionListener: CompletionListener? = null)
 ```
 
 ### 5. Inbox
@@ -303,6 +299,7 @@ Emarsys.Inbox.fetchNotifications(new ResultListener<Try<NotificationInboxStatus>
         }
     }
 ```
+
 #### 5.2 resetBadgeCount
 
 When your user opened the application inbox you might want to reset the unread count (badge). To do so you can use the `resetBadgeCount` method with an optional [CompletionListener](#32-completionlistener).
@@ -311,8 +308,9 @@ When your user opened the application inbox you might want to reset the unread c
 Emarsys.Inbox.resetBadgeCount(CompletionListener completionListener);
 ```
 ```kotlin
-Emarsys.Inbox.resetBadgeCount(completionListener:CompletionListener? = null)
+Emarsys.Inbox.resetBadgeCount(completionListener: CompletionListener? = null)
 ```
+
 #### 5.3 trackNotificationOpen
 
 To track the notification opens in inbox, use the following `trackNotificationOpen` method Where the `notification` that's being viewed is required but the [CompletionListener](#32-completionlistener) is optional.
@@ -321,8 +319,9 @@ To track the notification opens in inbox, use the following `trackNotificationOp
 Emarsys.Inbox.trackNotificationOpen(Notification notification, CompletionListener completionListener);
 ```
 ```kotlin
-Emarsys.Inbox.trackNotificationOpen(notification:Notification, completionListener:CompletionListener? = null)
+Emarsys.Inbox.trackNotificationOpen(notification: Notification, completionListener: CompletionListener? = null)
 ```
+
 ### 6. InApp
 #### 6.1 pause
 When a critical activity starts and should not be interrupted by InApp, use `pause` to pause InApp messages.
@@ -333,6 +332,7 @@ Emarsys.InApp.pause();
 ```kotlin
 Emarsys.InApp.pause()
 ```
+
 #### 6.2 resume
 
 In order to show inApp messages after being paused use the `resume` method.
@@ -343,6 +343,7 @@ Emarsys.InApp.resume();
 ```kotlin
 Emarsys.InApp.resume();
 ```
+
 #### 6.3 setEventHandler
 
 In order to get an event, triggered from the InApp message, you can register for it using the `setEventHandler` method.
@@ -359,6 +360,7 @@ Emarsys.InApp.setEventHandler(EventHandler() {
 ```kotlin
 Emarsys.InApp.setEventHandler { eventName, payload -> ...}
 ```
+
 ### 7. Predict
 > Please be informed that Predict is not available with the current version of the Emarsys SDK
 
@@ -380,6 +382,7 @@ Emarsys.Predict.trackCart(List<CartItem> items);
 ```kotlin
 Emarsys.Predict.trackCart(items: List<CartItem>)
 ```
+
 #### 7.3 trackPurchase
 
 To report a purchase event you should call `trackPurchase` with the items purchased and with an `orderId`.
@@ -390,6 +393,7 @@ Emarsys.Predict.trackPurchase(String orderId, List<CartItem> items);
 ```kotlin
 Emarsys.Predict.trackPurchase(orderId: String, items: List<CartItem>)
 ```
+
 #### 7.4 trackItemView
 
 If an item was viewed use the `trackItemView` method with an `itemId` as required parameter
@@ -400,6 +404,7 @@ Emarsys.Predict.trackItemView(String itemId);
 ```kotlin
 Emarsys.Predict.trackItemView(itemId: String)
 ```
+
 #### 7.5 trackCategoryView
 
 When the user navigates between the categories you should call `trackCategoryView` in every navigation. Be aware to send `categoryPath`
@@ -457,3 +462,49 @@ override fun onNewIntent(intent:Intent) {
     Emarsys.trackDeepLink(this, intent) {throwable -> ...}
 }
 ```
+
+# FAQ
+
+#### The Firebase dependencies are outdated in the Emarsys SDK.  When will you release a new version with up-to-date dependencies?
+
+We are trying our best to keep our dependencies up-to-date by periodically releasing new SDK versions with updated dependency versions.
+
+If it is urgent and you cannot wait till the new release, you can manually exclude the transitive dependencies in your module level gradle file and add the Firebase dependencies manually.
+
+You should replace the + signs with the most recent concrete versions.
+
+```groovy
+dependencies {
+    implementation('com.emarsys:emarsys-sdk:+', {
+        exclude group: 'com.google.firebase', module: 'firebase-core'
+        exclude group: 'com.google.firebase', module: 'firebase-messaging'
+    })
+ 
+    implementation 'com.google.firebase:firebase-core:+'
+    implementation 'com.google.firebase:firebase-messaging:+'
+ }
+```
+
+#### The default `EmarsysMessagingService` that ships with the Emarsys SDK does not suite our requirements, we need extra features. How can these features be included in the service?
+
+The main purpose of the default FCM services in the SDK is to provide an implementation that works for you out of the box when integrating the SDK. We try to keep the services generic so that they suite the default use cases of our customers. If you have special requirements, we suggest you to implement your own Firebase services based on our default implementation. When implementing your own FCM service, make sure to handle messageOpens correctly.
+
+
+#### I get a 'Could not find firebase-core' error in gradle when trying to integrate the SDK.
+
+This is not a Emarsys, but a Firebase issue, consult the Firebase [documentation](https://firebase.google.com/docs/cloud-messaging/android/client "FCM Documentation") to solve the problem.
+
+
+#### Push messages don't arrive to the device
+
+Did you download `google-services.json`? If not please follow the Firebase [documentation](https://firebase.google.com/docs/cloud-messaging/android/client "FCM Documentation") to setup your app with firebase first.
+Make sure the connection to Firebase is not limited by company firewall rules.
+Make sure you see push tokens in your SDK Logs inside Mobile Engage UI
+
+
+#### Missing Push tokens
+Make sure you registered our `EmarsysMessagingService` in your `AndroidManifest.xml`.
+
+
+#### Missing messageOpen events
+Make sure you registered our `EmarsysMessagingService` in your `AndroidManifest.xml`.
