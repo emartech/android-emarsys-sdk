@@ -294,15 +294,6 @@ public class Emarsys {
                 }
             });
         }
-
-        public static void purgeNotificationCache() {
-            getRunnerProxy().logException(new Runnable() {
-                @Override
-                public void run() {
-                    getInboxInternal().purgeNotificationCache();
-                }
-            });
-        }
     }
 
     public static class InApp {

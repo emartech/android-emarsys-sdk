@@ -108,10 +108,6 @@ public class InboxInternal_V1 implements InboxInternal {
         manager.submit(model, completionListener);
     }
 
-    @Override
-    public void purgeNotificationCache() {
-    }
-
     private void handleResetRequest(final CompletionListener resultListener) {
         RequestModel model = requestModelFactory.createResetBadgeCountRequest();
 
