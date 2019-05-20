@@ -10,6 +10,7 @@ import android.util.DisplayMetrics;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.util.Assert;
+import com.emarsys.core.util.SystemUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -29,6 +30,7 @@ public class DeviceInfo {
     private final DisplayMetrics displayMetrics;
     private final boolean isDebugMode;
     private final String sdkVersion;
+    private boolean kotlinEnabled;
 
     public DeviceInfo(Context context, HardwareIdProvider hardwareIdProvider, VersionProvider versionProvider, LanguageProvider languageProvider) {
         Assert.notNull(context, "Context must not be null!");
@@ -57,6 +59,8 @@ public class DeviceInfo {
         this.isDebugMode = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
 
         this.sdkVersion = versionProvider.provideSdkVersion();
+
+        this.kotlinEnabled = SystemUtils.isKotlinEnabled();
     }
 
     private String getApplicationVersion(Context context) {
@@ -119,6 +123,10 @@ public class DeviceInfo {
         return hashCode();
     }
 
+    public boolean isKotlinEnabled() {
+        return kotlinEnabled;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -127,6 +135,7 @@ public class DeviceInfo {
         DeviceInfo that = (DeviceInfo) o;
 
         if (isDebugMode != that.isDebugMode) return false;
+        if (kotlinEnabled != that.kotlinEnabled) return false;
         if (hwid != null ? !hwid.equals(that.hwid) : that.hwid != null) return false;
         if (platform != null ? !platform.equals(that.platform) : that.platform != null)
             return false;
@@ -159,6 +168,7 @@ public class DeviceInfo {
         result = 31 * result + (displayMetrics != null ? displayMetrics.hashCode() : 0);
         result = 31 * result + (isDebugMode ? 1 : 0);
         result = 31 * result + (sdkVersion != null ? sdkVersion.hashCode() : 0);
+        result = 31 * result + (kotlinEnabled ? 1 : 0);
         return result;
     }
 }

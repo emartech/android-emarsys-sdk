@@ -143,7 +143,8 @@ class LogShardListMergerTest {
                 "os_version" to "8.0",
                 "model" to "Pixel",
                 "hw_id" to "hardwareId",
-                "application_code" to "applicationCode"
+                "application_code" to "applicationCode",
+                "kotlin_enabled" to "false"
         )
     }
 
