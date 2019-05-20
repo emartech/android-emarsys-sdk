@@ -31,7 +31,7 @@ class CrashLogTest {
     fun testGetData() {
         val result = crashLog.data
         val expected = mapOf(
-                "type" to exception::class.java.name,
+                "exception" to exception::class.java.name,
                 "reason" to exception.message,
                 "stack_trace" to exception.stackTrace.map(StackTraceElement::toString)
         )

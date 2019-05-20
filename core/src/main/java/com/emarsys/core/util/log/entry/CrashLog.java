@@ -12,7 +12,7 @@ public class CrashLog implements LogEntry {
     public CrashLog(Throwable throwable) {
         data = new HashMap<>();
         if (throwable != null) {
-            data.put("type", throwable.getClass().getName());
+            data.put("exception", throwable.getClass().getName());
             data.put("reason", throwable.getMessage());
             data.put("stack_trace", getStackTrace(throwable));
         }
