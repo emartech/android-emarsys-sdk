@@ -9,6 +9,7 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.emarsys.core.util.Assert;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationManagerProxy {
@@ -32,7 +33,17 @@ public class NotificationManagerProxy {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public List<NotificationChannel> getNotificationChannels() {
-        return notificationManager.getNotificationChannels();
+    public List<ChannelSettings> getNotificationChannels() {
+        List<ChannelSettings> channelSettings = new ArrayList<>();
+
+        for (NotificationChannel notificationChannel : notificationManager.getNotificationChannels()) {
+            channelSettings.add(new ChannelSettings(notificationChannel.getId(),
+                    notificationChannel.getImportance(),
+                    notificationChannel.canBypassDnd(),
+                    notificationChannel.canShowBadge(),
+                    notificationChannel.shouldVibrate(),
+                    notificationChannel.shouldShowLights()));
+        }
+        return channelSettings;
     }
 }

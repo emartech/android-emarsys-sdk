@@ -1,13 +1,11 @@
 package com.emarsys.core.notification;
 
-import android.app.NotificationChannel;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
 import com.emarsys.core.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationManagerHelper implements NotificationSettings {
@@ -33,16 +31,6 @@ public class NotificationManagerHelper implements NotificationSettings {
     @Override
     @RequiresApi(api = Build.VERSION_CODES.O)
     public List<ChannelSettings> getChannelSettings() {
-        List<NotificationChannel> notificationChannels = notificationManagerProxy.getNotificationChannels();
-        List<ChannelSettings> channelSettings = new ArrayList<>();
-        for (NotificationChannel notificationChannel : notificationChannels) {
-            channelSettings.add(new ChannelSettings(notificationChannel.getId(),
-                    notificationChannel.getImportance(),
-                    notificationChannel.canBypassDnd(),
-                    notificationChannel.canShowBadge(),
-                    notificationChannel.shouldVibrate(),
-                    notificationChannel.shouldShowLights()));
-        }
-        return channelSettings;
+        return notificationManagerProxy.getNotificationChannels();
     }
 }

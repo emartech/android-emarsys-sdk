@@ -1,6 +1,5 @@
 package com.emarsys.core.notification
 
-import android.app.NotificationChannel
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -15,8 +14,6 @@ class NotificationManagerHelperTest {
     private companion object {
         const val CHANNEL_ID_1 = "channelId1"
         const val CHANNEL_ID_2 = "channelId2"
-        const val CHANNEL_NAME_1 = "channelName1"
-        const val CHANNEL_NAME_2 = "channelName2"
         const val IMPORTANCE = 1
     }
 
@@ -66,25 +63,28 @@ class NotificationManagerHelperTest {
                 ChannelSettings(CHANNEL_ID_1, IMPORTANCE, true, true, true, true),
                 ChannelSettings(CHANNEL_ID_2, IMPORTANCE, false, true, false, true))
 
-        val notificationChannel1 = NotificationChannel(CHANNEL_ID_1, CHANNEL_NAME_1, 1).apply {
-            setBypassDnd(true)
-            setShowBadge(true)
-            enableVibration(true)
-            enableLights(true)
-        }
+        val notificationChannel1 = ChannelSettings(
+                CHANNEL_ID_1,
+                IMPORTANCE,
+                true,
+                true,
+                true,
+                true
+        )
 
-        val notificationChannel2 = NotificationChannel(CHANNEL_ID_2, CHANNEL_NAME_2, 1).apply {
-            setBypassDnd(false)
-            setShowBadge(true)
-            enableVibration(false)
-            enableLights(true)
-        }
+        val notificationChannel2 = ChannelSettings(
+                CHANNEL_ID_2,
+                IMPORTANCE,
+                false,
+                true,
+                false,
+                true
+        )
 
         whenever(mockNotificationManagerProxy.notificationChannels).thenReturn(listOf(notificationChannel1, notificationChannel2))
 
         val result = notificationManagerHelper.channelSettings
 
         result shouldBe expected
-
     }
 }
