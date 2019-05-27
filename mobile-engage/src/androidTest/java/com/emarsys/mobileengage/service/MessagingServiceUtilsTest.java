@@ -7,8 +7,14 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
+
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
+import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.resource.MetaDataReader;
@@ -33,11 +39,6 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
@@ -82,7 +83,8 @@ public class MessagingServiceUtilsTest {
         deviceInfo = new DeviceInfo(context,
                 mock(HardwareIdProvider.class),
                 mock(VersionProvider.class),
-                mock(LanguageProvider.class));
+                mock(LanguageProvider.class),
+                mock(NotificationManagerHelper.class));
 
         Field cacheField = NotificationCache.class.getDeclaredField("internalCache");
         cacheField.setAccessible(true);

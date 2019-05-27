@@ -10,6 +10,7 @@ import android.content.res.Resources;
 
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
+import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.util.SystemUtils;
@@ -44,10 +45,10 @@ public class DeviceInfoTest {
     private DeviceInfo deviceInfo;
     private TimeZone tz;
     private Context context;
-    private HardwareIdProvider hardwareIdProvider;
-    private LanguageProvider languageProvider;
-    private VersionProvider versionProvider;
-
+    private HardwareIdProvider mockHardwareIdProvider;
+    private LanguageProvider mockLanguageProvider;
+    private VersionProvider mockVersionProvider;
+    private NotificationManagerHelper mockNotificationManagerHelper;
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
@@ -58,13 +59,16 @@ public class DeviceInfoTest {
 
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();
 
-        hardwareIdProvider = mock(HardwareIdProvider.class);
-        languageProvider = mock(LanguageProvider.class);
-        versionProvider = mock(VersionProvider.class);
+        mockHardwareIdProvider = mock(HardwareIdProvider.class);
+        mockLanguageProvider = mock(LanguageProvider.class);
+        mockVersionProvider = mock(VersionProvider.class);
+        mockNotificationManagerHelper = mock(NotificationManagerHelper.class);
 
-        when(hardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID);
-        when(languageProvider.provideLanguage(any(Locale.class))).thenReturn(LANGUAGE);
-        when(versionProvider.provideSdkVersion()).thenReturn(SDK_VERSION);
+        when(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID);
+        when(mockLanguageProvider.provideLanguage(any(Locale.class))).thenReturn(LANGUAGE);
+        when(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION);
+
+        deviceInfo = new DeviceInfo(context, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
     }
 
     @After
@@ -74,27 +78,31 @@ public class DeviceInfoTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_context_mustNotBeNull() {
-        new DeviceInfo(null, hardwareIdProvider, versionProvider, languageProvider);
+        new DeviceInfo(null, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_hardwareIdProvider_mustNotBeNull() {
-        new DeviceInfo(context, null, versionProvider, languageProvider);
+        new DeviceInfo(context, null, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_versionProvider_mustNotBeNull() {
-        new DeviceInfo(context, hardwareIdProvider, null, languageProvider);
+        new DeviceInfo(context, mockHardwareIdProvider, null, mockLanguageProvider, mockNotificationManagerHelper);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_languageProvider_mustNotBeNull() {
-        new DeviceInfo(context, hardwareIdProvider, versionProvider, null);
+        new DeviceInfo(context, mockHardwareIdProvider, mockVersionProvider, null, mockNotificationManagerHelper);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_notificationManagerHelper_mustNotBeNull() {
+        new DeviceInfo(context, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, null);
     }
 
     @Test
     public void testConstructor_initializesFields() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider, versionProvider, languageProvider);
         assertNotNull(deviceInfo.getHwid());
         assertNotNull(deviceInfo.getPlatform());
         assertNotNull(deviceInfo.getLanguage());
@@ -121,14 +129,13 @@ public class DeviceInfoTest {
         when(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo);
         when(mockContext.getApplicationInfo()).thenReturn(mock(ApplicationInfo.class));
 
-        DeviceInfo info = new DeviceInfo(mockContext, hardwareIdProvider, versionProvider, languageProvider);
+        DeviceInfo info = new DeviceInfo(mockContext, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
 
         assertEquals(DeviceInfo.UNKNOWN_VERSION_NAME, info.getApplicationVersion());
     }
 
     @Test
     public void testTimezoneCorrectlyFormatted() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider, versionProvider, languageProvider);
         assertEquals("+0900", deviceInfo.getTimezone());
     }
 
@@ -143,8 +150,6 @@ public class DeviceInfoTest {
         config.locale = locale;
         resources.updateConfiguration(config, resources.getDisplayMetrics());
 
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider, versionProvider, languageProvider);
-
         Locale.setDefault(previous);
 
         assertEquals("+0900", deviceInfo.getTimezone());
@@ -152,7 +157,6 @@ public class DeviceInfoTest {
 
     @Test
     public void testGetDisplayMetrics() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider, versionProvider, languageProvider);
         assertEquals(deviceInfo.getDisplayMetrics(), Resources.getSystem().getDisplayMetrics());
     }
 
@@ -160,7 +164,7 @@ public class DeviceInfoTest {
     public void testIsDebugMode_withDebugApplication() {
         Application mockDebugContext = ApplicationTestUtils.getApplicationDebug();
 
-        DeviceInfo debugDeviceInfo = new DeviceInfo(mockDebugContext, hardwareIdProvider, versionProvider, languageProvider);
+        DeviceInfo debugDeviceInfo = new DeviceInfo(mockDebugContext, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
         assertTrue(debugDeviceInfo.isDebugMode());
     }
 
@@ -168,33 +172,27 @@ public class DeviceInfoTest {
     public void testIsDebugMode_withReleaseApplication() {
         Application mockReleaseContext = ApplicationTestUtils.getApplicationRelease();
 
-        DeviceInfo releaseDeviceInfo = new DeviceInfo(mockReleaseContext, hardwareIdProvider, versionProvider, languageProvider);
+        DeviceInfo releaseDeviceInfo = new DeviceInfo(mockReleaseContext, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
         assertFalse(releaseDeviceInfo.isDebugMode());
     }
 
     @Test
     public void testHardwareId_isAcquiredFromHardwareIdProvider() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider, versionProvider, languageProvider);
-
-        verify(hardwareIdProvider).provideHardwareId();
+        verify(mockHardwareIdProvider).provideHardwareId();
         assertEquals(HARDWARE_ID, deviceInfo.getHwid());
     }
 
     @Test
     public void testGetLanguage_isAcquiredFromLanguageProvider() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider, versionProvider, languageProvider);
-
         String language = deviceInfo.getLanguage();
 
-        verify(languageProvider).provideLanguage(Locale.getDefault());
+        verify(mockLanguageProvider).provideLanguage(Locale.getDefault());
 
         assertEquals(LANGUAGE, language);
     }
 
     @Test
     public void testGetHash_shouldEqualHashCode() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider, versionProvider, languageProvider);
-
         Integer expectedHash = deviceInfo.hashCode();
 
         assertEquals(expectedHash, deviceInfo.getHash());
@@ -202,7 +200,11 @@ public class DeviceInfoTest {
 
     @Test
     public void testIsKotlinEnabled() {
-        deviceInfo = new DeviceInfo(context, hardwareIdProvider, versionProvider, languageProvider);
         assertEquals(deviceInfo.isKotlinEnabled(), SystemUtils.isKotlinEnabled());
+    }
+
+    @Test
+    public void testGetNotificationSettings() {
+        assertEquals(deviceInfo.getNotificationSettings(), mockNotificationManagerHelper);
     }
 }

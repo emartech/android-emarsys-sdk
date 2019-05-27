@@ -1,22 +1,23 @@
 package com.emarsys
 
 import android.app.Application
+import android.app.NotificationManager
 import android.content.Context
-import android.content.SharedPreferences
+import androidx.core.app.NotificationManagerCompat
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.notification.NotificationManagerHelper
+import com.emarsys.core.notification.NotificationManagerProxy
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
-import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
-import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
@@ -48,7 +49,6 @@ class PredictIntegrationTest {
     private lateinit var completionHandler: DefaultCoreCompletionHandler
     private lateinit var responseModelMatches: (ResponseModel) -> Boolean
     private var errorCause: Throwable? = null
-    private lateinit var sharedPreferences: SharedPreferences
     private lateinit var clientStateStorage: Storage<String>
     private lateinit var contactTokenStorage: Storage<String>
     private lateinit var refreshTokenStorage: Storage<String>
@@ -118,15 +118,16 @@ class PredictIntegrationTest {
                     mock(HardwareIdProvider::class.java).apply {
                         whenever(provideHardwareId()).thenReturn("predict_integration_hwid")
                     },
-                    mock(VersionProvider::class.java),
+                    mock(VersionProvider::class.java).apply {
+                        whenever(provideSdkVersion()).thenReturn("0.0.0-predict_integration_version")
+                    },
                     mock(LanguageProvider::class.java).apply {
                         whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
-                    }
+                    },
+                    NotificationManagerHelper(NotificationManagerProxy(application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager, NotificationManagerCompat.from(application)))
             )
         })
 
-        sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
-        StringStorage(MobileEngageStorageKey.CLIENT_STATE, sharedPreferences).remove()
         clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.clientStateStorage
         contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.contactTokenStorage
         refreshTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.refreshTokenStorage
@@ -243,7 +244,7 @@ class PredictIntegrationTest {
 
     @Test
     fun testMultipleInvocationsWithSetContact() {
-        sharedPreferences.edit().putString("mobile_engage_client_state", "mobile-engage-integration-test").commit()
+        clientStateStorage.set("predict-integration-test")
 
         Emarsys.setContact("test@test.com")
         testMultipleInvocations()

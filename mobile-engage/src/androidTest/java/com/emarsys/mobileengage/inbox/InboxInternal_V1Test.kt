@@ -12,6 +12,7 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
+import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -94,7 +95,7 @@ class InboxInternal_V1Test {
         mockLanguageProvider = mock(LanguageProvider::class.java)
 
         whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
-        deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mock(VersionProvider::class.java), mockLanguageProvider)
+        deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mock(VersionProvider::class.java), mockLanguageProvider, mock(NotificationManagerHelper::class.java))
 
         mockUuidProvider = mock(UUIDProvider::class.java)
         whenever(mockUuidProvider.provideId()).thenReturn(REQUEST_ID)

@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.util.DisplayMetrics;
 
+import com.emarsys.core.notification.NotificationSettings;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.util.Assert;
@@ -30,13 +31,15 @@ public class DeviceInfo {
     private final DisplayMetrics displayMetrics;
     private final boolean isDebugMode;
     private final String sdkVersion;
-    private boolean kotlinEnabled;
+    private final boolean kotlinEnabled;
+    private final NotificationSettings notificationSettings;
 
-    public DeviceInfo(Context context, HardwareIdProvider hardwareIdProvider, VersionProvider versionProvider, LanguageProvider languageProvider) {
+    public DeviceInfo(Context context, HardwareIdProvider hardwareIdProvider, VersionProvider versionProvider, LanguageProvider languageProvider, NotificationSettings notificationSettings) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(hardwareIdProvider, "HardwareIdProvider must not be null!");
         Assert.notNull(versionProvider, "VersionProvider must not be null!");
         Assert.notNull(languageProvider, "LanguageProvider must not be null!");
+        Assert.notNull(notificationSettings, "NotificationSettings must not be null!");
 
         this.hwid = hardwareIdProvider.provideHardwareId();
 
@@ -61,6 +64,8 @@ public class DeviceInfo {
         this.sdkVersion = versionProvider.provideSdkVersion();
 
         this.kotlinEnabled = SystemUtils.isKotlinEnabled();
+
+        this.notificationSettings = notificationSettings;
     }
 
     private String getApplicationVersion(Context context) {
@@ -125,6 +130,10 @@ public class DeviceInfo {
 
     public boolean isKotlinEnabled() {
         return kotlinEnabled;
+    }
+
+    public NotificationSettings getNotificationSettings() {
+        return notificationSettings;
     }
 
     @Override

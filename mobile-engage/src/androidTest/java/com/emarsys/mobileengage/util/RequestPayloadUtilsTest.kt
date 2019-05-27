@@ -1,7 +1,10 @@
 package com.emarsys.mobileengage.util
 
 
+import androidx.test.filters.SdkSuppress
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.notification.ChannelSettings
+import com.emarsys.core.notification.NotificationSettings
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.TimestampUtils
@@ -19,7 +22,7 @@ import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 
 class RequestPayloadUtilsTest {
-    companion object {
+    private companion object {
         const val PUSH_TOKEN = "pushToken"
         const val APPLICATION_CODE = "applicationCode"
         const val HARDWARE_ID = "hardwareId"
@@ -36,6 +39,10 @@ class RequestPayloadUtilsTest {
         const val TIMESTAMP = 123456789L
         const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
         const val SID = "sid"
+        const val ARE_NOTIFICATIONS_ENABLED = true
+        const val IMPORTANCE = 0
+        const val CHANNEL_ID_1 = "channelId1"
+        const val CHANNEL_ID_2 = "channelId2"
     }
 
     private lateinit var mockDeviceInfo: DeviceInfo
@@ -43,6 +50,8 @@ class RequestPayloadUtilsTest {
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockRefreshTokenStorage: Storage<String>
     private lateinit var mockContactFieldValueStorage: Storage<String>
+    private lateinit var mockNotificationSettings: NotificationSettings
+    private lateinit var mockChannelSettings: List<ChannelSettings>
 
     @Rule
     @JvmField
@@ -51,6 +60,29 @@ class RequestPayloadUtilsTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
+        mockChannelSettings = listOf(
+                mock(ChannelSettings::class.java).apply {
+                    whenever(channelId).thenReturn(CHANNEL_ID_1)
+                    whenever(importance).thenReturn(IMPORTANCE)
+                    whenever(isCanBypassDnd).thenReturn(true)
+                    whenever(isCanShowBadge).thenReturn(true)
+                    whenever(isShouldShowLights).thenReturn(true)
+                    whenever(isShouldVibrate).thenReturn(true)
+                },
+                mock(ChannelSettings::class.java).apply {
+                    whenever(channelId).thenReturn(CHANNEL_ID_2)
+                    whenever(importance).thenReturn(IMPORTANCE)
+                    whenever(isCanBypassDnd).thenReturn(false)
+                    whenever(isCanShowBadge).thenReturn(false)
+                    whenever(isShouldShowLights).thenReturn(false)
+                    whenever(isShouldVibrate).thenReturn(false)
+                })
+        mockNotificationSettings = mock(NotificationSettings::class.java).apply {
+            whenever(areNotificationsEnabled()).thenReturn(ARE_NOTIFICATIONS_ENABLED)
+            whenever(importance).thenReturn(IMPORTANCE)
+            whenever(channelSettings).thenReturn(mockChannelSettings)
+        }
+
         mockDeviceInfo = mock(DeviceInfo::class.java).apply {
             whenever(platform).thenReturn(PLATFORM)
             whenever(applicationVersion).thenReturn(APPLICATION_VERSION)
@@ -60,6 +92,7 @@ class RequestPayloadUtilsTest {
             whenever(language).thenReturn(LANGUAGE)
             whenever(timezone).thenReturn(TIMEZONE)
             whenever(hwid).thenReturn(HARDWARE_ID)
+            whenever(notificationSettings).thenReturn(mockNotificationSettings)
         }
 
         mockTimestampProvider = mock(TimestampProvider::class.java).apply {
@@ -131,6 +164,7 @@ class RequestPayloadUtilsTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = android.os.Build.VERSION_CODES.O)
     fun testCreateTrackDeviceInfoPayload() {
         val payload = RequestPayloadUtils.createTrackDeviceInfoPayload(mockRequestContext)
         payload shouldBe mapOf(
@@ -140,8 +174,49 @@ class RequestPayloadUtilsTest {
                 "osVersion" to OS_VERSION,
                 "sdkVersion" to SDK_VERSION,
                 "language" to LANGUAGE,
-                "timezone" to TIMEZONE
+                "timezone" to TIMEZONE,
+                "pushSettings" to mapOf(
+                        "areNotificationsEnabled" to ARE_NOTIFICATIONS_ENABLED,
+                        "importance" to IMPORTANCE,
+                        "channelSettings" to listOf(
+                                mapOf("channelId" to CHANNEL_ID_1,
+                                        "importance" to IMPORTANCE,
+                                        "canShowBadge" to true,
+                                        "canBypassDnd" to true,
+                                        "shouldVibrate" to true,
+                                        "shouldShowLights" to true
+                                ),
+                                mapOf("channelId" to CHANNEL_ID_2,
+                                        "importance" to IMPORTANCE,
+                                        "canShowBadge" to false,
+                                        "canBypassDnd" to false,
+                                        "shouldVibrate" to false,
+                                        "shouldShowLights" to false
+                                )
+                        )
+                )
         )
+
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = android.os.Build.VERSION_CODES.N)
+    fun testCreateTrackDeviceInfoPayload_belowOreo() {
+        val payload = RequestPayloadUtils.createTrackDeviceInfoPayload(mockRequestContext)
+        payload shouldBe mapOf(
+                "platform" to PLATFORM,
+                "applicationVersion" to APPLICATION_VERSION,
+                "deviceModel" to DEVICE_MODEL,
+                "osVersion" to OS_VERSION,
+                "sdkVersion" to SDK_VERSION,
+                "language" to LANGUAGE,
+                "timezone" to TIMEZONE,
+                "pushSettings" to mapOf(
+                        "areNotificationsEnabled" to ARE_NOTIFICATIONS_ENABLED,
+                        "importance" to IMPORTANCE
+                )
+        )
+
     }
 
     @Test(expected = IllegalArgumentException::class)

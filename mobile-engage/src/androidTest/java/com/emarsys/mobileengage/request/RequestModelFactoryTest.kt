@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.request
 
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.notification.NotificationSettings
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
@@ -40,6 +41,7 @@ class RequestModelFactoryTest {
     lateinit var mockUuidProvider: UUIDProvider
     lateinit var mockDeviceInfo: DeviceInfo
     lateinit var mockRefreshTokenStorage: Storage<String>
+    lateinit var mockNotificationSettings: NotificationSettings
     lateinit var requestFactory: RequestModelFactory
 
     @Rule
@@ -49,6 +51,10 @@ class RequestModelFactoryTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
+        mockNotificationSettings = mock(NotificationSettings::class.java).apply {
+            whenever(channelSettings).thenReturn(listOf())
+            whenever(importance).thenReturn(0)
+        }
         mockUuidProvider = mock(UUIDProvider::class.java).apply {
             whenever(provideId()).thenReturn(REQUEST_ID)
         }
@@ -58,6 +64,7 @@ class RequestModelFactoryTest {
         mockDeviceInfo = mock(DeviceInfo::class.java).apply {
             whenever(hwid).thenReturn(HARDWARE_ID)
             whenever(isDebugMode).thenReturn(true)
+            whenever(notificationSettings).thenReturn(mockNotificationSettings)
         }
         mockRefreshTokenStorage = mock(StringStorage::class.java).apply {
             whenever(get()).thenReturn(REFRESH_TOKEN)

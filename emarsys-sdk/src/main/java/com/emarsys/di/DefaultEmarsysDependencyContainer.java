@@ -1,10 +1,13 @@
 package com.emarsys.di;
 
 import android.app.Application;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
+
+import androidx.core.app.NotificationManagerCompat;
 
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DefaultCoreCompletionHandler;
@@ -24,6 +27,9 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
+import com.emarsys.core.notification.NotificationManagerHelper;
+import com.emarsys.core.notification.NotificationManagerProxy;
+import com.emarsys.core.notification.NotificationSettings;
 import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
@@ -310,7 +316,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, prefs);
         VersionProvider versionProvider = new VersionProvider();
 
-        deviceInfo = new DeviceInfo(application, hardwareIdProvider, versionProvider, languageProvider);
+        NotificationManager notificationManager = (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(application);
+        NotificationManagerProxy notificationManagerProxy = new NotificationManagerProxy(notificationManager, notificationManagerCompat);
+        NotificationSettings notificationSettings = new NotificationManagerHelper(notificationManagerProxy);
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider, versionProvider, languageProvider, notificationSettings);
 
         currentActivityProvider = new CurrentActivityProvider();
         currentActivityWatchdog = new CurrentActivityWatchdog(currentActivityProvider);

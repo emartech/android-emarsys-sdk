@@ -1,6 +1,8 @@
 package com.emarsys.mobileengage.util;
 
 import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.notification.ChannelSettings;
+import com.emarsys.core.notification.NotificationSettings;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.RequestContext;
@@ -8,6 +10,7 @@ import com.emarsys.mobileengage.iam.model.IamConversionUtils;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +52,26 @@ public class RequestPayloadUtils {
         payload.put("sdkVersion", deviceInfo.getSdkVersion());
         payload.put("language", deviceInfo.getLanguage());
         payload.put("timezone", deviceInfo.getTimezone());
+
+        NotificationSettings notificationSettings = deviceInfo.getNotificationSettings();
+        Map<String, Object> notificationSettingsMap = new HashMap<>();
+        List<Map<String, Object>> channelSettings = new ArrayList<>();
+        notificationSettingsMap.put("areNotificationsEnabled", notificationSettings.areNotificationsEnabled());
+        notificationSettingsMap.put("importance", notificationSettings.getImportance());
+        if (AndroidVersionUtils.isOreoOrAbove()) {
+            for (ChannelSettings channelSetting : notificationSettings.getChannelSettings()) {
+                Map<String, Object> channelSettingMap = new HashMap<>();
+                channelSettingMap.put("channelId", channelSetting.getChannelId());
+                channelSettingMap.put("importance", channelSetting.getImportance());
+                channelSettingMap.put("canShowBadge", channelSetting.isCanShowBadge());
+                channelSettingMap.put("canBypassDnd", channelSetting.isCanBypassDnd());
+                channelSettingMap.put("shouldVibrate", channelSetting.isShouldVibrate());
+                channelSettingMap.put("shouldShowLights", channelSetting.isShouldShowLights());
+                channelSettings.add(channelSettingMap);
+            }
+            notificationSettingsMap.put("channelSettings", channelSettings);
+        }
+        payload.put("pushSettings", notificationSettingsMap);
         return payload;
     }
 

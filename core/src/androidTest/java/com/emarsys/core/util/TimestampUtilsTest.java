@@ -2,6 +2,7 @@ package com.emarsys.core.util;
 
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
+import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.testUtil.InstrumentationRegistry;
@@ -34,7 +35,8 @@ public class TimestampUtilsTest {
         String deviceTimeZone = new DeviceInfo(InstrumentationRegistry.getTargetContext(),
                 mock(HardwareIdProvider.class),
                 mock(VersionProvider.class),
-                mock(LanguageProvider.class)
+                mock(LanguageProvider.class),
+                mock(NotificationManagerHelper.class)
         ).getTimezone();
         String dateString = "2017-12-07T10:46:09.100";
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");

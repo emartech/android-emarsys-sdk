@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
+import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.testUtil.InstrumentationRegistry;
@@ -38,7 +39,8 @@ public class ImageUtilsTest {
         deviceInfo = new DeviceInfo(context,
                 mock(HardwareIdProvider.class),
                 mock(VersionProvider.class),
-                mock(LanguageProvider.class));
+                mock(LanguageProvider.class),
+                mock(NotificationManagerHelper.class));
     }
 
     @Test(expected = IllegalArgumentException.class)

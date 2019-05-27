@@ -24,6 +24,7 @@ import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
+import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.RequestManager;
@@ -130,6 +131,7 @@ public class EmarsysTest {
     private Storage<String> mockContactTokenStorage;
     private Storage<String> mockClientStateStorage;
     private ResponseHandlersProcessor mockResponseHandlersProcessor;
+    private NotificationManagerHelper mockNotificationManagerHelper;
     private DeviceInfo deviceInfo;
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -163,17 +165,18 @@ public class EmarsysTest {
         mockContactTokenStorage = mock(Storage.class);
         mockClientStateStorage = mock(Storage.class);
         mockResponseHandlersProcessor = mock(ResponseHandlersProcessor.class);
+        mockNotificationManagerHelper = mock(NotificationManagerHelper.class);
 
         baseConfig = createConfig(false);
         configWithInAppEventHandler = createConfig(true);
 
         HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
-        deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider);
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
 
         when(mockDeviceInfoHashStorage.get()).thenReturn(deviceInfo.getHash());
         when(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION);
         when(mockContactFieldValueStorage.get()).thenReturn("test@test.com");
-        when(mockContactTokenStorage.get()).thenReturn("asdfasfaghdsgf");
+        when(mockContactTokenStorage.get()).thenReturn("contactToken");
 
         DependencyInjection.setup(new FakeDependencyContainer(
                 mockCoreSdkHandler,

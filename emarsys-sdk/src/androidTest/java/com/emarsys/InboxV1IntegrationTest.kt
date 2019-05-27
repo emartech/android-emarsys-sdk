@@ -9,6 +9,7 @@ import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.di.DefaultEmarsysDependencyContainer
@@ -86,7 +87,9 @@ class InboxV1IntegrationTest {
                         whenever(provideHardwareId()).thenReturn("inboxv1_integration_hwid")
                     },
                     mock(VersionProvider::class.java),
-                    mock(LanguageProvider::class.java)
+                    mock(LanguageProvider::class.java),
+                    mock(NotificationManagerHelper::class.java)
+
             )
         })
 
