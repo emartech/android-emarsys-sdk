@@ -75,6 +75,12 @@ node('master') {
                         slackMessage channel: 'jenkins', text: "Emarsys SDK $version released to Bintray."
                     }
                 }
+
+                stage('Deploy APK to Amazon S3') {
+                    sh "./gradlew :sample:assembleRelease"
+                    sh "mv sample/build/outputs/apk/release/sample-release.apk sample/build/outputs/apk/release/emarsys-sample-release.apk"
+                    sh env.AWS_DEPLOY_COMMAND_EMARSYS
+                }
             }
         }
     }
