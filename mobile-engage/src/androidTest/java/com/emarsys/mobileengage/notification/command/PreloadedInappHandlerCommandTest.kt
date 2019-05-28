@@ -16,9 +16,9 @@ import com.emarsys.mobileengage.iam.PushToInAppAction
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import io.kotlintest.shouldBe
 import org.json.JSONObject
 import org.junit.After
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -34,9 +34,10 @@ class PreloadedInappHandlerCommandTest {
         private const val URL = "https://www.google.com"
     }
 
-    private lateinit var dependencyContainer: MobileEngageDependencyContainer
-    private lateinit var activityLifecycleWatchdog: ActivityLifecycleWatchdog
-    private lateinit var coreSdkHandler: Handler
+    private lateinit var mockDependencyContainer: MobileEngageDependencyContainer
+    private lateinit var mockActivityLifecycleWatchdog: ActivityLifecycleWatchdog
+    private lateinit var mockCoreSdkHandler: Handler
+    private lateinit var fileUrl: String
 
     @Rule
     @JvmField
@@ -44,25 +45,30 @@ class PreloadedInappHandlerCommandTest {
 
     @Before
     fun setUp() {
-        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
-        activityLifecycleWatchdog = mock(ActivityLifecycleWatchdog::class.java)
+        fileUrl = InstrumentationRegistry.getTargetContext().applicationContext.cacheDir.absolutePath + "/test.file"
 
-        dependencyContainer = mock(MobileEngageDependencyContainer::class.java)
-        whenever(dependencyContainer.activityLifecycleWatchdog).thenReturn(activityLifecycleWatchdog)
-        whenever(dependencyContainer.inAppPresenter).thenReturn(mock(InAppPresenter::class.java))
-        whenever(dependencyContainer.timestampProvider).thenReturn(mock(TimestampProvider::class.java))
-        whenever(dependencyContainer.coreSdkHandler).thenReturn(coreSdkHandler)
+        mockCoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+
+        mockActivityLifecycleWatchdog = mock(ActivityLifecycleWatchdog::class.java)
+
+        mockDependencyContainer = mock(MobileEngageDependencyContainer::class.java).apply {
+            whenever(activityLifecycleWatchdog).thenReturn(mockActivityLifecycleWatchdog)
+            whenever(inAppPresenter).thenReturn(mock(InAppPresenter::class.java))
+            whenever(timestampProvider).thenReturn(mock(TimestampProvider::class.java))
+            whenever(coreSdkHandler).thenReturn(mockCoreSdkHandler)
+        }
+
     }
 
     @After
     fun tearDown() {
-        coreSdkHandler.looper.quit()
+        mockCoreSdkHandler.looper.quit()
         DependencyInjection.tearDown()
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testHandlePreloadedInAppMessage_intentMustNotBeNull() {
-        PreloadedInappHandlerCommand(null, dependencyContainer)
+        PreloadedInappHandlerCommand(null, mockDependencyContainer)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -72,102 +78,123 @@ class PreloadedInappHandlerCommandTest {
 
     @Test
     fun testHandlePreloadedInAppMessage_shouldCallAddTriggerOnActivityAction_whenFileUrlIsAvailable() {
-        val intent = Intent()
-        val payload = Bundle()
-        val ems = JSONObject()
-        val inapp = JSONObject()
-        inapp.put("campaignId", "campaignId")
-        inapp.put("fileUrl", FileUtils.download(InstrumentationRegistry.getTargetContext(), URL))
-        ems.put("inapp", inapp.toString())
-        payload.putString("ems", ems.toString())
-        intent.putExtra("payload", payload)
+        FileUtils.writeToFile("test", fileUrl)
 
-        PreloadedInappHandlerCommand(intent, dependencyContainer).run()
+        val inapp = JSONObject().apply {
+            put("campaignId", "campaignId")
+            put("fileUrl", fileUrl)
+        }
+        val ems = JSONObject().apply {
+            put("inapp", inapp.toString())
+        }
+        val payload = Bundle().apply {
+            putString("ems", ems.toString())
+        }
+        val intent = Intent().apply {
+            putExtra("payload", payload)
+        }
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        PreloadedInappHandlerCommand(intent, mockDependencyContainer).run()
 
-        verify(activityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
+        waitForEventLoopToFinish(mockCoreSdkHandler)
+
+        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
     }
 
     @Test
     fun testHandlePreloadedInAppMessage_shouldCallAddTriggerOnActivityAction_whenFileUrlIsAvailableButTheFileIsMissing() {
-        val intent = Intent()
-        val payload = Bundle()
-        val ems = JSONObject()
-        val inapp = JSONObject()
-        inapp.put("campaignId", "campaignId")
-        val fireUrl = FileUtils.download(InstrumentationRegistry.getTargetContext(), URL)
-        File(fireUrl).delete()
-        inapp.put("fileUrl", fireUrl)
-        inapp.put("url", URL)
-        ems.put("inapp", inapp.toString())
-        payload.putString("ems", ems.toString())
-        intent.putExtra("payload", payload)
+        FileUtils.writeToFile("test", fileUrl)
+        File(fileUrl).delete()
 
-        PreloadedInappHandlerCommand(intent, dependencyContainer).run()
+        val inapp = JSONObject().apply {
+            put("campaignId", "campaignId")
+            put("fileUrl", fileUrl)
+            put("url", URL)
+        }
+        val ems = JSONObject().apply {
+            put("inapp", inapp.toString())
+        }
+        val payload = Bundle().apply {
+            putString("ems", ems.toString())
+        }
+        val intent = Intent().apply {
+            putExtra("payload", payload)
+        }
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        PreloadedInappHandlerCommand(intent, mockDependencyContainer).run()
 
-        verify(activityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
+        waitForEventLoopToFinish(mockCoreSdkHandler)
+
+        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
     }
 
     @Test
     fun testHandlePreloadedInAppMessage_shouldCallAddTriggerOnActivityAction_whenFileUrlIsNotAvailable_butUrlIsAvailable() {
-        val intent = Intent()
-        val payload = Bundle()
-        val ems = JSONObject()
-        val inapp = JSONObject()
-        inapp.put("campaignId", "campaignId")
-        inapp.put("url", URL)
-        ems.put("inapp", inapp.toString())
-        payload.putString("ems", ems.toString())
-        intent.putExtra("payload", payload)
+        val inapp = JSONObject().apply {
+            put("campaignId", "campaignId")
+            put("url", URL)
+        }
+        val ems = JSONObject().apply {
+            put("inapp", inapp.toString())
+        }
+        val payload = Bundle().apply {
+            putString("ems", ems.toString())
+        }
+        val intent = Intent().apply {
+            putExtra("payload", payload)
+        }
 
-        PreloadedInappHandlerCommand(intent, dependencyContainer).run()
+        PreloadedInappHandlerCommand(intent, mockDependencyContainer).run()
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(mockCoreSdkHandler)
 
-        verify(activityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
+        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
     }
 
     @Test
     fun testHandlePreloadedInAppMessage_shouldDeleteFile_afterPushToInAppActionIsScheduled() {
-        val fileUrl = FileUtils.download(InstrumentationRegistry.getTargetContext(), URL)
+        FileUtils.writeToFile("test", fileUrl)
 
-        val intent = Intent()
-        val payload = Bundle()
-        val ems = JSONObject()
-        val inapp = JSONObject()
-        inapp.put("campaignId", "campaignId")
-        inapp.put("fileUrl", fileUrl)
-        ems.put("inapp", inapp.toString())
-        payload.putString("ems", ems.toString())
-        intent.putExtra("payload", payload)
+        val inapp = JSONObject().apply {
+            put("campaignId", "campaignId")
+            put("fileUrl", fileUrl)
+        }
+        val ems = JSONObject().apply {
+            put("inapp", inapp.toString())
+        }
+        val payload = Bundle().apply {
+            putString("ems", ems.toString())
+        }
+        val intent = Intent().apply {
+            putExtra("payload", payload)
+        }
 
-        assertEquals(true, File(fileUrl).exists())
+        File(fileUrl).exists() shouldBe true
 
-        PreloadedInappHandlerCommand(intent, dependencyContainer).run()
+        PreloadedInappHandlerCommand(intent, mockDependencyContainer).run()
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(mockCoreSdkHandler)
 
-        verify(activityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
+        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
 
-        assertEquals(false, File(fileUrl).exists())
+        File(fileUrl).exists() shouldBe false
     }
 
     @Test
     fun testHandlePreloadedInAppMessage_shouldNotScheduleInAppDisplay_ifInAppProperty_isMissing() {
-        val intent = Intent()
-        val payload = Bundle()
         val ems = JSONObject()
-        payload.putString("ems", ems.toString())
-        intent.putExtra("payload", payload)
+        val payload = Bundle().apply {
+            putString("ems", ems.toString())
+        }
+        val intent = Intent().apply {
+            putExtra("payload", payload)
+        }
 
-        PreloadedInappHandlerCommand(intent, dependencyContainer).run()
+        PreloadedInappHandlerCommand(intent, mockDependencyContainer).run()
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(mockCoreSdkHandler)
 
-        verifyZeroInteractions(activityLifecycleWatchdog)
+        verifyZeroInteractions(mockActivityLifecycleWatchdog)
     }
 
     private fun waitForEventLoopToFinish(handler: Handler) {
