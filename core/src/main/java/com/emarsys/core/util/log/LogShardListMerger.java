@@ -22,8 +22,9 @@ public class LogShardListMerger implements Mapper<List<ShardModel>, RequestModel
     private final UUIDProvider uuidProvider;
     private final DeviceInfo deviceInfo;
     private final String applicationCode;
+    private final String merchantId;
 
-    public LogShardListMerger(TimestampProvider timestampProvider, UUIDProvider uuidProvider, DeviceInfo deviceInfo, String applicationCode) {
+    public LogShardListMerger(TimestampProvider timestampProvider, UUIDProvider uuidProvider, DeviceInfo deviceInfo, String applicationCode, String merchantId) {
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(uuidProvider, "UuidProvider must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
@@ -33,6 +34,7 @@ public class LogShardListMerger implements Mapper<List<ShardModel>, RequestModel
         this.uuidProvider = uuidProvider;
         this.deviceInfo = deviceInfo;
         this.applicationCode = applicationCode;
+        this.merchantId = merchantId;
     }
 
     @Override
@@ -74,6 +76,7 @@ public class LogShardListMerger implements Mapper<List<ShardModel>, RequestModel
         data.put("hw_id", deviceInfo.getHwid());
         data.put("application_code", applicationCode);
         data.put("kotlin_enabled", deviceInfo.isKotlinEnabled() ? "true" : "false");
+        data.put("merchant_id", merchantId);
         return data;
     }
 

@@ -414,7 +414,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 new ListSizeAtLeast<ShardModel>(10),
                 new FilterByShardType(FilterByShardType.SHARD_TYPE_LOG),
                 new ListChunker<ShardModel>(10),
-                new LogShardListMerger(timestampProvider, uuidProvider, getDeviceInfo(), config.getApplicationCode()),
+                new LogShardListMerger(timestampProvider, uuidProvider, getDeviceInfo(), config.getApplicationCode(), config.getPredictMerchantId()),
                 requestManager,
                 BatchingShardTrigger.RequestStrategy.TRANSIENT);
 

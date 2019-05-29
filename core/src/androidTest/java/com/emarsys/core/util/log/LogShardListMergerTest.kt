@@ -19,11 +19,12 @@ import org.mockito.Mockito
 
 class LogShardListMergerTest {
 
-    companion object {
+    private companion object {
         const val ID = "id"
         const val TIMESTAMP = 125L
         const val TTL = Long.MAX_VALUE
         const val APPLICATION_CODE = "applicationCode"
+        const val MERCHANT_ID = "merchantId"
     }
 
     private lateinit var merger: LogShardListMerger
@@ -52,7 +53,7 @@ class LogShardListMergerTest {
         whenever(deviceInfo.hwid).thenReturn("hardwareId")
         whenever(deviceInfo.sdkVersion).thenReturn("1.6.1")
 
-        merger = LogShardListMerger(timestampProvider, uuidProvider, deviceInfo, APPLICATION_CODE)
+        merger = LogShardListMerger(timestampProvider, uuidProvider, deviceInfo, APPLICATION_CODE, MERCHANT_ID)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -74,24 +75,24 @@ class LogShardListMergerTest {
         merger.map(listOf())
     }
 
-    @Test(expected = java.lang.IllegalArgumentException::class)
+    @Test(expected = IllegalArgumentException::class)
     fun testConstructor_timestampProvider_mustNotBeNull() {
-        LogShardListMerger(null, uuidProvider, deviceInfo, APPLICATION_CODE)
+        LogShardListMerger(null, uuidProvider, deviceInfo, APPLICATION_CODE, MERCHANT_ID)
     }
 
-    @Test(expected = java.lang.IllegalArgumentException::class)
+    @Test(expected = IllegalArgumentException::class)
     fun testConstructor_uuidProvider_mustNotBeNull() {
-        LogShardListMerger(timestampProvider, null, deviceInfo, APPLICATION_CODE)
+        LogShardListMerger(timestampProvider, null, deviceInfo, APPLICATION_CODE, MERCHANT_ID)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_deviceInfo_mustNotBeNull() {
-        LogShardListMerger(timestampProvider, uuidProvider, null, APPLICATION_CODE)
+        LogShardListMerger(timestampProvider, uuidProvider, null, APPLICATION_CODE, MERCHANT_ID)
     }
 
-    @Test(expected = java.lang.IllegalArgumentException::class)
+    @Test(expected = IllegalArgumentException::class)
     fun testConstructor_appCode_mustNotBeNull() {
-        LogShardListMerger(timestampProvider, uuidProvider, deviceInfo, null)
+        LogShardListMerger(timestampProvider, uuidProvider, deviceInfo, null, MERCHANT_ID)
     }
 
     @Test
@@ -110,8 +111,8 @@ class LogShardListMergerTest {
     @Test
     fun testMap_multipleElementsInList() {
         val shards = (1..5).map { randomShardModel() }
-        val deviceInfo = createDeviceInfo()
-        val logDatas = shards.map { it.data + mapOf("type" to it.type) + mapOf("device_info" to deviceInfo) }
+
+        val logDatas = shards.map { it.data + mapOf("type" to it.type) + mapOf("device_info" to createDeviceInfo()) }
 
         val expectedRequestModel = requestModel(mapOf("logs" to logDatas))
 
@@ -143,8 +144,9 @@ class LogShardListMergerTest {
                 "os_version" to "8.0",
                 "model" to "Pixel",
                 "hw_id" to "hardwareId",
-                "application_code" to "applicationCode",
-                "kotlin_enabled" to "false"
+                "application_code" to APPLICATION_CODE,
+                "kotlin_enabled" to "false",
+                "merchant_id" to MERCHANT_ID
         )
     }
 
