@@ -79,6 +79,7 @@ import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestReposito
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternalProvider;
+import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider;
 import com.emarsys.mobileengage.request.MobileEngageHeaderMapper;
 import com.emarsys.mobileengage.request.RequestModelFactory;
@@ -144,6 +145,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private EventServiceInternal eventServiceInternal;
     private InAppInternal inAppInternal;
     private MobileEngageTokenResponseHandler contactTokenResponseHandler;
+    private NotificationCache notificationCache;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeDependencies(emarsysConfig);
@@ -295,6 +297,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         return responseHandlersProcessor;
     }
 
+    @Override
+    public NotificationCache getNotificationCache() {
+        return notificationCache;
+    }
+
     private void initializeDependencies(EmarsysConfig config) {
         application = config.getApplication();
         runnerProxy = new RunnerProxy();
@@ -353,6 +360,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         requestModelFactory = new RequestModelFactory(requestContext);
 
         contactTokenResponseHandler = new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage);
+
+        notificationCache = new NotificationCache();
 
         refreshTokenInternal = new MobileEngageRefreshTokenInternal(
                 contactTokenResponseHandler,

@@ -26,7 +26,7 @@ public class NotificationCache {
     public void invalidate(List<Notification> fetchedNotifications) {
         for (int i = internalCache.size() - 1; i >= 0; --i) {
             Notification cached = internalCache.get(i);
-            for (Notification fetched: fetchedNotifications) {
+            for (Notification fetched : fetchedNotifications) {
                 if (fetched.getId().equals(cached.getId())) {
                     internalCache.remove(i);
                     break;

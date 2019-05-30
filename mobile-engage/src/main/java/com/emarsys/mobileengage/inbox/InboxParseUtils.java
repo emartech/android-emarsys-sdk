@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.inbox;
 
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 
@@ -90,7 +91,7 @@ public class InboxParseUtils {
         return result;
     }
 
-    public static Notification parseNotificationFromPushMessage(Map<String, String> remoteData, boolean isUserCentric) {
+    public static Notification parseNotificationFromPushMessage(TimestampProvider timestampProvider, boolean isUserCentric, Map<String, String> remoteData) {
         Notification result = null;
         if (remoteData != null && "true".equals(remoteData.get("inbox"))) {
 
@@ -122,7 +123,7 @@ public class InboxParseUtils {
 
             int expirationTime = Integer.MAX_VALUE;
 
-            long receivedAt = System.currentTimeMillis();
+            long receivedAt = timestampProvider.provideTimestamp();
 
             result = new Notification(id, sid, title, body, customData, rootParams, expirationTime, receivedAt);
         }

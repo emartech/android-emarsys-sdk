@@ -13,6 +13,7 @@ import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.inbox.InboxInternal;
+import com.emarsys.mobileengage.inbox.model.NotificationCache;
 
 public interface MobileEngageDependencyContainer extends DependencyContainer {
 
@@ -45,4 +46,7 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
     Storage<String> getClientStateStorage();
 
     ResponseHandlersProcessor getResponseHandlersProcessor();
+
+    NotificationCache getNotificationCache();
+
 }

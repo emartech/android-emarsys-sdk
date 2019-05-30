@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat.Action;
 import androidx.core.content.ContextCompat;
 
 import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.FileUtils;
@@ -37,19 +38,17 @@ public class MessagingServiceUtils {
     public static final String METADATA_NOTIFICATION_COLOR = "com.emarsys.mobileengage.notification_color";
     public static final int DEFAULT_SMALL_NOTIFICATION_ICON = com.emarsys.mobileengage.R.drawable.default_small_notification_icon;
 
-    static NotificationCache notificationCache = new NotificationCache();
-
-    public static boolean handleMessage(Context context, RemoteMessage remoteMessage, DeviceInfo deviceInfo) {
+    public static boolean handleMessage(Context context, RemoteMessage remoteMessage, DeviceInfo deviceInfo, NotificationCache notificationCache, TimestampProvider timestampProvider) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(remoteMessage, "RemoteMessage must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
-
+        Assert.notNull(notificationCache, "NotificationCache must not be null!");
         boolean handled = false;
         Map<String, String> remoteData = remoteMessage.getData();
 
         if (MessagingServiceUtils.isMobileEngageMessage(remoteData)) {
 
-            MessagingServiceUtils.cacheNotification(remoteData);
+            MessagingServiceUtils.cacheNotification(timestampProvider, notificationCache, remoteData);
 
             int notificationId = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
 
@@ -198,9 +197,9 @@ public class MessagingServiceUtils {
         return title;
     }
 
-    static void cacheNotification(Map<String, String> remoteMessageData) {
+    static void cacheNotification(TimestampProvider timestampProvider, NotificationCache notificationCache, Map<String, String> remoteMessageData) {
         Assert.notNull(remoteMessageData, "RemoteMessageData must not be null!");
-        notificationCache.cache(InboxParseUtils.parseNotificationFromPushMessage(remoteMessageData, false));
+        notificationCache.cache(InboxParseUtils.parseNotificationFromPushMessage(timestampProvider, false, remoteMessageData));
     }
 
 }

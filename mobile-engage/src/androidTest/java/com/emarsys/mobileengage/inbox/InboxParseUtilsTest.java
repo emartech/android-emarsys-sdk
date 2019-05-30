@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.inbox;
 
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -88,6 +89,7 @@ public class InboxParseUtilsTest {
     private Notification notification3;
     private Notification notification4;
     private List<Notification> notifications;
+    private TimestampProvider timestampProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -125,6 +127,8 @@ public class InboxParseUtilsTest {
         notification4 = new Notification("id4", "sid4", "title4", "body4", customData3, rootParams3, 100, 25000000);
 
         notifications = Arrays.asList(notification1, notification2, notification3);
+
+        timestampProvider = new TimestampProvider();
     }
 
     @Test
@@ -323,7 +327,7 @@ public class InboxParseUtilsTest {
     }
 
     @Test
-    public void testParseNotificationFromPushMessage(){
+    public void testParseNotificationFromPushMessage() {
         Map<String, String> remoteData = new HashMap<>();
         remoteData.put("inbox", "true");
         remoteData.put("ems_msg", "true");
@@ -338,9 +342,9 @@ public class InboxParseUtilsTest {
         customData.put("deep_link", "lifestylelabels.com/mobile/product/3245678");
         customData.put("sid", "sid_here");
 
-        long before = System.currentTimeMillis();
-        Notification result = InboxParseUtils.parseNotificationFromPushMessage(remoteData, false);
-        long after = System.currentTimeMillis();
+        long before = timestampProvider.provideTimestamp();
+        Notification result = InboxParseUtils.parseNotificationFromPushMessage(timestampProvider, false, remoteData);
+        long after = timestampProvider.provideTimestamp();
 
         Assert.assertEquals("21022.150123121212.43223434c3b9", result.getId());
         Assert.assertEquals("sid_here", result.getSid());
@@ -367,9 +371,9 @@ public class InboxParseUtilsTest {
         customData.put("deep_link", "lifestylelabels.com/mobile/product/3245678");
         customData.put("sid", "sid_here");
 
-        long before = System.currentTimeMillis();
-        Notification result = InboxParseUtils.parseNotificationFromPushMessage(remoteData, false);
-        long after = System.currentTimeMillis();
+        long before = timestampProvider.provideTimestamp();
+        Notification result = InboxParseUtils.parseNotificationFromPushMessage(timestampProvider, false, remoteData);
+        long after = timestampProvider.provideTimestamp();
 
         Assert.assertEquals("21022.150123121212.43223434c3b9", result.getId());
         Assert.assertEquals("sid_here", result.getSid());
@@ -393,13 +397,13 @@ public class InboxParseUtilsTest {
         remoteData.put("body", "o<-<");
         remoteData.put("rootParam1", "param_param");
 
-        Notification result = InboxParseUtils.parseNotificationFromPushMessage(remoteData, true);
+        Notification result = InboxParseUtils.parseNotificationFromPushMessage(timestampProvider, true, remoteData);
 
         Assert.assertEquals(messageId, result.getId());
     }
 
     @Test
-    public void testParseNotificationFromPushMessage_shouldNotParse_ifNotInboxMessage(){
+    public void testParseNotificationFromPushMessage_shouldNotParse_ifNotInboxMessage() {
         Map<String, String> remoteData = new HashMap<>();
         remoteData.put("inbox", "false");
         remoteData.put("ems_msg", "true");
@@ -408,11 +412,11 @@ public class InboxParseUtilsTest {
         remoteData.put("title", "hello there");
         remoteData.put("rootParam1", "param_param");
 
-        Assert.assertNull(InboxParseUtils.parseNotificationFromPushMessage(remoteData, false));
+        Assert.assertNull(InboxParseUtils.parseNotificationFromPushMessage(timestampProvider, false, remoteData));
     }
 
     @Test
-    public void testParseNotificationFromPushMessage_shouldNotParse_withMissingInboxField(){
+    public void testParseNotificationFromPushMessage_shouldNotParse_withMissingInboxField() {
         Map<String, String> remoteData = new HashMap<>();
         remoteData.put("ems_msg", "true");
         remoteData.put("u", "{\"test_field\":\"\",\"image\":\"https:\\/\\/media.giphy.com\\/media\\/ktvFa67wmjDEI\\/giphy.gif\",\"deep_link\":\"lifestylelabels.com\\/mobile\\/product\\/3245678\",\"sid\":\"sid_here\"}");
@@ -420,6 +424,6 @@ public class InboxParseUtilsTest {
         remoteData.put("title", "hello there");
         remoteData.put("rootParam1", "param_param");
 
-        Assert.assertNull(InboxParseUtils.parseNotificationFromPushMessage(remoteData, false));
+        Assert.assertNull(InboxParseUtils.parseNotificationFromPushMessage(timestampProvider, false, remoteData));
     }
 }

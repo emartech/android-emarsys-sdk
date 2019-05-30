@@ -16,9 +16,11 @@ import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.mobileengage.api.inbox.Notification;
+import com.emarsys.mobileengage.inbox.InboxParseUtils;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.ReflectionTestUtils;
@@ -28,16 +30,13 @@ import com.google.firebase.messaging.RemoteMessage;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
@@ -51,6 +50,7 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
@@ -69,15 +69,16 @@ public class MessagingServiceUtilsTest {
 
     private Context context;
     private DeviceInfo deviceInfo;
-    private List<Notification> notificationCache;
     private MetaDataReader metaDataReader;
+    private NotificationCache mockNotificationCache;
+    private TimestampProvider mockTimestampProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     @SuppressWarnings("unchecked")
-    public void init() throws Exception {
+    public void init() {
         context = InstrumentationRegistry.getTargetContext();
 
         deviceInfo = new DeviceInfo(context,
@@ -86,37 +87,43 @@ public class MessagingServiceUtilsTest {
                 mock(LanguageProvider.class),
                 mock(NotificationManagerHelper.class));
 
-        Field cacheField = NotificationCache.class.getDeclaredField("internalCache");
-        cacheField.setAccessible(true);
-        notificationCache = (List) cacheField.get(null);
-        notificationCache.clear();
-
         metaDataReader = mock(MetaDataReader.class);
+
+        mockNotificationCache = mock(NotificationCache.class);
+        mockTimestampProvider = mock(TimestampProvider.class);
+
+        when(mockTimestampProvider.provideTimestamp()).thenReturn(1L);
+
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testHandleMessage_contextShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(null, createEMSRemoteMessage(), deviceInfo);
+        MessagingServiceUtils.handleMessage(null, createEMSRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testHandleMessage_remoteMessageShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(context, null, deviceInfo);
+        MessagingServiceUtils.handleMessage(context, null, deviceInfo, mockNotificationCache, mockTimestampProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testHandleMessage_deviceInfoShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), null);
+        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), null, mockNotificationCache, mockTimestampProvider);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testHandleMessage_notificationCacheShouldNotBeNull() {
+        MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, null, mockTimestampProvider);
     }
 
     @Test
     public void testHandleMessage_shouldReturnFalse_ifMessageIsNotHandled() {
-        assertFalse(MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo));
+        assertFalse(MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider));
     }
 
     @Test
     public void testHandleMessage_shouldReturnTrue_ifMessageIsHandled() {
-        assertTrue(MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), deviceInfo));
+        assertTrue(MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider));
     }
 
     @Test
@@ -577,20 +584,11 @@ public class MessagingServiceUtilsTest {
         customData.put("deep_link", "lifestylelabels.com/mobile/product/3245678");
         customData.put("sid", "sid_here");
 
-        long before = System.currentTimeMillis();
-        MessagingServiceUtils.cacheNotification(remoteData);
-        long after = System.currentTimeMillis();
 
-        assertEquals(1, notificationCache.size());
+        MessagingServiceUtils.cacheNotification(mockTimestampProvider, mockNotificationCache, remoteData);
+        Notification notification = InboxParseUtils.parseNotificationFromPushMessage(mockTimestampProvider, false, remoteData);
 
-        Notification result = notificationCache.get(0);
-
-        assertEquals("21022.150123121212.43223434c3b9", result.getId());
-        assertEquals("sid_here", result.getSid());
-        assertEquals("hello there", result.getTitle());
-        assertEquals(customData, result.getCustomData());
-        Assert.assertTrue(before <= result.getReceivedAt());
-        Assert.assertTrue(result.getReceivedAt() <= after);
+        verify(mockNotificationCache).cache(notification);
     }
 
     private RemoteMessage createRemoteMessage() {

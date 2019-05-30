@@ -47,6 +47,7 @@ import com.emarsys.mobileengage.iam.InAppStartAction;
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternal_V1;
+import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
@@ -133,6 +134,7 @@ public class EmarsysTest {
     private ResponseHandlersProcessor mockResponseHandlersProcessor;
     private NotificationManagerHelper mockNotificationManagerHelper;
     private DeviceInfo deviceInfo;
+    private NotificationCache mockNotificationCache;
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
@@ -166,7 +168,7 @@ public class EmarsysTest {
         mockClientStateStorage = mock(Storage.class);
         mockResponseHandlersProcessor = mock(ResponseHandlersProcessor.class);
         mockNotificationManagerHelper = mock(NotificationManagerHelper.class);
-
+        mockNotificationCache = mock(NotificationCache.class);
         baseConfig = createConfig(false);
         configWithInAppEventHandler = createConfig(true);
 
@@ -205,7 +207,8 @@ public class EmarsysTest {
                 mockContactFieldValueStorage,
                 mockContactTokenStorage,
                 mockClientStateStorage,
-                mockResponseHandlersProcessor
+                mockResponseHandlersProcessor,
+                mockNotificationCache
         ));
     }
 

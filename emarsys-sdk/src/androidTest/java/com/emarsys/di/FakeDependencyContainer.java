@@ -25,6 +25,7 @@ import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.inbox.InboxInternal;
+import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.predict.PredictInternal;
 
 public class FakeDependencyContainer implements EmarysDependencyContainer {
@@ -55,6 +56,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final Storage<String> contactTokenStorage;
     private final Storage<String> clientStateStorage;
     private final ResponseHandlersProcessor responseHandlersProcessor;
+    private final NotificationCache notificationCache;
 
     public FakeDependencyContainer(
             Handler coreSdkHandler,
@@ -82,7 +84,8 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             Storage<Integer> deviceInfoHashStorage,
             Storage<String> contactFieldValueStorage,
             Storage<String> contactTokenStorage, Storage<String> clientStateStorage,
-            ResponseHandlersProcessor responseHandlersProcessor) {
+            ResponseHandlersProcessor responseHandlersProcessor,
+            NotificationCache notificationCache) {
         this.coreSdkHandler = coreSdkHandler;
         this.activityLifecycleWatchdog = activityLifecycleWatchdog;
         this.currentActivityWatchdog = currentActivityWatchdog;
@@ -110,6 +113,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
         this.contactTokenStorage = contactTokenStorage;
         this.clientStateStorage = clientStateStorage;
         this.responseHandlersProcessor = responseHandlersProcessor;
+        this.notificationCache = notificationCache;
     }
 
     @Override
@@ -250,5 +254,10 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     @Override
     public ResponseHandlersProcessor getResponseHandlersProcessor() {
         return responseHandlersProcessor;
+    }
+
+    @Override
+    public NotificationCache getNotificationCache() {
+        return notificationCache;
     }
 }
