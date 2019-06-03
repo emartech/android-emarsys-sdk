@@ -12,6 +12,7 @@ public class CompositeRequestModel extends RequestModel {
     private final String[] originalRequestIds;
 
     public CompositeRequestModel(
+            String id,
             String url,
             RequestMethod method,
             Map<String, Object> payload,
@@ -19,7 +20,7 @@ public class CompositeRequestModel extends RequestModel {
             long timestamp,
             long ttl,
             String[] originalRequestIds) {
-        super(url, method, payload, headers, timestamp, ttl, "0");
+        super(url, method, payload, headers, timestamp, ttl, id);
         this.originalRequestIds = originalRequestIds;
     }
 
@@ -70,7 +71,6 @@ public class CompositeRequestModel extends RequestModel {
             this.payload = requestModel.getPayload();
             this.timestamp = requestModel.getTimestamp();
             this.ttl = requestModel.getTtl();
-            this.originalRequestIds = ((CompositeRequestModel) requestModel).getOriginalRequestIds();
         }
 
         @Override
@@ -115,7 +115,7 @@ public class CompositeRequestModel extends RequestModel {
         }
 
         public CompositeRequestModel build() {
-            return new CompositeRequestModel(buildUrl(), method, payload, headers, timestamp, ttl, originalRequestIds);
+            return new CompositeRequestModel(id, buildUrl(), method, payload, headers, timestamp, ttl, originalRequestIds);
         }
     }
 }

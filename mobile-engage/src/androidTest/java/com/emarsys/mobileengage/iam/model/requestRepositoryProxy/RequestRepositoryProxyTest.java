@@ -53,6 +53,7 @@ import static org.mockito.Mockito.when;
 public class RequestRepositoryProxyTest {
 
     public static final long TIMESTAMP = 80_000L;
+    public static final String REQUEST_ID = "REQUEST_ID";
 
     private RequestContext mockRequestContext;
 
@@ -97,7 +98,7 @@ public class RequestRepositoryProxyTest {
         when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
 
         uuidProvider = mock(UUIDProvider.class);
-        when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
+        when(uuidProvider.provideId()).thenReturn(REQUEST_ID);
 
         inAppEventHandlerInternal = mock(InAppEventHandlerInternal.class);
 
@@ -106,32 +107,38 @@ public class RequestRepositoryProxyTest {
                 mockDisplayedIamRepository,
                 mockButtonClickedRepository,
                 timestampProvider,
+                uuidProvider,
                 inAppEventHandlerInternal);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(null, mockDisplayedIamRepository, mockButtonClickedRepository, timestampProvider, inAppEventHandlerInternal);
+        new RequestRepositoryProxy(null, mockDisplayedIamRepository, mockButtonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_displayedIamRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, null, mockButtonClickedRepository, timestampProvider, inAppEventHandlerInternal);
+        new RequestRepositoryProxy(mockRequestModelRepository, null, mockButtonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_buttonClickedRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, null, timestampProvider, inAppEventHandlerInternal);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, null, timestampProvider, uuidProvider, inAppEventHandlerInternal);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_timestampProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, null, inAppEventHandlerInternal);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, null, uuidProvider, inAppEventHandlerInternal);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_inAppInternal_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, null);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, uuidProvider, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_uuidProvider_mustNotBeNull() {
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, null, inAppEventHandlerInternal);
     }
 
     @Test
@@ -240,6 +247,7 @@ public class RequestRepositoryProxyTest {
                 false);
 
         RequestModel expectedComposite = new CompositeRequestModel(
+                REQUEST_ID,
                 RequestUrlUtils.createCustomEventUrl(mockRequestContext),
                 RequestMethod.POST,
                 payload,
@@ -310,6 +318,7 @@ public class RequestRepositoryProxyTest {
                 false);
 
         RequestModel expectedComposite = new CompositeRequestModel(
+                REQUEST_ID,
                 RequestUrlUtils.createCustomEventUrl(mockRequestContext),
                 RequestMethod.POST,
                 payload,
@@ -398,6 +407,7 @@ public class RequestRepositoryProxyTest {
                 false);
 
         RequestModel expectedComposite = new CompositeRequestModel(
+                REQUEST_ID,
                 RequestUrlUtils.createCustomEventUrl(mockRequestContext),
                 RequestMethod.POST,
                 payload,
@@ -450,6 +460,7 @@ public class RequestRepositoryProxyTest {
                 displayedIamRepository,
                 buttonClickedRepository,
                 timestampProvider,
+                uuidProvider,
                 inAppEventHandlerInternal
         );
     }

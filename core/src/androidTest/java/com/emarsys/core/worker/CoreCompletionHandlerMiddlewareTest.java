@@ -140,6 +140,7 @@ public class CoreCompletionHandlerMiddlewareTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
         RequestModel requestModel = new CompositeRequestModel(
+                "0",
                 "https://emarsys.com",
                 RequestMethod.POST,
                 null,
@@ -239,6 +240,7 @@ public class CoreCompletionHandlerMiddlewareTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
         RequestModel requestModel = new CompositeRequestModel(
+                "0",
                 "https://emarsys.com",
                 RequestMethod.POST,
                 null,

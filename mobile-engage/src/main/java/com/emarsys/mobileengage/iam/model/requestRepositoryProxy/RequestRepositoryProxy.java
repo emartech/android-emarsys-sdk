@@ -4,6 +4,7 @@ import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.FilterByUrlPattern;
@@ -28,6 +29,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private final Repository<DisplayedIam, SqlSpecification> iamRepository;
     private final Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
     private final TimestampProvider timestampProvider;
+    private final UUIDProvider uuidProvider;
     private final InAppEventHandlerInternal inAppEventHandlerInternal;
 
     public RequestRepositoryProxy(
@@ -35,18 +37,21 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
             Repository<DisplayedIam, SqlSpecification> iamRepository,
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             TimestampProvider timestampProvider,
+            UUIDProvider uuidProvider,
             InAppEventHandlerInternal inAppEventHandlerInternal) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(iamRepository, "IamRepository must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(inAppEventHandlerInternal, "InAppEventHandlerInternal must not be null!");
+        Assert.notNull(uuidProvider, "UuidProvider must not be null!");
 
         this.requestRepository = requestRepository;
         this.iamRepository = iamRepository;
         this.buttonClickedRepository = buttonClickedRepository;
         this.timestampProvider = timestampProvider;
         this.inAppEventHandlerInternal = inAppEventHandlerInternal;
+        this.uuidProvider = uuidProvider;
     }
 
     @Override
@@ -98,16 +103,13 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         RequestModel first = models.get(0);
         Map<String, Object> payload = createCompositePayload(models);
         String[] requestIds = collectRequestIds(models);
-
-        return new CompositeRequestModel(
-                first.getUrl().toString(),
-                first.getMethod(),
-                payload,
-                first.getHeaders(),
-                timestampProvider.provideTimestamp(),
-                Long.MAX_VALUE,
-                requestIds
-        );
+        return new CompositeRequestModel.Builder(timestampProvider, uuidProvider)
+                .url(first.getUrl().toString())
+                .method(first.getMethod())
+                .payload(payload)
+                .headers(first.getHeaders())
+                .ttl(Long.MAX_VALUE)
+                .originalRequestIds(requestIds).build();
     }
 
     private Map<String, Object> createCompositePayload(List<RequestModel> models) {

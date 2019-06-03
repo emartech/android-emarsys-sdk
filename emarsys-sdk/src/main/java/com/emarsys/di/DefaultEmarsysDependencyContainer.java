@@ -455,6 +455,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 displayedIamRepository,
                 buttonClickedRepository,
                 timestampProvider,
+                uuidProvider,
                 inAppEventHandler);
     }
 

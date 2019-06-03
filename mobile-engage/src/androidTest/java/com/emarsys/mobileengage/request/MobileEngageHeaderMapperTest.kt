@@ -204,6 +204,7 @@ class MobileEngageHeaderMapperTest {
     )
 
     private fun createCustomEventCompositeRequest(extraHeaders: Map<String, String> = mapOf()) = CompositeRequestModel(
+            "0",
             Endpoint.ME_V3_CLIENT_BASE,
             RequestMethod.POST,
             null,

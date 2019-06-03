@@ -68,6 +68,7 @@ class FilterByRequestIdTest {
         val originalRequestIds = arrayOf(requestModel1.id, requestModel3.id, requestModel4.id)
 
         val composite = CompositeRequestModel(
+                "0",
                 "https://emarsys.com",
                 RequestMethod.POST,
                 null,
