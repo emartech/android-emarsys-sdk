@@ -19,7 +19,7 @@ Using the SDK is also beneficial from the product aspect: it simply makes it muc
 - [Usage](#1-usage)
 - [Requirements](#2-requirements)
 - [Documentation](https://github.com/emartech/android-emarsys-sdk/wiki)
-- [How to Migrate to Emarsys SDK from MobileEngage SDK](https://github.com/emartech/android-emarsys-sdk/wiki/Migrate-From-Mobile-Engage)
+- [Migrate from Mobile Engage SDK](https://github.com/emartech/android-emarsys-sdk/wiki/Migrate-from-Mobile-Engage)
 - [Mobile Engage Glossary](https://github.com/emartech/android-emarsys-sdk/wiki/Glossary)
 - [Android Oreo Channels](https://github.com/emartech/android-emarsys-sdk/wiki/Android-Oreo-Channels)
 - [Rich Push Notifications](https://github.com/emartech/android-emarsys-sdk/wiki/Rich-Push-Notifications)
