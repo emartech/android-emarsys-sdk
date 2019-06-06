@@ -23,6 +23,7 @@ Using the SDK is also beneficial from the product aspect: it simply makes it muc
 - [Mobile Engage Glossary](https://github.com/emartech/android-emarsys-sdk/wiki/Glossary)
 - [Android Oreo Channels](https://github.com/emartech/android-emarsys-sdk/wiki/Android-Oreo-Channels)
 - [Rich Push Notifications](https://github.com/emartech/android-emarsys-sdk/wiki/Rich-Push-Notifications)
+- [DeepLink](https://github.com/emartech/android-emarsys-sdk/wiki/DeepLink)
 - [FAQ](https://github.com/emartech/android-emarsys-sdk/wiki/FAQ)
 
 
