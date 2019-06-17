@@ -21,6 +21,7 @@ Using the SDK is also beneficial from the product aspect: it simply makes it muc
 - [Documentation](https://github.com/emartech/android-emarsys-sdk/wiki)
 - [Migrate from Mobile Engage SDK](https://github.com/emartech/android-emarsys-sdk/wiki/Migrate-from-Mobile-Engage)
 - [Mobile Engage Glossary](https://github.com/emartech/android-emarsys-sdk/wiki/Glossary)
+- [Obtaining Firebase Cloud Messaging credentials](https://github.com/emartech/android-emarsys-sdk/wiki/Obtaining-Firebase-Cloud-Messaging-credentials)
 - [Android Oreo Channels](https://github.com/emartech/android-emarsys-sdk/wiki/Android-Oreo-Channels)
 - [Rich Push Notifications](https://github.com/emartech/android-emarsys-sdk/wiki/Rich-Push-Notifications)
 - [DeepLink](https://github.com/emartech/android-emarsys-sdk/wiki/DeepLink)
