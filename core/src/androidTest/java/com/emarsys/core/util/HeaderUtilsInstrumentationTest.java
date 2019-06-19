@@ -11,25 +11,19 @@ import static org.junit.Assert.assertEquals;
 public class HeaderUtilsInstrumentationTest {
 
     private final String username = "user";
-    private final String password = "pass";
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateBasicAuth_usernameShouldNotBeNull(){
-        HeaderUtils.createBasicAuth(null, password);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testCreateBasicAuth_passwordShouldNotBeNull(){
-        HeaderUtils.createBasicAuth(username, null);
+        HeaderUtils.createBasicAuth(null);
     }
 
     @Test
     public void testCreateBasicAuth_shouldCreateCorrectBasicAuthString() throws Exception {
-        String expected = "Basic dXNlcjpwYXNz";
-        String result = HeaderUtils.createBasicAuth(username, password);
+        String expected = "Basic dXNlcjo=";
+        String result = HeaderUtils.createBasicAuth(username);
         assertEquals(expected, result);
     }
 

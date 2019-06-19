@@ -340,7 +340,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         requestContext = new RequestContext(
                 config.getApplicationCode(),
-                config.getApplicationPassword(),
                 config.getContactFieldId(),
                 getDeviceInfo(),
                 timestampProvider,

@@ -38,7 +38,6 @@ class PredictIntegrationTest {
 
     companion object {
         private const val APP_ID = "14C19-A121F"
-        private const val APP_PASSWORD = "PaNkfOD90AVpYimMBuZopCpm8OWCrREu"
         private const val CONTACT_FIELD_ID = 3
         private const val MERCHANT_ID = "1428C8EE286EC34B"
     }
@@ -76,7 +75,7 @@ class PredictIntegrationTest {
 
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
-                .mobileEngageCredentials(APP_ID, APP_PASSWORD)
+                .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
                 .build()

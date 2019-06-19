@@ -30,7 +30,6 @@ class RequestModelFactoryTest {
         const val REQUEST_ID = "request_id"
         const val HARDWARE_ID = "hardware_id"
         const val APPLICATION_CODE = "app_code"
-        const val APPLICATION_PASSWORD = "appPassword"
         const val PUSH_TOKEN = "kjhygtfdrtrtdtguyihoj3iurf8y7t6fqyua2gyi8fhu"
         const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
@@ -80,7 +79,6 @@ class RequestModelFactoryTest {
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
             whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
-            whenever(applicationPassword).thenReturn(APPLICATION_PASSWORD)
         }
 
         requestFactory = RequestModelFactory(mockRequestContext)

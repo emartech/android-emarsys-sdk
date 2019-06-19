@@ -62,7 +62,6 @@ public class DeepLinkInternalTest {
         when(mockDeviceInfo.getSdkVersion()).thenReturn("0.0.1");
         requestContext = new RequestContext(
                 "",
-                "",
                 1,
                 mockDeviceInfo,
                 timestampProvider,

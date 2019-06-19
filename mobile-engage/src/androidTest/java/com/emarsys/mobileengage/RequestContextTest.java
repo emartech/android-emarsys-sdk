@@ -24,23 +24,6 @@ public class RequestContextTest {
     public void testConstructor_applicationCode_mustNotBeNull() {
         new RequestContext(
                 null,
-                "",
-                contactFieldId,
-                mock(DeviceInfo.class),
-                mock(TimestampProvider.class),
-                mock(UUIDProvider.class),
-                mock(Storage.class),
-                mock(Storage.class),
-                mock(Storage.class),
-                mock(Storage.class)
-        );
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_applicationPassword_mustNotBeNull() {
-        new RequestContext(
-                "",
-                null,
                 contactFieldId,
                 mock(DeviceInfo.class),
                 mock(TimestampProvider.class),
@@ -55,7 +38,6 @@ public class RequestContextTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_DeviceInfo_mustNotBeNull() {
         new RequestContext(
-                "",
                 "",
                 contactFieldId,
                 null,
@@ -72,7 +54,6 @@ public class RequestContextTest {
     public void testConstructor_TimestampProvider_mustNotBeNull() {
         new RequestContext(
                 "",
-                "",
                 contactFieldId,
                 mock(DeviceInfo.class),
                 null,
@@ -87,7 +68,6 @@ public class RequestContextTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_IdProvider_mustNotBeNull() {
         new RequestContext(
-                "",
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
@@ -104,7 +84,6 @@ public class RequestContextTest {
     public void testConstructor_clientStateStorage_mustNotBeNull() {
         new RequestContext(
                 "",
-                "",
                 contactFieldId,
                 mock(DeviceInfo.class),
                 mock(TimestampProvider.class),
@@ -119,7 +98,6 @@ public class RequestContextTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_contactTokenStorage_mustNotBeNull() {
         new RequestContext(
-                "",
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
@@ -136,7 +114,6 @@ public class RequestContextTest {
     public void testConstructor_refreshTokenStorage_mustNotBeNull() {
         new RequestContext(
                 "",
-                "",
                 contactFieldId,
                 mock(DeviceInfo.class),
                 mock(TimestampProvider.class),
@@ -151,7 +128,6 @@ public class RequestContextTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_contactFieldValueStorage_mustNotBeNull() {
         new RequestContext(
-                "",
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),

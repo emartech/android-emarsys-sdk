@@ -20,7 +20,6 @@ class RequestHeaderUtilsTest {
         const val HARDWARE_ID = "hardware_id"
         const val SDK_VERSION = "sdkVersion"
         const val APPLICATION_CODE = "applicationCode"
-        const val APPLICATION_PASSWORD = "applicationPassword"
         const val CONTACT_FIELD_ID = 3
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
     }
@@ -47,7 +46,6 @@ class RequestHeaderUtilsTest {
         mockRequestContext = mock(RequestContext::class.java).apply {
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
-            whenever(applicationPassword).thenReturn(APPLICATION_PASSWORD)
             whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
         }
@@ -113,7 +111,7 @@ class RequestHeaderUtilsTest {
     @Test
     fun testCreateBaseHeaders_V2_shouldReturnCorrectMap() {
         val expected = HashMap<String, String>()
-        expected["Authorization"] = HeaderUtils.createBasicAuth(mockRequestContext.applicationCode, mockRequestContext.applicationPassword)
+        expected["Authorization"] = HeaderUtils.createBasicAuth(mockRequestContext.applicationCode)
 
         val result = RequestHeaderUtils.createBaseHeaders_V2(mockRequestContext)
 
@@ -135,7 +133,7 @@ class RequestHeaderUtilsTest {
                 "Content-Type" to "application/json",
                 "X-EMARSYS-SDK-VERSION" to SDK_VERSION,
                 "X-EMARSYS-SDK-MODE" to "production",
-                "Authorization" to HeaderUtils.createBasicAuth(mockRequestContext.applicationCode, mockRequestContext.applicationPassword)
+                "Authorization" to HeaderUtils.createBasicAuth(mockRequestContext.applicationCode)
         )
 
         val result = RequestHeaderUtils.createInboxHeaders(mockRequestContext)

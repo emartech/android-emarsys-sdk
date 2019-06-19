@@ -8,7 +8,6 @@ import com.emarsys.core.util.Assert;
 
 public class RequestContext {
     private final String applicationCode;
-    private final String applicationPassword;
     private final int contactFieldId;
     private final DeviceInfo deviceInfo;
     private final TimestampProvider timestampProvider;
@@ -20,7 +19,6 @@ public class RequestContext {
 
     public RequestContext(
             String applicationCode,
-            String applicationPassword,
             int contactFieldId,
             DeviceInfo deviceInfo,
             TimestampProvider timestampProvider,
@@ -30,7 +28,6 @@ public class RequestContext {
             Storage<String> refreshTokenStorage,
             Storage<String> contactFieldValueStorage) {
         Assert.notNull(applicationCode, "ApplicationCode must not be null!");
-        Assert.notNull(applicationPassword, "ApplicationPassword must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(uuidProvider, "UUIDProvider must not be null!");
@@ -40,7 +37,6 @@ public class RequestContext {
         Assert.notNull(contactFieldValueStorage, "ContactFieldValueStorage must not be null!");
 
         this.applicationCode = applicationCode;
-        this.applicationPassword = applicationPassword;
         this.contactFieldId = contactFieldId;
         this.deviceInfo = deviceInfo;
         this.timestampProvider = timestampProvider;
@@ -53,10 +49,6 @@ public class RequestContext {
 
     public String getApplicationCode() {
         return applicationCode;
-    }
-
-    public String getApplicationPassword() {
-        return applicationPassword;
     }
 
     public int getContactFieldId() {
@@ -95,7 +87,6 @@ public class RequestContext {
     public String toString() {
         return "RequestContext{" +
                 "applicationCode='" + applicationCode + '\'' +
-                ", applicationPassword='" + applicationPassword + '\'' +
                 ", contactFieldId=" + contactFieldId +
                 ", deviceInfo=" + deviceInfo +
                 ", timestampProvider=" + timestampProvider +

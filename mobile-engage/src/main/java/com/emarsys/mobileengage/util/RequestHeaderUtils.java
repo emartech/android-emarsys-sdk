@@ -32,9 +32,7 @@ public class RequestHeaderUtils {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         Map<String, String> baseHeaders = new HashMap<>();
-        baseHeaders.put("Authorization", HeaderUtils.createBasicAuth(
-                requestContext.getApplicationCode(),
-                requestContext.getApplicationPassword()));
+        baseHeaders.put("Authorization", HeaderUtils.createBasicAuth(requestContext.getApplicationCode()));
         return baseHeaders;
     }
 

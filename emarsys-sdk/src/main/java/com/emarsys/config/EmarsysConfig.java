@@ -16,7 +16,6 @@ public class EmarsysConfig {
 
     private final Application application;
     private final String applicationCode;
-    private final String applicationPassword;
     private final int contactFieldId;
     private final String predictMerchantId;
     private final boolean idlingResourceEnabled;
@@ -26,7 +25,6 @@ public class EmarsysConfig {
 
     EmarsysConfig(Application application,
                   String applicationCode,
-                  String applicationPassword,
                   Integer contactFieldId,
                   String predictMerchantId,
                   boolean idlingResourceEnabled,
@@ -35,14 +33,12 @@ public class EmarsysConfig {
                   FlipperFeature[] experimentalFeatures) {
         Assert.notNull(application, "Application must not be null");
         Assert.notNull(applicationCode, "ApplicationCode must not be null");
-        Assert.notNull(applicationPassword, "ApplicationPassword must not be null");
         Assert.notNull(contactFieldId, "ContactFieldId must not be null");
         Assert.notNull(experimentalFeatures, "ExperimentalFeatures must not be null");
         Assert.elementsNotNull(experimentalFeatures, "ExperimentalFeatures must not contain null elements!");
 
         this.application = application;
         this.applicationCode = applicationCode;
-        this.applicationPassword = applicationPassword;
         this.contactFieldId = contactFieldId;
         this.predictMerchantId = predictMerchantId;
         this.idlingResourceEnabled = idlingResourceEnabled;
@@ -57,10 +53,6 @@ public class EmarsysConfig {
 
     public String getApplicationCode() {
         return applicationCode;
-    }
-
-    public String getApplicationPassword() {
-        return applicationPassword;
     }
 
     public int getContactFieldId() {
@@ -100,8 +92,6 @@ public class EmarsysConfig {
             return false;
         if (applicationCode != null ? !applicationCode.equals(config.applicationCode) : config.applicationCode != null)
             return false;
-        if (applicationPassword != null ? !applicationPassword.equals(config.applicationPassword) : config.applicationPassword != null)
-            return false;
         if (predictMerchantId != null ? !predictMerchantId.equals(config.predictMerchantId) : config.predictMerchantId != null)
             return false;
         if (inAppEventHandler != null ? !inAppEventHandler.equals(config.inAppEventHandler) : config.inAppEventHandler != null)
@@ -115,7 +105,6 @@ public class EmarsysConfig {
     public int hashCode() {
         int result = application != null ? application.hashCode() : 0;
         result = 31 * result + (applicationCode != null ? applicationCode.hashCode() : 0);
-        result = 31 * result + (applicationPassword != null ? applicationPassword.hashCode() : 0);
         result = 31 * result + contactFieldId;
         result = 31 * result + (predictMerchantId != null ? predictMerchantId.hashCode() : 0);
         result = 31 * result + (idlingResourceEnabled ? 1 : 0);
@@ -130,7 +119,6 @@ public class EmarsysConfig {
         return "EmarsysConfig{" +
                 "application=" + application +
                 ", applicationCode='" + applicationCode + '\'' +
-                ", applicationPassword='" + applicationPassword + '\'' +
                 ", contactFieldId=" + contactFieldId +
                 ", predictMerchantId='" + predictMerchantId + '\'' +
                 ", idlingResourceEnabled=" + idlingResourceEnabled +
@@ -143,7 +131,6 @@ public class EmarsysConfig {
     public static class Builder {
         private Application application;
         private String applicationCode;
-        private String applicationPassword;
         private Integer contactFieldId;
         private String predictMerchantId;
         private boolean idlingResourceEnabled;
@@ -155,7 +142,6 @@ public class EmarsysConfig {
             Assert.notNull(baseConfig, "BaseConfig must not be null");
             application = baseConfig.getApplication();
             applicationCode = baseConfig.getApplicationCode();
-            applicationPassword = baseConfig.getApplicationPassword();
             contactFieldId = baseConfig.getContactFieldId();
             predictMerchantId = baseConfig.getPredictMerchantId();
             idlingResourceEnabled = baseConfig.isIdlingResourceEnabled();
@@ -170,10 +156,8 @@ public class EmarsysConfig {
             return this;
         }
 
-        public Builder mobileEngageCredentials(@NonNull String applicationCode,
-                                               @NonNull String applicationPassword) {
+        public Builder mobileEngageApplicationCode(@NonNull String applicationCode) {
             this.applicationCode = applicationCode;
-            this.applicationPassword = applicationPassword;
             return this;
         }
 
@@ -213,7 +197,6 @@ public class EmarsysConfig {
             return new EmarsysConfig(
                     application,
                     applicationCode,
-                    applicationPassword,
                     contactFieldId,
                     predictMerchantId,
                     idlingResourceEnabled,

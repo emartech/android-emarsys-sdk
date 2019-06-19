@@ -19,7 +19,6 @@ import static org.mockito.Mockito.mock;
 
 public class EmarsysConfigTest {
     private String APP_ID = "appID";
-    private String APP_PASSWORD = "5678987654345678654";
     private int CONTACT_FIELD_ID = 567;
     private String MERCHANT_ID = "MERCHANT_ID";
     private Application application;
@@ -46,7 +45,6 @@ public class EmarsysConfigTest {
         new EmarsysConfig(
                 null,
                 APP_ID,
-                APP_PASSWORD,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,
@@ -60,7 +58,6 @@ public class EmarsysConfigTest {
         new EmarsysConfig(
                 application,
                 null,
-                APP_PASSWORD,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,
@@ -74,7 +71,6 @@ public class EmarsysConfigTest {
         new EmarsysConfig(
                 application,
                 APP_ID,
-                null,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,
@@ -88,7 +84,6 @@ public class EmarsysConfigTest {
         new EmarsysConfig(
                 application,
                 APP_ID,
-                APP_PASSWORD,
                 null,
                 MERCHANT_ID,
                 true,
@@ -102,7 +97,6 @@ public class EmarsysConfigTest {
         new EmarsysConfig(
                 application,
                 APP_ID,
-                APP_PASSWORD,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,
@@ -116,7 +110,6 @@ public class EmarsysConfigTest {
         new EmarsysConfig(
                 application,
                 APP_ID,
-                APP_PASSWORD,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,
@@ -130,7 +123,6 @@ public class EmarsysConfigTest {
         EmarsysConfig expected = new EmarsysConfig(
                 application,
                 APP_ID,
-                APP_PASSWORD,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,
@@ -141,7 +133,7 @@ public class EmarsysConfigTest {
 
         EmarsysConfig result = new EmarsysConfig.Builder()
                 .application(application)
-                .mobileEngageCredentials(APP_ID, APP_PASSWORD)
+                .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
                 .enableIdlingResource(true)
@@ -158,7 +150,6 @@ public class EmarsysConfigTest {
         EmarsysConfig expected = new EmarsysConfig(
                 application,
                 APP_ID,
-                APP_PASSWORD,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 false,
@@ -168,7 +159,7 @@ public class EmarsysConfigTest {
 
         EmarsysConfig result = new EmarsysConfig.Builder()
                 .application(application)
-                .mobileEngageCredentials(APP_ID, APP_PASSWORD)
+                .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
                 .build();
@@ -181,7 +172,7 @@ public class EmarsysConfigTest {
         try {
             new EmarsysConfig.Builder()
                     .application(application)
-                    .mobileEngageCredentials(APP_ID, APP_PASSWORD)
+                    .mobileEngageApplicationCode(APP_ID)
                     .contactFieldId(CONTACT_FIELD_ID)
                     .predictMerchantId(MERCHANT_ID)
                     .build();
@@ -200,7 +191,6 @@ public class EmarsysConfigTest {
         EmarsysConfig expected = new EmarsysConfig(
                 application,
                 APP_ID,
-                APP_PASSWORD,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 true,

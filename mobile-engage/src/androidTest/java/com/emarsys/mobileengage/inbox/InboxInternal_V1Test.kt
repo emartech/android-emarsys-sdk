@@ -54,6 +54,7 @@ class InboxInternal_V1Test {
 
         private const val HARDWARE_ID = "hwid"
         private const val APPLICATION_ID = "id"
+        private const val CONTACT_FIELD_ID = 1
         private const val REQUEST_ID = "REQUEST_ID"
         private const val TIMESTAMP: Long = 100000
     }
@@ -110,8 +111,7 @@ class InboxInternal_V1Test {
         }
         requestContext = RequestContext(
                 APPLICATION_ID,
-                "applicationPassword",
-                1,
+                CONTACT_FIELD_ID,
                 deviceInfo,
                 mockTimestampProvider,
                 mockUuidProvider,

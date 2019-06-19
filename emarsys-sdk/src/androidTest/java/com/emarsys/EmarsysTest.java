@@ -98,7 +98,6 @@ public class EmarsysTest {
     }
 
     private static final String APPLICATION_CODE = "56789876";
-    private static final String APPLICATION_PASSWORD = "secret";
     private static final int CONTACT_FIELD_ID = 3;
     private static final String MERCHANT_ID = "merchantId";
     private static final String SDK_VERSION = "sdkVersion";
@@ -929,7 +928,7 @@ public class EmarsysTest {
     private EmarsysConfig createConfig(boolean withInApp, FlipperFeature... experimentalFeatures) {
         EmarsysConfig.Builder builder = new EmarsysConfig.Builder()
                 .application(application)
-                .mobileEngageCredentials(APPLICATION_CODE, APPLICATION_PASSWORD)
+                .mobileEngageApplicationCode(APPLICATION_CODE)
                 .predictMerchantId(MERCHANT_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .enableExperimentalFeatures(experimentalFeatures);

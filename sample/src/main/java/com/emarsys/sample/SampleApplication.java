@@ -30,7 +30,7 @@ public class SampleApplication extends Application implements EventHandler, Noti
 
         EmarsysConfig config = new EmarsysConfig.Builder()
                 .application(this)
-                .mobileEngageCredentials(MobileEngageCredentials.INTEGRATION_APPLICATION_CODE, MobileEngageCredentials.INTEGRATION_APPLICATION_PASSWORD)
+                .mobileEngageApplicationCode(MobileEngageCredentials.INTEGRATION_APPLICATION_CODE)
                 .contactFieldId(3)
                 .inAppEventHandler(this)
                 .notificationEventHandler(this)
