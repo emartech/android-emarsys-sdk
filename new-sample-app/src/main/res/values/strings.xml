@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">New Sample App</string>
+    <string name="notify_button_label">Notify</string>
+</resources>

@@ -1,6 +1,7 @@
 ext.modules = [':core-api',':core-java', ':core', ':mobile-engage-api', ':mobile-engage', ':predict-api', ':predict', ':emarsys-sdk']
 
 buildscript {
+    ext.kotlin_version = '1.3.31'
     repositories {
         jcenter()
         google()

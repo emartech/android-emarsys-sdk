@@ -1,6 +1,6 @@
 enableFeaturePreview('IMPROVED_POM_SUPPORT')
 
-include ':testUtils'
+include ':testUtils', ':new-sample-app'
 include ':core-java'
 include ':core-api'
 include ':core'
