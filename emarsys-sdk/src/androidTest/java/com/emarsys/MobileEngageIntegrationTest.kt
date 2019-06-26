@@ -24,6 +24,7 @@ import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
+import io.kotlintest.matchers.numerics.shouldBeInRange
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
@@ -64,7 +65,7 @@ class MobileEngageIntegrationTest {
 
     @Rule
     @JvmField
-    val activityRule = ActivityTestRule<FakeActivity>(FakeActivity::class.java)
+    val activityRule = ActivityTestRule(FakeActivity::class.java)
 
     @Before
     fun setup() {
@@ -79,8 +80,8 @@ class MobileEngageIntegrationTest {
                 .build()
 
         completionHandler = createDefaultCoreCompletionHandler()
-
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
+
             override fun getCoreCompletionHandler() = completionHandler
 
             override fun getDeviceInfo() = DeviceInfo(
@@ -262,11 +263,13 @@ class MobileEngageIntegrationTest {
     private fun eventuallyAssertSuccess(ignored: Any) {
         completionListenerLatch.await()
         errorCause shouldBe null
+        responseModel.statusCode shouldBeInRange IntRange(200, 299)
     }
 
     private fun eventuallyAssertCompletionHandlerSuccess(ignored: Any) {
         completionHandlerLatch?.await()
         errorCause shouldBe null
+        responseModel.statusCode shouldBeInRange IntRange(200, 299)
     }
 
     private fun createDefaultCoreCompletionHandler(): DefaultCoreCompletionHandler {

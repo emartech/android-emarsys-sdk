@@ -207,7 +207,8 @@ public class EmarsysTest {
                 mockContactTokenStorage,
                 mockClientStateStorage,
                 mockResponseHandlersProcessor,
-                mockNotificationCache
+                mockNotificationCache,
+                null
         ));
     }
 

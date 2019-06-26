@@ -302,6 +302,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         return notificationCache;
     }
 
+    @Override
+    public RestClient getRestClient() {
+        return restClient;
+    }
+
     private void initializeDependencies(EmarsysConfig config) {
         application = config.getApplication();
         runnerProxy = new RunnerProxy();
@@ -364,7 +369,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         refreshTokenInternal = new MobileEngageRefreshTokenInternal(
                 contactTokenResponseHandler,
-                restClient,
+                getRestClient(),
                 requestModelFactory);
 
         ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(application, coreSdkHandler);
@@ -378,7 +383,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         CoreCompletionHandlerRefreshTokenProxyProvider coreCompletionHandlerRefreshTokenProxyProvider = new CoreCompletionHandlerRefreshTokenProxyProvider(
                 coreCompletionHandlerMiddlewareProvider,
                 refreshTokenInternal,
-                restClient,
+                getRestClient(),
                 contactTokenStorage
         );
         Worker worker = new DefaultWorker(
@@ -386,7 +391,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 connectionWatchDog,
                 uiHandler,
                 getCoreCompletionHandler(),
-                restClient,
+                getRestClient(),
                 coreCompletionHandlerRefreshTokenProxyProvider);
 
         requestManager = new RequestManager(
@@ -394,7 +399,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 requestModelRepository,
                 shardModelRepository,
                 worker,
-                restClient,
+                getRestClient(),
                 getCoreCompletionHandler(),
                 getCoreCompletionHandler());
 

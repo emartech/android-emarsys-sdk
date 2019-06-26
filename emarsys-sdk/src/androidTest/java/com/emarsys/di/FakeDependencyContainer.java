@@ -12,6 +12,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.request.RestClient;
 import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.Storage;
@@ -57,6 +58,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final Storage<String> clientStateStorage;
     private final ResponseHandlersProcessor responseHandlersProcessor;
     private final NotificationCache notificationCache;
+    private final RestClient restClient;
 
     public FakeDependencyContainer(
             Handler coreSdkHandler,
@@ -85,7 +87,8 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             Storage<String> contactFieldValueStorage,
             Storage<String> contactTokenStorage, Storage<String> clientStateStorage,
             ResponseHandlersProcessor responseHandlersProcessor,
-            NotificationCache notificationCache) {
+            NotificationCache notificationCache,
+            RestClient restClient) {
         this.coreSdkHandler = coreSdkHandler;
         this.activityLifecycleWatchdog = activityLifecycleWatchdog;
         this.currentActivityWatchdog = currentActivityWatchdog;
@@ -114,6 +117,7 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
         this.clientStateStorage = clientStateStorage;
         this.responseHandlersProcessor = responseHandlersProcessor;
         this.notificationCache = notificationCache;
+        this.restClient = restClient;
     }
 
     @Override
@@ -229,6 +233,11 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     @Override
     public Logger getLogger() {
         return logger;
+    }
+
+    @Override
+    public RestClient getRestClient() {
+        return restClient;
     }
 
     @Override

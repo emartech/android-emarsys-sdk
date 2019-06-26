@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.request
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.RestClient
+import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
@@ -156,6 +157,25 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
         proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, FakeMobileEngageRefreshTokenInternal(), mockRestClient, mockContactTokenStorage)
 
         proxy.onError(REQUEST_ID, mockResponseModel)
+
+        verify(mockCoreCompletionHandler).onError(eq(REQUEST_ID), any(Exception::class.java))
+    }
+
+    @Test
+    fun testOnError_shouldCall_coreCompletionHandler_withError_whenExceptionThrown_whenCompositeRequestModel() {
+        val mockRequestModel = mock(CompositeRequestModel::class.java).apply {
+            whenever(id).thenReturn("compositeRequestId")
+            whenever(originalRequestIds).thenReturn(arrayOf(REQUEST_ID))
+            whenever(url).thenReturn(URL("https://mobile-events.eservice.emarsys.net"))
+        }
+
+        whenever(mockResponseModel.requestModel).thenReturn(mockRequestModel)
+        whenever(mockResponseModel.statusCode).thenReturn(401)
+
+
+        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, FakeMobileEngageRefreshTokenInternal(), mockRestClient, mockContactTokenStorage)
+
+        proxy.onError("compositeRequestId", mockResponseModel)
 
         verify(mockCoreCompletionHandler).onError(eq(REQUEST_ID), any(Exception::class.java))
     }
