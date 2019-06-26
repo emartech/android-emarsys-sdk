@@ -49,7 +49,7 @@ node('master') {
                     ]
                     def createTask = { module ->
                         return {
-                            sh "gcloud firebase test android run --type instrumentation --test '$module/$path/$module-debug-androidTest.apk' $app ${devices.join(' ')} --timeout 90s --quiet --project ems-mobile-sdk"
+                            sh "gcloud firebase test android run --type instrumentation --test '$module/$path/$module-debug-androidTest.apk' $app ${devices.join(' ')} --quiet --project ems-mobile-sdk"
                         }
                     }
                     def tasks = [
