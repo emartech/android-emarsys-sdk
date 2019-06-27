@@ -3,10 +3,17 @@ package com.emarsys.core.util
 import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
+import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 
 class RequestModelUtilsTest {
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun testExtractIdsFromCompositeRequestModel() {
