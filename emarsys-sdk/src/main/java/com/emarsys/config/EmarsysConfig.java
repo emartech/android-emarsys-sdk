@@ -15,33 +15,30 @@ import java.util.Arrays;
 public class EmarsysConfig {
 
     private final Application application;
-    private final String applicationCode;
+    private final String mobileEngageApplicationCode;
     private final int contactFieldId;
     private final String predictMerchantId;
-    private final boolean idlingResourceEnabled;
     private final EventHandler inAppEventHandler;
     private final NotificationEventHandler notificationEventHandler;
     private final FlipperFeature[] experimentalFeatures;
 
     EmarsysConfig(Application application,
-                  String applicationCode,
+                  String mobileEngageApplicationCode,
                   Integer contactFieldId,
                   String predictMerchantId,
-                  boolean idlingResourceEnabled,
                   EventHandler inAppEventHandler,
                   NotificationEventHandler notificationEventHandler,
                   FlipperFeature[] experimentalFeatures) {
         Assert.notNull(application, "Application must not be null");
-        Assert.notNull(applicationCode, "ApplicationCode must not be null");
+        Assert.notNull(mobileEngageApplicationCode, "MobileEngageApplicationCode must not be null");
         Assert.notNull(contactFieldId, "ContactFieldId must not be null");
         Assert.notNull(experimentalFeatures, "ExperimentalFeatures must not be null");
         Assert.elementsNotNull(experimentalFeatures, "ExperimentalFeatures must not contain null elements!");
 
         this.application = application;
-        this.applicationCode = applicationCode;
+        this.mobileEngageApplicationCode = mobileEngageApplicationCode;
         this.contactFieldId = contactFieldId;
         this.predictMerchantId = predictMerchantId;
-        this.idlingResourceEnabled = idlingResourceEnabled;
         this.inAppEventHandler = inAppEventHandler;
         this.notificationEventHandler = notificationEventHandler;
         this.experimentalFeatures = experimentalFeatures;
@@ -51,8 +48,8 @@ public class EmarsysConfig {
         return application;
     }
 
-    public String getApplicationCode() {
-        return applicationCode;
+    public String getMobileEngageApplicationCode() {
+        return mobileEngageApplicationCode;
     }
 
     public int getContactFieldId() {
@@ -61,10 +58,6 @@ public class EmarsysConfig {
 
     public String getPredictMerchantId() {
         return predictMerchantId;
-    }
-
-    public boolean isIdlingResourceEnabled() {
-        return idlingResourceEnabled;
     }
 
     public EventHandler getInAppEventHandler() {
@@ -87,10 +80,9 @@ public class EmarsysConfig {
         EmarsysConfig config = (EmarsysConfig) o;
 
         if (contactFieldId != config.contactFieldId) return false;
-        if (idlingResourceEnabled != config.idlingResourceEnabled) return false;
         if (application != null ? !application.equals(config.application) : config.application != null)
             return false;
-        if (applicationCode != null ? !applicationCode.equals(config.applicationCode) : config.applicationCode != null)
+        if (mobileEngageApplicationCode != null ? !mobileEngageApplicationCode.equals(config.mobileEngageApplicationCode) : config.mobileEngageApplicationCode != null)
             return false;
         if (predictMerchantId != null ? !predictMerchantId.equals(config.predictMerchantId) : config.predictMerchantId != null)
             return false;
@@ -104,10 +96,9 @@ public class EmarsysConfig {
     @Override
     public int hashCode() {
         int result = application != null ? application.hashCode() : 0;
-        result = 31 * result + (applicationCode != null ? applicationCode.hashCode() : 0);
+        result = 31 * result + (mobileEngageApplicationCode != null ? mobileEngageApplicationCode.hashCode() : 0);
         result = 31 * result + contactFieldId;
         result = 31 * result + (predictMerchantId != null ? predictMerchantId.hashCode() : 0);
-        result = 31 * result + (idlingResourceEnabled ? 1 : 0);
         result = 31 * result + (inAppEventHandler != null ? inAppEventHandler.hashCode() : 0);
         result = 31 * result + (notificationEventHandler != null ? notificationEventHandler.hashCode() : 0);
         result = 31 * result + Arrays.hashCode(experimentalFeatures);
@@ -118,10 +109,9 @@ public class EmarsysConfig {
     public String toString() {
         return "EmarsysConfig{" +
                 "application=" + application +
-                ", applicationCode='" + applicationCode + '\'' +
+                ", applicationCode='" + mobileEngageApplicationCode + '\'' +
                 ", contactFieldId=" + contactFieldId +
                 ", predictMerchantId='" + predictMerchantId + '\'' +
-                ", idlingResourceEnabled=" + idlingResourceEnabled +
                 ", inAppEventHandler=" + inAppEventHandler +
                 ", notificationEventHandler=" + notificationEventHandler +
                 ", experimentalFeatures=" + Arrays.toString(experimentalFeatures) +
@@ -130,10 +120,9 @@ public class EmarsysConfig {
 
     public static class Builder {
         private Application application;
-        private String applicationCode;
+        private String mobileEngageApplicationCode;
         private Integer contactFieldId;
         private String predictMerchantId;
-        private boolean idlingResourceEnabled;
         private EventHandler defaultInAppEventHandler;
         private NotificationEventHandler notificationEventHandler;
         private FlipperFeature[] experimentalFeatures;
@@ -141,10 +130,9 @@ public class EmarsysConfig {
         public Builder from(EmarsysConfig baseConfig) {
             Assert.notNull(baseConfig, "BaseConfig must not be null");
             application = baseConfig.getApplication();
-            applicationCode = baseConfig.getApplicationCode();
+            mobileEngageApplicationCode = baseConfig.getMobileEngageApplicationCode();
             contactFieldId = baseConfig.getContactFieldId();
             predictMerchantId = baseConfig.getPredictMerchantId();
-            idlingResourceEnabled = baseConfig.isIdlingResourceEnabled();
             defaultInAppEventHandler = baseConfig.getInAppEventHandler();
             notificationEventHandler = baseConfig.getNotificationEventHandler();
             experimentalFeatures = baseConfig.getExperimentalFeatures();
@@ -156,8 +144,8 @@ public class EmarsysConfig {
             return this;
         }
 
-        public Builder mobileEngageApplicationCode(@NonNull String applicationCode) {
-            this.applicationCode = applicationCode;
+        public Builder mobileEngageApplicationCode(@NonNull String mobileEngageApplicationCode) {
+            this.mobileEngageApplicationCode = mobileEngageApplicationCode;
             return this;
         }
 
@@ -168,11 +156,6 @@ public class EmarsysConfig {
 
         public Builder predictMerchantId(@Nullable String predictMerchantId) {
             this.predictMerchantId = predictMerchantId;
-            return this;
-        }
-
-        public Builder enableIdlingResource(boolean enabled) {
-            idlingResourceEnabled = enabled;
             return this;
         }
 
@@ -196,10 +179,9 @@ public class EmarsysConfig {
 
             return new EmarsysConfig(
                     application,
-                    applicationCode,
+                    mobileEngageApplicationCode,
                     contactFieldId,
                     predictMerchantId,
-                    idlingResourceEnabled,
                     defaultInAppEventHandler,
                     notificationEventHandler,
                     experimentalFeatures

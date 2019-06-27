@@ -344,7 +344,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         displayedIamRepository = new DisplayedIamRepository(coreDbHelper);
 
         requestContext = new RequestContext(
-                config.getApplicationCode(),
+                config.getMobileEngageApplicationCode(),
                 config.getContactFieldId(),
                 getDeviceInfo(),
                 timestampProvider,
@@ -427,7 +427,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 new ListSizeAtLeast<ShardModel>(10),
                 new FilterByShardType(FilterByShardType.SHARD_TYPE_LOG),
                 new ListChunker<ShardModel>(10),
-                new LogShardListMerger(timestampProvider, uuidProvider, getDeviceInfo(), config.getApplicationCode(), config.getPredictMerchantId()),
+                new LogShardListMerger(timestampProvider, uuidProvider, getDeviceInfo(), config.getMobileEngageApplicationCode(), config.getPredictMerchantId()),
                 requestManager,
                 BatchingShardTrigger.RequestStrategy.TRANSIENT);
 
