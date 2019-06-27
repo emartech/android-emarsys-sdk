@@ -47,7 +47,6 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                true,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 features);
@@ -60,7 +59,6 @@ public class EmarsysConfigTest {
                 null,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                true,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 features);
@@ -73,7 +71,6 @@ public class EmarsysConfigTest {
                 APP_ID,
                 null,
                 MERCHANT_ID,
-                true,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 features);
@@ -86,7 +83,6 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                true,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 null);
@@ -99,7 +95,6 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                true,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 new FlipperFeature[]{mock(FlipperFeature.class), null});
@@ -112,7 +107,6 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                true,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 features
@@ -123,7 +117,6 @@ public class EmarsysConfigTest {
                 .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
-                .enableIdlingResource(true)
                 .enableExperimentalFeatures(features)
                 .inAppEventHandler(defaultInAppEventHandler)
                 .notificationEventHandler(defaultNotificationEventHandler)
@@ -139,7 +132,6 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                false,
                 null,
                 null,
                 new FlipperFeature[]{});
@@ -180,7 +172,6 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                true,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
                 features);
