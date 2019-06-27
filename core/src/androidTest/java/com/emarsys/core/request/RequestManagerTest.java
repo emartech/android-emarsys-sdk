@@ -28,6 +28,7 @@ import com.emarsys.core.worker.Worker;
 import com.emarsys.testUtil.ConnectionTestUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
+import com.emarsys.testUtil.RetryUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.After;
@@ -47,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import static com.emarsys.testUtil.TestUrls.DENNA_ECHO;
 import static com.emarsys.testUtil.TestUrls.customResponse;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,7 +58,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RequestManagerTest {
-    private static final String GOOGLE_URL = "https://www.google.com";
 
     private RequestManager manager;
     private RequestModel requestModel;
@@ -80,6 +81,9 @@ public class RequestManagerTest {
     private Mapper<RequestModel, RequestModel> mockRequestModelMapper;
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
+
+    @Rule
+    public TestRule retry = RetryUtils.getRetryRule();
 
     @Before
     @SuppressWarnings("unchecked")
@@ -141,7 +145,7 @@ public class RequestManagerTest {
         headers.put("content", "application/x-www-form-urlencoded");
 
         requestModel = new RequestModel.Builder(timestampProvider, uuidProvider)
-                .url(GOOGLE_URL)
+                .url(DENNA_ECHO)
                 .method(RequestMethod.GET)
                 .headers(headers)
                 .build();
