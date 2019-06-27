@@ -11,6 +11,7 @@ import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class EmarsysConfig {
 
@@ -21,6 +22,7 @@ public class EmarsysConfig {
     private final EventHandler inAppEventHandler;
     private final NotificationEventHandler notificationEventHandler;
     private final FlipperFeature[] experimentalFeatures;
+    private final boolean automaticPushTokenSending;
 
     EmarsysConfig(Application application,
                   String mobileEngageApplicationCode,
@@ -28,7 +30,8 @@ public class EmarsysConfig {
                   String predictMerchantId,
                   EventHandler inAppEventHandler,
                   NotificationEventHandler notificationEventHandler,
-                  FlipperFeature[] experimentalFeatures) {
+                  FlipperFeature[] experimentalFeatures,
+                  boolean automaticPushTokenSending) {
         Assert.notNull(application, "Application must not be null");
         Assert.notNull(contactFieldId, "ContactFieldId must not be null");
         Assert.notNull(experimentalFeatures, "ExperimentalFeatures must not be null");
@@ -41,6 +44,7 @@ public class EmarsysConfig {
         this.inAppEventHandler = inAppEventHandler;
         this.notificationEventHandler = notificationEventHandler;
         this.experimentalFeatures = experimentalFeatures;
+        this.automaticPushTokenSending = automaticPushTokenSending;
     }
 
     public Application getApplication() {
@@ -71,35 +75,28 @@ public class EmarsysConfig {
         return experimentalFeatures;
     }
 
+    public boolean isAutomaticPushTokenSendingEnabled() {
+        return automaticPushTokenSending;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         EmarsysConfig config = (EmarsysConfig) o;
-
-        if (contactFieldId != config.contactFieldId) return false;
-        if (application != null ? !application.equals(config.application) : config.application != null)
-            return false;
-        if (mobileEngageApplicationCode != null ? !mobileEngageApplicationCode.equals(config.mobileEngageApplicationCode) : config.mobileEngageApplicationCode != null)
-            return false;
-        if (predictMerchantId != null ? !predictMerchantId.equals(config.predictMerchantId) : config.predictMerchantId != null)
-            return false;
-        if (inAppEventHandler != null ? !inAppEventHandler.equals(config.inAppEventHandler) : config.inAppEventHandler != null)
-            return false;
-        if (notificationEventHandler != null ? !notificationEventHandler.equals(config.notificationEventHandler) : config.notificationEventHandler != null)
-            return false;
-        return Arrays.equals(experimentalFeatures, config.experimentalFeatures);
+        return contactFieldId == config.contactFieldId &&
+                automaticPushTokenSending == config.automaticPushTokenSending &&
+                Objects.equals(application, config.application) &&
+                Objects.equals(mobileEngageApplicationCode, config.mobileEngageApplicationCode) &&
+                Objects.equals(predictMerchantId, config.predictMerchantId) &&
+                Objects.equals(inAppEventHandler, config.inAppEventHandler) &&
+                Objects.equals(notificationEventHandler, config.notificationEventHandler) &&
+                Arrays.equals(experimentalFeatures, config.experimentalFeatures);
     }
 
     @Override
     public int hashCode() {
-        int result = application != null ? application.hashCode() : 0;
-        result = 31 * result + (mobileEngageApplicationCode != null ? mobileEngageApplicationCode.hashCode() : 0);
-        result = 31 * result + contactFieldId;
-        result = 31 * result + (predictMerchantId != null ? predictMerchantId.hashCode() : 0);
-        result = 31 * result + (inAppEventHandler != null ? inAppEventHandler.hashCode() : 0);
-        result = 31 * result + (notificationEventHandler != null ? notificationEventHandler.hashCode() : 0);
+        int result = Objects.hash(application, mobileEngageApplicationCode, contactFieldId, predictMerchantId, inAppEventHandler, notificationEventHandler, automaticPushTokenSending);
         result = 31 * result + Arrays.hashCode(experimentalFeatures);
         return result;
     }
@@ -108,12 +105,13 @@ public class EmarsysConfig {
     public String toString() {
         return "EmarsysConfig{" +
                 "application=" + application +
-                ", applicationCode='" + mobileEngageApplicationCode + '\'' +
+                ", mobileEngageApplicationCode='" + mobileEngageApplicationCode + '\'' +
                 ", contactFieldId=" + contactFieldId +
                 ", predictMerchantId='" + predictMerchantId + '\'' +
                 ", inAppEventHandler=" + inAppEventHandler +
                 ", notificationEventHandler=" + notificationEventHandler +
                 ", experimentalFeatures=" + Arrays.toString(experimentalFeatures) +
+                ", automaticPushTokenSending=" + automaticPushTokenSending +
                 '}';
     }
 
@@ -125,6 +123,7 @@ public class EmarsysConfig {
         private EventHandler defaultInAppEventHandler;
         private NotificationEventHandler notificationEventHandler;
         private FlipperFeature[] experimentalFeatures;
+        private boolean automaticPushTokenSending = true;
 
         public Builder from(EmarsysConfig baseConfig) {
             Assert.notNull(baseConfig, "BaseConfig must not be null");
@@ -135,6 +134,7 @@ public class EmarsysConfig {
             defaultInAppEventHandler = baseConfig.getInAppEventHandler();
             notificationEventHandler = baseConfig.getNotificationEventHandler();
             experimentalFeatures = baseConfig.getExperimentalFeatures();
+            automaticPushTokenSending = baseConfig.isAutomaticPushTokenSendingEnabled();
             return this;
         }
 
@@ -163,6 +163,11 @@ public class EmarsysConfig {
             return this;
         }
 
+        public Builder disableAutomaticPushTokenSending() {
+            this.automaticPushTokenSending = false;
+            return this;
+        }
+
         public Builder inAppEventHandler(EventHandler inAppEventHandler) {
             this.defaultInAppEventHandler = inAppEventHandler;
             return this;
@@ -183,8 +188,8 @@ public class EmarsysConfig {
                     predictMerchantId,
                     defaultInAppEventHandler,
                     notificationEventHandler,
-                    experimentalFeatures
-            );
+                    experimentalFeatures,
+                    automaticPushTokenSending);
         }
     }
 }
