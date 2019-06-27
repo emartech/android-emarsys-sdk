@@ -30,7 +30,6 @@ public class EmarsysConfig {
                   NotificationEventHandler notificationEventHandler,
                   FlipperFeature[] experimentalFeatures) {
         Assert.notNull(application, "Application must not be null");
-        Assert.notNull(mobileEngageApplicationCode, "MobileEngageApplicationCode must not be null");
         Assert.notNull(contactFieldId, "ContactFieldId must not be null");
         Assert.notNull(experimentalFeatures, "ExperimentalFeatures must not be null");
         Assert.elementsNotNull(experimentalFeatures, "ExperimentalFeatures must not contain null elements!");

@@ -53,18 +53,6 @@ public class EmarsysConfigTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_applicationCodeShouldNotBeNull() {
-        new EmarsysConfig(
-                application,
-                null,
-                CONTACT_FIELD_ID,
-                MERCHANT_ID,
-                defaultInAppEventHandler,
-                defaultNotificationEventHandler,
-                features);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testConstructor_contactFieldIdShouldNotBeNull() {
         new EmarsysConfig(
                 application,
