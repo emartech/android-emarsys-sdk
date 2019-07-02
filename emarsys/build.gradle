@@ -6,7 +6,6 @@ dependencies {
     implementation project(':core')
     implementation project(':mobile-engage')
     implementation project(':predict')
-    implementation project(':emarsys')
 
     androidTestImplementation project(':testUtils')
 }
