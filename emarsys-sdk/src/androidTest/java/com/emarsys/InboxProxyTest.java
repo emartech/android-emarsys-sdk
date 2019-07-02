@@ -8,9 +8,12 @@ import com.emarsys.inbox.InboxProxy;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.inbox.InboxInternal;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -21,6 +24,9 @@ public class InboxProxyTest {
     private InboxInternal mockInboxInternal;
 
     private RunnerProxy runnerProxy;
+
+    @Rule
+    public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     public void setUp() {

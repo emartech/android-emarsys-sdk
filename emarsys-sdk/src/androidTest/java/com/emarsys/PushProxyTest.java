@@ -6,9 +6,12 @@ import com.emarsys.core.RunnerProxy;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.mobileengage.push.PushInternal;
 import com.emarsys.push.PushProxy;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -19,6 +22,9 @@ public class PushProxyTest {
     private PushInternal mockPushInternal;
     private CompletionListener mockCompletionListener;
     private PushProxy pushProxy;
+
+    @Rule
+    public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     public void setUp() {

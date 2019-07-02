@@ -4,9 +4,12 @@ import com.emarsys.core.RunnerProxy;
 import com.emarsys.inapp.InAppProxy;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.iam.InAppInternal;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -20,6 +23,8 @@ public class InAppProxyTest {
 
     private RunnerProxy runnerProxy;
 
+    @Rule
+    public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     public void setUp() {

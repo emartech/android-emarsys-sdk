@@ -5,9 +5,12 @@ import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.PredictProxy;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.testUtil.RandomTestUtils;
+import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +23,9 @@ public class PredictProxyTest {
     private PredictInternal mockPredictInternal;
     private RunnerProxy runnerProxy;
     private PredictProxy predictProxy;
+
+    @Rule
+    public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     public void setUp() {
