@@ -17,7 +17,10 @@ import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.log.Logger;
-import com.emarsys.mobileengage.MobileEngageClientInternal;
+import com.emarsys.inapp.InAppApi;
+import com.emarsys.inbox.InboxApi;
+import com.emarsys.mobileengage.ClientServiceInternal;
+import com.emarsys.mobileengage.EventServiceInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.RequestContext;
@@ -27,7 +30,11 @@ import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
+import com.emarsys.mobileengage.push.PushInternal;
+import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
+import com.emarsys.push.PushApi;
+
 
 public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final Handler coreSdkHandler;
@@ -43,6 +50,9 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final InboxInternal inboxInternal;
     private final InAppInternal inAppInternal;
     private final DeepLinkInternal deepLinkInternal;
+    private final EventServiceInternal eventServiceInternal;
+    private final ClientServiceInternal clientServiceInternal;
+    private final PushInternal pushInternal;
     private final DefaultCoreCompletionHandler completionHandler;
     private final RequestContext requestContext;
     private final InAppPresenter inAppPresenter;
@@ -59,6 +69,10 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     private final ResponseHandlersProcessor responseHandlersProcessor;
     private final NotificationCache notificationCache;
     private final RestClient restClient;
+    private final InboxApi inbox;
+    private final InAppApi inApp;
+    private final PushApi push;
+    private final PredictApi predict;
 
     public FakeDependencyContainer(
             Handler coreSdkHandler,
@@ -71,9 +85,12 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             UUIDProvider uuidProvider,
             Runnable logShardTrigger,
             MobileEngageInternal mobileEngageInternal,
-            InboxInternal inboxInternal,
+            PushInternal pushInternal, InboxInternal inboxInternal,
             InAppInternal inAppInternal,
+            RefreshTokenInternal refreshTokenInternal,
             DeepLinkInternal deepLinkInternal,
+            EventServiceInternal eventServiceInternal,
+            ClientServiceInternal clientServiceInternal,
             DefaultCoreCompletionHandler completionHandler,
             RequestContext requestContext,
             InAppPresenter inAppPresenter,
@@ -82,13 +99,16 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
             Runnable predictShardTrigger,
             RunnerProxy runnerProxy,
             Logger logger,
-            RefreshTokenInternal refreshTokenInternal,
             Storage<Integer> deviceInfoHashStorage,
             Storage<String> contactFieldValueStorage,
             Storage<String> contactTokenStorage, Storage<String> clientStateStorage,
             ResponseHandlersProcessor responseHandlersProcessor,
             NotificationCache notificationCache,
-            RestClient restClient) {
+            RestClient restClient,
+            InboxApi inbox,
+            InAppApi inApp,
+            PushApi push,
+            PredictApi predict) {
         this.coreSdkHandler = coreSdkHandler;
         this.activityLifecycleWatchdog = activityLifecycleWatchdog;
         this.currentActivityWatchdog = currentActivityWatchdog;
@@ -118,6 +138,13 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
         this.responseHandlersProcessor = responseHandlersProcessor;
         this.notificationCache = notificationCache;
         this.restClient = restClient;
+        this.inbox = inbox;
+        this.inApp = inApp;
+        this.push = push;
+        this.predict = predict;
+        this.eventServiceInternal = eventServiceInternal;
+        this.clientServiceInternal = clientServiceInternal;
+        this.pushInternal = pushInternal;
     }
 
     @Override
@@ -176,8 +203,8 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     }
 
     @Override
-    public MobileEngageClientInternal getClientInternal() {
-        return mobileEngageInternal;
+    public ClientServiceInternal getClientServiceInternal() {
+        return clientServiceInternal;
     }
 
     @Override
@@ -188,6 +215,21 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     @Override
     public InAppInternal getInAppInternal() {
         return inAppInternal;
+    }
+
+    @Override
+    public PredictInternal getPredictInternal() {
+        return predictInternal;
+    }
+
+    @Override
+    public PushInternal getPushInternal() {
+        return pushInternal;
+    }
+
+    @Override
+    public EventServiceInternal getEventServiceInternal() {
+        return eventServiceInternal;
     }
 
     @Override
@@ -213,11 +255,6 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     @Override
     public NotificationEventHandler getNotificationEventHandler() {
         return notificationEventHandler;
-    }
-
-    @Override
-    public PredictInternal getPredictInternal() {
-        return predictInternal;
     }
 
     @Override
@@ -268,5 +305,26 @@ public class FakeDependencyContainer implements EmarysDependencyContainer {
     @Override
     public NotificationCache getNotificationCache() {
         return notificationCache;
+    }
+
+
+    @Override
+    public InboxApi getInbox() {
+        return inbox;
+    }
+
+    @Override
+    public InAppApi getInApp() {
+        return inApp;
+    }
+
+    @Override
+    public PushApi getPush() {
+        return push;
+    }
+
+    @Override
+    public PredictApi getPredict() {
+        return predict;
     }
 }

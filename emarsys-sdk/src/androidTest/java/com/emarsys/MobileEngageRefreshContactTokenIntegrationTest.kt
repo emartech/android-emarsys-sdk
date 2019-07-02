@@ -131,9 +131,9 @@ class MobileEngageRefreshContactTokenIntegrationTest {
         contactTokenStorage.remove()
         contactTokenStorage.set("tokenForIntegrationTest")
 
-        val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
+        val eventServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().eventServiceInternal
 
-        mobileEngageInternal.trackInternalCustomEvent("integrationTest", emptyMap(), this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
+        eventServiceInternal.trackInternalCustomEvent("integrationTest", emptyMap(), this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
 
         contactTokenStorage.get() shouldNotBe "tokenForIntegrationTest"
     }

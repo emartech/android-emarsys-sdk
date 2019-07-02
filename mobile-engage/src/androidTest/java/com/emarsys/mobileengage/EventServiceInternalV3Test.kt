@@ -10,10 +10,20 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 
 class EventServiceInternalV3Test {
+
+    companion object {
+        const val REQUEST_ID = "request_id"
+
+        const val CONTACT_FIELD_ID = 3
+        const val EVENT_NAME = "customEventName"
+
+        val EVENT_ATTRIBUTES = emptyMap<String, String>()
+    }
+
     private lateinit var mockRequestManager: RequestManager
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var mockRequestModelFactory: RequestModelFactory
@@ -31,21 +41,21 @@ class EventServiceInternalV3Test {
         mockCompletionListener = mock(CompletionListener::class.java)
 
         mockRequestModelFactory = mock(RequestModelFactory::class.java).apply {
-            whenever(createCustomEventRequest(MobileEngageInternalV3Test.EVENT_NAME, MobileEngageInternalV3Test.EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
-            whenever(createInternalCustomEventRequest(MobileEngageInternalV3Test.EVENT_NAME, MobileEngageInternalV3Test.EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
+            whenever(createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
+            whenever(createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
         }
 
-        eventServiceInternal = EventServiceInternalV3(mockRequestModelFactory, mockRequestManager)
+        eventServiceInternal = EventServiceInternalV3(mockRequestManager, mockRequestModelFactory)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestModelFactory_mustNotBeNull() {
-        EventServiceInternalV3(null, mockRequestManager)
+        EventServiceInternalV3(mockRequestManager, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestManager_mustNotBeNull() {
-        EventServiceInternalV3(mockRequestModelFactory, null)
+        EventServiceInternalV3(null, mockRequestModelFactory)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -55,16 +65,16 @@ class EventServiceInternalV3Test {
 
     @Test
     fun testTrackCustomEvent() {
-        eventServiceInternal.trackCustomEvent(MobileEngageInternalV3Test.EVENT_NAME, MobileEngageInternalV3Test.EVENT_ATTRIBUTES, mockCompletionListener)
+        eventServiceInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
 
-        Mockito.verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+        verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
     }
 
     @Test
     fun testTrackCustomEvent_completionListener_canBeNull() {
-        eventServiceInternal.trackCustomEvent(MobileEngageInternalV3Test.EVENT_NAME, MobileEngageInternalV3Test.EVENT_ATTRIBUTES, null)
+        eventServiceInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, null)
 
-        Mockito.verify(mockRequestManager).submit(mockRequestModel, null)
+        verify(mockRequestManager).submit(mockRequestModel, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -74,15 +84,15 @@ class EventServiceInternalV3Test {
 
     @Test
     fun testTrackInternalCustomEvent() {
-        eventServiceInternal.trackInternalCustomEvent(MobileEngageInternalV3Test.EVENT_NAME, MobileEngageInternalV3Test.EVENT_ATTRIBUTES, mockCompletionListener)
+        eventServiceInternal.trackInternalCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
 
-        Mockito.verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+        verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
     }
 
     @Test
     fun testTrackInternalCustomEvent_completionListener_canBeNull() {
-        eventServiceInternal.trackInternalCustomEvent(MobileEngageInternalV3Test.EVENT_NAME, MobileEngageInternalV3Test.EVENT_ATTRIBUTES, null)
+        eventServiceInternal.trackInternalCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, null)
 
-        Mockito.verify(mockRequestManager).submit(mockRequestModel, null)
+        verify(mockRequestManager).submit(mockRequestModel, null)
     }
 }
