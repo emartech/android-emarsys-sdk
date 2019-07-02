@@ -17,10 +17,11 @@ import com.emarsys.core.database.trigger.TriggerEvent;
 import com.emarsys.core.database.trigger.TriggerType;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.di.DependencyInjection;
-import com.emarsys.core.experimental.ExperimentalFeatures;
+import com.emarsys.core.feature.FeatureRegistry;
 import com.emarsys.core.util.Assert;
 import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
+import com.emarsys.feature.InnerFeature;
 import com.emarsys.inapp.InAppApi;
 import com.emarsys.inbox.InboxApi;
 import com.emarsys.mobileengage.ClientServiceInternal;
@@ -49,7 +50,7 @@ public class Emarsys {
         Assert.notNull(config, "Config must not be null!");
 
         for (FlipperFeature feature : config.getExperimentalFeatures()) {
-            ExperimentalFeatures.enableFeature(feature);
+            FeatureRegistry.enableFeature(feature);
         }
 
         DependencyInjection.setup(new DefaultEmarsysDependencyContainer(config));

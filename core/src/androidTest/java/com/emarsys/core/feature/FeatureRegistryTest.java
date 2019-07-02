@@ -1,4 +1,4 @@
-package com.emarsys.core.experimental;
+package com.emarsys.core.feature;
 
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ExperimentalFeaturesTest {
+public class FeatureRegistryTest {
 
     private FlipperFeature feature1;
     private FlipperFeature feature2;
@@ -30,7 +30,7 @@ public class ExperimentalFeaturesTest {
 
     @Before
     public void setUp() {
-        ExperimentalFeatures.reset();
+        FeatureRegistry.reset();
 
         feature1 = mock(FlipperFeature.class);
         when(feature1.getName()).thenReturn("feature1");
@@ -46,37 +46,37 @@ public class ExperimentalFeaturesTest {
 
     @After
     public void tearDown() {
-        ExperimentalFeatures.reset();
+        FeatureRegistry.reset();
     }
 
     @Test
     public void testIsFeatureEnabled_shouldDefaultToBeingTurnedOff() {
         for (FlipperFeature feature : features) {
-            assertFalse(ExperimentalFeatures.isFeatureEnabled(feature));
+            assertFalse(FeatureRegistry.isFeatureEnabled(feature));
         }
     }
 
     @Test
     public void testIsFeatureEnabled_shouldReturnTrue_whenFeatureIsTurnedOn() {
-        ExperimentalFeatures.enableFeature(feature1);
-        assertTrue(ExperimentalFeatures.isFeatureEnabled(feature1));
+        FeatureRegistry.enableFeature(feature1);
+        assertTrue(FeatureRegistry.isFeatureEnabled(feature1));
     }
 
     @Test
     public void testEnableFeature_shouldAppendFeaturesToTheEnabledFeatureSet() {
-        assertEquals(0, ExperimentalFeatures.enabledFeatures.size());
-        ExperimentalFeatures.enableFeature(feature1);
-        ExperimentalFeatures.enableFeature(feature2);
-        assertEquals(2, ExperimentalFeatures.enabledFeatures.size());
+        assertEquals(0, FeatureRegistry.enabledFeatures.size());
+        FeatureRegistry.enableFeature(feature1);
+        FeatureRegistry.enableFeature(feature2);
+        assertEquals(2, FeatureRegistry.enabledFeatures.size());
     }
 
     @Test
     public void testEnableFeature_shouldRemoveAllFeaturesFromTheEnabledFeatureSet() {
-        ExperimentalFeatures.enableFeature(feature1);
-        ExperimentalFeatures.enableFeature(feature2);
-        assertEquals(2, ExperimentalFeatures.enabledFeatures.size());
-        ExperimentalFeatures.reset();
-        assertEquals(0, ExperimentalFeatures.enabledFeatures.size());
+        FeatureRegistry.enableFeature(feature1);
+        FeatureRegistry.enableFeature(feature2);
+        assertEquals(2, FeatureRegistry.enabledFeatures.size());
+        FeatureRegistry.reset();
+        assertEquals(0, FeatureRegistry.enabledFeatures.size());
     }
 
 }

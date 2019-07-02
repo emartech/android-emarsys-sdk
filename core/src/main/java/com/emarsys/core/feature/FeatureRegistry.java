@@ -1,11 +1,11 @@
-package com.emarsys.core.experimental;
+package com.emarsys.core.feature;
 
 import com.emarsys.core.api.experimental.FlipperFeature;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class ExperimentalFeatures {
+public class FeatureRegistry {
 
     static Set<String> enabledFeatures = new HashSet<>();
 
