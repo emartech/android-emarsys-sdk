@@ -95,8 +95,8 @@ class MobileEngageIntegrationTest {
                     mock(LanguageProvider::class.java).apply {
                         whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
                     },
-                    mock(NotificationManagerHelper::class.java)
-
+                    mock(NotificationManagerHelper::class.java),
+                    true
             )
         })
 

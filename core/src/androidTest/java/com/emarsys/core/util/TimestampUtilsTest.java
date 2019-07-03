@@ -36,7 +36,8 @@ public class TimestampUtilsTest {
                 mock(HardwareIdProvider.class),
                 mock(VersionProvider.class),
                 mock(LanguageProvider.class),
-                mock(NotificationManagerHelper.class)
+                mock(NotificationManagerHelper.class),
+                true
         ).getTimezone();
         String dateString = "2017-12-07T10:46:09.100";
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");

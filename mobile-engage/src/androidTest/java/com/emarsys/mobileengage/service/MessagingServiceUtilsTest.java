@@ -85,7 +85,8 @@ public class MessagingServiceUtilsTest {
                 mock(HardwareIdProvider.class),
                 mock(VersionProvider.class),
                 mock(LanguageProvider.class),
-                mock(NotificationManagerHelper.class));
+                mock(NotificationManagerHelper.class),
+                true);
 
         metaDataReader = mock(MetaDataReader.class);
 

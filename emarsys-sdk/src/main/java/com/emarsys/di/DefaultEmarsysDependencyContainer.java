@@ -332,7 +332,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(application);
         NotificationManagerProxy notificationManagerProxy = new NotificationManagerProxy(notificationManager, notificationManagerCompat);
         NotificationSettings notificationSettings = new NotificationManagerHelper(notificationManagerProxy);
-        deviceInfo = new DeviceInfo(application, hardwareIdProvider, versionProvider, languageProvider, notificationSettings);
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider, versionProvider, languageProvider, notificationSettings, config.isAutomaticPushTokenSendingEnabled());
 
         currentActivityProvider = new CurrentActivityProvider();
         currentActivityWatchdog = new CurrentActivityWatchdog(currentActivityProvider);

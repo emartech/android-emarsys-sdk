@@ -87,8 +87,8 @@ class InboxV1IntegrationTest {
                     },
                     mock(VersionProvider::class.java),
                     mock(LanguageProvider::class.java),
-                    mock(NotificationManagerHelper::class.java)
-
+                    mock(NotificationManagerHelper::class.java),
+                    true
             )
         })
 

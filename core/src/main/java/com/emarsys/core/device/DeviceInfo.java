@@ -16,6 +16,7 @@ import com.emarsys.core.util.SystemUtils;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Objects;
 
 public class DeviceInfo {
     public static final String UNKNOWN_VERSION_NAME = "unknown";
@@ -33,8 +34,9 @@ public class DeviceInfo {
     private final String sdkVersion;
     private final boolean kotlinEnabled;
     private final NotificationSettings notificationSettings;
+    private final boolean isAutomaticPushSendingEnabled;
 
-    public DeviceInfo(Context context, HardwareIdProvider hardwareIdProvider, VersionProvider versionProvider, LanguageProvider languageProvider, NotificationSettings notificationSettings) {
+    public DeviceInfo(Context context, HardwareIdProvider hardwareIdProvider, VersionProvider versionProvider, LanguageProvider languageProvider, NotificationSettings notificationSettings, boolean isAutomaticPushSendingEnabled) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(hardwareIdProvider, "HardwareIdProvider must not be null!");
         Assert.notNull(versionProvider, "VersionProvider must not be null!");
@@ -66,6 +68,8 @@ public class DeviceInfo {
         this.kotlinEnabled = SystemUtils.isKotlinEnabled();
 
         this.notificationSettings = notificationSettings;
+
+        this.isAutomaticPushSendingEnabled = isAutomaticPushSendingEnabled;
     }
 
     private String getApplicationVersion(Context context) {
@@ -136,48 +140,33 @@ public class DeviceInfo {
         return notificationSettings;
     }
 
+    public boolean isAutomaticPushSendingEnabled() {
+        return isAutomaticPushSendingEnabled;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         DeviceInfo that = (DeviceInfo) o;
-
-        if (isDebugMode != that.isDebugMode) return false;
-        if (kotlinEnabled != that.kotlinEnabled) return false;
-        if (hwid != null ? !hwid.equals(that.hwid) : that.hwid != null) return false;
-        if (platform != null ? !platform.equals(that.platform) : that.platform != null)
-            return false;
-        if (language != null ? !language.equals(that.language) : that.language != null)
-            return false;
-        if (timezone != null ? !timezone.equals(that.timezone) : that.timezone != null)
-            return false;
-        if (manufacturer != null ? !manufacturer.equals(that.manufacturer) : that.manufacturer != null)
-            return false;
-        if (model != null ? !model.equals(that.model) : that.model != null) return false;
-        if (applicationVersion != null ? !applicationVersion.equals(that.applicationVersion) : that.applicationVersion != null)
-            return false;
-        if (osVersion != null ? !osVersion.equals(that.osVersion) : that.osVersion != null)
-            return false;
-        if (displayMetrics != null ? !displayMetrics.equals(that.displayMetrics) : that.displayMetrics != null)
-            return false;
-        return sdkVersion != null ? sdkVersion.equals(that.sdkVersion) : that.sdkVersion == null;
+        return isDebugMode == that.isDebugMode &&
+                kotlinEnabled == that.kotlinEnabled &&
+                isAutomaticPushSendingEnabled == that.isAutomaticPushSendingEnabled &&
+                Objects.equals(hwid, that.hwid) &&
+                Objects.equals(platform, that.platform) &&
+                Objects.equals(language, that.language) &&
+                Objects.equals(timezone, that.timezone) &&
+                Objects.equals(manufacturer, that.manufacturer) &&
+                Objects.equals(model, that.model) &&
+                Objects.equals(applicationVersion, that.applicationVersion) &&
+                Objects.equals(osVersion, that.osVersion) &&
+                Objects.equals(displayMetrics, that.displayMetrics) &&
+                Objects.equals(sdkVersion, that.sdkVersion) &&
+                Objects.equals(notificationSettings, that.notificationSettings);
     }
 
     @Override
     public int hashCode() {
-        int result = hwid != null ? hwid.hashCode() : 0;
-        result = 31 * result + (platform != null ? platform.hashCode() : 0);
-        result = 31 * result + (language != null ? language.hashCode() : 0);
-        result = 31 * result + (timezone != null ? timezone.hashCode() : 0);
-        result = 31 * result + (manufacturer != null ? manufacturer.hashCode() : 0);
-        result = 31 * result + (model != null ? model.hashCode() : 0);
-        result = 31 * result + (applicationVersion != null ? applicationVersion.hashCode() : 0);
-        result = 31 * result + (osVersion != null ? osVersion.hashCode() : 0);
-        result = 31 * result + (displayMetrics != null ? displayMetrics.hashCode() : 0);
-        result = 31 * result + (isDebugMode ? 1 : 0);
-        result = 31 * result + (sdkVersion != null ? sdkVersion.hashCode() : 0);
-        result = 31 * result + (kotlinEnabled ? 1 : 0);
-        return result;
+        return Objects.hash(hwid, platform, language, timezone, manufacturer, model, applicationVersion, osVersion, displayMetrics, isDebugMode, sdkVersion, kotlinEnabled, notificationSettings, isAutomaticPushSendingEnabled);
     }
 }

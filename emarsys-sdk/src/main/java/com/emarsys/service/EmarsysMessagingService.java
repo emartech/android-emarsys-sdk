@@ -12,7 +12,9 @@ public class EmarsysMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(String token) {
         super.onNewToken(token);
-        Emarsys.Push.setPushToken(token);
+        if (DependencyInjection.getContainer().getDeviceInfo().isAutomaticPushSendingEnabled()) {
+            Emarsys.Push.setPushToken(token);
+        }
     }
 
     @Override

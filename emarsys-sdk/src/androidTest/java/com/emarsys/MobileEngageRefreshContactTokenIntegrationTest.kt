@@ -77,8 +77,8 @@ class MobileEngageRefreshContactTokenIntegrationTest {
                         whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
                     },
                     LanguageProvider(),
-                    Mockito.mock(NotificationManagerHelper::class.java)
-
+                    Mockito.mock(NotificationManagerHelper::class.java),
+                    true
             )
         })
 

@@ -68,7 +68,7 @@ public class DeviceInfoTest {
         when(mockLanguageProvider.provideLanguage(any(Locale.class))).thenReturn(LANGUAGE);
         when(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION);
 
-        deviceInfo = new DeviceInfo(context, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
+        deviceInfo = new DeviceInfo(context, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
     }
 
     @After
@@ -78,27 +78,27 @@ public class DeviceInfoTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_context_mustNotBeNull() {
-        new DeviceInfo(null, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
+        new DeviceInfo(null, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_hardwareIdProvider_mustNotBeNull() {
-        new DeviceInfo(context, null, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
+        new DeviceInfo(context, null, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_versionProvider_mustNotBeNull() {
-        new DeviceInfo(context, mockHardwareIdProvider, null, mockLanguageProvider, mockNotificationManagerHelper);
+        new DeviceInfo(context, mockHardwareIdProvider, null, mockLanguageProvider, mockNotificationManagerHelper, true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_languageProvider_mustNotBeNull() {
-        new DeviceInfo(context, mockHardwareIdProvider, mockVersionProvider, null, mockNotificationManagerHelper);
+        new DeviceInfo(context, mockHardwareIdProvider, mockVersionProvider, null, mockNotificationManagerHelper, true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_notificationManagerHelper_mustNotBeNull() {
-        new DeviceInfo(context, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, null);
+        new DeviceInfo(context, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, null, true);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class DeviceInfoTest {
         when(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo);
         when(mockContext.getApplicationInfo()).thenReturn(mock(ApplicationInfo.class));
 
-        DeviceInfo info = new DeviceInfo(mockContext, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
+        DeviceInfo info = new DeviceInfo(mockContext, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
 
         assertEquals(DeviceInfo.UNKNOWN_VERSION_NAME, info.getApplicationVersion());
     }
@@ -164,7 +164,7 @@ public class DeviceInfoTest {
     public void testIsDebugMode_withDebugApplication() {
         Application mockDebugContext = ApplicationTestUtils.getApplicationDebug();
 
-        DeviceInfo debugDeviceInfo = new DeviceInfo(mockDebugContext, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
+        DeviceInfo debugDeviceInfo = new DeviceInfo(mockDebugContext, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
         assertTrue(debugDeviceInfo.isDebugMode());
     }
 
@@ -172,7 +172,7 @@ public class DeviceInfoTest {
     public void testIsDebugMode_withReleaseApplication() {
         Application mockReleaseContext = ApplicationTestUtils.getApplicationRelease();
 
-        DeviceInfo releaseDeviceInfo = new DeviceInfo(mockReleaseContext, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
+        DeviceInfo releaseDeviceInfo = new DeviceInfo(mockReleaseContext, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
         assertFalse(releaseDeviceInfo.isDebugMode());
     }
 

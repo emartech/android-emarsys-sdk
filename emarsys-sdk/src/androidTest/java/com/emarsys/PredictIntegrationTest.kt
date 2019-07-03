@@ -123,7 +123,8 @@ class PredictIntegrationTest {
                     mock(LanguageProvider::class.java).apply {
                         whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
                     },
-                    NotificationManagerHelper(NotificationManagerProxy(application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager, NotificationManagerCompat.from(application)))
+                    NotificationManagerHelper(NotificationManagerProxy(application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager, NotificationManagerCompat.from(application))),
+                    true
             )
         })
 

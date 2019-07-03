@@ -172,7 +172,7 @@ public class EmarsysTest {
         configWithInAppEventHandler = createConfig(true);
 
         HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
-        deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper);
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
 
         when(mockDeviceInfoHashStorage.get()).thenReturn(deviceInfo.getHash());
         when(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION);

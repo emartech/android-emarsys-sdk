@@ -96,7 +96,7 @@ class InboxInternal_V1Test {
         mockLanguageProvider = mock(LanguageProvider::class.java)
 
         whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
-        deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mock(VersionProvider::class.java), mockLanguageProvider, mock(NotificationManagerHelper::class.java))
+        deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mock(VersionProvider::class.java), mockLanguageProvider, mock(NotificationManagerHelper::class.java), true)
 
         mockUuidProvider = mock(UUIDProvider::class.java)
         whenever(mockUuidProvider.provideId()).thenReturn(REQUEST_ID)
