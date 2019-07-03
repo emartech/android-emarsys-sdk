@@ -82,6 +82,7 @@ class MobileEngageIntegrationTest {
         completionHandler = createDefaultCoreCompletionHandler()
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
 
+
             override fun getCoreCompletionHandler() = completionHandler
 
             override fun getDeviceInfo() = DeviceInfo(
@@ -180,9 +181,9 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackInternalCustomEvent_V3_noAttributes() {
-        val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
+        val eventServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().eventServiceInternal
 
-        mobileEngageInternal.trackInternalCustomEvent(
+        eventServiceInternal.trackInternalCustomEvent(
                 "integrationTestInternalCustomEvent",
                 null,
                 this::eventuallyStoreResult
@@ -191,9 +192,9 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackInternalCustomEvent_V3_withAttributes() {
-        val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
+        val eventServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().eventServiceInternal
 
-        mobileEngageInternal.trackInternalCustomEvent(
+        eventServiceInternal.trackInternalCustomEvent(
                 "integrationTestInternalCustomEvent",
                 mapOf("key1" to "value1", "key2" to "value2"),
                 this::eventuallyStoreResult
@@ -250,9 +251,9 @@ class MobileEngageIntegrationTest {
         clientStateStorage.remove()
         contactTokenStorage.remove()
 
-        val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
+        val clientServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().clientServiceInternal
 
-        mobileEngageInternal.trackDeviceInfo().also(this::eventuallyAssertCompletionHandlerSuccess)
+        clientServiceInternal.trackDeviceInfo().also(this::eventuallyAssertCompletionHandlerSuccess)
     }
 
     private fun eventuallyStoreResult(errorCause: Throwable?) {

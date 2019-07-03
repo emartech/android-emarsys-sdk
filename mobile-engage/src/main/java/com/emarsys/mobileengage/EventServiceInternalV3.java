@@ -12,7 +12,7 @@ public class EventServiceInternalV3 implements EventServiceInternal {
     private final RequestModelFactory requestModelFactory;
     private final RequestManager requestManager;
 
-    public EventServiceInternalV3(RequestModelFactory requestModelFactory, RequestManager requestManager) {
+    public EventServiceInternalV3(RequestManager requestManager, RequestModelFactory requestModelFactory) {
         Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");
         Assert.notNull(requestManager, "RequestManager must not be null!");
 

@@ -1,6 +1,6 @@
 package com.emarsys.mobileengage;
 
-public interface MobileEngageClientInternal {
+public interface ClientServiceInternal {
 
     void trackDeviceInfo();
 }

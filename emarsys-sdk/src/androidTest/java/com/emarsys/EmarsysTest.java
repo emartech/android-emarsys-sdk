@@ -15,7 +15,6 @@ import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
-import com.emarsys.core.api.result.Try;
 import com.emarsys.core.concurrency.CoreSdkHandler;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.trigger.TriggerEvent;
@@ -35,31 +34,36 @@ import com.emarsys.core.util.log.Logger;
 import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.di.FakeDependencyContainer;
+import com.emarsys.inapp.InAppApi;
+import com.emarsys.inapp.InAppProxy;
+import com.emarsys.inbox.InboxApi;
+import com.emarsys.inbox.InboxProxy;
+import com.emarsys.mobileengage.ClientServiceInternal;
+import com.emarsys.mobileengage.EventServiceInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.inbox.Notification;
-import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
-import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppStartAction;
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy;
-import com.emarsys.mobileengage.inbox.InboxInternal;
-import com.emarsys.mobileengage.inbox.InboxInternal_V1;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MobileEngageClientStateResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler;
+import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
+import com.emarsys.predict.PredictProxy;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
+import com.emarsys.push.PushApi;
+import com.emarsys.push.PushProxy;
 import com.emarsys.testUtil.CollectionTestUtils;
 import com.emarsys.testUtil.ExperimentalTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
-import com.emarsys.testUtil.RandomTestUtils;
 import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -74,11 +78,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.inOrder;
@@ -108,9 +110,10 @@ public class EmarsysTest {
     private CurrentActivityWatchdog currentActivityWatchdog;
     private MobileEngageInternal mockMobileEngageInternal;
     private PredictInternal mockPredictInternal;
-    private InboxInternal mockInboxInternal;
-    private InAppInternal mockInAppInternal;
+    private EventServiceInternal mockEventServiceInternal;
+    private ClientServiceInternal mockClientServiceInternal;
     private DeepLinkInternal mockDeepLinkInternal;
+    private RefreshTokenInternal mockRefreshTokenInternal;
     private LanguageProvider mockLanguageProvider;
     private VersionProvider mockVersionProvider;
     private EventHandler inappEventHandler;
@@ -125,7 +128,6 @@ public class EmarsysTest {
 
     private EmarsysConfig baseConfig;
     private EmarsysConfig configWithInAppEventHandler;
-    private RefreshTokenInternal mockRefreshTokenInternal;
     private Storage<Integer> mockDeviceInfoHashStorage;
     private Storage<String> mockContactFieldValueStorage;
     private Storage<String> mockContactTokenStorage;
@@ -134,6 +136,12 @@ public class EmarsysTest {
     private NotificationManagerHelper mockNotificationManagerHelper;
     private DeviceInfo deviceInfo;
     private NotificationCache mockNotificationCache;
+
+    private PredictApi mockPredict;
+    private PushApi mockPush;
+    private InAppApi mockInApp;
+    private InboxApi mockInbox;
+
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
@@ -148,10 +156,11 @@ public class EmarsysTest {
         activityLifecycleWatchdog = mock(ActivityLifecycleWatchdog.class);
         currentActivityWatchdog = mock(CurrentActivityWatchdog.class);
         mockMobileEngageInternal = mock(MobileEngageInternal.class);
-        mockInboxInternal = mock(InboxInternal.class);
-        mockInAppInternal = mock(InAppInternal.class);
+        mockEventServiceInternal = mock(EventServiceInternal.class);
         mockDeepLinkInternal = mock(DeepLinkInternal.class);
         mockPredictInternal = mock(PredictInternal.class);
+        mockEventServiceInternal = mock(EventServiceInternal.class);
+        mockClientServiceInternal = mock(ClientServiceInternal.class);
         mockCoreDatabase = mock(CoreSQLiteDatabase.class);
         mockPredictShardTrigger = mock(BatchingShardTrigger.class);
         mockLogShardTrigger = mock(BatchingShardTrigger.class);
@@ -170,6 +179,11 @@ public class EmarsysTest {
         mockNotificationCache = mock(NotificationCache.class);
         baseConfig = createConfig(false);
         configWithInAppEventHandler = createConfig(true);
+
+        mockInbox = mock(InboxApi.class);
+        mockInApp = mock(InAppApi.class);
+        mockPush = mock(PushApi.class);
+        mockPredict = mock(PredictApi.class);
 
         HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
         deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
@@ -190,9 +204,13 @@ public class EmarsysTest {
                 null,
                 mockLogShardTrigger,
                 mockMobileEngageInternal,
-                mockInboxInternal,
-                mockInAppInternal,
+                null,
+                null,
+                null,
+                mockRefreshTokenInternal,
                 mockDeepLinkInternal,
+                mockEventServiceInternal,
+                mockClientServiceInternal,
                 null,
                 null,
                 null,
@@ -201,14 +219,17 @@ public class EmarsysTest {
                 mockPredictShardTrigger,
                 runnerProxy,
                 logger,
-                mockRefreshTokenInternal,
                 mockDeviceInfoHashStorage,
                 mockContactFieldValueStorage,
                 mockContactTokenStorage,
                 mockClientStateStorage,
                 mockResponseHandlersProcessor,
                 mockNotificationCache,
-                null
+                null,
+                mockInbox,
+                mockInApp,
+                mockPush,
+                mockPredict
         ));
     }
 
@@ -246,15 +267,40 @@ public class EmarsysTest {
     }
 
     @Test
+    public void testSetup_initializes_ClientInstance() {
+        DependencyInjection.tearDown();
+
+        Emarsys.setup(baseConfig);
+
+        assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getClientServiceInternal());
+    }
+
+    @Test
+    public void testSetup_initializes_PushInstance() {
+        DependencyInjection.tearDown();
+
+        Emarsys.setup(baseConfig);
+
+        PushApi push = Emarsys.getPush();
+
+        assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getPushInternal());
+        assertNotNull(push);
+        assertEquals(PushProxy.class, push.getClass());
+    }
+
+    @Test
     public void testSetup_initializes_inboxInstance_V1() {
         DependencyInjection.tearDown();
         ExperimentalTestUtils.resetExperimentalFeatures();
 
         Emarsys.setup(baseConfig);
 
-        InboxInternal inboxInternal = DependencyInjection.<EmarysDependencyContainer>getContainer().getInboxInternal();
-        assertNotNull(inboxInternal);
-        assertEquals(InboxInternal_V1.class, inboxInternal.getClass());
+        InboxApi inbox = Emarsys.getInbox();
+
+        assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getInboxInternal());
+        assertNotNull(inbox);
+        assertEquals(InboxProxy.class, inbox.getClass());
+
     }
 
     @Test
@@ -273,7 +319,25 @@ public class EmarsysTest {
 
         Emarsys.setup(baseConfig);
 
+        PredictApi predict = Emarsys.getPredict();
+
         assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getPredictInternal());
+        assertNotNull(predict);
+        assertEquals(PredictProxy.class, predict.getClass());
+
+    }
+
+    @Test
+    public void testSetup_initializes_inAppInstance() {
+        DependencyInjection.tearDown();
+
+        Emarsys.setup(baseConfig);
+        InAppApi inApp = Emarsys.getInApp();
+
+        assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getInAppInternal());
+        assertNotNull(inApp);
+        assertEquals(InAppProxy.class, inApp.getClass());
+
     }
 
     @Test
@@ -374,14 +438,14 @@ public class EmarsysTest {
     public void testSetup_setsInAppEventHandler_whenProvidedInConfig() {
         Emarsys.setup(configWithInAppEventHandler);
 
-        verify(mockInAppInternal).setEventHandler(inappEventHandler);
+        verify(mockInApp).setEventHandler(inappEventHandler);
     }
 
     @Test
     public void testSetup_doesNotSetInAppEventHandler_whenMissingFromConfig() {
         Emarsys.setup(baseConfig);
 
-        verifyZeroInteractions(mockInAppInternal);
+        verifyZeroInteractions(mockInApp);
     }
 
     @Test
@@ -392,7 +456,7 @@ public class EmarsysTest {
 
         Emarsys.setup(baseConfig);
 
-        verify(mockMobileEngageInternal).trackDeviceInfo();
+        verify(mockClientServiceInternal).trackDeviceInfo();
     }
 
     @Test
@@ -401,7 +465,7 @@ public class EmarsysTest {
 
         Emarsys.setup(baseConfig);
 
-        verify(mockMobileEngageInternal, never()).trackDeviceInfo();
+        verify(mockClientServiceInternal, never()).trackDeviceInfo();
     }
 
     @Test
@@ -412,7 +476,7 @@ public class EmarsysTest {
 
         Emarsys.setup(baseConfig);
 
-        verify(mockMobileEngageInternal, never()).trackDeviceInfo();
+        verify(mockClientServiceInternal, never()).trackDeviceInfo();
 
     }
 
@@ -434,8 +498,8 @@ public class EmarsysTest {
 
         Emarsys.setup(baseConfig);
 
-        InOrder inOrder = inOrder(mockMobileEngageInternal);
-        inOrder.verify(mockMobileEngageInternal).trackDeviceInfo();
+        InOrder inOrder = inOrder(mockMobileEngageInternal, mockClientServiceInternal);
+        inOrder.verify(mockClientServiceInternal).trackDeviceInfo();
         inOrder.verify(mockMobileEngageInternal).setContact(null, null);
         inOrder.verifyNoMoreInteractions();
     }
@@ -600,7 +664,7 @@ public class EmarsysTest {
 
         Emarsys.trackCustomEvent(eventName, eventAttributes);
 
-        verify(mockMobileEngageInternal).trackCustomEvent(eventName, eventAttributes, null);
+        verify(mockEventServiceInternal).trackCustomEvent(eventName, eventAttributes, null);
     }
 
     @Test
@@ -610,320 +674,206 @@ public class EmarsysTest {
 
         Emarsys.trackCustomEvent(eventName, eventAttributes, completionListener);
 
-        verify(mockMobileEngageInternal).trackCustomEvent(eventName, eventAttributes, completionListener);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPush_trackMessageOpen_intent_mustNotBeNull() {
-        Emarsys.Push.trackMessageOpen(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPush_trackMessageOpenWithCompletionListener_intent_mustNotBeNull() {
-        Emarsys.Push.trackMessageOpen(null, completionListener);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPush_trackMessageOpenWithCompletionListener_completionListener_mustNotBeNull() {
-        Emarsys.Push.trackMessageOpen(mock(Intent.class), null);
+        verify(mockEventServiceInternal).trackCustomEvent(eventName, eventAttributes, completionListener);
     }
 
     @Test
-    public void testPush_trackMessageOpen_delegatesTo_mobileEngageInternal() {
-        Intent intent = mock(Intent.class);
+    public void testPush_trackMessageOpen_delegatesTo_pushInstance() {
+        Emarsys.setup(baseConfig);
 
-        Emarsys.Push.trackMessageOpen(intent);
+        Intent mockIntent = mock(Intent.class);
+        Emarsys.Push.trackMessageOpen(mockIntent);
 
-        verify(mockMobileEngageInternal).trackMessageOpen(intent, null);
+        verify(mockPush).trackMessageOpen(mockIntent);
     }
 
     @Test
-    public void testPush_trackMessageOpenWithCompletionListener_delegatesTo_mobileEngageInternal() {
-        Intent intent = mock(Intent.class);
+    public void testPush_trackMessageOpen_withCompletionListener_delegatesTo_pushInstance() {
+        Emarsys.setup(baseConfig);
 
-        Emarsys.Push.trackMessageOpen(intent, completionListener);
+        Intent mockIntent = mock(Intent.class);
+        CompletionListener mockCompletionListener = mock(CompletionListener.class);
+        Emarsys.Push.trackMessageOpen(mockIntent, mockCompletionListener);
 
-        verify(mockMobileEngageInternal).trackMessageOpen(intent, completionListener);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPush_setPushToken_token_mustNotBeNull() {
-        Emarsys.Push.setPushToken(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPush_setPushTokenWithCompletionListener_token_mustNotBeNull() {
-        Emarsys.Push.setPushToken(null, completionListener);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPush_setPushTokenWithCompletionListener_completionListener_mustNotBeNull() {
-        Emarsys.Push.setPushToken("pushToken", null);
+        verify(mockPush).trackMessageOpen(mockIntent, mockCompletionListener);
     }
 
     @Test
-    public void testPush_setPushToken_delegatesTo_mobileEngageInternal() {
-        String pushToken = "pushToken";
+    public void testPush_setPushToken_delegatesTo_pushInstance() {
+        Emarsys.setup(baseConfig);
 
-        Emarsys.Push.setPushToken(pushToken);
+        Emarsys.Push.setPushToken("pushToken");
 
-        verify(mockMobileEngageInternal).setPushToken(pushToken, null);
+        verify(mockPush).setPushToken("pushToken");
     }
 
     @Test
-    public void testPush_setPushToken_completionListener_delegatesTo_mobileEngageInternal() {
-        String pushToken = "pushToken";
+    public void testPush_setPushToken_withCompletionListener_delegatesTo_pushInstance() {
+        Emarsys.setup(baseConfig);
 
-        Emarsys.Push.setPushToken(pushToken, completionListener);
+        CompletionListener mockCompletionListener = mock(CompletionListener.class);
+        Emarsys.Push.setPushToken("pushToken", mockCompletionListener);
 
-        verify(mockMobileEngageInternal).setPushToken(pushToken, completionListener);
+        verify(mockPush).setPushToken("pushToken", mockCompletionListener);
     }
 
     @Test
-    public void testPush_removePushToken_delegatesTo_mobileEngageInternal() {
+    public void testPush_clearPushToken_delegatesTo_pushInstance() {
+        Emarsys.setup(baseConfig);
+
         Emarsys.Push.clearPushToken();
 
-        verify(mockMobileEngageInternal).clearPushToken(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPush_removePushTokenWithCompletionListener_completionListener_mustNotBeNull() {
-        Emarsys.Push.clearPushToken(null);
+        verify(mockPush).clearPushToken();
     }
 
     @Test
-    public void testPush_removePushTokenWithCompletionListener_delegatesTo_mobileEngageInternal() {
-        Emarsys.Push.clearPushToken(completionListener);
+    public void testPush_clearPushToken_withCompletionListener_delegatesTo_pushInstance() {
+        Emarsys.setup(baseConfig);
 
-        verify(mockMobileEngageInternal).clearPushToken(completionListener);
-    }
+        CompletionListener mockCompletionListener = mock(CompletionListener.class);
+        Emarsys.Push.clearPushToken(mockCompletionListener);
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testPredict_trackCart_items_mustNotBeNull() {
-        Emarsys.Predict.trackCart(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPredict_trackCart_itemElements_mustNotBeNull() {
-        Emarsys.Predict.trackCart(Arrays.asList(
-                mock(CartItem.class),
-                null,
-                mock(CartItem.class)));
+        verify(mockPush).clearPushToken(mockCompletionListener);
     }
 
     @Test
-    public void testPredict_trackCart_delegatesTo_predictInternal() {
-        List<CartItem> itemList = Arrays.asList(
-                createItem("itemId0", 200.0, 100.0),
-                createItem("itemId1", 201.0, 101.0),
-                createItem("itemId2", 202.0, 102.0));
+    public void testPredict_trackCart_delegatesTo_predictInstance() {
+        Emarsys.setup(baseConfig);
 
-        Emarsys.Predict.trackCart(itemList);
+        List<CartItem> cartItems = new ArrayList<>();
 
-        verify(mockPredictInternal).trackCart(itemList);
-    }
+        Emarsys.Predict.trackCart(cartItems);
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testPredict_trackPurchase_orderIdMustNotBeNull() {
-        Emarsys.Predict.trackPurchase(null, new ArrayList<CartItem>());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPredict_trackPurchase_itemsMustNotBeNull() {
-        Emarsys.Predict.trackPurchase("id", null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPredict_trackPurchase_itemElements_mustNotBeNull() {
-        Emarsys.Predict.trackPurchase("id", Arrays.asList(
-                mock(CartItem.class),
-                null,
-                mock(CartItem.class)
-        ));
+        verify(mockPredict).trackCart(cartItems);
     }
 
     @Test
-    public void testPredict_trackPurchase_delegatesTo_predictInternal() {
-        String orderId = "id";
+    public void testPredict_trackPurchase_delegatesTo_predictInstance() {
+        Emarsys.setup(baseConfig);
+        List<CartItem> cartItems = new ArrayList<>();
+        Emarsys.Predict.trackPurchase("orderId", cartItems);
 
-        List<CartItem> itemList = Arrays.asList(
-                createItem("itemId0", 200.0, 100.0),
-                createItem("itemId1", 201.0, 101.0),
-                createItem("itemId2", 202.0, 102.0));
-
-        Emarsys.Predict.trackPurchase(orderId, itemList);
-
-        verify(mockPredictInternal).trackPurchase(orderId, itemList);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPredict_testTrackItemView_itemViewId_mustNotBeNull() {
-        Emarsys.Predict.trackItemView(null);
+        verify(mockPredict).trackPurchase("orderId", cartItems);
     }
 
     @Test
-    public void testPredict_trackItemView_delegatesTo_predictInternal() {
-        String itemId = RandomTestUtils.randomString();
+    public void testPredict_trackItemView_delegatesTo_predictInstance() {
+        Emarsys.setup(baseConfig);
 
-        Emarsys.Predict.trackItemView(itemId);
+        Emarsys.Predict.trackItemView("itemId");
 
-        verify(mockPredictInternal).trackItemView(itemId);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPredict_testTrackCategoryView_categoryPath_mustNotBeNull() {
-        Emarsys.Predict.trackCategoryView(null);
+        verify(mockPredict).trackItemView("itemId");
     }
 
     @Test
-    public void testPredict_trackCategoryView_delegatesTo_predictInternal() {
-        String categoryPath = RandomTestUtils.randomString();
+    public void testPredict_trackCategoryView_delegatesTo_predictInstance() {
+        Emarsys.setup(baseConfig);
 
-        Emarsys.Predict.trackCategoryView(categoryPath);
+        Emarsys.Predict.trackCategoryView("categoryPath");
 
-        verify(mockPredictInternal).trackCategoryView(categoryPath);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPredict_trackSearchTerm_searchTerm_mustNotBeNull() {
-        Emarsys.Predict.trackSearchTerm(null);
+        verify(mockPredict).trackCategoryView("categoryPath");
     }
 
     @Test
-    public void testPredict_trackSearchTerm_delegatesTo_predictInternal() {
-        String searchTerm = RandomTestUtils.randomString();
+    public void testPredict_trackSearchTerm_delegatesTo_predictInstance() {
+        Emarsys.setup(baseConfig);
 
-        Emarsys.Predict.trackSearchTerm(searchTerm);
+        Emarsys.Predict.trackSearchTerm("searchTerm");
 
-        verify(mockPredictInternal).trackSearchTerm(searchTerm);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInbox_fetchNotifications_resultListener_mustNotBeNull() {
-        Emarsys.Inbox.fetchNotifications(null);
+        verify(mockPredict).trackSearchTerm("searchTerm");
     }
 
     @Test
-    public void testInbox_fetchNotifications_delegatesTo_inboxInternal() {
-        ResultListener<Try<NotificationInboxStatus>> resultListener = new ResultListener<Try<NotificationInboxStatus>>() {
-            @Override
-            public void onResult(Try<NotificationInboxStatus> result) {
-            }
-        };
+    public void testInApp_pause_delegatesTo_inAppInstance() {
+        Emarsys.setup(baseConfig);
 
-        Emarsys.Inbox.fetchNotifications(resultListener);
-        verify(mockInboxInternal).fetchNotifications(resultListener);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInbox_trackNotificationOpen_notification_mustNotBeNull() {
-        Emarsys.Inbox.trackNotificationOpen(null);
-    }
-
-    @Test
-    public void testInbox_trackNotificationOpen_delegatesTo_inboxInternal() {
-        Notification notification = mock(Notification.class);
-
-        Emarsys.Inbox.trackNotificationOpen(notification);
-        verify(mockInboxInternal).trackNotificationOpen(notification, null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInbox_trackNotificationOpen_notification_resultListener_notification_mustNotBeNull() {
-        Emarsys.Inbox.trackNotificationOpen(null, mock(CompletionListener.class));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInbox_trackNotificationOpen_notification_resultListener_resultListener_mustNotBeNull() {
-        Emarsys.Inbox.trackNotificationOpen(mock(Notification.class), null);
-    }
-
-    @Test
-    public void testInbox_trackNotificationOpen_notification_resultListener_delegatesTo_inboxInternal() {
-        Notification notification = mock(Notification.class);
-        CompletionListener resultListener = mock(CompletionListener.class);
-
-        Emarsys.Inbox.trackNotificationOpen(notification, resultListener);
-
-        verify(mockInboxInternal).trackNotificationOpen(notification, resultListener);
-    }
-
-    @Test
-    public void testInbox_resetBadgeCount_delegatesTo_inboxInternal() {
-        Emarsys.Inbox.resetBadgeCount();
-
-        verify(mockInboxInternal).resetBadgeCount(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInbox_resetBadgeCount_withCompletionListener_resultListener_mustNotBeNull() {
-        Emarsys.Inbox.resetBadgeCount(null);
-    }
-
-    @Test
-    public void testInbox_resetBadgeCount_withCompletionListener_delegatesTo_inboxInternal() {
-        CompletionListener mockResultListener = mock(CompletionListener.class);
-
-        Emarsys.Inbox.resetBadgeCount(mockResultListener);
-
-        verify(mockInboxInternal).resetBadgeCount(mockResultListener);
-    }
-
-    @Test
-    public void testInApp_pause_delegatesToInternal() {
         Emarsys.InApp.pause();
 
-        verify(mockInAppInternal).pause();
+        verify(mockInApp).pause();
     }
 
     @Test
-    public void testInApp_resume_delegatesToInternal() {
+    public void testInApp_resume_delegatesTo_inAppInstance() {
+        Emarsys.setup(baseConfig);
+
         Emarsys.InApp.resume();
 
-        verify(mockInAppInternal).resume();
+        verify(mockInApp).resume();
     }
 
     @Test
-    public void testInApp_isPaused_delegatesToInternal() {
-        when(mockInAppInternal.isPaused()).thenReturn(true);
+    public void testInApp_isPaused_delegatesTo_inAppInstance() {
+        Emarsys.setup(baseConfig);
 
-        boolean result = Emarsys.InApp.isPaused();
+        Emarsys.InApp.isPaused();
 
-        verify(mockInAppInternal).isPaused();
-        assertTrue(result);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInApp_setEventHandler_eventHandler_mustNotBeNull() {
-        Emarsys.InApp.setEventHandler(null);
+        verify(mockInApp).isPaused();
     }
 
     @Test
-    public void testInApp_setEventHandler_delegatesToInternal() {
-        EventHandler eventHandler = mock(EventHandler.class);
+    public void testInApp_setEventHandler_delegatesTo_inAppInstance() {
+        Emarsys.setup(baseConfig);
 
-        Emarsys.InApp.setEventHandler(eventHandler);
+        EventHandler mockEventHandler = mock(EventHandler.class);
 
-        verify(mockInAppInternal).setEventHandler(eventHandler);
+        Emarsys.InApp.setEventHandler(mockEventHandler);
+
+        verify(mockInApp).setEventHandler(mockEventHandler);
     }
 
-    private CartItem createItem(final String id, final double price, final double quantity) {
-        return new CartItem() {
-            @Override
-            public String getItemId() {
-                return id;
-            }
+    @Test
+    public void testInbox_fetchNotification_delegatesTo_inboxInstance() {
+        Emarsys.setup(baseConfig);
 
-            @Override
-            public double getPrice() {
-                return price;
-            }
+        ResultListener mockResultListener = mock(ResultListener.class);
 
-            @Override
-            public double getQuantity() {
-                return quantity;
-            }
-        };
+        Emarsys.Inbox.fetchNotifications(mockResultListener);
+
+        verify(mockInbox).fetchNotifications(mockResultListener);
+    }
+
+    @Test
+    public void testInbox_trackNotificationOpen_delegatesTo_inboxInstance() {
+        Emarsys.setup(baseConfig);
+
+        Notification mockNotification = mock(Notification.class);
+
+        Emarsys.Inbox.trackNotificationOpen(mockNotification);
+
+        verify(mockInbox).trackNotificationOpen(mockNotification);
+    }
+
+    @Test
+    public void testInbox_trackNotificationOpen_withCompletionListener_delegatesTo_inboxInstance() {
+        Emarsys.setup(baseConfig);
+
+        Notification mockNotification = mock(Notification.class);
+        CompletionListener mockCompletionListener = mock(CompletionListener.class);
+
+        Emarsys.Inbox.trackNotificationOpen(mockNotification, mockCompletionListener);
+
+        verify(mockInbox).trackNotificationOpen(mockNotification, mockCompletionListener);
+    }
+
+    @Test
+    public void testInbox_resetBadgeCount_delegatesTo_inboxInstance() {
+        Emarsys.setup(baseConfig);
+
+
+        Emarsys.Inbox.resetBadgeCount();
+
+        verify(mockInbox).resetBadgeCount();
+    }
+
+    @Test
+    public void testInbox_resetBadgeCount_withCompletionListener_delegatesTo_inboxInstance() {
+        Emarsys.setup(baseConfig);
+
+        CompletionListener mockCompletionListener = mock(CompletionListener.class);
+
+        Emarsys.Inbox.resetBadgeCount(mockCompletionListener);
+
+        verify(mockInbox).resetBadgeCount(mockCompletionListener);
     }
 
     private EmarsysConfig createConfig(boolean withInApp, FlipperFeature... experimentalFeatures) {
@@ -946,3 +896,4 @@ public class EmarsysTest {
         mock(Intent.class);
     }
 }
+

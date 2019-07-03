@@ -3,27 +3,28 @@ package com.emarsys.mobileengage.iam
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.EventServiceInternal
-import com.emarsys.mobileengage.MobileEngageInternalV3Test
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.testUtil.TimeoutUtils
-
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
 class InAppInternalTest {
 
+    private companion object {
+        const val EVENT_NAME = "customEventName"
+        val EVENT_ATTRIBUTES = emptyMap<String, String>()
+    }
+
     private lateinit var inAppInternal: InAppInternal
     private lateinit var mockInAppEventHandlerInternal: InAppEventHandlerInternal
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var mockEventServiceInternal: EventServiceInternal
-
 
     @Rule
     @JvmField
@@ -85,9 +86,9 @@ class InAppInternalTest {
 
     @Test
     fun testTrackCustomEvent() {
-        inAppInternal.trackCustomEvent(MobileEngageInternalV3Test.EVENT_NAME, MobileEngageInternalV3Test.EVENT_ATTRIBUTES, mockCompletionListener)
+        inAppInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
 
-        Mockito.verify(mockEventServiceInternal).trackCustomEvent(MobileEngageInternalV3Test.EVENT_NAME, MobileEngageInternalV3Test.EVENT_ATTRIBUTES, mockCompletionListener)
+        Mockito.verify(mockEventServiceInternal).trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -97,9 +98,9 @@ class InAppInternalTest {
 
     @Test
     fun testTrackInternalCustomEvent() {
-        inAppInternal.trackCustomEvent(MobileEngageInternalV3Test.EVENT_NAME, MobileEngageInternalV3Test.EVENT_ATTRIBUTES, mockCompletionListener)
+        inAppInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
 
-        Mockito.verify(mockEventServiceInternal).trackCustomEvent(MobileEngageInternalV3Test.EVENT_NAME, MobileEngageInternalV3Test.EVENT_ATTRIBUTES, mockCompletionListener)
+        Mockito.verify(mockEventServiceInternal).trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
     }
 
 }

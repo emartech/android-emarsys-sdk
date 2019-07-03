@@ -4,7 +4,8 @@ import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.storage.Storage;
-import com.emarsys.mobileengage.MobileEngageClientInternal;
+import com.emarsys.mobileengage.ClientServiceInternal;
+import com.emarsys.mobileengage.EventServiceInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.RequestContext;
@@ -14,6 +15,7 @@ import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
+import com.emarsys.mobileengage.push.PushInternal;
 
 public interface MobileEngageDependencyContainer extends DependencyContainer {
 
@@ -21,7 +23,7 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
 
     RefreshTokenInternal getRefreshTokenInternal();
 
-    MobileEngageClientInternal getClientInternal();
+    ClientServiceInternal getClientServiceInternal();
 
     InboxInternal getInboxInternal();
 
@@ -49,4 +51,7 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
 
     NotificationCache getNotificationCache();
 
+    PushInternal getPushInternal();
+
+    EventServiceInternal getEventServiceInternal();
 }
