@@ -40,22 +40,37 @@ import com.emarsys.inapp.InAppApi;
 import com.emarsys.inapp.InAppProxy;
 import com.emarsys.inbox.InboxApi;
 import com.emarsys.inbox.InboxProxy;
+import com.emarsys.mobileengage.DefaultMobileEngageInternal;
+import com.emarsys.mobileengage.LoggingMobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.client.ClientServiceInternal;
+import com.emarsys.mobileengage.client.DefaultClientServiceInternal;
+import com.emarsys.mobileengage.client.LoggingClientServiceInternal;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
+import com.emarsys.mobileengage.deeplink.DefaultDeepLinkInternal;
+import com.emarsys.mobileengage.deeplink.LoggingDeepLinkInternal;
 import com.emarsys.mobileengage.event.EventServiceInternal;
+import com.emarsys.mobileengage.event.LoggingEventServiceInternal;
+import com.emarsys.mobileengage.iam.DefaultInAppInternal;
 import com.emarsys.mobileengage.iam.InAppStartAction;
+import com.emarsys.mobileengage.iam.LoggingInAppInternal;
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy;
+import com.emarsys.mobileengage.inbox.DefaultInboxInternal;
+import com.emarsys.mobileengage.inbox.LoggingInboxInternal;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
+import com.emarsys.mobileengage.push.DefaultPushInternal;
+import com.emarsys.mobileengage.push.LoggingPushInternal;
 import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MobileEngageClientStateResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler;
+import com.emarsys.predict.DefaultPredictInternal;
+import com.emarsys.predict.LoggingPredictInternal;
 import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.PredictProxy;
@@ -85,12 +100,14 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -294,25 +311,29 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testSetup_initializes_mobileEngageInstance() {
+    public void testSetup_initializes_mobileEngageInstance_whenMobileEngageIsEnabled() {
         DependencyInjection.tearDown();
 
         Emarsys.setup(mobileEngageConfig);
 
         assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getMobileEngageInternal());
+        assertEquals(DefaultMobileEngageInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getMobileEngageInternal().getClass());
+
     }
 
     @Test
-    public void testSetup_initializes_ClientInstance() {
+    public void testSetup_initializes_ClientInstance_whenMobileEngageIsEnabled() {
         DependencyInjection.tearDown();
 
         Emarsys.setup(mobileEngageConfig);
 
         assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getClientServiceInternal());
+        assertEquals(DefaultClientServiceInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getClientServiceInternal().getClass());
+
     }
 
     @Test
-    public void testSetup_initializes_PushInstance() {
+    public void testSetup_initializes_PushInstance_whenMobileEngageIsEnabled() {
         DependencyInjection.tearDown();
 
         Emarsys.setup(mobileEngageConfig);
@@ -320,47 +341,39 @@ public class EmarsysTest {
         PushApi push = Emarsys.getPush();
 
         assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getPushInternal());
+        assertEquals(DefaultPushInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getPushInternal().getClass());
+
         assertNotNull(push);
         assertEquals(PushProxy.class, push.getClass());
     }
 
     @Test
-    public void testSetup_initializes_inboxInstance_V1() {
+    public void testSetup_initializes_inboxInstance_whenMobileEngageIsEnabled() {
         DependencyInjection.tearDown();
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         InboxApi inbox = Emarsys.getInbox();
 
         assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getInboxInternal());
+        assertEquals(DefaultInboxInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getInboxInternal().getClass());
+
         assertNotNull(inbox);
         assertEquals(InboxProxy.class, inbox.getClass());
-
     }
 
     @Test
-    public void testSetup_initializes_deepLinkInstance() {
-        Emarsys.setup(mobileEngageConfig);
-
-        assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getDeepLinkInternal());
-    }
-
-    @Test
-    public void testSetup_initializes_predictInstance() {
+    public void testSetup_initializes_deepLinkInstance_whenMobileEngageIsEnabled() {
         DependencyInjection.tearDown();
 
         Emarsys.setup(mobileEngageConfig);
 
-        PredictApi predict = Emarsys.getPredict();
-
-        assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getPredictInternal());
-        assertNotNull(predict);
-        assertEquals(PredictProxy.class, predict.getClass());
-
+        assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getDeepLinkInternal());
+        assertEquals(DefaultDeepLinkInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getDeepLinkInternal().getClass());
     }
 
     @Test
-    public void testSetup_initializes_inAppInstance() {
+    public void testSetup_initializes_inAppInstance_whenMobileEngageIsEnabled() {
         DependencyInjection.tearDown();
 
         Emarsys.setup(mobileEngageConfig);
@@ -368,9 +381,48 @@ public class EmarsysTest {
         InAppApi inApp = Emarsys.getInApp();
 
         assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getInAppInternal());
+        assertEquals(DefaultInAppInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getInAppInternal().getClass());
+
         assertNotNull(inApp);
         assertEquals(InAppProxy.class, inApp.getClass());
+    }
 
+    @Test
+    public void testSetup_initializes_loggingInstancesForMobileEngage_whenMobileEngageIsDisabled() {
+        DependencyInjection.tearDown();
+
+        Emarsys.setup(baseConfig);
+
+        assertEquals(LoggingInboxInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getInboxInternal().getClass());
+        assertEquals(LoggingClientServiceInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getClientServiceInternal().getClass());
+        assertEquals(LoggingDeepLinkInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getDeepLinkInternal().getClass());
+        assertEquals(LoggingPushInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getPushInternal().getClass());
+        assertEquals(LoggingEventServiceInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getEventServiceInternal().getClass());
+        assertEquals(LoggingMobileEngageInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getMobileEngageInternal().getClass());
+        assertEquals(LoggingInAppInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getInAppInternal().getClass());
+    }
+
+    @Test
+    public void testSetup_initializes_predictInstance_whenPredictIsEnabled() {
+        DependencyInjection.tearDown();
+
+        Emarsys.setup(predictConfig);
+
+        PredictApi predict = Emarsys.getPredict();
+
+        assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getPredictInternal());
+        assertEquals(DefaultPredictInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getPredictInternal().getClass());
+        assertNotNull(predict);
+        assertEquals(PredictProxy.class, predict.getClass());
+    }
+
+    @Test
+    public void testSetup_initializes_loggingPredictInstance_whenPredictIsDisabled() {
+        DependencyInjection.tearDown();
+
+        Emarsys.setup(baseConfig);
+
+        assertEquals(LoggingPredictInternal.class, DependencyInjection.<EmarysDependencyContainer>getContainer().getPredictInternal().getClass());
     }
 
     @Test
@@ -406,14 +458,24 @@ public class EmarsysTest {
         assertEquals(2, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MobileEngageTokenResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MobileEngageClientStateResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), ClientInfoResponseHandler.class));
-
     }
 
     @Test
-    public void testSetup_registersPredictTrigger() {
+    public void testSetup_registersPredictTrigger_whenPredictIsEnabled() {
         Emarsys.setup(predictConfig);
 
         verify(mockCoreDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockPredictShardTrigger);
+    }
+
+    @Test
+    public void testSetup_doNotRegistersPredictTrigger_whenPredictIsDisabled() {
+        Emarsys.setup(mobileEngageConfig);
+
+        ArgumentCaptor<Runnable> argumentCaptor = ArgumentCaptor.forClass(Runnable.class);
+        verify(mockCoreDatabase, times(1)).registerTrigger(any(String.class), any(TriggerType.class), any(TriggerEvent.class), argumentCaptor.capture());
+
+        assertEquals(mockLogShardTrigger, argumentCaptor.getValue());
+        verifyNoMoreInteractions(mockCoreDatabase);
     }
 
     @Test
