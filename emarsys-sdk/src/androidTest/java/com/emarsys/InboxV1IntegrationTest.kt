@@ -77,7 +77,7 @@ class InboxV1IntegrationTest {
 
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
 
-        ExperimentalTestUtils.resetExperimentalFeatures()
+        FeatureTestUtils.resetFeatures()
 
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getDeviceInfo() = DeviceInfo(
@@ -97,7 +97,7 @@ class InboxV1IntegrationTest {
 
     @After
     fun tearDown() {
-        ExperimentalTestUtils.resetExperimentalFeatures()
+        FeatureTestUtils.resetFeatures()
 
         with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
             application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)

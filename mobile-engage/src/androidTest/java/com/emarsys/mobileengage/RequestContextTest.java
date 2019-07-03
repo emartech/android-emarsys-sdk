@@ -21,21 +21,6 @@ public class RequestContextTest {
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_applicationCode_mustNotBeNull() {
-        new RequestContext(
-                null,
-                contactFieldId,
-                mock(DeviceInfo.class),
-                mock(TimestampProvider.class),
-                mock(UUIDProvider.class),
-                mock(Storage.class),
-                mock(Storage.class),
-                mock(Storage.class),
-                mock(Storage.class)
-        );
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testConstructor_DeviceInfo_mustNotBeNull() {
         new RequestContext(
                 "",

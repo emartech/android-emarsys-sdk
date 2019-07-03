@@ -107,7 +107,7 @@ class MobileEngageIntegrationTest {
 
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
 
-        ExperimentalTestUtils.resetExperimentalFeatures()
+        FeatureTestUtils.resetFeatures()
 
         Emarsys.setup(baseConfig)
 
@@ -129,7 +129,7 @@ class MobileEngageIntegrationTest {
 
     @After
     fun tearDown() {
-        ExperimentalTestUtils.resetExperimentalFeatures()
+        FeatureTestUtils.resetFeatures()
 
         with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
             application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)

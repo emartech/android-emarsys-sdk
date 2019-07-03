@@ -84,7 +84,7 @@ class PredictIntegrationTest {
         errorCause = null
 
         ConnectionTestUtils.checkConnection(application)
-        ExperimentalTestUtils.resetExperimentalFeatures()
+        FeatureTestUtils.resetFeatures()
         responseModelMatches = {
             false
         }

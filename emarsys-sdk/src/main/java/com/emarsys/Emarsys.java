@@ -55,6 +55,14 @@ public class Emarsys {
 
         DependencyInjection.setup(new DefaultEmarsysDependencyContainer(config));
 
+        if (config.getMobileEngageApplicationCode() != null) {
+            FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE);
+        }
+
+        if (config.getPredictMerchantId() != null) {
+            FeatureRegistry.enableFeature(InnerFeature.PREDICT);
+        }
+
         inbox = getContainer().getInbox();
         inApp = getContainer().getInApp();
         push = getContainer().getPush();

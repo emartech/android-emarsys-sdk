@@ -143,7 +143,7 @@ public class EmarsysConfig {
             return this;
         }
 
-        public Builder mobileEngageApplicationCode(@NonNull String mobileEngageApplicationCode) {
+        public Builder mobileEngageApplicationCode(@Nullable String mobileEngageApplicationCode) {
             this.mobileEngageApplicationCode = mobileEngageApplicationCode;
             return this;
         }

@@ -23,6 +23,7 @@ import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
+import com.emarsys.core.feature.FeatureRegistry;
 import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.version.VersionProvider;
@@ -34,6 +35,7 @@ import com.emarsys.core.util.log.Logger;
 import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.di.FakeDependencyContainer;
+import com.emarsys.feature.InnerFeature;
 import com.emarsys.inapp.InAppApi;
 import com.emarsys.inapp.InAppProxy;
 import com.emarsys.inbox.InboxApi;
@@ -62,7 +64,7 @@ import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.push.PushApi;
 import com.emarsys.push.PushProxy;
 import com.emarsys.testUtil.CollectionTestUtils;
-import com.emarsys.testUtil.ExperimentalTestUtils;
+import com.emarsys.testUtil.FeatureTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -127,6 +129,8 @@ public class EmarsysTest {
     private CompletionListener completionListener;
 
     private EmarsysConfig baseConfig;
+    private EmarsysConfig mobileEngageConfig;
+    private EmarsysConfig predictConfig;
     private EmarsysConfig configWithInAppEventHandler;
     private Storage<Integer> mockDeviceInfoHashStorage;
     private Storage<String> mockContactFieldValueStorage;
@@ -177,8 +181,10 @@ public class EmarsysTest {
         mockResponseHandlersProcessor = mock(ResponseHandlersProcessor.class);
         mockNotificationManagerHelper = mock(NotificationManagerHelper.class);
         mockNotificationCache = mock(NotificationCache.class);
-        baseConfig = createConfig(false);
-        configWithInAppEventHandler = createConfig(true);
+        configWithInAppEventHandler = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).inAppEventHandler(inappEventHandler).build();
+        baseConfig = createConfig().build();
+        mobileEngageConfig = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).build();
+        predictConfig = createConfig().predictMerchantId(MERCHANT_ID).build();
 
         mockInbox = mock(InboxApi.class);
         mockInApp = mock(InAppApi.class);
@@ -231,20 +237,50 @@ public class EmarsysTest {
                 mockPush,
                 mockPredict
         ));
+        FeatureTestUtils.resetFeatures();
     }
 
     @After
     public void tearDown() {
-        Looper looper = DependencyInjection.getContainer().getCoreSdkHandler().getLooper();
-        if (looper != null) {
-            looper.quit();
+        try {
+            Looper looper = DependencyInjection.getContainer().getCoreSdkHandler().getLooper();
+            if (looper != null) {
+                looper.quit();
+            }
+            DependencyInjection.tearDown();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
-        DependencyInjection.tearDown();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSetup_config_mustNotBeNull() {
         Emarsys.setup(null);
+    }
+
+    @Test
+    public void testSetup_whenMobileEngageApplicationCodeAndMerchantIdAreNull_mobileEngageAndPredict_shouldBeDisabled() {
+        EmarsysConfig config = createConfig().mobileEngageApplicationCode(null).predictMerchantId(null).build();
+
+        Emarsys.setup(config);
+
+        Assert.assertEquals(false, FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE));
+        Assert.assertEquals(false, FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT));
+    }
+
+    @Test
+    public void testSetup_whenMobileEngageApplicationCodeIsNotNull_mobileEngageFeature_shouldBeEnabled() {
+        Emarsys.setup(mobileEngageConfig);
+
+        Assert.assertTrue(FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE));
+    }
+
+    @Test
+    public void testSetup_whenPredictMerchantIdIsNotNull_predictFeature_shouldBeEnabled() {
+        Emarsys.setup(predictConfig);
+
+        Assert.assertTrue(FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT));
     }
 
     @Test
@@ -261,7 +297,7 @@ public class EmarsysTest {
     public void testSetup_initializes_mobileEngageInstance() {
         DependencyInjection.tearDown();
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getMobileEngageInternal());
     }
@@ -270,7 +306,7 @@ public class EmarsysTest {
     public void testSetup_initializes_ClientInstance() {
         DependencyInjection.tearDown();
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getClientServiceInternal());
     }
@@ -279,7 +315,7 @@ public class EmarsysTest {
     public void testSetup_initializes_PushInstance() {
         DependencyInjection.tearDown();
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         PushApi push = Emarsys.getPush();
 
@@ -291,7 +327,6 @@ public class EmarsysTest {
     @Test
     public void testSetup_initializes_inboxInstance_V1() {
         DependencyInjection.tearDown();
-        ExperimentalTestUtils.resetExperimentalFeatures();
 
         Emarsys.setup(baseConfig);
 
@@ -305,10 +340,7 @@ public class EmarsysTest {
 
     @Test
     public void testSetup_initializes_deepLinkInstance() {
-        DependencyInjection.tearDown();
-        ExperimentalTestUtils.resetExperimentalFeatures();
-
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getDeepLinkInternal());
     }
@@ -317,7 +349,7 @@ public class EmarsysTest {
     public void testSetup_initializes_predictInstance() {
         DependencyInjection.tearDown();
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         PredictApi predict = Emarsys.getPredict();
 
@@ -331,7 +363,8 @@ public class EmarsysTest {
     public void testSetup_initializes_inAppInstance() {
         DependencyInjection.tearDown();
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
+
         InAppApi inApp = Emarsys.getInApp();
 
         assertNotNull(DependencyInjection.<EmarysDependencyContainer>getContainer().getInAppInternal());
@@ -343,9 +376,8 @@ public class EmarsysTest {
     @Test
     public void testSetup_initializesRequestManager_withRequestModelRepositoryProxy() {
         DependencyInjection.tearDown();
-        ExperimentalTestUtils.resetExperimentalFeatures();
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         RequestManager requestManager = ReflectionTestUtils.getInstanceField(
                 DependencyInjection.<DefaultEmarsysDependencyContainer>getContainer(),
@@ -359,9 +391,8 @@ public class EmarsysTest {
     @Test
     public void testSetup_initializesCoreCompletionHandler_withNoFlippers() {
         DependencyInjection.tearDown();
-        ExperimentalTestUtils.resetExperimentalFeatures();
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         ResponseHandlersProcessor responseHandlersProcessor = DependencyInjection
                 .<DefaultEmarsysDependencyContainer>getContainer()
@@ -380,21 +411,21 @@ public class EmarsysTest {
 
     @Test
     public void testSetup_registersPredictTrigger() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(predictConfig);
 
         verify(mockCoreDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockPredictShardTrigger);
     }
 
     @Test
     public void testSetup_registersLogTrigger() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         verify(mockCoreDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockLogShardTrigger);
     }
 
     @Test
     public void testSetup_registers_activityLifecycleWatchdog() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         verify(application).registerActivityLifecycleCallbacks(activityLifecycleWatchdog);
     }
@@ -405,7 +436,7 @@ public class EmarsysTest {
 
         ArgumentCaptor<ActivityLifecycleWatchdog> captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog.class);
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture());
         ActivityLifecycleAction[] actions = CollectionTestUtils.getElementByType(captor.getAllValues(), ActivityLifecycleWatchdog.class).getApplicationStartActions();
@@ -419,7 +450,7 @@ public class EmarsysTest {
 
         ArgumentCaptor<ActivityLifecycleWatchdog> captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog.class);
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture());
         ActivityLifecycleAction[] actions = CollectionTestUtils.getElementByType(captor.getAllValues(), ActivityLifecycleWatchdog.class).getActivityCreatedActions();
@@ -429,7 +460,7 @@ public class EmarsysTest {
 
     @Test
     public void testSetup_registers_currentActivityWatchDog() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         verify(application).registerActivityLifecycleCallbacks(currentActivityWatchdog);
     }
@@ -443,7 +474,7 @@ public class EmarsysTest {
 
     @Test
     public void testSetup_doesNotSetInAppEventHandler_whenMissingFromConfig() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         verifyZeroInteractions(mockInApp);
     }
@@ -454,7 +485,7 @@ public class EmarsysTest {
         when(mockContactFieldValueStorage.get()).thenReturn(null);
         when(mockContactTokenStorage.get()).thenReturn(null);
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         verify(mockClientServiceInternal).trackDeviceInfo();
     }
@@ -463,7 +494,7 @@ public class EmarsysTest {
     public void testSetup_doNotSendClientInfo_whenHashIsUnChanged() {
         when(mockClientStateStorage.get()).thenReturn("asdfsaf");
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         verify(mockClientServiceInternal, never()).trackDeviceInfo();
     }
@@ -474,7 +505,7 @@ public class EmarsysTest {
         when(mockContactFieldValueStorage.get()).thenReturn("asdf");
         when(mockContactTokenStorage.get()).thenReturn("asdf");
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         verify(mockClientServiceInternal, never()).trackDeviceInfo();
 
@@ -485,7 +516,7 @@ public class EmarsysTest {
         when(mockContactFieldValueStorage.get()).thenReturn(null);
         when(mockContactTokenStorage.get()).thenReturn(null);
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         verify(mockMobileEngageInternal).setContact(null, null);
     }
@@ -496,7 +527,7 @@ public class EmarsysTest {
         when(mockContactTokenStorage.get()).thenReturn(null);
         when(mockDeviceInfoHashStorage.get()).thenReturn(2345);
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         InOrder inOrder = inOrder(mockMobileEngageInternal, mockClientServiceInternal);
         inOrder.verify(mockClientServiceInternal).trackDeviceInfo();
@@ -506,7 +537,7 @@ public class EmarsysTest {
 
     @Test
     public void testSetup_doNotSendAnonymousContact_whenContactFieldValueIsPresent() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         verify(mockMobileEngageInternal, never()).setContact(null, null);
     }
@@ -515,7 +546,7 @@ public class EmarsysTest {
     public void testSetup_doNotSendAnonymousContact_whenContactTokenIsPresent() {
         when(mockContactFieldValueStorage.get()).thenReturn(null);
 
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         verify(mockMobileEngageInternal, never()).setContact(null, null);
     }
@@ -679,7 +710,7 @@ public class EmarsysTest {
 
     @Test
     public void testPush_trackMessageOpen_delegatesTo_pushInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         Intent mockIntent = mock(Intent.class);
         Emarsys.Push.trackMessageOpen(mockIntent);
@@ -689,7 +720,7 @@ public class EmarsysTest {
 
     @Test
     public void testPush_trackMessageOpen_withCompletionListener_delegatesTo_pushInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         Intent mockIntent = mock(Intent.class);
         CompletionListener mockCompletionListener = mock(CompletionListener.class);
@@ -700,7 +731,7 @@ public class EmarsysTest {
 
     @Test
     public void testPush_setPushToken_delegatesTo_pushInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         Emarsys.Push.setPushToken("pushToken");
 
@@ -709,7 +740,7 @@ public class EmarsysTest {
 
     @Test
     public void testPush_setPushToken_withCompletionListener_delegatesTo_pushInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         CompletionListener mockCompletionListener = mock(CompletionListener.class);
         Emarsys.Push.setPushToken("pushToken", mockCompletionListener);
@@ -719,7 +750,7 @@ public class EmarsysTest {
 
     @Test
     public void testPush_clearPushToken_delegatesTo_pushInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         Emarsys.Push.clearPushToken();
 
@@ -728,7 +759,7 @@ public class EmarsysTest {
 
     @Test
     public void testPush_clearPushToken_withCompletionListener_delegatesTo_pushInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         CompletionListener mockCompletionListener = mock(CompletionListener.class);
         Emarsys.Push.clearPushToken(mockCompletionListener);
@@ -738,7 +769,7 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackCart_delegatesTo_predictInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         List<CartItem> cartItems = new ArrayList<>();
 
@@ -749,7 +780,7 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackPurchase_delegatesTo_predictInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
         List<CartItem> cartItems = new ArrayList<>();
         Emarsys.Predict.trackPurchase("orderId", cartItems);
 
@@ -758,7 +789,7 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackItemView_delegatesTo_predictInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         Emarsys.Predict.trackItemView("itemId");
 
@@ -767,7 +798,7 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackCategoryView_delegatesTo_predictInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         Emarsys.Predict.trackCategoryView("categoryPath");
 
@@ -776,7 +807,7 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackSearchTerm_delegatesTo_predictInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         Emarsys.Predict.trackSearchTerm("searchTerm");
 
@@ -785,7 +816,7 @@ public class EmarsysTest {
 
     @Test
     public void testInApp_pause_delegatesTo_inAppInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         Emarsys.InApp.pause();
 
@@ -794,7 +825,7 @@ public class EmarsysTest {
 
     @Test
     public void testInApp_resume_delegatesTo_inAppInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         Emarsys.InApp.resume();
 
@@ -803,7 +834,7 @@ public class EmarsysTest {
 
     @Test
     public void testInApp_isPaused_delegatesTo_inAppInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         Emarsys.InApp.isPaused();
 
@@ -812,7 +843,7 @@ public class EmarsysTest {
 
     @Test
     public void testInApp_setEventHandler_delegatesTo_inAppInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         EventHandler mockEventHandler = mock(EventHandler.class);
 
@@ -823,7 +854,7 @@ public class EmarsysTest {
 
     @Test
     public void testInbox_fetchNotification_delegatesTo_inboxInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         ResultListener mockResultListener = mock(ResultListener.class);
 
@@ -834,7 +865,7 @@ public class EmarsysTest {
 
     @Test
     public void testInbox_trackNotificationOpen_delegatesTo_inboxInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         Notification mockNotification = mock(Notification.class);
 
@@ -845,7 +876,7 @@ public class EmarsysTest {
 
     @Test
     public void testInbox_trackNotificationOpen_withCompletionListener_delegatesTo_inboxInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         Notification mockNotification = mock(Notification.class);
         CompletionListener mockCompletionListener = mock(CompletionListener.class);
@@ -857,7 +888,7 @@ public class EmarsysTest {
 
     @Test
     public void testInbox_resetBadgeCount_delegatesTo_inboxInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
 
         Emarsys.Inbox.resetBadgeCount();
@@ -867,7 +898,7 @@ public class EmarsysTest {
 
     @Test
     public void testInbox_resetBadgeCount_withCompletionListener_delegatesTo_inboxInstance() {
-        Emarsys.setup(baseConfig);
+        Emarsys.setup(mobileEngageConfig);
 
         CompletionListener mockCompletionListener = mock(CompletionListener.class);
 
@@ -876,17 +907,12 @@ public class EmarsysTest {
         verify(mockInbox).resetBadgeCount(mockCompletionListener);
     }
 
-    private EmarsysConfig createConfig(boolean withInApp, FlipperFeature... experimentalFeatures) {
+    private EmarsysConfig.Builder createConfig(FlipperFeature... experimentalFeatures) {
         EmarsysConfig.Builder builder = new EmarsysConfig.Builder()
                 .application(application)
-                .mobileEngageApplicationCode(APPLICATION_CODE)
-                .predictMerchantId(MERCHANT_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .enableExperimentalFeatures(experimentalFeatures);
-        if (withInApp) {
-            builder.inAppEventHandler(inappEventHandler);
-        }
-        return builder.build();
+        return builder;
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

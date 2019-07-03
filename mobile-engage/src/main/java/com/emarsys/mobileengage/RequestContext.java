@@ -27,7 +27,6 @@ public class RequestContext {
             Storage<String> contactTokenStorage,
             Storage<String> refreshTokenStorage,
             Storage<String> contactFieldValueStorage) {
-        Assert.notNull(applicationCode, "ApplicationCode must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(uuidProvider, "UUIDProvider must not be null!");
