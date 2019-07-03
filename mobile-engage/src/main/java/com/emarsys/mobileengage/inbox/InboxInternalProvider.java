@@ -10,6 +10,10 @@ public class InboxInternalProvider {
             RequestManager requestManager,
             RequestContext requestContext,
             RequestModelFactory requestModelFactory) {
-        return new InboxInternal_V1(requestManager, requestContext, requestModelFactory);
+        return new DefaultInboxInternal(requestManager, requestContext, requestModelFactory);
+    }
+
+    public InboxInternal provideLoggingInboxInternal(){
+        return new LoggingInboxInternal();
     }
 }

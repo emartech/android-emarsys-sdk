@@ -33,12 +33,11 @@ import java.util.concurrent.CountDownLatch
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.jvm.isAccessible
 
-class InboxV1IntegrationTest {
+class DefaultInboxIntegrationTest {
 
     companion object {
         private const val APP_ID = "14C19-A121F"
         private const val CONTACT_FIELD_ID = 3
-        private const val MERCHANT_ID = "1428C8EE286EC34B"
     }
 
     private lateinit var latch: CountDownLatch
@@ -57,7 +56,7 @@ class InboxV1IntegrationTest {
 
     @Rule
     @JvmField
-    val activityRule = ActivityTestRule<FakeActivity>(FakeActivity::class.java)
+    val activityRule = ActivityTestRule(FakeActivity::class.java)
 
     @Before
     fun setup() {
@@ -67,7 +66,6 @@ class InboxV1IntegrationTest {
                 .application(application)
                 .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
-                .predictMerchantId(MERCHANT_ID)
                 .build()
 
         errorCause = null
@@ -76,8 +74,6 @@ class InboxV1IntegrationTest {
         ConnectionTestUtils.checkConnection(application)
 
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
-
-        FeatureTestUtils.resetFeatures()
 
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getDeviceInfo() = DeviceInfo(
@@ -97,15 +93,20 @@ class InboxV1IntegrationTest {
 
     @After
     fun tearDown() {
-        FeatureTestUtils.resetFeatures()
+        try {
+            FeatureTestUtils.resetFeatures()
 
-        with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
-            application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
-            application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
-            coreSdkHandler.looper.quit()
+            with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
+                application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
+                application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
+                coreSdkHandler.looper.quit()
+            }
+
+            DependencyInjection.tearDown()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
         }
-
-        DependencyInjection.tearDown()
     }
 
     @Test

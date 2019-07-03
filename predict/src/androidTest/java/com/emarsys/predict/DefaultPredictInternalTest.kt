@@ -15,7 +15,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.*
 
-class PredictInternalTest {
+class DefaultPredictInternalTest {
 
     companion object {
         const val TTL = Long.MAX_VALUE
@@ -44,27 +44,27 @@ class PredictInternalTest {
         `when`(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
         `when`(mockUuidProvider.provideId()).thenReturn(ID1, ID2)
 
-        predictInternal = PredictInternal(mockKeyValueStore, mockRequestManager, mockUuidProvider, mockTimestampProvider)
+        predictInternal = DefaultPredictInternal(mockKeyValueStore, mockRequestManager, mockUuidProvider, mockTimestampProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_keyValueStore_shouldNotBeNull() {
-        PredictInternal(null, mockRequestManager, mockUuidProvider, mockTimestampProvider)
+        DefaultPredictInternal(null, mockRequestManager, mockUuidProvider, mockTimestampProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_repository_shouldNotBeNull() {
-        PredictInternal(mockKeyValueStore, null, mockUuidProvider, mockTimestampProvider)
+        DefaultPredictInternal(mockKeyValueStore, null, mockUuidProvider, mockTimestampProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_uuidProvider_shouldNotBeNull() {
-        PredictInternal(mockKeyValueStore, mockRequestManager, null, mockTimestampProvider)
+        DefaultPredictInternal(mockKeyValueStore, mockRequestManager, null, mockTimestampProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_timestampProvider_shouldNotBeNull() {
-        PredictInternal(mockKeyValueStore, mockRequestManager, mockUuidProvider, null)
+        DefaultPredictInternal(mockKeyValueStore, mockRequestManager, mockUuidProvider, null)
     }
 
     @Test(expected = IllegalArgumentException::class)

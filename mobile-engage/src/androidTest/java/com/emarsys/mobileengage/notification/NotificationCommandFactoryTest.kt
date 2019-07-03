@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import com.emarsys.mobileengage.EventServiceInternal
 import com.emarsys.mobileengage.api.NotificationEventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
+import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.notification.command.*
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.service.IntentUtils

@@ -18,7 +18,7 @@ import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.request.RequestModelFactory;
 
-public class InboxInternal_V1 implements InboxInternal {
+public class DefaultInboxInternal implements InboxInternal {
 
     private Handler handler;
     private NotificationCache cache;
@@ -26,7 +26,7 @@ public class InboxInternal_V1 implements InboxInternal {
     private RequestContext requestContext;
     private RequestModelFactory requestModelFactory;
 
-    public InboxInternal_V1(
+    public DefaultInboxInternal(
             RequestManager requestManager,
             RequestContext requestContext,
             RequestModelFactory requestModelFactory) {

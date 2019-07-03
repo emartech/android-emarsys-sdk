@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.device
 
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.storage.Storage
-import com.emarsys.mobileengage.ClientServiceInternal
+import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.testUtil.SharedPrefsUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever

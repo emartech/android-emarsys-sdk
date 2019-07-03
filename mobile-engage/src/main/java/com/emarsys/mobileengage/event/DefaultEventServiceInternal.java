@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage;
+package com.emarsys.mobileengage.event;
 
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RequestManager;
@@ -8,11 +8,11 @@ import com.emarsys.mobileengage.request.RequestModelFactory;
 
 import java.util.Map;
 
-public class EventServiceInternalV3 implements EventServiceInternal {
+public class DefaultEventServiceInternal implements EventServiceInternal {
     private final RequestModelFactory requestModelFactory;
     private final RequestManager requestManager;
 
-    public EventServiceInternalV3(RequestManager requestManager, RequestModelFactory requestModelFactory) {
+    public DefaultEventServiceInternal(RequestManager requestManager, RequestModelFactory requestModelFactory) {
         Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");
         Assert.notNull(requestManager, "RequestManager must not be null!");
 

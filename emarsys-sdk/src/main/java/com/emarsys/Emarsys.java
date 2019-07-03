@@ -24,13 +24,13 @@ import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.feature.InnerFeature;
 import com.emarsys.inapp.InAppApi;
 import com.emarsys.inbox.InboxApi;
-import com.emarsys.mobileengage.ClientServiceInternal;
-import com.emarsys.mobileengage.EventServiceInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
+import com.emarsys.mobileengage.client.ClientServiceInternal;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
+import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.api.model.CartItem;
@@ -55,14 +55,6 @@ public class Emarsys {
 
         DependencyInjection.setup(new DefaultEmarsysDependencyContainer(config));
 
-        if (config.getMobileEngageApplicationCode() != null) {
-            FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE);
-        }
-
-        if (config.getPredictMerchantId() != null) {
-            FeatureRegistry.enableFeature(InnerFeature.PREDICT);
-        }
-
         inbox = getContainer().getInbox();
         inApp = getContainer().getInApp();
         push = getContainer().getPush();
@@ -72,7 +64,7 @@ public class Emarsys {
 
         registerWatchDogs(config);
 
-        registerDatabaseTriggers(config);
+        registerDatabaseTriggers();
 
         initializeContact();
     }
@@ -340,10 +332,8 @@ public class Emarsys {
         config.getApplication().registerActivityLifecycleCallbacks(getContainer().getCurrentActivityWatchdog());
     }
 
-    private static void registerDatabaseTriggers(EmarsysConfig config) {
-        boolean isPredictEnabled = config.getPredictMerchantId() != null;
-
-        if (isPredictEnabled) {
+    private static void registerDatabaseTriggers() {
+        if (FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT)) {
             getContainer().getCoreSQLiteDatabase().registerTrigger(
                     DatabaseContract.SHARD_TABLE_NAME,
                     TriggerType.AFTER,

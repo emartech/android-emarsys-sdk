@@ -72,17 +72,17 @@ public class DeepLinkInternalTest {
                 mock(Storage.class)
         );
 
-        deepLinkInternal = new DeepLinkInternal(manager, requestContext);
+        deepLinkInternal = new DefaultDeepLinkInternal(manager, requestContext);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestManagerMustNotBeNull() {
-        new DeepLinkInternal(null, requestContext);
+        new DefaultDeepLinkInternal(null, requestContext);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestContextMustNotBeNull() {
-        new DeepLinkInternal(manager, null);
+        new DefaultDeepLinkInternal(manager, null);
     }
 
     @Test

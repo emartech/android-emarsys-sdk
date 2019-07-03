@@ -10,8 +10,8 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
-import com.emarsys.mobileengage.EventServiceInternal
 import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeCompletionListener
 import com.emarsys.mobileengage.request.RequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
@@ -27,7 +27,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
 import java.util.concurrent.CountDownLatch
 
-class PushInternalV3Test {
+class DefaultPushInternalTest {
 
     private companion object {
         const val TIMESTAMP = 123456789L
@@ -40,7 +40,7 @@ class PushInternalV3Test {
         val EVENT_ATTRIBUTES = emptyMap<String, String>()
     }
 
-    private lateinit var pushInternal: PushInternalV3
+    private lateinit var pushInternal: DefaultPushInternal
 
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockRequestManager: RequestManager
@@ -92,7 +92,7 @@ class PushInternalV3Test {
 
         mockCompletionListener = mock(CompletionListener::class.java)
         mockEventServiceInternal = mock(EventServiceInternal::class.java)
-        pushInternal = PushInternalV3(mockRequestManager, uiHandler, mockRequestModelFactory, mockEventServiceInternal)
+        pushInternal = DefaultPushInternal(mockRequestManager, uiHandler, mockRequestModelFactory, mockEventServiceInternal)
     }
 
     @Test

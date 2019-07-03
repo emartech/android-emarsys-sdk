@@ -33,6 +33,6 @@ public class InboxInternalProviderTest {
                 mock(RequestContext.class),
                 mock(RequestModelFactory.class)
         );
-        Assert.assertEquals(InboxInternal_V1.class, inboxInternal.getClass());
+        Assert.assertEquals(DefaultInboxInternal.class, inboxInternal.getClass());
     }
 }

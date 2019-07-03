@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.notification.command;
 
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.EventServiceInternal;
+import com.emarsys.mobileengage.event.EventServiceInternal;
 
 import java.util.Map;
 

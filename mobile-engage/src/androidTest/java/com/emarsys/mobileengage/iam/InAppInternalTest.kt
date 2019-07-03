@@ -2,8 +2,8 @@ package com.emarsys.mobileengage.iam
 
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.mobileengage.EventServiceInternal
 import com.emarsys.mobileengage.api.EventHandler
+import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Before
 import org.junit.Rule
@@ -38,7 +38,7 @@ class InAppInternalTest {
         mockEventServiceInternal = mock(EventServiceInternal::class.java)
         mockInAppEventHandlerInternal = mock(InAppEventHandlerInternal::class.java)
 
-        inAppInternal = InAppInternal(mockInAppEventHandlerInternal, mockEventServiceInternal)
+        inAppInternal = DefaultInAppInternal(mockInAppEventHandlerInternal, mockEventServiceInternal)
     }
 
 

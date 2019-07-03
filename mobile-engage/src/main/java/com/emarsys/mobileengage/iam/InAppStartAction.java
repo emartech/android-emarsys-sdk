@@ -5,7 +5,7 @@ import android.app.Activity;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.EventServiceInternal;
+import com.emarsys.mobileengage.event.EventServiceInternal;
 
 public class InAppStartAction implements ActivityLifecycleAction {
 

@@ -34,7 +34,6 @@ class MobileEngageRefreshContactTokenIntegrationTest {
     companion object {
         private const val APP_ID = "14C19-A121F"
         private const val CONTACT_FIELD_ID = 3
-        private const val MERCHANT_ID = "1428C8EE286EC34B"
     }
 
     private lateinit var completionListenerLatch: CountDownLatch
@@ -53,7 +52,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
     @Rule
     @JvmField
-    val activityRule = ActivityTestRule<FakeActivity>(FakeActivity::class.java)
+    val activityRule = ActivityTestRule(FakeActivity::class.java)
 
     @Before
     fun setup() {
@@ -64,8 +63,9 @@ class MobileEngageRefreshContactTokenIntegrationTest {
                 .inAppEventHandler(Mockito.mock(EventHandler::class.java))
                 .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
-                .predictMerchantId(MERCHANT_ID)
                 .build()
+
+        FeatureTestUtils.resetFeatures()
 
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getDeviceInfo() = DeviceInfo(
@@ -88,7 +88,6 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
 
-        FeatureTestUtils.resetFeatures()
 
         Emarsys.setup(baseConfig)
 
@@ -102,17 +101,22 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
     @After
     fun tearDown() {
-        FeatureTestUtils.resetFeatures()
+        try {
+            FeatureTestUtils.resetFeatures()
 
-        with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
-            application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
-            application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
-            coreSdkHandler.looper.quit()
+            with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
+                application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
+                application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
+                coreSdkHandler.looper.quit()
+            }
+
+            contactTokenStorage.remove()
+
+            DependencyInjection.tearDown()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
         }
-
-        contactTokenStorage.remove()
-
-        DependencyInjection.tearDown()
     }
 
     @Test

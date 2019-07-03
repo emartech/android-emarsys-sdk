@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage
+package com.emarsys.mobileengage.client
 
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
@@ -12,7 +12,7 @@ import org.junit.rules.TestRule
 import org.mockito.Mockito
 import org.mockito.Mockito.verify
 
-class ClientServiceInternalV3Test {
+class DefaultClientServiceInternalTest {
 
     private lateinit var mockRequestModelFactory: RequestModelFactory
     private lateinit var mockRequestModel: RequestModel
@@ -32,7 +32,7 @@ class ClientServiceInternalV3Test {
         mockRequestModelFactory = Mockito.mock(RequestModelFactory::class.java).apply {
             whenever(createTrackDeviceInfoRequest()).thenReturn(mockRequestModel)
         }
-        clientServiceInternal = ClientServiceInternalV3(mockRequestManager, mockRequestModelFactory)
+        clientServiceInternal = DefaultClientServiceInternal(mockRequestManager, mockRequestModelFactory)
     }
 
     @Test

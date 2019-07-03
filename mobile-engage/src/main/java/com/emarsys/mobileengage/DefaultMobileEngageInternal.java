@@ -8,15 +8,15 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.request.RequestModelFactory;
 
 
-public class MobileEngageInternalV3 implements MobileEngageInternal {
+public class DefaultMobileEngageInternal implements MobileEngageInternal {
 
     private final RequestManager requestManager;
     private final RequestModelFactory requestModelFactory;
     private final RequestContext requestContext;
 
-    public MobileEngageInternalV3(RequestManager requestManager,
-                                  RequestModelFactory requestModelFactory,
-                                  RequestContext requestContext) {
+    public DefaultMobileEngageInternal(RequestManager requestManager,
+                                       RequestModelFactory requestModelFactory,
+                                       RequestContext requestContext) {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");

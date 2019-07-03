@@ -40,7 +40,6 @@ class MobileEngageIntegrationTest {
     companion object {
         private const val APP_ID = "14C19-A121F"
         private const val CONTACT_FIELD_ID = 3
-        private const val MERCHANT_ID = "1428C8EE286EC34B"
     }
 
     private var completionHandlerLatch: CountDownLatch? = null
@@ -76,10 +75,12 @@ class MobileEngageIntegrationTest {
                 .inAppEventHandler(mock(EventHandler::class.java))
                 .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
-                .predictMerchantId(MERCHANT_ID)
                 .build()
 
         completionHandler = createDefaultCoreCompletionHandler()
+
+        FeatureTestUtils.resetFeatures()
+
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
 
 
@@ -107,8 +108,6 @@ class MobileEngageIntegrationTest {
 
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
 
-        FeatureTestUtils.resetFeatures()
-
         Emarsys.setup(baseConfig)
 
         clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.clientStateStorage
@@ -129,20 +128,25 @@ class MobileEngageIntegrationTest {
 
     @After
     fun tearDown() {
-        FeatureTestUtils.resetFeatures()
+        try {
+            FeatureTestUtils.resetFeatures()
 
-        with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
-            application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
-            application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
-            coreSdkHandler.looper.quit()
+            with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
+                application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
+                application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
+                coreSdkHandler.looper.quit()
+            }
+
+            clientStateStorage.remove()
+            contactTokenStorage.remove()
+            refreshTokenStorage.remove()
+            deviceInfoHashStorage.remove()
+
+            DependencyInjection.tearDown()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
         }
-
-        clientStateStorage.remove()
-        contactTokenStorage.remove()
-        refreshTokenStorage.remove()
-        deviceInfoHashStorage.remove()
-
-        DependencyInjection.tearDown()
     }
 
     @Test

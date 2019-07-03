@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage
+package com.emarsys.mobileengage.event
 
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.RequestManager
@@ -13,7 +13,7 @@ import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
-class EventServiceInternalV3Test {
+class DefaultEventServiceInternalTest {
 
     companion object {
         const val REQUEST_ID = "request_id"
@@ -45,17 +45,17 @@ class EventServiceInternalV3Test {
             whenever(createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
         }
 
-        eventServiceInternal = EventServiceInternalV3(mockRequestManager, mockRequestModelFactory)
+        eventServiceInternal = DefaultEventServiceInternal(mockRequestManager, mockRequestModelFactory)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestModelFactory_mustNotBeNull() {
-        EventServiceInternalV3(mockRequestManager, null)
+        DefaultEventServiceInternal(mockRequestManager, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestManager_mustNotBeNull() {
-        EventServiceInternalV3(null, mockRequestModelFactory)
+        DefaultEventServiceInternal(null, mockRequestModelFactory)
     }
 
     @Test(expected = IllegalArgumentException::class)

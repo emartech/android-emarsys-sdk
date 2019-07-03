@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage;
+package com.emarsys.mobileengage.client;
 
 public interface ClientServiceInternal {
 

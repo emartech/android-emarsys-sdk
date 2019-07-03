@@ -6,7 +6,7 @@ import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.ClientServiceInternal;
+import com.emarsys.mobileengage.client.ClientServiceInternal;
 
 public class DeviceInfoStartAction implements ActivityLifecycleAction {
 

@@ -48,7 +48,7 @@ import org.mockito.Mockito.verify
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
-class InboxInternal_V1Test {
+class DefaultInboxInternalTest {
 
     private companion object {
 
@@ -64,7 +64,7 @@ class InboxInternal_V1Test {
     private lateinit var defaultHeaders: Map<String, String>
     private lateinit var mockRequestManager: RequestManager
     private lateinit var latch: CountDownLatch
-    private lateinit var inbox: InboxInternal_V1
+    private lateinit var inbox: DefaultInboxInternal
 
     private lateinit var application: Application
     private lateinit var cache: NotificationCache
@@ -123,7 +123,7 @@ class InboxInternal_V1Test {
 
         defaultHeaders = RequestHeaderUtils.createDefaultHeaders(requestContext)
 
-        inbox = InboxInternal_V1(mockRequestManager, requestContext, mockRequestModelFactory)
+        inbox = DefaultInboxInternal(mockRequestManager, requestContext, mockRequestModelFactory)
 
         mockResultListener = mock(ResultListener::class.java) as ResultListener<Try<NotificationInboxStatus>>
         mockResetListener = mock(CompletionListener::class.java)
@@ -142,17 +142,17 @@ class InboxInternal_V1Test {
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestManager_shouldNotBeNull() {
-        InboxInternal_V1(null, requestContext, mockRequestModelFactory)
+        DefaultInboxInternal(null, requestContext, mockRequestModelFactory)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestContext_shouldNotBeNull() {
-        InboxInternal_V1(mockRequestManager, null, mockRequestModelFactory)
+        DefaultInboxInternal(mockRequestManager, null, mockRequestModelFactory)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestModelFactory_mustNotBeNull() {
-        InboxInternal_V1(mockRequestManager, requestContext, null)
+        DefaultInboxInternal(mockRequestManager, requestContext, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -171,7 +171,7 @@ class InboxInternal_V1Test {
 
     @Test
     fun testFetchNotifications_listener_success() {
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext,
                 mockRequestModelFactory
@@ -188,7 +188,7 @@ class InboxInternal_V1Test {
 
     @Test
     fun testFetchNotifications_listener_success_shouldBeCalledOnMainThread() {
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext,
                 mockRequestModelFactory
@@ -210,7 +210,7 @@ class InboxInternal_V1Test {
             cache.cache(it)
         }
 
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext,
                 mockRequestModelFactory
@@ -232,7 +232,7 @@ class InboxInternal_V1Test {
     @Test
     fun testFetchNotifications_listener_failureWithException() {
         val expectedException = Exception("FakeRestClientException")
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(expectedException)),
                 requestContext,
                 mockRequestModelFactory
@@ -250,7 +250,7 @@ class InboxInternal_V1Test {
     @Test
 
     fun testFetchNotifications_listener_failureWithException_shouldBeCalledOnMainThread() {
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(Exception())),
                 requestContext,
                 mockRequestModelFactory
@@ -272,7 +272,7 @@ class InboxInternal_V1Test {
                 .requestModel(mock(RequestModel::class.java))
                 .build()
 
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
                 requestContext,
                 mockRequestModelFactory
@@ -303,7 +303,7 @@ class InboxInternal_V1Test {
                 .message("Bad request")
                 .requestModel(mock(RequestModel::class.java))
                 .build()
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
                 requestContext,
                 mockRequestModelFactory
@@ -379,7 +379,7 @@ class InboxInternal_V1Test {
 
     @Test
     fun testResetBadgeCount_listener_success() {
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext,
                 mockRequestModelFactory
@@ -395,7 +395,7 @@ class InboxInternal_V1Test {
 
     @Test
     fun testResetBadgeCount_listener_success_shouldBeCalledOnMainThread() {
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext,
                 mockRequestModelFactory
@@ -412,7 +412,7 @@ class InboxInternal_V1Test {
     @Test
     fun testResetBadgeCount_listener_failureWithException() {
         val expectedException = Exception("FakeRestClientException")
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(expectedException)),
                 requestContext,
                 mockRequestModelFactory
@@ -429,7 +429,7 @@ class InboxInternal_V1Test {
 
     @Test
     fun testResetBadgeCount_listener_failureWithException_shouldBeCalledOnMainThread() {
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(Exception())),
                 requestContext,
                 mockRequestModelFactory
@@ -451,7 +451,7 @@ class InboxInternal_V1Test {
                 .requestModel(mock(RequestModel::class.java))
                 .build()
 
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
                 requestContext,
                 mockRequestModelFactory
@@ -482,7 +482,7 @@ class InboxInternal_V1Test {
                 .message("Bad request")
                 .requestModel(mock(RequestModel::class.java))
                 .build()
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
                 requestContext,
                 mockRequestModelFactory
@@ -549,7 +549,7 @@ class InboxInternal_V1Test {
 
     @Test
     fun testResetBadgeCount_shouldNotFail_withNullListener_success() {
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(createSuccessResponse(), FakeRestClient.Mode.SUCCESS)),
                 requestContext,
                 mockRequestModelFactory
@@ -567,7 +567,7 @@ class InboxInternal_V1Test {
     @Test
     fun testResetBadgeCount_shouldNotFail_withNullListener_failureWithException() {
         val expectedException = Exception("FakeRestClientException")
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(expectedException)),
                 requestContext,
                 mockRequestModelFactory
@@ -589,7 +589,7 @@ class InboxInternal_V1Test {
                 .message("Bad request")
                 .requestModel(mock(RequestModel::class.java))
                 .build()
-        inbox = InboxInternal_V1(
+        inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(responseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
                 requestContext,
                 mockRequestModelFactory

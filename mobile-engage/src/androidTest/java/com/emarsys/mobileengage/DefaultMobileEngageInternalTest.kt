@@ -9,6 +9,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
+import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.request.RequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
@@ -20,7 +21,7 @@ import org.junit.rules.TestRule
 import org.mockito.Mockito.*
 
 
-class MobileEngageInternalV3Test {
+class DefaultMobileEngageInternalTest {
 
     private companion object {
         const val TIMESTAMP = 123456789L
@@ -40,7 +41,7 @@ class MobileEngageInternalV3Test {
         val EVENT_ATTRIBUTES = emptyMap<String, String>()
     }
 
-    private lateinit var mobileEngageInternal: MobileEngageInternalV3
+    private lateinit var mobileEngageInternal: DefaultMobileEngageInternal
 
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockPushInternal: PushInternal
@@ -119,22 +120,22 @@ class MobileEngageInternalV3Test {
 
         mockCompletionListener = mock(CompletionListener::class.java)
 
-        mobileEngageInternal = MobileEngageInternalV3(mockRequestManager, mockRequestModelFactory, mockRequestContext)
+        mobileEngageInternal = DefaultMobileEngageInternal(mockRequestManager, mockRequestModelFactory, mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestManager_mustNotBeNull() {
-        MobileEngageInternalV3(null, mockRequestModelFactory, mockRequestContext)
+        DefaultMobileEngageInternal(null, mockRequestModelFactory, mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestModelFactory_mustNotBeNull() {
-        MobileEngageInternalV3(mockRequestManager, null, mockRequestContext)
+        DefaultMobileEngageInternal(mockRequestManager, null, mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestContext_mustNotBeNull() {
-        MobileEngageInternalV3(mockRequestManager, mockRequestModelFactory, null)
+        DefaultMobileEngageInternal(mockRequestManager, mockRequestModelFactory, null)
     }
 
     @Test
