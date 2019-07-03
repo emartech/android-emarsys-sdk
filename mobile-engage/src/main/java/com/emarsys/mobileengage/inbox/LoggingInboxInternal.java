@@ -6,7 +6,7 @@ import com.emarsys.core.api.result.Try;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 
-class LoggingInboxInternal implements InboxInternal {
+public class LoggingInboxInternal implements InboxInternal {
     @Override
     public void fetchNotifications(ResultListener<Try<NotificationInboxStatus>> resultListener) {
 
