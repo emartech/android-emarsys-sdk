@@ -1,7 +1,6 @@
 package com.emarsys.core.util.log.entry
 
 import com.emarsys.testUtil.TimeoutUtils
-import io.kotlintest.matchers.maps.shouldContainExactly
 import io.kotlintest.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -43,7 +42,7 @@ class MethodNotAllowedTest {
                 "method_name" to testCallerMethodName
         )
 
-        MethodNotAllowed(MethodNotAllowedTest::class.java, testCallerMethodName, null).data shouldContainExactly expectedResult
+        MethodNotAllowed(MethodNotAllowedTest::class.java, testCallerMethodName, null).data shouldBe expectedResult
     }
 
     @Test
@@ -54,6 +53,6 @@ class MethodNotAllowedTest {
                 "parameters" to testParameters
         )
 
-        MethodNotAllowed(MethodNotAllowedTest::class.java, testCallerMethodName, testParameters).data shouldContainExactly expectedResult
+        MethodNotAllowed(MethodNotAllowedTest::class.java, testCallerMethodName, testParameters).data shouldBe expectedResult
     }
 }
