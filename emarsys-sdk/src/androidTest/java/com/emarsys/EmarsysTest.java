@@ -8,6 +8,7 @@ import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.emarsys.config.EmarsysConfig;
+import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.RunnerProxy;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.activity.ActivityLifecycleWatchdog;
@@ -17,6 +18,8 @@ import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
 import com.emarsys.core.concurrency.CoreSdkHandler;
 import com.emarsys.core.database.CoreSQLiteDatabase;
+import com.emarsys.core.database.repository.Repository;
+import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.trigger.TriggerEvent;
 import com.emarsys.core.database.trigger.TriggerType;
 import com.emarsys.core.device.DeviceInfo;
@@ -26,9 +29,13 @@ import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.feature.FeatureRegistry;
 import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
+import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.request.RequestManager;
+import com.emarsys.core.request.RestClient;
 import com.emarsys.core.response.ResponseHandlersProcessor;
+import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.batch.BatchingShardTrigger;
 import com.emarsys.core.util.log.Logger;
@@ -44,7 +51,9 @@ import com.emarsys.mobileengage.DefaultMobileEngageInternal;
 import com.emarsys.mobileengage.LoggingMobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.RefreshTokenInternal;
+import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.client.ClientServiceInternal;
 import com.emarsys.mobileengage.client.DefaultClientServiceInternal;
@@ -56,14 +65,18 @@ import com.emarsys.mobileengage.deeplink.LoggingDeepLinkInternal;
 import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.mobileengage.event.LoggingEventServiceInternal;
 import com.emarsys.mobileengage.iam.DefaultInAppInternal;
+import com.emarsys.mobileengage.iam.InAppInternal;
+import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.InAppStartAction;
 import com.emarsys.mobileengage.iam.LoggingInAppInternal;
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy;
 import com.emarsys.mobileengage.inbox.DefaultInboxInternal;
+import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.LoggingInboxInternal;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.push.DefaultPushInternal;
 import com.emarsys.mobileengage.push.LoggingPushInternal;
+import com.emarsys.mobileengage.push.PushInternal;
 import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
@@ -127,20 +140,43 @@ public class EmarsysTest {
     private CoreSdkHandler mockCoreSdkHandler;
     private ActivityLifecycleWatchdog activityLifecycleWatchdog;
     private CurrentActivityWatchdog currentActivityWatchdog;
+    private CoreSQLiteDatabase mockCoreSQLiteDatabase;
+    private Repository<ShardModel, SqlSpecification> mockRepository;
+    private TimestampProvider mockTimestampProvider;
+    private UUIDProvider mockUUIDProvider;
+    private Runnable mockLogShardTrigger;
     private MobileEngageInternal mockMobileEngageInternal;
-    private PredictInternal mockPredictInternal;
+    private PushInternal mockPushInternal;
+    private InboxInternal mockInboxInternal;
+    private InAppInternal mockInAppInternal;
+    private RefreshTokenInternal mockRefreshTokenInternal;
+    private DeepLinkInternal mockDeepLinkInternal;
     private EventServiceInternal mockEventServiceInternal;
     private ClientServiceInternal mockClientServiceInternal;
-    private DeepLinkInternal mockDeepLinkInternal;
-    private RefreshTokenInternal mockRefreshTokenInternal;
-    private LanguageProvider mockLanguageProvider;
-    private VersionProvider mockVersionProvider;
-    private EventHandler inappEventHandler;
-    private CoreSQLiteDatabase mockCoreDatabase;
+    private DefaultCoreCompletionHandler mockDefaultCoreCompletionHandler;
+    private RequestContext mockRequestContext;
+    private InAppPresenter mockInAppPresenter;
+    private NotificationEventHandler mockNotificationEventHandler;
+    private PredictInternal mockPredictInternal;
     private Runnable mockPredictShardTrigger;
-    private Runnable mockLogShardTrigger;
     private RunnerProxy runnerProxy;
     private Logger logger;
+    private Storage<Integer> mockDeviceInfoHashStorage;
+    private Storage<String> mockContactFieldValueStorage;
+    private Storage<String> mockContactTokenStorage;
+    private Storage<String> mockClientStateStorage;
+    private ResponseHandlersProcessor mockResponseHandlersProcessor;
+    private NotificationCache mockNotificationCache;
+    private RestClient mockRestClient;
+    private InboxApi mockInbox;
+    private InAppApi mockInApp;
+    private PushApi mockPush;
+    private PredictApi mockPredict;
+
+    private LanguageProvider mockLanguageProvider;
+    private NotificationManagerHelper mockNotificationManagerHelper;
+    private VersionProvider mockVersionProvider;
+    private EventHandler inappEventHandler;
 
     private Application application;
     private CompletionListener completionListener;
@@ -149,19 +185,7 @@ public class EmarsysTest {
     private EmarsysConfig mobileEngageConfig;
     private EmarsysConfig predictConfig;
     private EmarsysConfig configWithInAppEventHandler;
-    private Storage<Integer> mockDeviceInfoHashStorage;
-    private Storage<String> mockContactFieldValueStorage;
-    private Storage<String> mockContactTokenStorage;
-    private Storage<String> mockClientStateStorage;
-    private ResponseHandlersProcessor mockResponseHandlersProcessor;
-    private NotificationManagerHelper mockNotificationManagerHelper;
     private DeviceInfo deviceInfo;
-    private NotificationCache mockNotificationCache;
-
-    private PredictApi mockPredict;
-    private PushApi mockPush;
-    private InAppApi mockInApp;
-    private InboxApi mockInbox;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -176,13 +200,20 @@ public class EmarsysTest {
         mockCoreSdkHandler = mock(CoreSdkHandler.class);
         activityLifecycleWatchdog = mock(ActivityLifecycleWatchdog.class);
         currentActivityWatchdog = mock(CurrentActivityWatchdog.class);
+        mockCoreSQLiteDatabase = mock(CoreSQLiteDatabase.class);
+        mockRepository = mock(Repository.class);
+        mockTimestampProvider = mock(TimestampProvider.class);
+        mockUUIDProvider = mock(UUIDProvider.class);
         mockMobileEngageInternal = mock(MobileEngageInternal.class);
-        mockEventServiceInternal = mock(EventServiceInternal.class);
+        mockPushInternal = mock(PushInternal.class);
+        mockInboxInternal = mock(InboxInternal.class);
+        mockInAppInternal = mock(InAppInternal.class);
+        mockRefreshTokenInternal = mock(RefreshTokenInternal.class);
         mockDeepLinkInternal = mock(DeepLinkInternal.class);
-        mockPredictInternal = mock(PredictInternal.class);
+        mockEventServiceInternal = mock(EventServiceInternal.class);
         mockEventServiceInternal = mock(EventServiceInternal.class);
         mockClientServiceInternal = mock(ClientServiceInternal.class);
-        mockCoreDatabase = mock(CoreSQLiteDatabase.class);
+        mockPredictInternal = mock(PredictInternal.class);
         mockPredictShardTrigger = mock(BatchingShardTrigger.class);
         mockLogShardTrigger = mock(BatchingShardTrigger.class);
         mockLanguageProvider = mock(LanguageProvider.class);
@@ -190,7 +221,6 @@ public class EmarsysTest {
         inappEventHandler = mock(EventHandler.class);
         runnerProxy = new RunnerProxy();
         logger = mock(Logger.class);
-        mockRefreshTokenInternal = mock(RefreshTokenInternal.class);
         mockDeviceInfoHashStorage = mock(Storage.class);
         mockContactFieldValueStorage = mock(Storage.class);
         mockContactTokenStorage = mock(Storage.class);
@@ -202,6 +232,12 @@ public class EmarsysTest {
         baseConfig = createConfig().build();
         mobileEngageConfig = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).build();
         predictConfig = createConfig().predictMerchantId(MERCHANT_ID).build();
+
+        mockDefaultCoreCompletionHandler = mock(DefaultCoreCompletionHandler.class);
+        mockRequestContext = mock(RequestContext.class);
+        mockInAppPresenter = mock(InAppPresenter.class);
+        mockNotificationEventHandler = mock(NotificationEventHandler.class);
+        mockRestClient = mock(RestClient.class);
 
         mockInbox = mock(InboxApi.class);
         mockInApp = mock(InAppApi.class);
@@ -220,24 +256,24 @@ public class EmarsysTest {
                 mockCoreSdkHandler,
                 activityLifecycleWatchdog,
                 currentActivityWatchdog,
-                mockCoreDatabase,
+                mockCoreSQLiteDatabase,
                 deviceInfo,
-                null,
-                null,
-                null,
+                mockRepository,
+                mockTimestampProvider,
+                mockUUIDProvider,
                 mockLogShardTrigger,
                 mockMobileEngageInternal,
-                null,
-                null,
-                null,
+                mockPushInternal,
+                mockInboxInternal,
+                mockInAppInternal,
                 mockRefreshTokenInternal,
                 mockDeepLinkInternal,
                 mockEventServiceInternal,
                 mockClientServiceInternal,
-                null,
-                null,
-                null,
-                null,
+                mockDefaultCoreCompletionHandler,
+                mockRequestContext,
+                mockInAppPresenter,
+                mockNotificationEventHandler,
                 mockPredictInternal,
                 mockPredictShardTrigger,
                 runnerProxy,
@@ -248,7 +284,7 @@ public class EmarsysTest {
                 mockClientStateStorage,
                 mockResponseHandlersProcessor,
                 mockNotificationCache,
-                null,
+                mockRestClient,
                 mockInbox,
                 mockInApp,
                 mockPush,
@@ -464,7 +500,7 @@ public class EmarsysTest {
     public void testSetup_registersPredictTrigger_whenPredictIsEnabled() {
         Emarsys.setup(predictConfig);
 
-        verify(mockCoreDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockPredictShardTrigger);
+        verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockPredictShardTrigger);
     }
 
     @Test
@@ -472,17 +508,17 @@ public class EmarsysTest {
         Emarsys.setup(mobileEngageConfig);
 
         ArgumentCaptor<Runnable> argumentCaptor = ArgumentCaptor.forClass(Runnable.class);
-        verify(mockCoreDatabase, times(1)).registerTrigger(any(String.class), any(TriggerType.class), any(TriggerEvent.class), argumentCaptor.capture());
+        verify(mockCoreSQLiteDatabase, times(1)).registerTrigger(any(String.class), any(TriggerType.class), any(TriggerEvent.class), argumentCaptor.capture());
 
         assertEquals(mockLogShardTrigger, argumentCaptor.getValue());
-        verifyNoMoreInteractions(mockCoreDatabase);
+        verifyNoMoreInteractions(mockCoreSQLiteDatabase);
     }
 
     @Test
     public void testSetup_registersLogTrigger() {
         Emarsys.setup(mobileEngageConfig);
 
-        verify(mockCoreDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockLogShardTrigger);
+        verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockLogShardTrigger);
     }
 
     @Test
