@@ -11,6 +11,7 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.push.PushApi
+import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import org.junit.After
@@ -44,13 +45,14 @@ class EmarsysMessagingServiceTest {
     fun setUp() {
         mockPush = mock(PushApi::class.java)
         baseConfig = createConfig()
-
+        FeatureTestUtils.resetFeatures()
         DependencyInjection.tearDown()
     }
 
     @After
     fun tearDown() {
         DependencyInjection.tearDown()
+        FeatureTestUtils.resetFeatures()
     }
 
     @Test
