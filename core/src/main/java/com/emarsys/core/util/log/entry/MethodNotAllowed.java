@@ -1,5 +1,7 @@
 package com.emarsys.core.util.log.entry;
 
+import android.util.Log;
+
 import com.emarsys.core.util.Assert;
 
 import java.util.HashMap;
@@ -7,6 +9,7 @@ import java.util.Map;
 
 public class MethodNotAllowed implements LogEntry {
 
+    private static final String TAG = "Emarsys SDK";
     private final Map<String, Object> data;
 
     public MethodNotAllowed(Class klass, String callerMethodName, Map<String, Object> parameters) {
@@ -19,6 +22,8 @@ public class MethodNotAllowed implements LogEntry {
         if (parameters != null) {
             data.put("parameters", parameters);
         }
+
+        Log.i(TAG, String.format("Feature disabled, Class: %s method: %s not allowed. Please check your config.", klass.getSimpleName(), callerMethodName));
     }
 
     @Override
