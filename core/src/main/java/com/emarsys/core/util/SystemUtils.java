@@ -17,4 +17,8 @@ public class SystemUtils {
     public static boolean isKotlinEnabled() {
         return isClassFound("kotlin.Pair");
     }
+
+    public static String getCallerMethodName() {
+        return Thread.currentThread().getStackTrace()[3].getMethodName();
+    }
 }
