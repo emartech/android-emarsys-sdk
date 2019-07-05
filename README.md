@@ -33,7 +33,7 @@ be up-to-date with what we are working on.
 
 Using the SDK is also beneficial from the product aspect: it simply makes it much easier to send push messages through your app. Please always use the latest version of the SDK in your app.
 
-## 1. Usage
+## 1. Setup
 ### 1.1 Installation with Gradle
 
 Gradle is a build system for Android, which automates and simplifies the process of using 3rd-party libraries.
