@@ -224,7 +224,7 @@ public class Emarsys {
         }
     }
 
-    static class Predict {
+    public static class Predict {
 
         public static void trackCart(@NonNull final List<CartItem> items) {
             predict.trackCart(items);
