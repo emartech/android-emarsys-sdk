@@ -4,7 +4,26 @@ This SDK is still in Pilot phase, please only use if you have a pilot agreement 
 
 If you are looking for our recommended SDK then please head to [Mobile Engage SDK](https://github.com/emartech/android-mobile-engage-sdk "Mobile Engage SDK")
 
-# Emarsys SDK
+## Contents
+
+- [What is the Emarsys SDK?](#what-is-the-emarsys-sdk "Emarsys SDK")
+- [1. Setup](#1-setup)
+    - [1.1 Installation with Gradle](#11-installation-with-gradle "Gradle")
+    - [1.2 Add Gradle dependency](#12-add-gradle-dependency "Add as dependency")
+- [2. Requirements](#2-requirements "Requirements")
+    - [2.1 Using AndroidX](#21-using-androidx "AndroidX")
+    - [2.2 Firebase](#22-firebase "Firebase")
+- [Documentation](https://github.com/emartech/android-emarsys-sdk/wiki "Documentation")
+- [Migrate from Mobile Engage SDK](https://github.com/emartech/android-emarsys-sdk/wiki/Migrate-from-Mobile-Engage "Migration Guide")
+- [Mobile Engage Glossary](https://github.com/emartech/android-emarsys-sdk/wiki/Glossary "Glossary")
+- [Obtaining Firebase Cloud Messaging credentials](https://github.com/emartech/android-emarsys-sdk/wiki/Obtaining-Firebase-Cloud-Messaging-credentials "Firebase credentials")
+- [Android Oreo Channels](https://github.com/emartech/android-emarsys-sdk/wiki/Android-Oreo-Channels "Oreo Channels")
+- [Rich Push Notifications](https://github.com/emartech/android-emarsys-sdk/wiki/Rich-Push-Notifications "Rich Push Notifications")
+- [DeepLink](https://github.com/emartech/android-emarsys-sdk/wiki/DeepLink "DeepLink")
+- [FAQ](https://github.com/emartech/android-emarsys-sdk/wiki/FAQ "FAQ")
+
+
+# What is the Emarsys SDK?
 
 The Emarsys SDK enables you to use Mobile Engage and Predict in a very straightforward way. By incorporating the SDK in your
 app, we support you, among other things, in handling credentials, API calls, tracking of opens and events as well as logins and
@@ -13,20 +32,6 @@ The Emarsys SDK is open sourced to enhance transparency and to remove privacy co
 be up-to-date with what we are working on.
 
 Using the SDK is also beneficial from the product aspect: it simply makes it much easier to send push messages through your app. Please always use the latest version of the SDK in your app.
-
-## Contents
-
-- [Usage](#1-usage)
-- [Requirements](#2-requirements)
-- [Documentation](https://github.com/emartech/android-emarsys-sdk/wiki)
-- [Migrate from Mobile Engage SDK](https://github.com/emartech/android-emarsys-sdk/wiki/Migrate-from-Mobile-Engage)
-- [Mobile Engage Glossary](https://github.com/emartech/android-emarsys-sdk/wiki/Glossary)
-- [Obtaining Firebase Cloud Messaging credentials](https://github.com/emartech/android-emarsys-sdk/wiki/Obtaining-Firebase-Cloud-Messaging-credentials)
-- [Android Oreo Channels](https://github.com/emartech/android-emarsys-sdk/wiki/Android-Oreo-Channels)
-- [Rich Push Notifications](https://github.com/emartech/android-emarsys-sdk/wiki/Rich-Push-Notifications)
-- [DeepLink](https://github.com/emartech/android-emarsys-sdk/wiki/DeepLink)
-- [FAQ](https://github.com/emartech/android-emarsys-sdk/wiki/FAQ)
-
 
 ## 1. Usage
 ### 1.1 Installation with Gradle
