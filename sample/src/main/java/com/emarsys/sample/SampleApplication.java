@@ -30,6 +30,7 @@ public class SampleApplication extends Application implements EventHandler, Noti
 
         EmarsysConfig config = new EmarsysConfig.Builder()
                 .application(this)
+                .predictMerchantId("1428C8EE286EC34B")
                 .mobileEngageApplicationCode(MobileEngageCredentials.INTEGRATION_APPLICATION_CODE)
                 .contactFieldId(3)
                 .inAppEventHandler(this)
@@ -57,7 +58,7 @@ public class SampleApplication extends Application implements EventHandler, Noti
     }
 
     @Override
-    public void  handleEvent(String eventName, JSONObject payload) {
+    public void handleEvent(String eventName, JSONObject payload) {
         Toast.makeText(this, eventName + " - " + payload.toString(), Toast.LENGTH_LONG).show();
     }
 
