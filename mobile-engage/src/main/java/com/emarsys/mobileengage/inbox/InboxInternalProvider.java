@@ -13,7 +13,7 @@ public class InboxInternalProvider {
         return new DefaultInboxInternal(requestManager, requestContext, requestModelFactory);
     }
 
-    public InboxInternal provideLoggingInboxInternal(){
-        return new LoggingInboxInternal();
+    public InboxInternal provideLoggingInboxInternal(Class klass){
+        return new LoggingInboxInternal(klass);
     }
 }

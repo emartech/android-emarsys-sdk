@@ -12,7 +12,11 @@ import java.util.Map;
 
 public class LoggingPushInternal implements PushInternal {
 
-    private static final Class<LoggingPushInternal> KLASS = LoggingPushInternal.class;
+    private final Class klass;
+
+    public LoggingPushInternal(Class klass) {
+        this.klass = klass;
+    }
 
     @Override
     public void setPushToken(String pushToken, CompletionListener completionListener) {
@@ -22,7 +26,7 @@ public class LoggingPushInternal implements PushInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, parameters));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 
     @Override
@@ -32,7 +36,7 @@ public class LoggingPushInternal implements PushInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, parameters));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 
     @Override
@@ -43,6 +47,6 @@ public class LoggingPushInternal implements PushInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, parameters));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 }

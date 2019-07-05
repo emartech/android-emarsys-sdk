@@ -10,7 +10,11 @@ import java.util.Map;
 
 public class LoggingMobileEngageInternal implements MobileEngageInternal {
 
-    private static final Class<LoggingMobileEngageInternal> KLASS = LoggingMobileEngageInternal.class;
+    private final Class klass;
+
+    public LoggingMobileEngageInternal(Class klass) {
+        this.klass = klass;
+    }
 
     @Override
     public void setContact(String contactFieldValue, CompletionListener completionListener) {
@@ -20,7 +24,7 @@ public class LoggingMobileEngageInternal implements MobileEngageInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, parameters));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 
     @Override
@@ -30,6 +34,6 @@ public class LoggingMobileEngageInternal implements MobileEngageInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, parameters));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 }

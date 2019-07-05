@@ -11,7 +11,11 @@ import java.util.Map;
 
 public class LoggingInAppInternal implements InAppInternal {
 
-    private static final Class<LoggingInAppInternal> KLASS = LoggingInAppInternal.class;
+    private final Class klass;
+
+    public LoggingInAppInternal(Class klass) {
+        this.klass = klass;
+    }
 
     @Override
     public String trackCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
@@ -22,7 +26,7 @@ public class LoggingInAppInternal implements InAppInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, parameters));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 
@@ -35,7 +39,7 @@ public class LoggingInAppInternal implements InAppInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, parameters));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 
@@ -43,21 +47,21 @@ public class LoggingInAppInternal implements InAppInternal {
     public void pause() {
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, null));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, null));
     }
 
     @Override
     public void resume() {
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, null));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, null));
     }
 
     @Override
     public boolean isPaused() {
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, null));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, null));
         return false;
     }
 
@@ -68,14 +72,14 @@ public class LoggingInAppInternal implements InAppInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, parameters));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 
     @Override
     public EventHandler getEventHandler() {
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, null));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, null));
         return null;
     }
 }

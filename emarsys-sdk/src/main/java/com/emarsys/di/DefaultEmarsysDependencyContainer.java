@@ -9,6 +9,7 @@ import android.os.Looper;
 
 import androidx.core.app.NotificationManagerCompat;
 
+import com.emarsys.Emarsys;
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.Mapper;
@@ -483,7 +484,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                     BatchingShardTrigger.RequestStrategy.PERSISTENT);
             predictInternal = new DefaultPredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);
         } else {
-            predictInternal = new LoggingPredictInternal();
+            predictInternal = new LoggingPredictInternal(Emarsys.Predict.class);
         }
 
         InboxInternalProvider inboxInternalProvider = new InboxInternalProvider();
@@ -503,13 +504,13 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                     requestModelFactory
             );
         } else {
-            deepLinkInternal = new LoggingDeepLinkInternal();
-            pushInternal = new LoggingPushInternal();
-            clientServiceInternal = new LoggingClientServiceInternal();
-            eventServiceInternal = new LoggingEventServiceInternal();
-            inAppInternal = new LoggingInAppInternal();
-            mobileEngageInternal = new LoggingMobileEngageInternal();
-            inboxInternal = inboxInternalProvider.provideLoggingInboxInternal();
+            deepLinkInternal = new LoggingDeepLinkInternal(Emarsys.class);
+            pushInternal = new LoggingPushInternal(Emarsys.Push.class);
+            clientServiceInternal = new LoggingClientServiceInternal(Emarsys.class);
+            eventServiceInternal = new LoggingEventServiceInternal(Emarsys.class);
+            inAppInternal = new LoggingInAppInternal(Emarsys.InApp.class);
+            mobileEngageInternal = new LoggingMobileEngageInternal(Emarsys.class);
+            inboxInternal = inboxInternalProvider.provideLoggingInboxInternal(Emarsys.Inbox.class);
         }
 
         inboxApi = new InboxProxy(runnerProxy, inboxInternal);

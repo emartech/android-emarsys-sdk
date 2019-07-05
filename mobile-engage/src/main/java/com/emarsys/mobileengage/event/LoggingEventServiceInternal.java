@@ -10,7 +10,11 @@ import java.util.Map;
 
 public class LoggingEventServiceInternal implements EventServiceInternal {
 
-    private static final Class<LoggingEventServiceInternal> KLASS = LoggingEventServiceInternal.class;
+    private final Class klass;
+
+    public LoggingEventServiceInternal(Class klass) {
+        this.klass = klass;
+    }
 
     @Override
     public String trackCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
@@ -21,7 +25,7 @@ public class LoggingEventServiceInternal implements EventServiceInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, parameters));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 
@@ -34,7 +38,7 @@ public class LoggingEventServiceInternal implements EventServiceInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(KLASS, callerMethodName, parameters));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 }

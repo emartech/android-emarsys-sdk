@@ -12,6 +12,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LoggingDeepLinkInternal implements DeepLinkInternal {
+    private final Class klass;
+
+    public LoggingDeepLinkInternal(Class klass) {
+        this.klass = klass;
+    }
+
     @Override
     public void trackDeepLinkOpen(Activity activity, Intent intent, CompletionListener completionListener) {
         Map<String, Object> parameters = new HashMap<>();
@@ -21,6 +27,6 @@ public class LoggingDeepLinkInternal implements DeepLinkInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(LoggingDeepLinkInternal.class, callerMethodName, parameters));
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 }
