@@ -51,7 +51,7 @@ dependencies {
 
 ## 2. Requirements
 
-* The minimum Android version should be api level 19 at least.
+* The minimum Android version should be API level 19 at least.
 * Requires compileSdkVersion 28 or higher
 * Emarsys SDK is using AndroidX
 
@@ -61,6 +61,7 @@ See [Migrating to AndroidX](https://developer.android.com/jetpack/androidx/migra
 If you want to use Emarsys SDK in a new project, you need to set the compile SDK to Android 9.0 (API level 28) or higher and set both of the following Android Gradle plugin flags to true in your gradle.properties file.
 
 android.useAndroidX: When set to true, the Android plugin uses the appropriate AndroidX library instead of a Support Library. The flag is false by default if it is not specified.
+
 android.enableJetifier: When set to true, the Android plugin automatically migrates existing third-party libraries to use AndroidX by rewriting their binaries. The flag is false by default if it is not specified.
 
 ### 2.2 Firebase
