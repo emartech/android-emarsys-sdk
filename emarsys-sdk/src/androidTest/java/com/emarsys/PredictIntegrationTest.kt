@@ -37,7 +37,6 @@ import java.util.concurrent.CountDownLatch
 class PredictIntegrationTest {
 
     companion object {
-        private const val APP_ID = "14C19-A121F"
         private const val CONTACT_FIELD_ID = 3
         private const val MERCHANT_ID = "1428C8EE286EC34B"
     }
@@ -62,7 +61,7 @@ class PredictIntegrationTest {
 
     @Rule
     @JvmField
-    val activityRule = ActivityTestRule<FakeActivity>(FakeActivity::class.java)
+    val activityRule = ActivityTestRule(FakeActivity::class.java)
 
     @Before
     fun setup() {
@@ -75,7 +74,6 @@ class PredictIntegrationTest {
 
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
-                .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
                 .build()
@@ -84,7 +82,7 @@ class PredictIntegrationTest {
         errorCause = null
 
         ConnectionTestUtils.checkConnection(application)
-        ExperimentalTestUtils.resetExperimentalFeatures()
+        FeatureTestUtils.resetFeatures()
         responseModelMatches = {
             false
         }
@@ -123,7 +121,8 @@ class PredictIntegrationTest {
                     mock(LanguageProvider::class.java).apply {
                         whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
                     },
-                    NotificationManagerHelper(NotificationManagerProxy(application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager, NotificationManagerCompat.from(application)))
+                    NotificationManagerHelper(NotificationManagerProxy(application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager, NotificationManagerCompat.from(application))),
+                    true
             )
         })
 
@@ -141,18 +140,23 @@ class PredictIntegrationTest {
 
     @After
     fun tearDown() {
-        with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
-            application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
-            application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
-            coreSdkHandler.looper.quit()
+        try {
+            with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
+                application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
+                application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
+                coreSdkHandler.looper.quit()
+            }
+
+            clientStateStorage.remove()
+            contactTokenStorage.remove()
+            refreshTokenStorage.remove()
+            deviceInfoHashStorage.remove()
+
+            DependencyInjection.tearDown()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
         }
-
-        clientStateStorage.remove()
-        contactTokenStorage.remove()
-        refreshTokenStorage.remove()
-        deviceInfoHashStorage.remove()
-
-        DependencyInjection.tearDown()
     }
 
     @Test

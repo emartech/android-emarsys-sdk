@@ -90,11 +90,6 @@ class LogShardListMergerTest {
         LogShardListMerger(timestampProvider, uuidProvider, null, APPLICATION_CODE, MERCHANT_ID)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_appCode_mustNotBeNull() {
-        LogShardListMerger(timestampProvider, uuidProvider, deviceInfo, null, MERCHANT_ID)
-    }
-
     @Test
     fun testMap_singletonList() {
         val shardData = RandomTestUtils.randomMap()

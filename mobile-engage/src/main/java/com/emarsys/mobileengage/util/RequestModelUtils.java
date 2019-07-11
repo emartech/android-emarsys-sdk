@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.util;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 
+
 public class RequestModelUtils {
 
     public static boolean isMobileEngageV3Request(RequestModel requestModel) {

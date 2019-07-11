@@ -28,7 +28,6 @@ public class LogShardListMerger implements Mapper<List<ShardModel>, RequestModel
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(uuidProvider, "UuidProvider must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
-        Assert.notNull(applicationCode, "ApplicationCode must not be null!");
 
         this.timestampProvider = timestampProvider;
         this.uuidProvider = uuidProvider;

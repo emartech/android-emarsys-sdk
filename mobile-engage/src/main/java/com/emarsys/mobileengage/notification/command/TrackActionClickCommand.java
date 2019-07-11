@@ -1,22 +1,22 @@
 package com.emarsys.mobileengage.notification.command;
 
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.event.EventServiceInternal;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class TrackActionClickCommand implements Runnable {
 
-    private final MobileEngageInternal mobileEngageInternal;
+    private final EventServiceInternal eventServiceInternal;
     private final String buttonId;
     private final String sid;
 
-    public TrackActionClickCommand(MobileEngageInternal mobileEngageInternal, String buttonId, String sid) {
-        Assert.notNull(mobileEngageInternal, "MobileEngageInternal must not be null!");
+    public TrackActionClickCommand(EventServiceInternal eventServiceInternal, String buttonId, String sid) {
+        Assert.notNull(eventServiceInternal, "EventServiceInternal must not be null!");
         Assert.notNull(buttonId, "ButtonId must not be null!");
         Assert.notNull(sid, "Sid must not be null!");
-        this.mobileEngageInternal = mobileEngageInternal;
+        this.eventServiceInternal = eventServiceInternal;
         this.buttonId = buttonId;
         this.sid = sid;
     }
@@ -32,7 +32,7 @@ public class TrackActionClickCommand implements Runnable {
         payload.put("origin", "button");
         payload.put("sid", sid);
 
-        mobileEngageInternal.trackInternalCustomEvent("push:click", payload, null);
+        eventServiceInternal.trackInternalCustomEvent("push:click", payload, null);
     }
 
 }

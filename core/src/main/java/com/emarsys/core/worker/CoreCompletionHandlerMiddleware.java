@@ -7,15 +7,11 @@ import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.request.factory.DefaultRunnableFactory;
 import com.emarsys.core.request.factory.RunnableFactory;
-import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.FilterByRequestId;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.emarsys.core.util.RequestModelUtils;
 
 public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
     CoreCompletionHandler coreCompletionHandler;
@@ -100,7 +96,7 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
     }
 
     private void handleSuccess(final ResponseModel responseModel) {
-        for (final String id : extractIds(responseModel.getRequestModel())) {
+        for (final String id : RequestModelUtils.extractIdsFromCompositeRequestModel(responseModel.getRequestModel())) {
             uiHandler.post(runnableFactory.runnableFrom(new Runnable() {
                 @Override
                 public void run() {
@@ -111,7 +107,7 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
     }
 
     private void handleError(final ResponseModel responseModel) {
-        for (final String id : extractIds(responseModel.getRequestModel())) {
+        for (final String id : RequestModelUtils.extractIdsFromCompositeRequestModel(responseModel.getRequestModel())) {
             uiHandler.post(runnableFactory.runnableFrom(new Runnable() {
                 @Override
                 public void run() {
@@ -119,15 +115,5 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
                 }
             }));
         }
-    }
-
-    private List<String> extractIds(RequestModel requestModel) {
-        List<String> ids = new ArrayList<>();
-        if (requestModel instanceof CompositeRequestModel) {
-            ids.addAll(Arrays.asList(((CompositeRequestModel) requestModel).getOriginalRequestIds()));
-        } else {
-            ids.add(requestModel.getId());
-        }
-        return ids;
     }
 }

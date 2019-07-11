@@ -13,7 +13,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
@@ -25,12 +27,14 @@ public class EmarsysConfigTest {
     private EventHandler defaultInAppEventHandler;
     private NotificationEventHandler defaultNotificationEventHandler;
     private FlipperFeature[] features;
+    private boolean automaticPushTokenSending;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     public void init() {
+        automaticPushTokenSending = true;
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
         defaultInAppEventHandler = mock(EventHandler.class);
         defaultNotificationEventHandler = mock(NotificationEventHandler.class);
@@ -47,36 +51,10 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                true,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                features);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_applicationCodeShouldNotBeNull() {
-        new EmarsysConfig(
-                application,
-                null,
-                CONTACT_FIELD_ID,
-                MERCHANT_ID,
-                true,
-                defaultInAppEventHandler,
-                defaultNotificationEventHandler,
-                features);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_secretShouldNotBeNull() {
-        new EmarsysConfig(
-                application,
-                APP_ID,
-                CONTACT_FIELD_ID,
-                MERCHANT_ID,
-                true,
-                defaultInAppEventHandler,
-                defaultNotificationEventHandler,
-                features);
+                features,
+                automaticPushTokenSending);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -86,10 +64,10 @@ public class EmarsysConfigTest {
                 APP_ID,
                 null,
                 MERCHANT_ID,
-                true,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                features);
+                features,
+                automaticPushTokenSending);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -99,10 +77,10 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                true,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                null);
+                null,
+                automaticPushTokenSending);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -112,10 +90,10 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                true,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                new FlipperFeature[]{mock(FlipperFeature.class), null});
+                new FlipperFeature[]{mock(FlipperFeature.class), null},
+                automaticPushTokenSending);
     }
 
     @Test
@@ -125,18 +103,16 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                true,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                features
-        );
+                features,
+                automaticPushTokenSending);
 
         EmarsysConfig result = new EmarsysConfig.Builder()
                 .application(application)
                 .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
-                .enableIdlingResource(true)
                 .enableExperimentalFeatures(features)
                 .inAppEventHandler(defaultInAppEventHandler)
                 .notificationEventHandler(defaultNotificationEventHandler)
@@ -152,10 +128,10 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                false,
                 null,
                 null,
-                new FlipperFeature[]{});
+                new FlipperFeature[]{},
+                automaticPushTokenSending);
 
         EmarsysConfig result = new EmarsysConfig.Builder()
                 .application(application)
@@ -181,6 +157,29 @@ public class EmarsysConfigTest {
         }
     }
 
+    @Test
+    public void testBuilder_automaticPushTokenSending_whenDisabled() {
+        EmarsysConfig config = new EmarsysConfig.Builder()
+                .application(application)
+                .mobileEngageApplicationCode(APP_ID)
+                .contactFieldId(CONTACT_FIELD_ID)
+                .predictMerchantId(MERCHANT_ID)
+                .disableAutomaticPushTokenSending()
+                .build();
+        assertFalse(config.isAutomaticPushTokenSendingEnabled());
+    }
+
+    @Test
+    public void testBuilder_automaticPushTokenSending_default() {
+        EmarsysConfig config = new EmarsysConfig.Builder()
+                .application(application)
+                .mobileEngageApplicationCode(APP_ID)
+                .contactFieldId(CONTACT_FIELD_ID)
+                .predictMerchantId(MERCHANT_ID)
+                .build();
+        assertTrue(config.isAutomaticPushTokenSendingEnabled());
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testBuilder_from_shouldNotAcceptNull() {
         new EmarsysConfig.Builder().from(null);
@@ -193,10 +192,10 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                true,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                features);
+                features,
+                automaticPushTokenSending);
 
         EmarsysConfig result = new EmarsysConfig.Builder()
                 .from(expected)

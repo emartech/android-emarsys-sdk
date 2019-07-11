@@ -64,13 +64,7 @@ public class CompositeRequestModel extends RequestModel {
         public Builder(RequestModel requestModel) {
             super(requestModel);
             Assert.notNull(requestModel, "RequestModel must not be null!");
-            this.url = requestModel.getUrl().toString();
-            this.headers = requestModel.getHeaders();
-            this.method = requestModel.getMethod();
             this.originalRequestIds = ((CompositeRequestModel) requestModel).getOriginalRequestIds();
-            this.payload = requestModel.getPayload();
-            this.timestamp = requestModel.getTimestamp();
-            this.ttl = requestModel.getTtl();
         }
 
         @Override

@@ -9,6 +9,7 @@ import android.os.Looper;
 
 import androidx.core.app.NotificationManagerCompat;
 
+import com.emarsys.Emarsys;
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.Mapper;
@@ -27,6 +28,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
+import com.emarsys.core.feature.FeatureRegistry;
 import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.notification.NotificationManagerProxy;
 import com.emarsys.core.notification.NotificationSettings;
@@ -56,22 +58,35 @@ import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.predicate.ListSizeAtLeast;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
-import com.emarsys.mobileengage.EventServiceInternal;
-import com.emarsys.mobileengage.EventServiceInternalV3;
-import com.emarsys.mobileengage.MobileEngageClientInternal;
+import com.emarsys.feature.InnerFeature;
+import com.emarsys.inapp.InAppApi;
+import com.emarsys.inapp.InAppProxy;
+import com.emarsys.inbox.InboxApi;
+import com.emarsys.inbox.InboxProxy;
+import com.emarsys.mobileengage.DefaultMobileEngageInternal;
+import com.emarsys.mobileengage.LoggingMobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
-import com.emarsys.mobileengage.MobileEngageInternalV3;
 import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal;
 import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
+import com.emarsys.mobileengage.client.ClientServiceInternal;
+import com.emarsys.mobileengage.client.DefaultClientServiceInternal;
+import com.emarsys.mobileengage.client.LoggingClientServiceInternal;
 import com.emarsys.mobileengage.deeplink.DeepLinkAction;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
+import com.emarsys.mobileengage.deeplink.DefaultDeepLinkInternal;
+import com.emarsys.mobileengage.deeplink.LoggingDeepLinkInternal;
 import com.emarsys.mobileengage.device.DeviceInfoStartAction;
+import com.emarsys.mobileengage.event.DefaultEventServiceInternal;
+import com.emarsys.mobileengage.event.EventServiceInternal;
+import com.emarsys.mobileengage.event.LoggingEventServiceInternal;
+import com.emarsys.mobileengage.iam.DefaultInAppInternal;
 import com.emarsys.mobileengage.iam.InAppEventHandlerInternal;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.iam.InAppStartAction;
+import com.emarsys.mobileengage.iam.LoggingInAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
@@ -80,6 +95,9 @@ import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternalProvider;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
+import com.emarsys.mobileengage.push.DefaultPushInternal;
+import com.emarsys.mobileengage.push.LoggingPushInternal;
+import com.emarsys.mobileengage.push.PushInternal;
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider;
 import com.emarsys.mobileengage.request.MobileEngageHeaderMapper;
 import com.emarsys.mobileengage.request.RequestModelFactory;
@@ -91,9 +109,15 @@ import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.storage.DeviceInfoHashStorage;
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
+import com.emarsys.predict.DefaultPredictInternal;
+import com.emarsys.predict.LoggingPredictInternal;
+import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
+import com.emarsys.predict.PredictProxy;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.predict.shard.PredictShardListMerger;
+import com.emarsys.push.PushApi;
+import com.emarsys.push.PushProxy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -108,6 +132,9 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private InAppEventHandlerInternal inAppEventHandler;
     private DeepLinkInternal deepLinkInternal;
     private PredictInternal predictInternal;
+    private PushInternal pushInternal;
+    private ClientServiceInternal clientServiceInternal;
+
     private Handler coreSdkHandler;
     private DeviceInfo deviceInfo;
     private Repository<ShardModel, SqlSpecification> shardModelRepository;
@@ -146,8 +173,13 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private InAppInternal inAppInternal;
     private MobileEngageTokenResponseHandler contactTokenResponseHandler;
     private NotificationCache notificationCache;
+    private InboxApi inboxApi;
+    private InAppApi inAppApi;
+    private PushApi pushApi;
+    private PredictApi predictApi;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
+        initializeFeatures(emarsysConfig);
         initializeDependencies(emarsysConfig);
         initializeInAppPresenter(emarsysConfig);
         initializeResponseHandlers();
@@ -165,8 +197,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
-    public MobileEngageClientInternal getClientInternal() {
-        return mobileEngageInternal;
+    public ClientServiceInternal getClientServiceInternal() {
+        return clientServiceInternal;
     }
 
     @Override
@@ -302,6 +334,31 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         return notificationCache;
     }
 
+    @Override
+    public PushInternal getPushInternal() {
+        return pushInternal;
+    }
+
+    @Override
+    public EventServiceInternal getEventServiceInternal() {
+        return eventServiceInternal;
+    }
+
+    @Override
+    public RestClient getRestClient() {
+        return restClient;
+    }
+
+    private void initializeFeatures(EmarsysConfig emarsysConfig) {
+        if (emarsysConfig.getMobileEngageApplicationCode() != null) {
+            FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE);
+        }
+
+        if (emarsysConfig.getPredictMerchantId() != null) {
+            FeatureRegistry.enableFeature(InnerFeature.PREDICT);
+        }
+    }
+
     private void initializeDependencies(EmarsysConfig config) {
         application = config.getApplication();
         runnerProxy = new RunnerProxy();
@@ -327,7 +384,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(application);
         NotificationManagerProxy notificationManagerProxy = new NotificationManagerProxy(notificationManager, notificationManagerCompat);
         NotificationSettings notificationSettings = new NotificationManagerHelper(notificationManagerProxy);
-        deviceInfo = new DeviceInfo(application, hardwareIdProvider, versionProvider, languageProvider, notificationSettings);
+        deviceInfo = new DeviceInfo(application, hardwareIdProvider, versionProvider, languageProvider, notificationSettings, config.isAutomaticPushTokenSendingEnabled());
 
         currentActivityProvider = new CurrentActivityProvider();
         currentActivityWatchdog = new CurrentActivityWatchdog(currentActivityProvider);
@@ -339,7 +396,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         displayedIamRepository = new DisplayedIamRepository(coreDbHelper);
 
         requestContext = new RequestContext(
-                config.getApplicationCode(),
+                config.getMobileEngageApplicationCode(),
                 config.getContactFieldId(),
                 getDeviceInfo(),
                 timestampProvider,
@@ -364,7 +421,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         refreshTokenInternal = new MobileEngageRefreshTokenInternal(
                 contactTokenResponseHandler,
-                restClient,
+                getRestClient(),
                 requestModelFactory);
 
         ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(application, coreSdkHandler);
@@ -378,7 +435,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         CoreCompletionHandlerRefreshTokenProxyProvider coreCompletionHandlerRefreshTokenProxyProvider = new CoreCompletionHandlerRefreshTokenProxyProvider(
                 coreCompletionHandlerMiddlewareProvider,
                 refreshTokenInternal,
-                restClient,
+                getRestClient(),
                 contactTokenStorage
         );
         Worker worker = new DefaultWorker(
@@ -386,7 +443,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 connectionWatchDog,
                 uiHandler,
                 getCoreCompletionHandler(),
-                restClient,
+                getRestClient(),
                 coreCompletionHandlerRefreshTokenProxyProvider);
 
         requestManager = new RequestManager(
@@ -394,7 +451,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 requestModelRepository,
                 shardModelRepository,
                 worker,
-                restClient,
+                getRestClient(),
                 getCoreCompletionHandler(),
                 getCoreCompletionHandler());
 
@@ -402,7 +459,16 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
         notificationEventHandler = config.getNotificationEventHandler();
-        if (isPredictEnabled(config)) {
+        logShardTrigger = new BatchingShardTrigger(
+                shardModelRepository,
+                new ListSizeAtLeast<ShardModel>(10),
+                new FilterByShardType(FilterByShardType.SHARD_TYPE_LOG),
+                new ListChunker<ShardModel>(10),
+                new LogShardListMerger(timestampProvider, uuidProvider, getDeviceInfo(), config.getMobileEngageApplicationCode(), config.getPredictMerchantId()),
+                requestManager,
+                BatchingShardTrigger.RequestStrategy.TRANSIENT);
+
+        if (FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT)) {
             predictShardTrigger = new BatchingShardTrigger(
                     shardModelRepository,
                     new ListSizeAtLeast<ShardModel>(1),
@@ -416,35 +482,43 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                             getDeviceInfo()),
                     requestManager,
                     BatchingShardTrigger.RequestStrategy.PERSISTENT);
+            predictInternal = new DefaultPredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);
+        } else {
+            predictInternal = new LoggingPredictInternal(Emarsys.Predict.class);
         }
-        logShardTrigger = new BatchingShardTrigger(
-                shardModelRepository,
-                new ListSizeAtLeast<ShardModel>(10),
-                new FilterByShardType(FilterByShardType.SHARD_TYPE_LOG),
-                new ListChunker<ShardModel>(10),
-                new LogShardListMerger(timestampProvider, uuidProvider, getDeviceInfo(), config.getApplicationCode(), config.getPredictMerchantId()),
-                requestManager,
-                BatchingShardTrigger.RequestStrategy.TRANSIENT);
 
-        eventServiceInternal = new EventServiceInternalV3(requestModelFactory, requestManager);
+        InboxInternalProvider inboxInternalProvider = new InboxInternalProvider();
 
-        inAppInternal = new InAppInternal(inAppEventHandler, eventServiceInternal);
+        if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
+            eventServiceInternal = new DefaultEventServiceInternal(requestManager, requestModelFactory);
+            clientServiceInternal = new DefaultClientServiceInternal(requestManager, requestModelFactory);
+            deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext);
 
-        mobileEngageInternal = new MobileEngageInternalV3(requestManager, uiHandler, requestModelFactory, requestContext, eventServiceInternal);
-        inboxInternal = new InboxInternalProvider().provideInboxInternal(
-                requestManager,
-                requestContext,
-                requestModelFactory
-        );
+            pushInternal = new DefaultPushInternal(requestManager, uiHandler, requestModelFactory, eventServiceInternal);
+            inAppInternal = new DefaultInAppInternal(inAppEventHandler, eventServiceInternal);
+            mobileEngageInternal = new DefaultMobileEngageInternal(requestManager, requestModelFactory, requestContext);
 
-        deepLinkInternal = new DeepLinkInternal(requestManager, requestContext);
-        predictInternal = new PredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);
+            inboxInternal = inboxInternalProvider.provideInboxInternal(
+                    requestManager,
+                    requestContext,
+                    requestModelFactory
+            );
+        } else {
+            deepLinkInternal = new LoggingDeepLinkInternal(Emarsys.class);
+            pushInternal = new LoggingPushInternal(Emarsys.Push.class);
+            clientServiceInternal = new LoggingClientServiceInternal(Emarsys.class);
+            eventServiceInternal = new LoggingEventServiceInternal(Emarsys.class);
+            inAppInternal = new LoggingInAppInternal(Emarsys.InApp.class);
+            mobileEngageInternal = new LoggingMobileEngageInternal(Emarsys.class);
+            inboxInternal = inboxInternalProvider.provideLoggingInboxInternal(Emarsys.Inbox.class);
+        }
+
+        inboxApi = new InboxProxy(runnerProxy, inboxInternal);
+        inAppApi = new InAppProxy(runnerProxy, inAppInternal);
+        pushApi = new PushProxy(runnerProxy, pushInternal);
+        predictApi = new PredictProxy(runnerProxy, predictInternal);
 
         logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
-    }
-
-    private boolean isPredictEnabled(EmarsysConfig config) {
-        return config.getPredictMerchantId() != null;
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
@@ -466,7 +540,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
     private void initializeActivityLifecycleWatchdog() {
         ActivityLifecycleAction[] applicationStartActions = new ActivityLifecycleAction[]{
-                new DeviceInfoStartAction(getClientInternal(), deviceInfoHashStorage, getDeviceInfo()),
+                new DeviceInfoStartAction(getClientServiceInternal(), deviceInfoHashStorage, getDeviceInfo()),
                 new InAppStartAction(eventServiceInternal, contactTokenStorage)
         };
 
@@ -511,5 +585,25 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 buttonClickedRepository
         ));
         responseHandlersProcessor.addResponseHandlers(responseHandlers);
+    }
+
+    @Override
+    public InboxApi getInbox() {
+        return inboxApi;
+    }
+
+    @Override
+    public InAppApi getInApp() {
+        return inAppApi;
+    }
+
+    @Override
+    public PushApi getPush() {
+        return pushApi;
+    }
+
+    @Override
+    public PredictApi getPredict() {
+        return predictApi;
     }
 }

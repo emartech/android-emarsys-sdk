@@ -11,7 +11,7 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
-import com.emarsys.predict.PredictInternal;
+import com.emarsys.predict.DefaultPredictInternal;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -61,7 +61,7 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
     private String createUrl(List<ShardModel> shards) {
         Map<String, Object> shardData = mergeShardData(shards);
 
-        Uri.Builder uriBuilder = Uri.parse(PredictInternal.BASE_URL)
+        Uri.Builder uriBuilder = Uri.parse(DefaultPredictInternal.BASE_URL)
                 .buildUpon()
                 .appendPath(merchantId);
 
@@ -87,12 +87,12 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
     private void insertBaseParameters(Map<String, Object> result) {
         result.put("cp", 1);
 
-        String visitorId = keyValueStore.getString(PredictInternal.VISITOR_ID_KEY);
+        String visitorId = keyValueStore.getString(DefaultPredictInternal.VISITOR_ID_KEY);
         if (visitorId != null) {
             result.put("vi", visitorId);
         }
 
-        String contactId = keyValueStore.getString(PredictInternal.CONTACT_ID_KEY);
+        String contactId = keyValueStore.getString(DefaultPredictInternal.CONTACT_ID_KEY);
         if (contactId != null) {
             result.put("ci", contactId);
         }

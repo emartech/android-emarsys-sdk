@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.device
 
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.storage.Storage
-import com.emarsys.mobileengage.MobileEngageInternal
+import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.testUtil.SharedPrefsUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -15,10 +15,10 @@ import org.mockito.Mockito.*
 
 class DeviceInfoStartActionTest {
 
-    private lateinit var deviceInfoHashStorage: Storage<Int>
-    private lateinit var mobileEngageInternal: MobileEngageInternal
+    private lateinit var mockDeviceInfoHashStorage: Storage<Int>
+    private lateinit var mockClientServiceInternal: ClientServiceInternal
     private lateinit var startAction: DeviceInfoStartAction
-    private lateinit var deviceInfo: DeviceInfo
+    private lateinit var mockDeviceInfo: DeviceInfo
 
     @Rule
     @JvmField
@@ -27,11 +27,11 @@ class DeviceInfoStartActionTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        deviceInfoHashStorage = mock(Storage::class.java) as Storage<Int>
-        mobileEngageInternal = mock(MobileEngageInternal::class.java)
-        deviceInfo = mock(DeviceInfo::class.java)
+        mockDeviceInfoHashStorage = mock(Storage::class.java) as Storage<Int>
+        mockClientServiceInternal = mock(ClientServiceInternal::class.java)
+        mockDeviceInfo = mock(DeviceInfo::class.java)
 
-        startAction = DeviceInfoStartAction(mobileEngageInternal, deviceInfoHashStorage, deviceInfo)
+        startAction = DeviceInfoStartAction(mockClientServiceInternal, mockDeviceInfoHashStorage, mockDeviceInfo)
 
     }
 
@@ -42,46 +42,46 @@ class DeviceInfoStartActionTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_mobileEngageInternal_mustNotBeNull() {
-        DeviceInfoStartAction(null, deviceInfoHashStorage, deviceInfo)
+        DeviceInfoStartAction(null, mockDeviceInfoHashStorage, mockDeviceInfo)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_deviceInfoHashStorage_mustNotBeNull() {
-        DeviceInfoStartAction(mobileEngageInternal, null, deviceInfo)
+        DeviceInfoStartAction(mockClientServiceInternal, null, mockDeviceInfo)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_deviceInfo_mustNotBeNull() {
-        DeviceInfoStartAction(mobileEngageInternal, deviceInfoHashStorage, null)
+        DeviceInfoStartAction(mockClientServiceInternal, mockDeviceInfoHashStorage, null)
     }
 
     @Test
     fun testExecute_callsMobileEngageInternal_whenStorageIsEmpty() {
-        whenever(deviceInfoHashStorage.get()).thenReturn(null)
+        whenever(mockDeviceInfoHashStorage.get()).thenReturn(null)
 
         startAction.execute(null)
 
-        verify(mobileEngageInternal).trackDeviceInfo()
+        verify(mockClientServiceInternal).trackDeviceInfo()
     }
 
     @Test
     fun testExecute_callsMobileEngageInternal_whenStorageHasChanged() {
-        whenever(deviceInfoHashStorage.get()).thenReturn(42)
-        whenever(deviceInfo.hash).thenReturn(43)
+        whenever(mockDeviceInfoHashStorage.get()).thenReturn(42)
+        whenever(mockDeviceInfo.hash).thenReturn(43)
 
         startAction.execute(null)
 
-        verify(mobileEngageInternal).trackDeviceInfo()
+        verify(mockClientServiceInternal).trackDeviceInfo()
     }
 
     @Test
     fun testExecute_shouldNotCallsMobileEngageInternal_whenStorageHasNotChangedAndExists() {
-        whenever(deviceInfoHashStorage.get()).thenReturn(42)
+        whenever(mockDeviceInfoHashStorage.get()).thenReturn(42)
 
-        whenever(deviceInfo.hash).thenReturn(42)
+        whenever(mockDeviceInfo.hash).thenReturn(42)
 
         startAction.execute(null)
 
-        verifyZeroInteractions(mobileEngageInternal)
+        verifyZeroInteractions(mockClientServiceInternal)
     }
 }

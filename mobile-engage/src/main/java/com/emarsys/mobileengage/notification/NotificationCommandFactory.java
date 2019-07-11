@@ -8,9 +8,9 @@ import android.os.Bundle;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.CollectionUtils;
 import com.emarsys.core.util.JsonUtils;
-import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
+import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.mobileengage.notification.command.AppEventCommand;
 import com.emarsys.mobileengage.notification.command.CompositeCommand;
 import com.emarsys.mobileengage.notification.command.CustomEventCommand;
@@ -21,6 +21,7 @@ import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand;
 import com.emarsys.mobileengage.notification.command.PreloadedInappHandlerCommand;
 import com.emarsys.mobileengage.notification.command.TrackActionClickCommand;
 import com.emarsys.mobileengage.notification.command.TrackMessageOpenCommand;
+import com.emarsys.mobileengage.push.PushInternal;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +36,8 @@ public class NotificationCommandFactory {
 
     private final Context context;
     private final MobileEngageDependencyContainer dependencyContainer;
-    private final MobileEngageInternal mobileEngageInternal;
+    private final EventServiceInternal eventServiceInternal;
+    private final PushInternal pushInternal;
     private final NotificationEventHandler notificationEventHandler;
 
     public NotificationCommandFactory(
@@ -43,11 +45,15 @@ public class NotificationCommandFactory {
             MobileEngageDependencyContainer dependencyContainer) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(dependencyContainer, "DependencyContainer must not be null!");
+
         this.context = context;
         this.dependencyContainer = dependencyContainer;
-        this.mobileEngageInternal = dependencyContainer.getMobileEngageInternal();
-        Assert.notNull(mobileEngageInternal, "MobileEngageInternal from dependency container must not be null!");
+        this.eventServiceInternal = dependencyContainer.getEventServiceInternal();
         this.notificationEventHandler = dependencyContainer.getNotificationEventHandler();
+        this.pushInternal = dependencyContainer.getPushInternal();
+
+        Assert.notNull(eventServiceInternal, "EventServiceInternal from dependency container must not be null!");
+        Assert.notNull(pushInternal, "PushInternal from dependency container must not be null!");
     }
 
     public Runnable createNotificationCommand(Intent intent) {
@@ -69,7 +75,7 @@ public class NotificationCommandFactory {
                         JSONObject action = findActionWithId(actions, actionId);
 
                         String sid = extractSid(bundle);
-                        Runnable trackActionClickCommand = new TrackActionClickCommand(mobileEngageInternal, actionId, sid);
+                        Runnable trackActionClickCommand = new TrackActionClickCommand(eventServiceInternal, actionId, sid);
 
                         result = createCompositeCommand(action, Arrays.asList(
                                 preloadedInappHandlerCommand,
@@ -83,7 +89,7 @@ public class NotificationCommandFactory {
                     try {
                         JSONObject action = new JSONObject(emsPayload).getJSONObject("default_action");
 
-                        Runnable trackMessageOpenCommand = new TrackMessageOpenCommand(mobileEngageInternal, intent);
+                        Runnable trackMessageOpenCommand = new TrackMessageOpenCommand(pushInternal, intent);
 
                         result = createCompositeCommand(action, Arrays.asList(
                                 preloadedInappHandlerCommand,
@@ -175,7 +181,7 @@ public class NotificationCommandFactory {
             eventAttribute = JsonUtils.toFlatMap(payload);
         }
 
-        return new CustomEventCommand(mobileEngageInternal, name, eventAttribute);
+        return new CustomEventCommand(eventServiceInternal, name, eventAttribute);
     }
 
 }

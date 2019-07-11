@@ -40,7 +40,8 @@ public class ImageUtilsTest {
                 mock(HardwareIdProvider.class),
                 mock(VersionProvider.class),
                 mock(LanguageProvider.class),
-                mock(NotificationManagerHelper.class));
+                mock(NotificationManagerHelper.class),
+                true);
     }
 
     @Test(expected = IllegalArgumentException.class)

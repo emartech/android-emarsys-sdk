@@ -24,6 +24,7 @@ import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
+import io.kotlintest.matchers.numerics.shouldBeInRange
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
@@ -39,7 +40,6 @@ class MobileEngageIntegrationTest {
     companion object {
         private const val APP_ID = "14C19-A121F"
         private const val CONTACT_FIELD_ID = 3
-        private const val MERCHANT_ID = "1428C8EE286EC34B"
     }
 
     private var completionHandlerLatch: CountDownLatch? = null
@@ -64,7 +64,7 @@ class MobileEngageIntegrationTest {
 
     @Rule
     @JvmField
-    val activityRule = ActivityTestRule<FakeActivity>(FakeActivity::class.java)
+    val activityRule = ActivityTestRule(FakeActivity::class.java)
 
     @Before
     fun setup() {
@@ -75,12 +75,15 @@ class MobileEngageIntegrationTest {
                 .inAppEventHandler(mock(EventHandler::class.java))
                 .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
-                .predictMerchantId(MERCHANT_ID)
                 .build()
 
         completionHandler = createDefaultCoreCompletionHandler()
 
+        FeatureTestUtils.resetFeatures()
+
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
+
+
             override fun getCoreCompletionHandler() = completionHandler
 
             override fun getDeviceInfo() = DeviceInfo(
@@ -94,8 +97,8 @@ class MobileEngageIntegrationTest {
                     mock(LanguageProvider::class.java).apply {
                         whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
                     },
-                    mock(NotificationManagerHelper::class.java)
-
+                    mock(NotificationManagerHelper::class.java),
+                    true
             )
         })
 
@@ -104,8 +107,6 @@ class MobileEngageIntegrationTest {
         ConnectionTestUtils.checkConnection(application)
 
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
-
-        ExperimentalTestUtils.resetExperimentalFeatures()
 
         Emarsys.setup(baseConfig)
 
@@ -127,20 +128,25 @@ class MobileEngageIntegrationTest {
 
     @After
     fun tearDown() {
-        ExperimentalTestUtils.resetExperimentalFeatures()
+        try {
+            FeatureTestUtils.resetFeatures()
 
-        with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
-            application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
-            application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
-            coreSdkHandler.looper.quit()
+            with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
+                application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
+                application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
+                coreSdkHandler.looper.quit()
+            }
+
+            clientStateStorage.remove()
+            contactTokenStorage.remove()
+            refreshTokenStorage.remove()
+            deviceInfoHashStorage.remove()
+
+            DependencyInjection.tearDown()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
         }
-
-        clientStateStorage.remove()
-        contactTokenStorage.remove()
-        refreshTokenStorage.remove()
-        deviceInfoHashStorage.remove()
-
-        DependencyInjection.tearDown()
     }
 
     @Test
@@ -179,9 +185,9 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackInternalCustomEvent_V3_noAttributes() {
-        val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
+        val eventServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().eventServiceInternal
 
-        mobileEngageInternal.trackInternalCustomEvent(
+        eventServiceInternal.trackInternalCustomEvent(
                 "integrationTestInternalCustomEvent",
                 null,
                 this::eventuallyStoreResult
@@ -190,9 +196,9 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackInternalCustomEvent_V3_withAttributes() {
-        val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
+        val eventServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().eventServiceInternal
 
-        mobileEngageInternal.trackInternalCustomEvent(
+        eventServiceInternal.trackInternalCustomEvent(
                 "integrationTestInternalCustomEvent",
                 mapOf("key1" to "value1", "key2" to "value2"),
                 this::eventuallyStoreResult
@@ -249,9 +255,9 @@ class MobileEngageIntegrationTest {
         clientStateStorage.remove()
         contactTokenStorage.remove()
 
-        val mobileEngageInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().mobileEngageInternal
+        val clientServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().clientServiceInternal
 
-        mobileEngageInternal.trackDeviceInfo().also(this::eventuallyAssertCompletionHandlerSuccess)
+        clientServiceInternal.trackDeviceInfo().also(this::eventuallyAssertCompletionHandlerSuccess)
     }
 
     private fun eventuallyStoreResult(errorCause: Throwable?) {
@@ -262,11 +268,13 @@ class MobileEngageIntegrationTest {
     private fun eventuallyAssertSuccess(ignored: Any) {
         completionListenerLatch.await()
         errorCause shouldBe null
+        responseModel.statusCode shouldBeInRange IntRange(200, 299)
     }
 
     private fun eventuallyAssertCompletionHandlerSuccess(ignored: Any) {
         completionHandlerLatch?.await()
         errorCause shouldBe null
+        responseModel.statusCode shouldBeInRange IntRange(200, 299)
     }
 
     private fun createDefaultCoreCompletionHandler(): DefaultCoreCompletionHandler {

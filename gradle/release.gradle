@@ -1,4 +1,4 @@
-ext.modules = [':core-api', ':core', ':mobile-engage-api', ':mobile-engage', ':predict-api', ':predict', ':emarsys-sdk']
+ext.modules = [':core-api', ':core', ':mobile-engage-api', ':mobile-engage', ':predict-api', ':predict', 'emarsys', ':emarsys-sdk']
 
 modules.each {
     project(it) {

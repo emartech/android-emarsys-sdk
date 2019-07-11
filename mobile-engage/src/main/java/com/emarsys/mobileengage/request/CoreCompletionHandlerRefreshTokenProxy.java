@@ -1,19 +1,16 @@
 package com.emarsys.mobileengage.request;
 
+import androidx.annotation.Nullable;
+
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RestClient;
-import com.emarsys.core.request.model.CompositeRequestModel;
-import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.util.RequestModelUtils;
 
-import java.util.Map;
-
-import androidx.annotation.Nullable;
 
 public class CoreCompletionHandlerRefreshTokenProxy implements CoreCompletionHandler {
     private final CoreCompletionHandler coreCompletionHandler;
@@ -31,7 +28,6 @@ public class CoreCompletionHandlerRefreshTokenProxy implements CoreCompletionHan
         this.refreshTokenInternal = refreshTokenInternal;
         this.restClient = restClient;
         this.contactTokenStorage = contactTokenStorage;
-
     }
 
     @Override
@@ -46,28 +42,16 @@ public class CoreCompletionHandlerRefreshTokenProxy implements CoreCompletionHan
                 @Override
                 public void onCompleted(@Nullable Throwable errorCause) {
                     if (errorCause == null) {
-                        RequestModel updatedRequestModel = getUpdatedRequestModel(originalResponseModel);
-
-                        restClient.execute(updatedRequestModel, CoreCompletionHandlerRefreshTokenProxy.this);
+                        restClient.execute(originalResponseModel.getRequestModel(), CoreCompletionHandlerRefreshTokenProxy.this);
                     } else {
-                        coreCompletionHandler.onError(originalId, new Exception(errorCause));
+                        for (String id : com.emarsys.core.util.RequestModelUtils.extractIdsFromCompositeRequestModel(originalResponseModel.getRequestModel())) {
+                            coreCompletionHandler.onError(id, new Exception(errorCause));
+                        }
                     }
                 }
             });
         } else {
             coreCompletionHandler.onError(originalId, originalResponseModel);
-        }
-    }
-
-    private RequestModel getUpdatedRequestModel(ResponseModel originalResponseModel) {
-        String updatedRefreshToken = contactTokenStorage.get();
-        RequestModel originalRequestModel = originalResponseModel.getRequestModel();
-        Map<String, String> headers = originalRequestModel.getHeaders();
-        headers.put("X-Contact-Token", updatedRefreshToken);
-        if (originalRequestModel instanceof CompositeRequestModel) {
-            return new CompositeRequestModel.Builder(originalRequestModel).headers(headers).build();
-        } else {
-            return new RequestModel.Builder(originalRequestModel).headers(headers).build();
         }
     }
 

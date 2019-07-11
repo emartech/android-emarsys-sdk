@@ -29,7 +29,7 @@ public class DeepLinkActionTest {
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         deepLinkInternal = mock(DeepLinkInternal.class);
         action = new DeepLinkAction(deepLinkInternal);
 
@@ -41,7 +41,7 @@ public class DeepLinkActionTest {
     }
 
     @Test
-    public void testExecute_callsMobileEngageInternal() throws Exception {
+    public void testExecute_callsMobileEngageInternal() {
         Intent intent = mock(Intent.class);
         Activity activity = mock(Activity.class);
         when(activity.getIntent()).thenReturn(intent);

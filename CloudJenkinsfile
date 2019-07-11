@@ -43,13 +43,13 @@ node('master') {
                             "--device model=A0001,version=22,locale=en,orientation=portrait",
                             "--device model=j7xelte,version=23,locale=en,orientation=portrait",
                             "--device model=HWMHA,version=24,locale=en,orientation=portrait",
-                            "--device model=OnePlus5,version=26,locale=en,orientation=portrait",
+                            "--device model=G8441,version=26,locale=en,orientation=portrait",
                             "--device model=sailfish,version=27,locale=en,orientation=portrait",
                             "--device model=walleye,version=28,locale=en,orientation=portrait"
                     ]
                     def createTask = { module ->
                         return {
-                            sh "gcloud firebase test android run --type instrumentation --test '$module/$path/$module-debug-androidTest.apk' $app ${devices.join(' ')} --timeout 90s --quiet --project ems-mobile-sdk"
+                            sh "gcloud firebase test android run --type instrumentation --test '$module/$path/$module-debug-androidTest.apk' $app ${devices.join(' ')} --quiet --project ems-mobile-sdk"
                         }
                     }
                     def tasks = [

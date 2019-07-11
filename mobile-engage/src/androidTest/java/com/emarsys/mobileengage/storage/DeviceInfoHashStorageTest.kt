@@ -21,6 +21,7 @@ class DeviceInfoHashStorageTest {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
+
         storage = createDeviceInfoHashStorage()
         SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences")
     }

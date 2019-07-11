@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.iam
 
 import com.emarsys.core.storage.Storage
-import com.emarsys.mobileengage.EventServiceInternal
+import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import org.junit.Before

@@ -1,6 +1,6 @@
 package com.emarsys.mobileengage.notification.command;
 
-import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Rule;
@@ -19,23 +19,23 @@ public class TrackActionClickCommandTest {
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_mobileEngageInternal_mustNotBeNull() {
+    public void testConstructor_eventServiceInternal_mustNotBeNull() {
         new TrackActionClickCommand(null, "", "");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_buttonId_mustNotBeNull() {
-        new TrackActionClickCommand(mock(MobileEngageInternal.class), null, "");
+        new TrackActionClickCommand(mock(EventServiceInternal.class), null, "");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_sid_mustNotBeNull() {
-        new TrackActionClickCommand(mock(MobileEngageInternal.class), "", null);
+        new TrackActionClickCommand(mock(EventServiceInternal.class), "", null);
     }
 
     @Test
     public void testRun_sendsInternalCustomEvent() {
-        MobileEngageInternal internalMock = mock(MobileEngageInternal.class);
+        EventServiceInternal internalMock = mock(EventServiceInternal.class);
         String buttonId = "buttonId";
         String sid = "sid1234";
 
