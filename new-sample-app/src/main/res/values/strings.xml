@@ -1,4 +1,6 @@
 <resources>
-    <string name="app_name">New Sample App</string>
-    <string name="notify_button_label">Notify</string>
+    <string name="app_name">Sample App</string>
+    <string name="menu_title_mobile_engage">Mobile engage</string>
+    <string name="menu_title_inbox">Inbox</string>
+    <string name="menu_title_predict">Predict</string>
 </resources>
