@@ -41,7 +41,7 @@ node('master') {
                             "--device model=Nexus5,version=19,locale=en,orientation=portrait",
                             "--device model=shamu,version=21,locale=en,orientation=portrait",
                             "--device model=A0001,version=22,locale=en,orientation=portrait",
-                            "--device model=j7xelte,version=23,locale=en,orientation=portrait",
+                            "--device model=hero2lte,version=23,locale=en,orientation=portrait",
                             "--device model=HWMHA,version=24,locale=en,orientation=portrait",
                             "--device model=G8441,version=26,locale=en,orientation=portrait",
                             "--device model=sailfish,version=27,locale=en,orientation=portrait",
