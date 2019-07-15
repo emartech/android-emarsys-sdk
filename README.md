@@ -1,8 +1,8 @@
 # PILOT VERSION
 
-This SDK is still in Pilot phase, please only use if you have a pilot agreement contract in place!
+This SDK is still in pilot phase, please only use if you have a pilot agreement contract in place!
 
-If you are looking for our recommended SDK then please head to [Mobile Engage SDK](https://github.com/emartech/android-mobile-engage-sdk "Mobile Engage SDK")
+If you are looking for our recommended SDK, then please head to [Mobile Engage SDK](https://github.com/emartech/android-mobile-engage-sdk "Mobile Engage SDK").
 
 ## Contents
 
@@ -26,9 +26,9 @@ If you are looking for our recommended SDK then please head to [Mobile Engage SD
 # What is the Emarsys SDK?
 
 The Emarsys SDK enables you to use Mobile Engage and Predict in a very straightforward way. By incorporating the SDK in your
-app, we support you, among other things, in handling credentials, API calls, tracking of opens and events as well as logins and
+app, we, among other things, support you in handling credentials, API calls, tracking of opens and events as well as logins and
 logouts in the app.
-The Emarsys SDK is open sourced to enhance transparency and to remove privacy concerns. This also means that you can always
+The Emarsys SDK is open-sourced to enhance transparency and to remove privacy concerns. This also means that you will always
 be up-to-date with what we are working on.
 
 Using the SDK is also beneficial from the product aspect: it simply makes it much easier to send push messages through your app. Please always use the latest version of the SDK in your app.
@@ -51,9 +51,9 @@ dependencies {
 
 ## 2. Requirements
 
-* The minimum Android version should be API level 19 at least.
-* Requires compileSdkVersion 28 or higher
-* Emarsys SDK is using AndroidX
+* The minimum Android version should be at least API level 19.
+* Requires compileSdkVersion 28 or higher.
+* Emarsys SDK is using AndroidX.
 
 ### 2.1 Using AndroidX
 See [Migrating to AndroidX](https://developer.android.com/jetpack/androidx/migrate "AndroidX Migration Documentation") to learn how to migrate an existing project.
