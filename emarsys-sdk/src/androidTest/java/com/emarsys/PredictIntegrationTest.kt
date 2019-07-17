@@ -7,6 +7,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
+import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
@@ -19,11 +20,13 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.predict.api.model.PredictCartItem
+import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -33,6 +36,8 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.mock
 import java.net.URLDecoder
 import java.util.concurrent.CountDownLatch
+import kotlin.reflect.KMutableProperty0
+import kotlin.reflect.jvm.isAccessible
 
 class PredictIntegrationTest {
 
@@ -51,6 +56,7 @@ class PredictIntegrationTest {
     private lateinit var contactTokenStorage: Storage<String>
     private lateinit var refreshTokenStorage: Storage<String>
     private lateinit var deviceInfoHashStorage: Storage<Int>
+    private lateinit var triedRecommendedProducts: Try<List<Product>>
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
@@ -233,6 +239,14 @@ class PredictIntegrationTest {
     }
 
     @Test
+    fun testRecommendProducts() {
+        Emarsys.Predict.recommendProducts(eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+        }
+    }
+
+    @Test
     fun testMultipleInvocations() {
         testTrackCart()
         latch = CountDownLatch(1)
@@ -257,6 +271,19 @@ class PredictIntegrationTest {
         latch.await()
         errorCause shouldBe null
         responseModel.statusCode shouldBe 200
+    }
+
+    private fun <T> eventuallyStoreResultInProperty(setter: KMutableProperty0.Setter<T>): (T) -> Unit {
+        return {
+            setter.isAccessible = true
+            setter(it)
+            latch.countDown()
+        }
+    }
+
+    private fun Any.eventuallyAssert(assertion: () -> Unit) {
+        latch.await()
+        assertion.invoke()
     }
 
     private val ResponseModel.isPredictRequest
