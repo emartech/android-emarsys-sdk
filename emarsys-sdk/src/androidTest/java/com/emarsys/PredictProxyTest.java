@@ -1,9 +1,12 @@
 package com.emarsys;
 
 import com.emarsys.core.RunnerProxy;
+import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.PredictProxy;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.api.model.Product;
 import com.emarsys.testUtil.RandomTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -23,6 +26,7 @@ public class PredictProxyTest {
     private PredictInternal mockPredictInternal;
     private RunnerProxy runnerProxy;
     private PredictProxy predictProxy;
+    private ResultListener<Try<List<Product>>> mockResultListener;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -33,6 +37,7 @@ public class PredictProxyTest {
         runnerProxy = new RunnerProxy();
 
         predictProxy = new PredictProxy(runnerProxy, mockPredictInternal);
+        mockResultListener = mock(ResultListener.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -144,6 +149,18 @@ public class PredictProxyTest {
         predictProxy.trackSearchTerm(searchTerm);
 
         verify(mockPredictInternal).trackSearchTerm(searchTerm);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_recommendProducts_resultListener_mustNotBeNull() {
+        predictProxy.recommendProducts(null);
+    }
+
+    @Test
+    public void testPredict_recommendProducts_delegatesTo_predictInternal() {
+        predictProxy.recommendProducts(mockResultListener);
+
+        verify(mockPredictInternal).recommendProducts(mockResultListener);
     }
 
     private CartItem createItem(final String id, final double price, final double quantity) {

@@ -1,5 +1,7 @@
 package com.emarsys.predict
 
+import com.emarsys.core.api.result.ResultListener
+import com.emarsys.core.api.result.Try
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
@@ -7,6 +9,7 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.PredictCartItem
+import com.emarsys.predict.api.model.Product
 import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Assert
 import org.junit.Before
@@ -256,4 +259,18 @@ class DefaultPredictInternalTest {
         verify(mockRequestManager).submit(expectedShardModel)
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun testRecommendProducts_resultListener_mustNotBeNull() {
+        predictInternal.recommendProducts(null)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    @Test
+    fun testRecommendProducts_resultListener_shouldBeCalledWithDummyResult() {
+        val mockResultListener = mock(ResultListener::class.java) as ResultListener<Try<List<Product>>>
+
+        predictInternal.recommendProducts(mockResultListener)
+
+        verify(mockResultListener).onResult(any())
+    }
 }

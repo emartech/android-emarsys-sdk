@@ -33,6 +33,7 @@ import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.api.model.Product;
 import com.emarsys.push.PushApi;
 
 import java.util.List;
@@ -266,6 +267,10 @@ public class Emarsys {
 
         public static void trackSearchTerm(@NonNull final String searchTerm) {
             predict.trackSearchTerm(searchTerm);
+        }
+
+        public static void recommendProducts(@NonNull final ResultListener<Try<List<Product>>> resultListener) {
+            predict.recommendProducts(resultListener);
         }
     }
 

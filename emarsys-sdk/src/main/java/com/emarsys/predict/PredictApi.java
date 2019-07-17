@@ -2,7 +2,10 @@ package com.emarsys.predict;
 
 import androidx.annotation.NonNull;
 
+import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.api.model.Product;
 
 import java.util.List;
 
@@ -17,4 +20,6 @@ public interface PredictApi {
     void trackCategoryView(@NonNull final String categoryPath);
 
     void trackSearchTerm(@NonNull final String searchTerm);
+
+    void recommendProducts(@NonNull final ResultListener<Try<List<Product>>> resultListener);
 }

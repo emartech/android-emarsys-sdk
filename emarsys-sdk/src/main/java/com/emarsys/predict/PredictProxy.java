@@ -4,8 +4,11 @@ package com.emarsys.predict;
 import androidx.annotation.NonNull;
 
 import com.emarsys.core.RunnerProxy;
+import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.core.util.Assert;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.api.model.Product;
 
 import java.util.List;
 
@@ -77,6 +80,18 @@ public class PredictProxy implements PredictApi {
                 Assert.notNull(searchTerm, "SearchTerm must not be null!");
 
                 predictInternal.trackSearchTerm(searchTerm);
+            }
+        });
+    }
+
+    @Override
+    public void recommendProducts(@NonNull final ResultListener<Try<List<Product>>> resultListener) {
+        runnerProxy.logException(new Runnable() {
+            @Override
+            public void run() {
+                Assert.notNull(resultListener, "ResultListener must not be null!");
+
+                predictInternal.recommendProducts(resultListener);
             }
         });
     }

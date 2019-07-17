@@ -16,6 +16,7 @@ import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.core.concurrency.CoreSdkHandler;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.repository.Repository;
@@ -88,6 +89,7 @@ import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.PredictProxy;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.api.model.Product;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.push.PushApi;
 import com.emarsys.push.PushProxy;
@@ -180,6 +182,7 @@ public class EmarsysTest {
 
     private Application application;
     private CompletionListener completionListener;
+    private ResultListener<Try<List<Product>>> mockResultListener;
 
     private EmarsysConfig baseConfig;
     private EmarsysConfig mobileEngageConfig;
@@ -196,6 +199,7 @@ public class EmarsysTest {
         application = spy((Application) InstrumentationRegistry.getTargetContext().getApplicationContext());
 
         completionListener = mock(CompletionListener.class);
+        mockResultListener = mock(ResultListener.class);
 
         mockCoreSdkHandler = mock(CoreSdkHandler.class);
         activityLifecycleWatchdog = mock(ActivityLifecycleWatchdog.class);
@@ -1041,7 +1045,7 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackCart_delegatesTo_predictInstance() {
-        Emarsys.setup(mobileEngageConfig);
+        Emarsys.setup(predictConfig);
 
         List<CartItem> cartItems = new ArrayList<>();
 
@@ -1052,7 +1056,7 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackPurchase_delegatesTo_predictInstance() {
-        Emarsys.setup(mobileEngageConfig);
+        Emarsys.setup(predictConfig);
         List<CartItem> cartItems = new ArrayList<>();
         Emarsys.Predict.trackPurchase("orderId", cartItems);
 
@@ -1061,7 +1065,7 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackItemView_delegatesTo_predictInstance() {
-        Emarsys.setup(mobileEngageConfig);
+        Emarsys.setup(predictConfig);
 
         Emarsys.Predict.trackItemView("itemId");
 
@@ -1070,7 +1074,7 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackCategoryView_delegatesTo_predictInstance() {
-        Emarsys.setup(mobileEngageConfig);
+        Emarsys.setup(predictConfig);
 
         Emarsys.Predict.trackCategoryView("categoryPath");
 
@@ -1079,11 +1083,20 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackSearchTerm_delegatesTo_predictInstance() {
-        Emarsys.setup(mobileEngageConfig);
+        Emarsys.setup(predictConfig);
 
         Emarsys.Predict.trackSearchTerm("searchTerm");
 
         verify(mockPredict).trackSearchTerm("searchTerm");
+    }
+
+    @Test
+    public void testPredict_recommendProducts_delegatesTo_predictInstance() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.Predict.recommendProducts(mockResultListener);
+
+        verify(mockPredict).recommendProducts(mockResultListener);
     }
 
     @Test

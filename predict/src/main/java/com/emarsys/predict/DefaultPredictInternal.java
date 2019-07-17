@@ -1,5 +1,7 @@
 package com.emarsys.predict;
 
+import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -7,8 +9,10 @@ import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.api.model.Product;
 import com.emarsys.predict.util.CartItemUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultPredictInternal implements PredictInternal {
@@ -120,5 +124,15 @@ public class DefaultPredictInternal implements PredictInternal {
 
         requestManager.submit(shard);
         return shard.getId();
+    }
+
+    @Override
+    public void recommendProducts(ResultListener<Try<List<Product>>> resultListener) {
+        Assert.notNull(resultListener, "ResultListener must not be null!");
+
+        List<Product> products = new ArrayList<>();
+        products.add(new Product.Builder("productId", "title", "https://emarsys.com").build());
+
+        resultListener.onResult(Try.success(products));
     }
 }
