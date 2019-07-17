@@ -206,6 +206,29 @@ public class Product {
         return Objects.hash(productId, title, linkUrl, customFields, imageUrl, zoomImageUrl, categoryPath, available, productDescription, price, msrp, album, actor, artist, author, brand, year);
     }
 
+    @Override
+    public String toString() {
+        return "Product{" +
+                "productId='" + productId + '\'' +
+                ", title='" + title + '\'' +
+                ", linkUrl=" + linkUrl +
+                ", customFields=" + customFields +
+                ", imageUrl=" + imageUrl +
+                ", zoomImageUrl=" + zoomImageUrl +
+                ", categoryPath='" + categoryPath + '\'' +
+                ", available=" + available +
+                ", productDescription='" + productDescription + '\'' +
+                ", price=" + price +
+                ", msrp=" + msrp +
+                ", album='" + album + '\'' +
+                ", actor='" + actor + '\'' +
+                ", artist='" + artist + '\'' +
+                ", author='" + author + '\'' +
+                ", brand='" + brand + '\'' +
+                ", year=" + year +
+                '}';
+    }
+
     public static class Builder {
         private String productId;
         private String title;
