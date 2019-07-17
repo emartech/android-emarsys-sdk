@@ -1,3 +1,5 @@
 dependencies {
+    implementation Libs.support_annotations
+    implementation project(':core')
     androidTestImplementation project(':testUtils')
 }
