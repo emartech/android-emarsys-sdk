@@ -4,14 +4,13 @@ import android.net.Uri;
 
 import com.emarsys.core.Mapper;
 import com.emarsys.core.device.DeviceInfo;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
-import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
 import com.emarsys.predict.DefaultPredictInternal;
+import com.emarsys.predict.request.PredictRequestContext;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -20,29 +19,14 @@ import java.util.Map;
 
 public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestModel> {
 
-    private final String merchantId;
-    private final KeyValueStore keyValueStore;
-    private final UUIDProvider uuidProvider;
-    private final TimestampProvider timestampProvider;
+    private final PredictRequestContext predictRequestContext;
     private final Map<String, String> headers;
 
-    public PredictShardListMerger(
-            String merchantId,
-            KeyValueStore keyValueStore,
-            TimestampProvider timestampProvider,
-            UUIDProvider uuidProvider,
-            DeviceInfo deviceInfo) {
-        Assert.notNull(merchantId, "MerchantId must not be null!");
-        Assert.notNull(keyValueStore, "KeyValueStore must not be null!");
-        Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
-        Assert.notNull(uuidProvider, "UuidProvider must not be null!");
-        Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
+    public PredictShardListMerger(PredictRequestContext predictRequestContext) {
+        Assert.notNull(predictRequestContext, "PredictRequestContext must not be null!");
 
-        this.merchantId = merchantId;
-        this.keyValueStore = keyValueStore;
-        this.uuidProvider = uuidProvider;
-        this.timestampProvider = timestampProvider;
-        this.headers = initializeHeaders(deviceInfo);
+        this.predictRequestContext = predictRequestContext;
+        this.headers = initializeHeaders(predictRequestContext.getDeviceInfo());
     }
 
     @Override
@@ -51,7 +35,7 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
         Assert.notEmpty(shards, "Shards must not be empty!");
         Assert.elementsNotNull(shards, "Shard elements must not be null!");
 
-        return new RequestModel.Builder(timestampProvider, uuidProvider)
+        return new RequestModel.Builder(predictRequestContext.getTimestampProvider(), predictRequestContext.getUuidProvider())
                 .url(createUrl(shards))
                 .method(RequestMethod.GET)
                 .headers(headers)
@@ -63,7 +47,7 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
 
         Uri.Builder uriBuilder = Uri.parse(DefaultPredictInternal.BASE_URL)
                 .buildUpon()
-                .appendPath(merchantId);
+                .appendPath(predictRequestContext.getMerchantId());
 
         for (String key : shardData.keySet()) {
             uriBuilder.appendQueryParameter(key, shardData.get(key).toString());
@@ -86,6 +70,8 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
 
     private void insertBaseParameters(Map<String, Object> result) {
         result.put("cp", 1);
+
+        KeyValueStore keyValueStore = predictRequestContext.getKeyValueStore();
 
         String visitorId = keyValueStore.getString(DefaultPredictInternal.VISITOR_ID_KEY);
         if (visitorId != null) {

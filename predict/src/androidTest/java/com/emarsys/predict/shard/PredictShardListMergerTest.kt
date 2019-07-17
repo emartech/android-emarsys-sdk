@@ -7,6 +7,7 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
+import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import org.junit.Assert.assertEquals
@@ -28,6 +29,7 @@ class PredictShardListMergerTest {
         const val PLATFORM = "android"
     }
 
+    private lateinit var predictRequestContext: PredictRequestContext
     private lateinit var merger: PredictShardListMerger
 
     private lateinit var merchantId: String
@@ -52,12 +54,14 @@ class PredictShardListMergerTest {
         uuidProvider = mock(UUIDProvider::class.java)
         deviceInfo = mock(DeviceInfo::class.java)
 
+        predictRequestContext = PredictRequestContext(merchantId, deviceInfo, timestampProvider, uuidProvider, store)
+
         whenever(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
         whenever(uuidProvider.provideId()).thenReturn(ID)
         whenever(deviceInfo.osVersion).thenReturn(OS_VERSION)
         whenever(deviceInfo.platform).thenReturn(PLATFORM)
 
-        merger = PredictShardListMerger(merchantId, store, timestampProvider, uuidProvider, deviceInfo)
+        merger = PredictShardListMerger(predictRequestContext)
 
         shard1 = ShardModel("id1", "type1", mapOf("q1" to 1, "q2" to "b"), 100, 100)
         shard2 = ShardModel("id2", "type2", mapOf("q3" to "c"), 110, 100)
@@ -65,28 +69,8 @@ class PredictShardListMergerTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_merchantId_mustNotBeNull() {
-        PredictShardListMerger(null, store, timestampProvider, uuidProvider, deviceInfo)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_keyValueStore_mustNotBeNull() {
-        PredictShardListMerger(merchantId, null, timestampProvider, uuidProvider, deviceInfo)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_timestampProvider_mustNotBeNull() {
-        PredictShardListMerger(merchantId, store, null, uuidProvider, deviceInfo)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_uuidProvider_mustNotBeNull() {
-        PredictShardListMerger(merchantId, store, timestampProvider, null, deviceInfo)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_deviceInfo_mustNotBeNull() {
-        PredictShardListMerger(merchantId, store, timestampProvider, uuidProvider, null)
+    fun testConstructor_predictRequestContext_mustNotBeNull() {
+        PredictShardListMerger(null)
     }
 
     @Test(expected = IllegalArgumentException::class)

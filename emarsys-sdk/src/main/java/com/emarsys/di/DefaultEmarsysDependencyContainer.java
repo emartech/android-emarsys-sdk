@@ -114,6 +114,7 @@ import com.emarsys.predict.LoggingPredictInternal;
 import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.PredictProxy;
+import com.emarsys.predict.request.PredictRequestContext;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.predict.shard.PredictShardListMerger;
 import com.emarsys.push.PushApi;
@@ -177,6 +178,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private InAppApi inAppApi;
     private PushApi pushApi;
     private PredictApi predictApi;
+    private PredictRequestContext predictRequestContext;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeFeatures(emarsysConfig);
@@ -469,17 +471,13 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 BatchingShardTrigger.RequestStrategy.TRANSIENT);
 
         if (FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT)) {
+            predictRequestContext = new PredictRequestContext(config.getPredictMerchantId(), deviceInfo, timestampProvider, uuidProvider, sharedPrefsKeyStore);
             predictShardTrigger = new BatchingShardTrigger(
                     shardModelRepository,
                     new ListSizeAtLeast<ShardModel>(1),
                     new FilterByShardType(FilterByShardType.SHARD_TYPE_PREDICT),
                     new ListChunker<ShardModel>(1),
-                    new PredictShardListMerger(
-                            config.getPredictMerchantId(),
-                            sharedPrefsKeyStore,
-                            timestampProvider,
-                            uuidProvider,
-                            getDeviceInfo()),
+                    new PredictShardListMerger(predictRequestContext),
                     requestManager,
                     BatchingShardTrigger.RequestStrategy.PERSISTENT);
             predictInternal = new DefaultPredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);
