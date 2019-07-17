@@ -1,7 +1,11 @@
 package com.emarsys.predict.api.model;
 
+import com.emarsys.testUtil.TimeoutUtils;
+
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,6 +29,8 @@ public class ProductTest {
     private static final String BRAND = "brand";
     private static final Integer YEAR = 1234;
 
+    @Rule
+    public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_productId_mustNotBeNull() {
