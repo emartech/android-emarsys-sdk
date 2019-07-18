@@ -13,7 +13,7 @@ import org.junit.rules.TestRule;
 import static org.mockito.Mockito.mock;
 
 @SuppressWarnings("unchecked")
-public class RequestContextTest {
+public class MobileEngageRequestContextTest {
 
     private int contactFieldId = 2;
 
@@ -22,7 +22,7 @@ public class RequestContextTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_DeviceInfo_mustNotBeNull() {
-        new RequestContext(
+        new MobileEngageRequestContext(
                 "",
                 contactFieldId,
                 null,
@@ -37,7 +37,7 @@ public class RequestContextTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_TimestampProvider_mustNotBeNull() {
-        new RequestContext(
+        new MobileEngageRequestContext(
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
@@ -52,7 +52,7 @@ public class RequestContextTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_IdProvider_mustNotBeNull() {
-        new RequestContext(
+        new MobileEngageRequestContext(
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
@@ -67,7 +67,7 @@ public class RequestContextTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_clientStateStorage_mustNotBeNull() {
-        new RequestContext(
+        new MobileEngageRequestContext(
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
@@ -82,7 +82,7 @@ public class RequestContextTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_contactTokenStorage_mustNotBeNull() {
-        new RequestContext(
+        new MobileEngageRequestContext(
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
@@ -97,7 +97,7 @@ public class RequestContextTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_refreshTokenStorage_mustNotBeNull() {
-        new RequestContext(
+        new MobileEngageRequestContext(
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),
@@ -112,7 +112,7 @@ public class RequestContextTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_contactFieldValueStorage_mustNotBeNull() {
-        new RequestContext(
+        new MobileEngageRequestContext(
                 "",
                 contactFieldId,
                 mock(DeviceInfo.class),

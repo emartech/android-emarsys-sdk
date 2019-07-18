@@ -46,7 +46,7 @@ class DefaultMobileEngageInternalTest {
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockPushInternal: PushInternal
     private lateinit var mockRequestManager: RequestManager
-    private lateinit var mockRequestContext: RequestContext
+    private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockDeviceInfo: DeviceInfo
@@ -94,7 +94,7 @@ class DefaultMobileEngageInternalTest {
         }
 
         mockRequestManager = mock(RequestManager::class.java)
-        mockRequestContext = mock(RequestContext::class.java).apply {
+        mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
             whenever(uuidProvider).thenReturn(mockUuidProvider)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)

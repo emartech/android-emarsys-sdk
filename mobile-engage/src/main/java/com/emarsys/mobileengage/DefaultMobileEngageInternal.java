@@ -12,11 +12,11 @@ public class DefaultMobileEngageInternal implements MobileEngageInternal {
 
     private final RequestManager requestManager;
     private final MobileEngageRequestModelFactory requestModelFactory;
-    private final RequestContext requestContext;
+    private final MobileEngageRequestContext requestContext;
 
     public DefaultMobileEngageInternal(RequestManager requestManager,
                                        MobileEngageRequestModelFactory requestModelFactory,
-                                       RequestContext requestContext) {
+                                       MobileEngageRequestContext requestContext) {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");

@@ -7,7 +7,7 @@ import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
-import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
@@ -34,7 +34,7 @@ class MobileEngageHeaderMapperTest {
 
     private lateinit var mobileEngageHeaderMapper: MobileEngageHeaderMapper
 
-    private lateinit var mockRequestContext: RequestContext
+    private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockClientStateStorage: Storage<String>
@@ -73,7 +73,7 @@ class MobileEngageHeaderMapperTest {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
 
-        mockRequestContext = mock(RequestContext::class.java).apply {
+        mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
             whenever(uuidProvider).thenReturn(mockUuidProvider)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)

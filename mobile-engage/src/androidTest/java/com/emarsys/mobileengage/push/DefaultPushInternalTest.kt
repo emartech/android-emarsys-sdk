@@ -10,7 +10,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
-import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeCompletionListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
@@ -44,7 +44,7 @@ class DefaultPushInternalTest {
 
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockRequestManager: RequestManager
-    private lateinit var mockRequestContext: RequestContext
+    private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockCompletionListener: CompletionListener
@@ -78,7 +78,7 @@ class DefaultPushInternalTest {
         }
 
         mockRequestManager = mock(RequestManager::class.java)
-        mockRequestContext = mock(RequestContext::class.java)
+        mockRequestContext = mock(MobileEngageRequestContext::class.java)
 
         mockRequestModel = mock(RequestModel::class.java)
 

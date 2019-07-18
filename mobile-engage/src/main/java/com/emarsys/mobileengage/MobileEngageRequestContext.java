@@ -6,7 +6,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
 
-public class RequestContext {
+public class MobileEngageRequestContext {
     private final String applicationCode;
     private final int contactFieldId;
     private final DeviceInfo deviceInfo;
@@ -17,7 +17,7 @@ public class RequestContext {
     private final Storage<String> refreshTokenStorage;
     private final Storage<String> contactFieldValueStorage;
 
-    public RequestContext(
+    public MobileEngageRequestContext(
             String applicationCode,
             int contactFieldId,
             DeviceInfo deviceInfo,
@@ -84,7 +84,7 @@ public class RequestContext {
 
     @Override
     public String toString() {
-        return "RequestContext{" +
+        return "MobileEngageRequestContext{" +
                 "applicationCode='" + applicationCode + '\'' +
                 ", contactFieldId=" + contactFieldId +
                 ", deviceInfo=" + deviceInfo +

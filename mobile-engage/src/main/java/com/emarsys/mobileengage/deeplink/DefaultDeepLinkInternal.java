@@ -9,7 +9,7 @@ import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.MobileEngageRequestContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +19,11 @@ import static com.emarsys.mobileengage.endpoint.Endpoint.DEEP_LINK_CLICK;
 public class DefaultDeepLinkInternal implements DeepLinkInternal {
 
     private static final String EMS_DEEP_LINK_TRACKED_KEY = "ems_deep_link_tracked";
-    private final RequestContext requestContext;
+    private final MobileEngageRequestContext requestContext;
 
     private final RequestManager manager;
 
-    public DefaultDeepLinkInternal(RequestManager manager, RequestContext requestContext) {
+    public DefaultDeepLinkInternal(RequestManager manager, MobileEngageRequestContext requestContext) {
         Assert.notNull(manager, "RequestManager must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
         this.manager = manager;

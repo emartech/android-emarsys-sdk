@@ -24,7 +24,7 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.worker.Worker
-import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
 import com.emarsys.mobileengage.fake.FakeInboxResultListener
@@ -69,7 +69,7 @@ class DefaultInboxInternalTest {
     private lateinit var application: Application
     private lateinit var cache: NotificationCache
     private lateinit var deviceInfo: DeviceInfo
-    private lateinit var requestContext: RequestContext
+    private lateinit var requestContext: MobileEngageRequestContext
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockLanguageProvider: LanguageProvider
@@ -109,7 +109,7 @@ class DefaultInboxInternalTest {
             whenever(createResetBadgeCountRequest()).thenReturn(mock(RequestModel::class.java))
             whenever(createFetchNotificationsRequest()).thenReturn(mock(RequestModel::class.java))
         }
-        requestContext = RequestContext(
+        requestContext = MobileEngageRequestContext(
                 APPLICATION_ID,
                 CONTACT_FIELD_ID,
                 deviceInfo,

@@ -8,7 +8,7 @@ import com.emarsys.core.notification.NotificationSettings
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.TimestampUtils
-import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.IamConversionUtils
 import com.emarsys.mobileengage.testUtil.RandomMETestUtils
 import com.emarsys.testUtil.RandomTestUtils
@@ -46,7 +46,7 @@ class RequestPayloadUtilsTest {
     }
 
     private lateinit var mockDeviceInfo: DeviceInfo
-    private lateinit var mockRequestContext: RequestContext
+    private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockRefreshTokenStorage: Storage<String>
     private lateinit var mockContactFieldValueStorage: Storage<String>
@@ -104,7 +104,7 @@ class RequestPayloadUtilsTest {
         }
         mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
 
-        mockRequestContext = mock(RequestContext::class.java).apply {
+        mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
             whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)

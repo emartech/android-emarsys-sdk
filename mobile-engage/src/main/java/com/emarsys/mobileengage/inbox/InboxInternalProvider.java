@@ -1,14 +1,14 @@
 package com.emarsys.mobileengage.inbox;
 
 import com.emarsys.core.request.RequestManager;
-import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory;
 
 public class InboxInternalProvider {
 
     public InboxInternal provideInboxInternal(
             RequestManager requestManager,
-            RequestContext requestContext,
+            MobileEngageRequestContext requestContext,
             MobileEngageRequestModelFactory requestModelFactory) {
         return new DefaultInboxInternal(requestManager, requestContext, requestModelFactory);
     }

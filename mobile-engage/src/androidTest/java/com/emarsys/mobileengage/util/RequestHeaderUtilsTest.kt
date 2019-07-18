@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.util
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.HeaderUtils
-import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -24,7 +24,7 @@ class RequestHeaderUtilsTest {
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
     }
 
-    private lateinit var mockRequestContext: RequestContext
+    private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockDeviceInfo: DeviceInfo
 
     @Rule
@@ -43,7 +43,7 @@ class RequestHeaderUtilsTest {
         val mockContactFieldValueStorage = (mock(Storage::class.java) as Storage<String>).apply {
             whenever(get()).thenReturn(CONTACT_FIELD_VALUE)
         }
-        mockRequestContext = mock(RequestContext::class.java).apply {
+        mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
             whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)

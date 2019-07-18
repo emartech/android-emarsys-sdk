@@ -51,8 +51,8 @@ import com.emarsys.inbox.InboxProxy;
 import com.emarsys.mobileengage.DefaultMobileEngageInternal;
 import com.emarsys.mobileengage.LoggingMobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.RefreshTokenInternal;
-import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.inbox.Notification;
@@ -156,7 +156,7 @@ public class EmarsysTest {
     private EventServiceInternal mockEventServiceInternal;
     private ClientServiceInternal mockClientServiceInternal;
     private DefaultCoreCompletionHandler mockDefaultCoreCompletionHandler;
-    private RequestContext mockRequestContext;
+    private MobileEngageRequestContext mockRequestContext;
     private InAppPresenter mockInAppPresenter;
     private NotificationEventHandler mockNotificationEventHandler;
     private PredictInternal mockPredictInternal;
@@ -238,7 +238,7 @@ public class EmarsysTest {
         predictConfig = createConfig().predictMerchantId(MERCHANT_ID).build();
 
         mockDefaultCoreCompletionHandler = mock(DefaultCoreCompletionHandler.class);
-        mockRequestContext = mock(RequestContext.class);
+        mockRequestContext = mock(MobileEngageRequestContext.class);
         mockInAppPresenter = mock(InAppPresenter.class);
         mockNotificationEventHandler = mock(NotificationEventHandler.class);
         mockRestClient = mock(RestClient.class);

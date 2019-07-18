@@ -8,7 +8,7 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.endpoint.Endpoint.INBOX_FETCH_V1
 import com.emarsys.mobileengage.endpoint.Endpoint.INBOX_RESET_BADGE_COUNT_V1
 import com.emarsys.mobileengage.util.RequestHeaderUtils
@@ -35,7 +35,7 @@ class MobileEngageRequestModelFactoryTest {
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
     }
 
-    lateinit var mockRequestContext: RequestContext
+    lateinit var mockRequestContext: MobileEngageRequestContext
     lateinit var mockTimestampProvider: TimestampProvider
     lateinit var mockUuidProvider: UUIDProvider
     lateinit var mockDeviceInfo: DeviceInfo
@@ -72,7 +72,7 @@ class MobileEngageRequestModelFactoryTest {
         val mockContactFieldValueStorage = (mock(Storage::class.java) as Storage<String>).apply {
             whenever(get()).thenReturn(CONTACT_FIELD_VALUE)
         }
-        mockRequestContext = mock(RequestContext::class.java).apply {
+        mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
             whenever(uuidProvider).thenReturn(mockUuidProvider)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)

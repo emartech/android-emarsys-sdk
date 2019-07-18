@@ -1,6 +1,6 @@
 package com.emarsys.mobileengage.util
 
-import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -16,7 +16,7 @@ class RequestUrlUtilsTest {
         const val APPLICATION_CODE = "app_code"
     }
 
-    private lateinit var mockRequestContext: RequestContext
+    private lateinit var mockRequestContext: MobileEngageRequestContext
 
     @Rule
     @JvmField
@@ -24,7 +24,7 @@ class RequestUrlUtilsTest {
 
     @Before
     fun setUp() {
-        mockRequestContext = Mockito.mock(RequestContext::class.java).apply {
+        mockRequestContext = Mockito.mock(MobileEngageRequestContext::class.java).apply {
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
         }
     }

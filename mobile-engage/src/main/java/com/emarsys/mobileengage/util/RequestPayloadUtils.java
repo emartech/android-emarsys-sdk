@@ -5,7 +5,7 @@ import com.emarsys.core.notification.ChannelSettings;
 import com.emarsys.core.notification.NotificationSettings;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.TimestampUtils;
-import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.iam.model.IamConversionUtils;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class RequestPayloadUtils {
 
-    public static Map<String, Object> createBasePayload(RequestContext requestContext) {
+    public static Map<String, Object> createBasePayload(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         Map<String, Object> payload = new HashMap<>();
@@ -40,7 +40,7 @@ public class RequestPayloadUtils {
         return payload;
     }
 
-    public static Map<String, Object> createTrackDeviceInfoPayload(RequestContext requestContext) {
+    public static Map<String, Object> createTrackDeviceInfoPayload(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
         DeviceInfo deviceInfo = requestContext.getDeviceInfo();
 
@@ -75,7 +75,7 @@ public class RequestPayloadUtils {
         return payload;
     }
 
-    public static Map<String, Object> createSetContactPayload(String contactFieldValue, RequestContext requestContext) {
+    public static Map<String, Object> createSetContactPayload(String contactFieldValue, MobileEngageRequestContext requestContext) {
         Assert.notNull(contactFieldValue, "ContactFieldValue must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
@@ -86,21 +86,21 @@ public class RequestPayloadUtils {
         return payload;
     }
 
-    public static Map<String, Object> createCustomEventPayload(String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
+    public static Map<String, Object> createCustomEventPayload(String eventName, Map<String, String> eventAttributes, MobileEngageRequestContext requestContext) {
         Assert.notNull(eventName, "EventName must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         return createEventPayload(EventType.CUSTOM, eventName, eventAttributes, requestContext);
     }
 
-    public static Map<String, Object> createInternalCustomEventPayload(String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
+    public static Map<String, Object> createInternalCustomEventPayload(String eventName, Map<String, String> eventAttributes, MobileEngageRequestContext requestContext) {
         Assert.notNull(eventName, "EventName must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         return createEventPayload(EventType.INTERNAL, eventName, eventAttributes, requestContext);
     }
 
-    private static Map<String, Object> createEventPayload(EventType eventType, String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
+    private static Map<String, Object> createEventPayload(EventType eventType, String eventName, Map<String, String> eventAttributes, MobileEngageRequestContext requestContext) {
         Map<String, Object> event = createEvent(eventType, eventName, eventAttributes, requestContext);
 
         Map<String, Object> payload = new HashMap<>();
@@ -111,7 +111,7 @@ public class RequestPayloadUtils {
         return payload;
     }
 
-    private static Map<String, Object> createEvent(EventType eventType, String eventName, Map<String, String> eventAttributes, RequestContext requestContext) {
+    private static Map<String, Object> createEvent(EventType eventType, String eventName, Map<String, String> eventAttributes, MobileEngageRequestContext requestContext) {
         Map<String, Object> event = new HashMap<>();
         event.put("type", eventType.name().toLowerCase());
         event.put("name", eventName);
@@ -142,7 +142,7 @@ public class RequestPayloadUtils {
         return compositePayload;
     }
 
-    public static Map<String, Object> createRefreshContactTokenPayload(RequestContext requestContext) {
+    public static Map<String, Object> createRefreshContactTokenPayload(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         Map<String, Object> payload = new HashMap<>();
@@ -150,7 +150,7 @@ public class RequestPayloadUtils {
         return payload;
     }
 
-    public static Map<String, Object> createTrackNotificationOpenPayload(String sid, RequestContext requestContext) {
+    public static Map<String, Object> createTrackNotificationOpenPayload(String sid, MobileEngageRequestContext requestContext) {
         Assert.notNull(sid, "Sid must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
 

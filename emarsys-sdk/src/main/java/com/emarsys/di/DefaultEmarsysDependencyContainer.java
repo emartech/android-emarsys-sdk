@@ -68,7 +68,7 @@ import com.emarsys.mobileengage.LoggingMobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal;
 import com.emarsys.mobileengage.RefreshTokenInternal;
-import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.client.ClientServiceInternal;
 import com.emarsys.mobileengage.client.DefaultClientServiceInternal;
@@ -142,7 +142,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private TimestampProvider timestampProvider;
     private UUIDProvider uuidProvider;
     private Runnable logShardTrigger;
-    private RequestContext requestContext;
+    private MobileEngageRequestContext requestContext;
     private DefaultCoreCompletionHandler completionHandler;
     private InAppPresenter inAppPresenter;
     private NotificationEventHandler notificationEventHandler;
@@ -234,7 +234,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
-    public RequestContext getRequestContext() {
+    public MobileEngageRequestContext getRequestContext() {
         return requestContext;
     }
 
@@ -397,7 +397,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         buttonClickedRepository = new ButtonClickedRepository(coreDbHelper);
         displayedIamRepository = new DisplayedIamRepository(coreDbHelper);
 
-        requestContext = new RequestContext(
+        requestContext = new MobileEngageRequestContext(
                 config.getMobileEngageApplicationCode(),
                 config.getContactFieldId(),
                 getDeviceInfo(),
