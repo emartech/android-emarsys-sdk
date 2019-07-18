@@ -16,7 +16,7 @@ import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
-import com.emarsys.mobileengage.request.RequestModelFactory;
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory;
 
 public class DefaultInboxInternal implements InboxInternal {
 
@@ -24,12 +24,12 @@ public class DefaultInboxInternal implements InboxInternal {
     private NotificationCache cache;
     private RequestManager manager;
     private RequestContext requestContext;
-    private RequestModelFactory requestModelFactory;
+    private MobileEngageRequestModelFactory requestModelFactory;
 
     public DefaultInboxInternal(
             RequestManager requestManager,
             RequestContext requestContext,
-            RequestModelFactory requestModelFactory) {
+            MobileEngageRequestModelFactory requestModelFactory) {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(requestContext, "RequestContext must not be null!");
         Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");

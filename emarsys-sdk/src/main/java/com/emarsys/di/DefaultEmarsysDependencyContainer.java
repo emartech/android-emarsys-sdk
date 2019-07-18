@@ -100,7 +100,7 @@ import com.emarsys.mobileengage.push.LoggingPushInternal;
 import com.emarsys.mobileengage.push.PushInternal;
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider;
 import com.emarsys.mobileengage.request.MobileEngageHeaderMapper;
-import com.emarsys.mobileengage.request.RequestModelFactory;
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory;
 import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
@@ -156,7 +156,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private Storage<String> clientStateStorage;
     private Storage<String> contactFieldValueStorage;
     private RequestManager requestManager;
-    private RequestModelFactory requestModelFactory;
+    private MobileEngageRequestModelFactory requestModelFactory;
     private ButtonClickedRepository buttonClickedRepository;
     private DisplayedIamRepository displayedIamRepository;
     private Repository<RequestModel, SqlSpecification> requestModelRepository;
@@ -415,7 +415,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         restClient = new RestClient(new ConnectionProvider(), timestampProvider, getResponseHandlersProcessor(), createRequestModelMappers());
 
-        requestModelFactory = new RequestModelFactory(requestContext);
+        requestModelFactory = new MobileEngageRequestModelFactory(requestContext);
 
         contactTokenResponseHandler = new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage);
 

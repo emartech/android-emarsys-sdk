@@ -23,7 +23,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 
-class RequestModelFactoryTest {
+class MobileEngageRequestModelFactoryTest {
 
     private companion object {
         const val TIMESTAMP = 123456789L
@@ -41,7 +41,7 @@ class RequestModelFactoryTest {
     lateinit var mockDeviceInfo: DeviceInfo
     lateinit var mockRefreshTokenStorage: Storage<String>
     lateinit var mockNotificationSettings: NotificationSettings
-    lateinit var requestFactory: RequestModelFactory
+    lateinit var requestFactory: MobileEngageRequestModelFactory
 
     @Rule
     @JvmField
@@ -81,12 +81,12 @@ class RequestModelFactoryTest {
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
         }
 
-        requestFactory = RequestModelFactory(mockRequestContext)
+        requestFactory = MobileEngageRequestModelFactory(mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestContext_mustNotBeNull() {
-        RequestModelFactory(null)
+        MobileEngageRequestModelFactory(null)
     }
 
     @Test(expected = IllegalArgumentException::class)

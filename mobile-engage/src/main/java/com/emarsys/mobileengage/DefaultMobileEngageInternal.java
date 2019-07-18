@@ -5,17 +5,17 @@ import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.request.RequestModelFactory;
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory;
 
 
 public class DefaultMobileEngageInternal implements MobileEngageInternal {
 
     private final RequestManager requestManager;
-    private final RequestModelFactory requestModelFactory;
+    private final MobileEngageRequestModelFactory requestModelFactory;
     private final RequestContext requestContext;
 
     public DefaultMobileEngageInternal(RequestManager requestManager,
-                                       RequestModelFactory requestModelFactory,
+                                       MobileEngageRequestModelFactory requestModelFactory,
                                        RequestContext requestContext) {
         Assert.notNull(requestManager, "RequestManager must not be null!");
         Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");

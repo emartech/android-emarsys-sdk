@@ -11,7 +11,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.push.PushInternal
-import com.emarsys.mobileengage.request.RequestModelFactory
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import org.junit.Before
@@ -51,7 +51,7 @@ class DefaultMobileEngageInternalTest {
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockDeviceInfo: DeviceInfo
     private lateinit var mockCompletionListener: CompletionListener
-    private lateinit var mockRequestModelFactory: RequestModelFactory
+    private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockContactFieldValueStorage: Storage<String>
     private lateinit var mockRefreshTokenStorage: Storage<String>
@@ -107,7 +107,7 @@ class DefaultMobileEngageInternalTest {
 
         mockRequestModel = mock(RequestModel::class.java)
 
-        mockRequestModelFactory = mock(RequestModelFactory::class.java).apply {
+        mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
             whenever(createSetContactRequest(CONTACT_FIELD_VALUE)).thenReturn(mockRequestModel)
             whenever(createSetPushTokenRequest(PUSH_TOKEN)).thenReturn(mockRequestModel)
             whenever(createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)

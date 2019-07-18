@@ -7,7 +7,7 @@ import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.fake.FakeRestClient
-import com.emarsys.mobileengage.request.RequestModelFactory
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -28,7 +28,7 @@ class MobileEngageRefreshTokenInternalTest {
     private lateinit var refreshTokenInternal: RefreshTokenInternal
     private lateinit var mockRestClient: RestClient
     private lateinit var mockRequestModel: RequestModel
-    private lateinit var mockRequestModelFactory: RequestModelFactory
+    private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var mockResponseHandler: MobileEngageTokenResponseHandler
 
     @Rule
@@ -42,7 +42,7 @@ class MobileEngageRefreshTokenInternalTest {
         mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(id).thenReturn(REQUEST_ID)
         }
-        mockRequestModelFactory = mock(RequestModelFactory::class.java).apply {
+        mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
             whenever(createRefreshContactTokenRequest()).thenReturn(mockRequestModel)
         }
 

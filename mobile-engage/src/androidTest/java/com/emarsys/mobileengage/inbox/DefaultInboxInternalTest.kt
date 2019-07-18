@@ -32,7 +32,7 @@ import com.emarsys.mobileengage.fake.FakeInboxResultListener.Mode
 import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener
 import com.emarsys.mobileengage.fake.FakeRestClient
 import com.emarsys.mobileengage.inbox.model.NotificationCache
-import com.emarsys.mobileengage.request.RequestModelFactory
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.SharedPrefsUtils
@@ -75,7 +75,7 @@ class DefaultInboxInternalTest {
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockHardwareIdProvider: HardwareIdProvider
     private lateinit var mockContactFieldValueStorage: Storage<String>
-    private lateinit var mockRequestModelFactory: RequestModelFactory
+    private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var notificationList: List<Notification>
 
     @Rule
@@ -105,7 +105,7 @@ class DefaultInboxInternalTest {
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
         mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
         whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
-        mockRequestModelFactory = mock(RequestModelFactory::class.java).apply {
+        mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
             whenever(createResetBadgeCountRequest()).thenReturn(mock(RequestModel::class.java))
             whenever(createFetchNotificationsRequest()).thenReturn(mock(RequestModel::class.java))
         }

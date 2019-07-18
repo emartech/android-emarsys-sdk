@@ -7,15 +7,15 @@ import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.request.RequestModelFactory;
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory;
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler;
 
 public class MobileEngageRefreshTokenInternal implements RefreshTokenInternal {
     MobileEngageTokenResponseHandler tokenResponseHandler;
     private RestClient restClient;
-    private RequestModelFactory requestModelFactory;
+    private MobileEngageRequestModelFactory requestModelFactory;
 
-    public MobileEngageRefreshTokenInternal(MobileEngageTokenResponseHandler tokenResponseHandler, RestClient restClient, RequestModelFactory requestModelFactory) {
+    public MobileEngageRefreshTokenInternal(MobileEngageTokenResponseHandler tokenResponseHandler, RestClient restClient, MobileEngageRequestModelFactory requestModelFactory) {
         Assert.notNull(tokenResponseHandler, "TokenResponseHandler must not be null!");
         Assert.notNull(restClient, "RestClient must not be null!");
         Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");

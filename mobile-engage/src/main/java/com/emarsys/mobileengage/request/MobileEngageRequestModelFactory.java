@@ -15,15 +15,14 @@ import java.util.Map;
 import static com.emarsys.mobileengage.endpoint.Endpoint.INBOX_FETCH_V1;
 import static com.emarsys.mobileengage.endpoint.Endpoint.INBOX_RESET_BADGE_COUNT_V1;
 
-public class RequestModelFactory {
+public class MobileEngageRequestModelFactory {
     private RequestContext requestContext;
 
-    public RequestModelFactory(RequestContext requestContext) {
+    public MobileEngageRequestModelFactory(RequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         this.requestContext = requestContext;
     }
-
 
     public RequestModel createSetPushTokenRequest(String pushToken) {
         Assert.notNull(pushToken, "PushToken must not be null!");

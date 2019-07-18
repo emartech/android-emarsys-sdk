@@ -13,7 +13,7 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.RequestContext
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeCompletionListener
-import com.emarsys.mobileengage.request.RequestModelFactory
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.whenever
@@ -48,7 +48,7 @@ class DefaultPushInternalTest {
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockCompletionListener: CompletionListener
-    private lateinit var mockRequestModelFactory: RequestModelFactory
+    private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockContactFieldValueStorage: Storage<String>
     private lateinit var mockRefreshTokenStorage: Storage<String>
@@ -82,7 +82,7 @@ class DefaultPushInternalTest {
 
         mockRequestModel = mock(RequestModel::class.java)
 
-        mockRequestModelFactory = mock(RequestModelFactory::class.java).apply {
+        mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
             whenever(createSetPushTokenRequest(PUSH_TOKEN)).thenReturn(mockRequestModel)
             whenever(createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
             whenever(createRemovePushTokenRequest()).thenReturn(mockRequestModel)
