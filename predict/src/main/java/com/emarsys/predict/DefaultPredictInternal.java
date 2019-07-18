@@ -10,6 +10,7 @@ import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Product;
+import com.emarsys.predict.request.PredictRequestContext;
 import com.emarsys.predict.util.CartItemUtils;
 
 import java.util.ArrayList;
@@ -33,15 +34,14 @@ public class DefaultPredictInternal implements PredictInternal {
     private final KeyValueStore keyValueStore;
     private final RequestManager requestManager;
 
-    public DefaultPredictInternal(KeyValueStore keyValueStore, RequestManager requestManager, UUIDProvider uuidProvider, TimestampProvider timestampProvider) {
-        Assert.notNull(keyValueStore, "KeyValueStore must not be null!");
+    public DefaultPredictInternal(PredictRequestContext requestContext, RequestManager requestManager) {
+        Assert.notNull(requestContext, "RequestContext must not be null!");
         Assert.notNull(requestManager, "RequestManager must not be null!");
-        Assert.notNull(uuidProvider, "UuidProvider must not be null!");
-        Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
-        this.keyValueStore = keyValueStore;
+
+        this.keyValueStore = requestContext.getKeyValueStore();
         this.requestManager = requestManager;
-        this.uuidProvider = uuidProvider;
-        this.timestampProvider = timestampProvider;
+        this.uuidProvider = requestContext.getUuidProvider();
+        this.timestampProvider = requestContext.getTimestampProvider();
     }
 
     @Override

@@ -10,7 +10,9 @@ import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.Product
+import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.mockito.whenever
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -36,38 +38,39 @@ class DefaultPredictInternalTest {
     private lateinit var mockRequestManager: RequestManager
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockUuidProvider: UUIDProvider
+    private lateinit var mockRequestContext: PredictRequestContext
 
     @Before
     fun init() {
         mockKeyValueStore = mock(KeyValueStore::class.java)
         mockRequestManager = mock(RequestManager::class.java)
-        mockTimestampProvider = mock(TimestampProvider::class.java)
-        mockUuidProvider = mock(UUIDProvider::class.java)
 
-        `when`(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
-        `when`(mockUuidProvider.provideId()).thenReturn(ID1, ID2)
+        mockTimestampProvider = mock(TimestampProvider::class.java).apply {
+            whenever(provideTimestamp()).thenReturn(TIMESTAMP)
+        }
 
-        predictInternal = DefaultPredictInternal(mockKeyValueStore, mockRequestManager, mockUuidProvider, mockTimestampProvider)
+        mockUuidProvider = mock(UUIDProvider::class.java).apply {
+            whenever(provideId()).thenReturn(ID1, ID2)
+        }
+
+        mockRequestContext = mock(PredictRequestContext::class.java).apply {
+            whenever(keyValueStore).thenReturn(mockKeyValueStore)
+            whenever(timestampProvider).thenReturn(mockTimestampProvider)
+            whenever(uuidProvider).thenReturn(mockUuidProvider)
+        }
+
+
+        predictInternal = DefaultPredictInternal(mockRequestContext, mockRequestManager)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_keyValueStore_shouldNotBeNull() {
-        DefaultPredictInternal(null, mockRequestManager, mockUuidProvider, mockTimestampProvider)
+    fun testConstructor_requestContext_mustNotBeNull() {
+        DefaultPredictInternal(null, mockRequestManager)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_repository_shouldNotBeNull() {
-        DefaultPredictInternal(mockKeyValueStore, null, mockUuidProvider, mockTimestampProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_uuidProvider_shouldNotBeNull() {
-        DefaultPredictInternal(mockKeyValueStore, mockRequestManager, null, mockTimestampProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_timestampProvider_shouldNotBeNull() {
-        DefaultPredictInternal(mockKeyValueStore, mockRequestManager, mockUuidProvider, null)
+    fun testConstructor_requestManager_shouldNotBeNull() {
+        DefaultPredictInternal(mockRequestContext, null)
     }
 
     @Test(expected = IllegalArgumentException::class)

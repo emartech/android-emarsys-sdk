@@ -480,7 +480,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                     new PredictShardListMerger(predictRequestContext),
                     requestManager,
                     BatchingShardTrigger.RequestStrategy.PERSISTENT);
-            predictInternal = new DefaultPredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);
+            predictInternal = new DefaultPredictInternal(predictRequestContext, requestManager);
         } else {
             predictInternal = new LoggingPredictInternal(Emarsys.Predict.class);
         }
