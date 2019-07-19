@@ -4,7 +4,7 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.predict.api.model.Product
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
+import io.kotlintest.matchers.collections.shouldContainAll
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -128,8 +128,8 @@ class PredictResponseMapperTest {
         val predictResponseMapper = PredictResponseMapper()
         val result = predictResponseMapper.map(mockResponseModel)
 
-        result shouldBe expectedResult
+        result shouldContainAll expectedResult
+        expectedResult shouldContainAll result
     }
-
 }
 
