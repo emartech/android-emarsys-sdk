@@ -1,5 +1,6 @@
 package com.emarsys.predict.request
 
+import android.net.Uri
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -23,8 +24,8 @@ class PredictRequestModelFactoryTest {
         const val MERCHANT_ID = "merchantId"
         const val OS_VERSION = "1.0.0"
         const val PLATFORM = "android"
+        const val TTL = Long.MAX_VALUE
         val BASE_HEADER = mapOf("User-Agent" to "EmarsysSDK|osversion:$OS_VERSION|platform:$PLATFORM")
-
     }
 
     private lateinit var requestModelFactory: PredictRequestModelFactory
@@ -91,4 +92,53 @@ class PredictRequestModelFactoryTest {
 
         result shouldBe expected
     }
+
+    @Test
+    fun testCreateRequestFromShardData_shouldEncodeUrl() {
+        val expectedRequestModel = requestModel("https://recommender.scarabresearch.com/merchants/merchantId?cp=1&%3C%3E%2C=%22%60%3B%2F%3F%3A%5E%25%23%40%26%3D%24%2B%7B%7D%3C%3E%2C%7C%20")
+
+        val shardData = mapOf(
+                "cp" to 1,
+                "<>," to "\"`;/?:^%#@&=\$+{}<>,| ")
+
+        val result = requestModelFactory.createRequestFromShardData(shardData)
+
+        result shouldBe expectedRequestModel
+    }
+
+    @Test
+    fun testCreateRequestFromShardData_withComplexShardData() {
+        val expectedRequestModel = requestModel("https://recommender.scarabresearch.com/merchants/merchantId?cp=1&vi=888999888&ci=12345&q3=c")
+
+        val shardData = mapOf(
+                "cp" to 1,
+                "q3" to "c",
+                "vi" to "888999888",
+                "ci" to "12345")
+
+        val result = requestModelFactory.createRequestFromShardData(shardData)
+
+        result.payload shouldBe expectedRequestModel.payload
+        result.method shouldBe expectedRequestModel.method
+        result.timestamp shouldBe expectedRequestModel.timestamp
+        result.headers shouldBe expectedRequestModel.headers
+        result.id shouldBe expectedRequestModel.id
+        result.ttl shouldBe expectedRequestModel.ttl
+        Uri.parse(result.url.toString()).queryParameterNames.forEach {
+            Uri.parse(result.url.toString()).getQueryParameter(it) shouldBe Uri.parse(expectedRequestModel.url.toString()).getQueryParameter(it)
+        }
+        Uri.parse(expectedRequestModel.url.toString()).queryParameterNames.forEach {
+            Uri.parse(result.url.toString()).getQueryParameter(it) shouldBe Uri.parse(expectedRequestModel.url.toString()).getQueryParameter(it)
+        }
+    }
+
+    private fun requestModel(url: String) = RequestModel(
+            url,
+            RequestMethod.GET,
+            null,
+            BASE_HEADER,
+            TIMESTAMP,
+            TTL,
+            REQUEST_ID
+    )
 }
