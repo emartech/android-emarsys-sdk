@@ -114,6 +114,7 @@ import com.emarsys.predict.LoggingPredictInternal;
 import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.PredictProxy;
+import com.emarsys.predict.PredictResponseMapper;
 import com.emarsys.predict.request.PredictHeaderFactory;
 import com.emarsys.predict.request.PredictRequestContext;
 import com.emarsys.predict.request.PredictRequestModelFactory;
@@ -477,6 +478,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
             PredictHeaderFactory headerFactory = new PredictHeaderFactory(predictRequestContext);
             PredictRequestModelFactory predictRequestModelFactory = new PredictRequestModelFactory(predictRequestContext, headerFactory);
+            PredictResponseMapper predictResponseMapper = new PredictResponseMapper();
 
             predictShardTrigger = new BatchingShardTrigger(
                     shardModelRepository,
@@ -486,7 +488,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                     new PredictShardListMerger(predictRequestContext),
                     requestManager,
                     BatchingShardTrigger.RequestStrategy.PERSISTENT);
-            predictInternal = new DefaultPredictInternal(predictRequestContext, requestManager, predictRequestModelFactory);
+            predictInternal = new DefaultPredictInternal(predictRequestContext, requestManager, predictRequestModelFactory, predictResponseMapper);
         } else {
             predictInternal = new LoggingPredictInternal(Emarsys.Predict.class);
         }
