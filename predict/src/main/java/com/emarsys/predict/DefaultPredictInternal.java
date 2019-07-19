@@ -12,6 +12,7 @@ import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
+import com.emarsys.core.util.JsonUtils;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Product;
 import com.emarsys.predict.request.PredictRequestContext;
@@ -22,7 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -171,49 +171,55 @@ public class DefaultPredictInternal implements PredictInternal {
     private List<Product> parseResponse(ResponseModel responseModel) {
         List<Product> result = new ArrayList<>();
         try {
-            JSONObject json = new JSONObject(responseModel.getBody());
-            JSONObject products = json.getJSONObject("products");
+            JSONObject jsonResponse = new JSONObject(responseModel.getBody());
+            JSONObject products = jsonResponse.getJSONObject("products");
             for (int i = 0; i < products.names().length(); i++) {
-                Map<String, String> customFields = new HashMap<>();
-
                 JSONObject product = products.getJSONObject(products.names().getString(i));
 
-                customFields.put("msrp_gpb", product.getString("msrp_gpb"));
-                customFields.put("price_gpb", product.getString("price_gpb"));
-                customFields.put("msrp_aed", product.getString("msrp_aed"));
-                customFields.put("price_aed", product.getString("price_aed"));
-                customFields.put("msrp_cad", product.getString("msrp_cad"));
-                customFields.put("price_cad", product.getString("price_cad"));
-                customFields.put("msrp_mxn", product.getString("msrp_mxn"));
-                customFields.put("price_mxn", product.getString("price_mxn"));
-                customFields.put("msrp_pln", product.getString("msrp_pln"));
-                customFields.put("price_pln", product.getString("price_pln"));
-                customFields.put("msrp_rub", product.getString("msrp_rub"));
-                customFields.put("price_rub", product.getString("price_rub"));
-                customFields.put("msrp_sek", product.getString("msrp_sek"));
-                customFields.put("price_sek", product.getString("price_sek"));
-                customFields.put("msrp_try", product.getString("msrp_try"));
-                customFields.put("price_try", product.getString("price_try"));
-                customFields.put("msrp_usd", product.getString("msrp_usd"));
-                customFields.put("price_usd", product.getString("price_usd"));
+                Map<String, String> productFields = JsonUtils.toFlatMap(product);
 
-                result.add(new Product.Builder(
-                        product.getString("item"),
-                        product.getString("title"),
-                        product.getString("link")
-                ).categoryPath(product.getString("category"))
-                        .available(product.getBoolean("available"))
-                        .msrp(Float.parseFloat(product.getString("msrp")))
-                        .price(Float.parseFloat(product.getString("price")))
-                        .imageUrl(product.getString("image"))
-                        .zoomImageUrl(product.getString("zoom_image"))
-                        .customFields(customFields)
-                        .build());
+                Product productBuilder = buildProductFromFields(productFields);
+                result.add(productBuilder);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         return result;
+    }
+
+    private Product buildProductFromFields(Map<String, String> productFields) {
+        String msrp = productFields.remove("msrp");
+        String price = productFields.remove("price");
+        String available = productFields.remove("available");
+
+        Product.Builder productBuilder = new Product.Builder(
+                productFields.remove("item"),
+                productFields.remove("title"),
+                productFields.remove("link")
+        );
+        productBuilder.categoryPath(productFields.remove("category"));
+        if (available != null) {
+            productBuilder.available(Boolean.valueOf(available));
+        }
+        if (msrp != null) {
+            productBuilder.msrp(Float.parseFloat(msrp));
+        }
+        if (price != null) {
+            productBuilder.price(Float.parseFloat(price));
+        }
+        productBuilder.imageUrl(productFields.remove("image"));
+        productBuilder.zoomImageUrl(productFields.remove("zoom_image"));
+        productBuilder.productDescription(productFields.remove("description"));
+        productBuilder.album(productFields.remove("album"));
+        productBuilder.actor(productFields.remove("actor"));
+        productBuilder.artist(productFields.remove("artist"));
+        productBuilder.author(productFields.remove("author"));
+        productBuilder.brand(productFields.remove("brand"));
+        String year = productFields.remove("year");
+        if (year != null) {
+            productBuilder.year(Integer.parseInt(year));
+        }
+        productBuilder.customFields(productFields);
+        return productBuilder.build();
     }
 }

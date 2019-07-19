@@ -312,72 +312,68 @@ class DefaultPredictInternalTest {
     @Test
     fun testRecommendProducts_shouldCallRequestManager_success_shouldBeCalledOnMainThread() {
         whenever(mockResponseModel.body).thenReturn("""{
-   "cohort":"AAAA",
-   "visitor":"16BCC0D2745E6B36",
-   "session":"24E844D1E58C1C2",
-   "features":{
-      "SEARCH":{
-         "hasMore":true,
-         "merchants":[
-            "1428C8EE286EC34B"
-         ],
-         "items":[
-            {
-               "id":"2119",
-               "spans":[
-                  [
-                     [
-                        8,
-                        12
-                     ],
-                     [
-                        13,
-                        18
-                     ]
-                  ],
-                  [
-                     [
-                        4,
-                        9
-                     ]
-                  ]
-               ]
-            }
-         ]
-      }
-   },
-   "products":{
-      "2119":{
-         "item":"2119",
-         "category":"MEN>Shirts",
-         "title":"LSL Men Polo Shirt SE16",
-         "available":true,
-         "msrp":100.0,
-         "price":100.0,
-         "msrp_gpb":"83.2",
-         "price_gpb":"83.2",
-         "msrp_aed":"100",
-         "price_aed":"100",
-         "msrp_cad":"100",
-         "price_cad":"100",
-         "msrp_mxn":"2057.44",
-         "price_mxn":"2057.44",
-         "msrp_pln":"100",
-         "price_pln":"100",
-         "msrp_rub":"100",
-         "price_rub":"100",
-         "msrp_sek":"100",
-         "price_sek":"100",
-         "msrp_try":"339.95",
-         "price_try":"339.95",
-         "msrp_usd":"100",
-         "price_usd":"100",
-         "link":"http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
-         "image":"http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg",
-         "zoom_image":"http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg"
-      }
-   }
-}""")
+           "cohort":"AAAA",
+           "visitor":"16BCC0D2745E6B36",
+           "session":"24E844D1E58C1C2",
+           "features":{
+              "SEARCH":{
+                 "hasMore":true,
+                 "merchants":[
+                    "1428C8EE286EC34B"
+                 ],
+                 "items":[
+                    {
+                       "id":"2119",
+                       "id":"2120"
+                    }
+                 ]
+              }
+           },
+           "products":{
+              "2119":{
+                 "item":"2119",
+                 "category":"MEN>Shirts",
+                 "title":"LSL Men Polo Shirt SE16",
+                 "available":true,
+                 "msrp":100.0,
+                 "price":100.0,
+                 "msrp_gpb":"83.2",
+                 "price_gpb":"83.2",
+                 "msrp_aed":"100",
+                 "price_aed":"100",
+                 "msrp_cad":"100",
+                 "price_cad":"100",
+                 "msrp_mxn":"2057.44",
+                 "price_mxn":"2057.44",
+                 "msrp_pln":"100",
+                 "price_pln":"100",
+                 "msrp_rub":"100",
+                 "price_rub":"100",
+                 "msrp_sek":"100",
+                 "price_sek":"100",
+                 "msrp_try":"339.95",
+                 "price_try":"339.95",
+                 "msrp_usd":"100",
+                 "price_usd":"100",
+                 "link":"http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
+                 "image":"http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg",
+                 "zoom_image":"http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg",
+                 "description":"product Description",
+                 "album":"album",
+                 "actor":"actor",
+                 "artist":"artist",
+                 "author":"author",
+                 "brand":"brand",
+                 "year":"2000"
+              },
+              "2120":{
+                 "item":"2120",
+                 "title":"LSL Men Polo Shirt SE16",
+                 "link":"http://lifestylelabels.com/lsl-men-polo-shirt-se16.html"
+              }
+           }
+        }"""
+        )
         predictInternal = DefaultPredictInternal(
                 mockRequestContext,
                 requestManagerWithRestClient(FakeRestClient(mockResponseModel, FakeRestClient.Mode.SUCCESS)),
@@ -398,6 +394,13 @@ class DefaultPredictInternalTest {
                 .price(100.0F)
                 .imageUrl("http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg")
                 .zoomImageUrl("http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg")
+                .productDescription("product Description")
+                .album("album")
+                .actor("actor")
+                .artist("artist")
+                .author("author")
+                .brand("brand")
+                .year(2000)
                 .customFields(hashMapOf(
                         "msrp_gpb" to "83.2",
                         "price_gpb" to "83.2",
@@ -418,6 +421,12 @@ class DefaultPredictInternalTest {
                         "msrp_usd" to "100",
                         "price_usd" to "100"
                 ))
+                .build()
+
+        resultListener.resultStatus[1] shouldBe Product.Builder(
+                "2120",
+                "LSL Men Polo Shirt SE16",
+                "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html")
                 .build()
         resultListener.successCount shouldBe 1
     }
