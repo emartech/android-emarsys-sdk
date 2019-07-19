@@ -19,7 +19,7 @@ import org.mockito.Mockito.mock
 
 class PredictShardListMergerTest {
 
-    companion object {
+    private companion object {
         const val ID = "id"
         const val TIMESTAMP = 125L
         const val TTL = Long.MAX_VALUE

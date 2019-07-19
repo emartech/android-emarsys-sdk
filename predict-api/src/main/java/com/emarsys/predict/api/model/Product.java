@@ -73,8 +73,12 @@ public class Product {
         this.title = title;
         try {
             this.linkUrl = new URL(linkUrl);
-            this.imageUrl = new URL(imageUrl);
-            this.zoomImageUrl = new URL(zoomImageUrl);
+            if (imageUrl != null) {
+                this.imageUrl = new URL(imageUrl);
+            }
+            if (zoomImageUrl != null) {
+                this.zoomImageUrl = new URL(zoomImageUrl);
+            }
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

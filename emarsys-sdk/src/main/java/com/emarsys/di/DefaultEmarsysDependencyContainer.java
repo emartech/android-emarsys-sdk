@@ -67,8 +67,8 @@ import com.emarsys.mobileengage.DefaultMobileEngageInternal;
 import com.emarsys.mobileengage.LoggingMobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal;
-import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.MobileEngageRequestContext;
+import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.client.ClientServiceInternal;
 import com.emarsys.mobileengage.client.DefaultClientServiceInternal;
@@ -114,7 +114,9 @@ import com.emarsys.predict.LoggingPredictInternal;
 import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.PredictProxy;
+import com.emarsys.predict.request.PredictHeaderFactory;
 import com.emarsys.predict.request.PredictRequestContext;
+import com.emarsys.predict.request.PredictRequestModelFactory;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.predict.shard.PredictShardListMerger;
 import com.emarsys.push.PushApi;
@@ -472,6 +474,10 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         if (FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT)) {
             predictRequestContext = new PredictRequestContext(config.getPredictMerchantId(), deviceInfo, timestampProvider, uuidProvider, sharedPrefsKeyStore);
+
+            PredictHeaderFactory headerFactory = new PredictHeaderFactory(predictRequestContext);
+            PredictRequestModelFactory predictRequestModelFactory = new PredictRequestModelFactory(predictRequestContext, headerFactory);
+
             predictShardTrigger = new BatchingShardTrigger(
                     shardModelRepository,
                     new ListSizeAtLeast<ShardModel>(1),
@@ -480,7 +486,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                     new PredictShardListMerger(predictRequestContext),
                     requestManager,
                     BatchingShardTrigger.RequestStrategy.PERSISTENT);
-            predictInternal = new DefaultPredictInternal(predictRequestContext, requestManager);
+            predictInternal = new DefaultPredictInternal(predictRequestContext, requestManager, predictRequestModelFactory);
         } else {
             predictInternal = new LoggingPredictInternal(Emarsys.Predict.class);
         }

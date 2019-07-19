@@ -5,6 +5,7 @@ import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
 import com.emarsys.predict.DefaultPredictInternal;
+import com.emarsys.predict.endpoint.Endpoint;
 
 public class VisitorIdResponseHandler extends AbstractResponseHandler {
 
@@ -13,13 +14,13 @@ public class VisitorIdResponseHandler extends AbstractResponseHandler {
     private final KeyValueStore keyValueStore;
 
     public VisitorIdResponseHandler(KeyValueStore keyValueStore) {
-         Assert.notNull(keyValueStore, "KeyValueStore must not be null!");
+        Assert.notNull(keyValueStore, "KeyValueStore must not be null!");
         this.keyValueStore = keyValueStore;
     }
 
     @Override
     protected boolean shouldHandleResponse(ResponseModel responseModel) {
-        boolean isPredictUrl = responseModel.getRequestModel().getUrl().toString().startsWith(DefaultPredictInternal.BASE_URL);
+        boolean isPredictUrl = responseModel.getRequestModel().getUrl().toString().startsWith(Endpoint.PREDICT_BASE_URL);
         boolean hasVisitorIdCookie = responseModel.getCookies().get("cdv") != null;
         return isPredictUrl && hasVisitorIdCookie;
     }

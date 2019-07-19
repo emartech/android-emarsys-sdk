@@ -89,4 +89,16 @@ public class ProductTest {
 
         Assert.assertEquals(expected, result);
     }
+
+    @Test
+    public void testBuilder_withRequiredArguments() {
+        Map<String, String> customFields = new HashMap<>();
+
+        Product result = new Product.Builder(ID, TITLE, LINK_URL)
+                .build();
+
+        Product expected = new Product(ID, TITLE, LINK_URL, customFields, null, null, null, null, null, null, null, null, null, null, null, null, null);
+
+        Assert.assertEquals(expected, result);
+    }
 }

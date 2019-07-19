@@ -10,6 +10,7 @@ import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
 import com.emarsys.predict.DefaultPredictInternal;
+import com.emarsys.predict.endpoint.Endpoint;
 import com.emarsys.predict.request.PredictRequestContext;
 
 import java.util.HashMap;
@@ -45,7 +46,7 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
     private String createUrl(List<ShardModel> shards) {
         Map<String, Object> shardData = mergeShardData(shards);
 
-        Uri.Builder uriBuilder = Uri.parse(DefaultPredictInternal.BASE_URL)
+        Uri.Builder uriBuilder = Uri.parse(Endpoint.PREDICT_BASE_URL)
                 .buildUpon()
                 .appendPath(predictRequestContext.getMerchantId());
 
