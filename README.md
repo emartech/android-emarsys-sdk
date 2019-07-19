@@ -1,6 +1,7 @@
 # PILOT VERSION
 
 This SDK is still in pilot phase, please only use if you have a pilot agreement contract in place!
+If you need help with piloting, please contact István Szabó, PM of SDK @ Emarsys.
 
 If you are looking for our recommended SDK, then please head to [Mobile Engage SDK](https://github.com/emartech/android-mobile-engage-sdk "Mobile Engage SDK").
 
