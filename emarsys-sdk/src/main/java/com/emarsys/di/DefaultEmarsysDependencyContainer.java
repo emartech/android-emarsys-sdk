@@ -485,7 +485,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                     new ListSizeAtLeast<ShardModel>(1),
                     new FilterByShardType(FilterByShardType.SHARD_TYPE_PREDICT),
                     new ListChunker<ShardModel>(1),
-                    new PredictShardListMerger(predictRequestContext),
+                    new PredictShardListMerger(predictRequestContext, predictRequestModelFactory),
                     requestManager,
                     BatchingShardTrigger.RequestStrategy.PERSISTENT);
             predictInternal = new DefaultPredictInternal(predictRequestContext, requestManager, predictRequestModelFactory, predictResponseMapper);
