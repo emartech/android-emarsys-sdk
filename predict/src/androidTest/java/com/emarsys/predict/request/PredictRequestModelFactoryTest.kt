@@ -1,11 +1,11 @@
 package com.emarsys.predict.request
 
-import android.net.Uri
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
+import com.emarsys.core.util.RequestModelUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -124,12 +124,7 @@ class PredictRequestModelFactoryTest {
         result.headers shouldBe expectedRequestModel.headers
         result.id shouldBe expectedRequestModel.id
         result.ttl shouldBe expectedRequestModel.ttl
-        Uri.parse(result.url.toString()).queryParameterNames.forEach {
-            Uri.parse(result.url.toString()).getQueryParameter(it) shouldBe Uri.parse(expectedRequestModel.url.toString()).getQueryParameter(it)
-        }
-        Uri.parse(expectedRequestModel.url.toString()).queryParameterNames.forEach {
-            Uri.parse(result.url.toString()).getQueryParameter(it) shouldBe Uri.parse(expectedRequestModel.url.toString()).getQueryParameter(it)
-        }
+        RequestModelUtils.extractQueryParameters(result) shouldBe RequestModelUtils.extractQueryParameters(expectedRequestModel)
     }
 
     private fun requestModel(url: String) = RequestModel(
