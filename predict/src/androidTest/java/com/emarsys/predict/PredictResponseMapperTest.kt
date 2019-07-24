@@ -5,6 +5,7 @@ import com.emarsys.predict.api.model.Product
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.matchers.collections.shouldContainAll
+import io.kotlintest.shouldBe
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -18,44 +19,45 @@ class PredictResponseMapperTest {
 
     @Test
     fun testMap() {
-        val expectedResult = listOf(Product.Builder(
-                "2119",
-                "LSL Men Polo Shirt SE16",
-                "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html")
-                .categoryPath("MEN>Shirts")
-                .available(true)
-                .msrp(100.0F)
-                .price(100.0F)
-                .imageUrl("http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg")
-                .zoomImageUrl("http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg")
-                .productDescription("product Description")
-                .album("album")
-                .actor("actor")
-                .artist("artist")
-                .author("author")
-                .brand("brand")
-                .year(2000)
-                .customFields(hashMapOf(
-                        "msrp_gpb" to "83.2",
-                        "price_gpb" to "83.2",
-                        "msrp_aed" to "100",
-                        "price_aed" to "100",
-                        "msrp_cad" to "100",
-                        "price_cad" to "100",
-                        "msrp_mxn" to "2057.44",
-                        "price_mxn" to "2057.44",
-                        "msrp_pln" to "100",
-                        "price_pln" to "100",
-                        "msrp_rub" to "100",
-                        "price_rub" to "100",
-                        "msrp_sek" to "100",
-                        "price_sek" to "100",
-                        "msrp_try" to "339.95",
-                        "price_try" to "339.95",
-                        "msrp_usd" to "100",
-                        "price_usd" to "100"
-                ))
-                .build(),
+        val expectedResult = listOf(
+                Product.Builder(
+                        "2119",
+                        "LSL Men Polo Shirt SE16",
+                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html")
+                        .categoryPath("MEN>Shirts")
+                        .available(true)
+                        .msrp(100.0F)
+                        .price(100.0F)
+                        .imageUrl("http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg")
+                        .zoomImageUrl("http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg")
+                        .productDescription("product Description")
+                        .album("album")
+                        .actor("actor")
+                        .artist("artist")
+                        .author("author")
+                        .brand("brand")
+                        .year(2000)
+                        .customFields(hashMapOf(
+                                "msrp_gpb" to "83.2",
+                                "price_gpb" to "83.2",
+                                "msrp_aed" to "100",
+                                "price_aed" to "100",
+                                "msrp_cad" to "100",
+                                "price_cad" to "100",
+                                "msrp_mxn" to "2057.44",
+                                "price_mxn" to "2057.44",
+                                "msrp_pln" to "100",
+                                "price_pln" to "100",
+                                "msrp_rub" to "100",
+                                "price_rub" to "100",
+                                "msrp_sek" to "100",
+                                "price_sek" to "100",
+                                "msrp_try" to "339.95",
+                                "price_try" to "339.95",
+                                "msrp_usd" to "100",
+                                "price_usd" to "100"
+                        ))
+                        .build(),
                 Product.Builder(
                         "2120",
                         "LSL Men Polo Shirt SE16",
@@ -73,10 +75,8 @@ class PredictResponseMapperTest {
                     "1428C8EE286EC34B"
                  ],
                  "items":[
-                    {
-                       "id":"2119",
-                       "id":"2120"
-                    }
+                        {"id":"2119"},
+                        {"id":"2120"}
                  ]
               }
            },
@@ -130,6 +130,72 @@ class PredictResponseMapperTest {
 
         result shouldContainAll expectedResult
         expectedResult shouldContainAll result
+    }
+
+
+    @Test
+    fun testMap_shouldPreserveOrder() {
+        val expectedResult = listOf(
+                Product.Builder(
+                        "2120",
+                        "LSL Men Polo Shirt SE16",
+                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html")
+                        .build(),
+                Product.Builder(
+                        "2119",
+                        "LSL Men Polo Shirt SE16",
+                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html")
+                        .build(),
+                Product.Builder(
+                        "2121",
+                        "LSL Men Polo Shirt SE16",
+                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html")
+                        .build()
+        )
+        val mockResponseModel = Mockito.mock(ResponseModel::class.java)
+        whenever(mockResponseModel.body).thenReturn("""{
+           "cohort":"AAAA",
+           "visitor":"16BCC0D2745E6B36",
+           "session":"24E844D1E58C1C2",
+           "features":{
+              "SEARCH":{
+                 "hasMore":true,
+                 "merchants":[
+                    "1428C8EE286EC34B"
+                 ],
+                 "items":[
+                        {"id":"2120"},
+                        {"id":"2119"},
+                        {"id":"2121"}
+                 ]
+              }
+           },
+           "products":{
+              "2119":{
+                 "item":"2119",
+                 "title":"LSL Men Polo Shirt SE16",
+                 "link":"http://lifestylelabels.com/lsl-men-polo-shirt-se16.html"
+              },
+              "2120":{
+                 "item":"2120",
+                 "title":"LSL Men Polo Shirt SE16",
+                 "link":"http://lifestylelabels.com/lsl-men-polo-shirt-se16.html"
+              },
+              "2121":{
+                 "item":"2121",
+                 "title":"LSL Men Polo Shirt SE16",
+                 "link":"http://lifestylelabels.com/lsl-men-polo-shirt-se16.html"
+              }
+           }
+        }"""
+        )
+        val predictResponseMapper = PredictResponseMapper()
+        val result = predictResponseMapper.map(mockResponseModel)
+
+        result.count() shouldBe 3
+        result[0] shouldBe expectedResult[0]
+        result[1] shouldBe expectedResult[1]
+        result[2] shouldBe expectedResult[2]
     }
 }
 

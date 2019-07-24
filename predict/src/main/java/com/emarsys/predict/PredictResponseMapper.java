@@ -5,6 +5,7 @@ import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.JsonUtils;
 import com.emarsys.predict.api.model.Product;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,8 +21,12 @@ public class PredictResponseMapper implements Mapper<ResponseModel, List<Product
         try {
             JSONObject jsonResponse = new JSONObject(responseModel.getBody());
             JSONObject products = jsonResponse.getJSONObject("products");
-            for (int i = 0; i < products.names().length(); i++) {
-                JSONObject product = products.getJSONObject(products.names().getString(i));
+            JSONObject features = jsonResponse.getJSONObject("features");
+            JSONObject search = features.getJSONObject("SEARCH");
+            JSONArray productOrder = search.getJSONArray("items");
+
+            for (int i = 0; i < productOrder.length(); i++) {
+                JSONObject product = products.getJSONObject(productOrder.getJSONObject(i).getString("id"));
 
                 Map<String, String> productFields = JsonUtils.toFlatMap(product);
 
