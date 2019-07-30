@@ -77,4 +77,29 @@ public class RecommendationLogicTest {
         assertEquals("CART", result.getLogicName());
     }
 
+    @Test
+    public void testRelated_shouldFillFields() {
+        Map<String, String> expected = new HashMap<>();
+        expected.put("v", "");
+
+        Logic result = RecommendationLogic.related();
+
+        assertEquals(expected, result.getData());
+        assertEquals("RELATED", result.getLogicName());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRelated_itemId_mustNotBeNull() {
+        RecommendationLogic.related(null);
+    }
+
+    @Test
+    public void testRelated_shouldFillFields_ifDataIsProvided() {
+        Map<String, String> expected = new HashMap<>();
+        expected.put("v", "i:itemId");
+
+        Logic result = RecommendationLogic.related("itemId");
+        assertEquals(expected, result.getData());
+        assertEquals("RELATED", result.getLogicName());
+    }
 }
