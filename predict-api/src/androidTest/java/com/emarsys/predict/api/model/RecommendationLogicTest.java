@@ -6,7 +6,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -27,6 +29,11 @@ public class RecommendationLogicTest {
         assertEquals("SEARCH", result.getLogicName());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testSearch_searchTerm_mustNotBeNull() {
+        RecommendationLogic.search(null);
+    }
+
     @Test
     public void testSearch_shouldFillFields_ifDataIsProvided() {
         Map<String, String> expected = new HashMap<>();
@@ -37,9 +44,37 @@ public class RecommendationLogicTest {
         assertEquals("SEARCH", result.getLogicName());
     }
 
+    @Test
+    public void testCart_shouldFillFields() {
+        Map<String, String> expected = new HashMap<>();
+        expected.put("cv", "1");
+        expected.put("ca", "");
+
+        Logic result = RecommendationLogic.cart();
+
+        assertEquals(expected, result.getData());
+        assertEquals("CART", result.getLogicName());
+    }
+
     @Test(expected = IllegalArgumentException.class)
-    public void testSearch_searchTerm_mustNotBeNull() {
-        RecommendationLogic.search(null);
+    public void testCart_cartItems_mustNotBeNull() {
+        RecommendationLogic.cart(null);
+    }
+
+    @Test
+    public void testCart_shouldFillFields_ifDataIsProvided() {
+        Map<String, String> expected = new HashMap<>();
+        expected.put("cv", "1");
+        expected.put("ca", "i:itemId1,p:200.0,q:100.0|i:itemId2,p:201.0,q:101.0");
+
+        List<CartItem> cartItems = new ArrayList<>();
+        cartItems.add(new PredictCartItem("itemId1", 200.0, 100.0));
+        cartItems.add(new PredictCartItem("itemId2", 201.0, 101.0));
+
+        Logic result = RecommendationLogic.cart(cartItems);
+
+        assertEquals(expected, result.getData());
+        assertEquals("CART", result.getLogicName());
     }
 
 }

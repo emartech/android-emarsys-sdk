@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.emarsys.core.util.Assert;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -30,6 +31,22 @@ public class RecommendationLogic implements Logic {
         Map<String, String> data = new HashMap<>();
         data.put("q", searchTerm);
         return new RecommendationLogic("SEARCH", data);
+    }
+
+    public static Logic cart() {
+        Map<String, String> data = new HashMap<>();
+        data.put("cv", "1");
+        data.put("ca", "");
+        return new RecommendationLogic("CART", data);
+    }
+
+    public static Logic cart(@NonNull List<CartItem> cartItems) {
+        Assert.notNull(cartItems, "CartItems must not be null!");
+
+        Map<String, String> data = new HashMap<>();
+        data.put("cv", "1");
+        data.put("ca", cartItemsToQueryParam(cartItems));
+        return new RecommendationLogic("CART", data);
     }
 
     @Override
@@ -62,5 +79,25 @@ public class RecommendationLogic implements Logic {
                 "logicName='" + logicName + '\'' +
                 ", data=" + data +
                 '}';
+    }
+
+    private static String cartItemsToQueryParam(List<CartItem> items) {
+        Assert.notNull(items, "Items must not be null!");
+        Assert.elementsNotNull(items, "Item elements must not be null!");
+
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < items.size(); ++i) {
+            if (i != 0) {
+                sb.append("|");
+            }
+            sb.append(cartItemToQueryParam(items.get(i)));
+        }
+
+        return sb.toString();
+    }
+
+    private static String cartItemToQueryParam(CartItem cartItem) {
+        return "i:" + cartItem.getItemId() + ",p:" + cartItem.getPrice() + ",q:" + cartItem.getQuantity();
     }
 }
