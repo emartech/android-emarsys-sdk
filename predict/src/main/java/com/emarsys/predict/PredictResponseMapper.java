@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -22,16 +23,20 @@ public class PredictResponseMapper implements Mapper<ResponseModel, List<Product
             JSONObject jsonResponse = new JSONObject(responseModel.getBody());
             JSONObject products = jsonResponse.getJSONObject("products");
             JSONObject features = jsonResponse.getJSONObject("features");
-            JSONObject search = features.getJSONObject("SEARCH");
-            JSONArray productOrder = search.getJSONArray("items");
+            Iterator<String> keys = features.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                JSONObject feature = features.getJSONObject(key);
+                JSONArray productOrder = feature.getJSONArray("items");
 
-            for (int i = 0; i < productOrder.length(); i++) {
-                JSONObject product = products.getJSONObject(productOrder.getJSONObject(i).getString("id"));
+                for (int i = 0; i < productOrder.length(); i++) {
+                    JSONObject product = products.getJSONObject(productOrder.getJSONObject(i).getString("id"));
 
-                Map<String, String> productFields = JsonUtils.toFlatMap(product);
+                    Map<String, String> productFields = JsonUtils.toFlatMap(product);
 
-                Product productBuilder = buildProductFromFields(productFields);
-                result.add(productBuilder);
+                    Product productBuilder = buildProductFromFields(productFields);
+                    result.add(productBuilder);
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();

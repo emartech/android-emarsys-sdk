@@ -6,6 +6,7 @@ import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.matchers.collections.shouldContainAll
 import io.kotlintest.shouldBe
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -13,13 +14,19 @@ import org.mockito.Mockito
 
 class PredictResponseMapperTest {
 
+    private lateinit var mockResponseModel: ResponseModel
+
+    private lateinit var expectedResult: List<Product>
+
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Test
-    fun testMap() {
-        val expectedResult = listOf(
+    @Before
+    fun init() {
+        mockResponseModel = Mockito.mock(ResponseModel::class.java)
+
+        expectedResult = listOf(
                 Product.Builder(
                         "2119",
                         "LSL Men Polo Shirt SE16",
@@ -63,13 +70,41 @@ class PredictResponseMapperTest {
                         "LSL Men Polo Shirt SE16",
                         "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html")
                         .build())
-        val mockResponseModel = Mockito.mock(ResponseModel::class.java)
-        whenever(mockResponseModel.body).thenReturn("""{
+    }
+
+    @Test
+    fun testMap_withSearch_shouldPreserveOrder() {
+        whenever(mockResponseModel.body).thenReturn(getBodyFor("SEARCH"))
+        val predictResponseMapper = PredictResponseMapper()
+        val result = predictResponseMapper.map(mockResponseModel)
+
+        result shouldContainAll expectedResult
+
+        result.count() shouldBe 2
+        result[0] shouldBe expectedResult[0]
+        result[1] shouldBe expectedResult[1]
+    }
+
+    @Test
+    fun testMap_withCart_shouldPreserveOrder() {
+        whenever(mockResponseModel.body).thenReturn(getBodyFor("CART"))
+        val predictResponseMapper = PredictResponseMapper()
+        val result = predictResponseMapper.map(mockResponseModel)
+
+        result shouldContainAll expectedResult
+
+        result.count() shouldBe 2
+        result[0] shouldBe expectedResult[0]
+        result[1] shouldBe expectedResult[1]
+    }
+
+    private fun getBodyFor(feature: String): String{
+        return """{
            "cohort":"AAAA",
            "visitor":"16BCC0D2745E6B36",
            "session":"24E844D1E58C1C2",
            "features":{
-              "SEARCH":{
+              "$feature":{
                  "hasMore":true,
                  "merchants":[
                     "1428C8EE286EC34B"
@@ -124,78 +159,6 @@ class PredictResponseMapperTest {
               }
            }
         }"""
-        )
-        val predictResponseMapper = PredictResponseMapper()
-        val result = predictResponseMapper.map(mockResponseModel)
-
-        result shouldContainAll expectedResult
-        expectedResult shouldContainAll result
-    }
-
-
-    @Test
-    fun testMap_shouldPreserveOrder() {
-        val expectedResult = listOf(
-                Product.Builder(
-                        "2120",
-                        "LSL Men Polo Shirt SE16",
-                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html")
-                        .build(),
-                Product.Builder(
-                        "2119",
-                        "LSL Men Polo Shirt SE16",
-                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html")
-                        .build(),
-                Product.Builder(
-                        "2121",
-                        "LSL Men Polo Shirt SE16",
-                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html")
-                        .build()
-        )
-        val mockResponseModel = Mockito.mock(ResponseModel::class.java)
-        whenever(mockResponseModel.body).thenReturn("""{
-           "cohort":"AAAA",
-           "visitor":"16BCC0D2745E6B36",
-           "session":"24E844D1E58C1C2",
-           "features":{
-              "SEARCH":{
-                 "hasMore":true,
-                 "merchants":[
-                    "1428C8EE286EC34B"
-                 ],
-                 "items":[
-                        {"id":"2120"},
-                        {"id":"2119"},
-                        {"id":"2121"}
-                 ]
-              }
-           },
-           "products":{
-              "2119":{
-                 "item":"2119",
-                 "title":"LSL Men Polo Shirt SE16",
-                 "link":"http://lifestylelabels.com/lsl-men-polo-shirt-se16.html"
-              },
-              "2120":{
-                 "item":"2120",
-                 "title":"LSL Men Polo Shirt SE16",
-                 "link":"http://lifestylelabels.com/lsl-men-polo-shirt-se16.html"
-              },
-              "2121":{
-                 "item":"2121",
-                 "title":"LSL Men Polo Shirt SE16",
-                 "link":"http://lifestylelabels.com/lsl-men-polo-shirt-se16.html"
-              }
-           }
-        }"""
-        )
-        val predictResponseMapper = PredictResponseMapper()
-        val result = predictResponseMapper.map(mockResponseModel)
-
-        result.count() shouldBe 3
-        result[0] shouldBe expectedResult[0]
-        result[1] shouldBe expectedResult[1]
-        result[2] shouldBe expectedResult[2]
     }
 }
 
