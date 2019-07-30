@@ -266,6 +266,16 @@ class PredictIntegrationTest {
     }
 
     @Test
+    fun testRecommendProducts_withRelated() {
+        Emarsys.Predict.recommendProducts(RecommendationLogic.related("2200"),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
     fun testMultipleInvocations() {
         testTrackCart()
         latch = CountDownLatch(1)

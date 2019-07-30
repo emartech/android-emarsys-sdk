@@ -98,6 +98,19 @@ class PredictResponseMapperTest {
         result[1] shouldBe expectedResult[1]
     }
 
+    @Test
+    fun testMap_withRelated_shouldPreserveOrder() {
+        whenever(mockResponseModel.body).thenReturn(getBodyFor("RELATED"))
+        val predictResponseMapper = PredictResponseMapper()
+        val result = predictResponseMapper.map(mockResponseModel)
+
+        result shouldContainAll expectedResult
+
+        result.count() shouldBe 2
+        result[0] shouldBe expectedResult[0]
+        result[1] shouldBe expectedResult[1]
+    }
+
     private fun getBodyFor(feature: String): String{
         return """{
            "cohort":"AAAA",
