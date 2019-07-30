@@ -26,6 +26,7 @@ import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
+import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.After
@@ -240,11 +241,27 @@ class PredictIntegrationTest {
     }
 
     @Test
-    fun testRecommendProducts() {
+    fun testRecommendProducts_withSearch() {
         Emarsys.Predict.recommendProducts(RecommendationLogic.search("polo shirt"),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
             triedRecommendedProducts.errorCause shouldBe null
             triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_withCart() {
+        val cartItems = listOf(
+                PredictCartItem("2168", 1.1, 10.0),
+                PredictCartItem("2200", 2.2, 20.0),
+                PredictCartItem("2509", 3.3, 30.0)
+        )
+        Emarsys.Predict.recommendProducts(RecommendationLogic.cart(cartItems),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
         }
     }
 
