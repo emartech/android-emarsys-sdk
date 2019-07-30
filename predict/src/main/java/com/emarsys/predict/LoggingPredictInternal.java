@@ -6,6 +6,7 @@ import com.emarsys.core.util.SystemUtils;
 import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.log.entry.MethodNotAllowed;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
 
 import java.util.HashMap;
@@ -95,8 +96,9 @@ public class LoggingPredictInternal implements PredictInternal {
     }
 
     @Override
-    public void recommendProducts(ResultListener<Try<List<Product>>> resultListener) {
+    public void recommendProducts(Logic recommendationLogic, ResultListener<Try<List<Product>>> resultListener) {
         Map<String, Object> parameters = new HashMap<>();
+        parameters.put("recommendation_logic", recommendationLogic.toString());
         parameters.put("result_listener", resultListener != null);
 
         String callerMethodName = SystemUtils.getCallerMethodName();

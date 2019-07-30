@@ -89,6 +89,7 @@ import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.PredictProxy;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.push.PushApi;
@@ -178,6 +179,7 @@ public class EmarsysTest {
     private LanguageProvider mockLanguageProvider;
     private NotificationManagerHelper mockNotificationManagerHelper;
     private VersionProvider mockVersionProvider;
+    private Logic mockLogic;
     private EventHandler inappEventHandler;
 
     private Application application;
@@ -247,6 +249,7 @@ public class EmarsysTest {
         mockInApp = mock(InAppApi.class);
         mockPush = mock(PushApi.class);
         mockPredict = mock(PredictApi.class);
+        mockLogic = mock(Logic.class);
 
         HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
         deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
@@ -1094,9 +1097,9 @@ public class EmarsysTest {
     public void testPredict_recommendProducts_delegatesTo_predictInstance() {
         Emarsys.setup(predictConfig);
 
-        Emarsys.Predict.recommendProducts(mockResultListener);
+        Emarsys.Predict.recommendProducts(mockLogic, mockResultListener);
 
-        verify(mockPredict).recommendProducts(mockResultListener);
+        verify(mockPredict).recommendProducts(mockLogic, mockResultListener);
     }
 
     @Test

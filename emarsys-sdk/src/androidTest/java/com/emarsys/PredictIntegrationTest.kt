@@ -21,6 +21,7 @@ import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.Product
+import com.emarsys.predict.api.model.RecommendationLogic
 import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
@@ -240,7 +241,8 @@ class PredictIntegrationTest {
 
     @Test
     fun testRecommendProducts() {
-        Emarsys.Predict.recommendProducts(eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+        Emarsys.Predict.recommendProducts(RecommendationLogic.search("polo shirt"),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
             triedRecommendedProducts.errorCause shouldBe null
             triedRecommendedProducts.result shouldNotBe null
         }

@@ -5,6 +5,7 @@ import android.net.Uri;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
+import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.endpoint.Endpoint;
 
 import java.util.Map;
@@ -21,9 +22,9 @@ public class PredictRequestModelFactory {
         this.headerFactory = headerFactory;
     }
 
-    public RequestModel createRecommendationRequest() {
+    public RequestModel createRecommendationRequest(Logic recommendationLogic) {
         return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUuidProvider())
-                .url(createRecommendationUrl())
+                .url(createRecommendationUrl(recommendationLogic))
                 .method(RequestMethod.GET)
                 .headers(headerFactory.createBaseHeader())
                 .build();
@@ -37,13 +38,16 @@ public class PredictRequestModelFactory {
                 .build();
     }
 
-    private String createRecommendationUrl() {
+    private String createRecommendationUrl(Logic recommendationLogic) {
         Uri.Builder uriBuilder = Uri.parse(Endpoint.PREDICT_BASE_URL)
                 .buildUpon()
                 .appendPath(requestContext.getMerchantId());
 
-        uriBuilder.appendQueryParameter("f", "f:SEARCH,l:5,o:0");
-        uriBuilder.appendQueryParameter("q", "polo shirt");
+        uriBuilder.appendQueryParameter("f", "f:" + recommendationLogic.getLogicName() + ",l:5,o:0");
+
+        for(Map.Entry<String, String> entry: recommendationLogic.getData().entrySet()) {
+            uriBuilder.appendQueryParameter(entry.getKey(), entry.getValue());
+        }
 
         return uriBuilder.build().toString();
     }

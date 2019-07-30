@@ -6,6 +6,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.util.RequestModelUtils
+import com.emarsys.predict.api.model.RecommendationLogic
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -75,11 +76,12 @@ class PredictRequestModelFactoryTest {
     }
 
     @Test
-    fun testCreateRecommendationRequest() {
+    fun testCreateRecommendationRequest_withSearchWithParams() {
         val recommendationCriteria = URLEncoder.encode("f:SEARCH,l:5,o:0", "utf-8")
+        val recommendationLogic = RecommendationLogic.search("strand papucs")
 
         val expected = RequestModel(
-                "https://recommender.scarabresearch.com/merchants/merchantId?f=$recommendationCriteria&q=polo%20shirt",
+                "https://recommender.scarabresearch.com/merchants/merchantId?f=$recommendationCriteria&q=strand%20papucs",
                 RequestMethod.GET,
                 null,
                 BASE_HEADER,
@@ -88,7 +90,27 @@ class PredictRequestModelFactoryTest {
                 REQUEST_ID
         )
 
-        val result = requestModelFactory.createRecommendationRequest()
+        val result = requestModelFactory.createRecommendationRequest(recommendationLogic)
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateRecommendationRequest_withSearch() {
+        val recommendationCriteria = URLEncoder.encode("f:SEARCH,l:5,o:0", "utf-8")
+        val recommendationLogic = RecommendationLogic.search()
+
+        val expected = RequestModel(
+                "https://recommender.scarabresearch.com/merchants/merchantId?f=$recommendationCriteria&q=",
+                RequestMethod.GET,
+                null,
+                BASE_HEADER,
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+
+        val result = requestModelFactory.createRecommendationRequest(recommendationLogic)
 
         result shouldBe expected
     }

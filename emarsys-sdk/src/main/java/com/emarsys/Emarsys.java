@@ -33,6 +33,7 @@ import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
 import com.emarsys.push.PushApi;
 
@@ -269,8 +270,8 @@ public class Emarsys {
             predict.trackSearchTerm(searchTerm);
         }
 
-        public static void recommendProducts(@NonNull final ResultListener<Try<List<Product>>> resultListener) {
-            predict.recommendProducts(resultListener);
+        public static void recommendProducts(@NonNull Logic recommendationLogic, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
+            predict.recommendProducts(recommendationLogic, resultListener);
         }
     }
 

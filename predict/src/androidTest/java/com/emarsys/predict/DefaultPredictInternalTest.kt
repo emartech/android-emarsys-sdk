@@ -18,6 +18,7 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.core.worker.Worker
 import com.emarsys.predict.api.model.CartItem
+import com.emarsys.predict.api.model.Logic
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.fake.FakeRestClient
@@ -58,9 +59,12 @@ class DefaultPredictInternalTest {
     private lateinit var mockPredictResponseMapper: PredictResponseMapper
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockResponseModel: ResponseModel
+    private lateinit var mockLogic: Logic
     private lateinit var latch: CountDownLatch
+    private lateinit var mockResultListener: ResultListener<Try<List<Product>>>
 
     @Before
+    @Suppress("UNCHECKED_CAST")
     fun init() {
 
         latch = CountDownLatch(1)
@@ -70,7 +74,8 @@ class DefaultPredictInternalTest {
         mockKeyValueStore = mock(KeyValueStore::class.java)
         mockRequestManager = mock(RequestManager::class.java)
         mockPredictResponseMapper = mock(PredictResponseMapper::class.java)
-
+        mockLogic = mock(Logic::class.java)
+        mockResultListener = mock(ResultListener::class.java) as ResultListener<Try<List<Product>>>
         mockTimestampProvider = mock(TimestampProvider::class.java).apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
@@ -86,7 +91,7 @@ class DefaultPredictInternalTest {
         }
 
         mockRequestModelFactory = mock(PredictRequestModelFactory::class.java).apply {
-            whenever(createRecommendationRequest()).thenReturn(mockRequestModel)
+            whenever(createRecommendationRequest(mockLogic)).thenReturn(mockRequestModel)
         }
 
         predictInternal = DefaultPredictInternal(mockRequestContext, mockRequestManager, mockRequestModelFactory, mockPredictResponseMapper)
@@ -303,15 +308,19 @@ class DefaultPredictInternalTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testRecommendProducts_resultListener_mustNotBeNull() {
-        predictInternal.recommendProducts(null)
+        predictInternal.recommendProducts(mockLogic, null)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testRecommendProducts_logic_mustNotBeNull() {
+        predictInternal.recommendProducts(null, mockResultListener)
     }
 
     @Test
-    @Suppress("UNCHECKED_CAST")
     fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel() {
-        val mockResultListener = mock(ResultListener::class.java) as ResultListener<Try<List<Product>>>
+        predictInternal.recommendProducts(mockLogic, mockResultListener)
 
-        predictInternal.recommendProducts(mockResultListener)
+        verify(mockRequestModelFactory).createRecommendationRequest(mockLogic)
 
         verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
     }
@@ -328,7 +337,7 @@ class DefaultPredictInternalTest {
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(resultListener)
+        predictInternal.recommendProducts(mockLogic, resultListener)
 
         latch.await()
 
@@ -346,7 +355,7 @@ class DefaultPredictInternalTest {
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(resultListener)
+        predictInternal.recommendProducts(mockLogic, resultListener)
 
         latch.await()
 
@@ -364,7 +373,7 @@ class DefaultPredictInternalTest {
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(resultListener)
+        predictInternal.recommendProducts(mockLogic, resultListener)
 
         latch.await()
 

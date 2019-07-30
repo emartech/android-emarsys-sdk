@@ -13,6 +13,7 @@ import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
 import com.emarsys.predict.request.PredictRequestContext;
 import com.emarsys.predict.request.PredictRequestModelFactory;
@@ -135,10 +136,11 @@ public class DefaultPredictInternal implements PredictInternal {
     }
 
     @Override
-    public void recommendProducts(final ResultListener<Try<List<Product>>> resultListener) {
+    public void recommendProducts(Logic recommendationLogic, final ResultListener<Try<List<Product>>> resultListener) {
+        Assert.notNull(recommendationLogic, "RecommendationLogic must not be null!");
         Assert.notNull(resultListener, "ResultListener must not be null!");
 
-        RequestModel requestModel = requestModelFactory.createRecommendationRequest();
+        RequestModel requestModel = requestModelFactory.createRecommendationRequest(recommendationLogic);
 
         requestManager.submitNow(requestModel, new CoreCompletionHandler() {
             @Override
