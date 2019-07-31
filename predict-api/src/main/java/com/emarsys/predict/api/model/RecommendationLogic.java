@@ -75,6 +75,19 @@ public class RecommendationLogic implements Logic {
         return new RecommendationLogic("CATEGORY", data);
     }
 
+    public static Logic alsoBought() {
+        Map<String, String> data = new HashMap<>();
+        data.put("v", "");
+        return new RecommendationLogic("ALSO_BOUGHT", data);
+    }
+
+    public static Logic alsoBought(String itemId) {
+        Assert.notNull(itemId, "ItemId must not be null!");
+        Map<String, String> data = new HashMap<>();
+        data.put("v", String.format("i:%s", itemId));
+        return new RecommendationLogic("ALSO_BOUGHT", data);
+    }
+
     @Override
     public String getLogicName() {
         return logicName;

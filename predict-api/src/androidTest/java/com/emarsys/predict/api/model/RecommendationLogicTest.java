@@ -129,4 +129,31 @@ public class RecommendationLogicTest {
         assertEquals(expected, result.getData());
         assertEquals("CATEGORY", result.getLogicName());
     }
+
+    @Test
+    public void testAlsoBought_shouldFillFields() {
+        Map<String, String> expected = new HashMap<>();
+        expected.put("v", "");
+
+        Logic result = RecommendationLogic.alsoBought();
+
+        assertEquals(expected, result.getData());
+        assertEquals("ALSO_BOUGHT", result.getLogicName());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testAlsoBought_itemId_mustNotBeNull() {
+        RecommendationLogic.alsoBought(null);
+    }
+
+    @Test
+    public void testAlsoBought_shouldFillFields_ifDataIsProvided() {
+        Map<String, String> expected = new HashMap<>();
+        expected.put("v", "i:itemId");
+
+        Logic result = RecommendationLogic.alsoBought("itemId");
+
+        assertEquals(expected, result.getData());
+        assertEquals("ALSO_BOUGHT", result.getLogicName());
+    }
 }
