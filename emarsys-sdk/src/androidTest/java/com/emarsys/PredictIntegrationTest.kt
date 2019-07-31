@@ -276,6 +276,16 @@ class PredictIntegrationTest {
     }
 
     @Test
+    fun testRecommendProducts_withCategory() {
+        Emarsys.Predict.recommendProducts(RecommendationLogic.category("MEN>Shirts"),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
     fun testMultipleInvocations() {
         testTrackCart()
         latch = CountDownLatch(1)
