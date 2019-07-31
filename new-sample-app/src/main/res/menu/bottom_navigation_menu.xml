@@ -3,15 +3,15 @@
 
     <item
         android:id="@+id/destinationMobileEngageFragment"
-        android:icon="@drawable/ic_phone_android_black_24dp"
+        android:icon="@drawable/mobile_engage_logo_icon"
         android:title="@string/menu_title_mobile_engage" />
     <item
         android:id="@+id/destinationInboxFragment"
-        android:icon="@drawable/ic_email_black_24dp"
+        android:icon="@drawable/inbox_mailbox_icon"
         android:title="@string/menu_title_inbox" />
     <item
         android:id="@+id/destinationPredictFragment"
-        android:icon="@drawable/ic_lightbulb_outline_black_24dp"
+        android:icon="@drawable/predict_scarab_icon"
         android:title="@string/menu_title_predict" />
 
 </menu>

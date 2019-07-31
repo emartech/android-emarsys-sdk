@@ -1,8 +1,8 @@
-package com.emarsys.newsampleapp
+package com.emarsys.sample
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
@@ -17,17 +17,12 @@ class MainActivity : AppCompatActivity() {
         val navController = Navigation.findNavController(this, R.id.nav_host_fragment)
 
         setupBottomNavMenu(navController)
-        setupActionBar(navController)
     }
 
     private fun setupBottomNavMenu(navController: NavController) {
         bottom_navigation_view?.let {
             NavigationUI.setupWithNavController(it, navController)
         }
-    }
-
-    private fun setupActionBar(navController: NavController) {
-        NavigationUI.setupActionBarWithNavController(this, navController)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

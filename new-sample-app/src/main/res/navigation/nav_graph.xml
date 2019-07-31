@@ -7,18 +7,21 @@
 
     <fragment
         android:id="@+id/destinationMobileEngageFragment"
-        android:name="com.emarsys.newsampleapp.fragments.MobileEngageFragment"
+        android:name="com.emarsys.sample.fragments.MobileEngageFragment"
         android:label="Mobile Engage"
-        tools:layout="@layout/fragment_mobile_engage" />
+        tools:layout="@layout/fragment_mobile_engage">
+    </fragment>
+
+
     <fragment
         android:id="@+id/destinationInboxFragment"
-        android:name="com.emarsys.newsampleapp.fragments.InboxFragment"
+        android:name="com.emarsys.sample.fragments.InboxFragment"
         android:label="Inbox"
         tools:layout="@layout/fragment_inbox">
     </fragment>
     <fragment
         android:id="@+id/destinationPredictFragment"
-        android:name="com.emarsys.newsampleapp.fragments.PredictFragment"
+        android:name="com.emarsys.sample.fragments.PredictFragment"
         android:label="Predict"
         tools:layout="@layout/fragment_predict">
     </fragment>

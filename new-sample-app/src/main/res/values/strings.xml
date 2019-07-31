@@ -3,4 +3,33 @@
     <string name="menu_title_mobile_engage">Mobile engage</string>
     <string name="menu_title_inbox">Inbox</string>
     <string name="menu_title_predict">Predict</string>
+
+    <!-- Mobile Engage String Resources -->
+    <string name="login_button_label">Login</string>
+    <string name="logout_button_label">Logout</string>
+    <string name="contactField_hint">contactFieldValue</string>
+    <string name="buttonTrackMessageLabel">Track message open</string>
+    <string name="buttonLogoutLabel">Logout</string>
+    <string name="contact_identification_card_title">Contact identification</string>
+    <string name="messageId">messageId</string>
+    <string name="track_message_open">Track Message Open</string>
+    <string name="track_custom_event">Track Custom Event</string>
+    <string name="event_name">eventName</string>
+    <string name="get_push_token_button_label">Get Push Token</string>
+    <string name="do_not_disturb">Do not disturb</string>
+    <string name="get_push_token_title">Get Push Token</string>
+    <string name="event_attributes_hint">eventAttributes</string>
+    <string name="logged_in">Logged in as: </string>
+
+    <!-- Predict String Resources -->
+    <string name="item_view_card_title">Item View</string>
+    <string name="itemId_hint">itemId</string>
+    <string name="track_item_view_label">Track Item View</string>
+    <string name="category_view_card_title">Category View</string>
+    <string name="search_term_card_title">Search Term</string>
+    <string name="searchTerm_hint">searchTerm</string>
+    <string name="track_search_term_button_label">Track Search Term</string>
+    <string name="cart_and_purchase">Cart and Purchase</string>
+    <string name="track_cart_items_button_label">Track Cart Items</string>
+
 </resources>
