@@ -88,6 +88,19 @@ public class RecommendationLogic implements Logic {
         return new RecommendationLogic("ALSO_BOUGHT", data);
     }
 
+    public static Logic popular() {
+        Map<String, String> data = new HashMap<>();
+        data.put("vc", "");
+        return new RecommendationLogic("POPULAR", data);
+    }
+
+    public static Logic popular(String categoryPath) {
+        Assert.notNull(categoryPath, "CategoryPath must not be null!");
+        Map<String, String> data = new HashMap<>();
+        data.put("vc", categoryPath);
+        return new RecommendationLogic("POPULAR", data);
+    }
+
     @Override
     public String getLogicName() {
         return logicName;

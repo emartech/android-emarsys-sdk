@@ -156,4 +156,31 @@ public class RecommendationLogicTest {
         assertEquals(expected, result.getData());
         assertEquals("ALSO_BOUGHT", result.getLogicName());
     }
+
+    @Test
+    public void testPopular_shouldFillFields() {
+        Map<String, String> expected = new HashMap<>();
+        expected.put("vc", "");
+
+        Logic result = RecommendationLogic.popular();
+
+        assertEquals(expected, result.getData());
+        assertEquals("POPULAR", result.getLogicName());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPopular_categoryPath_mustNotBeNull() {
+        RecommendationLogic.popular(null);
+    }
+
+    @Test
+    public void testPopular_shouldFillFields_ifDataIsProvided() {
+        Map<String, String> expected = new HashMap<>();
+        expected.put("vc", "testCategoryPath");
+
+        Logic result = RecommendationLogic.popular("testCategoryPath");
+
+        assertEquals(expected, result.getData());
+        assertEquals("POPULAR", result.getLogicName());
+    }
 }
