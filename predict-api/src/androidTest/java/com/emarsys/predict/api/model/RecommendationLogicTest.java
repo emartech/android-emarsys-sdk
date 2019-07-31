@@ -102,4 +102,31 @@ public class RecommendationLogicTest {
         assertEquals(expected, result.getData());
         assertEquals("RELATED", result.getLogicName());
     }
+
+    @Test
+    public void testCategory_shouldFillFields() {
+        Map<String, String> expected = new HashMap<>();
+        expected.put("vc", "");
+
+        Logic result = RecommendationLogic.category();
+
+        assertEquals(expected, result.getData());
+        assertEquals("CATEGORY", result.getLogicName());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCategory_categoryPath_mustNotBeNull() {
+        RecommendationLogic.category(null);
+    }
+
+    @Test
+    public void testCategory_shouldFillFields_ifDataIsProvided() {
+        Map<String, String> expected = new HashMap<>();
+        expected.put("vc", "testCategoryPath");
+
+        Logic result = RecommendationLogic.category("testCategoryPath");
+
+        assertEquals(expected, result.getData());
+        assertEquals("CATEGORY", result.getLogicName());
+    }
 }
