@@ -21,7 +21,6 @@ public class RecommendationLogic implements Logic {
 
     public static Logic search() {
         Map<String, String> data = new HashMap<>();
-        data.put("q", "");
         return new RecommendationLogic("SEARCH", data);
     }
 
@@ -35,8 +34,6 @@ public class RecommendationLogic implements Logic {
 
     public static Logic cart() {
         Map<String, String> data = new HashMap<>();
-        data.put("cv", "1");
-        data.put("ca", "");
         return new RecommendationLogic("CART", data);
     }
 
@@ -51,7 +48,6 @@ public class RecommendationLogic implements Logic {
 
     public static Logic related() {
         Map<String, String> data = new HashMap<>();
-        data.put("v", "");
         return new RecommendationLogic("RELATED", data);
     }
 
@@ -64,7 +60,6 @@ public class RecommendationLogic implements Logic {
 
     public static Logic category() {
         Map<String, String> data = new HashMap<>();
-        data.put("vc", "");
         return new RecommendationLogic("CATEGORY", data);
     }
 
@@ -77,7 +72,6 @@ public class RecommendationLogic implements Logic {
 
     public static Logic alsoBought() {
         Map<String, String> data = new HashMap<>();
-        data.put("v", "");
         return new RecommendationLogic("ALSO_BOUGHT", data);
     }
 
@@ -90,7 +84,6 @@ public class RecommendationLogic implements Logic {
 
     public static Logic popular() {
         Map<String, String> data = new HashMap<>();
-        data.put("vc", "");
         return new RecommendationLogic("POPULAR", data);
     }
 

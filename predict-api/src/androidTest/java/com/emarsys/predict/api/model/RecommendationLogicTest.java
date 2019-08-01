@@ -21,7 +21,6 @@ public class RecommendationLogicTest {
     @Test
     public void testSearch_shouldFillFields() {
         Map<String, String> expected = new HashMap<>();
-        expected.put("q", "");
 
         Logic result = RecommendationLogic.search();
 
@@ -47,8 +46,6 @@ public class RecommendationLogicTest {
     @Test
     public void testCart_shouldFillFields() {
         Map<String, String> expected = new HashMap<>();
-        expected.put("cv", "1");
-        expected.put("ca", "");
 
         Logic result = RecommendationLogic.cart();
 
@@ -80,7 +77,6 @@ public class RecommendationLogicTest {
     @Test
     public void testRelated_shouldFillFields() {
         Map<String, String> expected = new HashMap<>();
-        expected.put("v", "");
 
         Logic result = RecommendationLogic.related();
 
@@ -106,7 +102,6 @@ public class RecommendationLogicTest {
     @Test
     public void testCategory_shouldFillFields() {
         Map<String, String> expected = new HashMap<>();
-        expected.put("vc", "");
 
         Logic result = RecommendationLogic.category();
 
@@ -133,7 +128,6 @@ public class RecommendationLogicTest {
     @Test
     public void testAlsoBought_shouldFillFields() {
         Map<String, String> expected = new HashMap<>();
-        expected.put("v", "");
 
         Logic result = RecommendationLogic.alsoBought();
 
@@ -160,7 +154,6 @@ public class RecommendationLogicTest {
     @Test
     public void testPopular_shouldFillFields() {
         Map<String, String> expected = new HashMap<>();
-        expected.put("vc", "");
 
         Logic result = RecommendationLogic.popular();
 
