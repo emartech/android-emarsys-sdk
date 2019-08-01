@@ -23,8 +23,10 @@ import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.fake.FakeRestClient
 import com.emarsys.predict.fake.FakeResultListener
+import com.emarsys.predict.model.LastTrackedItemContainer
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelFactory
+import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -62,6 +64,7 @@ class DefaultPredictInternalTest {
     private lateinit var mockLogic: Logic
     private lateinit var latch: CountDownLatch
     private lateinit var mockResultListener: ResultListener<Try<List<Product>>>
+    private lateinit var mockLastTrackedItemContainer: LastTrackedItemContainer
 
     @Before
     @Suppress("UNCHECKED_CAST")
@@ -93,6 +96,8 @@ class DefaultPredictInternalTest {
         mockRequestModelFactory = mock(PredictRequestModelFactory::class.java).apply {
             whenever(createRecommendationRequest(mockLogic)).thenReturn(mockRequestModel)
         }
+
+        mockLastTrackedItemContainer = mock(LastTrackedItemContainer::class.java)
 
         predictInternal = DefaultPredictInternal(mockRequestContext, mockRequestManager, mockRequestModelFactory, mockPredictResponseMapper)
     }
@@ -304,6 +309,52 @@ class DefaultPredictInternalTest {
         predictInternal.trackSearchTerm(searchTerm)
 
         verify(mockRequestManager).submit(expectedShardModel)
+    }
+
+    @Test
+    fun testTrackSearchTerm_shouldSetLastTrackedItemContainersLastSearchTermField_withCorrectSearchTerm() {
+        val searchTerm = "searchTerm"
+        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        predictInternal.trackSearchTerm(searchTerm)
+        verify(mockLastTrackedItemContainer).setLastSearchTerm(searchTerm)
+    }
+
+    @Test
+    fun testTrackCart_shouldSetLastTrackedItemContainersLastCartItemsField_withCorrectCartItemList() {
+        val cartList = listOf<CartItem>(
+                PredictCartItem("testCartItem1", 1.0, 1.0),
+                PredictCartItem("testCartItem2", 2.0, 2.0)
+        )
+        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        predictInternal.trackCart(cartList)
+        verify(mockLastTrackedItemContainer).setLastCartItems(cartList)
+    }
+
+    @Test
+    fun testTrackPurchase_shouldSetLastTrackedItemContainersLastCartItemsField_withCorrectCartItemList() {
+        val cartList = listOf<CartItem>(
+                PredictCartItem("testCartItem1", 1.0, 1.0),
+                PredictCartItem("testCartItem2", 2.0, 2.0)
+        )
+        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        predictInternal.trackPurchase("testOrderId", cartList)
+        verify(mockLastTrackedItemContainer).setLastCartItems(cartList)
+    }
+
+    @Test
+    fun testTrackItemView_shouldSetLastTrackedItemContainersLastItemViewField_withCorrectItemId() {
+        val itemId = "itemId"
+        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        predictInternal.trackItemView(itemId)
+        verify(mockLastTrackedItemContainer).setLastItemView(itemId)
+    }
+
+    @Test
+    fun testTrackCategoryView_shouldSetLastTrackedItemContainersLastCategoryPathField_withCorrectCategoryPath() {
+        val categoryPath = "categoryPath"
+        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        predictInternal.trackCategoryView(categoryPath)
+        verify(mockLastTrackedItemContainer).setLastCategoryPath(categoryPath)
     }
 
     @Test(expected = IllegalArgumentException::class)

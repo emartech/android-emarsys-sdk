@@ -15,6 +15,7 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
+import com.emarsys.predict.model.LastTrackedItemContainer;
 import com.emarsys.predict.request.PredictRequestContext;
 import com.emarsys.predict.request.PredictRequestModelFactory;
 import com.emarsys.predict.util.CartItemUtils;
@@ -38,6 +39,7 @@ public class DefaultPredictInternal implements PredictInternal {
     private final RequestManager requestManager;
     private final PredictRequestModelFactory requestModelFactory;
     private final PredictResponseMapper responseMapper;
+    private final LastTrackedItemContainer lastTrackedContainer;
 
     public DefaultPredictInternal(PredictRequestContext requestContext, RequestManager requestManager, PredictRequestModelFactory requestModelFactory, PredictResponseMapper responseMapper) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
@@ -51,6 +53,7 @@ public class DefaultPredictInternal implements PredictInternal {
         this.timestampProvider = requestContext.getTimestampProvider();
         this.requestModelFactory = requestModelFactory;
         this.responseMapper = responseMapper;
+        lastTrackedContainer = new LastTrackedItemContainer();
     }
 
     @Override
@@ -77,6 +80,8 @@ public class DefaultPredictInternal implements PredictInternal {
                 .build();
 
         requestManager.submit(shard);
+
+        lastTrackedContainer.setLastCartItems(items);
         return shard.getId();
     }
 
@@ -93,6 +98,7 @@ public class DefaultPredictInternal implements PredictInternal {
                 .build();
 
         requestManager.submit(shard);
+        lastTrackedContainer.setLastCartItems(items);
         return shard.getId();
     }
 
@@ -106,6 +112,7 @@ public class DefaultPredictInternal implements PredictInternal {
                 .build();
 
         requestManager.submit(shard);
+        lastTrackedContainer.setLastItemView(itemId);
         return shard.getId();
     }
 
@@ -119,6 +126,7 @@ public class DefaultPredictInternal implements PredictInternal {
                 .build();
 
         requestManager.submit(shard);
+        lastTrackedContainer.setLastCategoryPath(categoryPath);
         return shard.getId();
     }
 
@@ -132,6 +140,7 @@ public class DefaultPredictInternal implements PredictInternal {
                 .build();
 
         requestManager.submit(shard);
+        lastTrackedContainer.setLastSearchTerm(searchTerm);
         return shard.getId();
     }
 
