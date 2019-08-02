@@ -15,6 +15,7 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
+import com.emarsys.predict.model.InternalLogic;
 import com.emarsys.predict.model.LastTrackedItemContainer;
 import com.emarsys.predict.request.PredictRequestContext;
 import com.emarsys.predict.request.PredictRequestModelFactory;
@@ -149,7 +150,8 @@ public class DefaultPredictInternal implements PredictInternal {
         Assert.notNull(recommendationLogic, "RecommendationLogic must not be null!");
         Assert.notNull(resultListener, "ResultListener must not be null!");
 
-        RequestModel requestModel = requestModelFactory.createRecommendationRequest(recommendationLogic);
+        InternalLogic internalLogic = new InternalLogic(recommendationLogic, lastTrackedContainer);
+        RequestModel requestModel = requestModelFactory.createRecommendationRequest(internalLogic);
 
         requestManager.submitNow(requestModel, new CoreCompletionHandler() {
             @Override

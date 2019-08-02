@@ -11,6 +11,13 @@ import java.util.Objects;
 
 public class RecommendationLogic implements Logic {
 
+    public static final String SEARCH = "SEARCH";
+    public static final String CART = "CART";
+    public static final String RELATED = "RELATED";
+    public static final String CATEGORY = "CATEGORY";
+    public static final String ALSO_BOUGHT = "ALSO_BOUGHT";
+    public static final String POPULAR = "POPULAR";
+
     private String logicName;
     private Map<String, String> data;
 
@@ -21,7 +28,7 @@ public class RecommendationLogic implements Logic {
 
     public static Logic search() {
         Map<String, String> data = new HashMap<>();
-        return new RecommendationLogic("SEARCH", data);
+        return new RecommendationLogic(SEARCH, data);
     }
 
     public static Logic search(@NonNull String searchTerm) {
@@ -29,12 +36,12 @@ public class RecommendationLogic implements Logic {
 
         Map<String, String> data = new HashMap<>();
         data.put("q", searchTerm);
-        return new RecommendationLogic("SEARCH", data);
+        return new RecommendationLogic(SEARCH, data);
     }
 
     public static Logic cart() {
         Map<String, String> data = new HashMap<>();
-        return new RecommendationLogic("CART", data);
+        return new RecommendationLogic(CART, data);
     }
 
     public static Logic cart(@NonNull List<CartItem> cartItems) {
@@ -43,55 +50,55 @@ public class RecommendationLogic implements Logic {
         Map<String, String> data = new HashMap<>();
         data.put("cv", "1");
         data.put("ca", cartItemsToQueryParam(cartItems));
-        return new RecommendationLogic("CART", data);
+        return new RecommendationLogic(CART, data);
     }
 
     public static Logic related() {
         Map<String, String> data = new HashMap<>();
-        return new RecommendationLogic("RELATED", data);
+        return new RecommendationLogic(RELATED, data);
     }
 
     public static Logic related(String itemId) {
         Assert.notNull(itemId, "ItemId must not be null!");
         Map<String, String> data = new HashMap<>();
         data.put("v", String.format("i:%s", itemId));
-        return new RecommendationLogic("RELATED", data);
+        return new RecommendationLogic(RELATED, data);
     }
 
     public static Logic category() {
         Map<String, String> data = new HashMap<>();
-        return new RecommendationLogic("CATEGORY", data);
+        return new RecommendationLogic(CATEGORY, data);
     }
 
     public static Logic category(String categoryPath) {
         Assert.notNull(categoryPath, "CategoryPath must not be null!");
         Map<String, String> data = new HashMap<>();
         data.put("vc", categoryPath);
-        return new RecommendationLogic("CATEGORY", data);
+        return new RecommendationLogic(CATEGORY, data);
     }
 
     public static Logic alsoBought() {
         Map<String, String> data = new HashMap<>();
-        return new RecommendationLogic("ALSO_BOUGHT", data);
+        return new RecommendationLogic(ALSO_BOUGHT, data);
     }
 
     public static Logic alsoBought(String itemId) {
         Assert.notNull(itemId, "ItemId must not be null!");
         Map<String, String> data = new HashMap<>();
         data.put("v", String.format("i:%s", itemId));
-        return new RecommendationLogic("ALSO_BOUGHT", data);
+        return new RecommendationLogic(ALSO_BOUGHT, data);
     }
 
     public static Logic popular() {
         Map<String, String> data = new HashMap<>();
-        return new RecommendationLogic("POPULAR", data);
+        return new RecommendationLogic(POPULAR, data);
     }
 
     public static Logic popular(String categoryPath) {
         Assert.notNull(categoryPath, "CategoryPath must not be null!");
         Map<String, String> data = new HashMap<>();
         data.put("vc", categoryPath);
-        return new RecommendationLogic("POPULAR", data);
+        return new RecommendationLogic(POPULAR, data);
     }
 
     @Override

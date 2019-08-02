@@ -94,7 +94,7 @@ class DefaultPredictInternalTest {
         }
 
         mockRequestModelFactory = mock(PredictRequestModelFactory::class.java).apply {
-            whenever(createRecommendationRequest(mockLogic)).thenReturn(mockRequestModel)
+            whenever(createRecommendationRequest(any(Logic::class.java))).thenReturn(mockRequestModel)
         }
 
         mockLastTrackedItemContainer = mock(LastTrackedItemContainer::class.java)
@@ -371,7 +371,7 @@ class DefaultPredictInternalTest {
     fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel() {
         predictInternal.recommendProducts(mockLogic, mockResultListener)
 
-        verify(mockRequestModelFactory).createRecommendationRequest(mockLogic)
+        verify(mockRequestModelFactory).createRecommendationRequest(any(Logic::class.java))
 
         verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
     }

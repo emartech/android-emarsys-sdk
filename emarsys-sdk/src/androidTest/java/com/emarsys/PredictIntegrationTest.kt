@@ -281,7 +281,7 @@ class PredictIntegrationTest {
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
             triedRecommendedProducts.errorCause shouldBe null
             triedRecommendedProducts.result shouldNotBe null
-            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+            triedRecommendedProducts.result!!.size shouldBe 0
         }
     }
 

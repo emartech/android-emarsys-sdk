@@ -101,7 +101,7 @@ class PredictRequestModelFactoryTest {
         val recommendationLogic = RecommendationLogic.search()
 
         val expected = RequestModel(
-                "https://recommender.scarabresearch.com/merchants/merchantId?f=$recommendationCriteria&q=",
+                "https://recommender.scarabresearch.com/merchants/merchantId?f=$recommendationCriteria",
                 RequestMethod.GET,
                 null,
                 BASE_HEADER,
