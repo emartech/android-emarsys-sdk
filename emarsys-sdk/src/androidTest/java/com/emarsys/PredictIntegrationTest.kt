@@ -251,6 +251,18 @@ class PredictIntegrationTest {
     }
 
     @Test
+    fun testRecommendProducts_withPreviousSearch() {
+        Emarsys.Predict.trackSearchTerm("polo shirt")
+
+        Emarsys.Predict.recommendProducts(RecommendationLogic.search(),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
     fun testRecommendProducts_withCart() {
         val cartItems = listOf(
                 PredictCartItem("2168", 1.1, 10.0),
@@ -266,8 +278,37 @@ class PredictIntegrationTest {
     }
 
     @Test
+    fun testRecommendProducts_withPreviousCart() {
+        val cartItems = listOf(
+                PredictCartItem("2168", 1.1, 10.0),
+                PredictCartItem("2200", 2.2, 20.0),
+                PredictCartItem("2509", 3.3, 30.0)
+        )
+        Emarsys.Predict.trackCart(cartItems)
+
+        Emarsys.Predict.recommendProducts(RecommendationLogic.cart(),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
     fun testRecommendProducts_withRelated() {
         Emarsys.Predict.recommendProducts(RecommendationLogic.related("2200"),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_related_withPreviousView() {
+        Emarsys.Predict.trackItemView("2200")
+
+        Emarsys.Predict.recommendProducts(RecommendationLogic.related(),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
             triedRecommendedProducts.errorCause shouldBe null
             triedRecommendedProducts.result shouldNotBe null
@@ -296,6 +337,18 @@ class PredictIntegrationTest {
     }
 
     @Test
+    fun testRecommendProducts_withPreviousCategory() {
+        Emarsys.Predict.trackCategoryView("MEN>Shirts")
+
+        Emarsys.Predict.recommendProducts(RecommendationLogic.category(),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
     fun testRecommendProducts_withAlsoBought() {
         Emarsys.Predict.recommendProducts(RecommendationLogic.alsoBought("2200"),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
@@ -306,8 +359,22 @@ class PredictIntegrationTest {
     }
 
     @Test
-    fun testRecommendProducts_withPopular() {
-        Emarsys.Predict.recommendProducts(RecommendationLogic.popular("MEN>Shirts"),
+    fun testRecommendProducts_alsoBought_withPreviousViewItem() {
+        Emarsys.Predict.trackItemView("2200")
+
+        Emarsys.Predict.recommendProducts(RecommendationLogic.alsoBought(),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_popular_withPreviousCategory() {
+        Emarsys.Predict.trackCategoryView("MEN>Shirts")
+
+        Emarsys.Predict.recommendProducts(RecommendationLogic.popular(),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
             triedRecommendedProducts.errorCause shouldBe null
             triedRecommendedProducts.result shouldNotBe null

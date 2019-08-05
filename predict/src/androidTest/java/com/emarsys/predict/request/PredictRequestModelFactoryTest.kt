@@ -1,20 +1,27 @@
 package com.emarsys.predict.request
 
+import android.net.Uri
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.util.RequestModelUtils
+import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.RecommendationLogic
+import com.emarsys.predict.model.InternalLogic
+import com.emarsys.predict.model.LastTrackedItemContainer
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import io.kotlintest.data.forall
 import io.kotlintest.shouldBe
+import io.kotlintest.tables.row
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
+import java.net.URLDecoder
 import java.net.URLEncoder
 
 class PredictRequestModelFactoryTest {
@@ -30,6 +37,7 @@ class PredictRequestModelFactoryTest {
     }
 
     private lateinit var requestModelFactory: PredictRequestModelFactory
+    private lateinit var lastTrackedItemContainer: LastTrackedItemContainer
     private lateinit var mockRequestContext: PredictRequestContext
     private lateinit var mockHeaderFactory: PredictHeaderFactory
     private lateinit var mockTimestampProvider: TimestampProvider
@@ -63,6 +71,14 @@ class PredictRequestModelFactoryTest {
         }
 
         requestModelFactory = PredictRequestModelFactory(mockRequestContext, mockHeaderFactory)
+
+        lastTrackedItemContainer = LastTrackedItemContainer()
+        lastTrackedItemContainer.setLastCategoryPath("testCategoryPath")
+        lastTrackedItemContainer.setLastSearchTerm("testSearchTerm")
+        lastTrackedItemContainer.setLastCartItems(
+                listOf(PredictCartItem("1234", 1.0, 1.0),
+                        PredictCartItem("4321", 2.0, 2.0)))
+        lastTrackedItemContainer.setLastItemView("testLastItem")
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -77,11 +93,41 @@ class PredictRequestModelFactoryTest {
 
     @Test
     fun testCreateRecommendationRequest_withSearchWithParams() {
-        val recommendationCriteria = URLEncoder.encode("f:SEARCH,l:5,o:0", "utf-8")
-        val recommendationLogic = RecommendationLogic.search("strand papucs")
+        println(URLDecoder.decode("[%3D1%25ca%3D]", "utf-8"))
+        forall(
+                row(RecommendationLogic.search("searchTerm"), createRequestModelWithUrl(mapOf(
+                        "f" to "f:SEARCH,l:5,o:0",
+                        "q" to "searchTerm"))),
+                row(RecommendationLogic.cart(listOf(
+                        PredictCartItem("1234", 1.0, 1.0),
+                        PredictCartItem("4321", 2.0, 2.0))), createRequestModelWithUrl(mapOf(
+                        "f" to "f:CART,l:5,o:0",
+                        "cv" to "1",
+                        "ca" to "i:1234,p:1.0,q:1.0|i:4321,p:2.0,q:2.0"))),
+                row(RecommendationLogic.category("categoryPath"), createRequestModelWithUrl(mapOf(
+                        "f" to "f:CATEGORY,l:5,o:0",
+                        "vc" to "categoryPath"))),
+                row(RecommendationLogic.popular("categoryPath"), createRequestModelWithUrl(mapOf(
+                        "f" to "f:POPULAR,l:5,o:0",
+                        "vc" to "categoryPath"))),
+                row(RecommendationLogic.alsoBought("itemId"), createRequestModelWithUrl(mapOf(
+                        "f" to "f:ALSO_BOUGHT,l:5,o:0",
+                        "v" to "i:itemId"))),
+                row(RecommendationLogic.related("itemId"), createRequestModelWithUrl(mapOf(
+                        "f" to "f:RELATED,l:5,o:0",
+                        "v" to "i:itemId")))
+        ) { logic, expectedRequestModel -> RequestModelUtils.extractQueryParameters(requestModelFactory.createRecommendationRequest(InternalLogic(logic, lastTrackedItemContainer))) shouldBe RequestModelUtils.extractQueryParameters(expectedRequestModel) }
+    }
 
-        val expected = RequestModel(
-                "https://recommender.scarabresearch.com/merchants/merchantId?f=$recommendationCriteria&q=strand%20papucs",
+    private fun createRequestModelWithUrl(queryParams: Map<String, String>): RequestModel {
+        val uriBuilder = Uri.parse("https://recommender.scarabresearch.com/merchants/merchantId").buildUpon()
+        if (queryParams.isNotEmpty()) {
+            for (key in queryParams.keys) {
+                uriBuilder.appendQueryParameter(key, queryParams.get(key))
+            }
+        }
+        return RequestModel(
+                uriBuilder.build().toString(),
                 RequestMethod.GET,
                 null,
                 BASE_HEADER,
@@ -89,19 +135,15 @@ class PredictRequestModelFactoryTest {
                 Long.MAX_VALUE,
                 REQUEST_ID
         )
-
-        val result = requestModelFactory.createRecommendationRequest(recommendationLogic)
-
-        result shouldBe expected
     }
 
     @Test
-    fun testCreateRecommendationRequest_withSearch() {
+    fun testCreateRecommendationRequest_withSearchTermFromHistory() {
         val recommendationCriteria = URLEncoder.encode("f:SEARCH,l:5,o:0", "utf-8")
         val recommendationLogic = RecommendationLogic.search()
 
         val expected = RequestModel(
-                "https://recommender.scarabresearch.com/merchants/merchantId?f=$recommendationCriteria",
+                "https://recommender.scarabresearch.com/merchants/merchantId?f=$recommendationCriteria&q=testSearchTerm",
                 RequestMethod.GET,
                 null,
                 BASE_HEADER,
@@ -110,7 +152,8 @@ class PredictRequestModelFactoryTest {
                 REQUEST_ID
         )
 
-        val result = requestModelFactory.createRecommendationRequest(recommendationLogic)
+        val internalLogic = InternalLogic(recommendationLogic, lastTrackedItemContainer)
+        val result = requestModelFactory.createRecommendationRequest(internalLogic)
 
         result shouldBe expected
     }
