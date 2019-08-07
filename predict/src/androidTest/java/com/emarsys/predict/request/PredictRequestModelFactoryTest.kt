@@ -21,7 +21,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
-import java.net.URLDecoder
 import java.net.URLEncoder
 
 class PredictRequestModelFactoryTest {
@@ -73,12 +72,11 @@ class PredictRequestModelFactoryTest {
         requestModelFactory = PredictRequestModelFactory(mockRequestContext, mockHeaderFactory)
 
         lastTrackedItemContainer = LastTrackedItemContainer()
-        lastTrackedItemContainer.setLastCategoryPath("testCategoryPath")
-        lastTrackedItemContainer.setLastSearchTerm("testSearchTerm")
-        lastTrackedItemContainer.setLastCartItems(
-                listOf(PredictCartItem("1234", 1.0, 1.0),
-                        PredictCartItem("4321", 2.0, 2.0)))
-        lastTrackedItemContainer.setLastItemView("testLastItem")
+        lastTrackedItemContainer.lastCategoryPath = "testCategoryPath"
+        lastTrackedItemContainer.lastSearchTerm = "testSearchTerm"
+        lastTrackedItemContainer.lastCartItems = listOf(PredictCartItem("1234", 1.0, 1.0),
+                PredictCartItem("4321", 2.0, 2.0))
+        lastTrackedItemContainer.lastItemView = "testLastItem"
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -93,7 +91,6 @@ class PredictRequestModelFactoryTest {
 
     @Test
     fun testCreateRecommendationRequest_withSearchWithParams() {
-        println(URLDecoder.decode("[%3D1%25ca%3D]", "utf-8"))
         forall(
                 row(RecommendationLogic.search("searchTerm"), createRequestModelWithUrl(mapOf(
                         "f" to "f:SEARCH,l:5,o:0",
@@ -123,7 +120,7 @@ class PredictRequestModelFactoryTest {
         val uriBuilder = Uri.parse("https://recommender.scarabresearch.com/merchants/merchantId").buildUpon()
         if (queryParams.isNotEmpty()) {
             for (key in queryParams.keys) {
-                uriBuilder.appendQueryParameter(key, queryParams.get(key))
+                uriBuilder.appendQueryParameter(key, queryParams[key])
             }
         }
         return RequestModel(
