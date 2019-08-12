@@ -31,5 +31,10 @@
     <string name="track_search_term_button_label">Track Search Term</string>
     <string name="cart_and_purchase">Cart and Purchase</string>
     <string name="track_cart_items_button_label">Track Cart Items</string>
+    <string name="track_purchase_button_label">Track Purchase</string>
+    <string name="orderId">orderId</string>
+    <string name="orderId_hint">oderId</string>
+    <string name="categoryView_hint">categoryView</string>
+    <string name="track_category_view_button_label">Track Category View</string>
 
 </resources>
