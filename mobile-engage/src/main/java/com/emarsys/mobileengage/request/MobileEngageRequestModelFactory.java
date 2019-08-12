@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.request;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
 import com.emarsys.mobileengage.util.RequestUrlUtils;
@@ -15,15 +15,14 @@ import java.util.Map;
 import static com.emarsys.mobileengage.endpoint.Endpoint.INBOX_FETCH_V1;
 import static com.emarsys.mobileengage.endpoint.Endpoint.INBOX_RESET_BADGE_COUNT_V1;
 
-public class RequestModelFactory {
-    private RequestContext requestContext;
+public class MobileEngageRequestModelFactory {
+    private MobileEngageRequestContext requestContext;
 
-    public RequestModelFactory(RequestContext requestContext) {
+    public MobileEngageRequestModelFactory(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         this.requestContext = requestContext;
     }
-
 
     public RequestModel createSetPushTokenRequest(String pushToken) {
         Assert.notNull(pushToken, "PushToken must not be null!");
@@ -115,7 +114,7 @@ public class RequestModelFactory {
                 .build();
     }
 
-    private static RequestModel createEvent(Map<String, Object> payload, RequestContext requestContext) {
+    private static RequestModel createEvent(Map<String, Object> payload, MobileEngageRequestContext requestContext) {
         return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
                 .url(RequestUrlUtils.createCustomEventUrl(requestContext))
                 .method(RequestMethod.POST)

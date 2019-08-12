@@ -16,6 +16,7 @@ import com.emarsys.core.activity.CurrentActivityWatchdog;
 import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.core.concurrency.CoreSdkHandler;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.repository.Repository;
@@ -50,8 +51,8 @@ import com.emarsys.inbox.InboxProxy;
 import com.emarsys.mobileengage.DefaultMobileEngageInternal;
 import com.emarsys.mobileengage.LoggingMobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
+import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.RefreshTokenInternal;
-import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.inbox.Notification;
@@ -88,6 +89,8 @@ import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.PredictProxy;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.api.model.Logic;
+import com.emarsys.predict.api.model.Product;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.push.PushApi;
 import com.emarsys.push.PushProxy;
@@ -154,7 +157,7 @@ public class EmarsysTest {
     private EventServiceInternal mockEventServiceInternal;
     private ClientServiceInternal mockClientServiceInternal;
     private DefaultCoreCompletionHandler mockDefaultCoreCompletionHandler;
-    private RequestContext mockRequestContext;
+    private MobileEngageRequestContext mockRequestContext;
     private InAppPresenter mockInAppPresenter;
     private NotificationEventHandler mockNotificationEventHandler;
     private PredictInternal mockPredictInternal;
@@ -176,10 +179,12 @@ public class EmarsysTest {
     private LanguageProvider mockLanguageProvider;
     private NotificationManagerHelper mockNotificationManagerHelper;
     private VersionProvider mockVersionProvider;
+    private Logic mockLogic;
     private EventHandler inappEventHandler;
 
     private Application application;
     private CompletionListener completionListener;
+    private ResultListener<Try<List<Product>>> mockResultListener;
 
     private EmarsysConfig baseConfig;
     private EmarsysConfig mobileEngageConfig;
@@ -196,6 +201,7 @@ public class EmarsysTest {
         application = spy((Application) InstrumentationRegistry.getTargetContext().getApplicationContext());
 
         completionListener = mock(CompletionListener.class);
+        mockResultListener = mock(ResultListener.class);
 
         mockCoreSdkHandler = mock(CoreSdkHandler.class);
         activityLifecycleWatchdog = mock(ActivityLifecycleWatchdog.class);
@@ -234,7 +240,7 @@ public class EmarsysTest {
         predictConfig = createConfig().predictMerchantId(MERCHANT_ID).build();
 
         mockDefaultCoreCompletionHandler = mock(DefaultCoreCompletionHandler.class);
-        mockRequestContext = mock(RequestContext.class);
+        mockRequestContext = mock(MobileEngageRequestContext.class);
         mockInAppPresenter = mock(InAppPresenter.class);
         mockNotificationEventHandler = mock(NotificationEventHandler.class);
         mockRestClient = mock(RestClient.class);
@@ -243,6 +249,7 @@ public class EmarsysTest {
         mockInApp = mock(InAppApi.class);
         mockPush = mock(PushApi.class);
         mockPredict = mock(PredictApi.class);
+        mockLogic = mock(Logic.class);
 
         HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
         deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
@@ -665,7 +672,66 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testSetContact_delegatesTo_mobileEngageInternal() {
+    public void testSetContactWithCompletionListener_delegatesToPredictInternal_whenPredictEnabled() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.setContact(CONTACT_ID, completionListener);
+
+        verifyZeroInteractions(mockMobileEngageInternal);
+        verify(mockPredictInternal).setContact(CONTACT_ID);
+    }
+
+    @Test
+    public void testSetContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageEnabled() {
+        Emarsys.setup(mobileEngageConfig);
+
+        Emarsys.setContact(CONTACT_ID, completionListener);
+
+        verifyZeroInteractions(mockPredictInternal);
+        verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener);
+    }
+
+    @Test
+    public void testSetContactWithCompletionListener_doNotDelegatesToPredictInternal_whenPredictDisabled() {
+        Emarsys.setup(mobileEngageConfig);
+
+        Emarsys.setContact(CONTACT_ID, completionListener);
+
+        verifyZeroInteractions(mockPredictInternal);
+    }
+
+    @Test
+    public void testSetContactWithCompletionListener_doNotDelegatesToMobileEngageInternal_whenMobileEngageDisabled() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.setContact(CONTACT_ID, completionListener);
+
+        verifyZeroInteractions(mockMobileEngageInternal);
+    }
+
+    @Test
+    public void testSetContactWithCompletionListener_delegatesToInternals_whenBothFeaturesEnabled() {
+        Emarsys.setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build());
+
+        Emarsys.setContact(CONTACT_ID, completionListener);
+
+        verify(mockPredictInternal).setContact(CONTACT_ID);
+        verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener);
+    }
+
+    @Test
+    public void testSetContactWithCompletionListener_delegatesToMobileEngageOnly_whenBothFeaturesDisabled() {
+        Emarsys.setup(baseConfig);
+
+        Emarsys.setContact(CONTACT_ID, completionListener);
+
+        verifyZeroInteractions(mockPredictInternal);
+        verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener);
+    }
+
+    @Test
+    public void testSetContact_delegatesToMobileEngageInternal_whenMobileEngageIsEnabled() {
+        Emarsys.setup(mobileEngageConfig);
 
         Emarsys.setContact(CONTACT_ID);
 
@@ -673,57 +739,172 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testSetContactWithCompletionListener_delegatesToMobileEngageInternal() {
-        Emarsys.setContact(CONTACT_ID, completionListener);
+    public void testSetContact_delegatesToInternal_whenPredictIsEnabled() {
+        Emarsys.setup(predictConfig);
 
-        verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener);
-    }
-
-    @Test
-    public void testSetContact_delegatesTo_predictInternal() {
         Emarsys.setContact(CONTACT_ID);
 
         verify(mockPredictInternal).setContact(CONTACT_ID);
     }
 
     @Test
-    public void testSetContactWithCompletionListener_delegatesTo_predictInternal() {
-        Emarsys.setContact(CONTACT_ID, completionListener);
+    public void testSetContact_doNotDelegatesToMobileEngageInternal_whenMobileEngageIsDisabled() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.setContact(CONTACT_ID);
+
+        verifyZeroInteractions(mockMobileEngageInternal);
+    }
+
+    @Test
+    public void testSetContact_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
+        Emarsys.setup(mobileEngageConfig);
+
+        Emarsys.setContact(CONTACT_ID);
+
+        verifyZeroInteractions(mockPredictInternal);
+    }
+
+    @Test
+    public void testSetContact_delegatesToInternals_whenBothFeaturesAreEnabled() {
+        Emarsys.setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build());
+
+        Emarsys.setContact(CONTACT_ID);
 
         verify(mockPredictInternal).setContact(CONTACT_ID);
+        verify(mockMobileEngageInternal).setContact(CONTACT_ID, null);
+    }
+
+    @Test
+    public void testSetContact_delegatesToMobileEngageInternalOnly_whenBothFeaturesAreDisabled() {
+        Emarsys.setup(baseConfig);
+
+        Emarsys.setContact(CONTACT_ID);
+
+        verifyZeroInteractions(mockPredictInternal);
+        verify(mockMobileEngageInternal).setContact(CONTACT_ID, null);
+    }
+
+    @Test
+    public void testClearContactWithCompletionListener_delegatesToPredictInternal_whenPredictIsEnabled() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.clearContact(completionListener);
+
+        verifyZeroInteractions(mockMobileEngageInternal);
+        verify(mockPredictInternal).clearContact();
+    }
+
+    @Test
+    public void testClearContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageIsEnabled() {
+        Emarsys.setup(mobileEngageConfig);
+
+        Emarsys.clearContact(completionListener);
+
+        verifyZeroInteractions(mockPredictInternal);
+        verify(mockMobileEngageInternal).clearContact(completionListener);
+    }
+
+    @Test
+    public void testClearContactWithCompletionListener_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
+        Emarsys.setup(mobileEngageConfig);
+
+        Emarsys.clearContact(completionListener);
+
+        verifyZeroInteractions(mockPredictInternal);
+    }
+
+    @Test
+    public void testClearContactWithCompletionListener_doNotDelegatesToMobileEngageInternal_whenMobileEngageIsDisabled() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.clearContact(completionListener);
+
+        verifyZeroInteractions(mockMobileEngageInternal);
+    }
+
+    @Test
+    public void testClearContactWithCompletionListener_delegatesToInternals_whenBothEnabled() {
+        Emarsys.setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build());
+
+        Emarsys.clearContact(completionListener);
+
+        verify(mockPredictInternal).clearContact();
+        verify(mockMobileEngageInternal).clearContact(completionListener);
+    }
+
+    @Test
+    public void testClearContactWithCompletionListener_delegatesToMobileEngageInternalOnly_whenBothDisabled() {
+        Emarsys.setup(baseConfig);
+
+        Emarsys.clearContact(completionListener);
+
+        verifyZeroInteractions(mockPredictInternal);
+        verify(mockMobileEngageInternal).clearContact(completionListener);
+    }
+
+    @Test
+    public void testClearContact_delegatesToMobileEngageInternal_whenMobileEngageIsEnabled() {
+        Emarsys.setup(mobileEngageConfig);
+
+        Emarsys.clearContact();
+
+        verifyZeroInteractions(mockPredictInternal);
+        verify(mockMobileEngageInternal).clearContact(null);
+    }
+
+
+    @Test
+    public void testClearContact_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
+        Emarsys.setup(mobileEngageConfig);
+
+        Emarsys.clearContact();
+
+        verifyZeroInteractions(mockPredictInternal);
+    }
+
+    @Test
+    public void testClearContact_doNotDelegatesToMobileEngageInternal_whenMobileEngageIsDisabled() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.clearContact();
+
+        verifyZeroInteractions(mockMobileEngageInternal);
+    }
+
+    @Test
+    public void testClearContact_delegatesToPredictInternal_whenPredictIsEnabled() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.clearContact();
+
+        verifyZeroInteractions(mockMobileEngageInternal);
+        verify(mockPredictInternal).clearContact();
+    }
+
+    @Test
+    public void testClearContact_delegatesToInternals_whenBothFeaturesAreEnabled() {
+        Emarsys.setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build());
+
+        Emarsys.clearContact();
+
+        verify(mockPredictInternal).clearContact();
+        verify(mockMobileEngageInternal).clearContact(null);
+    }
+
+    @Test
+    public void testClearContact_shouldCallMobileEngageOnly_whenBothFeaturesAreDisabled() {
+        Emarsys.setup(baseConfig);
+
+        Emarsys.clearContact();
+
+        verifyZeroInteractions(mockPredictInternal);
+        verify(mockMobileEngageInternal).clearContact(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testClearContactWithCompletionListener_completionListener_mustNotBeNull() {
         Emarsys.clearContact(null);
-    }
-
-    @Test
-    public void testClearContact_delegatesTo_mobileEngageInternal() {
-        Emarsys.clearContact();
-
-        verify(mockMobileEngageInternal).clearContact(null);
-    }
-
-    @Test
-    public void testClearContactWithCompletionListener_delegatesTo_mobileEngageInternal() {
-        Emarsys.clearContact(completionListener);
-
-        verify(mockMobileEngageInternal).clearContact(completionListener);
-    }
-
-    @Test
-    public void testClearContact_delegatesTo_predictInternal() {
-        Emarsys.clearContact();
-
-        verify(mockPredictInternal).clearContact();
-    }
-
-    @Test
-    public void testClearContactWithCompletionListener_delegatesTo_predictInternal() {
-        Emarsys.clearContact(completionListener);
-
-        verify(mockPredictInternal).clearContact();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -867,7 +1048,7 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackCart_delegatesTo_predictInstance() {
-        Emarsys.setup(mobileEngageConfig);
+        Emarsys.setup(predictConfig);
 
         List<CartItem> cartItems = new ArrayList<>();
 
@@ -878,7 +1059,7 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackPurchase_delegatesTo_predictInstance() {
-        Emarsys.setup(mobileEngageConfig);
+        Emarsys.setup(predictConfig);
         List<CartItem> cartItems = new ArrayList<>();
         Emarsys.Predict.trackPurchase("orderId", cartItems);
 
@@ -887,7 +1068,7 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackItemView_delegatesTo_predictInstance() {
-        Emarsys.setup(mobileEngageConfig);
+        Emarsys.setup(predictConfig);
 
         Emarsys.Predict.trackItemView("itemId");
 
@@ -896,7 +1077,7 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackCategoryView_delegatesTo_predictInstance() {
-        Emarsys.setup(mobileEngageConfig);
+        Emarsys.setup(predictConfig);
 
         Emarsys.Predict.trackCategoryView("categoryPath");
 
@@ -905,11 +1086,20 @@ public class EmarsysTest {
 
     @Test
     public void testPredict_trackSearchTerm_delegatesTo_predictInstance() {
-        Emarsys.setup(mobileEngageConfig);
+        Emarsys.setup(predictConfig);
 
         Emarsys.Predict.trackSearchTerm("searchTerm");
 
         verify(mockPredict).trackSearchTerm("searchTerm");
+    }
+
+    @Test
+    public void testPredict_recommendProducts_delegatesTo_predictInstance() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.Predict.recommendProducts(mockLogic, mockResultListener);
+
+        verify(mockPredict).recommendProducts(mockLogic, mockResultListener);
     }
 
     @Test

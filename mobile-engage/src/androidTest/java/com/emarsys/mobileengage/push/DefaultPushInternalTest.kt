@@ -10,10 +10,10 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
-import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeCompletionListener
-import com.emarsys.mobileengage.request.RequestModelFactory
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.whenever
@@ -44,11 +44,11 @@ class DefaultPushInternalTest {
 
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockRequestManager: RequestManager
-    private lateinit var mockRequestContext: RequestContext
+    private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockCompletionListener: CompletionListener
-    private lateinit var mockRequestModelFactory: RequestModelFactory
+    private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockContactFieldValueStorage: Storage<String>
     private lateinit var mockRefreshTokenStorage: Storage<String>
@@ -78,11 +78,11 @@ class DefaultPushInternalTest {
         }
 
         mockRequestManager = mock(RequestManager::class.java)
-        mockRequestContext = mock(RequestContext::class.java)
+        mockRequestContext = mock(MobileEngageRequestContext::class.java)
 
         mockRequestModel = mock(RequestModel::class.java)
 
-        mockRequestModelFactory = mock(RequestModelFactory::class.java).apply {
+        mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
             whenever(createSetPushTokenRequest(PUSH_TOKEN)).thenReturn(mockRequestModel)
             whenever(createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
             whenever(createRemovePushTokenRequest()).thenReturn(mockRequestModel)

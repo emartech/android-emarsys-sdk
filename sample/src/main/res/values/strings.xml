@@ -27,4 +27,6 @@
     <string name="category_view_title">Category View</string>
     <string name="contact_identification">Contact identification</string>
     <string name="order_id">order id</string>
+    <string name="recommend_products">Recommend Products</string>
+    <string name="recommendation">Recommendation</string>
 </resources>

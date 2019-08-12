@@ -16,7 +16,7 @@ import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
 import com.emarsys.core.util.TimestampUtils;
-import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.iam.InAppEventHandlerInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
@@ -55,7 +55,7 @@ public class RequestRepositoryProxyTest {
     public static final long TIMESTAMP = 80_000L;
     public static final String REQUEST_ID = "REQUEST_ID";
 
-    private RequestContext mockRequestContext;
+    private MobileEngageRequestContext mockRequestContext;
 
     private Repository<RequestModel, SqlSpecification> mockRequestModelRepository;
     private Repository<DisplayedIam, SqlSpecification> mockDisplayedIamRepository;
@@ -81,7 +81,7 @@ public class RequestRepositoryProxyTest {
 
         Context context = InstrumentationRegistry.getTargetContext();
 
-        mockRequestContext = mock(RequestContext.class);
+        mockRequestContext = mock(MobileEngageRequestContext.class);
 
         mockRequestModelRepository = mock(Repository.class);
         mockDisplayedIamRepository = mock(Repository.class);

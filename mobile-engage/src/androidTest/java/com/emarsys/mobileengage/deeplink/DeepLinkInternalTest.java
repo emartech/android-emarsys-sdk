@@ -12,7 +12,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.storage.Storage;
-import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class DeepLinkInternalTest {
     private Activity mockActivity;
     private DeepLinkInternal deepLinkInternal;
     private RequestManager manager;
-    private RequestContext requestContext;
+    private MobileEngageRequestContext requestContext;
     private TimestampProvider timestampProvider;
     private UUIDProvider uuidProvider;
     private DeviceInfo mockDeviceInfo;
@@ -60,7 +60,7 @@ public class DeepLinkInternalTest {
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
         mockDeviceInfo = mock(DeviceInfo.class);
         when(mockDeviceInfo.getSdkVersion()).thenReturn("0.0.1");
-        requestContext = new RequestContext(
+        requestContext = new MobileEngageRequestContext(
                 "",
                 1,
                 mockDeviceInfo,

@@ -67,8 +67,8 @@ import com.emarsys.mobileengage.DefaultMobileEngageInternal;
 import com.emarsys.mobileengage.LoggingMobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal;
+import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.RefreshTokenInternal;
-import com.emarsys.mobileengage.RequestContext;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.client.ClientServiceInternal;
 import com.emarsys.mobileengage.client.DefaultClientServiceInternal;
@@ -100,7 +100,7 @@ import com.emarsys.mobileengage.push.LoggingPushInternal;
 import com.emarsys.mobileengage.push.PushInternal;
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider;
 import com.emarsys.mobileengage.request.MobileEngageHeaderMapper;
-import com.emarsys.mobileengage.request.RequestModelFactory;
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory;
 import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
@@ -114,6 +114,10 @@ import com.emarsys.predict.LoggingPredictInternal;
 import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.PredictProxy;
+import com.emarsys.predict.PredictResponseMapper;
+import com.emarsys.predict.request.PredictHeaderFactory;
+import com.emarsys.predict.request.PredictRequestContext;
+import com.emarsys.predict.request.PredictRequestModelFactory;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.predict.shard.PredictShardListMerger;
 import com.emarsys.push.PushApi;
@@ -141,7 +145,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private TimestampProvider timestampProvider;
     private UUIDProvider uuidProvider;
     private Runnable logShardTrigger;
-    private RequestContext requestContext;
+    private MobileEngageRequestContext requestContext;
     private DefaultCoreCompletionHandler completionHandler;
     private InAppPresenter inAppPresenter;
     private NotificationEventHandler notificationEventHandler;
@@ -155,7 +159,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private Storage<String> clientStateStorage;
     private Storage<String> contactFieldValueStorage;
     private RequestManager requestManager;
-    private RequestModelFactory requestModelFactory;
+    private MobileEngageRequestModelFactory requestModelFactory;
     private ButtonClickedRepository buttonClickedRepository;
     private DisplayedIamRepository displayedIamRepository;
     private Repository<RequestModel, SqlSpecification> requestModelRepository;
@@ -177,6 +181,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private InAppApi inAppApi;
     private PushApi pushApi;
     private PredictApi predictApi;
+    private PredictRequestContext predictRequestContext;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeFeatures(emarsysConfig);
@@ -232,7 +237,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
-    public RequestContext getRequestContext() {
+    public MobileEngageRequestContext getRequestContext() {
         return requestContext;
     }
 
@@ -395,7 +400,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         buttonClickedRepository = new ButtonClickedRepository(coreDbHelper);
         displayedIamRepository = new DisplayedIamRepository(coreDbHelper);
 
-        requestContext = new RequestContext(
+        requestContext = new MobileEngageRequestContext(
                 config.getMobileEngageApplicationCode(),
                 config.getContactFieldId(),
                 getDeviceInfo(),
@@ -413,7 +418,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         restClient = new RestClient(new ConnectionProvider(), timestampProvider, getResponseHandlersProcessor(), createRequestModelMappers());
 
-        requestModelFactory = new RequestModelFactory(requestContext);
+        requestModelFactory = new MobileEngageRequestModelFactory(requestContext);
 
         contactTokenResponseHandler = new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage);
 
@@ -469,20 +474,21 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 BatchingShardTrigger.RequestStrategy.TRANSIENT);
 
         if (FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT)) {
+            predictRequestContext = new PredictRequestContext(config.getPredictMerchantId(), deviceInfo, timestampProvider, uuidProvider, sharedPrefsKeyStore);
+
+            PredictHeaderFactory headerFactory = new PredictHeaderFactory(predictRequestContext);
+            PredictRequestModelFactory predictRequestModelFactory = new PredictRequestModelFactory(predictRequestContext, headerFactory);
+            PredictResponseMapper predictResponseMapper = new PredictResponseMapper();
+
             predictShardTrigger = new BatchingShardTrigger(
                     shardModelRepository,
                     new ListSizeAtLeast<ShardModel>(1),
                     new FilterByShardType(FilterByShardType.SHARD_TYPE_PREDICT),
                     new ListChunker<ShardModel>(1),
-                    new PredictShardListMerger(
-                            config.getPredictMerchantId(),
-                            sharedPrefsKeyStore,
-                            timestampProvider,
-                            uuidProvider,
-                            getDeviceInfo()),
+                    new PredictShardListMerger(predictRequestContext, predictRequestModelFactory),
                     requestManager,
                     BatchingShardTrigger.RequestStrategy.PERSISTENT);
-            predictInternal = new DefaultPredictInternal(sharedPrefsKeyStore, requestManager, uuidProvider, timestampProvider);
+            predictInternal = new DefaultPredictInternal(predictRequestContext, requestManager, predictRequestModelFactory, predictResponseMapper);
         } else {
             predictInternal = new LoggingPredictInternal(Emarsys.Predict.class);
         }

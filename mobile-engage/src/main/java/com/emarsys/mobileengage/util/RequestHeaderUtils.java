@@ -2,14 +2,14 @@ package com.emarsys.mobileengage.util;
 
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.HeaderUtils;
-import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.MobileEngageRequestContext;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class RequestHeaderUtils {
 
-    public static Map<String, String> createBaseHeaders_V3(RequestContext requestContext) {
+    public static Map<String, String> createBaseHeaders_V3(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         Map<String, String> baseHeaders = new HashMap<>();
@@ -17,7 +17,7 @@ public class RequestHeaderUtils {
         return baseHeaders;
     }
 
-    public static Map<String, String> createDefaultHeaders(RequestContext requestContext) {
+    public static Map<String, String> createDefaultHeaders(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         HashMap<String, String> defaultHeaders = new HashMap<>();
@@ -28,7 +28,7 @@ public class RequestHeaderUtils {
         return defaultHeaders;
     }
 
-    public static Map<String, String> createBaseHeaders_V2(RequestContext requestContext) {
+    public static Map<String, String> createBaseHeaders_V2(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         Map<String, String> baseHeaders = new HashMap<>();
@@ -36,7 +36,7 @@ public class RequestHeaderUtils {
         return baseHeaders;
     }
 
-    public static Map<String, String> createInboxHeaders(RequestContext requestContext) {
+    public static Map<String, String> createInboxHeaders(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         Map<String, String> headers = new HashMap<>();

@@ -9,7 +9,7 @@ import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.event.EventServiceInternal;
-import com.emarsys.mobileengage.request.RequestModelFactory;
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,10 +19,10 @@ import java.util.HashMap;
 public class DefaultPushInternal implements PushInternal {
     private final RequestManager requestManager;
     private final Handler uiHandler;
-    private final RequestModelFactory requestModelFactory;
+    private final MobileEngageRequestModelFactory requestModelFactory;
     private final EventServiceInternal eventServiceInternal;
 
-    public DefaultPushInternal(RequestManager requestManager, Handler uiHandler, RequestModelFactory requestModelFactory, EventServiceInternal eventServiceInternal) {
+    public DefaultPushInternal(RequestManager requestManager, Handler uiHandler, MobileEngageRequestModelFactory requestModelFactory, EventServiceInternal eventServiceInternal) {
         this.requestManager = requestManager;
         this.uiHandler = uiHandler;
         this.requestModelFactory = requestModelFactory;

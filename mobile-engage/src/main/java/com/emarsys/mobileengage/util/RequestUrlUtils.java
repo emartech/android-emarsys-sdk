@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.util;
 
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.endpoint.Endpoint;
 
 import java.util.regex.Matcher;
@@ -13,37 +13,37 @@ public class RequestUrlUtils {
     private static Pattern customEventPattern = Pattern.compile("https://mobile-events\\.eservice\\.emarsys\\.net/(.+)/events");
     private static Pattern refreshContactTokenPattern = Pattern.compile("https://me-client\\.eservice\\.emarsys\\.net/(.+)/contact-token");
 
-    public static String createSetPushTokenUrl(RequestContext requestContext) {
+    public static String createSetPushTokenUrl(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         return String.format(Endpoint.ME_V3_CLIENT_BASE + "/push-token", requestContext.getApplicationCode());
     }
 
-    public static String createRemovePushTokenUrl(RequestContext requestContext) {
+    public static String createRemovePushTokenUrl(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         return String.format(Endpoint.ME_V3_CLIENT_BASE + "/push-token", requestContext.getApplicationCode());
     }
 
-    public static String createTrackDeviceInfoUrl(RequestContext requestContext) {
+    public static String createTrackDeviceInfoUrl(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         return String.format(Endpoint.ME_V3_CLIENT_BASE, requestContext.getApplicationCode());
     }
 
-    public static String createSetContactUrl(RequestContext requestContext) {
+    public static String createSetContactUrl(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         return String.format(Endpoint.ME_V3_CLIENT_BASE + "/contact", requestContext.getApplicationCode());
     }
 
-    public static String createCustomEventUrl(RequestContext requestContext) {
+    public static String createCustomEventUrl(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         return String.format(Endpoint.ME_V3_EVENT_BASE, requestContext.getApplicationCode());
     }
 
-    public static String createRefreshContactTokenUrl(RequestContext requestContext) {
+    public static String createRefreshContactTokenUrl(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         return String.format(Endpoint.ME_V3_CLIENT_BASE + "/contact-token", requestContext.getApplicationCode());

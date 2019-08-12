@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.event
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.mobileengage.request.RequestModelFactory
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import org.junit.Before
@@ -26,7 +26,7 @@ class DefaultEventServiceInternalTest {
 
     private lateinit var mockRequestManager: RequestManager
     private lateinit var mockCompletionListener: CompletionListener
-    private lateinit var mockRequestModelFactory: RequestModelFactory
+    private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var mockRequestModel: RequestModel
     private lateinit var eventServiceInternal: EventServiceInternal
 
@@ -40,7 +40,7 @@ class DefaultEventServiceInternalTest {
         mockRequestManager = mock(RequestManager::class.java)
         mockCompletionListener = mock(CompletionListener::class.java)
 
-        mockRequestModelFactory = mock(RequestModelFactory::class.java).apply {
+        mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
             whenever(createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
             whenever(createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
         }

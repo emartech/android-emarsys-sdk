@@ -1,19 +1,29 @@
 package com.emarsys.predict;
 
+import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.api.ResponseErrorException;
+import com.emarsys.core.api.result.ResultListener;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
+import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.api.model.Logic;
+import com.emarsys.predict.api.model.Product;
+import com.emarsys.predict.model.InternalLogic;
+import com.emarsys.predict.model.LastTrackedItemContainer;
+import com.emarsys.predict.request.PredictRequestContext;
+import com.emarsys.predict.request.PredictRequestModelFactory;
 import com.emarsys.predict.util.CartItemUtils;
 
 import java.util.List;
 
 public class DefaultPredictInternal implements PredictInternal {
-
-    public static final String BASE_URL = "https://recommender.scarabresearch.com/merchants";
 
     public static final String VISITOR_ID_KEY = "predict_visitor_id";
     public static final String CONTACT_ID_KEY = "predict_contact_id";
@@ -28,16 +38,23 @@ public class DefaultPredictInternal implements PredictInternal {
     private final TimestampProvider timestampProvider;
     private final KeyValueStore keyValueStore;
     private final RequestManager requestManager;
+    private final PredictRequestModelFactory requestModelFactory;
+    private final PredictResponseMapper responseMapper;
+    private final LastTrackedItemContainer lastTrackedContainer;
 
-    public DefaultPredictInternal(KeyValueStore keyValueStore, RequestManager requestManager, UUIDProvider uuidProvider, TimestampProvider timestampProvider) {
-        Assert.notNull(keyValueStore, "KeyValueStore must not be null!");
+    public DefaultPredictInternal(PredictRequestContext requestContext, RequestManager requestManager, PredictRequestModelFactory requestModelFactory, PredictResponseMapper responseMapper) {
+        Assert.notNull(requestContext, "RequestContext must not be null!");
         Assert.notNull(requestManager, "RequestManager must not be null!");
-        Assert.notNull(uuidProvider, "UuidProvider must not be null!");
-        Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
-        this.keyValueStore = keyValueStore;
+        Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");
+        Assert.notNull(responseMapper, "ResponseMapper must not be null!");
+
+        this.keyValueStore = requestContext.getKeyValueStore();
         this.requestManager = requestManager;
-        this.uuidProvider = uuidProvider;
-        this.timestampProvider = timestampProvider;
+        this.uuidProvider = requestContext.getUuidProvider();
+        this.timestampProvider = requestContext.getTimestampProvider();
+        this.requestModelFactory = requestModelFactory;
+        this.responseMapper = responseMapper;
+        lastTrackedContainer = new LastTrackedItemContainer();
     }
 
     @Override
@@ -64,6 +81,8 @@ public class DefaultPredictInternal implements PredictInternal {
                 .build();
 
         requestManager.submit(shard);
+
+        lastTrackedContainer.setLastCartItems(items);
         return shard.getId();
     }
 
@@ -80,6 +99,7 @@ public class DefaultPredictInternal implements PredictInternal {
                 .build();
 
         requestManager.submit(shard);
+        lastTrackedContainer.setLastCartItems(items);
         return shard.getId();
     }
 
@@ -93,6 +113,7 @@ public class DefaultPredictInternal implements PredictInternal {
                 .build();
 
         requestManager.submit(shard);
+        lastTrackedContainer.setLastItemView(itemId);
         return shard.getId();
     }
 
@@ -106,6 +127,7 @@ public class DefaultPredictInternal implements PredictInternal {
                 .build();
 
         requestManager.submit(shard);
+        lastTrackedContainer.setLastCategoryPath(categoryPath);
         return shard.getId();
     }
 
@@ -119,6 +141,39 @@ public class DefaultPredictInternal implements PredictInternal {
                 .build();
 
         requestManager.submit(shard);
+        lastTrackedContainer.setLastSearchTerm(searchTerm);
         return shard.getId();
+    }
+
+    @Override
+    public void recommendProducts(Logic recommendationLogic, final ResultListener<Try<List<Product>>> resultListener) {
+        Assert.notNull(recommendationLogic, "RecommendationLogic must not be null!");
+        Assert.notNull(resultListener, "ResultListener must not be null!");
+
+        InternalLogic internalLogic = new InternalLogic(recommendationLogic, lastTrackedContainer);
+        RequestModel requestModel = requestModelFactory.createRecommendationRequest(internalLogic);
+
+        requestManager.submitNow(requestModel, new CoreCompletionHandler() {
+            @Override
+            public void onSuccess(String id, ResponseModel responseModel) {
+
+                List<Product> products = responseMapper.map(responseModel);
+
+                resultListener.onResult(Try.success(products));
+            }
+
+            @Override
+            public void onError(String id, ResponseModel responseModel) {
+                resultListener.onResult(Try.failure(new ResponseErrorException(
+                        responseModel.getStatusCode(),
+                        responseModel.getMessage(),
+                        responseModel.getBody())));
+            }
+
+            @Override
+            public void onError(String id, Exception cause) {
+                resultListener.onResult(Try.failure(cause));
+            }
+        });
     }
 }

@@ -21,7 +21,6 @@ import com.emarsys.core.feature.FeatureRegistry;
 import com.emarsys.core.util.Assert;
 import com.emarsys.di.DefaultEmarsysDependencyContainer;
 import com.emarsys.di.EmarysDependencyContainer;
-import com.emarsys.feature.InnerFeature;
 import com.emarsys.inapp.InAppApi;
 import com.emarsys.inbox.InboxApi;
 import com.emarsys.mobileengage.MobileEngageInternal;
@@ -34,10 +33,15 @@ import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.api.model.CartItem;
+import com.emarsys.predict.api.model.Logic;
+import com.emarsys.predict.api.model.Product;
 import com.emarsys.push.PushApi;
 
 import java.util.List;
 import java.util.Map;
+
+import static com.emarsys.feature.InnerFeature.MOBILE_ENGAGE;
+import static com.emarsys.feature.InnerFeature.PREDICT;
 
 public class Emarsys {
 
@@ -75,9 +79,13 @@ public class Emarsys {
             public void run() {
                 Assert.notNull(contactId, "ContactId must not be null!");
 
-                getMobileEngageInternal().setContact(contactId, null);
-
-                getPredictInternal().setContact(contactId);
+                if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) ||
+                        (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT))) {
+                    getMobileEngageInternal().setContact(contactId, null);
+                }
+                if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
+                    getPredictInternal().setContact(contactId);
+                }
             }
         });
 
@@ -92,8 +100,13 @@ public class Emarsys {
                 Assert.notNull(contactId, "ContactId must not be null!");
                 Assert.notNull(completionListener, "CompletionListener must not be null!");
 
-                getMobileEngageInternal().setContact(contactId, completionListener);
-                getPredictInternal().setContact(contactId);
+                if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) ||
+                        (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT))) {
+                    getMobileEngageInternal().setContact(contactId, completionListener);
+                }
+                if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
+                    getPredictInternal().setContact(contactId);
+                }
             }
         });
     }
@@ -102,8 +115,13 @@ public class Emarsys {
         getRunnerProxy().logException(new Runnable() {
             @Override
             public void run() {
-                getMobileEngageInternal().clearContact(null);
-                getPredictInternal().clearContact();
+                if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) ||
+                        (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT))) {
+                    getMobileEngageInternal().clearContact(null);
+                }
+                if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
+                    getPredictInternal().clearContact();
+                }
             }
         });
     }
@@ -114,8 +132,13 @@ public class Emarsys {
             public void run() {
                 Assert.notNull(completionListener, "CompletionListener must not be null!");
 
-                getMobileEngageInternal().clearContact(completionListener);
-                getPredictInternal().clearContact();
+                if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) ||
+                        (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT))) {
+                    getMobileEngageInternal().clearContact(completionListener);
+                }
+                if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
+                    getPredictInternal().clearContact();
+                }
             }
         });
 
@@ -246,6 +269,10 @@ public class Emarsys {
         public static void trackSearchTerm(@NonNull final String searchTerm) {
             predict.trackSearchTerm(searchTerm);
         }
+
+        public static void recommendProducts(@NonNull Logic recommendationLogic, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
+            predict.recommendProducts(recommendationLogic, resultListener);
+        }
     }
 
     public static class InApp {
@@ -333,7 +360,7 @@ public class Emarsys {
     }
 
     private static void registerDatabaseTriggers() {
-        if (FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT)) {
+        if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             getContainer().getCoreSQLiteDatabase().registerTrigger(
                     DatabaseContract.SHARD_TABLE_NAME,
                     TriggerType.AFTER,

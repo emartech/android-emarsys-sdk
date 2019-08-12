@@ -4,7 +4,7 @@ import com.emarsys.core.Mapper;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.RequestContext;
+import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.util.RequestModelUtils;
 
 import java.util.HashMap;
@@ -12,9 +12,9 @@ import java.util.Map;
 
 public class MobileEngageHeaderMapper implements Mapper<RequestModel, RequestModel> {
 
-    private final RequestContext requestContext;
+    private final MobileEngageRequestContext requestContext;
 
-    public MobileEngageHeaderMapper(RequestContext requestContext) {
+    public MobileEngageHeaderMapper(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         this.requestContext = requestContext;

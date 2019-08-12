@@ -19,8 +19,8 @@ import com.emarsys.core.util.log.Logger
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.mobileengage.MobileEngageInternal
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.RefreshTokenInternal
-import com.emarsys.mobileengage.RequestContext
 import com.emarsys.mobileengage.api.NotificationEventHandler
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
@@ -55,7 +55,7 @@ class FakeDependencyContainer(
         private val eventServiceInternal: EventServiceInternal = mock(EventServiceInternal::class.java),
         private val clientServiceInternal: ClientServiceInternal = mock(ClientServiceInternal::class.java),
         private val completionHandler: DefaultCoreCompletionHandler = mock(DefaultCoreCompletionHandler::class.java),
-        private val requestContext: RequestContext = mock(RequestContext::class.java),
+        private val requestContext: MobileEngageRequestContext = mock(MobileEngageRequestContext::class.java),
         private val inAppPresenter: InAppPresenter = mock(InAppPresenter::class.java),
         private val notificationEventHandler: NotificationEventHandler = mock(NotificationEventHandler::class.java),
         private val predictInternal: PredictInternal = mock(PredictInternal::class.java),
@@ -150,7 +150,7 @@ class FakeDependencyContainer(
         return completionHandler
     }
 
-    override fun getRequestContext(): RequestContext {
+    override fun getRequestContext(): MobileEngageRequestContext {
         return requestContext
     }
 

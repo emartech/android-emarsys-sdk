@@ -8,7 +8,7 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.endpoint.Endpoint.INBOX_FETCH_V1
 import com.emarsys.mobileengage.endpoint.Endpoint.INBOX_RESET_BADGE_COUNT_V1
 import com.emarsys.mobileengage.util.RequestHeaderUtils
@@ -23,7 +23,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 
-class RequestModelFactoryTest {
+class MobileEngageRequestModelFactoryTest {
 
     private companion object {
         const val TIMESTAMP = 123456789L
@@ -35,13 +35,13 @@ class RequestModelFactoryTest {
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
     }
 
-    lateinit var mockRequestContext: RequestContext
+    lateinit var mockRequestContext: MobileEngageRequestContext
     lateinit var mockTimestampProvider: TimestampProvider
     lateinit var mockUuidProvider: UUIDProvider
     lateinit var mockDeviceInfo: DeviceInfo
     lateinit var mockRefreshTokenStorage: Storage<String>
     lateinit var mockNotificationSettings: NotificationSettings
-    lateinit var requestFactory: RequestModelFactory
+    lateinit var requestFactory: MobileEngageRequestModelFactory
 
     @Rule
     @JvmField
@@ -72,7 +72,7 @@ class RequestModelFactoryTest {
         val mockContactFieldValueStorage = (mock(Storage::class.java) as Storage<String>).apply {
             whenever(get()).thenReturn(CONTACT_FIELD_VALUE)
         }
-        mockRequestContext = mock(RequestContext::class.java).apply {
+        mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
             whenever(uuidProvider).thenReturn(mockUuidProvider)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
@@ -81,12 +81,12 @@ class RequestModelFactoryTest {
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
         }
 
-        requestFactory = RequestModelFactory(mockRequestContext)
+        requestFactory = MobileEngageRequestModelFactory(mockRequestContext)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestContext_mustNotBeNull() {
-        RequestModelFactory(null)
+        MobileEngageRequestModelFactory(null)
     }
 
     @Test(expected = IllegalArgumentException::class)

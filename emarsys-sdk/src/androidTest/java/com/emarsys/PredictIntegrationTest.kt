@@ -7,6 +7,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
+import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
@@ -19,11 +20,15 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.predict.api.model.PredictCartItem
+import com.emarsys.predict.api.model.Product
+import com.emarsys.predict.api.model.RecommendationLogic
 import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
+import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -33,6 +38,8 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.mock
 import java.net.URLDecoder
 import java.util.concurrent.CountDownLatch
+import kotlin.reflect.KMutableProperty0
+import kotlin.reflect.jvm.isAccessible
 
 class PredictIntegrationTest {
 
@@ -51,6 +58,7 @@ class PredictIntegrationTest {
     private lateinit var contactTokenStorage: Storage<String>
     private lateinit var refreshTokenStorage: Storage<String>
     private lateinit var deviceInfoHashStorage: Storage<Int>
+    private lateinit var triedRecommendedProducts: Try<List<Product>>
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
@@ -233,6 +241,148 @@ class PredictIntegrationTest {
     }
 
     @Test
+    fun testRecommendProducts_withSearch() {
+        Emarsys.Predict.recommendProducts(RecommendationLogic.search("polo shirt"),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_withPreviousSearch() {
+        Emarsys.Predict.trackSearchTerm("polo shirt")
+
+        Emarsys.Predict.recommendProducts(RecommendationLogic.search(),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_withCart() {
+        val cartItems = listOf(
+                PredictCartItem("2168", 1.1, 10.0),
+                PredictCartItem("2200", 2.2, 20.0),
+                PredictCartItem("2509", 3.3, 30.0)
+        )
+        Emarsys.Predict.recommendProducts(RecommendationLogic.cart(cartItems),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_withPreviousCart() {
+        val cartItems = listOf(
+                PredictCartItem("2168", 1.1, 10.0),
+                PredictCartItem("2200", 2.2, 20.0),
+                PredictCartItem("2509", 3.3, 30.0)
+        )
+        Emarsys.Predict.trackCart(cartItems)
+
+        Emarsys.Predict.recommendProducts(RecommendationLogic.cart(),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_withRelated() {
+        Emarsys.Predict.recommendProducts(RecommendationLogic.related("2200"),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_related_withPreviousView() {
+        Emarsys.Predict.trackItemView("2200")
+
+        Emarsys.Predict.recommendProducts(RecommendationLogic.related(),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_withoutRelated() {
+        Emarsys.Predict.recommendProducts(RecommendationLogic.related(),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBe 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_withCategory() {
+        Emarsys.Predict.recommendProducts(RecommendationLogic.category("MEN>Shirts"),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_withPreviousCategory() {
+        Emarsys.Predict.trackCategoryView("MEN>Shirts")
+
+        Emarsys.Predict.recommendProducts(RecommendationLogic.category(),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_withAlsoBought() {
+        Emarsys.Predict.recommendProducts(RecommendationLogic.alsoBought("2200"),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_alsoBought_withPreviousViewItem() {
+        Emarsys.Predict.trackItemView("2200")
+
+        Emarsys.Predict.recommendProducts(RecommendationLogic.alsoBought(),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
+    fun testRecommendProducts_popular_withPreviousCategory() {
+        Emarsys.Predict.trackCategoryView("MEN>Shirts")
+
+        Emarsys.Predict.recommendProducts(RecommendationLogic.popular(),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBeGreaterThan 0
+        }
+    }
+
+    @Test
     fun testMultipleInvocations() {
         testTrackCart()
         latch = CountDownLatch(1)
@@ -257,6 +407,19 @@ class PredictIntegrationTest {
         latch.await()
         errorCause shouldBe null
         responseModel.statusCode shouldBe 200
+    }
+
+    private fun <T> eventuallyStoreResultInProperty(setter: KMutableProperty0.Setter<T>): (T) -> Unit {
+        return {
+            setter.isAccessible = true
+            setter(it)
+            latch.countDown()
+        }
+    }
+
+    private fun Any.eventuallyAssert(assertion: () -> Unit) {
+        latch.await()
+        assertion.invoke()
     }
 
     private val ResponseModel.isPredictRequest

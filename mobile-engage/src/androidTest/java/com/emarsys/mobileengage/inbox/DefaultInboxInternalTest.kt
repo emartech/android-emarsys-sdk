@@ -24,15 +24,15 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.worker.Worker
-import com.emarsys.mobileengage.RequestContext
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
-import com.emarsys.mobileengage.fake.FakeInboxResultListener
-import com.emarsys.mobileengage.fake.FakeInboxResultListener.Mode
 import com.emarsys.mobileengage.fake.FakeResetBadgeCountResultListener
 import com.emarsys.mobileengage.fake.FakeRestClient
+import com.emarsys.mobileengage.fake.FakeResultListener
+import com.emarsys.mobileengage.fake.FakeResultListener.Mode
 import com.emarsys.mobileengage.inbox.model.NotificationCache
-import com.emarsys.mobileengage.request.RequestModelFactory
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.SharedPrefsUtils
@@ -69,13 +69,13 @@ class DefaultInboxInternalTest {
     private lateinit var application: Application
     private lateinit var cache: NotificationCache
     private lateinit var deviceInfo: DeviceInfo
-    private lateinit var requestContext: RequestContext
+    private lateinit var requestContext: MobileEngageRequestContext
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockHardwareIdProvider: HardwareIdProvider
     private lateinit var mockContactFieldValueStorage: Storage<String>
-    private lateinit var mockRequestModelFactory: RequestModelFactory
+    private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var notificationList: List<Notification>
 
     @Rule
@@ -105,11 +105,11 @@ class DefaultInboxInternalTest {
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
         mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
         whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
-        mockRequestModelFactory = mock(RequestModelFactory::class.java).apply {
+        mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
             whenever(createResetBadgeCountRequest()).thenReturn(mock(RequestModel::class.java))
             whenever(createFetchNotificationsRequest()).thenReturn(mock(RequestModel::class.java))
         }
-        requestContext = RequestContext(
+        requestContext = MobileEngageRequestContext(
                 APPLICATION_ID,
                 CONTACT_FIELD_ID,
                 deviceInfo,
@@ -177,7 +177,7 @@ class DefaultInboxInternalTest {
                 mockRequestModelFactory
         )
 
-        val listener = FakeInboxResultListener(latch)
+        val listener = FakeResultListener<NotificationInboxStatus>(latch)
         inbox.fetchNotifications(listener)
 
         latch.await()
@@ -194,7 +194,7 @@ class DefaultInboxInternalTest {
                 mockRequestModelFactory
         )
 
-        val listener = FakeInboxResultListener(latch, Mode.MAIN_THREAD)
+        val listener = FakeResultListener<NotificationInboxStatus>(latch, Mode.MAIN_THREAD)
         inbox.fetchNotifications(listener)
 
         latch.await()
@@ -216,7 +216,7 @@ class DefaultInboxInternalTest {
                 mockRequestModelFactory
         )
 
-        val listener = FakeInboxResultListener(latch, Mode.MAIN_THREAD)
+        val listener = FakeResultListener<NotificationInboxStatus>(latch, Mode.MAIN_THREAD)
         inbox.fetchNotifications(listener)
 
         latch.await()
@@ -238,7 +238,7 @@ class DefaultInboxInternalTest {
                 mockRequestModelFactory
         )
 
-        val listener = FakeInboxResultListener(latch)
+        val listener = FakeResultListener<NotificationInboxStatus>(latch)
         inbox.fetchNotifications(listener)
 
         latch.await()
@@ -248,7 +248,6 @@ class DefaultInboxInternalTest {
     }
 
     @Test
-
     fun testFetchNotifications_listener_failureWithException_shouldBeCalledOnMainThread() {
         inbox = DefaultInboxInternal(
                 requestManagerWithRestClient(FakeRestClient(Exception())),
@@ -256,7 +255,7 @@ class DefaultInboxInternalTest {
                 mockRequestModelFactory
         )
 
-        val listener = FakeInboxResultListener(latch, Mode.MAIN_THREAD)
+        val listener = FakeResultListener<NotificationInboxStatus>(latch, Mode.MAIN_THREAD)
         inbox.fetchNotifications(listener)
 
         latch.await()
@@ -278,7 +277,7 @@ class DefaultInboxInternalTest {
                 mockRequestModelFactory
         )
 
-        val listener = FakeInboxResultListener(latch)
+        val listener = FakeResultListener<NotificationInboxStatus>(latch)
         inbox.fetchNotifications(listener)
 
         latch.await()
@@ -309,7 +308,7 @@ class DefaultInboxInternalTest {
                 mockRequestModelFactory
         )
 
-        val listener = FakeInboxResultListener(latch, Mode.MAIN_THREAD)
+        val listener = FakeResultListener<NotificationInboxStatus>(latch, Mode.MAIN_THREAD)
         inbox.fetchNotifications(listener)
 
         latch.await()
@@ -321,7 +320,7 @@ class DefaultInboxInternalTest {
     fun testFetchNotification_listener_failureWithParametersNotSet() {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
 
-        val listener = FakeInboxResultListener(latch)
+        val listener = FakeResultListener<NotificationInboxStatus>(latch)
         inbox.fetchNotifications(listener)
 
         latch.await()
@@ -334,7 +333,7 @@ class DefaultInboxInternalTest {
     fun testFetchNotification_listener_failureWithParametersNotSet_shouldBeCalledOnMainThread() {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
 
-        val listener = FakeInboxResultListener(latch, Mode.MAIN_THREAD)
+        val listener = FakeResultListener<NotificationInboxStatus>(latch, Mode.MAIN_THREAD)
         inbox.fetchNotifications(listener)
 
         latch.await()
@@ -346,7 +345,7 @@ class DefaultInboxInternalTest {
     fun testFetchNotification_listener_failureWithParametersSet_butLacksCredentials() {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
 
-        val listener = FakeInboxResultListener(latch)
+        val listener = FakeResultListener<NotificationInboxStatus>(latch)
         inbox.fetchNotifications(listener)
 
         latch.await()
@@ -357,11 +356,10 @@ class DefaultInboxInternalTest {
     }
 
     @Test
-
     fun testFetchNotification_listener_failureWithParametersSet_butLacksCredentials_shouldBeCalledOnMainThread() {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
 
-        val listener = FakeInboxResultListener(latch, Mode.MAIN_THREAD)
+        val listener = FakeResultListener<NotificationInboxStatus>(latch, Mode.MAIN_THREAD)
         inbox.fetchNotifications(listener)
 
         latch.await()
