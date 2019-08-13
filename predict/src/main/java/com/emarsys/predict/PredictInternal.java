@@ -23,5 +23,5 @@ public interface PredictInternal {
 
     String trackSearchTerm(String searchTerm);
 
-    void recommendProducts(Logic recommendationLogic, ResultListener<Try<List<Product>>> resultListener);
+    void recommendProducts(Logic recommendationLogic, Integer limit, ResultListener<Try<List<Product>>> resultListener);
 }

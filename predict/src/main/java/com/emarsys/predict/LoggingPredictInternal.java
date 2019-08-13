@@ -96,10 +96,11 @@ public class LoggingPredictInternal implements PredictInternal {
     }
 
     @Override
-    public void recommendProducts(Logic recommendationLogic, ResultListener<Try<List<Product>>> resultListener) {
+    public void recommendProducts(Logic recommendationLogic, Integer limit, ResultListener<Try<List<Product>>> resultListener) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("recommendation_logic", recommendationLogic.toString());
         parameters.put("result_listener", resultListener != null);
+        parameters.put("limit", limit);
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 

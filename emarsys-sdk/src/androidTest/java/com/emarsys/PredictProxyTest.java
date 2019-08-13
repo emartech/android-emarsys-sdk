@@ -165,11 +165,23 @@ public class PredictProxyTest {
         predictProxy.recommendProducts(null, mockResultListener);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_recommendProducts_limit_mustNotBeNull() {
+        predictProxy.recommendProducts(mockLogic, null, mockResultListener);
+    }
+
+    @Test
+    public void testPredict_recommendProductWithLimit_delegatesTo_predictInternal() {
+        predictProxy.recommendProducts(mockLogic, 5, mockResultListener);
+
+        verify(mockPredictInternal).recommendProducts(mockLogic, 5, mockResultListener);
+    }
+
     @Test
     public void testPredict_recommendProducts_delegatesTo_predictInternal() {
         predictProxy.recommendProducts(mockLogic, mockResultListener);
 
-        verify(mockPredictInternal).recommendProducts(mockLogic, mockResultListener);
+        verify(mockPredictInternal).recommendProducts(mockLogic, null, mockResultListener);
     }
 
     private CartItem createItem(final String id, final double price, final double quantity) {

@@ -98,7 +98,21 @@ public class PredictProxy implements PredictApi {
                 Assert.notNull(recommendationLogic, "RecommendationLogic must not be null!");
                 Assert.notNull(resultListener, "ResultListener must not be null!");
 
-                predictInternal.recommendProducts(recommendationLogic, resultListener);
+                predictInternal.recommendProducts(recommendationLogic, null, resultListener);
+            }
+        });
+    }
+
+    @Override
+    public void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final Integer limit, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
+        runnerProxy.logException(new Runnable() {
+            @Override
+            public void run() {
+                Assert.notNull(recommendationLogic, "RecommendationLogic must not be null!");
+                Assert.notNull(resultListener, "ResultListener must not be null!");
+                Assert.notNull(limit, "Limit must not be null!");
+
+                predictInternal.recommendProducts(recommendationLogic, limit, resultListener);
             }
         });
     }

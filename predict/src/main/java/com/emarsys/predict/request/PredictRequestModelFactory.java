@@ -22,9 +22,9 @@ public class PredictRequestModelFactory {
         this.headerFactory = headerFactory;
     }
 
-    public RequestModel createRecommendationRequest(Logic recommendationLogic) {
+    public RequestModel createRecommendationRequest(Logic recommendationLogic, Integer limit) {
         return new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUuidProvider())
-                .url(createRecommendationUrl(recommendationLogic))
+                .url(createRecommendationUrl(recommendationLogic, limit))
                 .method(RequestMethod.GET)
                 .headers(headerFactory.createBaseHeader())
                 .build();
@@ -38,12 +38,14 @@ public class PredictRequestModelFactory {
                 .build();
     }
 
-    private String createRecommendationUrl(Logic recommendationLogic) {
+    private String createRecommendationUrl(Logic recommendationLogic, Integer limit) {
         Uri.Builder uriBuilder = Uri.parse(Endpoint.PREDICT_BASE_URL)
                 .buildUpon()
                 .appendPath(requestContext.getMerchantId());
 
-        uriBuilder.appendQueryParameter("f", "f:" + recommendationLogic.getLogicName() + ",l:5,o:0");
+        limit = limit == null ? 5 : limit;
+
+        uriBuilder.appendQueryParameter("f", "f:" + recommendationLogic.getLogicName() + ",l:" + limit + ",o:0");
 
         for(Map.Entry<String, String> entry: recommendationLogic.getData().entrySet()) {
             uriBuilder.appendQueryParameter(entry.getKey(), entry.getValue());

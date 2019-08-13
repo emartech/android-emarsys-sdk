@@ -146,12 +146,12 @@ public class DefaultPredictInternal implements PredictInternal {
     }
 
     @Override
-    public void recommendProducts(Logic recommendationLogic, final ResultListener<Try<List<Product>>> resultListener) {
+    public void recommendProducts(final Logic recommendationLogic, final Integer limit, final ResultListener<Try<List<Product>>> resultListener) {
         Assert.notNull(recommendationLogic, "RecommendationLogic must not be null!");
         Assert.notNull(resultListener, "ResultListener must not be null!");
 
         InternalLogic internalLogic = new InternalLogic(recommendationLogic, lastTrackedContainer);
-        RequestModel requestModel = requestModelFactory.createRecommendationRequest(internalLogic);
+        RequestModel requestModel = requestModelFactory.createRecommendationRequest(internalLogic, limit);
 
         requestManager.submitNow(requestModel, new CoreCompletionHandler() {
             @Override

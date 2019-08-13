@@ -270,8 +270,15 @@ public class Emarsys {
             predict.trackSearchTerm(searchTerm);
         }
 
-        public static void recommendProducts(@NonNull Logic recommendationLogic, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
+        public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
             predict.recommendProducts(recommendationLogic, resultListener);
+        }
+
+        public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final Integer limit, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
+            Assert.notNull(limit, "Limit should not be null!");
+            Assert.positiveInt(limit, "Limit should be positive!");
+
+            predict.recommendProducts(recommendationLogic, limit, resultListener);
         }
     }
 

@@ -94,7 +94,7 @@ class DefaultPredictInternalTest {
         }
 
         mockRequestModelFactory = mock(PredictRequestModelFactory::class.java).apply {
-            whenever(createRecommendationRequest(any(Logic::class.java))).thenReturn(mockRequestModel)
+            whenever(createRecommendationRequest(any(Logic::class.java), any())).thenReturn(mockRequestModel)
         }
 
         mockLastTrackedItemContainer = mock(LastTrackedItemContainer::class.java)
@@ -359,19 +359,19 @@ class DefaultPredictInternalTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testRecommendProducts_resultListener_mustNotBeNull() {
-        predictInternal.recommendProducts(mockLogic, null)
+        predictInternal.recommendProducts(mockLogic, 5, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testRecommendProducts_logic_mustNotBeNull() {
-        predictInternal.recommendProducts(null, mockResultListener)
+        predictInternal.recommendProducts(null, 5, mockResultListener)
     }
 
     @Test
     fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel() {
-        predictInternal.recommendProducts(mockLogic, mockResultListener)
+        predictInternal.recommendProducts(mockLogic, null, mockResultListener)
 
-        verify(mockRequestModelFactory).createRecommendationRequest(any(Logic::class.java))
+        verify(mockRequestModelFactory).createRecommendationRequest(any(Logic::class.java), eq(null))
 
         verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
     }
@@ -388,7 +388,7 @@ class DefaultPredictInternalTest {
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(mockLogic, resultListener)
+        predictInternal.recommendProducts(mockLogic, 5, resultListener)
 
         latch.await()
 
@@ -406,7 +406,7 @@ class DefaultPredictInternalTest {
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(mockLogic, resultListener)
+        predictInternal.recommendProducts(mockLogic, 5, resultListener)
 
         latch.await()
 
@@ -424,7 +424,7 @@ class DefaultPredictInternalTest {
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(mockLogic, resultListener)
+        predictInternal.recommendProducts(mockLogic, 5, resultListener)
 
         latch.await()
 

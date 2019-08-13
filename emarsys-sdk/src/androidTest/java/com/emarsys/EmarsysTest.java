@@ -1102,6 +1102,36 @@ public class EmarsysTest {
         verify(mockPredict).recommendProducts(mockLogic, mockResultListener);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_recommendProductsWithLimit_shouldThrowException_whenLimitIsNull() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.Predict.recommendProducts(mockLogic, null, mockResultListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_recommendProductsWithLimit_shouldThrowException_whenLimitIsZero() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.Predict.recommendProducts(mockLogic, 0, mockResultListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_recommendProductsWithLimit_shouldThrowException_whenLimitIsNegative() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.Predict.recommendProducts(mockLogic, -3, mockResultListener);
+    }
+
+    @Test
+    public void testPredict_recommendProductsWithLimit_delegatesTo_predictInstance() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.Predict.recommendProducts(mockLogic, 5, mockResultListener);
+
+        verify(mockPredict).recommendProducts(mockLogic, 5, mockResultListener);
+    }
+
     @Test
     public void testInApp_pause_delegatesTo_inAppInstance() {
         Emarsys.setup(mobileEngageConfig);

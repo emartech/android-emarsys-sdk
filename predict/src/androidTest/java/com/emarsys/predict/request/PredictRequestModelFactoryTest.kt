@@ -113,7 +113,7 @@ class PredictRequestModelFactoryTest {
                 row(RecommendationLogic.related("itemId"), createRequestModelWithUrl(mapOf(
                         "f" to "f:RELATED,l:5,o:0",
                         "v" to "i:itemId")))
-        ) { logic, expectedRequestModel -> RequestModelUtils.extractQueryParameters(requestModelFactory.createRecommendationRequest(InternalLogic(logic, lastTrackedItemContainer))) shouldBe RequestModelUtils.extractQueryParameters(expectedRequestModel) }
+        ) { logic, expectedRequestModel -> RequestModelUtils.extractQueryParameters(requestModelFactory.createRecommendationRequest(InternalLogic(logic, lastTrackedItemContainer), null)) shouldBe RequestModelUtils.extractQueryParameters(expectedRequestModel) }
     }
 
     private fun createRequestModelWithUrl(queryParams: Map<String, String>): RequestModel {
@@ -150,7 +150,49 @@ class PredictRequestModelFactoryTest {
         )
 
         val internalLogic = InternalLogic(recommendationLogic, lastTrackedItemContainer)
-        val result = requestModelFactory.createRecommendationRequest(internalLogic)
+        val result = requestModelFactory.createRecommendationRequest(internalLogic, null)
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateRecommendationRequest_withLimit() {
+        val recommendationCriteria = URLEncoder.encode("f:SEARCH,l:3,o:0", "utf-8")
+        val recommendationLogic = RecommendationLogic.search()
+
+        val expected = RequestModel(
+                "https://recommender.scarabresearch.com/merchants/merchantId?f=$recommendationCriteria&q=testSearchTerm",
+                RequestMethod.GET,
+                null,
+                BASE_HEADER,
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+
+        val internalLogic = InternalLogic(recommendationLogic, lastTrackedItemContainer)
+        val result = requestModelFactory.createRecommendationRequest(internalLogic, 3)
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateRecommendationRequest_setLimitToDefault_whenLimitIsNull() {
+        val recommendationCriteria = URLEncoder.encode("f:SEARCH,l:5,o:0", "utf-8")
+        val recommendationLogic = RecommendationLogic.search()
+
+        val expected = RequestModel(
+                "https://recommender.scarabresearch.com/merchants/merchantId?f=$recommendationCriteria&q=testSearchTerm",
+                RequestMethod.GET,
+                null,
+                BASE_HEADER,
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+
+        val internalLogic = InternalLogic(recommendationLogic, lastTrackedItemContainer)
+        val result = requestModelFactory.createRecommendationRequest(internalLogic, null)
 
         result shouldBe expected
     }
