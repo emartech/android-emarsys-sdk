@@ -6,8 +6,9 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
+import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
-import com.emarsys.predict.request.PredictRequestModelFactory
+import com.emarsys.predict.request.PredictRequestModelBuilder
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -15,7 +16,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.*
 
 class PredictShardListMergerTest {
@@ -38,7 +38,8 @@ class PredictShardListMergerTest {
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockDeviceInfo: DeviceInfo
-    private lateinit var mockPredictRequestModelFactory: PredictRequestModelFactory
+    private lateinit var mockPredictRequestModelBuilderProvider: PredictRequestModelBuilderProvider
+    private lateinit var mockPredictRequestModelBuilder: PredictRequestModelBuilder
 
     private lateinit var shard1: ShardModel
     private lateinit var shard2: ShardModel
@@ -63,14 +64,22 @@ class PredictShardListMergerTest {
             whenever(merchantId).thenReturn(MERCHANT_ID)
         }
 
-        mockPredictRequestModelFactory = mock(PredictRequestModelFactory::class.java)
+        mockPredictRequestModelBuilder = mock(PredictRequestModelBuilder::class.java).apply {
+            whenever(withLimit(any())).thenReturn(this)
+            whenever(withShardData(any())).thenReturn(this)
+        }
+
+        mockPredictRequestModelBuilderProvider = mock(PredictRequestModelBuilderProvider::class.java).apply {
+            whenever(providePredictRequestModelBuilder()).thenReturn(mockPredictRequestModelBuilder)
+        }
+
 
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
         whenever(mockUuidProvider.provideId()).thenReturn(ID)
         whenever(mockDeviceInfo.osVersion).thenReturn(OS_VERSION)
         whenever(mockDeviceInfo.platform).thenReturn(PLATFORM)
 
-        merger = PredictShardListMerger(mockPredictRequestContext, mockPredictRequestModelFactory)
+        merger = PredictShardListMerger(mockPredictRequestContext, mockPredictRequestModelBuilderProvider)
 
         shard1 = ShardModel("id1", "type1", mapOf("q1" to 1, "q2" to "b"), 100, 100)
         shard2 = ShardModel("id2", "type2", mapOf("q3" to "c"), 110, 100)
@@ -79,11 +88,11 @@ class PredictShardListMergerTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_predictRequestContext_mustNotBeNull() {
-        PredictShardListMerger(null, mockPredictRequestModelFactory)
+        PredictShardListMerger(null, mockPredictRequestModelBuilderProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_predictRequestModelFactory_mustNotBeNull() {
+    fun testConstructor_predictRequestModelBuilderProvider_mustNotBeNull() {
         PredictShardListMerger(mockPredictRequestContext, null)
     }
 
@@ -114,7 +123,8 @@ class PredictShardListMergerTest {
                 "q2" to "b")
         merger.map(listOf(shard1))
 
-        verify(mockPredictRequestModelFactory).createRequestFromShardData(expected)
+        verify(mockPredictRequestModelBuilder).withShardData(expected)
+        verify(mockPredictRequestModelBuilder).build()
     }
 
     @Test
@@ -126,7 +136,8 @@ class PredictShardListMergerTest {
                 "q3" to "c")
         merger.map(listOf(shard1, shard2))
 
-        verify(mockPredictRequestModelFactory).createRequestFromShardData(expected)
+        verify(mockPredictRequestModelBuilder).withShardData(expected)
+        verify(mockPredictRequestModelBuilder).build()
     }
 
     @Test
@@ -137,7 +148,8 @@ class PredictShardListMergerTest {
 
         merger.map(listOf(shard3))
 
-        verify(mockPredictRequestModelFactory).createRequestFromShardData(expected)
+        verify(mockPredictRequestModelBuilder).withShardData(expected)
+        verify(mockPredictRequestModelBuilder).build()
     }
 
     @Test
@@ -151,7 +163,8 @@ class PredictShardListMergerTest {
 
         merger.map(listOf(shard2))
 
-        verify(mockPredictRequestModelFactory).createRequestFromShardData(expected)
+        verify(mockPredictRequestModelBuilder).withShardData(expected)
+        verify(mockPredictRequestModelBuilder).build()
     }
 
     @Test
@@ -165,7 +178,8 @@ class PredictShardListMergerTest {
 
         merger.map(listOf(shard2))
 
-        verify(mockPredictRequestModelFactory).createRequestFromShardData(expected)
+        verify(mockPredictRequestModelBuilder).withShardData(expected)
+        verify(mockPredictRequestModelBuilder).build()
     }
 
     @Test
@@ -181,18 +195,20 @@ class PredictShardListMergerTest {
 
         merger.map(listOf(shard2))
 
-        verify(mockPredictRequestModelFactory).createRequestFromShardData(expected)
+        verify(mockPredictRequestModelBuilder).withShardData(expected)
+        verify(mockPredictRequestModelBuilder).build()
     }
 
     @Test
-    fun testMap_shouldUseRequestFactory() {
+    fun testMap_shouldUseRequestModelBuilder() {
         val expected = mock(RequestModel::class.java)
 
-        whenever(mockPredictRequestModelFactory.createRequestFromShardData(any())).thenReturn(expected)
+        whenever(mockPredictRequestModelBuilder.build()).thenReturn(expected)
 
         val result = merger.map(listOf(shard1))
 
-        verify(mockPredictRequestModelFactory).createRequestFromShardData(ArgumentMatchers.any())
+        verify(mockPredictRequestModelBuilder).withShardData(any())
+        verify(mockPredictRequestModelBuilder).build()
         result shouldBe expected
     }
 }

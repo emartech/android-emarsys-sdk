@@ -111,6 +111,7 @@ public class PredictProxy implements PredictApi {
                 Assert.notNull(recommendationLogic, "RecommendationLogic must not be null!");
                 Assert.notNull(resultListener, "ResultListener must not be null!");
                 Assert.notNull(limit, "Limit must not be null!");
+                Assert.positiveInt(limit, "Limit must be greater than zero!");
 
                 predictInternal.recommendProducts(recommendationLogic, limit, resultListener);
             }

@@ -18,6 +18,16 @@ public class RecommendationLogicTest {
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_logicName_mustNotBeNull() {
+        new RecommendationLogic(null, new HashMap<String, String>());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_logicData_mustNotBeNull() {
+        new RecommendationLogic(RecommendationLogic.SEARCH, null);
+    }
+
     @Test
     public void testSearch_shouldFillFields() {
         Map<String, String> expected = new HashMap<>();

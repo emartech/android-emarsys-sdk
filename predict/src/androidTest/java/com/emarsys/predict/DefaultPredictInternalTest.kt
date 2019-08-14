@@ -24,8 +24,9 @@ import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.fake.FakeRestClient
 import com.emarsys.predict.fake.FakeResultListener
 import com.emarsys.predict.model.LastTrackedItemContainer
+import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
-import com.emarsys.predict.request.PredictRequestModelFactory
+import com.emarsys.predict.request.PredictRequestModelBuilder
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -57,7 +58,8 @@ class DefaultPredictInternalTest {
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockRequestContext: PredictRequestContext
-    private lateinit var mockRequestModelFactory: PredictRequestModelFactory
+    private lateinit var mockRequestModelBuilderProvider: PredictRequestModelBuilderProvider
+    private lateinit var mockRequestModelBuilder: PredictRequestModelBuilder
     private lateinit var mockPredictResponseMapper: PredictResponseMapper
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockResponseModel: ResponseModel
@@ -92,34 +94,42 @@ class DefaultPredictInternalTest {
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
             whenever(uuidProvider).thenReturn(mockUuidProvider)
         }
+        mockRequestModelBuilder = mock(PredictRequestModelBuilder::class.java).apply {
+            whenever(withLogic(any(Logic::class.java), any(LastTrackedItemContainer::class.java))).thenReturn(this)
+            whenever(withLimit(any())).thenReturn(this)
+            whenever(withShardData(any())).thenReturn(this)
+            whenever(build()).thenReturn(mockRequestModel)
+        }
 
-        mockRequestModelFactory = mock(PredictRequestModelFactory::class.java).apply {
-            whenever(createRecommendationRequest(any(Logic::class.java), any())).thenReturn(mockRequestModel)
+        mockRequestModelBuilderProvider = mock(PredictRequestModelBuilderProvider::class.java).apply {
+            whenever(providePredictRequestModelBuilder()).thenReturn(mockRequestModelBuilder)
         }
 
         mockLastTrackedItemContainer = mock(LastTrackedItemContainer::class.java)
 
-        predictInternal = DefaultPredictInternal(mockRequestContext, mockRequestManager, mockRequestModelFactory, mockPredictResponseMapper)
+        predictInternal = DefaultPredictInternal(mockRequestContext, mockRequestManager, mockRequestModelBuilderProvider, mockPredictResponseMapper)
+
+        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestContext_mustNotBeNull() {
-        DefaultPredictInternal(null, mockRequestManager, mockRequestModelFactory, mockPredictResponseMapper)
+        DefaultPredictInternal(null, mockRequestManager, mockRequestModelBuilderProvider, mockPredictResponseMapper)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestManager_shouldNotBeNull() {
-        DefaultPredictInternal(mockRequestContext, null, mockRequestModelFactory, mockPredictResponseMapper)
+        DefaultPredictInternal(mockRequestContext, null, mockRequestModelBuilderProvider, mockPredictResponseMapper)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestModelFactory_shouldNotBeNull() {
+    fun testConstructor_requestModelBuilderProvider_shouldNotBeNull() {
         DefaultPredictInternal(mockRequestContext, mockRequestManager, null, mockPredictResponseMapper)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_predictResponseMapper_shouldNotBeNull() {
-        DefaultPredictInternal(mockRequestContext, mockRequestManager, mockRequestModelFactory, null)
+        DefaultPredictInternal(mockRequestContext, mockRequestManager, mockRequestModelBuilderProvider, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -316,7 +326,7 @@ class DefaultPredictInternalTest {
         val searchTerm = "searchTerm"
         ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
         predictInternal.trackSearchTerm(searchTerm)
-        verify(mockLastTrackedItemContainer).setLastSearchTerm(searchTerm)
+        verify(mockLastTrackedItemContainer).lastSearchTerm = searchTerm
     }
 
     @Test
@@ -327,7 +337,7 @@ class DefaultPredictInternalTest {
         )
         ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
         predictInternal.trackCart(cartList)
-        verify(mockLastTrackedItemContainer).setLastCartItems(cartList)
+        verify(mockLastTrackedItemContainer).lastCartItems = cartList
     }
 
     @Test
@@ -338,7 +348,7 @@ class DefaultPredictInternalTest {
         )
         ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
         predictInternal.trackPurchase("testOrderId", cartList)
-        verify(mockLastTrackedItemContainer).setLastCartItems(cartList)
+        verify(mockLastTrackedItemContainer).lastCartItems = cartList
     }
 
     @Test
@@ -346,7 +356,7 @@ class DefaultPredictInternalTest {
         val itemId = "itemId"
         ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
         predictInternal.trackItemView(itemId)
-        verify(mockLastTrackedItemContainer).setLastItemView(itemId)
+        verify(mockLastTrackedItemContainer).lastItemView = itemId
     }
 
     @Test
@@ -354,7 +364,7 @@ class DefaultPredictInternalTest {
         val categoryPath = "categoryPath"
         ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
         predictInternal.trackCategoryView(categoryPath)
-        verify(mockLastTrackedItemContainer).setLastCategoryPath(categoryPath)
+        verify(mockLastTrackedItemContainer).lastCategoryPath = categoryPath
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -368,10 +378,23 @@ class DefaultPredictInternalTest {
     }
 
     @Test
+    fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel_whenLimitUsed() {
+        predictInternal.recommendProducts(mockLogic, 10, mockResultListener)
+
+        verify(mockRequestModelBuilder).withLogic(mockLogic, mockLastTrackedItemContainer)
+        verify(mockRequestModelBuilder).withLimit(10)
+        verify(mockRequestModelBuilder).build()
+
+        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
+    }
+
+    @Test
     fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel() {
         predictInternal.recommendProducts(mockLogic, null, mockResultListener)
 
-        verify(mockRequestModelFactory).createRecommendationRequest(any(Logic::class.java), eq(null))
+        verify(mockRequestModelBuilder).withLogic(mockLogic, mockLastTrackedItemContainer)
+        verify(mockRequestModelBuilder).withLimit(null)
+        verify(mockRequestModelBuilder).build()
 
         verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
     }
@@ -384,7 +407,7 @@ class DefaultPredictInternalTest {
         predictInternal = DefaultPredictInternal(
                 mockRequestContext,
                 requestManagerWithRestClient(FakeRestClient(mockResponseModel, FakeRestClient.Mode.SUCCESS)),
-                mockRequestModelFactory,
+                mockRequestModelBuilderProvider,
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
@@ -402,7 +425,7 @@ class DefaultPredictInternalTest {
         predictInternal = DefaultPredictInternal(
                 mockRequestContext,
                 requestManagerWithRestClient(FakeRestClient(mockResponseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
-                mockRequestModelFactory,
+                mockRequestModelBuilderProvider,
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
@@ -420,7 +443,7 @@ class DefaultPredictInternalTest {
         predictInternal = DefaultPredictInternal(
                 mockRequestContext,
                 requestManagerWithRestClient(FakeRestClient(mockException)),
-                mockRequestModelFactory,
+                mockRequestModelBuilderProvider,
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
