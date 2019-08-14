@@ -241,7 +241,7 @@ class MobileEngageIntegrationTest {
     fun testDeepLinkOpen() {
         val intent = Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("https://demo-mobileengage.emarsys.net/something?fancy_url=1&ems_dl=1_2_3_4_5_6"))
+                Uri.parse("https://github.com/emartech/android-emarsys-sdk/wiki?ems_dl=210268110_ZVwwYrYUFR_1_100302293_1_2000000"))
 
         Emarsys.trackDeepLink(
                 activityRule.activity,
