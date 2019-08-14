@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.notification.command
 
+import android.app.Application
 import android.content.Intent
 import android.os.Build.VERSION_CODES.KITKAT
 import android.os.Bundle
@@ -43,6 +44,10 @@ class PreloadedInappHandlerCommandTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
+    private val application: Application
+        get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
+
+
     @Before
     fun setUp() {
         fileUrl = InstrumentationRegistry.getTargetContext().applicationContext.cacheDir.absolutePath + "/test.file"
@@ -62,7 +67,8 @@ class PreloadedInappHandlerCommandTest {
 
     @After
     fun tearDown() {
-        mockCoreSdkHandler.looper.quit()
+        application.unregisterActivityLifecycleCallbacks(mockActivityLifecycleWatchdog)
+        mockCoreSdkHandler.looper.quitSafely()
         DependencyInjection.tearDown()
     }
 

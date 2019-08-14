@@ -302,10 +302,13 @@ public class EmarsysTest {
 
     @After
     public void tearDown() {
+        application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog);
+        application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog);
+
         try {
             Looper looper = DependencyInjection.getContainer().getCoreSdkHandler().getLooper();
             if (looper != null) {
-                looper.quit();
+                looper.quitSafely();
             }
             DependencyInjection.tearDown();
         } catch (Exception e) {
