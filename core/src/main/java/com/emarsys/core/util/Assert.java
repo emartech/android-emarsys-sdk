@@ -20,7 +20,7 @@ public final class Assert {
         notNull(integer, null);
         if (integer < 1) {
             if (message == null) {
-                message = "Parameter value must be positive!";
+                message = "Argument must be greater than zero!";
             }
             throw new IllegalArgumentException(message);
         }

@@ -24,7 +24,7 @@ class AssertTest {
         try {
             Assert.notNull("", null)
         } catch (e: Exception) {
-            fail("testNotNull should not throw expection when object is not null: " + e.message)
+            fail("testNotNull should not throw exception when object is not null: " + e.message)
         }
     }
 
@@ -65,7 +65,7 @@ class AssertTest {
         try {
             Assert.elementsNotNull(arrayOf(Any(), Any(), "randomstring"), null)
         } catch (e: Exception) {
-            fail("testElementsNotNull should not throw expection when object is not null: " + e.message)
+            fail("testElementsNotNull should not throw exception when object is not null: " + e.message)
         }
     }
 
@@ -74,7 +74,7 @@ class AssertTest {
         try {
             Assert.elementsNotNull(arrayOf(), null)
         } catch (e: Exception) {
-            fail("testElementsNotNull should not throw expection when object is not null: " + e.message)
+            fail("testElementsNotNull should not throw exception when object is not null: " + e.message)
         }
     }
 
@@ -104,7 +104,7 @@ class AssertTest {
         try {
             Assert.elementsNotNull(listOf(Any(), Any(), "randomstring"), null)
         } catch (e: Exception) {
-            fail("testElementsNotNull should not throw expection when object is not null: " + e.message)
+            fail("testElementsNotNull should not throw exception when object is not null: " + e.message)
         }
     }
 
@@ -113,7 +113,7 @@ class AssertTest {
         try {
             Assert.elementsNotNull(ArrayList<Any>(), null)
         } catch (e: Exception) {
-            fail("testElementsNotNull should not throw expection when object is not null: " + e.message)
+            fail("testElementsNotNull should not throw exception when object is not null: " + e.message)
         }
     }
 
@@ -153,7 +153,7 @@ class AssertTest {
         try {
             Assert.notEmpty(arrayOf<Any>("a", 3, Math.PI), null)
         } catch (e: Exception) {
-            fail("testElementsNotNull should not throw expection when object is not null: " + e.message)
+            fail("testElementsNotNull should not throw exception when object is not null: " + e.message)
         }
     }
 
@@ -194,8 +194,46 @@ class AssertTest {
         try {
             Assert.notEmpty(listOf("a", 3, Math.PI), null)
         } catch (e: Exception) {
-            fail("testElementsNotNull should not throw expection when object is not null: " + e.message)
+            fail("testElementsNotNull should not throw exception when object is not null: " + e.message)
         }
     }
 
+    @Test
+    fun testPositiveInt_shouldThrowException_whenArgumentIsZero() {
+        try {
+            Assert.positiveInt(0, null)
+            fail("Should throw exception")
+        } catch (iae: IllegalArgumentException) {
+            assertEquals("Argument must be greater than zero!", iae.message)
+        }
+    }
+
+    @Test
+    fun testPositiveInt_shouldThrowException_whenArgumentIsNull() {
+        try {
+            Assert.positiveInt(null, null)
+            fail("Should throw exception")
+        } catch (iae: java.lang.IllegalArgumentException) {
+            assertEquals("Argument must not be null!", iae.message)
+        }
+    }
+
+    @Test
+    fun testPositiveInt_shouldThrowException_whenArgumentIsNegative() {
+        try {
+            Assert.positiveInt(-10, null)
+            fail("Should throw exception")
+        } catch (iae: java.lang.IllegalArgumentException) {
+            assertEquals("Argument must be greater than zero!", iae.message)
+        }
+    }
+
+    @Test
+    fun testPositiveInt_shouldNotThrowException_whenArgumentIsPositive() {
+        try {
+            Assert.positiveInt(3, null)
+        } catch (e: Exception) {
+            fail("positiveInt should not throw exception when argument is greater than zero: " + e.message)
+        }
+    }
 }
