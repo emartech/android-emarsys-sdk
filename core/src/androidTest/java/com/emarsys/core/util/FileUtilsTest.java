@@ -3,6 +3,7 @@ package com.emarsys.core.util;
 import android.content.Context;
 
 import com.emarsys.testUtil.InstrumentationRegistry;
+import com.emarsys.testUtil.RetryUtils;
 import com.emarsys.testUtil.TestUrls;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -32,6 +33,9 @@ public class FileUtilsTest {
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
+
+    @Rule
+    public TestRule retry = RetryUtils.getRetryRule();
 
     @Before
     public void init() {
