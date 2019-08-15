@@ -23,7 +23,7 @@ gcloud auth activate-service-account -q --key-file /tmp/sacc_key.json
 gcloud config set project $GCP_PROJECT
 
 for i in $MODULES; do
-   gcloud firebase test android run --type instrumentation --test "$i/build/outputs/apk/androidTest/debug/$i-debug-androidTest.apk" $APK $FIREBASE_DEVICES --timeout 10m --quiet --project ems-mobile-sdk &
+   gcloud firebase test android run --type instrumentation --test "$i/build/outputs/apk/androidTest/debug/$i-debug-androidTest.apk" --app=/bitrise/deploy/sample-debug-androidTest.apk $FIREBASE_DEVICES --timeout 10m --quiet --project ems-mobile-sdk &
    PIDS="$PIDS $!"
 done
 
