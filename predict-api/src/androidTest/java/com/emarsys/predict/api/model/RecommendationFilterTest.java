@@ -1,8 +1,12 @@
 package com.emarsys.predict.api.model;
 
+import com.emarsys.testUtil.TimeoutUtils;
+
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +22,9 @@ public class RecommendationFilterTest {
 
     RecommendationFilter.Exclude exclude;
     RecommendationFilter.Include include;
+
+    @Rule
+    public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     public void setUp() {
