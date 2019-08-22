@@ -17,10 +17,7 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.core.worker.Worker
-import com.emarsys.predict.api.model.CartItem
-import com.emarsys.predict.api.model.Logic
-import com.emarsys.predict.api.model.PredictCartItem
-import com.emarsys.predict.api.model.Product
+import com.emarsys.predict.api.model.*
 import com.emarsys.predict.fake.FakeRestClient
 import com.emarsys.predict.fake.FakeResultListener
 import com.emarsys.predict.model.LastTrackedItemContainer
@@ -46,6 +43,11 @@ class DefaultPredictInternalTest {
         const val TIMESTAMP = 100000L
         const val ID1 = "id1"
         const val ID2 = "id2"
+
+        const val FIELD = "Field"
+        const val COMPARISON = "Comparison"
+        const val TYPE = "INCLUDE_OR_EXCLUDE"
+        val EXPECTATIONS = listOf<String>()
     }
 
     @Rule
@@ -64,6 +66,8 @@ class DefaultPredictInternalTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var mockLogic: Logic
+    private lateinit var mockRecommendationFilter: RecommendationFilter
+    private lateinit var mockRecommendationFilters: List<RecommendationFilter>
     private lateinit var latch: CountDownLatch
     private lateinit var mockResultListener: ResultListener<Try<List<Product>>>
     private lateinit var mockLastTrackedItemContainer: LastTrackedItemContainer
@@ -80,6 +84,14 @@ class DefaultPredictInternalTest {
         mockRequestManager = mock(RequestManager::class.java)
         mockPredictResponseMapper = mock(PredictResponseMapper::class.java)
         mockLogic = mock(Logic::class.java)
+        mockRecommendationFilter = mock(RecommendationFilter::class.java).apply {
+            whenever(field).thenReturn(FIELD)
+            whenever(comparison).thenReturn(COMPARISON)
+            whenever(type).thenReturn(TYPE)
+            whenever(expectations).thenReturn(EXPECTATIONS)
+        }
+        mockRecommendationFilters = listOf(mockRecommendationFilter)
+
         mockResultListener = mock(ResultListener::class.java) as ResultListener<Try<List<Product>>>
         mockTimestampProvider = mock(TimestampProvider::class.java).apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
@@ -98,6 +110,7 @@ class DefaultPredictInternalTest {
             whenever(withLogic(any(Logic::class.java), any(LastTrackedItemContainer::class.java))).thenReturn(this)
             whenever(withLimit(any())).thenReturn(this)
             whenever(withShardData(any())).thenReturn(this)
+            whenever(withFilters(any())).thenReturn(this)
             whenever(build()).thenReturn(mockRequestModel)
         }
 
@@ -369,17 +382,17 @@ class DefaultPredictInternalTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testRecommendProducts_resultListener_mustNotBeNull() {
-        predictInternal.recommendProducts(mockLogic, 5, null)
+        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testRecommendProducts_logic_mustNotBeNull() {
-        predictInternal.recommendProducts(null, 5, mockResultListener)
+        predictInternal.recommendProducts(null, 5, mockRecommendationFilters, mockResultListener)
     }
 
     @Test
     fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel_whenLimitUsed() {
-        predictInternal.recommendProducts(mockLogic, 10, mockResultListener)
+        predictInternal.recommendProducts(mockLogic, 10, mockRecommendationFilters, mockResultListener)
 
         verify(mockRequestModelBuilder).withLogic(mockLogic, mockLastTrackedItemContainer)
         verify(mockRequestModelBuilder).withLimit(10)
@@ -389,8 +402,20 @@ class DefaultPredictInternalTest {
     }
 
     @Test
+    fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel_whenFilterUsed() {
+        predictInternal.recommendProducts(mockLogic, 10, mockRecommendationFilters, mockResultListener)
+
+        verify(mockRequestModelBuilder).withLogic(mockLogic, mockLastTrackedItemContainer)
+        verify(mockRequestModelBuilder).withLimit(10)
+        verify(mockRequestModelBuilder).withFilters(listOf(mockRecommendationFilter))
+        verify(mockRequestModelBuilder).build()
+
+        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
+    }
+
+    @Test
     fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel() {
-        predictInternal.recommendProducts(mockLogic, null, mockResultListener)
+        predictInternal.recommendProducts(mockLogic, null, null, mockResultListener)
 
         verify(mockRequestModelBuilder).withLogic(mockLogic, mockLastTrackedItemContainer)
         verify(mockRequestModelBuilder).withLimit(null)
@@ -411,7 +436,7 @@ class DefaultPredictInternalTest {
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(mockLogic, 5, resultListener)
+        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, resultListener)
 
         latch.await()
 
@@ -429,7 +454,7 @@ class DefaultPredictInternalTest {
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(mockLogic, 5, resultListener)
+        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, resultListener)
 
         latch.await()
 
@@ -447,7 +472,7 @@ class DefaultPredictInternalTest {
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(mockLogic, 5, resultListener)
+        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, resultListener)
 
         latch.await()
 

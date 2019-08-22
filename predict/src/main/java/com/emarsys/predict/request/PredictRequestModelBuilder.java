@@ -5,11 +5,16 @@ import android.net.Uri;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
+import com.emarsys.core.util.JsonUtils;
 import com.emarsys.predict.api.model.Logic;
+import com.emarsys.predict.api.model.RecommendationFilter;
 import com.emarsys.predict.api.model.RecommendationLogic;
 import com.emarsys.predict.endpoint.Endpoint;
 import com.emarsys.predict.model.LastTrackedItemContainer;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PredictRequestModelBuilder {
@@ -21,6 +26,7 @@ public class PredictRequestModelBuilder {
     private Logic logic;
     private LastTrackedItemContainer lastTrackedItemContainer;
     private Integer limit;
+    private List<RecommendationFilter> filters;
 
     public PredictRequestModelBuilder(PredictRequestContext requestContext, PredictHeaderFactory headerFactory) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
@@ -52,6 +58,11 @@ public class PredictRequestModelBuilder {
         return this;
     }
 
+    public PredictRequestModelBuilder withFilters(List<RecommendationFilter> recommendationFilters) {
+        this.filters = recommendationFilters;
+        return this;
+    }
+
     public RequestModel build() {
         RequestModel.Builder requestModelBuilder = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUuidProvider())
                 .method(RequestMethod.GET)
@@ -72,6 +83,10 @@ public class PredictRequestModelBuilder {
             limit = DEFAULT_LIMIT;
         }
         uriBuilder.appendQueryParameter("f", "f:" + logic.getLogicName() + ",l:" + limit + ",o:0");
+
+        if (this.filters != null) {
+            uriBuilder.appendQueryParameter("ex", createRecommendationFilterQueryValues());
+        }
 
         if (logic.getData().isEmpty()) {
             switch (logic.getLogicName()) {
@@ -124,4 +139,29 @@ public class PredictRequestModelBuilder {
 
         return uriBuilder.build().toString();
     }
+
+    private String createRecommendationFilterQueryValues() {
+        List recommendationFilterQueryValues = new ArrayList<>();
+        for (RecommendationFilter filter: this.filters) {
+            Map<String, Object> recommendationFilterQueryValue = new LinkedHashMap<>();
+            recommendationFilterQueryValue.put("f", filter.getField());
+            recommendationFilterQueryValue.put("r", filter.getComparison());
+            recommendationFilterQueryValue.put("v", createRecommendationFilterValueStringRepresentation(filter.getExpectations()));
+            recommendationFilterQueryValue.put("n", !filter.getType().equals("EXCLUDE"));
+            recommendationFilterQueryValues.add(recommendationFilterQueryValue);
+        }
+        return JsonUtils.fromList(recommendationFilterQueryValues).toString();
+    }
+
+    private String createRecommendationFilterValueStringRepresentation(List<String> expectations) {
+        StringBuilder valuesStringRepresentation = new StringBuilder();
+        for (int i = 0; i < expectations.size(); i++) {
+            if (i > 0) {
+                valuesStringRepresentation.append("|");
+            }
+            valuesStringRepresentation.append(expectations.get(i));
+        }
+        return valuesStringRepresentation.toString();
+    }
+
 }

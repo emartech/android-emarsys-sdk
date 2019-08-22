@@ -10,6 +10,7 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
+import com.emarsys.predict.api.model.RecommendationFilter;
 
 import java.util.List;
 
@@ -98,7 +99,7 @@ public class PredictProxy implements PredictApi {
                 Assert.notNull(recommendationLogic, "RecommendationLogic must not be null!");
                 Assert.notNull(resultListener, "ResultListener must not be null!");
 
-                predictInternal.recommendProducts(recommendationLogic, null, resultListener);
+                predictInternal.recommendProducts(recommendationLogic, null, null, resultListener);
             }
         });
     }
@@ -113,8 +114,45 @@ public class PredictProxy implements PredictApi {
                 Assert.notNull(limit, "Limit must not be null!");
                 Assert.positiveInt(limit, "Limit must be greater than zero!");
 
-                predictInternal.recommendProducts(recommendationLogic, limit, resultListener);
+                predictInternal.recommendProducts(recommendationLogic, limit, null, resultListener);
             }
         });
+    }
+
+    @Override
+    public void recommendProducts(@NonNull final Logic recommendationLogic,
+                                  @NonNull final List<RecommendationFilter> recommendationFilters,
+                                  @NonNull final ResultListener<Try<List<Product>>> resultListener) {
+        runnerProxy.logException(new Runnable() {
+            @Override
+            public void run() {
+                Assert.notNull(recommendationLogic, "RecommendationLogic must not be null!");
+                Assert.notNull(resultListener, "ResultListener must not be null!");
+                Assert.notNull(recommendationFilters, "RecommendationFilters must not be null!");
+
+                predictInternal.recommendProducts(recommendationLogic, null, recommendationFilters, resultListener);
+
+            }
+        });
+    }
+
+    @Override
+    public void recommendProducts(@NonNull final Logic recommendationLogic,
+                                  @NonNull final Integer limit,
+                                  @NonNull final List<RecommendationFilter> recommendationFilters,
+                                  @NonNull final ResultListener<Try<List<Product>>> resultListener) {
+        runnerProxy.logException(new Runnable() {
+            @Override
+            public void run() {
+                Assert.notNull(recommendationLogic, "RecommendationLogic must not be null!");
+                Assert.notNull(resultListener, "ResultListener must not be null!");
+                Assert.notNull(limit, "Limit must not be null!");
+                Assert.positiveInt(limit, "Limit must be greater than zero!");
+                Assert.notNull(recommendationFilters, "RecommendationFilter must not be null!");
+
+                predictInternal.recommendProducts(recommendationLogic, limit, recommendationFilters, resultListener);
+            }
+        });
+
     }
 }

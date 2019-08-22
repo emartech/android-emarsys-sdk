@@ -8,6 +8,7 @@ import com.emarsys.predict.PredictProxy;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
+import com.emarsys.predict.api.model.RecommendationFilter;
 import com.emarsys.testUtil.RandomTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -18,6 +19,7 @@ import org.junit.rules.TestRule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
@@ -29,6 +31,7 @@ public class PredictProxyTest {
     private PredictProxy predictProxy;
     private ResultListener<Try<List<Product>>> mockResultListener;
     private Logic mockLogic;
+    private List<RecommendationFilter> mockRecommendationFilters;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -42,6 +45,8 @@ public class PredictProxyTest {
         mockResultListener = mock(ResultListener.class);
 
         mockLogic = mock(Logic.class);
+        RecommendationFilter mockRecommendationFilter = mock(RecommendationFilter.class);
+        mockRecommendationFilters = Collections.singletonList(mockRecommendationFilter);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -167,7 +172,7 @@ public class PredictProxyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testPredict_recommendProducts_limit_mustNotBeNull() {
-        predictProxy.recommendProducts(mockLogic, null, mockResultListener);
+        predictProxy.recommendProducts(mockLogic, (Integer) null, mockResultListener);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -179,14 +184,68 @@ public class PredictProxyTest {
     public void testPredict_recommendProductWithLimit_delegatesTo_predictInternal() {
         predictProxy.recommendProducts(mockLogic, 5, mockResultListener);
 
-        verify(mockPredictInternal).recommendProducts(mockLogic, 5, mockResultListener);
+        verify(mockPredictInternal).recommendProducts(mockLogic, 5, null, mockResultListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_recommendProductsWithFilters_logic_mustNotBeNull() {
+        predictProxy.recommendProducts(null, mockRecommendationFilters, mockResultListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_recommendProductsWithFilters_resultListener_mustNotBeNull() {
+        predictProxy.recommendProducts(mockLogic, mockRecommendationFilters, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_recommendProductsWithFilters_recommendationFilter_mustNotBeNull() {
+        predictProxy.recommendProducts(mockLogic, (List<RecommendationFilter>) null, mockResultListener);
+    }
+
+    @Test
+    public void testPredict_recommendProductsWithFilters_delegatesTo_predictInternal() {
+        predictProxy.recommendProducts(mockLogic, mockRecommendationFilters, mockResultListener);
+
+        verify(mockPredictInternal).recommendProducts(mockLogic, null, mockRecommendationFilters, mockResultListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_recommendProductsWithFiltersAndLimit_logic_mustNotBeNull() {
+        predictProxy.recommendProducts(null, 5, mockRecommendationFilters, mockResultListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_recommendProductsWithFiltersAndLimit_recommendationFilter_mustNotBeNull() {
+        predictProxy.recommendProducts(mockLogic, 5, null, mockResultListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_recommendProductsWithFiltersAndLimit_limit_mustNotBeNull() {
+        predictProxy.recommendProducts(mockLogic, null, mockRecommendationFilters, mockResultListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_recommendProductsWithFiltersAndLimit_limit_mustBeAPositiveInteger() {
+        predictProxy.recommendProducts(mockLogic, -5, mockRecommendationFilters, mockResultListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_recommendProductsWithFiltersAndLimit_resultListener_mustNotBeNull() {
+        predictProxy.recommendProducts(mockLogic, 5, mockRecommendationFilters, null);
+    }
+
+    @Test
+    public void testPredict_recommendProductsWithFiltersAndLimit_delegatesTo_predictInternal() {
+        predictProxy.recommendProducts(mockLogic, 123, mockRecommendationFilters, mockResultListener);
+
+        verify(mockPredictInternal).recommendProducts(mockLogic, 123, mockRecommendationFilters, mockResultListener);
     }
 
     @Test
     public void testPredict_recommendProducts_delegatesTo_predictInternal() {
         predictProxy.recommendProducts(mockLogic, mockResultListener);
 
-        verify(mockPredictInternal).recommendProducts(mockLogic, null, mockResultListener);
+        verify(mockPredictInternal).recommendProducts(mockLogic, null, null, mockResultListener);
     }
 
     private CartItem createItem(final String id, final double price, final double quantity) {

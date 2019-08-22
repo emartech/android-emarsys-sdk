@@ -15,6 +15,7 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
+import com.emarsys.predict.api.model.RecommendationFilter;
 import com.emarsys.predict.model.LastTrackedItemContainer;
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider;
 import com.emarsys.predict.request.PredictRequestContext;
@@ -145,13 +146,14 @@ public class DefaultPredictInternal implements PredictInternal {
     }
 
     @Override
-    public void recommendProducts(final Logic recommendationLogic, final Integer limit, final ResultListener<Try<List<Product>>> resultListener) {
+    public void recommendProducts(final Logic recommendationLogic, final Integer limit, final List<RecommendationFilter> recommendationFilters, final ResultListener<Try<List<Product>>> resultListener) {
         Assert.notNull(recommendationLogic, "RecommendationLogic must not be null!");
         Assert.notNull(resultListener, "ResultListener must not be null!");
 
         RequestModel requestModel = requestModelBuilderProvider.providePredictRequestModelBuilder()
                 .withLogic(recommendationLogic, lastTrackedContainer)
                 .withLimit(limit)
+                .withFilters(recommendationFilters)
                 .build();
 
         requestManager.submitNow(requestModel, new CoreCompletionHandler() {

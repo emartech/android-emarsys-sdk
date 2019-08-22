@@ -15,10 +15,10 @@ public class RecommendationFilter {
     private String comparison;
     private List<String> expectations;
 
-    private static final String IS = "is";
-    private static final String IN = "in";
-    private static final String HAS = "has";
-    private static final String OVERLAPS = "overlaps";
+    private static final String IS = "IS";
+    private static final String IN = "IN";
+    private static final String HAS = "HAS";
+    private static final String OVERLAPS = "OVERLAPS";
 
     RecommendationFilter(String type, String field, String comparison, List<String> expectations) {
         this.type = type;
@@ -27,7 +27,7 @@ public class RecommendationFilter {
         this.expectations = expectations;
     }
 
-    private RecommendationFilter(String type, String field, String comparison, String expectation) {
+    RecommendationFilter(String type, String field, String comparison, String expectation) {
         this.type = type;
         this.field = field;
         this.comparison = comparison;
@@ -46,9 +46,25 @@ public class RecommendationFilter {
         return new Include(field);
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public String getComparison() {
+        return comparison;
+    }
+
+    public List<String> getExpectations() {
+        return expectations;
+    }
+
     public static class Exclude {
 
-        private static final String TYPE = "exclude";
+        private static final String TYPE = "EXCLUDE";
 
         protected final String field;
 
@@ -83,7 +99,7 @@ public class RecommendationFilter {
 
     public static class Include {
 
-        private static final String TYPE = "include";
+        private static final String TYPE = "INCLUDE";
 
         protected String field;
 
@@ -131,5 +147,15 @@ public class RecommendationFilter {
     @Override
     public int hashCode() {
         return Objects.hash(type, field, comparison, expectations);
+    }
+
+    @Override
+    public String toString() {
+        return "RecommendationFilter{" +
+                "type='" + type + '\'' +
+                ", field='" + field + '\'' +
+                ", comparison='" + comparison + '\'' +
+                ", expectations=" + expectations +
+                '}';
     }
 }

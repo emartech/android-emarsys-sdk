@@ -8,6 +8,7 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.util.RequestModelUtils
 import com.emarsys.predict.api.model.PredictCartItem
+import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.api.model.RecommendationLogic
 import com.emarsys.predict.model.LastTrackedItemContainer
 import com.emarsys.testUtil.TimeoutUtils
@@ -160,6 +161,25 @@ class PredictRequestModelBuilderTest {
                         "f" to "f:RELATED,l:5,o:0",
                         "v" to "i:itemId")))
         ) { logic, expectedRequestModel -> RequestModelUtils.extractQueryParameters(requestModelBuilder.withLogic(logic, lastTrackedItemContainer).build()) shouldBe RequestModelUtils.extractQueryParameters(expectedRequestModel) }
+    }
+
+    @Test
+    fun testBuild_withLogic_withFiltersData() {
+        val logic = RecommendationLogic.related("itemId")
+        val filters = listOf(RecommendationFilter.exclude("field1").has("expectation1"),
+                RecommendationFilter.exclude("field2").`is`("expectation2"),
+                RecommendationFilter.exclude("field3").`in`(listOf("expectation31", "expectation32")),
+                RecommendationFilter.exclude("field4").overlaps(listOf("expectation41", "expectation42")),
+                RecommendationFilter.include("field5").has("expectation5"),
+                RecommendationFilter.include("field6").`is`("expectation6"),
+                RecommendationFilter.include("field7").`in`(listOf("expectation71", "expectation72")),
+                RecommendationFilter.include("field8").overlaps(listOf("expectation81", "expectation82")))
+        val expected = createRequestModelWithUrl(mapOf(
+                "f" to "f:RELATED,l:5,o:0",
+                "v" to "i:itemId",
+                "ex" to """[{"f":"field1","r":"HAS","v":"expectation1","n":false},{"f":"field2","r":"IS","v":"expectation2","n":false},{"f":"field3","r":"IN","v":"expectation31|expectation32","n":false},{"f":"field4","r":"OVERLAPS","v":"expectation41|expectation42","n":false},{"f":"field5","r":"HAS","v":"expectation5","n":true},{"f":"field6","r":"IS","v":"expectation6","n":true},{"f":"field7","r":"IN","v":"expectation71|expectation72","n":true},{"f":"field8","r":"OVERLAPS","v":"expectation81|expectation82","n":true}]"""))
+
+        RequestModelUtils.extractQueryParameters(requestModelBuilder.withLogic(logic, lastTrackedItemContainer).withFilters(filters).build()) shouldBe RequestModelUtils.extractQueryParameters(expected)
     }
 
     @Test

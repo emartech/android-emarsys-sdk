@@ -5,6 +5,7 @@ import com.emarsys.core.api.result.Try;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
+import com.emarsys.predict.api.model.RecommendationFilter;
 
 import java.util.List;
 
@@ -23,5 +24,6 @@ public interface PredictInternal {
 
     String trackSearchTerm(String searchTerm);
 
-    void recommendProducts(Logic recommendationLogic, Integer limit, ResultListener<Try<List<Product>>> resultListener);
+    void recommendProducts(Logic recommendationLogic, Integer limit, List<RecommendationFilter> recommendationFilters, ResultListener<Try<List<Product>>> resultListener);
+
 }

@@ -91,6 +91,7 @@ import com.emarsys.predict.PredictProxy;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
+import com.emarsys.predict.api.model.RecommendationFilter;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.push.PushApi;
 import com.emarsys.push.PushProxy;
@@ -111,6 +112,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -180,6 +182,7 @@ public class EmarsysTest {
     private NotificationManagerHelper mockNotificationManagerHelper;
     private VersionProvider mockVersionProvider;
     private Logic mockLogic;
+    private RecommendationFilter mockRecommendationFilter;
     private EventHandler inappEventHandler;
 
     private Application application;
@@ -250,6 +253,7 @@ public class EmarsysTest {
         mockPush = mock(PushApi.class);
         mockPredict = mock(PredictApi.class);
         mockLogic = mock(Logic.class);
+        mockRecommendationFilter = mock(RecommendationFilter.class);
 
         HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
         deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
@@ -1105,27 +1109,6 @@ public class EmarsysTest {
         verify(mockPredict).recommendProducts(mockLogic, mockResultListener);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testPredict_recommendProductsWithLimit_shouldThrowException_whenLimitIsNull() {
-        Emarsys.setup(predictConfig);
-
-        Emarsys.Predict.recommendProducts(mockLogic, null, mockResultListener);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPredict_recommendProductsWithLimit_shouldThrowException_whenLimitIsZero() {
-        Emarsys.setup(predictConfig);
-
-        Emarsys.Predict.recommendProducts(mockLogic, 0, mockResultListener);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPredict_recommendProductsWithLimit_shouldThrowException_whenLimitIsNegative() {
-        Emarsys.setup(predictConfig);
-
-        Emarsys.Predict.recommendProducts(mockLogic, -3, mockResultListener);
-    }
-
     @Test
     public void testPredict_recommendProductsWithLimit_delegatesTo_predictInstance() {
         Emarsys.setup(predictConfig);
@@ -1133,6 +1116,24 @@ public class EmarsysTest {
         Emarsys.Predict.recommendProducts(mockLogic, 5, mockResultListener);
 
         verify(mockPredict).recommendProducts(mockLogic, 5, mockResultListener);
+    }
+
+    @Test
+    public void testPredict_recommendProductsWithFilters_delegatesTo_predictInstance() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.Predict.recommendProducts(mockLogic, Collections.singletonList(mockRecommendationFilter), mockResultListener);
+
+        verify(mockPredict).recommendProducts(mockLogic, Collections.singletonList(mockRecommendationFilter), mockResultListener);
+    }
+
+    @Test
+    public void testPredict_recommendProductsWithLimitAndFilters_delegatesTo_predictInstance() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.Predict.recommendProducts(mockLogic, 123, Collections.singletonList(mockRecommendationFilter), mockResultListener);
+
+        verify(mockPredict).recommendProducts(mockLogic, 123, Collections.singletonList(mockRecommendationFilter), mockResultListener);
     }
 
     @Test
