@@ -118,6 +118,11 @@ public class DefaultPredictInternal implements PredictInternal {
     }
 
     @Override
+    public String trackItemView(Product product) {
+        return null;
+    }
+
+    @Override
     public String trackCategoryView(String categoryPath) {
         Assert.notNull(categoryPath, "CategoryPath must not be null!");
 

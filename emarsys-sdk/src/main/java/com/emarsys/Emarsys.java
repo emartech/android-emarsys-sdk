@@ -263,6 +263,10 @@ public class Emarsys {
             predict.trackItemView(itemId);
         }
 
+        public static void trackItemView(@NonNull final Product product) {
+            predict.trackItemView(product);
+        }
+
         public static void trackCategoryView(@NonNull final String categoryPath) {
             predict.trackCategoryView(categoryPath);
         }

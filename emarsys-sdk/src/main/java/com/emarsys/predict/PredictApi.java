@@ -19,6 +19,8 @@ public interface PredictApi {
 
     void trackItemView(@NonNull final String itemId);
 
+    void trackItemView(@NonNull final Product product);
+
     void trackCategoryView(@NonNull final String categoryPath);
 
     void trackSearchTerm(@NonNull final String searchTerm);

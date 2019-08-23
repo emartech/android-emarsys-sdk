@@ -20,6 +20,8 @@ public interface PredictInternal {
 
     String trackItemView(String itemId);
 
+    String trackItemView(Product product);
+
     String trackCategoryView(String categoryPath);
 
     String trackSearchTerm(String searchTerm);

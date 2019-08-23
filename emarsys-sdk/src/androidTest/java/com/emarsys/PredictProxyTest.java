@@ -120,7 +120,12 @@ public class PredictProxyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testPredict_testTrackItemView_itemViewId_mustNotBeNull() {
-        predictProxy.trackItemView(null);
+        predictProxy.trackItemView((String) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_testTrackItemView_product_mustNotBeNull() {
+        predictProxy.trackItemView((Product) null);
     }
 
     @Test
@@ -130,6 +135,15 @@ public class PredictProxyTest {
         predictProxy.trackItemView(itemId);
 
         verify(mockPredictInternal).trackItemView(itemId);
+    }
+
+    @Test
+    public void testPredict_trackItemView_withProduct_delegatesTo_predictInternal() {
+        Product product = new Product.Builder(RandomTestUtils.randomString(), RandomTestUtils.randomString(), "https://emarsys.com", RandomTestUtils.randomString()).build();
+
+        predictProxy.trackItemView(product);
+
+        verify(mockPredictInternal).trackItemView(product);
     }
 
     @Test(expected = IllegalArgumentException.class)
