@@ -6,6 +6,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
+import com.emarsys.core.util.JsonUtils
 import com.emarsys.core.util.RequestModelUtils
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.RecommendationFilter
@@ -16,6 +17,8 @@ import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.data.forall
 import io.kotlintest.shouldBe
 import io.kotlintest.tables.row
+import org.json.JSONArray
+import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -179,7 +182,27 @@ class PredictRequestModelBuilderTest {
                 "v" to "i:itemId",
                 "ex" to """[{"f":"field1","r":"HAS","v":"expectation1","n":false},{"f":"field2","r":"IS","v":"expectation2","n":false},{"f":"field3","r":"IN","v":"expectation31|expectation32","n":false},{"f":"field4","r":"OVERLAPS","v":"expectation41|expectation42","n":false},{"f":"field5","r":"HAS","v":"expectation5","n":true},{"f":"field6","r":"IS","v":"expectation6","n":true},{"f":"field7","r":"IN","v":"expectation71|expectation72","n":true},{"f":"field8","r":"OVERLAPS","v":"expectation81|expectation82","n":true}]"""))
 
-        RequestModelUtils.extractQueryParameters(requestModelBuilder.withLogic(logic, lastTrackedItemContainer).withFilters(filters).build()) shouldBe RequestModelUtils.extractQueryParameters(expected)
+        val expectedMap = RequestModelUtils.extractQueryParameters(expected)
+        val returnedMap = RequestModelUtils.extractQueryParameters(requestModelBuilder.withLogic(logic, lastTrackedItemContainer).withFilters(filters).build())
+
+        returnedMap["f"] shouldBe expectedMap["f"]
+        returnedMap["v"] shouldBe expectedMap["v"]
+
+        val returnedExJson = JSONArray(returnedMap["ex"])
+
+        val returnedExList = mutableListOf<Map<String, String>>()
+        for (i in 0 until returnedExJson.length()) {
+            returnedExList.add(JsonUtils.toFlatMap(returnedExJson.get(i) as JSONObject) as Map<String, String>)
+        }
+
+        val expectedExJson = JSONArray(expectedMap["ex"])
+
+        val expectedExList = mutableListOf<Map<String, String>>()
+        for (i in 0 until returnedExJson.length()) {
+            expectedExList.add(JsonUtils.toFlatMap(expectedExJson.get(i) as JSONObject) as Map<String, String>)
+        }
+
+        returnedExList shouldBe expectedExList
     }
 
     @Test
