@@ -34,7 +34,7 @@ public class PredictResponseMapper implements Mapper<ResponseModel, List<Product
 
                     Map<String, String> productFields = JsonUtils.toFlatMap(product);
 
-                    Product productBuilder = buildProductFromFields(productFields);
+                    Product productBuilder = buildProductFromFields(key, productFields);
                     result.add(productBuilder);
                 }
             }
@@ -44,7 +44,7 @@ public class PredictResponseMapper implements Mapper<ResponseModel, List<Product
         return result;
     }
 
-    private Product buildProductFromFields(Map<String, String> productFields) {
+    private Product buildProductFromFields(String feature, Map<String, String> productFields) {
         String msrp = productFields.remove("msrp");
         String price = productFields.remove("price");
         String available = productFields.remove("available");
@@ -52,8 +52,8 @@ public class PredictResponseMapper implements Mapper<ResponseModel, List<Product
         Product.Builder productBuilder = new Product.Builder(
                 productFields.remove("item"),
                 productFields.remove("title"),
-                productFields.remove("link")
-        );
+                productFields.remove("link"),
+                feature);
         productBuilder.categoryPath(productFields.remove("category"));
         if (available != null) {
             productBuilder.available(Boolean.valueOf(available));
