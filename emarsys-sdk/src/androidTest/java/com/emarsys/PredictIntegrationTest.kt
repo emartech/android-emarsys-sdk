@@ -21,6 +21,7 @@ import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.Product
+import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.api.model.RecommendationLogic
 import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
@@ -236,6 +237,20 @@ class PredictIntegrationTest {
         Emarsys.Predict.trackSearchTerm(searchTerm)
 
         eventuallyAssertSuccess()
+    }
+
+    @Test
+    fun testRecommendProducts() {
+        Emarsys.Predict.recommendProducts(RecommendationLogic.search("polo shirt"),
+                3,
+                listOf(RecommendationFilter.exclude("price").`is`("")),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+            latch.await()
+
+            triedRecommendedProducts.errorCause shouldBe null
+            triedRecommendedProducts.result shouldNotBe null
+            triedRecommendedProducts.result!!.size shouldBe 3
+        }
     }
 
     @Test
