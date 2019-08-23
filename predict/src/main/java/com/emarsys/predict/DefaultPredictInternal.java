@@ -119,7 +119,16 @@ public class DefaultPredictInternal implements PredictInternal {
 
     @Override
     public String trackItemView(Product product) {
-        return null;
+        Assert.notNull(product, "Product must not be null!");
+
+        ShardModel shard = new ShardModel.Builder(timestampProvider, uuidProvider)
+                .type(TYPE_ITEM_VIEW)
+                .payloadEntry("v", "i:" + product.getProductId() + ",t:" + product.getFeature())
+                .build();
+
+        requestManager.submit(shard);
+        lastTrackedContainer.setLastItemView(product.getProductId());
+        return shard.getId();
     }
 
     @Override

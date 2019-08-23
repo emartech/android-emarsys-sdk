@@ -43,7 +43,7 @@ class DefaultPredictInternalTest {
         const val TIMESTAMP = 100000L
         const val ID1 = "id1"
         const val ID2 = "id2"
-
+        val PRODUCT = Product.Builder(ID1, "title", "https://emarsys.com", "RELATED").build()
         const val FIELD = "Field"
         const val COMPARISON = "Comparison"
         const val TYPE = "INCLUDE_OR_EXCLUDE"
@@ -258,12 +258,22 @@ class DefaultPredictInternalTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testTrackItemView_itemId_mustNotBeNull() {
-        predictInternal.trackItemView(null)
+        predictInternal.trackItemView(null as String?)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testTrackItemView_product_mustNotBeNull() {
+        predictInternal.trackItemView(null as Product?)
     }
 
     @Test
     fun testTrackItemView_returnsShardId() {
         Assert.assertEquals(ID1, predictInternal.trackItemView("itemId"))
+    }
+
+    @Test
+    fun testTrackItemView_withProduct_returnsShardId() {
+        Assert.assertEquals(ID1, predictInternal.trackItemView(PRODUCT))
     }
 
     @Test
@@ -278,6 +288,20 @@ class DefaultPredictInternalTest {
                 TTL)
 
         predictInternal.trackItemView(itemId)
+
+        verify(mockRequestManager).submit(expectedShardModel)
+    }
+
+    @Test
+    fun testTrackItemView_withProduct_shouldCallRequestManager_withCorrectShardModel() {
+        val expectedShardModel = ShardModel(
+                ID1,
+                "predict_item_view",
+                mapOf("v" to "i:${PRODUCT.productId},t:${PRODUCT.feature}"),
+                TIMESTAMP,
+                TTL)
+
+        predictInternal.trackItemView(PRODUCT)
 
         verify(mockRequestManager).submit(expectedShardModel)
     }
@@ -370,6 +394,13 @@ class DefaultPredictInternalTest {
         ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
         predictInternal.trackItemView(itemId)
         verify(mockLastTrackedItemContainer).lastItemView = itemId
+    }
+
+    @Test
+    fun testTrackItemView_withProduct_shouldSetLastTrackedItemContainersLastItemViewField_withCorrectItemId() {
+        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        predictInternal.trackItemView(PRODUCT)
+        verify(mockLastTrackedItemContainer).lastItemView = PRODUCT.productId
     }
 
     @Test

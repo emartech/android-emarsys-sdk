@@ -216,6 +216,18 @@ class PredictIntegrationTest {
     }
 
     @Test
+    fun testTrackItemView_withProduct() {
+        val product = Product.Builder("2168", "TestTitle", "https://emarsys.com", "RELATED").build()
+        responseModelMatches = {
+            it.baseUrl.contains(product.productId)
+        }
+
+        Emarsys.Predict.trackItemView(product)
+
+        eventuallyAssertSuccess()
+    }
+
+    @Test
     fun testTrackCategoryView() {
         val categoryId = "MEN>Shirts"
         responseModelMatches = {
