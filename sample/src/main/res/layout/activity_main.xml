@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/defaultBackground"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    </androidx.viewpager.widget.ViewPager>
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -15,11 +25,13 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
+            app:subtitleTextColor="@color/colorSecondaryText"
             app:tabIndicatorColor="@color/colorAccent"
             app:tabSelectedTextColor="@color/colorSecondaryText"
             app:tabTextColor="@color/colorSecondaryText"
             app:title="@string/app_name"
-            app:titleTextColor="@color/colorSecondaryText">
+            app:titleTextColor="@color/colorSecondaryText"
+            tools:subtitle="2.0.0">
 
         </androidx.appcompat.widget.Toolbar>
 
@@ -32,13 +44,4 @@
             app:tabSelectedTextColor="@color/colorSecondaryText"
             app:tabTextColor="@color/colorSecondaryText" />
     </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/viewPager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/defaultBackground"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-    </androidx.viewpager.widget.ViewPager>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
