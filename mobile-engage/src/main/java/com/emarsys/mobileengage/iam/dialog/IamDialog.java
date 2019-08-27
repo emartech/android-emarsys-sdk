@@ -67,6 +67,7 @@ public class IamDialog extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         setStyle(DialogFragment.STYLE_NO_FRAME, android.R.style.Theme_Dialog);
     }
 
@@ -86,7 +87,7 @@ public class IamDialog extends DialogFragment {
     public void onStart() {
         super.onStart();
 
-        webViewContainer.addView(webView);
+         webViewContainer.addView(webView);
 
         getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
@@ -120,12 +121,14 @@ public class IamDialog extends DialogFragment {
     @Override
     public void onCancel(DialogInterface dialog) {
         saveOnScreenTime();
+        setRetainInstance(false);
         super.onCancel(dialog);
     }
 
     @Override
     public void dismiss() {
         saveOnScreenTime();
+        setRetainInstance(false);
         super.dismiss();
     }
 
@@ -146,6 +149,14 @@ public class IamDialog extends DialogFragment {
         super.onDestroy();
         webView.removeAllViews();
         webView.destroy();
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (getDialog() != null && getRetainInstance()) {
+            getDialog().setDismissMessage(null);
+        }
+        super.onDestroyView();
     }
 
     private void updateOnScreenTime() {
