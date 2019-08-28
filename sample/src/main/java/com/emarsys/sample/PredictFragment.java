@@ -9,11 +9,8 @@ import android.widget.TextView;
 
 import com.emarsys.Emarsys;
 import com.emarsys.predict.api.model.CartItem;
-import com.emarsys.predict.api.model.Product;
-import com.emarsys.predict.api.model.RecommendationLogic;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -84,16 +81,6 @@ public class PredictFragment extends BaseFragment {
                 Emarsys.Predict.trackPurchase(orderIdText, cartItems);
             }
         });
-
-        root.findViewById(R.id.recommendButton).setOnClickListener(view ->
-                Emarsys.Predict.recommendProducts(RecommendationLogic.search("polo shirt"),
-                        result -> {
-                            if (result.getResult() != null) {
-                                List<Product> products = result.getResult();
-                                recommendationResult.setText(Arrays.toString(products.toArray())
-                                );
-                            }
-                        }));
 
         return root;
     }
