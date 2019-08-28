@@ -275,19 +275,19 @@ public class Emarsys {
             predict.trackSearchTerm(searchTerm);
         }
 
-        static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
+        public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
             predict.recommendProducts(recommendationLogic, resultListener);
         }
 
-        static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final Integer limit, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
+        public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final Integer limit, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
             predict.recommendProducts(recommendationLogic, limit, resultListener);
         }
 
-        static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull ResultListener<Try<List<Product>>> resultListener) {
+        public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull ResultListener<Try<List<Product>>> resultListener) {
             predict.recommendProducts(recommendationLogic, recommendationFilters, resultListener);
         }
 
-        static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final Integer limit, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull ResultListener<Try<List<Product>>> resultListener) {
+        public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final Integer limit, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull ResultListener<Try<List<Product>>> resultListener) {
             predict.recommendProducts(recommendationLogic, limit, recommendationFilters, resultListener);
         }
     }
