@@ -36,5 +36,7 @@
     <string name="orderId_hint">oderId</string>
     <string name="categoryView_hint">categoryView</string>
     <string name="track_category_view_button_label">Track Category View</string>
+    <string name="recommend_title">Recommend Product</string>
+    <string name="recommend_button_label">Recommend</string>
 
 </resources>

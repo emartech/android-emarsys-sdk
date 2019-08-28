@@ -6,8 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.emarsys.Emarsys
 import com.emarsys.predict.api.model.CartItem
+import com.emarsys.predict.api.model.RecommendationLogic
+import com.emarsys.sample.ProductsAdapter
 import com.emarsys.sample.R
 import com.emarsys.sample.SampleCartItem
 import com.emarsys.sample.extensions.showSnackBar
@@ -26,6 +29,8 @@ class PredictFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        productsRecycleView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        productsRecycleView.adapter = ProductsAdapter()
 
         buttonTrackItemView.setOnClickListener {
             val itemView = itemId.text.toString()
@@ -69,6 +74,18 @@ class PredictFragment : Fragment() {
             if (item.isNotEmpty()) {
                 Emarsys.Predict.trackPurchase(item, cartContent as List<CartItem>)
                 view.showSnackBar("Track purchase of $item: OK")
+            }
+        }
+
+        buttonRecommend.setOnClickListener {
+            val searchTerm = searchTermForRecommend.text.toString()
+            if (searchTerm.isNotEmpty()) {
+                Emarsys.Predict.recommendProducts(RecommendationLogic.search(searchTerm)) {
+                    if (it.result != null) {
+                        val products = it.result ?: listOf()
+                        (productsRecycleView.adapter as ProductsAdapter).addItems(products)
+                    }
+                }
             }
         }
     }
