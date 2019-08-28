@@ -46,7 +46,7 @@ To integrate EmarsysSDK into your Android project using Gradle, specify it in yo
 
 ```groovy
 dependencies {
-	implementation 'com.emarsys:emarsys-sdk:2.0.0'
+	implementation 'com.emarsys:emarsys-sdk:2.0.1'
 }
 ```
 
