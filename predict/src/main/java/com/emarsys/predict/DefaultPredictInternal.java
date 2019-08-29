@@ -12,6 +12,7 @@ import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
+import com.emarsys.core.util.JsonUtils;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
@@ -21,7 +22,9 @@ import com.emarsys.predict.provider.PredictRequestModelBuilderProvider;
 import com.emarsys.predict.request.PredictRequestContext;
 import com.emarsys.predict.util.CartItemUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DefaultPredictInternal implements PredictInternal {
 
@@ -33,6 +36,7 @@ public class DefaultPredictInternal implements PredictInternal {
     private static final String TYPE_ITEM_VIEW = "predict_item_view";
     private static final String TYPE_CATEGORY_VIEW = "predict_category_view";
     private static final String TYPE_SEARCH_TERM = "predict_search_term";
+    private static final String TYPE_TAG = "predict_tag";
 
     private final UUIDProvider uuidProvider;
     private final TimestampProvider timestampProvider;
@@ -157,6 +161,28 @@ public class DefaultPredictInternal implements PredictInternal {
         requestManager.submit(shard);
         lastTrackedContainer.setLastSearchTerm(searchTerm);
         return shard.getId();
+    }
+
+    @Override
+    public void trackTag(String tag, Map<String, String> attributes) {
+        Assert.notNull(tag, "Tag must not be null!");
+
+        ShardModel.Builder shardBuilder = new ShardModel.Builder(timestampProvider, uuidProvider)
+                .type(TYPE_TAG);
+
+        if (attributes == null) {
+            shardBuilder.payloadEntry("t", tag);
+        } else {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("name", tag);
+            payload.put("attributes", attributes);
+
+            shardBuilder.payloadEntry("ta", JsonUtils.fromMap(payload).toString());
+        }
+
+        ShardModel shard = shardBuilder.build();
+
+        requestManager.submit(shard);
     }
 
     @Override

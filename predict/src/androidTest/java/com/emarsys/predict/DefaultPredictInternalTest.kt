@@ -358,6 +358,43 @@ class DefaultPredictInternalTest {
         verify(mockRequestManager).submit(expectedShardModel)
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun testTrackTag_tag_mustNotBeNull() {
+        predictInternal.trackTag(null, mapOf())
+    }
+
+    @Test
+    fun testTrackTag_shouldCallRequestManager_withCorrectShardModel() {
+        val tag = "testTag"
+
+        val expectedShardModel = ShardModel(
+                ID1,
+                "predict_tag",
+                mapOf("ta" to """{"name":"$tag","attributes":{"testKey":"testValue"}}"""),
+                TIMESTAMP,
+                TTL)
+
+        predictInternal.trackTag(tag, mapOf("testKey" to "testValue"))
+
+        verify(mockRequestManager).submit(expectedShardModel)
+    }
+
+    @Test
+    fun testTrackTag_shouldCallRequestManager_withCorrectShardModel_when_attributesIsNull() {
+        val tag = "testTag"
+
+        val expectedShardModel = ShardModel(
+                ID1,
+                "predict_tag",
+                mapOf("t" to tag),
+                TIMESTAMP,
+                TTL)
+
+        predictInternal.trackTag(tag, null)
+
+        verify(mockRequestManager).submit(expectedShardModel)
+    }
+
     @Test
     fun testTrackSearchTerm_shouldSetLastTrackedItemContainersLastSearchTermField_withCorrectSearchTerm() {
         val searchTerm = "searchTerm"

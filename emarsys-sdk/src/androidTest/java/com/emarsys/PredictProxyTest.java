@@ -20,6 +20,7 @@ import org.junit.rules.TestRule;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
@@ -139,7 +140,7 @@ public class PredictProxyTest {
 
     @Test
     public void testPredict_trackItemView_withProduct_delegatesTo_predictInternal() {
-        Product product = new Product.Builder(RandomTestUtils.randomString(), RandomTestUtils.randomString(), "https://emarsys.com", RandomTestUtils.randomString(),RandomTestUtils.randomNumberString()).build();
+        Product product = new Product.Builder(RandomTestUtils.randomString(), RandomTestUtils.randomString(), "https://emarsys.com", RandomTestUtils.randomString(), RandomTestUtils.randomNumberString()).build();
 
         predictProxy.trackItemView(product);
 
@@ -172,6 +173,18 @@ public class PredictProxyTest {
         predictProxy.trackSearchTerm(searchTerm);
 
         verify(mockPredictInternal).trackSearchTerm(searchTerm);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_trackTag_tag_mustNotBeNull() {
+        predictProxy.trackTag(null, new HashMap<String, String>());
+    }
+
+    @Test
+    public void testPredict_trackTag_delegatesTo_predictInternal() {
+        predictProxy.trackTag("testTag", new HashMap<String, String>());
+
+        verify(mockPredictInternal).trackTag("testTag", new HashMap<String, String>());
     }
 
     @Test(expected = IllegalArgumentException.class)

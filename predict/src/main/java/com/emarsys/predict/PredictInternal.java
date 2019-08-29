@@ -8,6 +8,7 @@ import com.emarsys.predict.api.model.Product;
 import com.emarsys.predict.api.model.RecommendationFilter;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PredictInternal {
     void setContact(String contactId);
@@ -25,6 +26,8 @@ public interface PredictInternal {
     String trackCategoryView(String categoryPath);
 
     String trackSearchTerm(String searchTerm);
+
+    void trackTag(String tag, Map<String, String> attributes);
 
     void recommendProducts(Logic recommendationLogic, Integer limit, List<RecommendationFilter> recommendationFilters, ResultListener<Try<List<Product>>> resultListener);
 

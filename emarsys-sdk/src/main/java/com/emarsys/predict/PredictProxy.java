@@ -106,8 +106,15 @@ public class PredictProxy implements PredictApi {
     }
 
     @Override
-    public void trackTag(@NonNull String tag, @Nullable Map<String, String> attributes) {
+    public void trackTag(@NonNull final String tag, @Nullable final Map<String, String> attributes) {
+        runnerProxy.logException(new Runnable() {
+            @Override
+            public void run() {
+                Assert.notNull(tag, "Tag must not be null!");
 
+                predictInternal.trackTag(tag, attributes);
+            }
+        });
     }
 
     @Override
