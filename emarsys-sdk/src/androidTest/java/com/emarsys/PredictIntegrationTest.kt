@@ -252,6 +252,18 @@ class PredictIntegrationTest {
     }
 
     @Test
+    fun testTrackTag() {
+        val tag = "testTag"
+        responseModelMatches = {
+            it.baseUrl.contains(tag)
+        }
+
+        Emarsys.Predict.trackTag(tag, mapOf("testKey" to "testValue"))
+
+        eventuallyAssertSuccess()
+    }
+
+    @Test
     fun testRecommendProducts() {
         Emarsys.Predict.recommendProducts(RecommendationLogic.search("polo shirt"),
                 3,
