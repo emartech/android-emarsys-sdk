@@ -1110,6 +1110,15 @@ public class EmarsysTest {
     }
 
     @Test
+    public void testPredict_trackTag_delegatesTo_predictInstance() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.Predict.trackTag("testTag", new HashMap<String, String>());
+
+        verify(mockPredict).trackTag("testTag", new HashMap<String, String>());
+    }
+
+    @Test
     public void testPredict_recommendProducts_delegatesTo_predictInstance() {
         Emarsys.setup(predictConfig);
 

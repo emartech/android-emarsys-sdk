@@ -275,6 +275,10 @@ public class Emarsys {
             predict.trackSearchTerm(searchTerm);
         }
 
+        public static void trackTag(@NonNull String tag, @Nullable Map<String, String> attributes) {
+            predict.trackTag(tag, attributes);
+        }
+
         public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
             predict.recommendProducts(recommendationLogic, resultListener);
         }

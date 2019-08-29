@@ -2,6 +2,7 @@ package com.emarsys.predict;
 
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.emarsys.core.RunnerProxy;
 import com.emarsys.core.api.result.ResultListener;
@@ -13,6 +14,7 @@ import com.emarsys.predict.api.model.Product;
 import com.emarsys.predict.api.model.RecommendationFilter;
 
 import java.util.List;
+import java.util.Map;
 
 public class PredictProxy implements PredictApi {
 
@@ -101,6 +103,11 @@ public class PredictProxy implements PredictApi {
                 predictInternal.trackSearchTerm(searchTerm);
             }
         });
+    }
+
+    @Override
+    public void trackTag(@NonNull String tag, @Nullable Map<String, String> attributes) {
+
     }
 
     @Override
