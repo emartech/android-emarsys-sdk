@@ -23,10 +23,11 @@ public class PredictResponseMapper implements Mapper<ResponseModel, List<Product
             JSONObject jsonResponse = new JSONObject(responseModel.getBody());
             JSONObject products = jsonResponse.getJSONObject("products");
             JSONObject features = jsonResponse.getJSONObject("features");
+            String cohort = jsonResponse.getString("cohort");
             Iterator<String> keys = features.keys();
             while (keys.hasNext()) {
-                String key = keys.next();
-                JSONObject feature = features.getJSONObject(key);
+                String logicName = keys.next();
+                JSONObject feature = features.getJSONObject(logicName);
                 JSONArray productOrder = feature.getJSONArray("items");
 
                 for (int i = 0; i < productOrder.length(); i++) {
@@ -34,7 +35,7 @@ public class PredictResponseMapper implements Mapper<ResponseModel, List<Product
 
                     Map<String, String> productFields = JsonUtils.toFlatMap(product);
 
-                    Product productBuilder = buildProductFromFields(key, productFields);
+                    Product productBuilder = buildProductFromFields(logicName, cohort, productFields);
                     result.add(productBuilder);
                 }
             }
@@ -44,7 +45,7 @@ public class PredictResponseMapper implements Mapper<ResponseModel, List<Product
         return result;
     }
 
-    private Product buildProductFromFields(String feature, Map<String, String> productFields) {
+    private Product buildProductFromFields(String feature, String cohort, Map<String, String> productFields) {
         String msrp = productFields.remove("msrp");
         String price = productFields.remove("price");
         String available = productFields.remove("available");
@@ -53,7 +54,8 @@ public class PredictResponseMapper implements Mapper<ResponseModel, List<Product
                 productFields.remove("item"),
                 productFields.remove("title"),
                 productFields.remove("link"),
-                feature);
+                feature,
+                cohort);
         productBuilder.categoryPath(productFields.remove("category"));
         if (available != null) {
             productBuilder.available(Boolean.valueOf(available));

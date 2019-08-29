@@ -33,7 +33,8 @@ class PredictResponseMapperTest {
                         "2119",
                         "LSL Men Polo Shirt SE16",
                         "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
-                        feature)
+                        feature,
+                        "AAAA")
                         .categoryPath("MEN>Shirts")
                         .available(true)
                         .msrp(100.0F)
@@ -72,7 +73,8 @@ class PredictResponseMapperTest {
                         "2120",
                         "LSL Men Polo Shirt SE16",
                         "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
-                        feature)
+                        feature,
+                        "AAAA")
                         .build())
     }
 

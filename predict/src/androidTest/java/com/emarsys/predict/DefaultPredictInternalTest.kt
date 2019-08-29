@@ -43,7 +43,7 @@ class DefaultPredictInternalTest {
         const val TIMESTAMP = 100000L
         const val ID1 = "id1"
         const val ID2 = "id2"
-        val PRODUCT = Product.Builder(ID1, "title", "https://emarsys.com", "RELATED").build()
+        val PRODUCT: Product = Product.Builder(ID1, "title", "https://emarsys.com", "RELATED", "AAAA").build()
         const val FIELD = "Field"
         const val COMPARISON = "Comparison"
         const val TYPE = "INCLUDE_OR_EXCLUDE"
@@ -297,7 +297,7 @@ class DefaultPredictInternalTest {
         val expectedShardModel = ShardModel(
                 ID1,
                 "predict_item_view",
-                mapOf("v" to "i:${PRODUCT.productId},t:${PRODUCT.feature}"),
+                mapOf("v" to "i:${PRODUCT.productId},t:${PRODUCT.feature},c:${PRODUCT.cohort}"),
                 TIMESTAMP,
                 TTL)
 

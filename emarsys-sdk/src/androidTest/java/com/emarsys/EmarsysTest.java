@@ -1085,7 +1085,7 @@ public class EmarsysTest {
     @Test
     public void testPredict_trackItemView_product_delegatesTo_predictInstance() {
         Emarsys.setup(predictConfig);
-        Product product = new Product.Builder("itemId", "title", "https://emarsys.com", "RELATED").build();
+        Product product = new Product.Builder("itemId", "title", "https://emarsys.com", "RELATED", "AAAA").build();
         Emarsys.Predict.trackItemView(product);
 
         verify(mockPredict).trackItemView(product);

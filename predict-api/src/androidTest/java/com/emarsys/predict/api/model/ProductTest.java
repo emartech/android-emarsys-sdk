@@ -20,6 +20,7 @@ public class ProductTest {
     private static final String TITLE = "title";
     private static final String LINK_URL = "https://emarsys.com";
     private static final String FEATURE = "feature";
+    private static final String COHORT = "AAAA";
     private static final Map<String, String> CUSTOM_FIELDS = new HashMap<>();
     private static final String IMAGE_URL = "https://emarsys.com";
     private static final String CATEGORY_PATH = "category path";
@@ -37,34 +38,39 @@ public class ProductTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_productId_mustNotBeNull() {
-        new Product.Builder(null, TITLE, LINK_URL, FEATURE).customFields(CUSTOM_FIELDS).build();
+        new Product.Builder(null, TITLE, LINK_URL, FEATURE, COHORT).customFields(CUSTOM_FIELDS).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_title_mustNotBeNull() {
-        new Product.Builder(ID, null, LINK_URL, FEATURE).customFields(CUSTOM_FIELDS).build();
+        new Product.Builder(ID, null, LINK_URL, FEATURE, COHORT).customFields(CUSTOM_FIELDS).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_linkUrl_mustNotBeNull() {
-        new Product.Builder(ID, TITLE, null, FEATURE).customFields(CUSTOM_FIELDS).build();
+        new Product.Builder(ID, TITLE, null, FEATURE, COHORT).customFields(CUSTOM_FIELDS).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_feature_mustNotBeNull() {
-        new Product.Builder(ID, TITLE, LINK_URL, null).customFields(CUSTOM_FIELDS).build();
+        new Product.Builder(ID, TITLE, LINK_URL, null, COHORT).customFields(CUSTOM_FIELDS).build();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_cohort_mustNotBeNull() {
+        new Product.Builder(ID, TITLE, LINK_URL, FEATURE, null).customFields(CUSTOM_FIELDS).build();
     }
 
     @Test
     public void testBuilder_customFields_shouldInitWithEmptyMap_insteadOfNull() {
-        Product product = new Product.Builder(ID, TITLE, LINK_URL, FEATURE).build();
+        Product product = new Product.Builder(ID, TITLE, LINK_URL, FEATURE, COHORT).build();
 
         assertNotNull(product.getCustomFields());
     }
 
     @Test
     public void testBuilder_mandatoryParameters_areInitialized() throws MalformedURLException {
-        Product result = new Product.Builder(ID, TITLE, LINK_URL, FEATURE).build();
+        Product result = new Product.Builder(ID, TITLE, LINK_URL, FEATURE, COHORT).build();
 
         assertEquals(ID, result.getProductId());
         assertEquals(TITLE, result.getTitle());
@@ -77,7 +83,7 @@ public class ProductTest {
         Map<String, String> customFields = new HashMap<>();
         customFields.put("customKey", "customValue");
 
-        Product result = new Product.Builder(ID, TITLE, LINK_URL, FEATURE)
+        Product result = new Product.Builder(ID, TITLE, LINK_URL, FEATURE, COHORT)
                 .customFields(customFields)
                 .imageUrl(IMAGE_URL)
                 .zoomImageUrl(IMAGE_URL)
@@ -94,7 +100,7 @@ public class ProductTest {
                 .year(YEAR)
                 .build();
 
-        Product expected = new Product(ID, TITLE, LINK_URL, FEATURE, customFields, IMAGE_URL, IMAGE_URL, CATEGORY_PATH, true, PRODUCT_DESCRIPTION, PRICE, PRICE, ALBUM, ACTOR, ARTIST, AUTHOR, BRAND, YEAR);
+        Product expected = new Product(ID, TITLE, LINK_URL, FEATURE, COHORT, customFields, IMAGE_URL, IMAGE_URL, CATEGORY_PATH, true, PRODUCT_DESCRIPTION, PRICE, PRICE, ALBUM, ACTOR, ARTIST, AUTHOR, BRAND, YEAR);
 
         assertEquals(expected, result);
     }
@@ -103,10 +109,10 @@ public class ProductTest {
     public void testBuilder_withRequiredArguments() {
         Map<String, String> customFields = new HashMap<>();
 
-        Product result = new Product.Builder(ID, TITLE, LINK_URL, FEATURE)
+        Product result = new Product.Builder(ID, TITLE, LINK_URL, FEATURE, COHORT)
                 .build();
 
-        Product expected = new Product(ID, TITLE, LINK_URL, FEATURE, customFields, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        Product expected = new Product(ID, TITLE, LINK_URL, FEATURE, COHORT, customFields, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         assertEquals(expected, result);
     }

@@ -139,7 +139,7 @@ public class PredictProxyTest {
 
     @Test
     public void testPredict_trackItemView_withProduct_delegatesTo_predictInternal() {
-        Product product = new Product.Builder(RandomTestUtils.randomString(), RandomTestUtils.randomString(), "https://emarsys.com", RandomTestUtils.randomString()).build();
+        Product product = new Product.Builder(RandomTestUtils.randomString(), RandomTestUtils.randomString(), "https://emarsys.com", RandomTestUtils.randomString(),RandomTestUtils.randomNumberString()).build();
 
         predictProxy.trackItemView(product);
 

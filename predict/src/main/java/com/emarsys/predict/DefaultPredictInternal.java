@@ -123,7 +123,7 @@ public class DefaultPredictInternal implements PredictInternal {
 
         ShardModel shard = new ShardModel.Builder(timestampProvider, uuidProvider)
                 .type(TYPE_ITEM_VIEW)
-                .payloadEntry("v", "i:" + product.getProductId() + ",t:" + product.getFeature())
+                .payloadEntry("v", "i:" + product.getProductId() + ",t:" + product.getFeature() + ",c:" + product.getCohort())
                 .build();
 
         requestManager.submit(shard);

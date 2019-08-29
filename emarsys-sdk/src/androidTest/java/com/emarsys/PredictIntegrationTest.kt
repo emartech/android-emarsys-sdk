@@ -217,7 +217,7 @@ class PredictIntegrationTest {
 
     @Test
     fun testTrackItemView_withProduct() {
-        val product = Product.Builder("2168", "TestTitle", "https://emarsys.com", "RELATED").build()
+        val product = Product.Builder("2168", "TestTitle", "https://emarsys.com", "RELATED", "AAAA").build()
         responseModelMatches = {
             it.baseUrl.contains(product.productId)
         }
