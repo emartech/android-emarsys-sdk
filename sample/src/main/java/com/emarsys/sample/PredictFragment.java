@@ -94,7 +94,6 @@ public class PredictFragment extends BaseFragment {
                                 );
                             }
                         }));
-
         return root;
     }
 

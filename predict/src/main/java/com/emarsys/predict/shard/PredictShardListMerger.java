@@ -6,8 +6,9 @@ import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
 import com.emarsys.predict.DefaultPredictInternal;
+import com.emarsys.predict.provider.PredictRequestModelBuilderProvider;
 import com.emarsys.predict.request.PredictRequestContext;
-import com.emarsys.predict.request.PredictRequestModelFactory;
+import com.emarsys.predict.request.PredictRequestModelBuilder;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,14 +17,14 @@ import java.util.Map;
 public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestModel> {
 
     private final PredictRequestContext predictRequestContext;
-    private final PredictRequestModelFactory requestModelFactory;
+    private final PredictRequestModelBuilder predictRequestModelBuilder;
 
-    public PredictShardListMerger(PredictRequestContext predictRequestContext, PredictRequestModelFactory requestModelFactory) {
+    public PredictShardListMerger(PredictRequestContext predictRequestContext, PredictRequestModelBuilderProvider predictRequestModelBuilderProvider) {
         Assert.notNull(predictRequestContext, "PredictRequestContext must not be null!");
-        Assert.notNull(requestModelFactory, "PredictRequestModelFactory must not be null!");
+        Assert.notNull(predictRequestModelBuilderProvider, "PredictRequestModelBuilderProvider must not be null!");
 
         this.predictRequestContext = predictRequestContext;
-        this.requestModelFactory = requestModelFactory;
+        this.predictRequestModelBuilder = predictRequestModelBuilderProvider.providePredictRequestModelBuilder();
     }
 
     @Override
@@ -32,7 +33,8 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
         Assert.notEmpty(shards, "Shards must not be empty!");
         Assert.elementsNotNull(shards, "Shard elements must not be null!");
         Map<String, Object> shardData = mergeShardData(shards);
-        return requestModelFactory.createRequestFromShardData(shardData);
+
+        return predictRequestModelBuilder.withShardData(shardData).build();
     }
 
     private Map<String, Object> mergeShardData(List<ShardModel> shards) {

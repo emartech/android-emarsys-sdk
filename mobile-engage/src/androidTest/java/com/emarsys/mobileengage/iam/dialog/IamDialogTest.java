@@ -2,10 +2,15 @@ package com.emarsys.mobileengage.iam.dialog;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.webkit.WebView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.rule.ActivityTestRule;
 
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
@@ -25,13 +30,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.test.filters.SdkSuppress;
-import androidx.test.rule.ActivityTestRule;
-
 import static android.os.Build.VERSION_CODES.KITKAT;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -136,6 +139,75 @@ public class IamDialogTest {
     }
 
     @Test
+    public void testDialog_stillVisible_afterOrientationChange() throws InterruptedException {
+        final IamDialog iamDialog = IamDialog.create(CAMPAIGN_ID, REQUEST_ID_KEY);
+        final AppCompatActivity activity = activityRule.getActivity();
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                iamDialog.show((activity).getSupportFragmentManager(), "testDialog");
+            }
+        });
+        activityRule.getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        getInstrumentation().waitForIdleSync();
+        initWebViewProvider();
+        activityRule.getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        getInstrumentation().waitForIdleSync();
+        initWebViewProvider();
+
+        float dialogWidth = activityRule.getActivity().getWindow().getAttributes().width;
+        float dialogHeight = activityRule.getActivity().getWindow().getAttributes().height;
+
+        float windowWidth = iamDialog.getDialog().getWindow().getAttributes().width;
+        float windowHeight = iamDialog.getDialog().getWindow().getAttributes().height;
+
+        assertEquals(windowWidth, dialogWidth, 0.0001);
+        assertEquals(windowHeight, dialogHeight, 0.0001);
+    }
+
+    @Test
+    public void testDialog_cancel_turnsRetainInstanceOff() {
+        final IamDialog iamDialog = IamDialog.create(CAMPAIGN_ID, REQUEST_ID_KEY);
+        final AppCompatActivity activity = activityRule.getActivity();
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                iamDialog.show((activity).getSupportFragmentManager(), "testDialog");
+            }
+        });
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        getInstrumentation().waitForIdleSync();
+
+        iamDialog.getDialog().cancel();
+
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        getInstrumentation().waitForIdleSync();
+
+        assertFalse(iamDialog.getRetainInstance());
+    }
+
+    @Test
+    public void testDialog_dismiss_turnsRetainInstanceOff() {
+        final IamDialog iamDialog = IamDialog.create(CAMPAIGN_ID, REQUEST_ID_KEY);
+        final AppCompatActivity activity = activityRule.getActivity();
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                iamDialog.show((activity).getSupportFragmentManager(), "testDialog");
+            }
+        });
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        getInstrumentation().waitForIdleSync();
+
+        iamDialog.dismiss();
+
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        getInstrumentation().waitForIdleSync();
+
+        assertFalse(iamDialog.getRetainInstance());
+    }
+
+    @Test
     public void testOnResume_callsActions_ifProvided() throws InterruptedException {
         Bundle args = new Bundle();
         args.putString(CAMPAIGN_ID_KEY, "123456789");
@@ -204,7 +276,6 @@ public class IamDialogTest {
 
     private void displayDialog() throws InterruptedException {
         dialog.resumeLatch = new CountDownLatch(1);
-
         final AppCompatActivity activity = activityRule.getActivity();
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -212,7 +283,6 @@ public class IamDialogTest {
                 dialog.show((activity).getSupportFragmentManager(), "testDialog");
             }
         });
-
         dialog.resumeLatch.await();
     }
 

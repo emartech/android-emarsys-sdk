@@ -16,6 +16,16 @@ public final class Assert {
         }
     }
 
+    public static void positiveInt(Integer integer, String message) {
+        notNull(integer, null);
+        if (integer < 1) {
+            if (message == null) {
+                message = "Argument must be greater than zero!";
+            }
+            throw new IllegalArgumentException(message);
+        }
+    }
+
     public static void elementsNotNull(Object[] array, String message) {
         notNull(array, null);
         for (Object object : array) {

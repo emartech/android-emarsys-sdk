@@ -21,9 +21,12 @@ public class RecommendationLogic implements Logic {
     private String logicName;
     private Map<String, String> data;
 
-    private RecommendationLogic(String logicName, Map<String, String> data) {
+    RecommendationLogic(String logicName, Map<String, String> logicData) {
+        Assert.notNull(logicName, "LogicName must not be null!");
+        Assert.notNull(logicData, "LogicData must not be null!");
+
         this.logicName = logicName;
-        this.data = data;
+        this.data = logicData;
     }
 
     public static Logic search() {
@@ -58,7 +61,7 @@ public class RecommendationLogic implements Logic {
         return new RecommendationLogic(RELATED, data);
     }
 
-    public static Logic related(String itemId) {
+    public static Logic related(@NonNull String itemId) {
         Assert.notNull(itemId, "ItemId must not be null!");
         Map<String, String> data = new HashMap<>();
         data.put("v", String.format("i:%s", itemId));
@@ -70,7 +73,7 @@ public class RecommendationLogic implements Logic {
         return new RecommendationLogic(CATEGORY, data);
     }
 
-    public static Logic category(String categoryPath) {
+    public static Logic category(@NonNull String categoryPath) {
         Assert.notNull(categoryPath, "CategoryPath must not be null!");
         Map<String, String> data = new HashMap<>();
         data.put("vc", categoryPath);
@@ -82,7 +85,7 @@ public class RecommendationLogic implements Logic {
         return new RecommendationLogic(ALSO_BOUGHT, data);
     }
 
-    public static Logic alsoBought(String itemId) {
+    public static Logic alsoBought(@NonNull String itemId) {
         Assert.notNull(itemId, "ItemId must not be null!");
         Map<String, String> data = new HashMap<>();
         data.put("v", String.format("i:%s", itemId));
@@ -94,7 +97,7 @@ public class RecommendationLogic implements Logic {
         return new RecommendationLogic(POPULAR, data);
     }
 
-    public static Logic popular(String categoryPath) {
+    public static Logic popular(@NonNull String categoryPath) {
         Assert.notNull(categoryPath, "CategoryPath must not be null!");
         Map<String, String> data = new HashMap<>();
         data.put("vc", categoryPath);

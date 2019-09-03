@@ -115,9 +115,9 @@ import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.PredictProxy;
 import com.emarsys.predict.PredictResponseMapper;
+import com.emarsys.predict.provider.PredictRequestModelBuilderProvider;
 import com.emarsys.predict.request.PredictHeaderFactory;
 import com.emarsys.predict.request.PredictRequestContext;
-import com.emarsys.predict.request.PredictRequestModelFactory;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.predict.shard.PredictShardListMerger;
 import com.emarsys.push.PushApi;
@@ -477,7 +477,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
             predictRequestContext = new PredictRequestContext(config.getPredictMerchantId(), deviceInfo, timestampProvider, uuidProvider, sharedPrefsKeyStore);
 
             PredictHeaderFactory headerFactory = new PredictHeaderFactory(predictRequestContext);
-            PredictRequestModelFactory predictRequestModelFactory = new PredictRequestModelFactory(predictRequestContext, headerFactory);
+            PredictRequestModelBuilderProvider predictRequestModelBuilderProvider = new PredictRequestModelBuilderProvider(predictRequestContext, headerFactory);
             PredictResponseMapper predictResponseMapper = new PredictResponseMapper();
 
             predictShardTrigger = new BatchingShardTrigger(
@@ -485,10 +485,10 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                     new ListSizeAtLeast<ShardModel>(1),
                     new FilterByShardType(FilterByShardType.SHARD_TYPE_PREDICT),
                     new ListChunker<ShardModel>(1),
-                    new PredictShardListMerger(predictRequestContext, predictRequestModelFactory),
+                    new PredictShardListMerger(predictRequestContext, predictRequestModelBuilderProvider),
                     requestManager,
                     BatchingShardTrigger.RequestStrategy.PERSISTENT);
-            predictInternal = new DefaultPredictInternal(predictRequestContext, requestManager, predictRequestModelFactory, predictResponseMapper);
+            predictInternal = new DefaultPredictInternal(predictRequestContext, requestManager, predictRequestModelBuilderProvider, predictResponseMapper);
         } else {
             predictInternal = new LoggingPredictInternal(Emarsys.Predict.class);
         }

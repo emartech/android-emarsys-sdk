@@ -11,9 +11,8 @@ public class ListChunker<T> implements Mapper<List<T>, List<List<T>>> {
     private final int chunkSize;
 
     public ListChunker(int chunkSize) {
-        if (chunkSize < 1) {
-            throw new IllegalArgumentException("Chunk size must be greater than 0!");
-        }
+        Assert.positiveInt(chunkSize, "Chunk size must be greater than 0!");
+
         this.chunkSize = chunkSize;
     }
 

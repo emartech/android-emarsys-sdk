@@ -1,9 +1,11 @@
 package com.emarsys.sample;
 
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
 import com.emarsys.Emarsys;
@@ -26,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         adapter = new MainPagerAdapter(getSupportFragmentManager());
-
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setSubtitle(BuildConfig.VERSION_NAME);
         viewPager = findViewById(R.id.viewPager);
         viewPager.setAdapter(adapter);
 

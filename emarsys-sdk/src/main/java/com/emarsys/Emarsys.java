@@ -35,6 +35,7 @@ import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
+import com.emarsys.predict.api.model.RecommendationFilter;
 import com.emarsys.push.PushApi;
 
 import java.util.List;
@@ -262,6 +263,10 @@ public class Emarsys {
             predict.trackItemView(itemId);
         }
 
+        public static void trackItemView(@NonNull final Product product) {
+            predict.trackItemView(product);
+        }
+
         public static void trackCategoryView(@NonNull final String categoryPath) {
             predict.trackCategoryView(categoryPath);
         }
@@ -270,8 +275,24 @@ public class Emarsys {
             predict.trackSearchTerm(searchTerm);
         }
 
-        public static void recommendProducts(@NonNull Logic recommendationLogic, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
+        public static void trackTag(@NonNull String tag, @Nullable Map<String, String> attributes) {
+            predict.trackTag(tag, attributes);
+        }
+
+        public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
             predict.recommendProducts(recommendationLogic, resultListener);
+        }
+
+        public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final Integer limit, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
+            predict.recommendProducts(recommendationLogic, limit, resultListener);
+        }
+
+        public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull ResultListener<Try<List<Product>>> resultListener) {
+            predict.recommendProducts(recommendationLogic, recommendationFilters, resultListener);
+        }
+
+        public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final Integer limit, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull ResultListener<Try<List<Product>>> resultListener) {
+            predict.recommendProducts(recommendationLogic, limit, recommendationFilters, resultListener);
         }
     }
 

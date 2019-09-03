@@ -12,16 +12,19 @@ import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
+import com.emarsys.core.util.JsonUtils;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
-import com.emarsys.predict.model.InternalLogic;
+import com.emarsys.predict.api.model.RecommendationFilter;
 import com.emarsys.predict.model.LastTrackedItemContainer;
+import com.emarsys.predict.provider.PredictRequestModelBuilderProvider;
 import com.emarsys.predict.request.PredictRequestContext;
-import com.emarsys.predict.request.PredictRequestModelFactory;
 import com.emarsys.predict.util.CartItemUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DefaultPredictInternal implements PredictInternal {
 
@@ -33,26 +36,27 @@ public class DefaultPredictInternal implements PredictInternal {
     private static final String TYPE_ITEM_VIEW = "predict_item_view";
     private static final String TYPE_CATEGORY_VIEW = "predict_category_view";
     private static final String TYPE_SEARCH_TERM = "predict_search_term";
+    private static final String TYPE_TAG = "predict_tag";
 
     private final UUIDProvider uuidProvider;
     private final TimestampProvider timestampProvider;
     private final KeyValueStore keyValueStore;
     private final RequestManager requestManager;
-    private final PredictRequestModelFactory requestModelFactory;
+    private final PredictRequestModelBuilderProvider requestModelBuilderProvider;
     private final PredictResponseMapper responseMapper;
     private final LastTrackedItemContainer lastTrackedContainer;
 
-    public DefaultPredictInternal(PredictRequestContext requestContext, RequestManager requestManager, PredictRequestModelFactory requestModelFactory, PredictResponseMapper responseMapper) {
+    public DefaultPredictInternal(PredictRequestContext requestContext, RequestManager requestManager, PredictRequestModelBuilderProvider requestModelBuilderProvider, PredictResponseMapper responseMapper) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
         Assert.notNull(requestManager, "RequestManager must not be null!");
-        Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");
+        Assert.notNull(requestModelBuilderProvider, "RequestModelBuilderProvider must not be null!");
         Assert.notNull(responseMapper, "ResponseMapper must not be null!");
 
         this.keyValueStore = requestContext.getKeyValueStore();
         this.requestManager = requestManager;
         this.uuidProvider = requestContext.getUuidProvider();
         this.timestampProvider = requestContext.getTimestampProvider();
-        this.requestModelFactory = requestModelFactory;
+        this.requestModelBuilderProvider = requestModelBuilderProvider;
         this.responseMapper = responseMapper;
         lastTrackedContainer = new LastTrackedItemContainer();
     }
@@ -118,6 +122,20 @@ public class DefaultPredictInternal implements PredictInternal {
     }
 
     @Override
+    public String trackItemView(Product product) {
+        Assert.notNull(product, "Product must not be null!");
+
+        ShardModel shard = new ShardModel.Builder(timestampProvider, uuidProvider)
+                .type(TYPE_ITEM_VIEW)
+                .payloadEntry("v", "i:" + product.getProductId() + ",t:" + product.getFeature() + ",c:" + product.getCohort())
+                .build();
+
+        requestManager.submit(shard);
+        lastTrackedContainer.setLastItemView(product.getProductId());
+        return shard.getId();
+    }
+
+    @Override
     public String trackCategoryView(String categoryPath) {
         Assert.notNull(categoryPath, "CategoryPath must not be null!");
 
@@ -146,12 +164,37 @@ public class DefaultPredictInternal implements PredictInternal {
     }
 
     @Override
-    public void recommendProducts(Logic recommendationLogic, final ResultListener<Try<List<Product>>> resultListener) {
+    public void trackTag(String tag, Map<String, String> attributes) {
+        Assert.notNull(tag, "Tag must not be null!");
+
+        ShardModel.Builder shardBuilder = new ShardModel.Builder(timestampProvider, uuidProvider)
+                .type(TYPE_TAG);
+
+        if (attributes == null) {
+            shardBuilder.payloadEntry("t", tag);
+        } else {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("name", tag);
+            payload.put("attributes", attributes);
+
+            shardBuilder.payloadEntry("ta", JsonUtils.fromMap(payload).toString());
+        }
+
+        ShardModel shard = shardBuilder.build();
+
+        requestManager.submit(shard);
+    }
+
+    @Override
+    public void recommendProducts(final Logic recommendationLogic, final Integer limit, final List<RecommendationFilter> recommendationFilters, final ResultListener<Try<List<Product>>> resultListener) {
         Assert.notNull(recommendationLogic, "RecommendationLogic must not be null!");
         Assert.notNull(resultListener, "ResultListener must not be null!");
 
-        InternalLogic internalLogic = new InternalLogic(recommendationLogic, lastTrackedContainer);
-        RequestModel requestModel = requestModelFactory.createRecommendationRequest(internalLogic);
+        RequestModel requestModel = requestModelBuilderProvider.providePredictRequestModelBuilder()
+                .withLogic(recommendationLogic, lastTrackedContainer)
+                .withLimit(limit)
+                .withFilters(recommendationFilters)
+                .build();
 
         requestManager.submitNow(requestModel, new CoreCompletionHandler() {
             @Override

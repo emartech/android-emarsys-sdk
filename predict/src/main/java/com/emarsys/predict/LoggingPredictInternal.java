@@ -8,7 +8,9 @@ import com.emarsys.core.util.log.entry.MethodNotAllowed;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
+import com.emarsys.predict.api.model.RecommendationFilter;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +76,17 @@ public class LoggingPredictInternal implements PredictInternal {
     }
 
     @Override
+    public String trackItemView(Product product) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("product", product.toString());
+
+        String callerMethodName = SystemUtils.getCallerMethodName();
+
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        return null;
+    }
+
+    @Override
     public String trackCategoryView(String categoryPath) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("category_path", categoryPath);
@@ -96,10 +109,23 @@ public class LoggingPredictInternal implements PredictInternal {
     }
 
     @Override
-    public void recommendProducts(Logic recommendationLogic, ResultListener<Try<List<Product>>> resultListener) {
+    public void trackTag(String tag, Map<String, String> attributes) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("tag", tag);
+        parameters.put("attributes", attributes.toString());
+
+        String callerMethodName = SystemUtils.getCallerMethodName();
+
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+    }
+
+    @Override
+    public void recommendProducts(Logic recommendationLogic, Integer limit, List<RecommendationFilter> recommendationFilter, ResultListener<Try<List<Product>>> resultListener) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("recommendation_logic", recommendationLogic.toString());
         parameters.put("result_listener", resultListener != null);
+        parameters.put("limit", limit);
+        parameters.put("recommendation_filter", Arrays.toString(recommendationFilter.toArray()));
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 

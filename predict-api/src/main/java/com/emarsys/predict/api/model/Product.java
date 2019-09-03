@@ -22,6 +22,12 @@ public class Product {
     private URL linkUrl;
 
     @NonNull
+    private String feature;
+
+    @NonNull
+    private String cohort;
+
+    @NonNull
     private Map<String, String> customFields;
 
     @Nullable
@@ -63,11 +69,13 @@ public class Product {
     @Nullable
     private Integer year;
 
-    Product(@NonNull String productId, @NonNull String title, @NonNull String linkUrl, @NonNull Map<String, String> customFields, @Nullable String imageUrl, @Nullable String zoomImageUrl, @Nullable String categoryPath, @Nullable Boolean available, @Nullable String productDescription, @Nullable Float price, @Nullable Float msrp, @Nullable String album, @Nullable String actor, @Nullable String artist, @Nullable String author, @Nullable String brand, @Nullable Integer year) {
+    Product(@NonNull String productId, @NonNull String title, @NonNull String linkUrl, @NonNull String feature, @NonNull String cohort, @NonNull Map<String, String> customFields, @Nullable String imageUrl, @Nullable String zoomImageUrl, @Nullable String categoryPath, @Nullable Boolean available, @Nullable String productDescription, @Nullable Float price, @Nullable Float msrp, @Nullable String album, @Nullable String actor, @Nullable String artist, @Nullable String author, @Nullable String brand, @Nullable Integer year) {
         Assert.notNull(productId, "ProductId must not be null!");
         Assert.notNull(title, "Title must not be null!");
         Assert.notNull(linkUrl, "LinkUrl must not be null!");
         Assert.notNull(customFields, "CustomFields must not be null!");
+        Assert.notNull(feature, "Feature must not be null!");
+        Assert.notNull(cohort, "Cohort must not be null!");
 
         this.productId = productId;
         this.title = title;
@@ -82,6 +90,8 @@ public class Product {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+        this.feature = feature;
+        this.cohort = cohort;
         this.customFields = customFields;
         this.categoryPath = categoryPath;
         this.available = available;
@@ -109,6 +119,16 @@ public class Product {
     @NonNull
     public URL getLinkUrl() {
         return linkUrl;
+    }
+
+    @NonNull
+    public String getFeature() {
+        return feature;
+    }
+
+    @NonNull
+    public String getCohort() {
+        return cohort;
     }
 
     @NonNull
@@ -189,6 +209,8 @@ public class Product {
         return productId.equals(product.productId) &&
                 title.equals(product.title) &&
                 linkUrl.equals(product.linkUrl) &&
+                feature.equals(product.feature) &&
+                cohort.equals(product.cohort) &&
                 customFields.equals(product.customFields) &&
                 Objects.equals(imageUrl, product.imageUrl) &&
                 Objects.equals(zoomImageUrl, product.zoomImageUrl) &&
@@ -207,7 +229,7 @@ public class Product {
 
     @Override
     public int hashCode() {
-        return Objects.hash(productId, title, linkUrl, customFields, imageUrl, zoomImageUrl, categoryPath, available, productDescription, price, msrp, album, actor, artist, author, brand, year);
+        return Objects.hash(productId, title, linkUrl, feature, cohort, customFields, imageUrl, zoomImageUrl, categoryPath, available, productDescription, price, msrp, album, actor, artist, author, brand, year);
     }
 
     @Override
@@ -216,6 +238,8 @@ public class Product {
                 "productId='" + productId + '\'' +
                 ", title='" + title + '\'' +
                 ", linkUrl=" + linkUrl +
+                ", feature='" + feature + '\'' +
+                ", cohort='" + cohort + '\'' +
                 ", customFields=" + customFields +
                 ", imageUrl=" + imageUrl +
                 ", zoomImageUrl=" + zoomImageUrl +
@@ -234,9 +258,11 @@ public class Product {
     }
 
     public static class Builder {
-        private String productId;
-        private String title;
-        private String linkUrl;
+        private final String productId;
+        private final String title;
+        private final String linkUrl;
+        private final String feature;
+        private final String cohort;
         private Map<String, String> customFields;
         private String imageUrl;
         private String zoomImageUrl;
@@ -252,10 +278,12 @@ public class Product {
         private String brand;
         private Integer year;
 
-        public Builder(String productId, String title, String linkUrl) {
+        public Builder(String productId, String title, String linkUrl, String feature, String cohort) {
             this.productId = productId;
             this.title = title;
             this.linkUrl = linkUrl;
+            this.feature = feature;
+            this.cohort = cohort;
         }
 
         public Builder customFields(Map<String, String> customFields) {
@@ -332,7 +360,7 @@ public class Product {
             if (customFields == null) {
                 customFields = new HashMap<>();
             }
-            return new Product(productId, title, linkUrl, customFields, imageUrl, zoomImageUrl, categoryPath, available, productDescription, price, msrp, album, actor, artist, author, brand, year);
+            return new Product(productId, title, linkUrl, feature, cohort, customFields, imageUrl, zoomImageUrl, categoryPath, available, productDescription, price, msrp, album, actor, artist, author, brand, year);
         }
     }
 }

@@ -24,6 +24,7 @@ import com.emarsys.mobileengage.inbox.InboxParseUtils;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.ReflectionTestUtils;
+import com.emarsys.testUtil.RetryUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -75,6 +76,9 @@ public class MessagingServiceUtilsTest {
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
+
+    @Rule
+    public TestRule retry = RetryUtils.getRetryRule();
 
     @Before
     @SuppressWarnings("unchecked")

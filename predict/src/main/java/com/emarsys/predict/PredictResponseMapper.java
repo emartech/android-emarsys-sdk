@@ -3,6 +3,8 @@ package com.emarsys.predict;
 import com.emarsys.core.Mapper;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.JsonUtils;
+import com.emarsys.core.util.log.Logger;
+import com.emarsys.core.util.log.entry.CrashLog;
 import com.emarsys.predict.api.model.Product;
 
 import org.json.JSONArray;
@@ -21,30 +23,33 @@ public class PredictResponseMapper implements Mapper<ResponseModel, List<Product
         List<Product> result = new ArrayList<>();
         try {
             JSONObject jsonResponse = new JSONObject(responseModel.getBody());
-            JSONObject products = jsonResponse.getJSONObject("products");
-            JSONObject features = jsonResponse.getJSONObject("features");
-            Iterator<String> keys = features.keys();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                JSONObject feature = features.getJSONObject(key);
-                JSONArray productOrder = feature.getJSONArray("items");
+            if (jsonResponse.has("products")) {
+                JSONObject products = jsonResponse.getJSONObject("products");
+                JSONObject features = jsonResponse.getJSONObject("features");
+                String cohort = jsonResponse.getString("cohort");
+                Iterator<String> keys = features.keys();
+                while (keys.hasNext()) {
+                    String logicName = keys.next();
+                    JSONObject feature = features.getJSONObject(logicName);
+                    JSONArray productOrder = feature.getJSONArray("items");
 
-                for (int i = 0; i < productOrder.length(); i++) {
-                    JSONObject product = products.getJSONObject(productOrder.getJSONObject(i).getString("id"));
+                    for (int i = 0; i < productOrder.length(); i++) {
+                        JSONObject product = products.getJSONObject(productOrder.getJSONObject(i).getString("id"));
 
-                    Map<String, String> productFields = JsonUtils.toFlatMap(product);
+                        Map<String, String> productFields = JsonUtils.toFlatMap(product);
 
-                    Product productBuilder = buildProductFromFields(productFields);
-                    result.add(productBuilder);
+                        Product productBuilder = buildProductFromFields(logicName, cohort, productFields);
+                        result.add(productBuilder);
+                    }
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Logger.log(new CrashLog(e));
         }
         return result;
     }
 
-    private Product buildProductFromFields(Map<String, String> productFields) {
+    private Product buildProductFromFields(String feature, String cohort, Map<String, String> productFields) {
         String msrp = productFields.remove("msrp");
         String price = productFields.remove("price");
         String available = productFields.remove("available");
@@ -52,8 +57,9 @@ public class PredictResponseMapper implements Mapper<ResponseModel, List<Product
         Product.Builder productBuilder = new Product.Builder(
                 productFields.remove("item"),
                 productFields.remove("title"),
-                productFields.remove("link")
-        );
+                productFields.remove("link"),
+                feature,
+                cohort);
         productBuilder.categoryPath(productFields.remove("category"));
         if (available != null) {
             productBuilder.available(Boolean.valueOf(available));

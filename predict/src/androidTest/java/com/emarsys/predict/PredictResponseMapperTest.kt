@@ -25,12 +25,16 @@ class PredictResponseMapperTest {
     @Before
     fun init() {
         mockResponseModel = Mockito.mock(ResponseModel::class.java)
+    }
 
-        expectedResult = listOf(
+    private fun getExpectedResult(feature: String): List<Product> {
+        return listOf(
                 Product.Builder(
                         "2119",
                         "LSL Men Polo Shirt SE16",
-                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html")
+                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
+                        feature,
+                        "AAAA")
                         .categoryPath("MEN>Shirts")
                         .available(true)
                         .msrp(100.0F)
@@ -68,7 +72,9 @@ class PredictResponseMapperTest {
                 Product.Builder(
                         "2120",
                         "LSL Men Polo Shirt SE16",
-                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html")
+                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
+                        feature,
+                        "AAAA")
                         .build())
     }
 
@@ -77,7 +83,7 @@ class PredictResponseMapperTest {
         whenever(mockResponseModel.body).thenReturn(getBodyFor("SEARCH"))
         val predictResponseMapper = PredictResponseMapper()
         val result = predictResponseMapper.map(mockResponseModel)
-
+        expectedResult = getExpectedResult("SEARCH")
         result shouldContainAll expectedResult
 
         result.count() shouldBe 2
@@ -90,6 +96,7 @@ class PredictResponseMapperTest {
         whenever(mockResponseModel.body).thenReturn(getBodyFor("CART"))
         val predictResponseMapper = PredictResponseMapper()
         val result = predictResponseMapper.map(mockResponseModel)
+        expectedResult = getExpectedResult("CART")
 
         result shouldContainAll expectedResult
 
@@ -103,6 +110,7 @@ class PredictResponseMapperTest {
         whenever(mockResponseModel.body).thenReturn(getBodyFor("RELATED"))
         val predictResponseMapper = PredictResponseMapper()
         val result = predictResponseMapper.map(mockResponseModel)
+        expectedResult = getExpectedResult("RELATED")
 
         result shouldContainAll expectedResult
 
@@ -111,7 +119,18 @@ class PredictResponseMapperTest {
         result[1] shouldBe expectedResult[1]
     }
 
-    private fun getBodyFor(feature: String): String{
+    @Test
+    fun testMap_withResponseWithoutProducts() {
+        whenever(mockResponseModel.body).thenReturn(getEmptyBodyFor("SEARCH"))
+        val predictResponseMapper = PredictResponseMapper()
+        val result = predictResponseMapper.map(mockResponseModel)
+
+        expectedResult = emptyList()
+
+        result shouldBe expectedResult
+    }
+
+    private fun getBodyFor(feature: String): String {
         return """{
            "cohort":"AAAA",
            "visitor":"16BCC0D2745E6B36",
@@ -169,6 +188,23 @@ class PredictResponseMapperTest {
                  "item":"2120",
                  "title":"LSL Men Polo Shirt SE16",
                  "link":"http://lifestylelabels.com/lsl-men-polo-shirt-se16.html"
+              }
+           }
+        }"""
+    }
+
+    private fun getEmptyBodyFor(feature: String): String {
+        return """{
+           "cohort":"AAAA",
+           "visitor":"16BCC0D2745E6B36",
+           "session":"24E844D1E58C1C2",
+           "features":{
+              "$feature":{
+                 "hasMore":true,
+                 "merchants":[
+                    "1428C8EE286EC34B"
+                 ],
+                 "items":[]
               }
            }
         }"""
