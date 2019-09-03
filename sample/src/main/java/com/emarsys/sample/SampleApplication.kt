@@ -13,7 +13,7 @@ import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.api.NotificationEventHandler
 import org.json.JSONObject
 
-public class SampleApplication : Application(), EventHandler, NotificationEventHandler {
+open class SampleApplication : Application(), EventHandler, NotificationEventHandler {
     override fun onCreate() {
         super.onCreate()
         val config = EmarsysConfig.Builder()

@@ -20,7 +20,7 @@ import org.json.JSONObject
 class MobileEngageFragment : Fragment() {
 
     private companion object {
-        const val TAG = "MobileEngageFragment"
+        val TAG: String = MobileEngageFragment::class.java.simpleName
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

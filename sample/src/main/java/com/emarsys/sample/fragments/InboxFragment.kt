@@ -1,6 +1,7 @@
 package com.emarsys.sample.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,10 @@ import com.emarsys.sample.extensions.showSnackBar
 import kotlinx.android.synthetic.main.fragment_inbox.*
 
 class InboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
+
+    private companion object {
+        val TAG: String = InboxFragment::class.java.simpleName
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -42,6 +47,12 @@ class InboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     private fun loadNotifications() {
         Emarsys.Inbox.fetchNotifications {
             it.result?.let { notificationStatus ->
+                Log.i(TAG, "Badge count: ${notificationStatus.badgeCount}")
+
+                notificationStatus.notifications.forEach { notification ->
+                    Log.i(TAG, "Notification: ${notification.title}")
+                }
+
                 (notificationRecycleView.adapter as NotificationsAdapter).addItems(notificationStatus.notifications)
             }
 

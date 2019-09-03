@@ -31,7 +31,7 @@ object CollectionTestUtils {
     }
 
     @JvmStatic
-    fun <T> getElementByType(list: List<*>, type: Class<T>): T {
+    fun <T> getElementByType(list: List<*>, type: Class<T>): T? {
         for (o in list) {
             if (type.isInstance(o)) {
                 return type.cast(o)

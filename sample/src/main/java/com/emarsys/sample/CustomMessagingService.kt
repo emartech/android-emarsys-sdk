@@ -9,18 +9,18 @@ class CustomMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
+
         Emarsys.Push.setPushToken(token)
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage?) {
         super.onMessageReceived(remoteMessage)
+
         val handledByEmarsysSDK =
                 EmarsysMessagingServiceUtils.handleMessage(this, remoteMessage)
+
         if (!handledByEmarsysSDK) {
             //handle your custom push message here
-            if (remoteMessage != null) {
-                Emarsys.Push.trackMessageOpen(remoteMessage.toIntent())
-            }
         }
     }
 }
