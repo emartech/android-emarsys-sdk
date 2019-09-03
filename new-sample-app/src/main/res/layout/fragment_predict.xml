@@ -373,7 +373,9 @@
                         app:layout_constraintBottom_toTopOf="@+id/searchTermForRecommend"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/recommendTitle">
+                        app:layout_constraintTop_toBottomOf="@+id/recommendTitle"
+                        android:clickable="true"
+                        android:focusable="true">
                     </androidx.recyclerview.widget.RecyclerView>
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -414,6 +416,8 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </com.google.android.material.card.MaterialCardView>
+
+            <include layout="@layout/footer"/>
 
         </LinearLayout>
     </ScrollView>

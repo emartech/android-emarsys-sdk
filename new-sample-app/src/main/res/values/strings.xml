@@ -38,5 +38,7 @@
     <string name="track_category_view_button_label">Track Category View</string>
     <string name="recommend_title">Recommend Product</string>
     <string name="recommend_button_label">Recommend</string>
+    <string name="pull_down_to_refresh">Pull down to refresh</string>
+    <string name="emarsys_app">Emarsys SDK: </string>
 
 </resources>
