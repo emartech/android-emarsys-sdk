@@ -258,22 +258,12 @@ class DefaultPredictInternalTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testTrackItemView_itemId_mustNotBeNull() {
-        predictInternal.trackItemView(null as String?)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackItemView_product_mustNotBeNull() {
-        predictInternal.trackItemView(null as Product?)
+        predictInternal.trackItemView(null)
     }
 
     @Test
     fun testTrackItemView_returnsShardId() {
         Assert.assertEquals(ID1, predictInternal.trackItemView("itemId"))
-    }
-
-    @Test
-    fun testTrackItemView_withProduct_returnsShardId() {
-        Assert.assertEquals(ID1, predictInternal.trackItemView(PRODUCT))
     }
 
     @Test
@@ -288,20 +278,6 @@ class DefaultPredictInternalTest {
                 TTL)
 
         predictInternal.trackItemView(itemId)
-
-        verify(mockRequestManager).submit(expectedShardModel)
-    }
-
-    @Test
-    fun testTrackItemView_withProduct_shouldCallRequestManager_withCorrectShardModel() {
-        val expectedShardModel = ShardModel(
-                ID1,
-                "predict_item_view",
-                mapOf("v" to "i:${PRODUCT.productId},t:${PRODUCT.feature},c:${PRODUCT.cohort}"),
-                TIMESTAMP,
-                TTL)
-
-        predictInternal.trackItemView(PRODUCT)
 
         verify(mockRequestManager).submit(expectedShardModel)
     }
@@ -434,13 +410,6 @@ class DefaultPredictInternalTest {
     }
 
     @Test
-    fun testTrackItemView_withProduct_shouldSetLastTrackedItemContainersLastItemViewField_withCorrectItemId() {
-        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
-        predictInternal.trackItemView(PRODUCT)
-        verify(mockLastTrackedItemContainer).lastItemView = PRODUCT.productId
-    }
-
-    @Test
     fun testTrackCategoryView_shouldSetLastTrackedItemContainersLastCategoryPathField_withCorrectCategoryPath() {
         val categoryPath = "categoryPath"
         ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
@@ -545,6 +514,37 @@ class DefaultPredictInternalTest {
         latch.await()
 
         resultListener.errorCount shouldBe 1
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testTrackRecommendationClick_product_mustNotBeNull() {
+        predictInternal.trackRecommendationClick(null)
+    }
+
+    @Test
+    fun testTrackRecommendationClick_returnsShardId() {
+        Assert.assertEquals(ID1, predictInternal.trackRecommendationClick(PRODUCT))
+    }
+
+    @Test
+    fun testTrackRecommendationClick_shouldCallRequestManager_withCorrectShardModel() {
+        val expectedShardModel = ShardModel(
+                ID1,
+                "predict_item_view",
+                mapOf("v" to "i:${PRODUCT.productId},t:${PRODUCT.feature},c:${PRODUCT.cohort}"),
+                TIMESTAMP,
+                TTL)
+
+        predictInternal.trackRecommendationClick(PRODUCT)
+
+        verify(mockRequestManager).submit(expectedShardModel)
+    }
+
+    @Test
+    fun testTrackRecommendationClick_shouldSetLastTrackedItemContainersLastItemViewField_withCorrectItemId() {
+        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        predictInternal.trackRecommendationClick(PRODUCT)
+        verify(mockLastTrackedItemContainer).lastItemView = PRODUCT.productId
     }
 
     @Suppress("UNCHECKED_CAST")

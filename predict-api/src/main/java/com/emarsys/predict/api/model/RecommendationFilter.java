@@ -65,70 +65,68 @@ public class RecommendationFilter {
     public static class Exclude {
 
         private static final String TYPE = "EXCLUDE";
-
-        protected final String field;
+        final String field;
 
         private Exclude(String field) {
             this.field = field;
         }
 
-        public RecommendationFilter is(@NonNull String expectation) {
-            Assert.notNull(expectation, "Expectation must not be null!");
+        public RecommendationFilter isValue(@NonNull String value) {
+            Assert.notNull(value, "Value must not be null!");
 
-            return new RecommendationFilter(TYPE, field, IS, expectation);
+            return new RecommendationFilter(TYPE, field, IS, value);
         }
 
-        public RecommendationFilter in(@NonNull List<String> expectations) {
-            Assert.elementsNotNull(expectations, "Expectations must not be null!");
+        public RecommendationFilter inValues(@NonNull List<String> values) {
+            Assert.elementsNotNull(values, "Values must not be null!");
 
-            return new RecommendationFilter(TYPE, field, IN, expectations);
+            return new RecommendationFilter(TYPE, field, IN, values);
         }
 
-        public RecommendationFilter has(@NonNull String expectation) {
-            Assert.notNull(expectation, "Expectation must not be null!");
+        public RecommendationFilter hasValue(@NonNull String value) {
+            Assert.notNull(value, "Value must not be null!");
 
-            return new RecommendationFilter(TYPE, field, HAS, expectation);
+            return new RecommendationFilter(TYPE, field, HAS, value);
         }
 
-        public RecommendationFilter overlaps(@NonNull List<String> expectations) {
-            Assert.elementsNotNull(expectations, "Expectations must not be null!");
+        public RecommendationFilter overlapsValues(@NonNull List<String> values) {
+            Assert.elementsNotNull(values, "Values must not be null!");
 
-            return new RecommendationFilter(TYPE, field, OVERLAPS, expectations);
+            return new RecommendationFilter(TYPE, field, OVERLAPS, values);
         }
     }
 
     public static class Include {
 
         private static final String TYPE = "INCLUDE";
-
-        protected String field;
+        final String field;
 
         public Include(String field) {
             this.field = field;
         }
 
-        public RecommendationFilter is(@NonNull String expectation) {
-            Assert.notNull(expectation, "Expectation must not be null!");
+        public RecommendationFilter isValue(@NonNull String value) {
+            Assert.notNull(value, "Value must not be null!");
 
-            return new RecommendationFilter(TYPE, field, IS, expectation);
+            return new RecommendationFilter(TYPE, field, IS, value);
         }
 
-        public RecommendationFilter in(@NonNull List<String> expectations) {
-            Assert.elementsNotNull(expectations, "Expectations must not be null!");
+        public RecommendationFilter inValues(@NonNull List<String> values) {
+            Assert.elementsNotNull(values, "Values must not be null!");
 
-            return new RecommendationFilter(TYPE, field, IN, expectations);
+            return new RecommendationFilter(TYPE, field, IN, values);
         }
 
-        public RecommendationFilter has(@NonNull String expectation) {
-            Assert.notNull(expectation, "Expectation must not be null!");
+        public RecommendationFilter hasValue(@NonNull String value) {
+            Assert.notNull(value, "Value must not be null!");
 
-            return new RecommendationFilter(TYPE, field, HAS, expectation);
+            return new RecommendationFilter(TYPE, field, HAS, value);
         }
 
-        public RecommendationFilter overlaps(@NonNull List<String> expectations) {
-            Assert.elementsNotNull(expectations, "Expectations must not be null!");
+        public RecommendationFilter overlapsValues(@NonNull List<String> values) {
+            Assert.elementsNotNull(values, "Values must not be null!");
 
-            return new RecommendationFilter(TYPE, field, OVERLAPS, expectations);
+            return new RecommendationFilter(TYPE, field, OVERLAPS, values);
         }
     }
 

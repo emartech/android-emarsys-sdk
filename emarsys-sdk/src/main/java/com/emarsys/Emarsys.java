@@ -263,10 +263,6 @@ public class Emarsys {
             predict.trackItemView(itemId);
         }
 
-        public static void trackItemView(@NonNull final Product product) {
-            predict.trackItemView(product);
-        }
-
         public static void trackCategoryView(@NonNull final String categoryPath) {
             predict.trackCategoryView(categoryPath);
         }
@@ -291,8 +287,12 @@ public class Emarsys {
             predict.recommendProducts(recommendationLogic, recommendationFilters, resultListener);
         }
 
-        public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final Integer limit, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull ResultListener<Try<List<Product>>> resultListener) {
+        public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull final Integer limit, @NonNull ResultListener<Try<List<Product>>> resultListener) {
             predict.recommendProducts(recommendationLogic, limit, recommendationFilters, resultListener);
+        }
+
+        public static void trackRecommendationClick(@NonNull final Product product) {
+            predict.trackRecommendationClick(product);
         }
     }
 

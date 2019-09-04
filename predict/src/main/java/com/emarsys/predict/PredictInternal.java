@@ -21,8 +21,6 @@ public interface PredictInternal {
 
     String trackItemView(String itemId);
 
-    String trackItemView(Product product);
-
     String trackCategoryView(String categoryPath);
 
     String trackSearchTerm(String searchTerm);
@@ -31,4 +29,5 @@ public interface PredictInternal {
 
     void recommendProducts(Logic recommendationLogic, Integer limit, List<RecommendationFilter> recommendationFilters, ResultListener<Try<List<Product>>> resultListener);
 
+    String trackRecommendationClick(Product product);
 }

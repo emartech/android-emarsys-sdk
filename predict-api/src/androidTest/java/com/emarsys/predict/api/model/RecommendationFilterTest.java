@@ -13,12 +13,12 @@ import java.util.List;
 
 public class RecommendationFilterTest {
 
-    public static final String FIELD = "field";
-    public static final String SINGLE_EXPECTATION = "singleExpectation";
-    public static final List<String> MULTIPLE_EXPECTATIONS = Arrays.asList("expectation1", "expectation2");
+    private static final String FIELD = "field";
+    private static final String SINGLE_EXPECTATION = "singleExpectation";
+    private static final List<String> MULTIPLE_EXPECTATIONS = Arrays.asList("expectation1", "expectation2");
 
-    public static final String EXCLUDE_TYPE = "EXCLUDE";
-    public static final String INCLUDE_TYPE = "INCLUDE";
+    private static final String EXCLUDE_TYPE = "EXCLUDE";
+    private static final String INCLUDE_TYPE = "INCLUDE";
 
     RecommendationFilter.Exclude exclude;
     RecommendationFilter.Include include;
@@ -49,31 +49,31 @@ public class RecommendationFilterTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testExclude_is_expectation_mustNotBeNull() {
-        exclude.is(null);
+        exclude.isValue(null);
     }
 
     @Test
     public void testExclude_is_shouldReturn_RecommendationFilter() {
-        Assert.assertEquals(exclude.is("singleExpectation").getClass(), RecommendationFilter.class);
+        Assert.assertEquals(exclude.isValue("singleExpectation").getClass(), RecommendationFilter.class);
     }
 
     @Test
     public void testExclude_is_shouldReturn_RecommendationFilterFilledWithInputParameters() {
         RecommendationFilter expected = new RecommendationFilter(EXCLUDE_TYPE, FIELD, "IS", SINGLE_EXPECTATION);
-        RecommendationFilter result = exclude.is("singleExpectation");
+        RecommendationFilter result = exclude.isValue("singleExpectation");
 
         Assert.assertEquals(expected, result);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testExclude_in_expectation_mustNotBeNull() {
-        exclude.in(null);
+        exclude.inValues(null);
     }
 
     @Test
     public void testExclude_in_shouldReturn_RecommendationFilterFilledWithInputParameters() {
         RecommendationFilter expected = new RecommendationFilter(EXCLUDE_TYPE, FIELD, "IN", MULTIPLE_EXPECTATIONS);
-        RecommendationFilter result = exclude.in(Arrays.asList("expectation1", "expectation2"));
+        RecommendationFilter result = exclude.inValues(Arrays.asList("expectation1", "expectation2"));
 
         Assert.assertEquals(expected, result);
     }
@@ -81,26 +81,26 @@ public class RecommendationFilterTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testExclude_has_expectation_mustNotBeNull() {
-        exclude.has(null);
+        exclude.hasValue(null);
     }
 
     @Test
     public void testExclude_has_shouldReturn_RecommendationFilterFilledWithInputParameters() {
         RecommendationFilter expected = new RecommendationFilter(EXCLUDE_TYPE, FIELD, "HAS", SINGLE_EXPECTATION);
-        RecommendationFilter result = exclude.has("singleExpectation");
+        RecommendationFilter result = exclude.hasValue("singleExpectation");
 
         Assert.assertEquals(expected, result);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testExclude_overlaps_expectation_mustNotBeNull() {
-        exclude.overlaps(null);
+        exclude.overlapsValues(null);
     }
 
     @Test
     public void testExclude_overlaps_shouldReturn_RecommendationFilterFilledWithInputParameters() {
         RecommendationFilter expected = new RecommendationFilter(EXCLUDE_TYPE, FIELD, "OVERLAPS", MULTIPLE_EXPECTATIONS);
-        RecommendationFilter result = exclude.overlaps(Arrays.asList("expectation1", "expectation2"));
+        RecommendationFilter result = exclude.overlapsValues(Arrays.asList("expectation1", "expectation2"));
 
         Assert.assertEquals(expected, result);
     }
@@ -123,44 +123,44 @@ public class RecommendationFilterTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testInclude_is_expectation_mustNotBeNull() {
-        include.is(null);
+        include.isValue(null);
     }
 
     @Test
     public void testInclude_is_shouldReturn_RecommendationFilter() {
-        Assert.assertEquals(include.is("singleExpectation").getClass(), RecommendationFilter.class);
+        Assert.assertEquals(include.isValue("singleExpectation").getClass(), RecommendationFilter.class);
     }
 
     @Test
     public void testInclude_is_shouldReturn_RecommendationFilterFilledWithInputParameters() {
         RecommendationFilter expected = new RecommendationFilter(INCLUDE_TYPE, FIELD, "IS", SINGLE_EXPECTATION);
-        RecommendationFilter result = include.is("singleExpectation");
+        RecommendationFilter result = include.isValue("singleExpectation");
 
         Assert.assertEquals(expected, result);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testInclude_in_expectation_mustNotBeNull() {
-        include.in(null);
+        include.inValues(null);
     }
 
     @Test
     public void testInclude_in_shouldReturn_RecommendationFilterFilledWithInputParameters() {
         RecommendationFilter expected = new RecommendationFilter(INCLUDE_TYPE, FIELD, "IN", MULTIPLE_EXPECTATIONS);
-        RecommendationFilter result = include.in(Arrays.asList("expectation1", "expectation2"));
+        RecommendationFilter result = include.inValues(Arrays.asList("expectation1", "expectation2"));
 
         Assert.assertEquals(expected, result);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testInclude_has_expectation_mustNotBeNull() {
-        include.has(null);
+        include.hasValue(null);
     }
 
     @Test
     public void testInclude_has_shouldReturn_RecommendationFilterFilledWithInputParameters() {
         RecommendationFilter expected = new RecommendationFilter(INCLUDE_TYPE, FIELD, "HAS", SINGLE_EXPECTATION);
-        RecommendationFilter result = include.has("singleExpectation");
+        RecommendationFilter result = include.hasValue("singleExpectation");
 
         Assert.assertEquals(expected, result);
     }
@@ -168,13 +168,13 @@ public class RecommendationFilterTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testInclude_overlaps_expectation_mustNotBeNull() {
-        include.overlaps(null);
+        include.overlapsValues(null);
     }
 
     @Test
     public void testInclude_overlaps_shouldReturn_RecommendationFilterFilledWithInputParameters() {
         RecommendationFilter expected = new RecommendationFilter(INCLUDE_TYPE, FIELD, "OVERLAPS", MULTIPLE_EXPECTATIONS);
-        RecommendationFilter result = include.overlaps(Arrays.asList("expectation1", "expectation2"));
+        RecommendationFilter result = include.overlapsValues(Arrays.asList("expectation1", "expectation2"));
 
         Assert.assertEquals(expected, result);
     }

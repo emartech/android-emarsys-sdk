@@ -21,8 +21,6 @@ public interface PredictApi {
 
     void trackItemView(@NonNull final String itemId);
 
-    void trackItemView(@NonNull final Product product);
-
     void trackCategoryView(@NonNull final String categoryPath);
 
     void trackSearchTerm(@NonNull final String searchTerm);
@@ -37,4 +35,5 @@ public interface PredictApi {
 
     void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final Integer limit, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull final ResultListener<Try<List<Product>>> resultListener);
 
+    void trackRecommendationClick(@NonNull final Product product);
 }

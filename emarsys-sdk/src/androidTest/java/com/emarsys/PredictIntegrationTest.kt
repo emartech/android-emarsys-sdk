@@ -222,7 +222,7 @@ class PredictIntegrationTest {
             it.baseUrl.contains(product.productId)
         }
 
-        Emarsys.Predict.trackItemView(product)
+        Emarsys.Predict.trackRecommendationClick(product)
 
         eventuallyAssertSuccess()
     }
@@ -266,8 +266,8 @@ class PredictIntegrationTest {
     @Test
     fun testRecommendProducts() {
         Emarsys.Predict.recommendProducts(RecommendationLogic.search("polo shirt"),
+                listOf(RecommendationFilter.exclude("price").isValue("")),
                 3,
-                listOf(RecommendationFilter.exclude("price").`is`("")),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
             latch.await()
 
