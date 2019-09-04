@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.emarsys.Emarsys
-import com.emarsys.sample.NotificationsAdapter
 import com.emarsys.sample.R
+import com.emarsys.sample.adapters.NotificationsAdapter
 import com.emarsys.sample.extensions.showSnackBar
 import kotlinx.android.synthetic.main.fragment_inbox.*
 

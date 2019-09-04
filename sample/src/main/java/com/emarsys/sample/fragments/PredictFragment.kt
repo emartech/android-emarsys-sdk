@@ -10,9 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.emarsys.Emarsys
 import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.RecommendationLogic
-import com.emarsys.sample.ProductsAdapter
 import com.emarsys.sample.R
 import com.emarsys.sample.SampleCartItem
+import com.emarsys.sample.adapters.ProductsAdapter
 import com.emarsys.sample.extensions.showSnackBar
 import kotlinx.android.synthetic.main.fragment_predict.*
 import kotlin.random.Random

@@ -1,4 +1,4 @@
-package com.emarsys.sample
+package com.emarsys.sample.adapters
 
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +9,8 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.emarsys.Emarsys
 import com.emarsys.predict.api.model.Product
-import com.emarsys.sample.ProductsAdapter.ViewHolder
+import com.emarsys.sample.R
+import com.emarsys.sample.adapters.ProductsAdapter.ViewHolder
 import kotlinx.android.synthetic.main.product_view.view.*
 
 class ProductsAdapter : RecyclerView.Adapter<ViewHolder>() {
@@ -31,7 +32,7 @@ class ProductsAdapter : RecyclerView.Adapter<ViewHolder>() {
         holder.productImage.setImageResource(placeholder)
 
         holder.cardView.setOnClickListener {
-            Emarsys.Predict.trackItemView(products[position])
+            Emarsys.Predict.trackRecommendationClick(products[position])
         }
     }
 
