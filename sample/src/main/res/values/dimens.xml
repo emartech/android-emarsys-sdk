@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="gap_small">8dp</dimen>
-    <dimen name="gap_medium">15dp</dimen>
-    <dimen name="edit_text_width">150dp</dimen>
-    <dimen name="inputWidth">250dp</dimen>
-</resources>

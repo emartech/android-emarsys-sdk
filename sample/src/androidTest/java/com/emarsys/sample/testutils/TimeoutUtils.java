@@ -1,5 +1,6 @@
 package com.emarsys.sample.testutils;
 
+
 import androidx.test.rule.DisableOnAndroidDebug;
 
 import org.junit.rules.Timeout;

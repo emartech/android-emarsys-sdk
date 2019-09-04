@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.emarsys.sample">
 
-
     <application
         android:name="com.emarsys.sample.SampleApplication"
         android:allowBackup="true"
@@ -11,10 +10,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <activity
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:name="com.emarsys.sample.MainActivity">
+        <activity android:name="com.emarsys.sample.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -23,12 +19,31 @@
 
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https"
-                      android:host="demo-mobileengage.emarsys.net"/>
+
+                <data
+                    android:host="demo-mobileengage.emarsys.net"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="com.emarsys.mobileengage.small_notification_icon"
+            android:resource="@drawable/notification_icon" />
+
+        <!--If you have non-Emarsys related Push use cases,-->
+        <!--register your own service instead of EmarsysMessagingService.-->
+        <!--For a reference implementation, please take a look at com.emarsys.sample.CustomMessagingService-->
+        <!--<service android:name=".CustomMessagingService">-->
+        <!--<intent-filter>-->
+        <!--<action android:name="com.google.firebase.MESSAGING_EVENT" />-->
+        <!--</intent-filter>-->
+        <!--</service>-->
+
+        <meta-data
+            android:name="com.emarsys.mobileengage.notification_color"
+            android:resource="@color/colorPrimary" />
 
         <service android:name="com.emarsys.service.EmarsysMessagingService">
             <intent-filter>
@@ -36,23 +51,8 @@
             </intent-filter>
         </service>
 
-        <!--If you have non-Emarsys related Push use cases,-->
-        <!--register your own service instead of EmarsysMessagingService.-->
-        <!--For a reference implementation, please take a look at com.emarsys.sample.CustomMessagingService-->
-        <!--<service android:name=".CustomMessagingService">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="com.google.firebase.MESSAGING_EVENT" />-->
-            <!--</intent-filter>-->
-        <!--</service>-->
-
-        <meta-data
-            android:name="com.emarsys.mobileengage.small_notification_icon"
-            android:resource="@drawable/notification_icon" />
-
-        <meta-data
-            android:name="com.emarsys.mobileengage.notification_color"
-            android:resource="@color/colorPrimary" />
-
     </application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

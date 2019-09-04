@@ -1,45 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.emarsys.sample.MainActivity">
+    android:background="@color/defaultBackground"
+    android:animateLayoutChanges="true"
+    tools:context=".fragments.MobileEngageFragment"
+    android:orientation="vertical">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <TextView
+        android:id="@+id/loggedInText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimaryDark"
-            app:tabSelectedTextColor="@color/colorSecondaryText"
-            app:tabTextColor="@color/colorSecondaryText">
-
-            <TextView
-                android:id="@+id/mobileEngageStatusLabel"
-                style="Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:text="@string/press_any_button"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/appLogin" />
-
-        </androidx.appcompat.widget.Toolbar>
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/logged_in"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/scrollContainer" />
 
     <ScrollView
+        android:id="@+id/scrollContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,226 +38,290 @@
             android:orientation="vertical">
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/materialCardView2"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp">
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:layout_editor_absoluteX="8dp"
+                    tools:layout_editor_absoluteX="0dp"
                     tools:layout_editor_absoluteY="0dp">
 
                     <TextView
-                        android:id="@+id/anonymousTitle"
-                        style="@style/TextAppearance.MaterialComponents.Headline6"
+                        android:id="@+id/contactCardTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:text="@string/contact_identification"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/contact_identification_card_title"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        app:layout_constraintBottom_toTopOf="@+id/contactId"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-
-                    <EditText
-                        android:id="@+id/contactFieldValue"
-                        android:layout_width="@dimen/inputWidth"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/contactId"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="8dp"
-                        android:hint="@string/contactFieldValue"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/anonymousTitle" />
-
-                    <Button
-                        android:id="@+id/appLogin"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="8dp"
                         android:layout_marginBottom="8dp"
-                        android:text="@string/applogin"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/appLogout"
-                        app:layout_constraintTop_toBottomOf="@+id/contactFieldValue" />
-
-                    <Button
-                        android:id="@+id/appLogout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:text="@string/applogout"
+                        android:ems="10"
+                        android:hint="@string/contactField_hint"
+                        android:importantForAutofill="no"
+                        android:inputType="text"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/contactFieldValue" />
+                        app:layout_constraintHorizontal_bias="0.452"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:targetApi="o" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonLogin"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/login_button_label"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/buttonLogout"
+                        app:layout_constraintTop_toBottomOf="@+id/contactId" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonLogout"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/logout_button_label"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintRight_toRightOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp">
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="16dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:layout_editor_absoluteX="8dp"
+                    tools:layout_editor_absoluteX="0dp"
                     tools:layout_editor_absoluteY="0dp">
 
                     <TextView
-                        android:id="@+id/messageOpenTitle"
-                        style="@style/TextAppearance.MaterialComponents.Headline6"
+                        android:id="@+id/trackMessageCardTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:text="@string/messageopen"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="16dp"
+                        android:text="@string/track_message_open"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        app:layout_constraintBottom_toTopOf="@+id/trackMessageId"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <EditText
-                        android:id="@+id/messageId"
-                        android:layout_width="@dimen/inputWidth"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/trackMessageId"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:ems="10"
                         android:hint="@string/messageId"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/messageOpenTitle" />
+                        android:importantForAutofill="no"
+                        android:inputType="text"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:targetApi="o" />
 
-                    <Button
-                        android:id="@+id/messageOpen"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonTrackMessage"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_marginBottom="8dp"
-                        android:text="@string/messageopen"
+                        android:text="@string/track_message_open"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/messageId" />
+                        app:layout_constraintTop_toBottomOf="@+id/trackMessageId" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/materialCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp">
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="16dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:layout_editor_absoluteX="8dp"
+                    android:layout_height="match_parent"
+                    tools:layout_editor_absoluteX="0dp"
                     tools:layout_editor_absoluteY="0dp">
 
                     <TextView
-                        android:id="@+id/customEventTitle"
-                        style="@style/TextAppearance.MaterialComponents.Headline6"
+                        android:id="@+id/trackCustomEventCardTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:text="@string/customevent"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="16dp"
+                        android:text="@string/track_custom_event"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        app:layout_constraintBottom_toTopOf="@+id/eventName"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.0" />
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/eventName"
-                        android:layout_width="@dimen/inputWidth"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="32dp"
                         android:layout_marginEnd="8dp"
-                        android:hint="@string/eventname"
-                        app:layout_constraintHorizontal_bias="0.472"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/customEventTitle" />
+                        android:layout_marginBottom="8dp"
+                        android:ems="10"
+                        android:hint="@string/event_name"
+                        android:importantForAutofill="no"
+                        android:inputType="text"
+                        android:textAlignment="textStart"
+                        app:layout_constraintBottom_toTopOf="@id/eventAttributes"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:targetApi="o" />
 
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/eventAttributes"
-                        android:layout_width="@dimen/inputWidth"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="8dp"
-                        android:hint="@string/eventattributes"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
+                        android:layout_marginBottom="8dp"
+                        android:ems="10"
+                        android:hint="@string/event_attributes_hint"
+                        android:inputType="text"
+                        android:text=""
+                        android:textAlignment="textStart"
+                        app:layout_constraintBottom_toTopOf="@+id/buttonTrackCustomEvent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/eventName" />
 
-                    <Button
-                        android:id="@+id/customEvent"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonTrackCustomEvent"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+
                         android:layout_marginEnd="8dp"
                         android:layout_marginBottom="8dp"
-                        android:text="@string/customevent"
+                        android:text="@string/track_custom_event"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/doNotDisturb"
-                        tools:layout_editor_absoluteX="167dp" />
+                        app:layout_constraintEnd_toEndOf="parent" />
 
-                    <Switch
-                        android:id="@+id/doNotDisturb"
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchDoNotDisturb"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
                         android:text="@string/do_not_disturb"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintStart_toStartOf="@+id/eventAttributes"
-                        app:layout_constraintTop_toBottomOf="@+id/eventAttributes" />
+                        app:layout_constraintBaseline_toBaselineOf="@+id/eventAttributes"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/eventAttributes" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
-
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp">
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="16dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:layout_editor_absoluteX="8dp"
+                    tools:layout_editor_absoluteX="0dp"
                     tools:layout_editor_absoluteY="0dp">
 
                     <TextView
-                        android:id="@+id/pushTokenTitle"
-                        style="@style/TextAppearance.MaterialComponents.Headline6"
+                        android:id="@+id/getPushTokenCardTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:text="@string/get_push_token"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="16dp"
+                        android:text="@string/get_push_token_title"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                        app:layout_constraintBottom_toTopOf="@+id/buttonGetPushToken"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <Button
-                        android:id="@+id/pushToken"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonGetPushToken"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="16dp"
                         android:layout_marginEnd="8dp"
                         android:layout_marginBottom="8dp"
-                        android:text="@string/get_push_token"
+                        android:text="@string/get_push_token_button_label"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/pushTokenTitle" />
+                        app:layout_constraintTop_toBottomOf="@+id/getPushTokenCardTitle" />
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
+
             </com.google.android.material.card.MaterialCardView>
+
+            <include layout="@layout/footer" />
+
         </LinearLayout>
+
     </ScrollView>
 
 </LinearLayout>

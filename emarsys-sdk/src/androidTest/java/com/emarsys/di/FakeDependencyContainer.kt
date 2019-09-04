@@ -19,8 +19,8 @@ import com.emarsys.core.util.log.Logger
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.mobileengage.MobileEngageInternal
-import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
+import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.api.NotificationEventHandler
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
