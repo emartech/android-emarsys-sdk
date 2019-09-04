@@ -169,14 +169,14 @@ class PredictRequestModelBuilderTest {
     @Test
     fun testBuild_withLogic_withFiltersData() {
         val logic = RecommendationLogic.related("itemId")
-        val filters = listOf(RecommendationFilter.exclude("field1").has("expectation1"),
-                RecommendationFilter.exclude("field2").`is`("expectation2"),
-                RecommendationFilter.exclude("field3").`in`(listOf("expectation31", "expectation32")),
-                RecommendationFilter.exclude("field4").overlaps(listOf("expectation41", "expectation42")),
-                RecommendationFilter.include("field5").has("expectation5"),
-                RecommendationFilter.include("field6").`is`("expectation6"),
-                RecommendationFilter.include("field7").`in`(listOf("expectation71", "expectation72")),
-                RecommendationFilter.include("field8").overlaps(listOf("expectation81", "expectation82")))
+        val filters = listOf(RecommendationFilter.exclude("field1").hasValue("expectation1"),
+                RecommendationFilter.exclude("field2").isValue("expectation2"),
+                RecommendationFilter.exclude("field3").inValues(listOf("expectation31", "expectation32")),
+                RecommendationFilter.exclude("field4").overlapsValues(listOf("expectation41", "expectation42")),
+                RecommendationFilter.include("field5").hasValue("expectation5"),
+                RecommendationFilter.include("field6").isValue("expectation6"),
+                RecommendationFilter.include("field7").inValues(listOf("expectation71", "expectation72")),
+                RecommendationFilter.include("field8").overlapsValues(listOf("expectation81", "expectation82")))
         val expected = createRequestModelWithUrl(mapOf(
                 "f" to "f:RELATED,l:5,o:0",
                 "v" to "i:itemId",

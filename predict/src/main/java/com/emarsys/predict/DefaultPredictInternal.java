@@ -122,20 +122,6 @@ public class DefaultPredictInternal implements PredictInternal {
     }
 
     @Override
-    public String trackItemView(Product product) {
-        Assert.notNull(product, "Product must not be null!");
-
-        ShardModel shard = new ShardModel.Builder(timestampProvider, uuidProvider)
-                .type(TYPE_ITEM_VIEW)
-                .payloadEntry("v", "i:" + product.getProductId() + ",t:" + product.getFeature() + ",c:" + product.getCohort())
-                .build();
-
-        requestManager.submit(shard);
-        lastTrackedContainer.setLastItemView(product.getProductId());
-        return shard.getId();
-    }
-
-    @Override
     public String trackCategoryView(String categoryPath) {
         Assert.notNull(categoryPath, "CategoryPath must not be null!");
 
@@ -218,5 +204,19 @@ public class DefaultPredictInternal implements PredictInternal {
                 resultListener.onResult(Try.failure(cause));
             }
         });
+    }
+
+    @Override
+    public String trackRecommendationClick(Product product) {
+        Assert.notNull(product, "Product must not be null!");
+
+        ShardModel shard = new ShardModel.Builder(timestampProvider, uuidProvider)
+                .type(TYPE_ITEM_VIEW)
+                .payloadEntry("v", "i:" + product.getProductId() + ",t:" + product.getFeature() + ",c:" + product.getCohort())
+                .build();
+
+        requestManager.submit(shard);
+        lastTrackedContainer.setLastItemView(product.getProductId());
+        return shard.getId();
     }
 }

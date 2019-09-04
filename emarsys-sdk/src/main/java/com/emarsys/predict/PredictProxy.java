@@ -70,18 +70,6 @@ public class PredictProxy implements PredictApi {
     }
 
     @Override
-    public void trackItemView(@NonNull final Product product) {
-        runnerProxy.logException(new Runnable() {
-            @Override
-            public void run() {
-                Assert.notNull(product, "Product must not be null!");
-
-                predictInternal.trackItemView(product);
-            }
-        });
-    }
-
-    @Override
     public void trackCategoryView(@NonNull final String categoryPath) {
         runnerProxy.logException(new Runnable() {
             @Override
@@ -179,6 +167,17 @@ public class PredictProxy implements PredictApi {
                 predictInternal.recommendProducts(recommendationLogic, limit, recommendationFilters, resultListener);
             }
         });
+    }
 
+    @Override
+    public void trackRecommendationClick(@NonNull final Product product) {
+        runnerProxy.logException(new Runnable() {
+            @Override
+            public void run() {
+                Assert.notNull(product, "Product must not be null!");
+
+                predictInternal.trackRecommendationClick(product);
+            }
+        });
     }
 }

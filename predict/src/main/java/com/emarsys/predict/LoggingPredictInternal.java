@@ -76,17 +76,6 @@ public class LoggingPredictInternal implements PredictInternal {
     }
 
     @Override
-    public String trackItemView(Product product) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("product", product.toString());
-
-        String callerMethodName = SystemUtils.getCallerMethodName();
-
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
-        return null;
-    }
-
-    @Override
     public String trackCategoryView(String categoryPath) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("category_path", categoryPath);
@@ -130,5 +119,16 @@ public class LoggingPredictInternal implements PredictInternal {
         String callerMethodName = SystemUtils.getCallerMethodName();
 
         Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+    }
+
+    @Override
+    public String trackRecommendationClick(Product product) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("product", product.toString());
+
+        String callerMethodName = SystemUtils.getCallerMethodName();
+
+        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        return null;
     }
 }

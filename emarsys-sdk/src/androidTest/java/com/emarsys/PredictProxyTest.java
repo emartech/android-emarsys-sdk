@@ -121,12 +121,7 @@ public class PredictProxyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testPredict_testTrackItemView_itemViewId_mustNotBeNull() {
-        predictProxy.trackItemView((String) null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPredict_testTrackItemView_product_mustNotBeNull() {
-        predictProxy.trackItemView((Product) null);
+        predictProxy.trackItemView(null);
     }
 
     @Test
@@ -136,15 +131,6 @@ public class PredictProxyTest {
         predictProxy.trackItemView(itemId);
 
         verify(mockPredictInternal).trackItemView(itemId);
-    }
-
-    @Test
-    public void testPredict_trackItemView_withProduct_delegatesTo_predictInternal() {
-        Product product = new Product.Builder(RandomTestUtils.randomString(), RandomTestUtils.randomString(), "https://emarsys.com", RandomTestUtils.randomString(), RandomTestUtils.randomNumberString()).build();
-
-        predictProxy.trackItemView(product);
-
-        verify(mockPredictInternal).trackItemView(product);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -273,6 +259,20 @@ public class PredictProxyTest {
         predictProxy.recommendProducts(mockLogic, mockResultListener);
 
         verify(mockPredictInternal).recommendProducts(mockLogic, null, null, mockResultListener);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPredict_testTrackItemView_product_mustNotBeNull() {
+        predictProxy.trackRecommendationClick(null);
+    }
+
+    @Test
+    public void testPredict_trackRecommendationClick_delegatesTo_predictInternal() {
+        Product product = new Product.Builder(RandomTestUtils.randomString(), RandomTestUtils.randomString(), "https://emarsys.com", RandomTestUtils.randomString(), RandomTestUtils.randomNumberString()).build();
+
+        predictProxy.trackRecommendationClick(product);
+
+        verify(mockPredictInternal).trackRecommendationClick(product);
     }
 
     private CartItem createItem(final String id, final double price, final double quantity) {
