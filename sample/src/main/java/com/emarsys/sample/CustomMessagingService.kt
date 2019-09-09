@@ -13,7 +13,7 @@ class CustomMessagingService : FirebaseMessagingService() {
         Emarsys.Push.setPushToken(token)
     }
 
-    override fun onMessageReceived(remoteMessage: RemoteMessage?) {
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
         val handledByEmarsysSDK =
