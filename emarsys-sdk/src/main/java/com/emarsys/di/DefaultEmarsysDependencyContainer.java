@@ -10,6 +10,10 @@ import android.os.Looper;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.emarsys.Emarsys;
+import com.emarsys.config.ConfigApi;
+import com.emarsys.config.ConfigInternal;
+import com.emarsys.config.ConfigProxy;
+import com.emarsys.config.DefaultConfigInternal;
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.Mapper;
@@ -137,6 +141,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private DeepLinkInternal deepLinkInternal;
     private PredictInternal predictInternal;
     private PushInternal pushInternal;
+    private ConfigInternal configInternal;
     private ClientServiceInternal clientServiceInternal;
 
     private Handler coreSdkHandler;
@@ -181,6 +186,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private InAppApi inAppApi;
     private PushApi pushApi;
     private PredictApi predictApi;
+    private ConfigApi configApi;
     private PredictRequestContext predictRequestContext;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
@@ -519,11 +525,13 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
             inboxInternal = inboxInternalProvider.provideLoggingInboxInternal(Emarsys.Inbox.class);
         }
 
+        configInternal = new DefaultConfigInternal();
+
         inboxApi = new InboxProxy(runnerProxy, inboxInternal);
         inAppApi = new InAppProxy(runnerProxy, inAppInternal);
         pushApi = new PushProxy(runnerProxy, pushInternal);
         predictApi = new PredictProxy(runnerProxy, predictInternal);
-
+        configApi = new ConfigProxy(runnerProxy, configInternal);
         logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
     }
 
@@ -611,5 +619,10 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     @Override
     public PredictApi getPredict() {
         return predictApi;
+    }
+
+    @Override
+    public ConfigApi getConfig() {
+        return configApi;
     }
 }

@@ -1,5 +1,6 @@
 package com.emarsys.di;
 
+import com.emarsys.config.ConfigApi;
 import com.emarsys.inapp.InAppApi;
 import com.emarsys.inbox.InboxApi;
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
@@ -15,4 +16,6 @@ public interface EmarysDependencyContainer extends MobileEngageDependencyContain
     PushApi getPush();
 
     PredictApi getPredict();
+
+    ConfigApi getConfig();
 }

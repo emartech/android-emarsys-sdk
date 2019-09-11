@@ -1,6 +1,7 @@
 package com.emarsys.di
 
 import android.os.Handler
+import com.emarsys.config.ConfigApi
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.RunnerProxy
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -72,7 +73,8 @@ class FakeDependencyContainer(
         private val inbox: InboxApi = mock(InboxApi::class.java),
         private val inApp: InAppApi = mock(InAppApi::class.java),
         private val push: PushApi = mock(PushApi::class.java),
-        private val predict: PredictApi = mock(PredictApi::class.java)) : EmarysDependencyContainer {
+        private val predict: PredictApi = mock(PredictApi::class.java),
+        private val config: ConfigApi = mock(ConfigApi::class.java)) : EmarysDependencyContainer {
 
     override fun getCoreSdkHandler(): Handler {
         return coreSdkHandler
@@ -217,5 +219,9 @@ class FakeDependencyContainer(
 
     override fun getPredict(): PredictApi {
         return predict
+    }
+
+    override fun getConfig(): ConfigApi {
+        return config
     }
 }

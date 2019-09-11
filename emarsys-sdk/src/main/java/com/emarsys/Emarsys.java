@@ -6,6 +6,7 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.emarsys.config.ConfigApi;
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.RunnerProxy;
 import com.emarsys.core.api.experimental.FlipperFeature;
@@ -50,24 +51,26 @@ public class Emarsys {
     private static InAppApi inApp;
     private static PredictApi predict;
     private static InboxApi inbox;
+    private static ConfigApi config;
 
-    public static void setup(@NonNull EmarsysConfig config) {
-        Assert.notNull(config, "Config must not be null!");
+    public static void setup(@NonNull EmarsysConfig emarsysConfig) {
+        Assert.notNull(emarsysConfig, "Config must not be null!");
 
-        for (FlipperFeature feature : config.getExperimentalFeatures()) {
+        for (FlipperFeature feature : emarsysConfig.getExperimentalFeatures()) {
             FeatureRegistry.enableFeature(feature);
         }
 
-        DependencyInjection.setup(new DefaultEmarsysDependencyContainer(config));
+        DependencyInjection.setup(new DefaultEmarsysDependencyContainer(emarsysConfig));
 
         inbox = getContainer().getInbox();
         inApp = getContainer().getInApp();
         push = getContainer().getPush();
         predict = getContainer().getPredict();
+        config = getContainer().getConfig();
 
-        initializeInAppInternal(config);
+        initializeInAppInternal(emarsysConfig);
 
-        registerWatchDogs(config);
+        registerWatchDogs(emarsysConfig);
 
         registerDatabaseTriggers();
 
@@ -215,6 +218,45 @@ public class Emarsys {
 
     static PredictApi getPredict() {
         return predict;
+    }
+
+    public static class Config {
+
+        public static void setContactFieldId(@NonNull int contactFieldId) {
+            config.setContactFieldId(contactFieldId);
+        }
+
+        @NonNull
+        public static int getContactFieldId() {
+            return config.getContactFieldId();
+        }
+
+        public static void changeApplicationCode(@Nullable String applicationCode) {
+            config.changeApplicationCode(applicationCode, null);
+        }
+
+        public static void changeApplicationCode(@Nullable String applicationCode, @NonNull CompletionListener completionListener) {
+            config.changeApplicationCode(applicationCode, completionListener);
+        }
+
+        @Nullable
+        public static String getApplicationCode() {
+            return config.getApplicationCode();
+        }
+
+        public static void changeMerchantId(@Nullable String merchantId) {
+            config.changeMerchantId(merchantId);
+        }
+
+        @Nullable
+        public static String getMerchantId() {
+            return config.getMerchantId();
+        }
+
+        @NonNull
+        public static List<FlipperFeature> getExperimentalFeatures() {
+            return config.getExperimentalFeatures();
+        }
     }
 
     public static class Push {

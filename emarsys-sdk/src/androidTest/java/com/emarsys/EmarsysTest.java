@@ -7,6 +7,7 @@ import android.os.Looper;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.emarsys.config.ConfigApi;
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.RunnerProxy;
@@ -177,6 +178,7 @@ public class EmarsysTest {
     private InAppApi mockInApp;
     private PushApi mockPush;
     private PredictApi mockPredict;
+    private ConfigApi mockConfig;
 
     private LanguageProvider mockLanguageProvider;
     private NotificationManagerHelper mockNotificationManagerHelper;
@@ -252,6 +254,7 @@ public class EmarsysTest {
         mockInApp = mock(InAppApi.class);
         mockPush = mock(PushApi.class);
         mockPredict = mock(PredictApi.class);
+        mockConfig = mock(ConfigApi.class);
         mockLogic = mock(Logic.class);
         mockRecommendationFilter = mock(RecommendationFilter.class);
 
@@ -299,7 +302,8 @@ public class EmarsysTest {
                 mockInbox,
                 mockInApp,
                 mockPush,
-                mockPredict
+                mockPredict,
+                mockConfig
         ));
         FeatureTestUtils.resetFeatures();
     }
@@ -992,6 +996,90 @@ public class EmarsysTest {
         Emarsys.trackCustomEvent(eventName, eventAttributes, completionListener);
 
         verify(mockEventServiceInternal).trackCustomEvent(eventName, eventAttributes, completionListener);
+    }
+
+    @Test
+    public void testConfig_changeApplicationCode_delegatesTo_configInstance() {
+        Emarsys.setup(mobileEngageConfig);
+
+        Emarsys.Config.changeApplicationCode(APPLICATION_CODE);
+
+        verify(mockConfig).changeApplicationCode(APPLICATION_CODE, null);
+    }
+
+    @Test
+    public void testConfig_changeApplicationCode_withCompletionListener_delegatesTo_configInstance() {
+        Emarsys.setup(mobileEngageConfig);
+
+        Emarsys.Config.changeApplicationCode(APPLICATION_CODE, completionListener);
+
+        verify(mockConfig).changeApplicationCode(APPLICATION_CODE, completionListener);
+    }
+
+    @Test
+    public void testConfig_getApplicationCode_delegatesTo_configInstance() {
+        Emarsys.setup(mobileEngageConfig);
+
+        when(mockConfig.getApplicationCode()).thenReturn(APPLICATION_CODE);
+
+        String applicationCode = Emarsys.Config.getApplicationCode();
+
+        verify(mockConfig).getApplicationCode();
+        assertEquals(APPLICATION_CODE, applicationCode);
+    }
+
+    @Test
+    public void testConfig_changeMerchantId_delegatesTo_configInstance() {
+        Emarsys.setup(predictConfig);
+
+        Emarsys.Config.changeMerchantId(MERCHANT_ID);
+
+        verify(mockConfig).changeMerchantId(MERCHANT_ID);
+    }
+
+    @Test
+    public void testConfig_getMerchantId_delegatesTo_configInstance() {
+        Emarsys.setup(predictConfig);
+
+        when(mockConfig.getMerchantId()).thenReturn(MERCHANT_ID);
+
+        String merchantId = Emarsys.Config.getMerchantId();
+
+        verify(mockConfig).getMerchantId();
+        assertEquals(MERCHANT_ID, merchantId);
+    }
+
+    @Test
+    public void testConfig_setContactFieldId_delegatesTo_configInstance() {
+        Emarsys.setup(baseConfig);
+
+        Emarsys.Config.setContactFieldId(CONTACT_FIELD_ID);
+
+        verify(mockConfig).setContactFieldId(CONTACT_FIELD_ID);
+    }
+
+    @Test
+    public void testConfig_getContactFieldId_delegatesTo_configInstance() {
+        Emarsys.setup(baseConfig);
+
+        when(mockConfig.getContactFieldId()).thenReturn(CONTACT_FIELD_ID);
+
+        int contactFieldId = Emarsys.Config.getContactFieldId();
+
+        verify(mockConfig).getContactFieldId();
+        assertEquals(CONTACT_FIELD_ID, contactFieldId);
+    }
+
+    @Test
+    public void testConfig_getExperimentalFeatures_delegatesTo_configInstance() {
+        Emarsys.setup(baseConfig);
+
+        when(mockConfig.getExperimentalFeatures()).thenReturn(new ArrayList<FlipperFeature>());
+
+        List<FlipperFeature> experimentalFeatures = Emarsys.Config.getExperimentalFeatures();
+
+        verify(mockConfig).getExperimentalFeatures();
+        assertEquals(new ArrayList<FlipperFeature>(), experimentalFeatures);
     }
 
     @Test
