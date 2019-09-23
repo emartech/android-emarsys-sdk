@@ -31,6 +31,7 @@ import com.emarsys.mobileengage.iam.InAppPresenter
 import com.emarsys.mobileengage.inbox.InboxInternal
 import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.push.PushInternal
+import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictInternal
 import com.emarsys.push.PushApi
@@ -74,7 +75,8 @@ class FakeDependencyContainer(
         private val inApp: InAppApi = mock(InAppApi::class.java),
         private val push: PushApi = mock(PushApi::class.java),
         private val predict: PredictApi = mock(PredictApi::class.java),
-        private val config: ConfigApi = mock(ConfigApi::class.java)) : EmarysDependencyContainer {
+        private val config: ConfigApi = mock(ConfigApi::class.java),
+        private val pushTokenProvider: PushTokenProvider = mock(PushTokenProvider::class.java)) : EmarysDependencyContainer {
 
     override fun getCoreSdkHandler(): Handler {
         return coreSdkHandler
@@ -223,5 +225,9 @@ class FakeDependencyContainer(
 
     override fun getConfig(): ConfigApi {
         return config
+    }
+
+    override fun getPushTokenProvider(): PushTokenProvider {
+        return pushTokenProvider
     }
 }

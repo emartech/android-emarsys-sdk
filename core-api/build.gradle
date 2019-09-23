@@ -1,5 +1,6 @@
 dependencies {
     api Libs.support_annotations
     api Libs.support_appcompat
+    api Libs.kotlin
     androidTestImplementation project(':testUtils')
 }

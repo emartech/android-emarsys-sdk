@@ -247,16 +247,6 @@ public class Emarsys {
         public static void changeMerchantId(@Nullable String merchantId) {
             config.changeMerchantId(merchantId);
         }
-
-        @Nullable
-        public static String getMerchantId() {
-            return config.getMerchantId();
-        }
-
-        @NonNull
-        public static List<FlipperFeature> getExperimentalFeatures() {
-            return config.getExperimentalFeatures();
-        }
     }
 
     public static class Push {

@@ -2,7 +2,6 @@ package com.emarsys.config
 
 import com.emarsys.core.Callable
 import com.emarsys.core.RunnerProxy
-import com.emarsys.core.api.experimental.FlipperFeature
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -86,27 +85,5 @@ class ConfigProxyTest {
 
         verify(mockConfigInternal).changeMerchantId("testMerchantId")
         verify(mockRunnerProxy).logException(any(Runnable::class.java))
-    }
-
-    @Test
-    fun testGetMerchantId_delegatesTo_internal_byUsingRunnerProxy() {
-        whenever(mockConfigInternal.merchantId).thenReturn("testMerchantId")
-
-        val result = configProxy.merchantId
-
-        result shouldBe "testMerchantId"
-        verify(mockConfigInternal).merchantId
-        verify(mockRunnerProxy).logException(any(Callable::class.java))
-    }
-
-    @Test
-    fun testGetExperimentalFeatures_delegatesTo_internal_byUsingRunnerProxy() {
-        whenever(mockConfigInternal.experimentalFeatures).thenReturn(emptyList())
-
-        val result = configProxy.experimentalFeatures
-
-        result shouldBe emptyList<FlipperFeature>()
-        verify(mockConfigInternal).experimentalFeatures
-        verify(mockRunnerProxy).logException(any(Callable::class.java))
     }
 }

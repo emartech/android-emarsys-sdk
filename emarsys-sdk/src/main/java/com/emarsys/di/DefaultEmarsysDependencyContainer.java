@@ -100,8 +100,10 @@ import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternalProvider;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.push.DefaultPushInternal;
+import com.emarsys.mobileengage.push.DefaultPushTokenProvider;
 import com.emarsys.mobileengage.push.LoggingPushInternal;
 import com.emarsys.mobileengage.push.PushInternal;
+import com.emarsys.mobileengage.push.PushTokenProvider;
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider;
 import com.emarsys.mobileengage.request.MobileEngageHeaderMapper;
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory;
@@ -188,6 +190,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private PredictApi predictApi;
     private ConfigApi configApi;
     private PredictRequestContext predictRequestContext;
+    private PushTokenProvider pushTokenProvider;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeFeatures(emarsysConfig);
@@ -356,6 +359,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
+    public PushTokenProvider getPushTokenProvider() {
+        return pushTokenProvider;
+    }
+
+    @Override
     public RestClient getRestClient() {
         return restClient;
     }
@@ -373,6 +381,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private void initializeDependencies(EmarsysConfig config) {
         application = config.getApplication();
         runnerProxy = new RunnerProxy();
+
         SharedPreferences prefs = application.getSharedPreferences(EMARSYS_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
 
         uiHandler = new Handler(Looper.getMainLooper());
@@ -384,6 +393,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         refreshTokenStorage = new StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, prefs);
         clientStateStorage = new StringStorage(MobileEngageStorageKey.CLIENT_STATE, prefs);
         contactFieldValueStorage = new StringStorage(MobileEngageStorageKey.CONTACT_FIELD_VALUE, prefs);
+        pushTokenProvider = new DefaultPushTokenProvider();
 
         responseHandlersProcessor = new ResponseHandlersProcessor(new ArrayList<AbstractResponseHandler>());
 
@@ -525,7 +535,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
             inboxInternal = inboxInternalProvider.provideLoggingInboxInternal(Emarsys.Inbox.class);
         }
 
-        configInternal = new DefaultConfigInternal();
+        configInternal = new DefaultConfigInternal(requestContext, mobileEngageInternal, pushInternal, getPushTokenProvider());
 
         inboxApi = new InboxProxy(runnerProxy, inboxInternal);
         inAppApi = new InAppProxy(runnerProxy, inAppInternal);

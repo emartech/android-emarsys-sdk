@@ -2,11 +2,8 @@ package com.emarsys.config;
 
 import com.emarsys.core.Callable;
 import com.emarsys.core.RunnerProxy;
-import com.emarsys.core.api.experimental.FlipperFeature;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.util.Assert;
-
-import java.util.List;
 
 public class ConfigProxy implements ConfigApi {
 
@@ -67,26 +64,6 @@ public class ConfigProxy implements ConfigApi {
             @Override
             public void run() {
                 configInternal.changeMerchantId(merchantId);
-            }
-        });
-    }
-
-    @Override
-    public String getMerchantId() {
-        return runnerProxy.logException(new Callable<String>() {
-            @Override
-            public String call() {
-                return configInternal.getMerchantId();
-            }
-        });
-    }
-
-    @Override
-    public List<FlipperFeature> getExperimentalFeatures() {
-        return runnerProxy.logException(new Callable<List<FlipperFeature>>() {
-            @Override
-            public List<FlipperFeature> call() {
-                return configInternal.getExperimentalFeatures();
             }
         });
     }

@@ -79,6 +79,7 @@ import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.push.DefaultPushInternal;
 import com.emarsys.mobileengage.push.LoggingPushInternal;
 import com.emarsys.mobileengage.push.PushInternal;
+import com.emarsys.mobileengage.push.PushTokenProvider;
 import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
@@ -257,7 +258,7 @@ public class EmarsysTest {
         mockConfig = mock(ConfigApi.class);
         mockLogic = mock(Logic.class);
         mockRecommendationFilter = mock(RecommendationFilter.class);
-
+        PushTokenProvider pushTokenProvider = mock(PushTokenProvider.class);
         HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
         deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
 
@@ -303,7 +304,8 @@ public class EmarsysTest {
                 mockInApp,
                 mockPush,
                 mockPredict,
-                mockConfig
+                mockConfig,
+                pushTokenProvider
         ));
         FeatureTestUtils.resetFeatures();
     }
@@ -1038,18 +1040,6 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testConfig_getMerchantId_delegatesTo_configInstance() {
-        Emarsys.setup(predictConfig);
-
-        when(mockConfig.getMerchantId()).thenReturn(MERCHANT_ID);
-
-        String merchantId = Emarsys.Config.getMerchantId();
-
-        verify(mockConfig).getMerchantId();
-        assertEquals(MERCHANT_ID, merchantId);
-    }
-
-    @Test
     public void testConfig_setContactFieldId_delegatesTo_configInstance() {
         Emarsys.setup(baseConfig);
 
@@ -1068,18 +1058,6 @@ public class EmarsysTest {
 
         verify(mockConfig).getContactFieldId();
         assertEquals(CONTACT_FIELD_ID, contactFieldId);
-    }
-
-    @Test
-    public void testConfig_getExperimentalFeatures_delegatesTo_configInstance() {
-        Emarsys.setup(baseConfig);
-
-        when(mockConfig.getExperimentalFeatures()).thenReturn(new ArrayList<FlipperFeature>());
-
-        List<FlipperFeature> experimentalFeatures = Emarsys.Config.getExperimentalFeatures();
-
-        verify(mockConfig).getExperimentalFeatures();
-        assertEquals(new ArrayList<FlipperFeature>(), experimentalFeatures);
     }
 
     @Test
