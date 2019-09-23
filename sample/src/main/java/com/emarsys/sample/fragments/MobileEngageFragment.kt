@@ -89,17 +89,17 @@ class MobileEngageFragment : Fragment() {
                     for (key in jsonObject.keys()) {
                         attributes[key] = jsonObject.getString(key)
                     }
-                    Emarsys.trackCustomEvent(eventName, attributes) {
-                        if (it != null) {
-                            Log.e(TAG, it.toString())
-                        } else {
-                            Log.i(TAG, "Custom Event Track successful")
-                            view.showSnackBar("Custom Event Track successful")
-                        }
-                    }
                 } catch (e: JSONException) {
                     view.showSnackBar("Invalid JSON format")
                     e.printStackTrace()
+                }
+            }
+            Emarsys.trackCustomEvent(eventName, attributes) {
+                if (it != null) {
+                    Log.e(TAG, it.toString())
+                } else {
+                    Log.i(TAG, "Custom Event Track successful")
+                    view.showSnackBar("Custom Event Track successful")
                 }
             }
         }
