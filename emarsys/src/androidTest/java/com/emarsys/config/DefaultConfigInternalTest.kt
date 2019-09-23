@@ -8,10 +8,13 @@ import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.request.PredictRequestContext
+import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.mock
@@ -35,6 +38,10 @@ class DefaultConfigInternalTest {
     private lateinit var mockPushTokenProvider: PushTokenProvider
     private lateinit var mockPredictInternal: PredictInternal
     private lateinit var mockContactFieldValueStorage: Storage<String>
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     @Suppress("UNCHECKED_CAST")
