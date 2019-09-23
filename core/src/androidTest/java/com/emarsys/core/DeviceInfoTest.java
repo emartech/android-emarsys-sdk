@@ -13,7 +13,6 @@ import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.version.VersionProvider;
-import com.emarsys.core.util.SystemUtils;
 import com.emarsys.testUtil.ApplicationTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -196,11 +195,6 @@ public class DeviceInfoTest {
         Integer expectedHash = deviceInfo.hashCode();
 
         assertEquals(expectedHash, deviceInfo.getHash());
-    }
-
-    @Test
-    public void testIsKotlinEnabled() {
-        assertEquals(deviceInfo.isKotlinEnabled(), SystemUtils.isKotlinEnabled());
     }
 
     @Test

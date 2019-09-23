@@ -74,7 +74,6 @@ public class LogShardListMerger implements Mapper<List<ShardModel>, RequestModel
         data.put("model", deviceInfo.getModel());
         data.put("hw_id", deviceInfo.getHwid());
         data.put("application_code", applicationCode);
-        data.put("kotlin_enabled", deviceInfo.isKotlinEnabled() ? "true" : "false");
         data.put("merchant_id", merchantId);
         return data;
     }

@@ -4,7 +4,6 @@ PIDS=""
 RESULT=0
 MODULES="
 core-api
-core-java
 core
 mobile-engage-api
 mobile-engage

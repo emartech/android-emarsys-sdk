@@ -32,11 +32,6 @@ class SystemUtilsTest {
     }
 
     @Test
-    fun testIsKotlinEnabled_shouldBeTrue_inThisModule() {
-        SystemUtils.isKotlinEnabled() shouldBe true
-    }
-
-    @Test
     fun testGetCallerMethodName() {
         SystemUtils.getCallerMethodName() shouldBe "testGetCallerMethodName"
     }

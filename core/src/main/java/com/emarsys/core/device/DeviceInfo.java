@@ -11,7 +11,6 @@ import com.emarsys.core.notification.NotificationSettings;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.version.VersionProvider;
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.SystemUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -32,7 +31,6 @@ public class DeviceInfo {
     private final DisplayMetrics displayMetrics;
     private final boolean isDebugMode;
     private final String sdkVersion;
-    private final boolean kotlinEnabled;
     private final NotificationSettings notificationSettings;
     private final boolean isAutomaticPushSendingEnabled;
 
@@ -64,8 +62,6 @@ public class DeviceInfo {
         this.isDebugMode = (0 != (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE));
 
         this.sdkVersion = versionProvider.provideSdkVersion();
-
-        this.kotlinEnabled = SystemUtils.isKotlinEnabled();
 
         this.notificationSettings = notificationSettings;
 
@@ -132,10 +128,6 @@ public class DeviceInfo {
         return hashCode();
     }
 
-    public boolean isKotlinEnabled() {
-        return kotlinEnabled;
-    }
-
     public NotificationSettings getNotificationSettings() {
         return notificationSettings;
     }
@@ -150,7 +142,6 @@ public class DeviceInfo {
         if (o == null || getClass() != o.getClass()) return false;
         DeviceInfo that = (DeviceInfo) o;
         return isDebugMode == that.isDebugMode &&
-                kotlinEnabled == that.kotlinEnabled &&
                 isAutomaticPushSendingEnabled == that.isAutomaticPushSendingEnabled &&
                 Objects.equals(hwid, that.hwid) &&
                 Objects.equals(platform, that.platform) &&
@@ -167,6 +158,6 @@ public class DeviceInfo {
 
     @Override
     public int hashCode() {
-        return Objects.hash(hwid, platform, language, timezone, manufacturer, model, applicationVersion, osVersion, displayMetrics, isDebugMode, sdkVersion, kotlinEnabled, notificationSettings, isAutomaticPushSendingEnabled);
+        return Objects.hash(hwid, platform, language, timezone, manufacturer, model, applicationVersion, osVersion, displayMetrics, isDebugMode, sdkVersion, notificationSettings, isAutomaticPushSendingEnabled);
     }
 }

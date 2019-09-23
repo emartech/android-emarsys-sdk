@@ -1,6 +1,0 @@
-dependencies {
-    androidTestImplementation project(path: ':core')
-    androidTestImplementation 'junit:junit:4.12'
-    androidTestImplementation TestLibs.support_test_runner
-    androidTestImplementation TestLibs.support_test_rules
-}

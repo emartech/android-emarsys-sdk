@@ -140,7 +140,6 @@ class LogShardListMergerTest {
                 "model" to "Pixel",
                 "hw_id" to "hardwareId",
                 "application_code" to APPLICATION_CODE,
-                "kotlin_enabled" to "false",
                 "merchant_id" to MERCHANT_ID
         )
     }
