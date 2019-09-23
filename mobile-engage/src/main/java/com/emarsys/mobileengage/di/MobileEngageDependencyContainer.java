@@ -16,6 +16,7 @@ import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.push.PushInternal;
+import com.emarsys.mobileengage.push.PushTokenProvider;
 
 public interface MobileEngageDependencyContainer extends DependencyContainer {
 
@@ -54,4 +55,6 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
     PushInternal getPushInternal();
 
     EventServiceInternal getEventServiceInternal();
+
+    PushTokenProvider getPushTokenProvider();
 }
