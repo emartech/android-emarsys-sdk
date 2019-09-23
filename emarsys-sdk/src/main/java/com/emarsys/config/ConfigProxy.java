@@ -18,17 +18,6 @@ public class ConfigProxy implements ConfigApi {
     }
 
     @Override
-    public void setContactFieldId(final int contactFieldId) {
-        runnerProxy.logException(new Runnable() {
-            @Override
-            public void run() {
-                configInternal.setContactFieldId(contactFieldId);
-            }
-        });
-
-    }
-
-    @Override
     public int getContactFieldId() {
         return runnerProxy.logException(new Callable<Integer>() {
             @Override

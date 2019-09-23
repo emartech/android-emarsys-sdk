@@ -222,10 +222,6 @@ public class Emarsys {
 
     public static class Config {
 
-        public static void setContactFieldId(@NonNull int contactFieldId) {
-            config.setContactFieldId(contactFieldId);
-        }
-
         @NonNull
         public static int getContactFieldId() {
             return config.getContactFieldId();

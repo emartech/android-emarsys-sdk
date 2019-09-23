@@ -1040,15 +1040,6 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testConfig_setContactFieldId_delegatesTo_configInstance() {
-        Emarsys.setup(baseConfig);
-
-        Emarsys.Config.setContactFieldId(CONTACT_FIELD_ID);
-
-        verify(mockConfig).setContactFieldId(CONTACT_FIELD_ID);
-    }
-
-    @Test
     public void testConfig_getContactFieldId_delegatesTo_configInstance() {
         Emarsys.setup(baseConfig);
 

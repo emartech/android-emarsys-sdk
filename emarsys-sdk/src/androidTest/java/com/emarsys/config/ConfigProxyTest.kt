@@ -41,14 +41,6 @@ class ConfigProxyTest {
     }
 
     @Test
-    fun testSetContactFieldId_delegatesTo_internal_byUsingRunnerProxy() {
-        configProxy.contactFieldId = 3
-
-        verify(mockConfigInternal).contactFieldId = 3
-        verify(mockRunnerProxy).logException(any(Runnable::class.java))
-    }
-
-    @Test
     fun testGetContactFieldId_delegatesTo_internal_byUsingRunnerProxy() {
         whenever(mockConfigInternal.contactFieldId).thenReturn(3)
 

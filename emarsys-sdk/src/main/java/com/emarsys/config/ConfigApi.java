@@ -7,8 +7,6 @@ import com.emarsys.core.api.result.CompletionListener;
 
 public interface ConfigApi {
 
-    void setContactFieldId(@NonNull int contactFieldId);
-
     @NonNull
     int getContactFieldId();
 
