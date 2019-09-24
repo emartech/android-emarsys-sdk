@@ -20,6 +20,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     override fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?) {
         val originalContactFieldValue = mobileEngageRequestContext.contactFieldValueStorage.get()
         mobileEngageInternal.clearContact {
+            mobileEngageRequestContext.applicationCodeStorage.set(applicationCode)
             pushInternal.setPushToken(pushTokenProvider.providePushToken()) {
                 mobileEngageInternal.setContact(originalContactFieldValue, completionListener)
             }

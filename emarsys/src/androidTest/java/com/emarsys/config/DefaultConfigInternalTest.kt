@@ -17,8 +17,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import java.util.concurrent.CountDownLatch
 
 class DefaultConfigInternalTest {
@@ -123,5 +122,20 @@ class DefaultConfigInternalTest {
         verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
         verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldChangeApplicationCodeAfterClearContact() {
+        val latch = CountDownLatch(1)
+
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener {
+            latch.countDown()
+        })
+        latch.await()
+        val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockApplicationCodeStorage)
+        inOrder.verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        inOrder.verify(mockApplicationCodeStorage).set(OTHER_APPLICATION_CODE)
+        inOrder.verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
+        inOrder.verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
     }
 }
