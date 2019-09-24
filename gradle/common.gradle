@@ -11,6 +11,7 @@ modules.each {
     project(it) {
         apply plugin: 'com.android.library'
         apply plugin: 'kotlin-android'
+        apply plugin: "kotlin-allopen"
 
         android {
             buildToolsVersion Config.buildToolsVersion
@@ -36,6 +37,9 @@ modules.each {
             packagingOptions {
                 exclude 'README.txt'
             }
+        }
+        allOpen {
+            annotation("com.emarsys.core.Mockable")
         }
     }
 }
