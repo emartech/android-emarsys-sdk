@@ -64,15 +64,15 @@ class DefaultConfigInternalTest {
         mockMobileEngageInternal = mock(MobileEngageInternal::class.java).apply {
             whenever(clearContact(any())).thenAnswer { invocation ->
                 mockContactFieldValueStorage.get()
-                (invocation.getArgument(0) as CompletionListener).onCompleted(null)
+                (invocation.getArgument(0) as CompletionListener?)?.onCompleted(null)
             }
             whenever(setContact(any(), any())).thenAnswer { invocation ->
-                (invocation.getArgument(1) as CompletionListener).onCompleted(null)
+                (invocation.getArgument(1) as CompletionListener?)?.onCompleted(null)
             }
         }
         mockPushInternal = mock(PushInternal::class.java).apply {
             whenever(setPushToken(any(), any())).thenAnswer { invocation ->
-                (invocation.getArgument(1) as CompletionListener).onCompleted(null)
+                (invocation.getArgument(1) as CompletionListener?)?.onCompleted(null)
             }
         }
 
@@ -137,5 +137,59 @@ class DefaultConfigInternalTest {
         inOrder.verify(mockApplicationCodeStorage).set(OTHER_APPLICATION_CODE)
         inOrder.verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         inOrder.verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldInterruptFlow_whenErrorHappenedDuringClearContact() {
+        val mockMobileEngageInternal = mock(MobileEngageInternal::class.java)
+        whenever(mockMobileEngageInternal.clearContact(any())).thenAnswer { invocation ->
+            (invocation.getArgument(0) as CompletionListener).onCompleted(Throwable())
+        }
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider
+        )
+        val latch = CountDownLatch(1)
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, completionListener)
+        latch.await()
+        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verifyZeroInteractions(mockApplicationCodeStorage)
+        verifyZeroInteractions(mockPushInternal)
+        verifyNoMoreInteractions(mockMobileEngageInternal)
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldInterruptFlow_whenErrorHappenedDuringSetPushToken() {
+        val mockPushInternal = mock(PushInternal::class.java).apply {
+            whenever(setPushToken(any(), any())).thenAnswer { invocation ->
+                (invocation.getArgument(1) as CompletionListener).onCompleted(Throwable())
+            }
+        }
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider
+        )
+        val latch = CountDownLatch(1)
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, completionListener)
+        latch.await()
+
+        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockApplicationCodeStorage).set(OTHER_APPLICATION_CODE)
+        verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
+        verifyNoMoreInteractions(mockMobileEngageInternal)
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldWorkWithoutCompletionListener() {
+
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, null)
+
+        val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockApplicationCodeStorage)
+        inOrder.verify(mockMobileEngageInternal, timeout(50)).clearContact(any(CompletionListener::class.java))
+        inOrder.verify(mockApplicationCodeStorage, timeout(50)).set(OTHER_APPLICATION_CODE)
+        inOrder.verify(mockPushInternal, timeout(50)).setPushToken(eq(PUSH_TOKEN), any())
+        inOrder.verify(mockMobileEngageInternal, timeout(50)).setContact(eq(CONTACT_FIELD_VALUE), any())
     }
 }

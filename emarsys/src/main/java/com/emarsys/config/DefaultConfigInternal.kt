@@ -10,6 +10,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val mobileEngageInternal: MobileEngageInternal,
                             private val pushInternal: PushInternal,
                             private val pushTokenProvider: PushTokenProvider) : ConfigInternal {
+
     override val applicationCode: String?
         get() = mobileEngageRequestContext.applicationCodeStorage.get()
 
@@ -20,11 +21,27 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     override fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?) {
         val originalContactFieldValue = mobileEngageRequestContext.contactFieldValueStorage.get()
         mobileEngageInternal.clearContact {
-            mobileEngageRequestContext.applicationCodeStorage.set(applicationCode)
-            pushInternal.setPushToken(pushTokenProvider.providePushToken()) {
-                mobileEngageInternal.setContact(originalContactFieldValue, completionListener)
+            if (it == null) {
+                updateApplicationCode(applicationCode, originalContactFieldValue, completionListener)
+            } else {
+                handleError(it, completionListener)
             }
         }
+    }
+
+    private fun updateApplicationCode(applicationCode: String?, originalContactFieldValue: String?, completionListener: CompletionListener?) {
+        mobileEngageRequestContext.applicationCodeStorage.set(applicationCode)
+        pushInternal.setPushToken(pushTokenProvider.providePushToken()) {
+            if (it == null) {
+                mobileEngageInternal.setContact(originalContactFieldValue, completionListener)
+            } else {
+                handleError(it, completionListener)
+            }
+        }
+    }
+
+    private fun handleError(throwable: Throwable?, completionListener: CompletionListener?) {
+        completionListener?.onCompleted(throwable)
     }
 
     override fun changeMerchantId(merchantId: String?) {
