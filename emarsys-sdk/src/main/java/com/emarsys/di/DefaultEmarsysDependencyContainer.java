@@ -416,8 +416,10 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         buttonClickedRepository = new ButtonClickedRepository(coreDbHelper);
         displayedIamRepository = new DisplayedIamRepository(coreDbHelper);
 
+        Storage<String> applicationCodeStorage = new StringStorage(MobileEngageStorageKey.APPLICATION_CODE, prefs);
+
         requestContext = new MobileEngageRequestContext(
-                config.getMobileEngageApplicationCode(),
+                applicationCodeStorage,
                 config.getContactFieldId(),
                 getDeviceInfo(),
                 timestampProvider,

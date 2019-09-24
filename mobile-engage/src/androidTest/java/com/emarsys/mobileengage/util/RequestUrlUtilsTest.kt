@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.util
 
+import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.testUtil.TimeoutUtils
@@ -24,8 +25,11 @@ class RequestUrlUtilsTest {
 
     @Before
     fun setUp() {
+        val mockApplicationCodeStorage = (Mockito.mock(Storage::class.java) as Storage<String?>).apply {
+            whenever(get()).thenReturn(APPLICATION_CODE)
+        }
         mockRequestContext = Mockito.mock(MobileEngageRequestContext::class.java).apply {
-            whenever(applicationCode).thenReturn(APPLICATION_CODE)
+            whenever(applicationCodeStorage).thenReturn(mockApplicationCodeStorage)
         }
     }
 

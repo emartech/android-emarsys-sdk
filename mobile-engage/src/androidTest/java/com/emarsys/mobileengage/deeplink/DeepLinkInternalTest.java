@@ -61,7 +61,7 @@ public class DeepLinkInternalTest {
         mockDeviceInfo = mock(DeviceInfo.class);
         when(mockDeviceInfo.getSdkVersion()).thenReturn("0.0.1");
         requestContext = new MobileEngageRequestContext(
-                "",
+                mock(Storage.class),
                 1,
                 mockDeviceInfo,
                 timestampProvider,

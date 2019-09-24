@@ -24,12 +24,13 @@ import org.mockito.Mockito.mock
 class MobileEngageHeaderMapperTest {
 
     private companion object {
-        const val CLIENT_STATE = "aslfjasglsdlfk"
+        const val CLIENT_STATE = "client-state"
         const val CONTACT_TOKEN = "contact-token"
         const val REFRESH_TOKEN = "refresh-token"
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
         const val HARDWARE_ID = "hwid"
+        const val APPLICATION_CODE = "applicationCode"
     }
 
     private lateinit var mobileEngageHeaderMapper: MobileEngageHeaderMapper
@@ -72,8 +73,12 @@ class MobileEngageHeaderMapperTest {
         mockTimestampProvider = mock(TimestampProvider::class.java).apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
+        val mockApplicationCodeStorage = (mock(Storage::class.java) as Storage<String?>).apply {
+            whenever(get()).thenReturn(APPLICATION_CODE)
+        }
 
         mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
+            whenever(applicationCodeStorage).thenReturn(mockApplicationCodeStorage)
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
             whenever(uuidProvider).thenReturn(mockUuidProvider)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)

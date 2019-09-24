@@ -72,11 +72,14 @@ class MobileEngageRequestModelFactoryTest {
         val mockContactFieldValueStorage = (mock(Storage::class.java) as Storage<String>).apply {
             whenever(get()).thenReturn(CONTACT_FIELD_VALUE)
         }
+        val mockApplicationCodeStorage = (mock(Storage::class.java) as Storage<String?>).apply {
+            whenever(get()).thenReturn(APPLICATION_CODE)
+        }
         mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
             whenever(uuidProvider).thenReturn(mockUuidProvider)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
-            whenever(applicationCode).thenReturn(APPLICATION_CODE)
+            whenever(applicationCodeStorage).thenReturn(mockApplicationCodeStorage)
             whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
         }

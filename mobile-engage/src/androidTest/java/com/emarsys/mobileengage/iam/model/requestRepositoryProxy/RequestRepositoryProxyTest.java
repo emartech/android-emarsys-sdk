@@ -15,6 +15,7 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.iam.InAppEventHandlerInternal;
@@ -86,7 +87,9 @@ public class RequestRepositoryProxyTest {
         mockRequestModelRepository = mock(Repository.class);
         mockDisplayedIamRepository = mock(Repository.class);
         mockButtonClickedRepository = mock(Repository.class);
-        when(mockRequestContext.getApplicationCode()).thenReturn("applicationCode");
+        Storage mockApplicationCodeStorage = mock(Storage.class);
+        when(mockApplicationCodeStorage.get()).thenReturn("applicationCode");
+        when(mockRequestContext.getApplicationCodeStorage()).thenReturn(mockApplicationCodeStorage);
 
         DbHelper dbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
 

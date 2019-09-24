@@ -53,7 +53,7 @@ class DefaultInboxInternalTest {
     private companion object {
 
         private const val HARDWARE_ID = "hwid"
-        private const val APPLICATION_ID = "id"
+        private const val APPLICATION_CODE = "id"
         private const val CONTACT_FIELD_ID = 1
         private const val REQUEST_ID = "REQUEST_ID"
         private const val TIMESTAMP: Long = 100000
@@ -104,13 +104,16 @@ class DefaultInboxInternalTest {
         mockTimestampProvider = mock(TimestampProvider::class.java)
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
         mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
+        val mockApplicationCodeStorage = (mock(Storage::class.java) as Storage<String?>).apply {
+            whenever(get()).thenReturn(APPLICATION_CODE)
+        }
         whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
         mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
             whenever(createResetBadgeCountRequest()).thenReturn(mock(RequestModel::class.java))
             whenever(createFetchNotificationsRequest()).thenReturn(mock(RequestModel::class.java))
         }
         requestContext = MobileEngageRequestContext(
-                APPLICATION_ID,
+                mockApplicationCodeStorage,
                 CONTACT_FIELD_ID,
                 deviceInfo,
                 mockTimestampProvider,

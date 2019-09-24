@@ -38,6 +38,7 @@ class DefaultConfigInternalTest {
     private lateinit var mockPushTokenProvider: PushTokenProvider
     private lateinit var mockPredictInternal: PredictInternal
     private lateinit var mockContactFieldValueStorage: Storage<String>
+    private lateinit var mockApplicationCodeStorage: Storage<String?>
 
     @Rule
     @JvmField
@@ -52,10 +53,14 @@ class DefaultConfigInternalTest {
         mockContactFieldValueStorage = (mock(Storage::class.java) as Storage<String>).apply {
             whenever(get()).thenReturn(CONTACT_FIELD_VALUE).thenReturn(null)
         }
+        mockApplicationCodeStorage = (mock(Storage::class.java) as Storage<String?>).apply {
+            whenever(get()).thenReturn(APPLICATION_CODE)
+        }
 
         mockMobileEngageRequestContext = mock(MobileEngageRequestContext::class.java).apply {
-            whenever(applicationCode).thenReturn(APPLICATION_CODE)
+            whenever(applicationCodeStorage).thenReturn(mockApplicationCodeStorage)
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
+            whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)
         }
         mockMobileEngageInternal = mock(MobileEngageInternal::class.java).apply {
             whenever(clearContact(any())).thenAnswer { invocation ->
@@ -80,8 +85,6 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testGetContactFieldId_shouldReturnValueFromRequestContext() {
-        whenever(mockMobileEngageRequestContext.contactFieldId).thenReturn(CONTACT_FIELD_ID)
-
         val result = configInternal.contactFieldId
 
         result shouldBe CONTACT_FIELD_ID
@@ -89,8 +92,6 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testGetApplicationCode_shouldReturnValueFromRequestContext() {
-        whenever(mockMobileEngageRequestContext.applicationCode).thenReturn(APPLICATION_CODE)
-
         val result = configInternal.applicationCode
 
         result shouldBe APPLICATION_CODE

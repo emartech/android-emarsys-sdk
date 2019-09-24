@@ -172,6 +172,7 @@ public class EmarsysTest {
     private Storage<String> mockContactFieldValueStorage;
     private Storage<String> mockContactTokenStorage;
     private Storage<String> mockClientStateStorage;
+    private Storage<String> mockApplicationCodeStorage;
     private ResponseHandlersProcessor mockResponseHandlersProcessor;
     private NotificationCache mockNotificationCache;
     private RestClient mockRestClient;
@@ -237,6 +238,7 @@ public class EmarsysTest {
         mockContactFieldValueStorage = mock(Storage.class);
         mockContactTokenStorage = mock(Storage.class);
         mockClientStateStorage = mock(Storage.class);
+        mockApplicationCodeStorage = mock(Storage.class);
         mockResponseHandlersProcessor = mock(ResponseHandlersProcessor.class);
         mockNotificationManagerHelper = mock(NotificationManagerHelper.class);
         mockNotificationCache = mock(NotificationCache.class);
@@ -262,6 +264,7 @@ public class EmarsysTest {
         HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
         deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
 
+        when(mockRequestContext.getApplicationCodeStorage()).thenReturn(mockApplicationCodeStorage);
         when(mockDeviceInfoHashStorage.get()).thenReturn(deviceInfo.getHash());
         when(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION);
         when(mockContactFieldValueStorage.get()).thenReturn("test@test.com");
@@ -667,6 +670,13 @@ public class EmarsysTest {
         Emarsys.setup(mobileEngageConfig);
 
         verify(mockMobileEngageInternal, never()).setContact(null, null);
+    }
+
+    @Test
+    public void testSetup_setApplicationCode_shouldSaveAppCodeToStorage() {
+        Emarsys.setup(mobileEngageConfig);
+
+        verify(mockApplicationCodeStorage).set(APPLICATION_CODE);
     }
 
     @Test(expected = IllegalArgumentException.class)
