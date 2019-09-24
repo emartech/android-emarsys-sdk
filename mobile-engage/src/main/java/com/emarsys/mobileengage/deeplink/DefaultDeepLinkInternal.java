@@ -44,7 +44,7 @@ public class DefaultDeepLinkInternal implements DeepLinkInternal {
                 HashMap<String, Object> payload = new HashMap<>();
                 payload.put(ems_dl, deepLinkQueryParam);
 
-                RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUUIDProvider())
+                RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUuidProvider())
                         .url(DEEP_LINK_CLICK)
                         .headers(createHeaders())
                         .payload(payload)

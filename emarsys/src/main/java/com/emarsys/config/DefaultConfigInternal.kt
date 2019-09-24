@@ -10,7 +10,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val mobileEngageInternal: MobileEngageInternal,
                             private val pushInternal: PushInternal,
                             private val pushTokenProvider: PushTokenProvider) : ConfigInternal {
-    override val applicationCode: String
+    override val applicationCode: String?
         get() = mobileEngageRequestContext.applicationCode
 
     override val contactFieldId: Int
