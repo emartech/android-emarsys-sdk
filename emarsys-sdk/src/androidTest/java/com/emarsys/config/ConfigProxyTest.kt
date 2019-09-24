@@ -30,16 +30,6 @@ class ConfigProxyTest {
         configProxy = ConfigProxy(mockRunnerProxy, mockConfigInternal)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_runnerProxy_mustNotBeNull() {
-        ConfigProxy(null, mockConfigInternal)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_configInternal_mustNotBeNull() {
-        ConfigProxy(mockRunnerProxy, null)
-    }
-
     @Test
     fun testGetContactFieldId_delegatesTo_internal_byUsingRunnerProxy() {
         whenever(mockConfigInternal.contactFieldId).thenReturn(3)
