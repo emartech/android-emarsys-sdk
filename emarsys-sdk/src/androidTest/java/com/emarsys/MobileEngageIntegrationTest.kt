@@ -21,11 +21,13 @@ import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
+import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.matchers.numerics.shouldBeInRange
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -37,8 +39,9 @@ import java.util.concurrent.CountDownLatch
 
 class MobileEngageIntegrationTest {
 
-    companion object {
+    private companion object {
         private const val APP_ID = "14C19-A121F"
+        private const val OTHER_APP_ID = "EMS11-C3FD3"
         private const val CONTACT_FIELD_ID = 3
     }
 
@@ -81,8 +84,12 @@ class MobileEngageIntegrationTest {
 
         FeatureTestUtils.resetFeatures()
 
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
+        val mockPushTokenProvider = mock(PushTokenProvider::class.java).apply {
+            whenever(providePushToken()).thenReturn("integration_test_push_token")
+        }
 
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
+            override fun getPushTokenProvider() = mockPushTokenProvider
 
             override fun getCoreCompletionHandler() = completionHandler
 
@@ -258,6 +265,14 @@ class MobileEngageIntegrationTest {
         val clientServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().clientServiceInternal
 
         clientServiceInternal.trackDeviceInfo().also(this::eventuallyAssertCompletionHandlerSuccess)
+    }
+
+    @Test
+    fun testConfig_changeApplicationCode() {
+        val originalApplicationCode = Emarsys.Config.getApplicationCode()
+        Emarsys.Config.changeApplicationCode(OTHER_APP_ID, this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
+        originalApplicationCode shouldNotBe Emarsys.Config.getApplicationCode()
+        Emarsys.Config.getApplicationCode() shouldBe OTHER_APP_ID
     }
 
     private fun eventuallyStoreResult(errorCause: Throwable?) {
