@@ -10,7 +10,7 @@ class ApiTest {
 
     @Rule
     @JvmField
-    val timeout: TestRule = TimeoutUtils.getTimeoutRule()
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Test
     fun test() {
