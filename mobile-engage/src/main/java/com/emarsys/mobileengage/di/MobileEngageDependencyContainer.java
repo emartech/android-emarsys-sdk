@@ -22,15 +22,33 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
 
     MobileEngageInternal getMobileEngageInternal();
 
-    RefreshTokenInternal getRefreshTokenInternal();
+    MobileEngageInternal getLoggingMobileEngageInternal();
 
     ClientServiceInternal getClientServiceInternal();
 
+    ClientServiceInternal getLoggingClientServiceInternal();
+
     InboxInternal getInboxInternal();
+
+    InboxInternal getLoggingInboxInternal();
 
     InAppInternal getInAppInternal();
 
+    InAppInternal getLoggingInAppInternal();
+
     DeepLinkInternal getDeepLinkInternal();
+
+    DeepLinkInternal getLoggingDeepLinkInternal();
+
+    PushInternal getPushInternal();
+
+    PushInternal getLoggingPushInternal();
+
+    EventServiceInternal getEventServiceInternal();
+
+    EventServiceInternal getLoggingEventServiceInternal();
+
+    RefreshTokenInternal getRefreshTokenInternal();
 
     DefaultCoreCompletionHandler getCoreCompletionHandler();
 
@@ -48,13 +66,11 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
 
     Storage<String> getClientStateStorage();
 
+    Storage<String> getApplicationCodeStorage();
+
     ResponseHandlersProcessor getResponseHandlersProcessor();
 
     NotificationCache getNotificationCache();
-
-    PushInternal getPushInternal();
-
-    EventServiceInternal getEventServiceInternal();
 
     PushTokenProvider getPushTokenProvider();
 }

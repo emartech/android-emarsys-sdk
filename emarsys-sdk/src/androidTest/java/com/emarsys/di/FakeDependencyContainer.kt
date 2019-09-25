@@ -19,19 +19,31 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.log.Logger
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
-import com.emarsys.mobileengage.MobileEngageInternal
-import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.RefreshTokenInternal
+import com.emarsys.mobileengage.*
 import com.emarsys.mobileengage.api.NotificationEventHandler
 import com.emarsys.mobileengage.client.ClientServiceInternal
+import com.emarsys.mobileengage.client.DefaultClientServiceInternal
+import com.emarsys.mobileengage.client.LoggingClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
+import com.emarsys.mobileengage.deeplink.DefaultDeepLinkInternal
+import com.emarsys.mobileengage.deeplink.LoggingDeepLinkInternal
+import com.emarsys.mobileengage.event.DefaultEventServiceInternal
 import com.emarsys.mobileengage.event.EventServiceInternal
+import com.emarsys.mobileengage.event.LoggingEventServiceInternal
+import com.emarsys.mobileengage.iam.DefaultInAppInternal
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.InAppPresenter
+import com.emarsys.mobileengage.iam.LoggingInAppInternal
+import com.emarsys.mobileengage.inbox.DefaultInboxInternal
 import com.emarsys.mobileengage.inbox.InboxInternal
+import com.emarsys.mobileengage.inbox.LoggingInboxInternal
 import com.emarsys.mobileengage.inbox.model.NotificationCache
+import com.emarsys.mobileengage.push.DefaultPushInternal
+import com.emarsys.mobileengage.push.LoggingPushInternal
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
+import com.emarsys.predict.DefaultPredictInternal
+import com.emarsys.predict.LoggingPredictInternal
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictInternal
 import com.emarsys.push.PushApi
@@ -48,22 +60,31 @@ class FakeDependencyContainer(
         private val timestampProvider: TimestampProvider = mock(TimestampProvider::class.java),
         private val uuidProvider: UUIDProvider = mock(UUIDProvider::class.java),
         private val logShardTrigger: Runnable = mock(Runnable::class.java),
-        private val mobileEngageInternal: MobileEngageInternal = mock(MobileEngageInternal::class.java),
-        private val pushInternal: PushInternal = mock(PushInternal::class.java),
-        private val inboxInternal: InboxInternal = mock(InboxInternal::class.java),
-        private val inAppInternal: InAppInternal = mock(InAppInternal::class.java),
+        private val mobileEngageInternal: MobileEngageInternal = mock(DefaultMobileEngageInternal::class.java),
+        private val loggingMobileEngageInternal: MobileEngageInternal = mock(LoggingMobileEngageInternal::class.java),
+        private val pushInternal: PushInternal = mock(DefaultPushInternal::class.java),
+        private val loggingPushInternal: PushInternal = mock(LoggingPushInternal::class.java),
+        private val inboxInternal: InboxInternal = mock(DefaultInboxInternal::class.java),
+        private val loggingInboxInternal: InboxInternal = mock(LoggingInboxInternal::class.java),
+        private val inAppInternal: InAppInternal = mock(DefaultInAppInternal::class.java),
+        private val loggingInAppInternal: InAppInternal = mock(LoggingInAppInternal::class.java),
+        private val deepLinkInternal: DeepLinkInternal = mock(DefaultDeepLinkInternal::class.java),
+        private val loggingDeepLinkInternal: DeepLinkInternal = mock(LoggingDeepLinkInternal::class.java),
+        private val eventServiceInternal: EventServiceInternal = mock(DefaultEventServiceInternal::class.java),
+        private val loggingEventServiceInternal: EventServiceInternal = mock(LoggingEventServiceInternal::class.java),
+        private val clientServiceInternal: ClientServiceInternal = mock(DefaultClientServiceInternal::class.java),
+        private val loggingClientServiceInternal: ClientServiceInternal = mock(LoggingClientServiceInternal::class.java),
+        private val predictInternal: PredictInternal = mock(DefaultPredictInternal::class.java),
+        private val loggingPredictInternal: PredictInternal = mock(LoggingPredictInternal::class.java),
         private val refreshTokenInternal: RefreshTokenInternal = mock(RefreshTokenInternal::class.java),
-        private val deepLinkInternal: DeepLinkInternal = mock(DeepLinkInternal::class.java),
-        private val eventServiceInternal: EventServiceInternal = mock(EventServiceInternal::class.java),
-        private val clientServiceInternal: ClientServiceInternal = mock(ClientServiceInternal::class.java),
         private val completionHandler: DefaultCoreCompletionHandler = mock(DefaultCoreCompletionHandler::class.java),
         private val requestContext: MobileEngageRequestContext = mock(MobileEngageRequestContext::class.java),
         private val inAppPresenter: InAppPresenter = mock(InAppPresenter::class.java),
         private val notificationEventHandler: NotificationEventHandler = mock(NotificationEventHandler::class.java),
-        private val predictInternal: PredictInternal = mock(PredictInternal::class.java),
         private val predictShardTrigger: Runnable = mock(Runnable::class.java),
         private val runnerProxy: RunnerProxy = mock(RunnerProxy::class.java),
         private val logger: Logger = mock(Logger::class.java),
+        private val applicationCodeStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
         private val deviceInfoHashStorage: Storage<Int> = mock(Storage::class.java) as Storage<Int>,
         private val contactFieldValueStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
         private val contactTokenStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
@@ -72,11 +93,43 @@ class FakeDependencyContainer(
         private val notificationCache: NotificationCache = mock(NotificationCache::class.java),
         private val restClient: RestClient = mock(RestClient::class.java),
         private val inbox: InboxApi = mock(InboxApi::class.java),
+        private val loggingInbox: InboxApi = mock(InboxApi::class.java),
         private val inApp: InAppApi = mock(InAppApi::class.java),
+        private val loggingInApp: InAppApi = mock(InAppApi::class.java),
         private val push: PushApi = mock(PushApi::class.java),
+        private val loggingPush: PushApi = mock(PushApi::class.java),
         private val predict: PredictApi = mock(PredictApi::class.java),
+        private val loggingPredict: PredictApi = mock(PredictApi::class.java),
         private val config: ConfigApi = mock(ConfigApi::class.java),
         private val pushTokenProvider: PushTokenProvider = mock(PushTokenProvider::class.java)) : EmarysDependencyContainer {
+
+    override fun getLoggingClientServiceInternal(): ClientServiceInternal {
+        return loggingClientServiceInternal
+    }
+
+    override fun getLoggingInboxInternal(): InboxInternal {
+        return loggingInboxInternal
+    }
+
+    override fun getLoggingInAppInternal(): InAppInternal {
+        return loggingInAppInternal
+    }
+
+    override fun getLoggingDeepLinkInternal(): DeepLinkInternal {
+        return loggingDeepLinkInternal
+    }
+
+    override fun getLoggingPushInternal(): PushInternal {
+        return loggingPushInternal
+    }
+
+    override fun getLoggingEventServiceInternal(): EventServiceInternal {
+        return loggingEventServiceInternal
+    }
+
+    override fun getLoggingPredictInternal(): PredictInternal {
+        return loggingPredictInternal
+    }
 
     override fun getCoreSdkHandler(): Handler {
         return coreSdkHandler
@@ -116,6 +169,10 @@ class FakeDependencyContainer(
 
     override fun getMobileEngageInternal(): MobileEngageInternal {
         return mobileEngageInternal
+    }
+
+    override fun getLoggingMobileEngageInternal(): MobileEngageInternal {
+        return loggingMobileEngageInternal
     }
 
     override fun getRefreshTokenInternal(): RefreshTokenInternal {
@@ -198,6 +255,10 @@ class FakeDependencyContainer(
         return clientStateStorage
     }
 
+    override fun getApplicationCodeStorage(): Storage<String> {
+        return applicationCodeStorage
+    }
+
     override fun getResponseHandlersProcessor(): ResponseHandlersProcessor {
         return responseHandlersProcessor
     }
@@ -211,16 +272,32 @@ class FakeDependencyContainer(
         return inbox
     }
 
+    override fun getLoggingInbox(): InboxApi {
+        return loggingInbox
+    }
+
     override fun getInApp(): InAppApi {
         return inApp
+    }
+
+    override fun getLoggingInApp(): InAppApi {
+        return loggingInApp
     }
 
     override fun getPush(): PushApi {
         return push
     }
 
+    override fun getLoggingPush(): PushApi {
+        return loggingPush
+    }
+
     override fun getPredict(): PredictApi {
         return predict
+    }
+
+    override fun getLoggingPredict(): PredictApi {
+        return loggingPredict
     }
 
     override fun getConfig(): ConfigApi {

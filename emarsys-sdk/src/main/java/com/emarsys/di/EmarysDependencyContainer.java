@@ -11,11 +11,19 @@ import com.emarsys.push.PushApi;
 public interface EmarysDependencyContainer extends MobileEngageDependencyContainer, PredictDependencyContainer {
     InboxApi getInbox();
 
+    InboxApi getLoggingInbox();
+
     InAppApi getInApp();
+
+    InAppApi getLoggingInApp();
 
     PushApi getPush();
 
+    PushApi getLoggingPush();
+
     PredictApi getPredict();
+
+    PredictApi getLoggingPredict();
 
     ConfigApi getConfig();
 }

@@ -21,18 +21,14 @@ import com.emarsys.core.di.DependencyInjection;
 import com.emarsys.core.feature.FeatureRegistry;
 import com.emarsys.core.util.Assert;
 import com.emarsys.di.DefaultEmarsysDependencyContainer;
+import com.emarsys.di.EmarsysDependencyInjection;
 import com.emarsys.di.EmarysDependencyContainer;
 import com.emarsys.inapp.InAppApi;
 import com.emarsys.inbox.InboxApi;
-import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.inbox.Notification;
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus;
-import com.emarsys.mobileengage.client.ClientServiceInternal;
-import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
-import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.predict.PredictApi;
-import com.emarsys.predict.PredictInternal;
 import com.emarsys.predict.api.model.CartItem;
 import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
@@ -47,10 +43,6 @@ import static com.emarsys.feature.InnerFeature.PREDICT;
 
 public class Emarsys {
 
-    private static PushApi push;
-    private static InAppApi inApp;
-    private static PredictApi predict;
-    private static InboxApi inbox;
     private static ConfigApi config;
 
     public static void setup(@NonNull EmarsysConfig emarsysConfig) {
@@ -62,10 +54,6 @@ public class Emarsys {
 
         DependencyInjection.setup(new DefaultEmarsysDependencyContainer(emarsysConfig));
 
-        inbox = getContainer().getInbox();
-        inApp = getContainer().getInApp();
-        push = getContainer().getPush();
-        predict = getContainer().getPredict();
         config = getContainer().getConfig();
 
         initializeApplicationCode(emarsysConfig);
@@ -86,10 +74,10 @@ public class Emarsys {
 
                 if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) ||
                         (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT))) {
-                    getMobileEngageInternal().setContact(contactId, null);
+                    EmarsysDependencyInjection.mobileEngageInternal().setContact(contactId, null);
                 }
                 if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-                    getPredictInternal().setContact(contactId);
+                    EmarsysDependencyInjection.predictInternal().setContact(contactId);
                 }
             }
         });
@@ -107,10 +95,10 @@ public class Emarsys {
 
                 if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) ||
                         (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT))) {
-                    getMobileEngageInternal().setContact(contactId, completionListener);
+                    EmarsysDependencyInjection.mobileEngageInternal().setContact(contactId, completionListener);
                 }
                 if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-                    getPredictInternal().setContact(contactId);
+                    EmarsysDependencyInjection.predictInternal().setContact(contactId);
                 }
             }
         });
@@ -122,10 +110,10 @@ public class Emarsys {
             public void run() {
                 if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) ||
                         (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT))) {
-                    getMobileEngageInternal().clearContact(null);
+                    EmarsysDependencyInjection.mobileEngageInternal().clearContact(null);
                 }
                 if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-                    getPredictInternal().clearContact();
+                    EmarsysDependencyInjection.predictInternal().clearContact();
                 }
             }
         });
@@ -139,10 +127,10 @@ public class Emarsys {
 
                 if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) ||
                         (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT))) {
-                    getMobileEngageInternal().clearContact(completionListener);
+                    EmarsysDependencyInjection.mobileEngageInternal().clearContact(completionListener);
                 }
                 if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-                    getPredictInternal().clearContact();
+                    EmarsysDependencyInjection.predictInternal().clearContact();
                 }
             }
         });
@@ -157,7 +145,7 @@ public class Emarsys {
                 Assert.notNull(activity, "Activity must not be null!");
                 Assert.notNull(intent, "Intent must not be null!");
 
-                getDeepLinkInternal().trackDeepLinkOpen(activity, intent, null);
+                EmarsysDependencyInjection.deepLinkInternal().trackDeepLinkOpen(activity, intent, null);
             }
         });
     }
@@ -172,7 +160,7 @@ public class Emarsys {
                 Assert.notNull(intent, "Intent must not be null!");
                 Assert.notNull(completionListener, "CompletionListener must not be null!");
 
-                getDeepLinkInternal().trackDeepLinkOpen(activity, intent, completionListener);
+                EmarsysDependencyInjection.deepLinkInternal().trackDeepLinkOpen(activity, intent, completionListener);
             }
         });
     }
@@ -185,7 +173,7 @@ public class Emarsys {
             public void run() {
                 Assert.notNull(eventName, "EventName must not be null!");
 
-                getEventServiceInternal().trackCustomEvent(eventName, eventAttributes, null);
+                EmarsysDependencyInjection.eventServiceInternal().trackCustomEvent(eventName, eventAttributes, null);
             }
         });
     }
@@ -200,25 +188,25 @@ public class Emarsys {
                 Assert.notNull(eventName, "EventName must not be null!");
                 Assert.notNull(completionListener, "CompletionListener must not be null!");
 
-                getEventServiceInternal().trackCustomEvent(eventName, eventAttributes, completionListener);
+                EmarsysDependencyInjection.eventServiceInternal().trackCustomEvent(eventName, eventAttributes, completionListener);
             }
         });
     }
 
     static PushApi getPush() {
-        return push;
+        return EmarsysDependencyInjection.push();
     }
 
     static InAppApi getInApp() {
-        return inApp;
+        return EmarsysDependencyInjection.inApp();
     }
 
     static InboxApi getInbox() {
-        return inbox;
+        return EmarsysDependencyInjection.inbox();
     }
 
     static PredictApi getPredict() {
-        return predict;
+        return EmarsysDependencyInjection.predict();
     }
 
     public static class Config {
@@ -249,147 +237,127 @@ public class Emarsys {
     public static class Push {
 
         public static void trackMessageOpen(@NonNull final Intent intent) {
-            push.trackMessageOpen(intent);
+            getPush().trackMessageOpen(intent);
         }
 
         public static void trackMessageOpen(
                 @NonNull final Intent intent,
                 @NonNull final CompletionListener completionListener) {
-            push.trackMessageOpen(intent, completionListener);
+            getPush().trackMessageOpen(intent, completionListener);
         }
 
         public static void setPushToken(@NonNull final String pushToken) {
-            push.setPushToken(pushToken);
+            getPush().setPushToken(pushToken);
         }
 
         public static void setPushToken(
                 @NonNull final String pushToken,
                 @NonNull final CompletionListener completionListener) {
-            push.setPushToken(pushToken, completionListener);
+            getPush().setPushToken(pushToken, completionListener);
         }
 
         public static void clearPushToken() {
-            push.clearPushToken();
+            getPush().clearPushToken();
         }
 
         public static void clearPushToken(final CompletionListener completionListener) {
-            push.clearPushToken(completionListener);
+            getPush().clearPushToken(completionListener);
         }
     }
 
     public static class Predict {
 
         public static void trackCart(@NonNull final List<CartItem> items) {
-            predict.trackCart(items);
+            getPredict().trackCart(items);
         }
 
         public static void trackPurchase(@NonNull final String orderId,
                                          @NonNull final List<CartItem> items) {
-            predict.trackPurchase(orderId, items);
+            getPredict().trackPurchase(orderId, items);
         }
 
         public static void trackItemView(@NonNull final String itemId) {
-            predict.trackItemView(itemId);
+            getPredict().trackItemView(itemId);
         }
 
         public static void trackCategoryView(@NonNull final String categoryPath) {
-            predict.trackCategoryView(categoryPath);
+            getPredict().trackCategoryView(categoryPath);
         }
 
         public static void trackSearchTerm(@NonNull final String searchTerm) {
-            predict.trackSearchTerm(searchTerm);
+            getPredict().trackSearchTerm(searchTerm);
         }
 
         public static void trackTag(@NonNull String tag, @Nullable Map<String, String> attributes) {
-            predict.trackTag(tag, attributes);
+            getPredict().trackTag(tag, attributes);
         }
 
         public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
-            predict.recommendProducts(recommendationLogic, resultListener);
+            getPredict().recommendProducts(recommendationLogic, resultListener);
         }
 
         public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final Integer limit, @NonNull final ResultListener<Try<List<Product>>> resultListener) {
-            predict.recommendProducts(recommendationLogic, limit, resultListener);
+            getPredict().recommendProducts(recommendationLogic, limit, resultListener);
         }
 
         public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull ResultListener<Try<List<Product>>> resultListener) {
-            predict.recommendProducts(recommendationLogic, recommendationFilters, resultListener);
+            getPredict().recommendProducts(recommendationLogic, recommendationFilters, resultListener);
         }
 
         public static void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull final Integer limit, @NonNull ResultListener<Try<List<Product>>> resultListener) {
-            predict.recommendProducts(recommendationLogic, limit, recommendationFilters, resultListener);
+            getPredict().recommendProducts(recommendationLogic, limit, recommendationFilters, resultListener);
         }
 
         public static void trackRecommendationClick(@NonNull final Product product) {
-            predict.trackRecommendationClick(product);
+            getPredict().trackRecommendationClick(product);
         }
     }
 
     public static class InApp {
 
         public static void pause() {
-            inApp.pause();
+            getInApp().pause();
         }
 
         public static void resume() {
-            inApp.resume();
+            getInApp().resume();
         }
 
         public static boolean isPaused() {
-            return inApp.isPaused();
+            return getInApp().isPaused();
         }
 
         public static void setEventHandler(@NonNull EventHandler eventHandler) {
-            inApp.setEventHandler(eventHandler);
+            getInApp().setEventHandler(eventHandler);
         }
     }
 
     public static class Inbox {
 
         public static void fetchNotifications(@NonNull ResultListener<Try<NotificationInboxStatus>> resultListener) {
-            inbox.fetchNotifications(resultListener);
+            getInbox().fetchNotifications(resultListener);
         }
 
 
         public static void trackNotificationOpen(@NonNull Notification notification) {
-            inbox.trackNotificationOpen(notification);
+            getInbox().trackNotificationOpen(notification);
         }
 
         public static void trackNotificationOpen(@NonNull Notification notification, @NonNull CompletionListener completionListener) {
-            inbox.trackNotificationOpen(notification, completionListener);
+            getInbox().trackNotificationOpen(notification, completionListener);
         }
 
         public static void resetBadgeCount() {
-            inbox.resetBadgeCount();
+            getInbox().resetBadgeCount();
         }
 
         public static void resetBadgeCount(@NonNull CompletionListener completionListener) {
-            inbox.resetBadgeCount(completionListener);
+            getInbox().resetBadgeCount(completionListener);
         }
     }
 
     private static EmarysDependencyContainer getContainer() {
         return DependencyInjection.getContainer();
-    }
-
-    private static MobileEngageInternal getMobileEngageInternal() {
-        return getContainer().getMobileEngageInternal();
-    }
-
-    private static ClientServiceInternal getClientServiceInternal() {
-        return getContainer().getClientServiceInternal();
-    }
-
-    private static EventServiceInternal getEventServiceInternal() {
-        return getContainer().getEventServiceInternal();
-    }
-
-    private static DeepLinkInternal getDeepLinkInternal() {
-        return getContainer().getDeepLinkInternal();
-    }
-
-    private static PredictInternal getPredictInternal() {
-        return getContainer().getPredictInternal();
     }
 
     private static RunnerProxy getRunnerProxy() {
@@ -400,7 +368,7 @@ public class Emarsys {
         EventHandler inAppEventHandler = config.getInAppEventHandler();
 
         if (inAppEventHandler != null) {
-            inApp.setEventHandler(inAppEventHandler);
+            getInApp().setEventHandler(inAppEventHandler);
         }
     }
 
@@ -434,9 +402,9 @@ public class Emarsys {
 
         if (contactToken == null && contactFieldValue == null) {
             if (clientState == null || deviceInfoHash != null && !deviceInfoHash.equals(deviceInfo.getHash())) {
-                getClientServiceInternal().trackDeviceInfo();
+                EmarsysDependencyInjection.clientServiceInternal().trackDeviceInfo();
             }
-            getMobileEngageInternal().setContact(null, null);
+            EmarsysDependencyInjection.mobileEngageInternal().setContact(null, null);
         }
     }
 

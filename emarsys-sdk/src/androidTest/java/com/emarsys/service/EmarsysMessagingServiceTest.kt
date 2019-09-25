@@ -9,11 +9,14 @@ import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.notification.NotificationSettings
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.push.PushApi
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.mockito.whenever
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -37,6 +40,7 @@ class EmarsysMessagingServiceTest {
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
     private lateinit var mockPush: PushApi
+    private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var fakeDependencyContainer: FakeDependencyContainer
 
     private lateinit var baseConfig: EmarsysConfig
@@ -44,6 +48,11 @@ class EmarsysMessagingServiceTest {
     @Before
     fun setUp() {
         mockPush = mock(PushApi::class.java)
+        val mockApplicationCodeStorage = mock(StringStorage::class.java)
+
+        mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
+            whenever(applicationCodeStorage).thenReturn(mockApplicationCodeStorage)
+        }
         baseConfig = createConfig()
         FeatureTestUtils.resetFeatures()
         DependencyInjection.tearDown()
@@ -91,6 +100,7 @@ class EmarsysMessagingServiceTest {
 
         fakeDependencyContainer = FakeDependencyContainer(
                 deviceInfo = deviceInfo,
+                requestContext = mockRequestContext,
                 push = mockPush)
 
         DependencyInjection.setup(fakeDependencyContainer)

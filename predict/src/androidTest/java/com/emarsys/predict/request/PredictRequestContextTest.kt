@@ -34,11 +34,6 @@ class PredictRequestContextTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_merchantId_mustNotBeNull() {
-        PredictRequestContext(null, mockDeviceInfo, mockTimeStampProvider, mockUUIDProvider, mockKeyValueStore)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
     fun testConstructor_deviceInfo_mustNotBeNull() {
         PredictRequestContext(MERCHANT_ID, null, mockTimeStampProvider, mockUUIDProvider, mockKeyValueStore)
     }

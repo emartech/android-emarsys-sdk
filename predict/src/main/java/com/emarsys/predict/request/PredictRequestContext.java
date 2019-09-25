@@ -14,7 +14,6 @@ public class PredictRequestContext {
     private final KeyValueStore keyValueStore;
 
     public PredictRequestContext(String merchantId, DeviceInfo deviceInfo, TimestampProvider timestampProvider, UUIDProvider uuidProvider, KeyValueStore keyValueStore) {
-        Assert.notNull(merchantId, "MerchantId must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
         Assert.notNull(timestampProvider, "TimeStampProvider must not be null!");
         Assert.notNull(uuidProvider, "UUIDProvider must not be null!");

@@ -2,7 +2,7 @@ package com.emarsys.core.di;
 
 public class DependencyInjection {
 
-    private static DependencyContainer container;
+    protected static DependencyContainer container;
 
     public static void setup(DependencyContainer container) {
         if (DependencyInjection.container == null) {
