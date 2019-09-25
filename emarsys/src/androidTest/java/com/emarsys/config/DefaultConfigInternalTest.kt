@@ -1,16 +1,20 @@
 package com.emarsys.config
 
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.storage.Storage
+import com.emarsys.feature.InnerFeature
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.request.PredictRequestContext
+import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -38,7 +42,7 @@ class DefaultConfigInternalTest {
     private lateinit var mockPredictInternal: PredictInternal
     private lateinit var mockContactFieldValueStorage: Storage<String>
     private lateinit var mockApplicationCodeStorage: Storage<String?>
-
+    private lateinit var latch: CountDownLatch
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
@@ -46,6 +50,10 @@ class DefaultConfigInternalTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
+        FeatureTestUtils.resetFeatures()
+
+        latch = CountDownLatch(1)
+
         mockPushTokenProvider = mock(PushTokenProvider::class.java)
         whenever(mockPushTokenProvider.providePushToken()).thenReturn(PUSH_TOKEN)
 
@@ -80,6 +88,11 @@ class DefaultConfigInternalTest {
         mockPredictRequestContext = mock(PredictRequestContext::class.java)
 
         configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider)
+    }
+
+    @After
+    fun tearDown() {
+        FeatureTestUtils.resetFeatures()
     }
 
     @Test
@@ -168,10 +181,11 @@ class DefaultConfigInternalTest {
         }
         configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider
         )
-        val latch = CountDownLatch(1)
+
         val completionListener = CompletionListener {
             latch.countDown()
         }
+
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, completionListener)
         latch.await()
 
@@ -183,7 +197,6 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testChangeApplicationCode_shouldWorkWithoutCompletionListener() {
-
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, null)
 
         val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockApplicationCodeStorage)
@@ -191,5 +204,43 @@ class DefaultConfigInternalTest {
         inOrder.verify(mockApplicationCodeStorage, timeout(50)).set(OTHER_APPLICATION_CODE)
         inOrder.verify(mockPushInternal, timeout(50)).setPushToken(eq(PUSH_TOKEN), any())
         inOrder.verify(mockMobileEngageInternal, timeout(50)).setContact(eq(CONTACT_FIELD_VALUE), any())
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldEnableFeature() {
+        configInternal.changeApplicationCode(APPLICATION_CODE, CompletionListener {
+            latch.countDown()
+        })
+
+        latch.await()
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe true
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldDisableFeature() {
+        FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+
+        configInternal.changeApplicationCode(null, CompletionListener {
+            latch.countDown()
+        })
+
+        latch.await()
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldOnlyLogout_whenApplicationCodeIsNull() {
+        val latch = CountDownLatch(1)
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+        configInternal.changeApplicationCode(null, completionListener)
+        latch.await()
+        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verifyZeroInteractions(mockApplicationCodeStorage)
+        verifyZeroInteractions(mockPushInternal)
+        verifyNoMoreInteractions(mockMobileEngageInternal)
     }
 }

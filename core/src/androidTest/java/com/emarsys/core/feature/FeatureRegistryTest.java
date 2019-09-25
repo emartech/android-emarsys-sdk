@@ -71,7 +71,16 @@ public class FeatureRegistryTest {
     }
 
     @Test
-    public void testEnableFeature_shouldRemoveAllFeaturesFromTheEnabledFeatureSet() {
+    public void testDisableFeature_shouldRemoveFeaturesFromTheEnabledFeatureSet() {
+        FeatureRegistry.enableFeature(feature1);
+        FeatureRegistry.enableFeature(feature2);
+        assertEquals(2, FeatureRegistry.enabledFeatures.size());
+        FeatureRegistry.disableFeature(feature1);
+        assertEquals(1, FeatureRegistry.enabledFeatures.size());
+    }
+
+    @Test
+    public void testReset_shouldRemoveAllFeaturesFromTheEnabledFeatureSet() {
         FeatureRegistry.enableFeature(feature1);
         FeatureRegistry.enableFeature(feature2);
         assertEquals(2, FeatureRegistry.enabledFeatures.size());

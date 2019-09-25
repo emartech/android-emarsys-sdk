@@ -21,4 +21,7 @@ public class FeatureRegistry {
         enabledFeatures.clear();
     }
 
+    public static void disableFeature(FlipperFeature feature) {
+        enabledFeatures.remove(feature.getName());
+    }
 }

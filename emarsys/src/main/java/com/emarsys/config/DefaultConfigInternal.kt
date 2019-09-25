@@ -1,6 +1,8 @@
 package com.emarsys.config
 
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.feature.InnerFeature
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.push.PushInternal
@@ -22,7 +24,13 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         val originalContactFieldValue = mobileEngageRequestContext.contactFieldValueStorage.get()
         mobileEngageInternal.clearContact {
             if (it == null) {
-                updateApplicationCode(applicationCode, originalContactFieldValue, completionListener)
+                if (applicationCode != null) {
+                    FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+                    updateApplicationCode(applicationCode, originalContactFieldValue, completionListener)
+                } else {
+                    FeatureRegistry.disableFeature(InnerFeature.MOBILE_ENGAGE)
+                    completionListener?.onCompleted(null)
+                }
             } else {
                 handleError(it, completionListener)
             }
