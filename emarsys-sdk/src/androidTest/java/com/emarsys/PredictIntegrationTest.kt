@@ -46,6 +46,7 @@ class PredictIntegrationTest {
     companion object {
         private const val CONTACT_FIELD_ID = 3
         private const val MERCHANT_ID = "1428C8EE286EC34B"
+        private const val OTHER_MERCHANT_ID = "test_1428C8EE286EC34B"
     }
 
     private lateinit var latch: CountDownLatch
@@ -418,6 +419,14 @@ class PredictIntegrationTest {
 
         Emarsys.setContact("test@test.com")
         testMultipleInvocations()
+    }
+
+    @Test
+    fun testConfig_changeMerchantId() {
+        val originalMerchantId = Emarsys.Config.getMerchantId()
+        Emarsys.Config.changeMerchantId(OTHER_MERCHANT_ID)
+        originalMerchantId shouldNotBe Emarsys.Config.getApplicationCode()
+        Emarsys.Config.getMerchantId() shouldBe OTHER_MERCHANT_ID
     }
 
     private fun eventuallyAssertSuccess() {

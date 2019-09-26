@@ -7,14 +7,19 @@ import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
+import com.emarsys.predict.request.PredictRequestContext
 
 class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngageRequestContext,
                             private val mobileEngageInternal: MobileEngageInternal,
                             private val pushInternal: PushInternal,
-                            private val pushTokenProvider: PushTokenProvider) : ConfigInternal {
+                            private val pushTokenProvider: PushTokenProvider,
+                            private val predictRequestContext: PredictRequestContext) : ConfigInternal {
 
     override val applicationCode: String?
         get() = mobileEngageRequestContext.applicationCodeStorage.get()
+
+    override val merchantId: String?
+        get() = predictRequestContext.merchantId
 
     override val contactFieldId: Int
         get() = mobileEngageRequestContext.contactFieldId
@@ -53,5 +58,11 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     }
 
     override fun changeMerchantId(merchantId: String?) {
+        predictRequestContext.merchantId = merchantId
+        if (merchantId == null) {
+            FeatureRegistry.disableFeature(InnerFeature.PREDICT)
+        } else {
+            FeatureRegistry.enableFeature(InnerFeature.PREDICT)
+        }
     }
 }

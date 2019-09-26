@@ -12,6 +12,9 @@ class ConfigProxy(private val runnerProxy: RunnerProxy, private val configIntern
     override val applicationCode: String?
         get() = runnerProxy.logException(Callable<String> { configInternal.applicationCode })
 
+    override val merchantId: String?
+        get() = runnerProxy.logException(Callable<String> { configInternal.merchantId })
+
     override fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?) {
         runnerProxy.logException { configInternal.changeApplicationCode(applicationCode, completionListener) }
     }

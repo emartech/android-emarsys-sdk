@@ -68,4 +68,15 @@ class ConfigProxyTest {
         verify(mockConfigInternal).changeMerchantId("testMerchantId")
         verify(mockRunnerProxy).logException(any(Runnable::class.java))
     }
+
+    @Test
+    fun testGetMerchantId_delegatesTo_internal_byUsingRunnerProxy() {
+        whenever(mockConfigInternal.merchantId).thenReturn("testMerchantId")
+
+        val result = configProxy.merchantId
+
+        result shouldBe "testMerchantId"
+        verify(mockConfigInternal).merchantId
+        verify(mockRunnerProxy).logException(any(Callable::class.java))
+    }
 }

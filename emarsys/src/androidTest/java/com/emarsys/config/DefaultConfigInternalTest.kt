@@ -27,6 +27,7 @@ import java.util.concurrent.CountDownLatch
 class DefaultConfigInternalTest {
     private companion object {
         const val APPLICATION_CODE = "applicationCode"
+        const val MERCHANT_ID = "merchantId"
         const val OTHER_APPLICATION_CODE = "otherApplicationCode"
         const val CONTACT_FIELD_ID = 3
         const val CONTACT_FIELD_VALUE = "originalContactFieldValue"
@@ -63,6 +64,9 @@ class DefaultConfigInternalTest {
         mockApplicationCodeStorage = (mock(Storage::class.java) as Storage<String?>).apply {
             whenever(get()).thenReturn(APPLICATION_CODE)
         }
+        mockPredictRequestContext = mock(PredictRequestContext::class.java).apply {
+            whenever(merchantId).thenReturn(MERCHANT_ID)
+        }
 
         mockMobileEngageRequestContext = mock(MobileEngageRequestContext::class.java).apply {
             whenever(applicationCodeStorage).thenReturn(mockApplicationCodeStorage)
@@ -85,9 +89,8 @@ class DefaultConfigInternalTest {
         }
 
         mockPredictInternal = mock(PredictInternal::class.java)
-        mockPredictRequestContext = mock(PredictRequestContext::class.java)
 
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider)
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext)
     }
 
     @After
@@ -107,6 +110,13 @@ class DefaultConfigInternalTest {
         val result = configInternal.applicationCode
 
         result shouldBe APPLICATION_CODE
+    }
+
+    @Test
+    fun testGetMerchantId_shouldReturnValueFromRequestContext() {
+        val result = configInternal.merchantId
+
+        result shouldBe MERCHANT_ID
     }
 
     @Test
@@ -158,8 +168,7 @@ class DefaultConfigInternalTest {
         whenever(mockMobileEngageInternal.clearContact(any())).thenAnswer { invocation ->
             (invocation.getArgument(0) as CompletionListener).onCompleted(Throwable())
         }
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider
-        )
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext)
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {
             latch.countDown()
@@ -179,8 +188,7 @@ class DefaultConfigInternalTest {
                 (invocation.getArgument(1) as CompletionListener).onCompleted(Throwable())
             }
         }
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider
-        )
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext)
 
         val completionListener = CompletionListener {
             latch.countDown()
@@ -242,5 +250,28 @@ class DefaultConfigInternalTest {
         verifyZeroInteractions(mockApplicationCodeStorage)
         verifyZeroInteractions(mockPushInternal)
         verifyNoMoreInteractions(mockMobileEngageInternal)
+    }
+
+    @Test
+    fun testChangeMerchantId_shouldEnableFeature() {
+        configInternal.changeMerchantId(MERCHANT_ID)
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
+    }
+
+    @Test
+    fun testChangeMerchantId_shouldDisableFeature() {
+        FeatureRegistry.enableFeature(InnerFeature.PREDICT)
+
+        configInternal.changeMerchantId(null)
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe false
+    }
+
+    @Test
+    fun testChangeMerchantId_shouldSaveMerchantId() {
+        configInternal.changeMerchantId(MERCHANT_ID)
+
+        verify(mockPredictRequestContext).merchantId = MERCHANT_ID
     }
 }

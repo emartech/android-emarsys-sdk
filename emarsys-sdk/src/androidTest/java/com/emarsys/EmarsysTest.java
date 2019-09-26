@@ -1201,7 +1201,7 @@ public class EmarsysTest {
     }
 
     @Test
-    public void testApiInstances_shouldBeAlwaysTheLatest() {
+    public void testMobileEngageApiInstances_shouldAlwaysGetInstanceFromDI() {
         Emarsys.setup(predictConfig);
 
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE);
@@ -1210,6 +1210,18 @@ public class EmarsysTest {
 
         verify(mockInApp).isPaused();
         verifyZeroInteractions(mockLoggingInApp);
+    }
+
+    @Test
+    public void testPredictApiInstances_shouldAlwaysGetInstanceFromDI() {
+        Emarsys.setup(mobileEngageConfig);
+
+        FeatureRegistry.enableFeature(InnerFeature.PREDICT);
+
+        Emarsys.Predict.trackItemView("testItemId");
+
+        verify(mockPredict).trackItemView("testItemId");
+        verifyZeroInteractions(mockLoggingPredict);
     }
 
     private EmarsysConfig.Builder createConfig(FlipperFeature... experimentalFeatures) {

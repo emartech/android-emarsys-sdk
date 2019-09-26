@@ -8,6 +8,8 @@ interface ConfigInternal {
 
     val applicationCode: String?
 
+    val merchantId: String?
+
     fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?)
 
     fun changeMerchantId(merchantId: String?)

@@ -232,6 +232,12 @@ public class Emarsys {
         public static void changeMerchantId(@Nullable String merchantId) {
             config.changeMerchantId(merchantId);
         }
+
+        @Nullable
+        public static String getMerchantId() {
+            return config.getMerchantId();
+        }
+
     }
 
     public static class Push {

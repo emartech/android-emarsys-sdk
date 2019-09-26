@@ -7,7 +7,7 @@ import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.util.Assert;
 
 public class PredictRequestContext {
-    private final String merchantId;
+    private String merchantId;
     private final DeviceInfo deviceInfo;
     private final TimestampProvider timestampProvider;
     private final UUIDProvider uuidProvider;
@@ -28,6 +28,10 @@ public class PredictRequestContext {
 
     public String getMerchantId() {
         return merchantId;
+    }
+
+    public void setMerchantId(String merchantId) {
+        this.merchantId = merchantId;
     }
 
     public DeviceInfo getDeviceInfo() {
