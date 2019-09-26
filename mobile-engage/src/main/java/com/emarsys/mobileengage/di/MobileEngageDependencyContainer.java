@@ -66,8 +66,6 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
 
     Storage<String> getClientStateStorage();
 
-    Storage<String> getApplicationCodeStorage();
-
     ResponseHandlersProcessor getResponseHandlersProcessor();
 
     NotificationCache getNotificationCache();

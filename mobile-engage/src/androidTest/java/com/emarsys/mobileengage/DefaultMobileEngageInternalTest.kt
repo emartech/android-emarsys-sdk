@@ -75,10 +75,6 @@ class DefaultMobileEngageInternalTest {
         mockContactTokenStorage = mock(Storage::class.java) as Storage<String>
         mockClientStateStorage = mock(Storage::class.java) as Storage<String>
 
-        val mockApplicationCodeStorage = (mock(Storage::class.java) as Storage<String?>).apply {
-            whenever(get()).thenReturn(APPLICATION_CODE)
-        }
-
         mockUuidProvider = mock(UUIDProvider::class.java).apply {
             whenever(provideId()).thenReturn(REQUEST_ID)
         }
@@ -102,7 +98,7 @@ class DefaultMobileEngageInternalTest {
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
             whenever(uuidProvider).thenReturn(mockUuidProvider)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
-            whenever(applicationCodeStorage).thenReturn(mockApplicationCodeStorage)
+            whenever(applicationCode).thenReturn(APPLICATION_CODE)
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
             whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
             whenever(contactTokenStorage).thenReturn(mockContactTokenStorage)

@@ -94,9 +94,7 @@ class RequestPayloadUtilsTest {
             whenever(hwid).thenReturn(HARDWARE_ID)
             whenever(notificationSettings).thenReturn(mockNotificationSettings)
         }
-        val mockApplicationCodeStorage = (mock(Storage::class.java) as Storage<String?>).apply {
-            whenever(get()).thenReturn(APPLICATION_CODE)
-        }
+
         mockTimestampProvider = mock(TimestampProvider::class.java).apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
@@ -107,7 +105,7 @@ class RequestPayloadUtilsTest {
         mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
 
         mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
-            whenever(applicationCodeStorage).thenReturn(mockApplicationCodeStorage)
+            whenever(applicationCode).thenReturn(APPLICATION_CODE)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
             whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)
             whenever(timestampProvider).thenReturn(mockTimestampProvider)

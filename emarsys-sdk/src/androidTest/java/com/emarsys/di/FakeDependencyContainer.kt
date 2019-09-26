@@ -84,7 +84,6 @@ class FakeDependencyContainer(
         private val predictShardTrigger: Runnable = mock(Runnable::class.java),
         private val runnerProxy: RunnerProxy = mock(RunnerProxy::class.java),
         private val logger: Logger = mock(Logger::class.java),
-        private val applicationCodeStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
         private val deviceInfoHashStorage: Storage<Int> = mock(Storage::class.java) as Storage<Int>,
         private val contactFieldValueStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
         private val contactTokenStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
@@ -253,10 +252,6 @@ class FakeDependencyContainer(
 
     override fun getClientStateStorage(): Storage<String> {
         return clientStateStorage
-    }
-
-    override fun getApplicationCodeStorage(): Storage<String> {
-        return applicationCodeStorage
     }
 
     override fun getResponseHandlersProcessor(): ResponseHandlersProcessor {

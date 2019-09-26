@@ -16,7 +16,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val predictRequestContext: PredictRequestContext) : ConfigInternal {
 
     override val applicationCode: String?
-        get() = mobileEngageRequestContext.applicationCodeStorage.get()
+        get() = mobileEngageRequestContext.applicationCode
 
     override val merchantId: String?
         get() = predictRequestContext.merchantId
@@ -43,7 +43,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     }
 
     private fun updateApplicationCode(applicationCode: String?, originalContactFieldValue: String?, completionListener: CompletionListener?) {
-        mobileEngageRequestContext.applicationCodeStorage.set(applicationCode)
+        mobileEngageRequestContext.applicationCode = applicationCode
         pushInternal.setPushToken(pushTokenProvider.providePushToken()) {
             if (it == null) {
                 mobileEngageInternal.setContact(originalContactFieldValue, completionListener)

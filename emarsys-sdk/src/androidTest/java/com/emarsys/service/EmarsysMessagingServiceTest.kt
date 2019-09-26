@@ -9,7 +9,6 @@ import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.notification.NotificationSettings
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
-import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.push.PushApi
@@ -48,10 +47,9 @@ class EmarsysMessagingServiceTest {
     @Before
     fun setUp() {
         mockPush = mock(PushApi::class.java)
-        val mockApplicationCodeStorage = mock(StringStorage::class.java)
 
         mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
-            whenever(applicationCodeStorage).thenReturn(mockApplicationCodeStorage)
+            whenever(applicationCode).thenReturn(APPLICATION_CODE)
         }
         baseConfig = createConfig()
         FeatureTestUtils.resetFeatures()

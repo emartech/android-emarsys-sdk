@@ -104,16 +104,14 @@ class DefaultInboxInternalTest {
         mockTimestampProvider = mock(TimestampProvider::class.java)
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
         mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
-        val mockApplicationCodeStorage = (mock(Storage::class.java) as Storage<String?>).apply {
-            whenever(get()).thenReturn(APPLICATION_CODE)
-        }
+
         whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
         mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
             whenever(createResetBadgeCountRequest()).thenReturn(mock(RequestModel::class.java))
             whenever(createFetchNotificationsRequest()).thenReturn(mock(RequestModel::class.java))
         }
         requestContext = MobileEngageRequestContext(
-                mockApplicationCodeStorage,
+                APPLICATION_CODE,
                 CONTACT_FIELD_ID,
                 deviceInfo,
                 mockTimestampProvider,

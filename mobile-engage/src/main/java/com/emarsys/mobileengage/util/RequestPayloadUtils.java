@@ -22,7 +22,7 @@ public class RequestPayloadUtils {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         Map<String, Object> payload = new HashMap<>();
-        payload.put("application_id", requestContext.getApplicationCodeStorage().get());
+        payload.put("application_id", requestContext.getApplicationCode());
         payload.put("hardware_id", requestContext.getDeviceInfo().getHwid());
 
         if (requestContext.getContactFieldValueStorage().get() != null) {

@@ -44,13 +44,9 @@ class RequestHeaderUtilsTest {
             whenever(get()).thenReturn(CONTACT_FIELD_VALUE)
         }
 
-        val mockApplicationCodeStorage = (mock(Storage::class.java) as Storage<String?>).apply {
-            whenever(get()).thenReturn(APPLICATION_CODE)
-        }
-
         mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
-            whenever(applicationCodeStorage).thenReturn(mockApplicationCodeStorage)
+            whenever(applicationCode).thenReturn(APPLICATION_CODE)
             whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
         }

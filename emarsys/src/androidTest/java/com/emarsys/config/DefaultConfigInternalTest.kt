@@ -42,7 +42,6 @@ class DefaultConfigInternalTest {
     private lateinit var mockPushTokenProvider: PushTokenProvider
     private lateinit var mockPredictInternal: PredictInternal
     private lateinit var mockContactFieldValueStorage: Storage<String>
-    private lateinit var mockApplicationCodeStorage: Storage<String?>
     private lateinit var latch: CountDownLatch
     @Rule
     @JvmField
@@ -61,15 +60,13 @@ class DefaultConfigInternalTest {
         mockContactFieldValueStorage = (mock(Storage::class.java) as Storage<String>).apply {
             whenever(get()).thenReturn(CONTACT_FIELD_VALUE).thenReturn(null)
         }
-        mockApplicationCodeStorage = (mock(Storage::class.java) as Storage<String?>).apply {
-            whenever(get()).thenReturn(APPLICATION_CODE)
-        }
+
         mockPredictRequestContext = mock(PredictRequestContext::class.java).apply {
             whenever(merchantId).thenReturn(MERCHANT_ID)
         }
 
         mockMobileEngageRequestContext = mock(MobileEngageRequestContext::class.java).apply {
-            whenever(applicationCodeStorage).thenReturn(mockApplicationCodeStorage)
+            whenever(applicationCode).thenReturn(APPLICATION_CODE)
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
             whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)
         }
@@ -155,9 +152,9 @@ class DefaultConfigInternalTest {
             latch.countDown()
         })
         latch.await()
-        val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockApplicationCodeStorage)
+        val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
         inOrder.verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
-        inOrder.verify(mockApplicationCodeStorage).set(OTHER_APPLICATION_CODE)
+        inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         inOrder.verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         inOrder.verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
     }
@@ -176,7 +173,8 @@ class DefaultConfigInternalTest {
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, completionListener)
         latch.await()
         verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
-        verifyZeroInteractions(mockApplicationCodeStorage)
+        verify(mockMobileEngageRequestContext).contactFieldValueStorage
+        verifyNoMoreInteractions(mockMobileEngageRequestContext)
         verifyZeroInteractions(mockPushInternal)
         verifyNoMoreInteractions(mockMobileEngageInternal)
     }
@@ -198,7 +196,7 @@ class DefaultConfigInternalTest {
         latch.await()
 
         verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
-        verify(mockApplicationCodeStorage).set(OTHER_APPLICATION_CODE)
+        verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         verifyNoMoreInteractions(mockMobileEngageInternal)
     }
@@ -207,9 +205,9 @@ class DefaultConfigInternalTest {
     fun testChangeApplicationCode_shouldWorkWithoutCompletionListener() {
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, null)
 
-        val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockApplicationCodeStorage)
+        val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
         inOrder.verify(mockMobileEngageInternal, timeout(50)).clearContact(any(CompletionListener::class.java))
-        inOrder.verify(mockApplicationCodeStorage, timeout(50)).set(OTHER_APPLICATION_CODE)
+        inOrder.verify(mockMobileEngageRequestContext, timeout(50)).applicationCode = OTHER_APPLICATION_CODE
         inOrder.verify(mockPushInternal, timeout(50)).setPushToken(eq(PUSH_TOKEN), any())
         inOrder.verify(mockMobileEngageInternal, timeout(50)).setContact(eq(CONTACT_FIELD_VALUE), any())
     }
@@ -247,7 +245,8 @@ class DefaultConfigInternalTest {
         configInternal.changeApplicationCode(null, completionListener)
         latch.await()
         verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
-        verifyZeroInteractions(mockApplicationCodeStorage)
+        verify(mockMobileEngageRequestContext).contactFieldValueStorage
+        verifyNoMoreInteractions(mockMobileEngageRequestContext)
         verifyZeroInteractions(mockPushInternal)
         verifyNoMoreInteractions(mockMobileEngageInternal)
     }

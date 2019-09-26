@@ -73,12 +73,9 @@ class MobileEngageHeaderMapperTest {
         mockTimestampProvider = mock(TimestampProvider::class.java).apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
-        val mockApplicationCodeStorage = (mock(Storage::class.java) as Storage<String?>).apply {
-            whenever(get()).thenReturn(APPLICATION_CODE)
-        }
 
         mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
-            whenever(applicationCodeStorage).thenReturn(mockApplicationCodeStorage)
+            whenever(applicationCode).thenReturn(APPLICATION_CODE)
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
             whenever(uuidProvider).thenReturn(mockUuidProvider)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)

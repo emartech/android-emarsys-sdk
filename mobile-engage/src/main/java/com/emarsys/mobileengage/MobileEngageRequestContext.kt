@@ -8,7 +8,7 @@ import com.emarsys.core.storage.Storage
 
 @Mockable
 data class MobileEngageRequestContext(
-        val applicationCodeStorage: Storage<String?>,
+        var applicationCode: String?,
         val contactFieldId: Int,
         val deviceInfo: DeviceInfo,
         val timestampProvider: TimestampProvider,

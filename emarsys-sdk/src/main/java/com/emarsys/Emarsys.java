@@ -56,7 +56,6 @@ public class Emarsys {
 
         config = getContainer().getConfig();
 
-        initializeApplicationCode(emarsysConfig);
         initializeInAppInternal(emarsysConfig);
 
         registerWatchDogs(emarsysConfig);
@@ -412,9 +411,5 @@ public class Emarsys {
             }
             EmarsysDependencyInjection.mobileEngageInternal().setContact(null, null);
         }
-    }
-
-    private static void initializeApplicationCode(EmarsysConfig emarsysConfig) {
-        getContainer().getRequestContext().getApplicationCodeStorage().set(emarsysConfig.getMobileEngageApplicationCode());
     }
 }

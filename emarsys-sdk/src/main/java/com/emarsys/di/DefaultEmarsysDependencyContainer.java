@@ -175,7 +175,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private Storage<String> refreshTokenStorage;
     private Storage<String> clientStateStorage;
     private Storage<String> contactFieldValueStorage;
-    private Storage<String> applicationCodeStorage;
     private RequestManager requestManager;
     private MobileEngageRequestModelFactory requestModelFactory;
     private ButtonClickedRepository buttonClickedRepository;
@@ -372,11 +371,6 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     }
 
     @Override
-    public Storage<String> getApplicationCodeStorage() {
-        return applicationCodeStorage;
-    }
-
-    @Override
     public Logger getLogger() {
         return logger;
     }
@@ -473,11 +467,9 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         buttonClickedRepository = new ButtonClickedRepository(coreDbHelper);
         displayedIamRepository = new DisplayedIamRepository(coreDbHelper);
-
-        applicationCodeStorage = new StringStorage(MobileEngageStorageKey.APPLICATION_CODE, prefs);
-
+        
         requestContext = new MobileEngageRequestContext(
-                applicationCodeStorage,
+                config.getMobileEngageApplicationCode(),
                 config.getContactFieldId(),
                 getDeviceInfo(),
                 timestampProvider,
