@@ -252,6 +252,23 @@ class DefaultConfigInternalTest {
     }
 
     @Test
+    fun testChangeApplicationCode_shouldNotSendPushToken_whenPushTokenIsNull() {
+        whenever(mockPushTokenProvider.providePushToken()).thenReturn(null)
+        val latch = CountDownLatch(1)
+
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener {
+            latch.countDown()
+        })
+        latch.await()
+        val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
+        inOrder.verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
+        verifyZeroInteractions(mockPushInternal)
+        inOrder.verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
+
+    }
+
+    @Test
     fun testChangeMerchantId_shouldEnableFeature() {
         configInternal.changeMerchantId(MERCHANT_ID)
 

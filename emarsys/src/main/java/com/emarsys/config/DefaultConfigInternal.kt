@@ -44,13 +44,21 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
 
     private fun updateApplicationCode(applicationCode: String?, originalContactFieldValue: String?, completionListener: CompletionListener?) {
         mobileEngageRequestContext.applicationCode = applicationCode
-        pushInternal.setPushToken(pushTokenProvider.providePushToken()) {
-            if (it == null) {
-                mobileEngageInternal.setContact(originalContactFieldValue, completionListener)
-            } else {
-                handleError(it, completionListener)
+        if (pushTokenProvider.providePushToken() != null) {
+            pushInternal.setPushToken(pushTokenProvider.providePushToken()) {
+                if (it == null) {
+                    setPreviouslyLoggedInContact(originalContactFieldValue, completionListener)
+                } else {
+                    handleError(it, completionListener)
+                }
             }
+        } else {
+            setPreviouslyLoggedInContact(originalContactFieldValue, completionListener)
         }
+    }
+
+    private fun setPreviouslyLoggedInContact(originalContactFieldValue: String?, completionListener: CompletionListener?) {
+        mobileEngageInternal.setContact(originalContactFieldValue, completionListener)
     }
 
     private fun handleError(throwable: Throwable?, completionListener: CompletionListener?) {
