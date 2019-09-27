@@ -86,6 +86,13 @@ public class DeepLinkInternalTest {
     }
 
     @Test
+    public void testTrackDeepLink_doesNotCrashOnNonHierarchicalUris() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("mailto:a@b.com"));
+
+        deepLinkInternal.trackDeepLinkOpen(mockActivity, intent, null);
+    }
+
+    @Test
     public void testTrackDeepLink_requestManagerCalled_withCorrectRequestModel() {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://demo-mobileengage.emarsys.net/something?fancy_url=1&ems_dl=1_2_3_4_5"));
 

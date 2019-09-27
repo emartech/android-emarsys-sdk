@@ -9,6 +9,8 @@ import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
+import com.emarsys.core.util.log.Logger;
+import com.emarsys.core.util.log.entry.CrashLog;
 import com.emarsys.mobileengage.MobileEngageRequestContext;
 
 import java.util.HashMap;
@@ -38,7 +40,15 @@ public class DefaultDeepLinkInternal implements DeepLinkInternal {
 
         if (!isLinkTracked && uri != null) {
             String ems_dl = "ems_dl";
-            String deepLinkQueryParam = uri.getQueryParameter(ems_dl);
+            String deepLinkQueryParam = null;
+
+            try {
+                deepLinkQueryParam = uri.getQueryParameter(ems_dl);
+            } catch (UnsupportedOperationException e) {
+                CrashLog crashLog = new CrashLog(e);
+                crashLog.getData().put("URI", uri);
+                Logger.log(crashLog);
+            }
 
             if (deepLinkQueryParam != null) {
                 HashMap<String, Object> payload = new HashMap<>();
