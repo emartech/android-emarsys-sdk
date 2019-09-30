@@ -160,7 +160,8 @@ class DefaultConfigInternalTest {
     }
 
     @Test
-    fun testChangeApplicationCode_shouldInterruptFlow_whenErrorHappenedDuringClearContact() {
+    fun testChangeApplicationCode_shouldInterruptFlow_andDisableFeature_whenErrorHappenedDuringClearContact() {
+        FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
         val mockMobileEngageInternal = mock(MobileEngageInternal::class.java)
         whenever(mockMobileEngageInternal.clearContact(any())).thenAnswer { invocation ->
             (invocation.getArgument(0) as CompletionListener).onCompleted(Throwable())
@@ -177,10 +178,13 @@ class DefaultConfigInternalTest {
         verifyNoMoreInteractions(mockMobileEngageRequestContext)
         verifyZeroInteractions(mockPushInternal)
         verifyNoMoreInteractions(mockMobileEngageInternal)
+        FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
     }
 
     @Test
-    fun testChangeApplicationCode_shouldInterruptFlow_whenErrorHappenedDuringSetPushToken() {
+    fun testChangeApplicationCode_shouldInterruptFlow_andDisableFeature_whenErrorHappenedDuringSetPushToken() {
+        FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+
         val mockPushInternal = mock(PushInternal::class.java).apply {
             whenever(setPushToken(any(), any())).thenAnswer { invocation ->
                 (invocation.getArgument(1) as CompletionListener).onCompleted(Throwable())
@@ -199,6 +203,7 @@ class DefaultConfigInternalTest {
         verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         verifyNoMoreInteractions(mockMobileEngageInternal)
+        FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
     }
 
     @Test

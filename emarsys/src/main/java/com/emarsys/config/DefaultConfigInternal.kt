@@ -62,6 +62,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     }
 
     private fun handleError(throwable: Throwable?, completionListener: CompletionListener?) {
+        FeatureRegistry.disableFeature(InnerFeature.MOBILE_ENGAGE)
         completionListener?.onCompleted(throwable)
     }
 
