@@ -557,21 +557,6 @@ public class EmarsysTest {
         verify(mockMobileEngageInternal, never()).setContact(null, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testSetContact_contactId_mustNotBeNull() {
-        Emarsys.setContact(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testSetContactWithCompletionListener_contactId_mustNotBeNull() {
-        Emarsys.setContact(null, completionListener);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testSetContactWithCompletionListener_completionListener_mustNotBeNull() {
-        Emarsys.setContact(CONTACT_ID, null);
-    }
-
     @Test
     public void testSetContactWithCompletionListener_delegatesToPredictInternal_whenPredictEnabled() {
         Emarsys.setup(predictConfig);
@@ -803,36 +788,6 @@ public class EmarsysTest {
         verify(mockMobileEngageInternal).clearContact(null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testClearContactWithCompletionListener_completionListener_mustNotBeNull() {
-        Emarsys.clearContact(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testTrackDeepLink_activity_mustNotBeNull() {
-        Emarsys.trackDeepLink(null, mock(Intent.class));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testTrackDeepLink_intent_mustNotBeNull() {
-        Emarsys.trackDeepLink(mock(Activity.class), null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testTrackDeepLinkWithCompletionListener_activity_mustNotBeNull() {
-        Emarsys.trackDeepLink(null, mock(Intent.class), completionListener);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testTrackDeepLinkWithCompletionListener_intent_mustNotBeNull() {
-        Emarsys.trackDeepLink(mock(Activity.class), null, completionListener);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testTrackDeepLinkWithCompletionListener_completionListener_mustNotBeNull() {
-        Emarsys.trackDeepLink(mock(Activity.class), mock(Intent.class), null);
-    }
-
     @Test
     public void testTrackDeepLink_delegatesTo_deepLinkInternal() {
         Activity mockActivity = mock(Activity.class);
@@ -851,21 +806,6 @@ public class EmarsysTest {
         Emarsys.trackDeepLink(mockActivity, mockIntent, completionListener);
 
         verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, mockIntent, completionListener);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testTrackCustomEvent_eventName_mustNotBeNull() {
-        Emarsys.trackCustomEvent(null, new HashMap<String, String>());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testTrackCustomEventWithCompletionListener_eventName_mustNotBeNull() {
-        Emarsys.trackCustomEvent(null, new HashMap<String, String>(), completionListener);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testTrackCustomEventWithCompletionListener_completionListener_mustNotBeNull() {
-        Emarsys.trackCustomEvent("eventName", new HashMap<String, String>(), null);
     }
 
     @Test
@@ -1087,7 +1027,7 @@ public class EmarsysTest {
 
         Emarsys.Predict.recommendProducts(mockLogic, Collections.singletonList(mockRecommendationFilter), 123, mockResultListener);
 
-        verify(mockPredict).recommendProducts(mockLogic, 123, Collections.singletonList(mockRecommendationFilter), mockResultListener);
+        verify(mockPredict).recommendProducts(mockLogic, Collections.singletonList(mockRecommendationFilter), 123, mockResultListener);
     }
 
     @Test

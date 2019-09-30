@@ -152,8 +152,8 @@ public class PredictProxy implements PredictApi {
 
     @Override
     public void recommendProducts(@NonNull final Logic recommendationLogic,
-                                  @NonNull final Integer limit,
                                   @NonNull final List<RecommendationFilter> recommendationFilters,
+                                  @NonNull final Integer limit,
                                   @NonNull final ResultListener<Try<List<Product>>> resultListener) {
         runnerProxy.logException(new Runnable() {
             @Override

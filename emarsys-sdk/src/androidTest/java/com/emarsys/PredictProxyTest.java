@@ -224,32 +224,32 @@ public class PredictProxyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testPredict_recommendProductsWithFiltersAndLimit_logic_mustNotBeNull() {
-        predictProxy.recommendProducts(null, 5, mockRecommendationFilters, mockResultListener);
+        predictProxy.recommendProducts(null, mockRecommendationFilters, 5, mockResultListener);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPredict_recommendProductsWithFiltersAndLimit_recommendationFilter_mustNotBeNull() {
-        predictProxy.recommendProducts(mockLogic, 5, null, mockResultListener);
+        predictProxy.recommendProducts(mockLogic, null, 5, mockResultListener);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPredict_recommendProductsWithFiltersAndLimit_limit_mustNotBeNull() {
-        predictProxy.recommendProducts(mockLogic, null, mockRecommendationFilters, mockResultListener);
+        predictProxy.recommendProducts(mockLogic, mockRecommendationFilters, null, mockResultListener);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPredict_recommendProductsWithFiltersAndLimit_limit_mustBeAPositiveInteger() {
-        predictProxy.recommendProducts(mockLogic, -5, mockRecommendationFilters, mockResultListener);
+        predictProxy.recommendProducts(mockLogic, mockRecommendationFilters, -5, mockResultListener);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPredict_recommendProductsWithFiltersAndLimit_resultListener_mustNotBeNull() {
-        predictProxy.recommendProducts(mockLogic, 5, mockRecommendationFilters, null);
+        predictProxy.recommendProducts(mockLogic, mockRecommendationFilters, 5, null);
     }
 
     @Test
     public void testPredict_recommendProductsWithFiltersAndLimit_delegatesTo_predictInternal() {
-        predictProxy.recommendProducts(mockLogic, 123, mockRecommendationFilters, mockResultListener);
+        predictProxy.recommendProducts(mockLogic, mockRecommendationFilters, 123, mockResultListener);
 
         verify(mockPredictInternal).recommendProducts(mockLogic, 123, mockRecommendationFilters, mockResultListener);
     }

@@ -232,7 +232,7 @@ class MobileEngageIntegrationTest {
         clientStateStorage.remove()
         contactTokenStorage.remove()
 
-        Emarsys.Push.setPushToken("integration_test_push_token",
+        Emarsys.push.setPushToken("integration_test_push_token",
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
     }
@@ -269,10 +269,10 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testConfig_changeApplicationCode() {
-        val originalApplicationCode = Emarsys.Config.getApplicationCode()
+        val originalApplicationCode = Emarsys.Config.applicationCode
         Emarsys.Config.changeApplicationCode(OTHER_APP_ID, this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
-        originalApplicationCode shouldNotBe Emarsys.Config.getApplicationCode()
-        Emarsys.Config.getApplicationCode() shouldBe OTHER_APP_ID
+        originalApplicationCode shouldNotBe Emarsys.Config.applicationCode
+        Emarsys.Config.applicationCode shouldBe OTHER_APP_ID
     }
 
     private fun eventuallyStoreResult(errorCause: Throwable?) {

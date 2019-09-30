@@ -423,10 +423,10 @@ class PredictIntegrationTest {
 
     @Test
     fun testConfig_changeMerchantId() {
-        val originalMerchantId = Emarsys.Config.getMerchantId()
+        val originalMerchantId = Emarsys.Config.merchantId
         Emarsys.Config.changeMerchantId(OTHER_MERCHANT_ID)
-        originalMerchantId shouldNotBe Emarsys.Config.getApplicationCode()
-        Emarsys.Config.getMerchantId() shouldBe OTHER_MERCHANT_ID
+        originalMerchantId shouldNotBe Emarsys.Config.applicationCode
+        Emarsys.Config.merchantId shouldBe OTHER_MERCHANT_ID
     }
 
     private fun eventuallyAssertSuccess() {

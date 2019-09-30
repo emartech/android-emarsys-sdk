@@ -33,7 +33,7 @@ public interface PredictApi {
 
     void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull final ResultListener<Try<List<Product>>> resultListener);
 
-    void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final Integer limit, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull final ResultListener<Try<List<Product>>> resultListener);
+    void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull final Integer limit, @NonNull final ResultListener<Try<List<Product>>> resultListener);
 
     void trackRecommendationClick(@NonNull final Product product);
 }
