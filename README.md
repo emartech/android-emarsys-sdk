@@ -88,7 +88,7 @@ Additionally, you can set a custom notification icon, by specifying it as a meta
 
 ```xml
 <meta-data
-android:name="com.emarsys.small_notification_icon"
+android:name="com.emarsys.mobileengage.small_notification_icon"
 android:resource="@drawable/notification_icon" />
 ```
 
