@@ -16,6 +16,7 @@ import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
@@ -27,6 +28,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.mock
 import java.util.*
 import java.util.concurrent.CountDownLatch
@@ -38,6 +40,8 @@ class DefaultInboxIntegrationTest {
     companion object {
         private const val APP_ID = "14C19-A121F"
         private const val CONTACT_FIELD_ID = 3
+        private const val SDK_VERSION = "2.1.0-integration"
+        private const val LANGUAGE = "en-US"
     }
 
     private lateinit var latch: CountDownLatch
@@ -81,14 +85,25 @@ class DefaultInboxIntegrationTest {
                     mock(HardwareIdProvider::class.java).apply {
                         whenever(provideHardwareId()).thenReturn("inboxv1_integration_hwid")
                     },
-                    mock(VersionProvider::class.java),
-                    mock(LanguageProvider::class.java),
+                    mock(VersionProvider::class.java).apply {
+                        whenever(provideSdkVersion()).thenReturn(SDK_VERSION)
+                    },
+                    mock(LanguageProvider::class.java).apply {
+                        whenever(provideLanguage(any())).thenReturn(LANGUAGE)
+                    },
                     mock(NotificationManagerHelper::class.java),
                     true
             )
         })
 
+        DependencyInjection.getContainer<MobileEngageDependencyContainer>().clientStateStorage.remove()
+        DependencyInjection.getContainer<MobileEngageDependencyContainer>().contactFieldValueStorage.remove()
+        DependencyInjection.getContainer<MobileEngageDependencyContainer>().contactTokenStorage.remove()
+        DependencyInjection.getContainer<MobileEngageDependencyContainer>().deviceInfoHashStorage.remove()
+
         Emarsys.setup(baseConfig)
+
+
     }
 
     @After
