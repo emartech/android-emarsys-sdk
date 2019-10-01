@@ -19,14 +19,14 @@ public class VisitorIdResponseHandler extends AbstractResponseHandler {
     }
 
     @Override
-    protected boolean shouldHandleResponse(ResponseModel responseModel) {
+    public boolean shouldHandleResponse(ResponseModel responseModel) {
         boolean isPredictUrl = responseModel.getRequestModel().getUrl().toString().startsWith(Endpoint.PREDICT_BASE_URL);
         boolean hasVisitorIdCookie = responseModel.getCookies().get("cdv") != null;
         return isPredictUrl && hasVisitorIdCookie;
     }
 
     @Override
-    protected void handleResponse(ResponseModel responseModel) {
+    public void handleResponse(ResponseModel responseModel) {
         String visitorId = responseModel.getCookies().get(CDV).getValue();
         keyValueStore.putString(DefaultPredictInternal.VISITOR_ID_KEY, visitorId);
     }

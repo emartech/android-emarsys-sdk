@@ -40,16 +40,6 @@ class MobileEngageTokenResponseHandlerTest {
         tokenResponseHandler = MobileEngageTokenResponseHandler(tokenKey, mockStorage)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_tokenKey_mustNotBeNull() {
-        MobileEngageTokenResponseHandler(null, mockStorage)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_tokenStorage_mustNotBeNull() {
-        MobileEngageTokenResponseHandler(tokenKey, null)
-    }
-
     @Test
     fun testShouldHandleResponse_shouldReturnFalse_whenRequestWasNotForMobileEngage() {
         whenever(requestModelMock.url).thenReturn(URL("https://emarsys.com"))

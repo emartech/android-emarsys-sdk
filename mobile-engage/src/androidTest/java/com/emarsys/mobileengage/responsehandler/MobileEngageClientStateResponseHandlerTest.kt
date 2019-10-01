@@ -16,7 +16,6 @@ import org.mockito.Mockito.verify
 import java.net.URL
 
 class MobileEngageClientStateResponseHandlerTest {
-
     private companion object {
         const val X_CLIENT_STATE_VALUE = "TG9yZW0gSXBzdW0gaXMgc2ltcGx5IGR1bW15IHRleHQgb2YgdGhlIHByaW50aW5nIGFuZCB0"
     }
@@ -38,11 +37,6 @@ class MobileEngageClientStateResponseHandlerTest {
             whenever(url).thenReturn(URL(Endpoint.ME_V3_CLIENT_BASE))
         }
         clientStateResponseHandler = MobileEngageClientStateResponseHandler(mockStorage)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_clientStateStorage_mustNotBeNull() {
-        MobileEngageClientStateResponseHandler(null)
     }
 
     @Test

@@ -23,7 +23,7 @@ public class InAppMessageResponseHandler extends AbstractResponseHandler {
     }
 
     @Override
-    protected boolean shouldHandleResponse(ResponseModel responseModel) {
+    public boolean shouldHandleResponse(ResponseModel responseModel) {
         JSONObject responseBody = responseModel.getParsedBody();
         boolean responseBodyNotNull = responseBody != null;
         boolean shouldHandle = false;
@@ -41,7 +41,7 @@ public class InAppMessageResponseHandler extends AbstractResponseHandler {
 
     @Override
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    protected void handleResponse(final ResponseModel responseModel) {
+    public void handleResponse(final ResponseModel responseModel) {
         JSONObject responseBody = responseModel.getParsedBody();
         try {
             JSONObject message = responseBody.getJSONObject("message");

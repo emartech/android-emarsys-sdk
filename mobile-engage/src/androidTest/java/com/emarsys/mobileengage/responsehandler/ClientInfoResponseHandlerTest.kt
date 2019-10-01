@@ -48,16 +48,6 @@ class ClientInfoResponseHandlerTest {
         clientInfoResponseHandler = ClientInfoResponseHandler(mockDeviceInfo, mockDeviceInfoHashStorage)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_deviceInfo_mustNotBeNull() {
-        ClientInfoResponseHandler(null, mockDeviceInfoHashStorage)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_deviceInfoHashStorage_mustNotBeNull() {
-        ClientInfoResponseHandler(mockDeviceInfo, null)
-    }
-
     @Test
     fun testShouldHandleResponse_true_whenRequestIsClientInfo() {
         val result = clientInfoResponseHandler.shouldHandleResponse(mockResponseModel)

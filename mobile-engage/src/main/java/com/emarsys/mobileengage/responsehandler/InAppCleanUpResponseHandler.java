@@ -30,7 +30,7 @@ public class InAppCleanUpResponseHandler extends AbstractResponseHandler {
     }
 
     @Override
-    protected boolean shouldHandleResponse(ResponseModel responseModel) {
+    public boolean shouldHandleResponse(ResponseModel responseModel) {
         boolean shouldHandle = false;
 
         JSONObject json = responseModel.getParsedBody();
@@ -46,7 +46,7 @@ public class InAppCleanUpResponseHandler extends AbstractResponseHandler {
     }
 
     @Override
-    protected void handleResponse(ResponseModel responseModel) {
+    public void handleResponse(ResponseModel responseModel) {
         JSONObject json = responseModel.getParsedBody();
         JSONArray oldMessages = json.optJSONArray(OLD_MESSAGES);
         String[] ids = new String[oldMessages.length()];
