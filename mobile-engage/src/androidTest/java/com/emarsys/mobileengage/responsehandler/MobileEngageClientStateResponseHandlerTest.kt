@@ -63,17 +63,31 @@ class MobileEngageClientStateResponseHandlerTest {
     }
 
     @Test
+    fun testShouldHandleResponse_true_whenRequestWasForMobileEngage_andContainsClientState_shouldBeCaseInsensitive() {
+        val result = clientStateResponseHandler.shouldHandleResponse(responseModelWithClientState(clientState = "X-ClIeNt-stAtE"))
+
+        result shouldBe true
+    }
+
+    @Test
     fun testHandleResponse_storesClientState() {
         clientStateResponseHandler.handleResponse(responseModelWithClientState())
 
         verify(mockStorage).set(X_CLIENT_STATE_VALUE)
     }
 
-    private fun responseModelWithClientState(): ResponseModel {
+    @Test
+    fun testHandleResponse_storesClientState_shouldBeCaseInsensitive() {
+        clientStateResponseHandler.handleResponse(responseModelWithClientState(clientState = "X-ClIeNt-stAtE"))
+
+        verify(mockStorage).set(X_CLIENT_STATE_VALUE)
+    }
+
+    private fun responseModelWithClientState(clientState: String = "X-Client-State"): ResponseModel {
         return ResponseModel.Builder()
                 .statusCode(200)
                 .message("OK")
-                .headers(mapOf("X-Client-State" to listOf(X_CLIENT_STATE_VALUE)))
+                .headers(mapOf(clientState to listOf(X_CLIENT_STATE_VALUE)))
                 .requestModel(requestModelMock)
                 .build()
     }

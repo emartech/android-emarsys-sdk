@@ -4,6 +4,7 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
+import com.emarsys.core.util.getCaseInsensitive
 import com.emarsys.mobileengage.util.RequestModelUtils
 
 @Mockable
@@ -25,6 +26,6 @@ class MobileEngageClientStateResponseHandler(private val clientStateStorage: Sto
     }
 
     private fun getClientState(responseModel: ResponseModel): String? {
-        return responseModel.headers[X_CLIENT_STATE]
+        return responseModel.headers.getCaseInsensitive(X_CLIENT_STATE)
     }
 }
