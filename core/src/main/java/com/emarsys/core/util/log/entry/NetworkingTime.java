@@ -18,8 +18,9 @@ public class NetworkingTime implements LogEntry {
         data.put("end", end);
         data.put("duration", end - start);
         data.put("url", responseModel.getRequestModel().getUrl().toString());
-        data.put("response_code", responseModel.getStatusCode());
+        data.put("status_code", responseModel.getStatusCode());
     }
+
     @Override
     public String getTopic() {
         return "log_networking_time";

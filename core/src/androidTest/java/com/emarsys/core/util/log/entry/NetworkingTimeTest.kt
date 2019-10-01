@@ -14,7 +14,7 @@ class NetworkingTimeTest{
 
     companion object {
         const val ID = "id12345"
-        const val RESPONSE_CODE = 200
+        const val STATUS_CODE = 200
         const val REQUEST_STARTED = 100L
         const val REQUEST_ENDED = 400L
         val URL = java.net.URL("https://emarsys.com")
@@ -39,7 +39,7 @@ class NetworkingTimeTest{
                 ID
         )
         responseModel = ResponseModel(
-                RESPONSE_CODE,
+                STATUS_CODE,
                 "OK",
                 mapOf(),
                 mapOf(),
@@ -64,7 +64,7 @@ class NetworkingTimeTest{
                 "duration" to REQUEST_ENDED - REQUEST_STARTED,
                 "url" to URL.toString(),
                 "request_id" to ID,
-                "response_code" to RESPONSE_CODE
+                "status_code" to STATUS_CODE
         )
 
         actual shouldBe expected
