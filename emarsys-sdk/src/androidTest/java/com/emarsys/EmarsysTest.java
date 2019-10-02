@@ -834,7 +834,7 @@ public class EmarsysTest {
 
         Emarsys.Config.changeApplicationCode(APPLICATION_CODE);
 
-        verify(mockConfig).changeApplicationCode(APPLICATION_CODE, null);
+        verify(mockConfig).changeApplicationCode(APPLICATION_CODE, (CompletionListener) null);
     }
 
     @Test

@@ -5,7 +5,6 @@ import com.emarsys.core.RunnerProxy
 import com.emarsys.core.api.result.CompletionListener
 
 class ConfigProxy(private val runnerProxy: RunnerProxy, private val configInternal: ConfigInternal) : ConfigApi {
-
     override val contactFieldId: Int
         get() = runnerProxy.logException(Callable { configInternal.contactFieldId })
 
@@ -17,6 +16,10 @@ class ConfigProxy(private val runnerProxy: RunnerProxy, private val configIntern
 
     override fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?) {
         runnerProxy.logException { configInternal.changeApplicationCode(applicationCode, completionListener) }
+    }
+
+    override fun changeApplicationCode(applicationCode: String?, completionListener: (throwable: Throwable?) -> Unit) {
+        changeApplicationCode(applicationCode, CompletionListener { completionListener(it) })
     }
 
     override fun changeMerchantId(merchantId: String?) {
