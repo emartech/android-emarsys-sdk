@@ -43,6 +43,7 @@ class DefaultConfigInternalTest {
     private lateinit var mockPredictInternal: PredictInternal
     private lateinit var mockContactFieldValueStorage: Storage<String>
     private lateinit var latch: CountDownLatch
+
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
@@ -54,8 +55,9 @@ class DefaultConfigInternalTest {
 
         latch = CountDownLatch(1)
 
-        mockPushTokenProvider = mock(PushTokenProvider::class.java)
-        whenever(mockPushTokenProvider.providePushToken()).thenReturn(PUSH_TOKEN)
+        mockPushTokenProvider = mock(PushTokenProvider::class.java).apply {
+            whenever(providePushToken()).thenReturn(PUSH_TOKEN)
+        }
 
         mockContactFieldValueStorage = (mock(Storage::class.java) as Storage<String>).apply {
             whenever(get()).thenReturn(CONTACT_FIELD_VALUE).thenReturn(null)
@@ -174,11 +176,40 @@ class DefaultConfigInternalTest {
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, completionListener)
         latch.await()
         verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockMobileEngageRequestContext).applicationCode
         verify(mockMobileEngageRequestContext).contactFieldValueStorage
-        verifyNoMoreInteractions(mockMobileEngageRequestContext)
         verifyZeroInteractions(mockPushInternal)
         verifyNoMoreInteractions(mockMobileEngageInternal)
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
+        verify(mockMobileEngageRequestContext).applicationCode = null
+        verifyNoMoreInteractions(mockMobileEngageRequestContext)
+
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldDoOnlyLogin_whenApplicationCode_isNull() {
+        val latch = CountDownLatch(1)
+
+        val mockMobileEngageRequestContext = mock(MobileEngageRequestContext::class.java).apply {
+            whenever(applicationCode).thenReturn(null)
+            whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
+        }
+
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext)
+
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener {
+            latch.countDown()
+        })
+
+        latch.await()
+
+        verify(mockMobileEngageRequestContext).contactFieldValueStorage
+        verify(mockMobileEngageRequestContext).applicationCode
+        verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
+        verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
+        verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
+
+        verify(mockMobileEngageInternal, times(0)).clearContact(any(CompletionListener::class.java))
     }
 
     @Test
@@ -200,10 +231,40 @@ class DefaultConfigInternalTest {
         latch.await()
 
         verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
-        verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         verifyNoMoreInteractions(mockMobileEngageInternal)
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
+        verify(mockMobileEngageRequestContext).applicationCode = null
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldInterruptFlow_andDisableFeature_whenErrorHappenedDuringSetContact() {
+        FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+
+        val mockMobileEngageInternal = mock(MobileEngageInternal::class.java).apply {
+            whenever(setContact(any(), any())).thenAnswer { invocation ->
+                (invocation.getArgument(1) as CompletionListener).onCompleted(Throwable())
+            }
+            whenever(clearContact(any())).thenAnswer { invocation ->
+                (invocation.getArgument(0) as CompletionListener).onCompleted(null)
+            }
+        }
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext)
+
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, completionListener)
+
+        latch.await()
+
+        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
+        verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any(CompletionListener::class.java))
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
+        verify(mockMobileEngageRequestContext).applicationCode = null
     }
 
     @Test
@@ -251,6 +312,7 @@ class DefaultConfigInternalTest {
         latch.await()
         verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
         verify(mockMobileEngageRequestContext).contactFieldValueStorage
+        verify(mockMobileEngageRequestContext).applicationCode
         verifyNoMoreInteractions(mockMobileEngageRequestContext)
         verifyZeroInteractions(mockPushInternal)
         verifyNoMoreInteractions(mockMobileEngageInternal)
