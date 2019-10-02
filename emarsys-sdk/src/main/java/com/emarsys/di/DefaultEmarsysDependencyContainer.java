@@ -175,6 +175,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private Storage<String> refreshTokenStorage;
     private Storage<String> clientStateStorage;
     private Storage<String> contactFieldValueStorage;
+    private Storage<String> pushTokenStorage;
     private RequestManager requestManager;
     private MobileEngageRequestModelFactory requestModelFactory;
     private ButtonClickedRepository buttonClickedRepository;
@@ -445,7 +446,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         refreshTokenStorage = new StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, prefs);
         clientStateStorage = new StringStorage(MobileEngageStorageKey.CLIENT_STATE, prefs);
         contactFieldValueStorage = new StringStorage(MobileEngageStorageKey.CONTACT_FIELD_VALUE, prefs);
-        pushTokenProvider = new DefaultPushTokenProvider();
+        pushTokenStorage = new StringStorage(MobileEngageStorageKey.PUSH_TOKEN, prefs);
+        pushTokenProvider = new DefaultPushTokenProvider(pushTokenStorage);
 
         responseHandlersProcessor = new ResponseHandlersProcessor(new ArrayList<AbstractResponseHandler>());
 
@@ -467,7 +469,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         buttonClickedRepository = new ButtonClickedRepository(coreDbHelper);
         displayedIamRepository = new DisplayedIamRepository(coreDbHelper);
-        
+
         requestContext = new MobileEngageRequestContext(
                 config.getMobileEngageApplicationCode(),
                 config.getContactFieldId(),
@@ -566,7 +568,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         clientServiceInternal = new DefaultClientServiceInternal(requestManager, requestModelFactory);
         deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext);
 
-        pushInternal = new DefaultPushInternal(requestManager, uiHandler, requestModelFactory, eventServiceInternal);
+        pushInternal = new DefaultPushInternal(requestManager, uiHandler, requestModelFactory, eventServiceInternal, pushTokenStorage);
         inAppInternal = new DefaultInAppInternal(inAppEventHandler, eventServiceInternal);
 
         inboxInternal = inboxInternalProvider.provideInboxInternal(

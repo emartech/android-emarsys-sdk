@@ -7,6 +7,7 @@ import android.os.Handler;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory;
@@ -21,12 +22,14 @@ public class DefaultPushInternal implements PushInternal {
     private final Handler uiHandler;
     private final MobileEngageRequestModelFactory requestModelFactory;
     private final EventServiceInternal eventServiceInternal;
+    private final Storage<String> pushTokenStorage;
 
-    public DefaultPushInternal(RequestManager requestManager, Handler uiHandler, MobileEngageRequestModelFactory requestModelFactory, EventServiceInternal eventServiceInternal) {
+    public DefaultPushInternal(RequestManager requestManager, Handler uiHandler, MobileEngageRequestModelFactory requestModelFactory, EventServiceInternal eventServiceInternal, Storage<String> pushTokenStorage) {
         this.requestManager = requestManager;
         this.uiHandler = uiHandler;
         this.requestModelFactory = requestModelFactory;
         this.eventServiceInternal = eventServiceInternal;
+        this.pushTokenStorage = pushTokenStorage;
     }
 
     @Override
@@ -34,6 +37,7 @@ public class DefaultPushInternal implements PushInternal {
         if (pushToken != null) {
             RequestModel requestModel = requestModelFactory.createSetPushTokenRequest(pushToken);
 
+            pushTokenStorage.set(pushToken);
             requestManager.submit(requestModel, completionListener);
         }
     }
@@ -42,6 +46,7 @@ public class DefaultPushInternal implements PushInternal {
     public void clearPushToken(CompletionListener completionListener) {
         RequestModel requestModel = requestModelFactory.createRemovePushTokenRequest();
 
+        pushTokenStorage.remove();
         requestManager.submit(requestModel, completionListener);
     }
 

@@ -1,10 +1,10 @@
 package com.emarsys.mobileengage.push
 
-import com.google.firebase.iid.FirebaseInstanceId
+import com.emarsys.core.storage.Storage
 
-class DefaultPushTokenProvider : PushTokenProvider {
+class DefaultPushTokenProvider(private val pushTokenStorage: Storage<String?>) : PushTokenProvider {
 
     override fun providePushToken(): String? {
-        return FirebaseInstanceId.getInstance().instanceId.result?.token
+        return pushTokenStorage.get()
     }
 }

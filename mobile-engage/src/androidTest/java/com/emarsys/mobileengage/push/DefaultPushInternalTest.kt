@@ -54,6 +54,7 @@ class DefaultPushInternalTest {
     private lateinit var mockRefreshTokenStorage: Storage<String>
     private lateinit var mockContactTokenStorage: Storage<String>
     private lateinit var mockClientStateStorage: Storage<String>
+    private lateinit var mockPushTokenStorage: Storage<String>
 
     private lateinit var uiHandler: Handler
 
@@ -69,6 +70,7 @@ class DefaultPushInternalTest {
         mockRefreshTokenStorage = mock(Storage::class.java) as Storage<String>
         mockContactTokenStorage = mock(Storage::class.java) as Storage<String>
         mockClientStateStorage = mock(Storage::class.java) as Storage<String>
+        mockPushTokenStorage = mock(Storage::class.java) as Storage<String>
 
         mockUuidProvider = mock(UUIDProvider::class.java).apply {
             whenever(provideId()).thenReturn(REQUEST_ID)
@@ -92,7 +94,7 @@ class DefaultPushInternalTest {
 
         mockCompletionListener = mock(CompletionListener::class.java)
         mockEventServiceInternal = mock(EventServiceInternal::class.java)
-        pushInternal = DefaultPushInternal(mockRequestManager, uiHandler, mockRequestModelFactory, mockEventServiceInternal)
+        pushInternal = DefaultPushInternal(mockRequestManager, uiHandler, mockRequestModelFactory, mockEventServiceInternal, mockPushTokenStorage)
     }
 
     @Test
@@ -100,6 +102,7 @@ class DefaultPushInternalTest {
         pushInternal.setPushToken(PUSH_TOKEN, mockCompletionListener)
 
         verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+        verify(mockPushTokenStorage).set(PUSH_TOKEN)
     }
 
     @Test
@@ -117,9 +120,10 @@ class DefaultPushInternalTest {
     }
 
     @Test
-    fun testRemovePushToken() {
+    fun testClearPushToken() {
         pushInternal.clearPushToken(mockCompletionListener)
 
+        verify(mockPushTokenStorage).remove()
         verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
     }
 
