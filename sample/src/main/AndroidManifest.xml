@@ -30,7 +30,7 @@
         </activity>
         <meta-data
             android:name="com.emarsys.mobileengage.small_notification_icon"
-            android:resource="@drawable/notification_icon" />
+            android:resource="@drawable/mobile_engage_logo_icon" />
 
         <!--If you have non-Emarsys related Push use cases,-->
         <!--register your own service instead of EmarsysMessagingService.-->
