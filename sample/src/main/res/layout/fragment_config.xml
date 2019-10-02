@@ -49,7 +49,6 @@
                         android:layout_marginTop="8dp"
                         android:text="@string/current_application_code"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                        app:layout_constraintBottom_toTopOf="@+id/contactId"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
