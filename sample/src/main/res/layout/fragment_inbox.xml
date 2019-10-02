@@ -5,7 +5,7 @@
     android:id="@+id/inboxView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="8dp"
+    android:paddingBottom="16dp"
     android:background="@color/defaultBackground"
     tools:context=".fragments.InboxFragment">
 

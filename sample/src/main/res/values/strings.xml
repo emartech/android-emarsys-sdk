@@ -3,6 +3,7 @@
     <string name="menu_title_mobile_engage">Mobile engage</string>
     <string name="menu_title_inbox">Inbox</string>
     <string name="menu_title_predict">Predict</string>
+    <string name="menu_title_config">Config</string>
     <string name="emarsys_app">Emarsys SDK: </string>
 
     <!-- Mobile Engage String Resources -->
@@ -42,5 +43,13 @@
 
     <!-- Inbox String Resources -->
     <string name="pull_down_to_refresh">Pull down to refresh</string>
+
+    <!-- Config String Resources -->
+    <string name="current_application_code">ApplicationCode: <b>%1$s</b></string>
+    <string name="change_application_code_hint">an other Application Code</string>
+    <string name="change_application_code_button">change</string>
+    <string name="current_merchant_id">MerchantId: <b>%1$s</b></string>
+    <string name="change_merchant_id_hint">an other Merchant ID</string>
+    <string name="change_merchant_id_button">change</string>
 
 </resources>

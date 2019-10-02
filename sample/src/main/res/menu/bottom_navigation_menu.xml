@@ -13,5 +13,9 @@
         android:id="@+id/destinationPredictFragment"
         android:icon="@drawable/predict_scarab_icon"
         android:title="@string/menu_title_predict" />
+    <item
+        android:id="@+id/destinationConfigFragment"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/menu_title_config" />
 
 </menu>

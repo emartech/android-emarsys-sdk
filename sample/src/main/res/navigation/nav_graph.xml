@@ -9,20 +9,22 @@
         android:id="@+id/destinationMobileEngageFragment"
         android:name="com.emarsys.sample.fragments.MobileEngageFragment"
         android:label="Mobile Engage"
-        tools:layout="@layout/fragment_mobile_engage">
-    </fragment>
+        tools:layout="@layout/fragment_mobile_engage" />
 
 
     <fragment
         android:id="@+id/destinationInboxFragment"
         android:name="com.emarsys.sample.fragments.InboxFragment"
         android:label="Inbox"
-        tools:layout="@layout/fragment_inbox">
-    </fragment>
+        tools:layout="@layout/fragment_inbox" />
     <fragment
         android:id="@+id/destinationPredictFragment"
         android:name="com.emarsys.sample.fragments.PredictFragment"
         android:label="Predict"
-        tools:layout="@layout/fragment_predict">
-    </fragment>
+        tools:layout="@layout/fragment_predict" />
+    <fragment
+        android:id="@+id/destinationConfigFragment"
+        android:name="com.emarsys.sample.fragments.ConfigFragment"
+        android:label="Config"
+        tools:layout="@layout/fragment_config" />
 </navigation>
