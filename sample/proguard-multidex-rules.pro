@@ -1,5 +1,6 @@
 -keep class androidx.*.widget.** { *; }
 -keep class androidx.test.** { *; }
+-keep class androidx.navigation.** { *; }
 -keep class org.junit.** { *; }
 -keep public class com.emarsys.** { *; }
 -keep public class com.google.** { *; }
