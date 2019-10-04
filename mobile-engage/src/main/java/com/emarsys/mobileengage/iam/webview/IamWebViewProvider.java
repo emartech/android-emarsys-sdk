@@ -6,8 +6,9 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.RequiresApi;
 import android.webkit.WebView;
+
+import androidx.annotation.RequiresApi;
 
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge;
@@ -42,7 +43,7 @@ public class IamWebViewProvider {
                 webView.setBackgroundColor(Color.TRANSPARENT);
                 webView.setWebViewClient(new IamWebViewClient(messageLoadedListener));
 
-                webView.loadData(html, "text/html", "UTF-8");
+                webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
             }
         });
     }
