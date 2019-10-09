@@ -61,12 +61,14 @@ public class NotificationCommandFactory {
         String actionId = intent.getAction();
         Bundle bundle = intent.getBundleExtra("payload");
 
+        Runnable hideNotificationShadeCommand = new HideNotificationShadeCommand(context);
+        Runnable dismissNotificationCommand = new DismissNotificationCommand(context, intent);
+        Runnable trackMessageOpenCommand = new TrackMessageOpenCommand(pushInternal, intent);
+
         if (bundle != null) {
             String emsPayload = bundle.getString("ems");
             if (emsPayload != null) {
 
-                Runnable hideNotificationShadeCommand = new HideNotificationShadeCommand(context);
-                Runnable dismissNotificationCommand = new DismissNotificationCommand(context, intent);
                 Runnable preloadedInappHandlerCommand = new PreloadedInappHandlerCommand(intent, dependencyContainer);
 
                 if (actionId != null) {
@@ -89,8 +91,6 @@ public class NotificationCommandFactory {
                     try {
                         JSONObject action = new JSONObject(emsPayload).getJSONObject("default_action");
 
-                        Runnable trackMessageOpenCommand = new TrackMessageOpenCommand(pushInternal, intent);
-
                         result = createCompositeCommand(action, Arrays.asList(
                                 preloadedInappHandlerCommand,
                                 dismissNotificationCommand,
@@ -102,7 +102,7 @@ public class NotificationCommandFactory {
             }
         }
         if (result == null) {
-            result = new LaunchApplicationCommand(intent, context);
+            result = new CompositeCommand(Arrays.asList(new LaunchApplicationCommand(intent, context), hideNotificationShadeCommand, dismissNotificationCommand, trackMessageOpenCommand));
         }
 
         return result;

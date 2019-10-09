@@ -76,23 +76,33 @@ class NotificationCommandFactoryTest {
 
     @Test
     fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_whenIntentIsEmpty() {
-        val command = factory.createNotificationCommand(Intent())
+        val command = factory.createNotificationCommand(Intent()) as CompositeCommand
 
-        command::class.java shouldBe LaunchApplicationCommand::class.java
+        contains<LaunchApplicationCommand>(command) shouldBe true
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<HideNotificationShadeCommand>(command) shouldBe true
+        contains<TrackMessageOpenCommand>(command) shouldBe true
     }
 
     @Test
     fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_whenTypeIsNotSupported() {
-        val command = factory.createNotificationCommand(createUnknownCommandIntent())
+        val command = factory.createNotificationCommand(createUnknownCommandIntent()) as CompositeCommand
 
-        command::class.java shouldBe LaunchApplicationCommand::class.java
+        contains<LaunchApplicationCommand>(command) shouldBe true
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<HideNotificationShadeCommand>(command) shouldBe true
+        contains<TrackMessageOpenCommand>(command) shouldBe true
+
     }
 
     @Test
     fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_whenActionsKeyIsMissing() {
-        val command = factory.createNotificationCommand(createIntent(JSONObject(), "actionId"))
+        val command = factory.createNotificationCommand(createIntent(JSONObject(), "actionId")) as CompositeCommand
 
-        command::class.java shouldBe LaunchApplicationCommand::class.java
+        contains<LaunchApplicationCommand>(command) shouldBe true
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<HideNotificationShadeCommand>(command) shouldBe true
+        contains<TrackMessageOpenCommand>(command) shouldBe true
     }
 
     @Test
@@ -174,9 +184,12 @@ class NotificationCommandFactoryTest {
 
     @Test
     fun testCreateNotificationCommand_defaultAction_shouldCreateAppLaunchCommand_insteadOf_OpenExternalLinkCommand_whenCannotResolveUrl() {
-        val command = factory.createNotificationCommand(createDefaultOpenExternalLinkIntent("Not valid url!"))
+        val command = factory.createNotificationCommand(createDefaultOpenExternalLinkIntent("Not valid url!")) as CompositeCommand
 
-        command::class.java shouldBe LaunchApplicationCommand::class.java
+        contains<LaunchApplicationCommand>(command) shouldBe true
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<HideNotificationShadeCommand>(command) shouldBe true
+        contains<TrackMessageOpenCommand>(command) shouldBe true
     }
 
     @Test
@@ -354,9 +367,12 @@ class NotificationCommandFactoryTest {
 
     @Test
     fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_insteadOf_OpenExternalLinkCommand_whenCannotResolveUrl() {
-        val command = factory.createNotificationCommand(createOpenExternalLinkIntent("Not valid url!"))
+        val command = factory.createNotificationCommand(createOpenExternalLinkIntent("Not valid url!")) as CompositeCommand
 
-        command::class.java shouldBe LaunchApplicationCommand::class.java
+        contains<LaunchApplicationCommand>(command) shouldBe true
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<HideNotificationShadeCommand>(command) shouldBe true
+        contains<TrackMessageOpenCommand>(command) shouldBe true
     }
 
     @Test
@@ -424,12 +440,13 @@ class NotificationCommandFactoryTest {
 
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : Runnable> extractCommandFromComposite(intent: Intent) =
-            (factory.createNotificationCommand(intent) as CompositeCommand).commands.filter {
-                it is T
-            }.let { list ->
-                list.firstOrNull().takeIf { list.size == 1 } as? T
+            (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<T>().let { list ->
+                list.firstOrNull().takeIf { list.size == 1 }
                         ?: error("CompositeCommand contains multiple commands of type ${T::class.java}: $list")
             }
+
+    @Suppress("UNCHECKED_CAST")
+    private inline fun <reified T : Runnable> contains(command: CompositeCommand) = command.commands.filterIsInstance<T>().isNotEmpty()
 
     private fun createUnknownCommandIntent(): Intent {
         val unknownType = "NOT_SUPPORTED"
