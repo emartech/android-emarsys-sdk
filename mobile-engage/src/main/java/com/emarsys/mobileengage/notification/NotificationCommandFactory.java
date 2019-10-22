@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.CollectionUtils;
 import com.emarsys.core.util.JsonUtils;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
@@ -27,8 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -57,79 +55,130 @@ public class NotificationCommandFactory {
     }
 
     public Runnable createNotificationCommand(Intent intent) {
-        Runnable result = null;
         String actionId = intent.getAction();
         Bundle bundle = intent.getBundleExtra("payload");
+        JSONObject action = getAction(bundle, actionId);
+        List<Runnable> commands = createMandatoryCommands(intent);
 
-        Runnable hideNotificationShadeCommand = new HideNotificationShadeCommand(context);
-        Runnable dismissNotificationCommand = new DismissNotificationCommand(context, intent);
-        Runnable trackMessageOpenCommand = new TrackMessageOpenCommand(pushInternal, intent);
+        Runnable inappCommand = handleInapp(intent, bundle);
+        if (inappCommand != null) {
+            commands.add(inappCommand);
+        }
 
-        if (bundle != null) {
-            String emsPayload = bundle.getString("ems");
-            if (emsPayload != null) {
+        Runnable trackingCommand = handleTracking(intent, actionId, bundle, action);
+        if (trackingCommand != null) {
+            commands.add(trackingCommand);
+        }
 
-                Runnable preloadedInappHandlerCommand = new PreloadedInappHandlerCommand(intent, dependencyContainer);
+        Runnable actionCommand = handleAction(action);
+        if (actionCommand != null) {
+            commands.add(actionCommand);
+        }
 
-                if (actionId != null) {
-                    try {
-                        JSONArray actions = new JSONObject(emsPayload).getJSONArray("actions");
-                        JSONObject action = findActionWithId(actions, actionId);
+        return new CompositeCommand(commands);
+    }
 
-                        String sid = extractSid(bundle);
-                        Runnable trackActionClickCommand = new TrackActionClickCommand(eventServiceInternal, actionId, sid);
+    private List<Runnable> createMandatoryCommands(Intent intent) {
+        List<Runnable> commands =  new ArrayList<>();
+        commands.add(new HideNotificationShadeCommand(context));
+        commands.add(new DismissNotificationCommand(context, intent));
+        commands.add(new LaunchApplicationCommand(intent, context));
 
-                        result = createCompositeCommand(action, Arrays.asList(
-                                preloadedInappHandlerCommand,
-                                dismissNotificationCommand,
-                                trackActionClickCommand,
-                                hideNotificationShadeCommand));
+        return commands;
+    }
 
-                    } catch (JSONException ignored) {
-                    }
-                } else {
-                    try {
-                        JSONObject action = new JSONObject(emsPayload).getJSONObject("default_action");
-
-                        result = createCompositeCommand(action, Arrays.asList(
-                                preloadedInappHandlerCommand,
-                                dismissNotificationCommand,
-                                trackMessageOpenCommand,
-                                hideNotificationShadeCommand));
-                    } catch (JSONException ignored) {
-                    }
-                }
+    private Runnable handleAction(JSONObject action) {
+        Runnable result = null;
+        if (action != null) {
+            Runnable actionCommand = getCommand(action);
+            if (actionCommand != null) {
+                result = actionCommand;
             }
         }
-        if (result == null) {
-            result = new CompositeCommand(Arrays.asList(new LaunchApplicationCommand(intent, context), hideNotificationShadeCommand, dismissNotificationCommand, trackMessageOpenCommand));
-        }
-
         return result;
     }
 
-    private Runnable createCompositeCommand(JSONObject action, List<Runnable> mandatoryActions) throws JSONException {
-        Runnable result = null;
-        String type = action.getString("type");
-
-        if ("MEAppEvent".equals(type)) {
-            result = new CompositeCommand(CollectionUtils.mergeLists(mandatoryActions, Collections.singletonList(createAppEventCommand(action))));
+    private Runnable handleTracking(Intent intent, String actionId, Bundle bundle, JSONObject action) {
+        Runnable result;
+        if (action != null && actionId != null) {
+            result = new TrackActionClickCommand(eventServiceInternal, actionId, extractSid(bundle));
+        } else {
+            result = new TrackMessageOpenCommand(pushInternal, intent);
         }
-        if ("OpenExternalUrl".equals(type)) {
-            Runnable openExternalUrl = createOpenExternalUrlCommand(action);
-            if (openExternalUrl != null) {
-                result = new CompositeCommand(CollectionUtils.mergeLists(mandatoryActions, Collections.singletonList(openExternalUrl)));
+        return result;
+    }
+
+    private Runnable handleInapp(Intent intent, Bundle bundle) {
+        Runnable result = null;
+        if (hasInapp(bundle)) {
+            result = new PreloadedInappHandlerCommand(intent, dependencyContainer);
+        }
+        return result;
+    }
+
+    private boolean hasInapp(Bundle payload) {
+        boolean result = false;
+        try {
+            if (payload != null) {
+                String ems = payload.getString("ems");
+                if (ems != null) {
+                    JSONObject emsJson = new JSONObject(ems);
+                    new JSONObject(emsJson.getString("inapp"));
+                    result = true;
+                }
+            }
+        } catch (JSONException ignored) {
+        }
+        return result;
+    }
+
+    private Runnable getCommand(JSONObject action) {
+        Runnable result = null;
+        if (action != null) {
+            String type;
+            try {
+                type = action.getString("type");
+                if ("MEAppEvent".equals(type)) {
+                    result = createAppEventCommand(action);
+                }
+                if ("OpenExternalUrl".equals(type)) {
+                    Runnable openExternalUrl = createOpenExternalUrlCommand(action);
+                    if (openExternalUrl != null) {
+                        result = openExternalUrl;
+                    }
+                }
+                if ("MECustomEvent".equals(type)) {
+                    result = createCustomEventCommand(action);
+                }
+
+            } catch (JSONException ignored) {
             }
         }
-        if ("MECustomEvent".equals(type)) {
-            result = new CompositeCommand(CollectionUtils.mergeLists(mandatoryActions, Collections.singletonList(createCustomEventCommand(action))));
+        return result;
+    }
+
+    private JSONObject getAction(Bundle bundle, String actionId) {
+        JSONObject result = null;
+        if (bundle != null) {
+            String emsPayload = bundle.getString("ems");
+            if (emsPayload != null) {
+                try {
+                    if (actionId != null) {
+                        JSONArray actions = new JSONObject(emsPayload).getJSONArray("actions");
+                        result = findActionWithId(actions, actionId);
+                    } else {
+                        result = new JSONObject(emsPayload).getJSONObject("default_action");
+                    }
+                } catch (JSONException ignored) {
+                }
+            }
         }
         return result;
     }
 
     private String extractSid(Bundle bundle) {
         String sid = null;
-        if (bundle.containsKey("u")) {
+        if (bundle != null && bundle.containsKey("u")) {
             try {
                 sid = new JSONObject(bundle.getString("u")).getString("sid");
             } catch (JSONException ignore) {

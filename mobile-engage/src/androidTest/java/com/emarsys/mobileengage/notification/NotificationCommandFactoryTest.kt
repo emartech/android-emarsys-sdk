@@ -91,8 +91,7 @@ class NotificationCommandFactoryTest {
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
         contains<HideNotificationShadeCommand>(command) shouldBe true
-        contains<TrackMessageOpenCommand>(command) shouldBe true
-
+        contains<TrackActionClickCommand>(command) shouldBe true
     }
 
     @Test
@@ -115,12 +114,11 @@ class NotificationCommandFactoryTest {
 
         command as CompositeCommand
 
-        command.commands.map { it::class.java } shouldBe listOf(
-                PreloadedInappHandlerCommand::class.java,
-                DismissNotificationCommand::class.java,
-                TrackMessageOpenCommand::class.java,
-                HideNotificationShadeCommand::class.java,
-                AppEventCommand::class.java)
+        contains<LaunchApplicationCommand>(command) shouldBe true
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<HideNotificationShadeCommand>(command) shouldBe true
+        contains<TrackMessageOpenCommand>(command) shouldBe true
+        contains<AppEventCommand>(command) shouldBe true
     }
 
     @Test
@@ -161,12 +159,11 @@ class NotificationCommandFactoryTest {
 
         command as CompositeCommand
 
-        command.commands.map { it::class.java } shouldBe listOf(
-                PreloadedInappHandlerCommand::class.java,
-                DismissNotificationCommand::class.java,
-                TrackMessageOpenCommand::class.java,
-                HideNotificationShadeCommand::class.java,
-                OpenExternalUrlCommand::class.java)
+        contains<LaunchApplicationCommand>(command) shouldBe true
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<HideNotificationShadeCommand>(command) shouldBe true
+        contains<TrackMessageOpenCommand>(command) shouldBe true
+        contains<OpenExternalUrlCommand>(command) shouldBe true
     }
 
     @Test
@@ -201,13 +198,11 @@ class NotificationCommandFactoryTest {
         command::class.java shouldBe CompositeCommand::class.java
 
         command as CompositeCommand
-
-        command.commands.map { it::class.java } shouldBe listOf(
-                PreloadedInappHandlerCommand::class.java,
-                DismissNotificationCommand::class.java,
-                TrackMessageOpenCommand::class.java,
-                HideNotificationShadeCommand::class.java,
-                CustomEventCommand::class.java)
+        contains<LaunchApplicationCommand>(command) shouldBe true
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<HideNotificationShadeCommand>(command) shouldBe true
+        contains<TrackMessageOpenCommand>(command) shouldBe true
+        contains<CustomEventCommand>(command) shouldBe true
     }
 
     @Test
@@ -265,12 +260,11 @@ class NotificationCommandFactoryTest {
 
         command as CompositeCommand
 
-        command.commands.map { it::class.java } shouldBe listOf(
-                PreloadedInappHandlerCommand::class.java,
-                DismissNotificationCommand::class.java,
-                TrackActionClickCommand::class.java,
-                HideNotificationShadeCommand::class.java,
-                AppEventCommand::class.java)
+        contains<LaunchApplicationCommand>(command) shouldBe true
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<HideNotificationShadeCommand>(command) shouldBe true
+        contains<TrackActionClickCommand>(command) shouldBe true
+        contains<AppEventCommand>(command) shouldBe true
     }
 
     @Test
@@ -344,12 +338,11 @@ class NotificationCommandFactoryTest {
 
         command as CompositeCommand
 
-        command.commands.map { it::class.java } shouldBe listOf(
-                PreloadedInappHandlerCommand::class.java,
-                DismissNotificationCommand::class.java,
-                TrackActionClickCommand::class.java,
-                HideNotificationShadeCommand::class.java,
-                OpenExternalUrlCommand::class.java)
+        contains<LaunchApplicationCommand>(command) shouldBe true
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<HideNotificationShadeCommand>(command) shouldBe true
+        contains<TrackActionClickCommand>(command) shouldBe true
+        contains<OpenExternalUrlCommand>(command) shouldBe true
     }
 
     @Test
@@ -372,7 +365,7 @@ class NotificationCommandFactoryTest {
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
         contains<HideNotificationShadeCommand>(command) shouldBe true
-        contains<TrackMessageOpenCommand>(command) shouldBe true
+        contains<TrackActionClickCommand>(command) shouldBe true
     }
 
     @Test
@@ -385,12 +378,11 @@ class NotificationCommandFactoryTest {
 
         command as CompositeCommand
 
-        command.commands.map { it::class.java } shouldBe listOf(
-                PreloadedInappHandlerCommand::class.java,
-                DismissNotificationCommand::class.java,
-                TrackActionClickCommand::class.java,
-                HideNotificationShadeCommand::class.java,
-                CustomEventCommand::class.java)
+        contains<LaunchApplicationCommand>(command) shouldBe true
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<HideNotificationShadeCommand>(command) shouldBe true
+        contains<TrackActionClickCommand>(command) shouldBe true
+        contains<CustomEventCommand>(command) shouldBe true
     }
 
     @Test
