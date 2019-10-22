@@ -543,7 +543,7 @@ public class MessagingServiceUtilsTest {
         Map<String, String> payload = new HashMap<>();
         JSONObject ems = new JSONObject();
         JSONObject inapp = new JSONObject();
-        inapp.put("campaignId", "someId");
+        inapp.put("campaign_id", "someId");
         inapp.put("url", "https://thisIsNotARealUrl");
         ems.put("inapp", inapp);
         payload.put("ems", ems.toString());
@@ -626,7 +626,7 @@ public class MessagingServiceUtilsTest {
         Map<String, String> payload = new HashMap<>();
         JSONObject ems = new JSONObject();
         JSONObject inapp = new JSONObject();
-        inapp.put("campaignId", "someId");
+        inapp.put("campaign_id", "someId");
         inapp.put("url", "https://hu.wikipedia.org/wiki/Mont_Blanc");
         ems.put("inapp", inapp);
         payload.put("ems", ems.toString());

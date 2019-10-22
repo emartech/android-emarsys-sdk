@@ -145,14 +145,14 @@ public class MessagingServiceUtils {
                     JSONObject inAppPayload = new JSONObject(emsPayload).getJSONObject("inapp");
                     List<String> errors = JsonObjectValidator
                             .from(inAppPayload)
-                            .hasFieldWithType("campaignId", String.class)
+                            .hasFieldWithType("campaign_id", String.class)
                             .hasFieldWithType("url", String.class)
                             .validate();
                     if (errors.isEmpty()) {
                         String inAppUrl = inAppPayload.getString("url");
 
                         JSONObject inAppDescriptor = new JSONObject();
-                        inAppDescriptor.put("campaignId", inAppPayload.getString("campaignId"));
+                        inAppDescriptor.put("campaignId", inAppPayload.getString("campaign_id"));
                         inAppDescriptor.put("url", inAppUrl);
                         inAppDescriptor.put("fileUrl", FileUtils.download(context, inAppUrl));
 
