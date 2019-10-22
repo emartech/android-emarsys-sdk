@@ -91,8 +91,8 @@ class InappNotificationIntegrationTest {
     @Test
     fun testInappPresent() {
         val context = InstrumentationRegistry.getTargetContext().getApplicationContext()
-        val url = FileUtils.download(context, "https://www.emarsys.com")
-        val emsPayload = "{\"inapp\": {\"campaignId\": \"222\",\"url\": \"https://www.emarsys.com\",\"fileUrl\": \"$url\"}}"
+        val url = FileUtils.download(context, "https://www.google.com")
+        val emsPayload = "{\"inapp\": {\"campaignId\": \"222\",\"url\": \"https://www.google.com\",\"fileUrl\": \"$url\"}}"
         val remoteMessageData = mapOf("ems" to emsPayload)
 
         val intent = IntentUtils.createNotificationHandlerServiceIntent(
