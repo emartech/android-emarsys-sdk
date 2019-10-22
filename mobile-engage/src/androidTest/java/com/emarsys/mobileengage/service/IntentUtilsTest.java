@@ -95,6 +95,18 @@ public class IntentUtilsTest {
         Assert.assertEquals(null, launchIntentForPackage.getExtras());
     }
 
+    @Test
+    public void testCreateLaunchIntent_whenIntentIsNull() {
+        PackageManager pm = mock(PackageManager.class);
+        Activity mockActivity = mock(Activity.class);
+        when(mockActivity.getPackageManager()).thenReturn(pm);
+        when(mockActivity.getPackageName()).thenReturn("packageName");
+
+        Intent result = IntentUtils.createLaunchIntent(new Intent(), mockActivity);
+
+        Assert.assertNull(result);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testCreateNotificationHandlerServiceIntent_remoteMessageDataMustNotBeNull() {
         IntentUtils.createNotificationHandlerServiceIntent(context, null, 0, "action");

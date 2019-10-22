@@ -17,7 +17,7 @@ public class IntentUtils {
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
 
         Bundle remoteExtras = remoteIntent.getExtras();
-        if (remoteExtras != null) {
+        if (remoteExtras != null && intent != null) {
             intent.putExtras(remoteIntent.getExtras());
         }
         return intent;
