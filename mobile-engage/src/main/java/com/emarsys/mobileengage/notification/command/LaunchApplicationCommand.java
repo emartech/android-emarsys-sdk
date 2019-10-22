@@ -20,7 +20,10 @@ public class LaunchApplicationCommand implements Runnable {
 
     @Override
     public void run() {
-        context.startActivity(IntentUtils.createLaunchIntent(intent, context));
+        Intent launchIntent = IntentUtils.createLaunchIntent(intent, context);
+        if (launchIntent != null) {
+            context.startActivity(launchIntent);
+        }
     }
 
 }

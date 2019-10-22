@@ -72,4 +72,22 @@ public class LaunchApplicationCommandTest {
         }
     }
 
+    @Test
+    public void testRun_startsActivity_withIncorrectIntent() {
+        PackageManager pm = mock(PackageManager.class);
+        Activity mockActivity = mock(Activity.class);
+        when(mockActivity.getPackageManager()).thenReturn(pm);
+        when(mockActivity.getPackageName()).thenReturn("packageName");
+
+        Bundle extras = new Bundle();
+        extras.putLong("key1", 800);
+        extras.putString("key2", "value");
+        Intent remoteIntent = new Intent();
+        remoteIntent.putExtras(extras);
+
+        Runnable command = new LaunchApplicationCommand(remoteIntent, mockActivity);
+
+        command.run();
+    }
+
 }
