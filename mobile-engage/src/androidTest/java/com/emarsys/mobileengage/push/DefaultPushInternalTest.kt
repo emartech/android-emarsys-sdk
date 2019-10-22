@@ -220,6 +220,11 @@ class DefaultPushInternalTest {
     }
 
     @Test
+    fun testTrackMessageOpen_completionListener_canBeNull_sidIsNull() {
+        pushInternal.trackMessageOpen(createBadTestIntent(), null)
+    }
+
+    @Test
     fun testTrackMessageOpen_shouldCallCompletionListenerWithError_whenMessageIdNotFound() {
         val completionListener = mock(CompletionListener::class.java)
         val countDownLatch = CountDownLatch(1)

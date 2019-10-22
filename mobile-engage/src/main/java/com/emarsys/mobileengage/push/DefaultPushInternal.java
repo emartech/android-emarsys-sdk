@@ -63,7 +63,9 @@ public class DefaultPushInternal implements PushInternal {
             uiHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    completionListener.onCompleted(new IllegalArgumentException("No messageId found!"));
+                    if (completionListener != null) {
+                        completionListener.onCompleted(new IllegalArgumentException("No messageId found!"));
+                    }
                 }
             });
         }
