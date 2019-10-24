@@ -88,7 +88,7 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
     }
 
     private boolean isNonRetriableError(int statusCode) {
-        if (statusCode == 408) {
+        if (statusCode == 408 || statusCode == 429) {
             return false;
         } else {
             return 400 <= statusCode && statusCode < 500;

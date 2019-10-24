@@ -218,6 +218,22 @@ public class CoreCompletionHandlerMiddlewareTest {
     }
 
     @Test
+    public void testOnError_429_shouldHandleErrorAsRetriable() {
+        ResponseModel expectedModel = createResponseModel(429);
+
+        middleware.onError(expectedId, expectedModel);
+
+        HandlerUtils.waitForEventLoopToFinish(coreSdkHandler);
+        HandlerUtils.waitForEventLoopToFinish(uiHandler);
+
+        verify(worker).unlock();
+        verifyNoMoreInteractions(worker);
+
+        verifyZeroInteractions(coreCompletionHandler);
+        verifyZeroInteractions(requestRepository);
+    }
+
+    @Test
     public void testOnError_5xx() {
         ResponseModel expectedModel = createResponseModel(500);
 
