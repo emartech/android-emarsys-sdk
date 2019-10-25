@@ -48,7 +48,7 @@ public class InAppMessageResponseHandler extends AbstractResponseHandler {
             String html = message.getString("html");
             final String campaignId = message.getString("campaignId");
             final String requestId = responseModel.getRequestModel().getId();
-            inAppPresenter.present(campaignId, requestId, responseModel.getTimestamp(), html, null);
+            inAppPresenter.present(campaignId, null, null, requestId, responseModel.getTimestamp(), html, null);
         } catch (JSONException ignored) {
         }
     }

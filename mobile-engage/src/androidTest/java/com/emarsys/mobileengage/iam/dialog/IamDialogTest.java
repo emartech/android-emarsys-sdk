@@ -37,7 +37,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -47,6 +46,8 @@ import static org.mockito.Mockito.when;
 public class IamDialogTest {
 
     public static final String CAMPAIGN_ID = "id_value";
+    private static final String SID = "testSid";
+    private static final String URL = "https://www.emarsys.com";
     public static final String ON_SCREEN_TIME_KEY = "on_screen_time";
     public static final String CAMPAIGN_ID_KEY = "id";
     public static final String REQUEST_ID_KEY = "request_id";
@@ -78,18 +79,18 @@ public class IamDialogTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreate_campaignIdMustNotBeNull() {
-        IamDialog.create(null, "requestId");
+        IamDialog.create(null, SID, URL, "requestId");
     }
 
     @Test
     public void testCreate_shouldReturnImageDialogInstance() {
-        assertNotNull(IamDialog.create("", "requestId"));
+        assertNotNull(IamDialog.create("", SID, URL, "requestId"));
     }
 
     @Test
     public void testCreate_shouldInitializeDialog_withCampaignId() {
         String campaignId = "123456789";
-        IamDialog dialog = IamDialog.create(campaignId, "requestId");
+        IamDialog dialog = IamDialog.create(campaignId, SID, URL, "requestId");
 
         Bundle result = dialog.getArguments();
         assertEquals(campaignId, result.getString(CAMPAIGN_ID_KEY));
@@ -99,16 +100,36 @@ public class IamDialogTest {
     public void testCreate_shouldInitializeDialog_withRequestId() {
         String requestId = "requestId";
         String campaignId = "campaignId";
-        IamDialog dialog = IamDialog.create(campaignId, requestId);
+        IamDialog dialog = IamDialog.create(campaignId, SID, URL, requestId);
 
         Bundle result = dialog.getArguments();
         assertEquals(requestId, result.getString(REQUEST_ID_KEY));
     }
 
     @Test
+    public void testCreate_shouldInitializeDialog_withSid() {
+        String requestId = "requestId";
+        String campaignId = "campaignId";
+        IamDialog dialog = IamDialog.create(campaignId, SID, URL, requestId);
+
+        Bundle result = dialog.getArguments();
+        assertEquals("testSid", result.getString("sid"));
+    }
+
+    @Test
+    public void testCreate_shouldInitializeDialog_withUrl() {
+        String requestId = "requestId";
+        String campaignId = "campaignId";
+        IamDialog dialog = IamDialog.create(campaignId, SID, URL, requestId);
+
+        Bundle result = dialog.getArguments();
+        assertEquals("https://www.emarsys.com", result.getString("url"));
+    }
+
+    @Test
     public void testCreate_shouldInitializeDialog_withOutRequestId() {
         String campaignId = "campaignId";
-        IamDialog dialog = IamDialog.create(campaignId, null);
+        IamDialog dialog = IamDialog.create(campaignId, SID, URL, null);
 
         Bundle result = dialog.getArguments();
         assertNull(result.getString(REQUEST_ID_KEY));
@@ -140,7 +161,7 @@ public class IamDialogTest {
 
     @Test
     public void testDialog_stillVisible_afterOrientationChange() throws InterruptedException {
-        final IamDialog iamDialog = IamDialog.create(CAMPAIGN_ID, REQUEST_ID_KEY);
+        final IamDialog iamDialog = IamDialog.create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY);
         final AppCompatActivity activity = activityRule.getActivity();
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -167,7 +188,7 @@ public class IamDialogTest {
 
     @Test
     public void testDialog_cancel_turnsRetainInstanceOff() {
-        final IamDialog iamDialog = IamDialog.create(CAMPAIGN_ID, REQUEST_ID_KEY);
+        final IamDialog iamDialog = IamDialog.create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY);
         final AppCompatActivity activity = activityRule.getActivity();
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -188,7 +209,7 @@ public class IamDialogTest {
 
     @Test
     public void testDialog_dismiss_turnsRetainInstanceOff() {
-        final IamDialog iamDialog = IamDialog.create(CAMPAIGN_ID, REQUEST_ID_KEY);
+        final IamDialog iamDialog = IamDialog.create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY);
         final AppCompatActivity activity = activityRule.getActivity();
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -219,7 +240,7 @@ public class IamDialogTest {
         displayDialog();
 
         for (OnDialogShownAction action : actions) {
-            verify(action).execute(eq("123456789"));
+            verify(action).execute("123456789", null, null);
         }
     }
 
@@ -235,7 +256,7 @@ public class IamDialogTest {
         displayDialog();
 
         for (OnDialogShownAction action : actions) {
-            verify(action, times(1)).execute(any(String.class));
+            verify(action, times(1)).execute(any(String.class), any(String.class), any(String.class));
         }
     }
 

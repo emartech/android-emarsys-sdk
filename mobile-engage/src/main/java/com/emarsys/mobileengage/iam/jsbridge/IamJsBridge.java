@@ -34,6 +34,8 @@ import java.util.Map;
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class IamJsBridge {
     private final Gettable<Activity> currentActivityProvider;
+    private final String sid;
+    private final String url;
     private InAppInternal inAppInternal;
     private WebView webView;
     private Handler uiHandler;
@@ -45,6 +47,8 @@ public class IamJsBridge {
             InAppInternal inAppInternal,
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             String campaignId,
+            String sid,
+            String url,
             Handler coreSdkHandler,
             Gettable<Activity> currentActivityProvider) {
         Assert.notNull(inAppInternal, "InAppInternal must not be null!");
@@ -56,6 +60,8 @@ public class IamJsBridge {
         this.uiHandler = new Handler(Looper.getMainLooper());
         this.buttonClickedRepository = buttonClickedRepository;
         this.campaignId = campaignId;
+        this.sid = sid;
+        this.url = url;
         this.coreSdkHandler = coreSdkHandler;
         this.currentActivityProvider = currentActivityProvider;
     }
@@ -117,6 +123,12 @@ public class IamJsBridge {
                 Map<String, String> attributes = new HashMap<>();
                 attributes.put("campaignId", campaignId);
                 attributes.put("buttonId", property);
+                if (sid != null) {
+                    attributes.put("sid", sid);
+                }
+                if (url != null) {
+                    attributes.put("url", url);
+                }
                 inAppInternal.trackInternalCustomEvent(eventName, attributes, null);
                 return null;
             }

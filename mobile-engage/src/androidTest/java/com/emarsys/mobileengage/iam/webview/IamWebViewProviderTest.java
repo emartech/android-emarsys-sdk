@@ -36,6 +36,8 @@ class TestJSInterface extends IamJsBridge {
                 mock(InAppInternal.class),
                 mock(ButtonClickedRepository.class),
                     "123",
+                "testSid",
+                "https://wwww.emarsys.com",
                 mock(Handler.class),
                 mock(Gettable.class));
     }

@@ -27,6 +27,8 @@ import static org.mockito.Mockito.verify;
 public class SendDisplayedIamActionTest {
 
     private static final String CAMPAIGN_ID = "123445";
+    private static final String SID = "testSid";
+    private static final String URL = "https://www.emarsys.com";
 
     private SendDisplayedIamAction action;
 
@@ -66,21 +68,34 @@ public class SendDisplayedIamActionTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testExecute_campaignIdMustNotBeNull() {
-        action.execute(null);
+        action.execute(null, SID, URL);
     }
 
     @Test
-    public void testExecute_callsRequestManager() {
-        action.execute(CAMPAIGN_ID);
+    public void testExecute_callsRequestManager_withProperAttributes() {
+        action.execute(CAMPAIGN_ID, SID, URL);
 
         String eventName = "inapp:viewed";
         Map<String, String> attributes = new HashMap<>();
         attributes.put("campaignId", CAMPAIGN_ID);
+        attributes.put("sid", SID);
+        attributes.put("url", URL);
 
         verify(inAppInternal, Mockito.timeout(500)).trackInternalCustomEvent(
                 eventName,
                 attributes,
                 null);
+    }
+
+    @Test
+    public void testExecute_callsRequestManager_withoutSidAndUrl_when_theyAreNull() throws Exception {
+        action.execute(CAMPAIGN_ID, null, null);
+
+        String eventName = "inapp:viewed";
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put("campaignId", CAMPAIGN_ID);
+
+        verify(inAppInternal, Mockito.timeout(500)).trackInternalCustomEvent(eventName, attributes, null);
     }
 
     @Test
@@ -92,7 +107,7 @@ public class SendDisplayedIamActionTest {
                 any(Map.class),
                 (CompletionListener) isNull());
 
-        action.execute(CAMPAIGN_ID);
+        action.execute(CAMPAIGN_ID, SID, URL);
 
         threadSpy.verifyCalledOnCoreSdkThread();
     }

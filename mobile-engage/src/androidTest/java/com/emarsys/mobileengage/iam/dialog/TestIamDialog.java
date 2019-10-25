@@ -3,9 +3,9 @@ package com.emarsys.mobileengage.iam.dialog;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 
-import java.util.concurrent.CountDownLatch;
-
 import androidx.test.filters.SdkSuppress;
+
+import java.util.concurrent.CountDownLatch;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 
@@ -24,7 +24,7 @@ public class TestIamDialog extends IamDialog {
             CountDownLatch pauseLatch,
             CountDownLatch stopLatch,
             CountDownLatch cancelLatch) {
-        IamDialog iamDialog = IamDialog.create(campaignId, "requestId");
+        IamDialog iamDialog = IamDialog.create(campaignId, "sid", "https://www.google.com", "requestId");
 
         TestIamDialog testIamDialog = new TestIamDialog(resumeLatch, pauseLatch, stopLatch, cancelLatch);
         testIamDialog.setArguments(iamDialog.getArguments());

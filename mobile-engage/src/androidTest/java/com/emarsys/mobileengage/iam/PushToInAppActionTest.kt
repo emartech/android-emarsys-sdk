@@ -8,6 +8,10 @@ import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 
 class PushToInAppActionTest {
+    
+    companion object {
+        val mockTimestampProvider: TimestampProvider = mock(TimestampProvider::class.java)
+    }
 
     @Rule
     @JvmField
@@ -15,21 +19,21 @@ class PushToInAppActionTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_inAppPresenter_mustNotBeNull() {
-        PushToInAppAction(null, "", "", TimestampProvider())
+        PushToInAppAction(null, "", "", "","", mockTimestampProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_campaignId_mustNotBeNull() {
-        PushToInAppAction(mock(InAppPresenter::class.java), null, "", mock(TimestampProvider::class.java))
+        PushToInAppAction(mock(InAppPresenter::class.java), null, "", "","", mockTimestampProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_html_mustNotBeNull() {
-        PushToInAppAction(mock(InAppPresenter::class.java), "", null, mock(TimestampProvider::class.java))
+        PushToInAppAction(mock(InAppPresenter::class.java), "", null, "","", mockTimestampProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_timestampProvider_mustNotBeNull() {
-        PushToInAppAction(mock(InAppPresenter::class.java), "", "", null)
+        PushToInAppAction(mock(InAppPresenter::class.java), "", "", "","", null)
     }
 }

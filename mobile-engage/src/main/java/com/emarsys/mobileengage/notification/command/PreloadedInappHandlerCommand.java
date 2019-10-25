@@ -41,6 +41,7 @@ public class PreloadedInappHandlerCommand implements Runnable {
                         final String campaignId = inAppDescriptor.getString("campaignId");
                         final String url = inAppDescriptor.optString("url", null);
                         final String fileUrl = inAppDescriptor.optString("fileUrl", null);
+                        final String sid = extractSid(payload);
 
                         dependencyContainer.getCoreSdkHandler().post(new Runnable() {
                             @Override
@@ -54,7 +55,7 @@ public class PreloadedInappHandlerCommand implements Runnable {
                                     html = FileUtils.readURLIntoString(url);
                                 }
                                 if (campaignId != null && html != null) {
-                                    scheduleInAppDisplay(campaignId, html, dependencyContainer);
+                                    scheduleInAppDisplay(campaignId, html, dependencyContainer, sid, url);
                                 }
                             }
                         });
@@ -66,8 +67,21 @@ public class PreloadedInappHandlerCommand implements Runnable {
         }
     }
 
-    private void scheduleInAppDisplay(String campaignId, String html, MobileEngageDependencyContainer container) {
-        PushToInAppAction pushToInAppAction = new PushToInAppAction(container.getInAppPresenter(), campaignId, html, container.getTimestampProvider());
+    private void scheduleInAppDisplay(String campaignId, String html, MobileEngageDependencyContainer container, String sid, String url) {
+        PushToInAppAction pushToInAppAction = new PushToInAppAction(container.getInAppPresenter(), campaignId, html, sid, url, container.getTimestampProvider());
         container.getActivityLifecycleWatchdog().addTriggerOnActivityAction(pushToInAppAction);
+    }
+
+    private String extractSid(Bundle bundle) {
+        String sid = null;
+        if (bundle != null && bundle.containsKey("u")) {
+            try {
+                sid = new JSONObject(bundle.getString("u")).getString("sid");
+            } catch (JSONException ignore) {
+
+            }
+        }
+
+        return sid;
     }
 }

@@ -27,6 +27,9 @@ import java.util.concurrent.CountDownLatch
 
 class InAppPresenterTest {
     companion object {
+        var SID = "testSid"
+        var URL = "https://www.emarsys.com"
+
         init {
             mock(Fragment::class.java)
             mock(AppCompatActivity::class.java)
@@ -186,12 +189,12 @@ class InAppPresenterTest {
         whenever(activityMock.supportFragmentManager).thenReturn(fragmentManager)
         whenever(fragmentManager.findFragmentById(anyInt())).thenReturn(fragmentMock)
         whenever(activityProvider.get()).thenReturn(activityMock)
-        whenever(iamDialogProvider.provideDialog(any(), any())).thenReturn(iamDialog)
+        whenever(iamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
         val countDownLatch = CountDownLatch(1)
 
-        presenter.present("1", "requestId", 0L, "<html><body><p>Hello</p></body></html>") {
+        presenter.present("1", SID, URL, "requestId", 0L, "<html><body><p>Hello</p></body></html>", {
             countDownLatch.countDown()
-        }
+        })
 
         countDownLatch.await()
 
@@ -204,11 +207,11 @@ class InAppPresenterTest {
         val activity = mock(Activity::class.java)
 
         whenever(activityProvider.get()).thenReturn(activity)
-        whenever(iamDialogProvider.provideDialog(any(), any())).thenReturn(iamDialog)
+        whenever(iamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
 
         val countDownLatch = CountDownLatch(1)
 
-        presenter.present("1", "requestId", 0L, "<html><body><p>Hello</p></body></html>") { countDownLatch.countDown() }
+        presenter.present("1", SID, URL, "requestId", 0L, "<html><body><p>Hello</p></body></html>", { countDownLatch.countDown() })
 
         countDownLatch.await()
 
@@ -220,11 +223,11 @@ class InAppPresenterTest {
         val iamDialog = mock(IamDialog::class.java)
 
         whenever(activityProvider.get()).thenReturn(null)
-        whenever(iamDialogProvider.provideDialog(any(), any())).thenReturn(iamDialog)
+        whenever(iamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
 
         val countDownLatch = CountDownLatch(1)
 
-        presenter.present("1", "requestId", 0L, "<html><body><p>Hello</p></body></html>") { countDownLatch.countDown() }
+        presenter.present("1", SID, URL, "requestId", 0L, "<html><body><p>Hello</p></body></html>", { countDownLatch.countDown() })
 
         countDownLatch.await()
 
@@ -238,14 +241,14 @@ class InAppPresenterTest {
         val fragmentManager = mock(FragmentManager::class.java)
         val fragment = mock(Fragment::class.java)
 
-        whenever(iamDialogProvider.provideDialog(any(), any())).thenReturn(iamDialog)
+        whenever(iamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
         whenever(activityProvider.get()).thenReturn(activity)
         whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
         whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(fragment)
 
         val countDownLatch = CountDownLatch(1)
 
-        presenter.present("1", "requestId", 0L, "<html><body><p>Hello</p></body></html>") { countDownLatch.countDown() }
+        presenter.present("1", SID, URL, "requestId", 0L, "<html><body><p>Hello</p></body></html>", { countDownLatch.countDown() })
 
         countDownLatch.await()
 

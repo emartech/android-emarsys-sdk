@@ -64,7 +64,7 @@ class InappNotificationIntegrationTest {
 
         doAnswer {
             completionListenerLatch.countDown()
-        }.`when`(mockInappPresenter).present(any(String::class.java), isNull(), any(Long::class.java), any(String::class.java), isNull())
+        }.`when`(mockInappPresenter).present(any(String::class.java), isNull(), any(String::class.java), isNull(), any(Long::class.java), any(String::class.java), isNull())
 
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getInAppPresenter() = mockInappPresenter

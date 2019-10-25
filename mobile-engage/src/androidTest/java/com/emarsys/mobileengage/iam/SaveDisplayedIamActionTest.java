@@ -30,6 +30,8 @@ import static org.mockito.Mockito.when;
 public class SaveDisplayedIamActionTest {
 
     private static final String CAMPAIGN_ID = "123";
+    private static final String SID = "testSid";
+    private static final String URL = "https://www.emarsys.com";
     private static final long TIMESTAMP = 123;
     private static final DisplayedIam IAM = new DisplayedIam(CAMPAIGN_ID, TIMESTAMP);
 
@@ -77,18 +79,18 @@ public class SaveDisplayedIamActionTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testExecute_campaignIdMustNotBeNull() {
-        action.execute(null);
+        action.execute(null, SID, URL);
     }
 
     @Test
     public void testExecute_callsRepository() {
-        action.execute(CAMPAIGN_ID);
+        action.execute(CAMPAIGN_ID, SID, URL);
         verify(repository, timeout(1000)).add(IAM);
     }
 
     @Test
     public void testExecute_callsRepository_onCoreSdkThread() throws InterruptedException {
-        action.execute(CAMPAIGN_ID);
+        action.execute(CAMPAIGN_ID, SID, URL);
         threadSpy.verifyCalledOnCoreSdkThread();
     }
 

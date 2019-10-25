@@ -39,6 +39,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,7 +65,7 @@ public class InAppMessageResponseHandlerTest {
 
         dialog = mock(IamDialog.class);
         IamDialogProvider dialogProvider = mock(IamDialogProvider.class);
-        when(dialogProvider.provideDialog(any(String.class), any(String.class))).thenReturn(dialog);
+        when(dialogProvider.provideDialog(any(String.class), (String) isNull(), (String) isNull(), any(String.class))).thenReturn(dialog);
 
         presenter = new InAppPresenter(
                 mock(Handler.class),

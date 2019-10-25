@@ -23,13 +23,19 @@ public class SendDisplayedIamAction implements OnDialogShownAction {
     }
 
     @Override
-    public void execute(final String campaignId) {
+    public void execute(final String campaignId, final String sid, final String url) {
         Assert.notNull(campaignId, "CampaignId must not be null!");
         handler.post(new Runnable() {
             @Override
             public void run() {
                 Map<String, String> attributes = new HashMap<>();
                 attributes.put("campaignId", campaignId);
+                if (sid != null) {
+                    attributes.put("sid", sid);
+                }
+                if (url != null) {
+                    attributes.put("url", url);
+                }
 
                 String eventName = "inapp:viewed";
                 inAppInternal.trackInternalCustomEvent(eventName, attributes, null);

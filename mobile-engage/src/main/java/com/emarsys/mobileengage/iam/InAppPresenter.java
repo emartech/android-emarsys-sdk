@@ -68,14 +68,16 @@ public class InAppPresenter {
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public void present(final String campaignId, final String requestId, final long startTimestamp, String html, final MessageLoadedListener messageLoadedListener) {
-        final IamDialog iamDialog = dialogProvider.provideDialog(campaignId, requestId);
+    public void present(final String campaignId, final String sid, final String url, final String requestId, final long startTimestamp, String html, final MessageLoadedListener messageLoadedListener) {
+        final IamDialog iamDialog = dialogProvider.provideDialog(campaignId, sid, url , requestId);
         setupDialogWithActions(iamDialog);
 
         IamJsBridge jsBridge = new IamJsBridge(
                 inAppInternal,
                 buttonClickedRepository,
                 campaignId,
+                sid,
+                url,
                 coreSdkHandler,
                 currentActivityProvider);
         webViewProvider.loadMessageAsync(html, jsBridge, new MessageLoadedListener() {

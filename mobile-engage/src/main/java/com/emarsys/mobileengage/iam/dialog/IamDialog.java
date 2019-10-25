@@ -31,6 +31,8 @@ public class IamDialog extends DialogFragment {
 
     public static final String TAG = "MOBILE_ENGAGE_IAM_DIALOG_TAG";
     public static final String CAMPAIGN_ID = "id";
+    public static final String SID = "sid";
+    public static final String URL = "url";
     public static final String REQUEST_ID = "request_id";
     public static final String IS_SHOWN = "isShown";
     public static final String ON_SCREEN_TIME = "on_screen_time";
@@ -44,12 +46,14 @@ public class IamDialog extends DialogFragment {
 
     TimestampProvider timestampProvider;
 
-    public static IamDialog create(String campaignId, String requestId) {
+    public static IamDialog create(String campaignId, String sid, String url, String requestId) {
         Assert.notNull(campaignId, "CampaignId must not be null!");
 
         IamDialog iamDialog = new IamDialog();
         Bundle bundle = new Bundle();
         bundle.putString(CAMPAIGN_ID, campaignId);
+        bundle.putString(SID, sid);
+        bundle.putString(URL, url);
         bundle.putString(REQUEST_ID, requestId);
         iamDialog.setArguments(bundle);
         return iamDialog;
@@ -112,7 +116,9 @@ public class IamDialog extends DialogFragment {
         if (actions != null && notShown) {
             for (OnDialogShownAction action : actions) {
                 String campaignId = args.getString(CAMPAIGN_ID);
-                action.execute(campaignId);
+                String sid = args.getString(SID);
+                String url = args.getString(URL);
+                action.execute(campaignId, sid, url);
                 args.putBoolean(IS_SHOWN, true);
             }
         }

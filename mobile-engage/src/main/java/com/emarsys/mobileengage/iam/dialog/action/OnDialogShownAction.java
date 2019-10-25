@@ -1,5 +1,5 @@
 package com.emarsys.mobileengage.iam.dialog.action;
 
 public interface OnDialogShownAction {
-    void execute(String campaignId);
+    void execute(String campaignId, String sid, String url);
 }

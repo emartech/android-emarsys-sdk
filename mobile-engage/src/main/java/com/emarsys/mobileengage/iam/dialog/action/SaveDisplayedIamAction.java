@@ -24,7 +24,7 @@ public class SaveDisplayedIamAction implements OnDialogShownAction {
     }
 
     @Override
-    public void execute(final String campaignId) {
+    public void execute(final String campaignId, String sid, String url) {
         Assert.notNull(campaignId, "CampaignId must not be null!");
         handler.post(new Runnable() {
             @Override

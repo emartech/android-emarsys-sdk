@@ -63,6 +63,8 @@ public class IamJsBridgeTest {
     }
 
     private static final String CAMPAIGN_ID = "555666777";
+    private static final String SID = "testSid";
+    private static final String URL = "https://www.emarsys.com";
 
     private IamJsBridge jsBridge;
     private EventHandler inAppEventHandler;
@@ -93,8 +95,11 @@ public class IamJsBridgeTest {
                 inAppInternal,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
+                SID,
+                URL,
                 coreSdkHandler,
-                currentActivityProvider);
+                currentActivityProvider
+        );
         webView = mock(WebView.class);
         jsBridge.setWebView(webView);
     }
@@ -110,8 +115,11 @@ public class IamJsBridgeTest {
                 null,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
+                SID,
+                URL,
                 coreSdkHandler,
-                currentActivityProvider);
+                currentActivityProvider
+        );
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -120,6 +128,8 @@ public class IamJsBridgeTest {
                 inAppInternal,
                 null,
                 CAMPAIGN_ID,
+                SID,
+                URL,
                 coreSdkHandler,
                 currentActivityProvider);
     }
@@ -130,6 +140,8 @@ public class IamJsBridgeTest {
                 inAppInternal,
                 buttonClickedRepository,
                 null,
+                SID,
+                URL,
                 coreSdkHandler,
                 currentActivityProvider);
     }
@@ -140,6 +152,8 @@ public class IamJsBridgeTest {
                 inAppInternal,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
+                SID,
+                URL,
                 null,
                 currentActivityProvider);
     }
@@ -150,6 +164,8 @@ public class IamJsBridgeTest {
                 inAppInternal,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
+                SID,
+                URL,
                 coreSdkHandler,
                 null);
     }
@@ -292,6 +308,8 @@ public class IamJsBridgeTest {
                 inAppInternal,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
+                SID,
+                URL,
                 coreSdkHandler,
                 currentActivityProvider);
         jsBridge.triggerAppEvent(json.toString());
@@ -312,6 +330,8 @@ public class IamJsBridgeTest {
                 inAppInternal,
                 buttonClickedRepository,
                 CAMPAIGN_ID,
+                SID,
+                URL,
                 coreSdkHandler,
                 currentActivityProvider);
         jsBridge.setWebView(webView);
@@ -368,7 +388,24 @@ public class IamJsBridgeTest {
     }
 
     @Test
-    public void testButtonClicked_shouldSendInternalEvent_throughMobileEngageInternal() throws Exception {
+    public void testButtonClicked_shouldSendInternalEvent_throughMobileEngageInternal_withSidAndUrl() throws Exception {
+        String id = "12346789";
+        String buttonId = "987654321";
+        JSONObject json = new JSONObject().put("id", id).put("buttonId", buttonId);
+
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put("campaignId", CAMPAIGN_ID);
+        attributes.put("buttonId", buttonId);
+        attributes.put("sid", SID);
+        attributes.put("url", URL);
+
+        jsBridge.buttonClicked(json.toString());
+
+        verify(inAppInternal, Mockito.timeout(1000)).trackInternalCustomEvent("inapp:click", attributes, null);
+    }
+
+    @Test
+    public void testButtonClicked_shouldSendInternalEvent_throughMobileEngageInternal_whenSidAndUrlIsNull() throws Exception {
         String id = "12346789";
         String buttonId = "987654321";
         JSONObject json = new JSONObject().put("id", id).put("buttonId", buttonId);
@@ -377,7 +414,17 @@ public class IamJsBridgeTest {
         attributes.put("campaignId", CAMPAIGN_ID);
         attributes.put("buttonId", buttonId);
 
-        jsBridge.buttonClicked(json.toString());
+        IamJsBridge testJsBridge = new IamJsBridge(
+                inAppInternal,
+                buttonClickedRepository,
+                CAMPAIGN_ID,
+                null,
+                null,
+                coreSdkHandler,
+                currentActivityProvider);
+        testJsBridge.setWebView(webView);
+
+        testJsBridge.buttonClicked(json.toString());
 
         verify(inAppInternal, Mockito.timeout(1000)).trackInternalCustomEvent("inapp:click", attributes, null);
     }
