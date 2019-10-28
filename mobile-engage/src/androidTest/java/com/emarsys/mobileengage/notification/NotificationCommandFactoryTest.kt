@@ -268,6 +268,22 @@ class NotificationCommandFactoryTest {
     }
 
     @Test
+    fun testCreateNotificationCommand_shouldDismiss_asPartOfACompositeCommand() {
+        val intent = createDismissIntent()
+        val command = factory.createNotificationCommand(intent)
+
+        command shouldNotBe null
+        command::class.java shouldBe CompositeCommand::class.java
+
+        command as CompositeCommand
+
+        command.commands.size shouldBe 3
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<HideNotificationShadeCommand>(command) shouldBe true
+        contains<TrackActionClickCommand>(command) shouldBe true
+    }
+
+    @Test
     fun testCreateNotificationCommand_trackActionCommand_withSids() {
         forall(
                 row(SID, extractCommandFromComposite<TrackActionClickCommand>(createAppEventIntent()).sid),
@@ -497,6 +513,17 @@ class NotificationCommandFactoryTest {
                                 .put("title", "title")
                                 .put("name", name)
                                 .put("payload", payload)))
+        return createIntent(json, actionId, hasSid)
+    }
+
+    private fun createDismissIntent(hasSid: Boolean = true): Intent {
+        val actionId = "uniqueActionId"
+        val json = JSONObject()
+                .put("actions", JSONArray()
+                        .put(JSONObject()
+                                .put("type", "Dismiss")
+                                .put("id", actionId)
+                                .put("title", "Dismiss")))
         return createIntent(json, actionId, hasSid)
     }
 

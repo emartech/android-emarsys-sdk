@@ -75,6 +75,10 @@ public class NotificationCommandFactory {
             commands.add(actionCommand);
         }
 
+        if (action == null || !action.optString("type").equals("Dismiss")) {
+            commands.add(new LaunchApplicationCommand(intent, context));
+        }
+
         return new CompositeCommand(commands);
     }
 
@@ -82,7 +86,6 @@ public class NotificationCommandFactory {
         List<Runnable> commands =  new ArrayList<>();
         commands.add(new HideNotificationShadeCommand(context));
         commands.add(new DismissNotificationCommand(context, intent));
-        commands.add(new LaunchApplicationCommand(intent, context));
 
         return commands;
     }

@@ -3,6 +3,9 @@ package com.emarsys.mobileengage.service;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.core.app.NotificationCompat;
+import androidx.test.filters.SdkSuppress;
+
 import com.emarsys.mobileengage.notification.NotificationCommandFactory;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -18,9 +21,6 @@ import org.junit.rules.TestRule;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import androidx.core.app.NotificationCompat;
-import androidx.test.filters.SdkSuppress;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
 import static junit.framework.Assert.assertEquals;
@@ -321,5 +321,23 @@ public class NotificationActionUtilsTest {
         assertEquals(2, result.size());
         assertEquals("Action button title", result.get(0).title);
         assertEquals("Another button title", result.get(1).title);
+    }
+
+    @Test
+    public void testCreateActions_dismiss() throws Exception {
+        JSONObject ems = new JSONObject().put("actions",
+                new JSONArray().put(new JSONObject()
+                        .put("id", "uniqueActionId")
+                        .put("title", "Action button title")
+                        .put("type", "Dismiss")
+                        ));
+
+        Map<String, String> input = new HashMap<>();
+        input.put("ems", ems.toString());
+
+        List<NotificationCompat.Action> result = NotificationActionUtils.createActions(context, input, 0);
+
+        assertEquals(1, result.size());
+        assertEquals("Action button title", result.get(0).title);
     }
 }
