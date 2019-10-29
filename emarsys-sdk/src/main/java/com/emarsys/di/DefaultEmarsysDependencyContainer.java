@@ -125,6 +125,7 @@ import com.emarsys.predict.provider.PredictRequestModelBuilderProvider;
 import com.emarsys.predict.request.PredictHeaderFactory;
 import com.emarsys.predict.request.PredictRequestContext;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
+import com.emarsys.predict.response.XPResponseHandler;
 import com.emarsys.predict.shard.PredictShardListMerger;
 import com.emarsys.push.PushApi;
 import com.emarsys.push.PushProxy;
@@ -649,6 +650,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         List<AbstractResponseHandler> responseHandlers = new ArrayList<>();
 
         responseHandlers.add(new VisitorIdResponseHandler(sharedPrefsKeyStore));
+        responseHandlers.add(new XPResponseHandler(sharedPrefsKeyStore));
 
         responseHandlers.add(new MobileEngageTokenResponseHandler("refreshToken", refreshTokenStorage));
         responseHandlers.add(contactTokenResponseHandler);

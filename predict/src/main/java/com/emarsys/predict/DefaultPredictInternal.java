@@ -29,6 +29,7 @@ import java.util.Map;
 public class DefaultPredictInternal implements PredictInternal {
 
     public static final String VISITOR_ID_KEY = "predict_visitor_id";
+    public static final String XP_KEY = "xp";
     public static final String CONTACT_ID_KEY = "predict_contact_id";
 
     private static final String TYPE_CART = "predict_cart";

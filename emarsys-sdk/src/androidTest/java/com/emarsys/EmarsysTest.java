@@ -76,6 +76,7 @@ import com.emarsys.predict.api.model.Logic;
 import com.emarsys.predict.api.model.Product;
 import com.emarsys.predict.api.model.RecommendationFilter;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
+import com.emarsys.predict.response.XPResponseHandler;
 import com.emarsys.push.PushApi;
 import com.emarsys.testUtil.CollectionTestUtils;
 import com.emarsys.testUtil.FeatureTestUtils;
@@ -395,8 +396,9 @@ public class EmarsysTest {
                 .getResponseHandlersProcessor();
 
         assertNotNull(responseHandlersProcessor);
-        assertEquals(7, responseHandlersProcessor.getResponseHandlers().size());
+        assertEquals(8, responseHandlersProcessor.getResponseHandlers().size());
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), VisitorIdResponseHandler.class));
+        assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), XPResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), InAppMessageResponseHandler.class));
         assertEquals(1, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), InAppCleanUpResponseHandler.class));
         assertEquals(2, CollectionTestUtils.numberOfElementsIn(responseHandlersProcessor.getResponseHandlers(), MobileEngageTokenResponseHandler.class));
