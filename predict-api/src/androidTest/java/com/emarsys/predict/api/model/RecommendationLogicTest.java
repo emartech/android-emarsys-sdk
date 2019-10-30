@@ -186,4 +186,30 @@ public class RecommendationLogicTest {
         assertEquals(expected, result.getData());
         assertEquals("POPULAR", result.getLogicName());
     }
+
+
+    @Test
+    public void testPersonal_shouldFillFields() {
+        Map<String, String> expected = new HashMap<>();
+
+        Logic result = RecommendationLogic.personal();
+
+        assertEquals(expected, result.getData());
+        assertEquals("PERSONAL", result.getLogicName());
+    }
+
+
+    @Test
+    public void testPersonal_shouldFillFields_withExtensions() {
+        Map<String, String> expected = new HashMap<>();
+        List<String> extensions = new ArrayList<>();
+        extensions.add("1");
+        extensions.add("2");
+        extensions.add("3");
+
+        Logic result = RecommendationLogic.personal(extensions);
+
+        assertEquals(expected, result.getData());
+        assertEquals("PERSONAL_1_2_3", result.getLogicName());
+    }
 }

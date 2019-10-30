@@ -245,7 +245,11 @@ class PredictRequestModelBuilderTest {
                 row(RecommendationLogic.alsoBought(), createRequestModelWithUrl(mapOf(
                         "f" to "f:ALSO_BOUGHT,l:5,o:0"))),
                 row(RecommendationLogic.related(), createRequestModelWithUrl(mapOf(
-                        "f" to "f:RELATED,l:5,o:0")))
+                        "f" to "f:RELATED,l:5,o:0"))),
+                row(RecommendationLogic.personal(), createRequestModelWithUrl(mapOf(
+                        "f" to "f:PERSONAL,l:5,o:0"))),
+                row(RecommendationLogic.personal(listOf("1", "2", "3")), createRequestModelWithUrl(mapOf(
+                        "f" to "f:PERSONAL_1_2_3,l:5,o:0")))
         ) { logic, expectedRequestModel -> RequestModelUtils.extractQueryParameters(requestModelBuilder.withLogic(logic, lastTrackedItemContainer).build()) shouldBe RequestModelUtils.extractQueryParameters(expectedRequestModel) }
     }
 

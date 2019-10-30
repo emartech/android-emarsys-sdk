@@ -400,6 +400,22 @@ class PredictIntegrationTest {
     }
 
     @Test
+    fun testRecommendProducts_withPersonal() {
+        Emarsys.Predict.recommendProducts(RecommendationLogic.personal(),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+
+        eventuallyAssertForTriedRecommendedProducts()
+    }
+
+    @Test
+    fun testRecommendProducts_withPersonalExtensions() {
+        Emarsys.Predict.recommendProducts(RecommendationLogic.personal(listOf("1", "2", "3")),
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+
+        eventuallyAssertForTriedRecommendedProducts()
+    }
+
+    @Test
     fun testMultipleInvocations() {
         testTrackCart()
         latch = CountDownLatch(1)

@@ -1,6 +1,7 @@
 package com.emarsys.predict.api.model;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.emarsys.core.util.Assert;
 
@@ -17,6 +18,7 @@ public class RecommendationLogic implements Logic {
     public static final String CATEGORY = "CATEGORY";
     public static final String ALSO_BOUGHT = "ALSO_BOUGHT";
     public static final String POPULAR = "POPULAR";
+    public static final String PERSONAL = "PERSONAL";
 
     private String logicName;
     private Map<String, String> data;
@@ -102,6 +104,26 @@ public class RecommendationLogic implements Logic {
         Map<String, String> data = new HashMap<>();
         data.put("vc", categoryPath);
         return new RecommendationLogic(POPULAR, data);
+    }
+
+    public static Logic personal() {
+        return personal(null);
+    }
+
+    public static Logic personal(@Nullable List<String> extensions) {
+        Map<String, String> data = new HashMap<>();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(PERSONAL);
+
+        if (extensions != null) {
+            for (String extension: extensions) {
+                sb.append("_");
+                sb.append(extension);
+            }
+        }
+
+        return new RecommendationLogic(sb.toString(), data);
     }
 
     @Override
