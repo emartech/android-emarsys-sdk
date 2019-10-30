@@ -586,7 +586,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         loggingInAppInternal = new LoggingInAppInternal(Emarsys.InApp.class);
         loggingInboxInternal = inboxInternalProvider.provideLoggingInboxInternal(Emarsys.Inbox.class);
 
-        configInternal = new DefaultConfigInternal(requestContext, mobileEngageInternal, pushInternal, getPushTokenProvider(), predictRequestContext);
+        configInternal = new DefaultConfigInternal(requestContext, mobileEngageInternal, pushInternal, getPushTokenProvider(), predictRequestContext, getDeviceInfo());
 
         inboxApi = new InboxProxy(runnerProxy, getInboxInternal());
         loggingInboxApi = new InboxProxy(runnerProxy, getLoggingInboxInternal());

@@ -1,7 +1,9 @@
 package com.emarsys.config
 
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.core.notification.NotificationSettings
 import com.emarsys.feature.InnerFeature
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
@@ -13,7 +15,8 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val mobileEngageInternal: MobileEngageInternal,
                             private val pushInternal: PushInternal,
                             private val pushTokenProvider: PushTokenProvider,
-                            private val predictRequestContext: PredictRequestContext) : ConfigInternal {
+                            private val predictRequestContext: PredictRequestContext,
+                            private val deviceInfo: DeviceInfo) : ConfigInternal {
 
     override val applicationCode: String?
         get() = mobileEngageRequestContext.applicationCode
@@ -23,6 +26,15 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
 
     override val contactFieldId: Int
         get() = mobileEngageRequestContext.contactFieldId
+
+    override val hardwareId: String
+        get() = deviceInfo.hwid
+
+    override val language: String
+        get() = deviceInfo.language
+
+    override val notificationSettings: NotificationSettings
+        get() = deviceInfo.notificationSettings
 
 
     override fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?) {

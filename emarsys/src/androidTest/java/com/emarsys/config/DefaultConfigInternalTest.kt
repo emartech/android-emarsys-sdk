@@ -1,7 +1,9 @@
 package com.emarsys.config
 
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.storage.Storage
 import com.emarsys.feature.InnerFeature
 import com.emarsys.mobileengage.MobileEngageInternal
@@ -42,6 +44,7 @@ class DefaultConfigInternalTest {
     private lateinit var mockPushTokenProvider: PushTokenProvider
     private lateinit var mockPredictInternal: PredictInternal
     private lateinit var mockContactFieldValueStorage: Storage<String>
+    private lateinit var mockDeviceInfo: DeviceInfo
     private lateinit var latch: CountDownLatch
 
     @Rule
@@ -89,7 +92,9 @@ class DefaultConfigInternalTest {
 
         mockPredictInternal = mock(PredictInternal::class.java)
 
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext)
+        mockDeviceInfo = mock(DeviceInfo::class.java)
+
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext,mockDeviceInfo )
     }
 
     @After
@@ -168,7 +173,7 @@ class DefaultConfigInternalTest {
         whenever(mockMobileEngageInternal.clearContact(any())).thenAnswer { invocation ->
             (invocation.getArgument(0) as CompletionListener).onCompleted(Throwable())
         }
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext)
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext, mockDeviceInfo)
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {
             latch.countDown()
@@ -195,7 +200,7 @@ class DefaultConfigInternalTest {
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
         }
 
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext)
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext, mockDeviceInfo)
 
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener {
             latch.countDown()
@@ -221,7 +226,7 @@ class DefaultConfigInternalTest {
                 (invocation.getArgument(1) as CompletionListener).onCompleted(Throwable())
             }
         }
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext)
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext, mockDeviceInfo)
 
         val completionListener = CompletionListener {
             latch.countDown()
@@ -249,7 +254,7 @@ class DefaultConfigInternalTest {
                 (invocation.getArgument(0) as CompletionListener).onCompleted(null)
             }
         }
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext)
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext, mockDeviceInfo)
 
         val completionListener = CompletionListener {
             latch.countDown()
@@ -356,5 +361,30 @@ class DefaultConfigInternalTest {
         configInternal.changeMerchantId(MERCHANT_ID)
 
         verify(mockPredictRequestContext).merchantId = MERCHANT_ID
+    }
+
+    @Test
+    fun testGetHardwareId_shouldReturnHWIDFromDeviceInfo() {
+        whenever(mockDeviceInfo.hwid).thenReturn("testHardwareId")
+        val result = configInternal.hardwareId
+
+        result shouldBe "testHardwareId"
+    }
+
+    @Test
+    fun testGetHardwareId_shouldReturnLanguageCodeFromDeviceInfo() {
+        whenever(mockDeviceInfo.language).thenReturn("testLanguage")
+        val result = configInternal.language
+
+        result shouldBe "testLanguage"
+    }
+
+    @Test
+    fun testGetHardwareId_shouldReturnNotificationSettingsFromDeviceInfo() {
+        val notificationSettings = mock(NotificationManagerHelper::class.java)
+        whenever(mockDeviceInfo.notificationSettings).thenReturn(notificationSettings)
+        val result = configInternal.notificationSettings
+
+        result shouldBe notificationSettings
     }
 }
