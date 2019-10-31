@@ -14,7 +14,9 @@ import androidx.test.filters.SdkSuppress;
 
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
+import com.emarsys.core.notification.ChannelSettings;
 import com.emarsys.core.notification.NotificationManagerHelper;
+import com.emarsys.core.notification.NotificationSettings;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.version.VersionProvider;
@@ -37,6 +39,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,11 +88,13 @@ public class MessagingServiceUtilsTest {
     public void init() {
         context = InstrumentationRegistry.getTargetContext();
 
+        NotificationManagerHelper notificationManagerHelper = mock(NotificationManagerHelper.class);
+
         deviceInfo = new DeviceInfo(context,
                 mock(HardwareIdProvider.class),
                 mock(VersionProvider.class),
                 mock(LanguageProvider.class),
-                mock(NotificationManagerHelper.class),
+                notificationManagerHelper,
                 true);
 
         metaDataReader = mock(MetaDataReader.class);
@@ -99,6 +104,9 @@ public class MessagingServiceUtilsTest {
 
         when(mockTimestampProvider.provideTimestamp()).thenReturn(1L);
 
+        ChannelSettings channelSettings = mock(ChannelSettings.class);
+        when(channelSettings.getChannelId()).thenReturn(CHANNEL_ID);
+        when(notificationManagerHelper.getChannelSettings()).thenReturn(Collections.singletonList(channelSettings));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -168,6 +176,7 @@ public class MessagingServiceUtilsTest {
         Map<String, String> input = new HashMap<>();
         input.put("title", TITLE);
         input.put("body", BODY);
+        input.put("channel_id", CHANNEL_ID);
 
         android.app.Notification result = MessagingServiceUtils.createNotification(
                 0,
@@ -189,6 +198,7 @@ public class MessagingServiceUtilsTest {
     public void createNotification_withBigTextStyle_withTitle_withoutBody() {
         Map<String, String> input = new HashMap<>();
         input.put("title", TITLE);
+        input.put("channel_id", CHANNEL_ID);
 
         android.app.Notification result = MessagingServiceUtils.createNotification(
                 0,
@@ -210,6 +220,7 @@ public class MessagingServiceUtilsTest {
     public void createNotification_withBigTextStyle_withoutTitle_withBody() {
         Map<String, String> input = new HashMap<>();
         input.put("body", BODY);
+        input.put("channel_id", CHANNEL_ID);
 
         android.app.Notification result = MessagingServiceUtils.createNotification(
                 0,
@@ -234,6 +245,7 @@ public class MessagingServiceUtilsTest {
         Map<String, String> input = new HashMap<>();
         input.put("body", BODY);
         input.put("u", "{\"test_field\":\"\",\"ems_default_title\":\"" + DEFAULT_TITLE + "\",\"image\":\"https:\\/\\/media.giphy.com\\/media\\/ktvFa67wmjDEI\\/giphy.gif\",\"deep_link\":\"lifestylelabels.com\\/mobile\\/product\\/3245678\",\"sid\":\"sid_here\"}");
+        input.put("channel_id", CHANNEL_ID);
 
         android.app.Notification result = MessagingServiceUtils.createNotification(
                 0,
@@ -259,6 +271,7 @@ public class MessagingServiceUtilsTest {
         input.put("title", TITLE);
         input.put("body", BODY);
         input.put("image_url", LARGE_IMAGE);
+        input.put("channel_id", CHANNEL_ID);
 
         android.app.Notification result = MessagingServiceUtils.createNotification(
                 0,
@@ -284,6 +297,7 @@ public class MessagingServiceUtilsTest {
         input.put("title", TITLE);
         input.put("body", BODY);
         input.put("image_url", "https://fa.il/img.jpg");
+        input.put("channel_id", CHANNEL_ID);
 
         android.app.Notification result = MessagingServiceUtils.createNotification(
                 0,
@@ -361,6 +375,14 @@ public class MessagingServiceUtilsTest {
         input.put("title", TITLE);
         input.put("body", BODY);
 
+        NotificationSettings notificationSettings = mock(NotificationSettings.class);
+        ChannelSettings channelSettings = mock(ChannelSettings.class);
+        DeviceInfo deviceInfo = mock(DeviceInfo.class);
+        when(channelSettings.getChannelId()).thenReturn("notMatchingChannelId");
+        when(notificationSettings.getChannelSettings()).thenReturn(Collections.singletonList(channelSettings));
+        when(deviceInfo.getNotificationSettings()).thenReturn(notificationSettings);
+        when(deviceInfo.isDebugMode()).thenReturn(false);
+
         android.app.Notification result = MessagingServiceUtils.createNotification(
                 0,
                 context,
@@ -369,6 +391,31 @@ public class MessagingServiceUtilsTest {
                 metaDataReader);
 
         assertNull(result.getChannelId());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = O)
+    public void testCreateNotification_withoutChannelId_inDebugMode() {
+        Map<String, String> input = new HashMap<>();
+        input.put("title", TITLE);
+        input.put("body", BODY);
+
+        NotificationSettings notificationSettings = mock(NotificationSettings.class);
+        ChannelSettings channelSettings = mock(ChannelSettings.class);
+        DeviceInfo deviceInfo = mock(DeviceInfo.class);
+        when(channelSettings.getChannelId()).thenReturn("notMatchingChannelId");
+        when(notificationSettings.getChannelSettings()).thenReturn(Collections.singletonList(channelSettings));
+        when(deviceInfo.getNotificationSettings()).thenReturn(notificationSettings);
+        when(deviceInfo.isDebugMode()).thenReturn(true);
+
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
+
+        assertEquals("ems_debug", result.getChannelId());
     }
 
     @Test
@@ -423,6 +470,57 @@ public class MessagingServiceUtilsTest {
                 deviceInfo,
                 metaDataReader);
         assertNull(result.actions);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = O)
+    public void testCreateNotification_returnDebugMessage_whenThereIsChannelIdMismatch() throws Exception {
+        Map<String, String> input = new HashMap<>();
+        input.put("title", TITLE);
+        input.put("body", BODY);
+        input.put("channel_id", CHANNEL_ID);
+
+        NotificationSettings notificationSettings = mock(NotificationSettings.class);
+        ChannelSettings channelSettings = mock(ChannelSettings.class);
+        DeviceInfo deviceInfo = mock(DeviceInfo.class);
+        when(channelSettings.getChannelId()).thenReturn("notMatchingChannelId");
+        when(notificationSettings.getChannelSettings()).thenReturn(Collections.singletonList(channelSettings));
+        when(deviceInfo.getNotificationSettings()).thenReturn(notificationSettings);
+        when(deviceInfo.isDebugMode()).thenReturn(true);
+
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
+
+        assertEquals("DEBUG - channel_id mismatch", result.extras.getString(NotificationCompat.EXTRA_TEXT));
+    }
+
+    @Test
+    public void testCreateNotification_returnOriginalTitle_evenIfThereIsChannelMismatch_but_weAreNotInDebugMode() throws Exception {
+        Map<String, String> input = new HashMap<>();
+        input.put("title", TITLE);
+        input.put("body", BODY);
+        input.put("channel_id", CHANNEL_ID);
+
+        NotificationSettings notificationSettings = mock(NotificationSettings.class);
+        ChannelSettings channelSettings = mock(ChannelSettings.class);
+        DeviceInfo deviceInfo = mock(DeviceInfo.class);
+        when(channelSettings.getChannelId()).thenReturn("notMatchingChannelId");
+        when(notificationSettings.getChannelSettings()).thenReturn(Collections.singletonList(channelSettings));
+        when(deviceInfo.getNotificationSettings()).thenReturn(notificationSettings);
+        when(deviceInfo.isDebugMode()).thenReturn(false);
+
+        android.app.Notification result = MessagingServiceUtils.createNotification(
+                0,
+                context,
+                input,
+                deviceInfo,
+                metaDataReader);
+
+        assertEquals(BODY, result.extras.getString(NotificationCompat.EXTRA_TEXT));
     }
 
     @Test

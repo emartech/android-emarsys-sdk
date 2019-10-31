@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -13,6 +14,8 @@ import androidx.core.app.NotificationCompat.Action;
 import androidx.core.content.ContextCompat;
 
 import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.notification.ChannelSettings;
+import com.emarsys.core.notification.NotificationSettings;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.core.util.Assert;
@@ -85,6 +88,17 @@ public class MessagingServiceUtils {
         String title = getTitle(remoteMessageData, context);
         String body = remoteMessageData.get("body");
         String channelId = remoteMessageData.get("channel_id");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && deviceInfo.isDebugMode() && !isValidChannel(deviceInfo.getNotificationSettings(), channelId)) {
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationChannel notificationChannel = new NotificationChannel("ems_debug", "Emarsys SDK Debug Messages", NotificationManager.IMPORTANCE_HIGH);
+            notificationManager.createNotificationChannel(notificationChannel);
+
+            channelId = "ems_debug";
+            title = "Emarsys SDK";
+            body = "DEBUG - channel_id mismatch";
+        }
+
         List<Action> actions = NotificationActionUtils.createActions(context, remoteMessageData, notificationId);
 
         Map<String, String> preloadedRemoteMessageData = createPreloadedRemoteMessageData(remoteMessageData, getInAppDescriptor(context, remoteMessageData));
@@ -200,6 +214,15 @@ public class MessagingServiceUtils {
     static void cacheNotification(TimestampProvider timestampProvider, NotificationCache notificationCache, Map<String, String> remoteMessageData) {
         Assert.notNull(remoteMessageData, "RemoteMessageData must not be null!");
         notificationCache.cache(InboxParseUtils.parseNotificationFromPushMessage(timestampProvider, false, remoteMessageData));
+    }
+
+    private static boolean isValidChannel(NotificationSettings notificationSettings, String channelId) {
+        for (ChannelSettings channel : notificationSettings.getChannelSettings()) {
+            if (channel.getChannelId().equals(channelId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
