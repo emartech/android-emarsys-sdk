@@ -401,6 +401,9 @@ class PredictIntegrationTest {
 
     @Test
     fun testRecommendProducts_withPersonal() {
+        testTrackItemView()
+        latch = CountDownLatch(1)
+
         Emarsys.Predict.recommendProducts(RecommendationLogic.personal(),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
@@ -409,6 +412,9 @@ class PredictIntegrationTest {
 
     @Test
     fun testRecommendProducts_withPersonalExtensions() {
+        testTrackItemView()
+        latch = CountDownLatch(1)
+
         Emarsys.Predict.recommendProducts(RecommendationLogic.personal(listOf("1", "2", "3")),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 

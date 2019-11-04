@@ -1,12 +1,14 @@
 package com.emarsys.predict.request;
 
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.JsonUtils;
 import com.emarsys.predict.api.model.Logic;
+import com.emarsys.predict.api.model.LogicData;
 import com.emarsys.predict.api.model.RecommendationFilter;
 import com.emarsys.predict.api.model.RecommendationLogic;
 import com.emarsys.predict.endpoint.Endpoint;
@@ -27,6 +29,7 @@ public class PredictRequestModelBuilder {
     private LastTrackedItemContainer lastTrackedItemContainer;
     private Integer limit;
     private List<RecommendationFilter> filters;
+    private Uri.Builder uriBuilder;
 
     public PredictRequestModelBuilder(PredictRequestContext requestContext, PredictHeaderFactory headerFactory) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
@@ -34,6 +37,10 @@ public class PredictRequestModelBuilder {
 
         this.requestContext = requestContext;
         this.headerFactory = headerFactory;
+
+        uriBuilder = Uri.parse(Endpoint.PREDICT_BASE_URL)
+                .buildUpon()
+                .appendPath(requestContext.getMerchantId());
     }
 
     public PredictRequestModelBuilder withShardData(Map<String, Object> shardData) {
@@ -76,54 +83,82 @@ public class PredictRequestModelBuilder {
     }
 
     private String createRecommendationUrl(Logic logic) {
-        Uri.Builder uriBuilder = Uri.parse(Endpoint.PREDICT_BASE_URL)
-                .buildUpon()
-                .appendPath(requestContext.getMerchantId());
+
         if (limit == null) {
             limit = DEFAULT_LIMIT;
         }
+        String url;
+        if (RecommendationLogic.PERSONAL.equals(logic.getLogicName())) {
+            url = createPersonalRecommendationUrl(logic);
+        } else {
+            url = createNonPersonalLogicUrl(logic);
+        }
+
+        uriBuilder.clearQuery();
+        return url;
+    }
+
+    private String createNonPersonalLogicUrl(Logic logic) {
         uriBuilder.appendQueryParameter("f", "f:" + logic.getLogicName() + ",l:" + limit + ",o:0");
 
         if (this.filters != null) {
             uriBuilder.appendQueryParameter("ex", createRecommendationFilterQueryValues());
         }
 
-        if (logic.getData().isEmpty()) {
+        Map<String, String> data = logic.getData().getLogicData();
+
+        if (data.isEmpty()) {
             switch (logic.getLogicName()) {
                 case RecommendationLogic.SEARCH:
                     if (lastTrackedItemContainer.getLastSearchTerm() != null) {
-                        logic.getData().putAll(RecommendationLogic.search(lastTrackedItemContainer.getLastSearchTerm()).getData());
+                        data.putAll(RecommendationLogic.search(lastTrackedItemContainer.getLastSearchTerm()).getData().getLogicData());
                     }
                     break;
                 case RecommendationLogic.CART:
                     if (lastTrackedItemContainer.getLastCartItems() != null) {
-                        logic.getData().putAll(RecommendationLogic.cart(lastTrackedItemContainer.getLastCartItems()).getData());
+                        data.putAll(RecommendationLogic.cart(lastTrackedItemContainer.getLastCartItems()).getData().getLogicData());
                     }
                     break;
                 case RecommendationLogic.CATEGORY:
                     if (lastTrackedItemContainer.getLastCategoryPath() != null) {
-                        logic.getData().putAll(RecommendationLogic.category(lastTrackedItemContainer.getLastCategoryPath()).getData());
+                        data.putAll(RecommendationLogic.category(lastTrackedItemContainer.getLastCategoryPath()).getData().getLogicData());
                     }
                     break;
                 case RecommendationLogic.POPULAR:
                     if (lastTrackedItemContainer.getLastCategoryPath() != null) {
-                        logic.getData().putAll(RecommendationLogic.popular(lastTrackedItemContainer.getLastCategoryPath()).getData());
+                        data.putAll(RecommendationLogic.popular(lastTrackedItemContainer.getLastCategoryPath()).getData().getLogicData());
                     }
                     break;
                 case RecommendationLogic.RELATED:
                     if (lastTrackedItemContainer.getLastItemView() != null) {
-                        logic.getData().putAll(RecommendationLogic.related(lastTrackedItemContainer.getLastItemView()).getData());
+                        data.putAll(RecommendationLogic.related(lastTrackedItemContainer.getLastItemView()).getData().getLogicData());
                     }
                     break;
                 case RecommendationLogic.ALSO_BOUGHT:
                     if (lastTrackedItemContainer.getLastItemView() != null) {
-                        logic.getData().putAll(RecommendationLogic.alsoBought(lastTrackedItemContainer.getLastItemView()).getData());
+                        data.putAll(RecommendationLogic.alsoBought(lastTrackedItemContainer.getLastItemView()).getData().getLogicData());
                     }
                     break;
             }
         }
-        for (String key : logic.getData().keySet()) {
-            uriBuilder.appendQueryParameter(key, logic.getData().get(key));
+        for (String key : data.keySet()) {
+            uriBuilder.appendQueryParameter(key, data.get(key));
+        }
+
+        return uriBuilder.build().toString();
+    }
+
+    private String createPersonalRecommendationUrl(Logic logic) {
+        LogicData logicData = logic.getData();
+
+        if (logicData.getExtensions().isEmpty()) {
+            uriBuilder.appendQueryParameter("f", "f:" + logic.getLogicName() + ",l:" + limit + ",o:0");
+        } else {
+            List<String> params = new ArrayList<>();
+            for (String extension : logicData.getExtensions()) {
+                params.add("f:" + logic.getLogicName() + "_" + extension + ",l:" + limit + ",o:0");
+            }
+            uriBuilder.appendQueryParameter("f", TextUtils.join("|", params));
         }
         return uriBuilder.build().toString();
     }
@@ -142,7 +177,7 @@ public class PredictRequestModelBuilder {
 
     private String createRecommendationFilterQueryValues() {
         List recommendationFilterQueryValues = new ArrayList<>();
-        for (RecommendationFilter filter: this.filters) {
+        for (RecommendationFilter filter : this.filters) {
             Map<String, Object> recommendationFilterQueryValue = new LinkedHashMap<>();
             recommendationFilterQueryValue.put("f", filter.getField());
             recommendationFilterQueryValue.put("r", filter.getComparison());

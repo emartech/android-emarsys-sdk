@@ -1,5 +1,5 @@
 dependencies {
-    implementation Libs.support_annotations
     implementation project(':core')
+    api project(':core-api')
     androidTestImplementation project(':testUtils')
 }
