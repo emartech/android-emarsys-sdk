@@ -495,7 +495,7 @@ public class MessagingServiceUtilsTest {
                 deviceInfo,
                 metaDataReader);
 
-        assertEquals("DEBUG - channel_id mismatch", result.extras.getString(NotificationCompat.EXTRA_TEXT));
+        assertEquals("DEBUG - channel_id mismatch: channelId not found!", result.extras.getString(NotificationCompat.EXTRA_TEXT));
     }
 
     @Test

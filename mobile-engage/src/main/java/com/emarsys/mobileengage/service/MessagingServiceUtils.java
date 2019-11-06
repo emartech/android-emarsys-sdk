@@ -94,9 +94,9 @@ public class MessagingServiceUtils {
             NotificationChannel notificationChannel = new NotificationChannel("ems_debug", "Emarsys SDK Debug Messages", NotificationManager.IMPORTANCE_HIGH);
             notificationManager.createNotificationChannel(notificationChannel);
 
+            body = "DEBUG - channel_id mismatch: " + channelId + " not found!";
             channelId = "ems_debug";
             title = "Emarsys SDK";
-            body = "DEBUG - channel_id mismatch";
         }
 
         List<Action> actions = NotificationActionUtils.createActions(context, remoteMessageData, notificationId);
