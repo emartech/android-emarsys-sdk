@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 
 import com.emarsys.core.util.Assert;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,19 +22,31 @@ public class RecommendationLogic implements Logic {
     public static final String PERSONAL = "PERSONAL";
 
     private String logicName;
-    private LogicData data;
+    private Map<String, String> data;
+    private List<String> variants;
 
-    RecommendationLogic(String logicName, LogicData logicData) {
+
+
+    RecommendationLogic(String logicName, Map<String, String> logicData, List<String> variants) {
         Assert.notNull(logicName, "LogicName must not be null!");
         Assert.notNull(logicData, "LogicData must not be null!");
+        Assert.notNull(variants, "Variants must not be null!");
 
         this.logicName = logicName;
         this.data = logicData;
+        this.variants = variants;
+    }
+
+    RecommendationLogic(String logicName, Map<String, String> logicData) {
+        this(logicName, logicData, new ArrayList<String>());
+    }
+
+    RecommendationLogic(String logicName) {
+        this(logicName, new HashMap<String, String>(), new ArrayList<String>());
     }
 
     public static Logic search() {
-        Map<String, String> data = new HashMap<>();
-        return new RecommendationLogic(SEARCH, new LogicData(data));
+        return new RecommendationLogic(SEARCH);
     }
 
     public static Logic search(@NonNull String searchTerm) {
@@ -42,12 +54,11 @@ public class RecommendationLogic implements Logic {
 
         Map<String, String> data = new HashMap<>();
         data.put("q", searchTerm);
-        return new RecommendationLogic(SEARCH, new LogicData(data));
+        return new RecommendationLogic(SEARCH, data);
     }
 
     public static Logic cart() {
-        Map<String, String> data = new HashMap<>();
-        return new RecommendationLogic(CART, new LogicData(data));
+        return new RecommendationLogic(CART);
     }
 
     public static Logic cart(@NonNull List<CartItem> cartItems) {
@@ -56,65 +67,62 @@ public class RecommendationLogic implements Logic {
         Map<String, String> data = new HashMap<>();
         data.put("cv", "1");
         data.put("ca", cartItemsToQueryParam(cartItems));
-        return new RecommendationLogic(CART, new LogicData(data));
+        return new RecommendationLogic(CART, data);
     }
 
     public static Logic related() {
-        Map<String, String> data = new HashMap<>();
-        return new RecommendationLogic(RELATED, new LogicData(data));
+        return new RecommendationLogic(RELATED);
     }
 
     public static Logic related(@NonNull String itemId) {
         Assert.notNull(itemId, "ItemId must not be null!");
         Map<String, String> data = new HashMap<>();
         data.put("v", String.format("i:%s", itemId));
-        return new RecommendationLogic(RELATED, new LogicData(data));
+        return new RecommendationLogic(RELATED, data);
     }
 
     public static Logic category() {
-        Map<String, String> data = new HashMap<>();
-        return new RecommendationLogic(CATEGORY, new LogicData(data));
+        return new RecommendationLogic(CATEGORY);
     }
 
     public static Logic category(@NonNull String categoryPath) {
         Assert.notNull(categoryPath, "CategoryPath must not be null!");
         Map<String, String> data = new HashMap<>();
         data.put("vc", categoryPath);
-        return new RecommendationLogic(CATEGORY, new LogicData(data));
+        return new RecommendationLogic(CATEGORY, data);
     }
 
     public static Logic alsoBought() {
-        Map<String, String> data = new HashMap<>();
-        return new RecommendationLogic(ALSO_BOUGHT, new LogicData(data));
+        return new RecommendationLogic(ALSO_BOUGHT);
     }
 
     public static Logic alsoBought(@NonNull String itemId) {
         Assert.notNull(itemId, "ItemId must not be null!");
         Map<String, String> data = new HashMap<>();
         data.put("v", String.format("i:%s", itemId));
-        return new RecommendationLogic(ALSO_BOUGHT, new LogicData(data));
+        return new RecommendationLogic(ALSO_BOUGHT, data);
     }
 
     public static Logic popular() {
-        Map<String, String> data = new HashMap<>();
-        return new RecommendationLogic(POPULAR, new LogicData(data));
+        return new RecommendationLogic(POPULAR);
     }
 
     public static Logic popular(@NonNull String categoryPath) {
         Assert.notNull(categoryPath, "CategoryPath must not be null!");
         Map<String, String> data = new HashMap<>();
         data.put("vc", categoryPath);
-        return new RecommendationLogic(POPULAR, new LogicData(data));
+        return new RecommendationLogic(POPULAR, data);
     }
 
     public static Logic personal() {
-        return personal(null);
+        return personal(new ArrayList<String>());
     }
 
-    public static Logic personal(@Nullable List<String> extensions) {
+    public static Logic personal(@Nullable List<String> variants) {
+        Assert.notNull(variants, "Variants must not be null!");
         Map<String, String> data = new HashMap<>();
 
-        return new RecommendationLogic(PERSONAL, new LogicData(data, extensions != null ? extensions : Collections.<String>emptyList()));
+        return new RecommendationLogic(PERSONAL, data, variants);
     }
 
     @Override
@@ -123,7 +131,12 @@ public class RecommendationLogic implements Logic {
     }
 
     @Override
-    public LogicData getData() {
+    public List<String> getVariants() {
+        return variants;
+    }
+
+    @Override
+    public Map<String, String> getData() {
         return data;
     }
 
@@ -133,18 +146,20 @@ public class RecommendationLogic implements Logic {
         if (o == null || getClass() != o.getClass()) return false;
         RecommendationLogic that = (RecommendationLogic) o;
         return Objects.equals(logicName, that.logicName) &&
-                Objects.equals(data, that.data);
+                Objects.equals(data, that.data) &&
+                Objects.equals(variants, that.variants);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(logicName, data);
+        return Objects.hash(logicName, data, variants);
     }
 
     @Override
     public String toString() {
         return "RecommendationLogic{" +
                 "logicName='" + logicName + '\'' +
+                "variants='" + variants + '\'' +
                 ", data=" + data +
                 '}';
     }

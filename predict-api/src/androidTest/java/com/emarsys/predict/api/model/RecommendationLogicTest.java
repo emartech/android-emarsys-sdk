@@ -20,17 +20,37 @@ public class RecommendationLogicTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_logicName_mustNotBeNull() {
-        new RecommendationLogic(null, new LogicData(new HashMap<String, String>()));
+        new RecommendationLogic(null, new HashMap<String, String>(), new ArrayList<String>());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_logicData_mustNotBeNull() {
-        new RecommendationLogic(RecommendationLogic.SEARCH, null);
+        new RecommendationLogic(RecommendationLogic.SEARCH, null, new ArrayList<String>());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_variants_mustNotBeNull() {
+        new RecommendationLogic(RecommendationLogic.SEARCH, new HashMap<String, String>(), null);
+    }
+
+    @Test
+    public void testConstructor_variants_mustBeEmptyList_withoutVariantsParam() {
+        RecommendationLogic logic = new RecommendationLogic(RecommendationLogic.SEARCH, new HashMap<String, String>());
+
+        assertEquals(logic.getVariants(), new ArrayList<String>());
+    }
+
+    @Test
+    public void testConstructor_variants_mustBeEmptyList_withoutVariantsParam_data_mustBeEmptyMap_withoutDataParam() {
+        RecommendationLogic logic = new RecommendationLogic(RecommendationLogic.SEARCH);
+
+        assertEquals(logic.getVariants(), new ArrayList<String>());
+        assertEquals(logic.getData(), new HashMap<String, String>());
     }
 
     @Test
     public void testSearch_shouldFillFields() {
-        LogicData expected = new LogicData(new HashMap<String, String>());
+        Map<String, String> expected = new HashMap<>();
 
         Logic result = RecommendationLogic.search();
 
@@ -47,16 +67,15 @@ public class RecommendationLogicTest {
     public void testSearch_shouldFillFields_ifDataIsProvided() {
         Map<String, String> data = new HashMap<>();
         data.put("q", "searchTerm");
-        LogicData expected = new LogicData(data);
 
         Logic result = RecommendationLogic.search("searchTerm");
-        assertEquals(expected, result.getData());
+        assertEquals(data, result.getData());
         assertEquals("SEARCH", result.getLogicName());
     }
 
     @Test
     public void testCart_shouldFillFields() {
-        LogicData expected = new LogicData(new HashMap<String, String>());
+        Map<String, String> expected = new HashMap<>();
 
         Logic result = RecommendationLogic.cart();
 
@@ -74,7 +93,6 @@ public class RecommendationLogicTest {
         Map<String, String> data = new HashMap<>();
         data.put("cv", "1");
         data.put("ca", "i:itemId1,p:200.0,q:100.0|i:itemId2,p:201.0,q:101.0");
-        LogicData expected = new LogicData(data);
 
 
         List<CartItem> cartItems = new ArrayList<>();
@@ -83,13 +101,13 @@ public class RecommendationLogicTest {
 
         Logic result = RecommendationLogic.cart(cartItems);
 
-        assertEquals(expected, result.getData());
+        assertEquals(data, result.getData());
         assertEquals("CART", result.getLogicName());
     }
 
     @Test
     public void testRelated_shouldFillFields() {
-       LogicData expected = new LogicData(new HashMap<String, String>());
+        Map<String, String> expected = new HashMap<>();
 
         Logic result = RecommendationLogic.related();
 
@@ -106,17 +124,15 @@ public class RecommendationLogicTest {
     public void testRelated_shouldFillFields_ifDataIsProvided() {
         Map<String, String> data = new HashMap<>();
         data.put("v", "i:itemId");
-        LogicData expected = new LogicData(data);
-
 
         Logic result = RecommendationLogic.related("itemId");
-        assertEquals(expected, result.getData());
+        assertEquals(data, result.getData());
         assertEquals("RELATED", result.getLogicName());
     }
 
     @Test
     public void testCategory_shouldFillFields() {
-        LogicData expected = new LogicData(new HashMap<String, String>());
+        Map<String, String> expected = new HashMap<>();
 
         Logic result = RecommendationLogic.category();
 
@@ -133,17 +149,16 @@ public class RecommendationLogicTest {
     public void testCategory_shouldFillFields_ifDataIsProvided() {
         Map<String, String> data = new HashMap<>();
         data.put("vc", "testCategoryPath");
-        LogicData expected = new LogicData(data);
 
         Logic result = RecommendationLogic.category("testCategoryPath");
 
-        assertEquals(expected, result.getData());
+        assertEquals(data, result.getData());
         assertEquals("CATEGORY", result.getLogicName());
     }
 
     @Test
     public void testAlsoBought_shouldFillFields() {
-        LogicData expected = new LogicData(new HashMap<String, String>());
+        Map<String, String> expected = new HashMap<>();
 
         Logic result = RecommendationLogic.alsoBought();
 
@@ -160,17 +175,16 @@ public class RecommendationLogicTest {
     public void testAlsoBought_shouldFillFields_ifDataIsProvided() {
         Map<String, String> data = new HashMap<>();
         data.put("v", "i:itemId");
-        LogicData expected = new LogicData(data);
 
         Logic result = RecommendationLogic.alsoBought("itemId");
 
-        assertEquals(expected, result.getData());
+        assertEquals(data, result.getData());
         assertEquals("ALSO_BOUGHT", result.getLogicName());
     }
 
     @Test
     public void testPopular_shouldFillFields() {
-        LogicData expected = new LogicData(new HashMap<String, String>());
+        Map<String, String> expected = new HashMap<>();
 
         Logic result = RecommendationLogic.popular();
 
@@ -187,19 +201,18 @@ public class RecommendationLogicTest {
     public void testPopular_shouldFillFields_ifDataIsProvided() {
         Map<String, String> data = new HashMap<>();
         data.put("vc", "testCategoryPath");
-        LogicData expected = new LogicData(data);
 
 
         Logic result = RecommendationLogic.popular("testCategoryPath");
 
-        assertEquals(expected, result.getData());
+        assertEquals(data, result.getData());
         assertEquals("POPULAR", result.getLogicName());
     }
 
 
     @Test
     public void testPersonal_shouldFillFields() {
-        LogicData expected = new LogicData(new HashMap<String, String>());
+        Map<String, String> expected = new HashMap<>();
 
         Logic result = RecommendationLogic.personal();
 
@@ -207,17 +220,24 @@ public class RecommendationLogicTest {
         assertEquals("PERSONAL", result.getLogicName());
     }
 
-
     @Test
-    public void testPersonal_shouldFillFields_withExtensions() {
-        List<String> extensions = new ArrayList<>();
-        extensions.add("1");
-        extensions.add("2");
-        extensions.add("3");
-        LogicData expected = new LogicData(new HashMap<String, String>(), extensions);
+    public void testPersonal_shouldFillFields_withVariants() {
+        Map<String, String> expectedData = new HashMap<>();
 
-        Logic result = RecommendationLogic.personal(extensions);
+        List<String> expectedVariants = new ArrayList<>();
+        expectedVariants.add("1");
+        expectedVariants.add("2");
+        expectedVariants.add("3");
 
-        assertEquals(expected, result.getData());
+        Logic result = RecommendationLogic.personal(expectedVariants);
+
+        assertEquals(expectedData, result.getData());
+        assertEquals(expectedVariants, result.getVariants());
+        assertEquals("PERSONAL", result.getLogicName());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPersonal_variants_mustNotBeNull() {
+        RecommendationLogic.personal(null);
     }
 }

@@ -88,21 +88,6 @@ class PredictRequestModelBuilderTest {
         requestModelBuilder = PredictRequestModelBuilder(mockRequestContext, mockHeaderFactory)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestContext_mustNotBeNull() {
-        PredictRequestModelBuilder(null, mockHeaderFactory)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_headerFactory_mustNotBeNull() {
-        PredictRequestModelBuilder(mockRequestContext, null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testWithShardData_shardData_mustNotBeNull() {
-        requestModelBuilder.withShardData(null)
-    }
-
     @Test
     fun testBuild_withShardData() {
         val expectedRequestModel = requestModel("https://recommender.scarabresearch.com/merchants/merchantId?cp=1&vi=888999888&ci=12345&q3=c")
@@ -122,16 +107,6 @@ class PredictRequestModelBuilderTest {
         result.id shouldBe expectedRequestModel.id
         result.ttl shouldBe expectedRequestModel.ttl
         RequestModelUtils.extractQueryParameters(result) shouldBe RequestModelUtils.extractQueryParameters(expectedRequestModel)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testWithLogic_logic_mustNotBeNull() {
-        requestModelBuilder.withLogic(null, lastTrackedItemContainer)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testWithLogic_lastTrackedItemContainer_mustNotBeNull() {
-        requestModelBuilder.withLogic(RecommendationLogic.search(), null)
     }
 
     @Test(expected = IllegalArgumentException::class)

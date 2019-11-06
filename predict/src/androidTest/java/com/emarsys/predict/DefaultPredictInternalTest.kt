@@ -1,6 +1,7 @@
 package com.emarsys.predict
 
 import android.os.Handler
+import android.webkit.CookieSyncManager.createInstance
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
 import com.emarsys.core.api.result.CompletionListener
@@ -26,6 +27,7 @@ import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.Assert
@@ -106,10 +108,11 @@ class DefaultPredictInternalTest {
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
             whenever(uuidProvider).thenReturn(mockUuidProvider)
         }
+
         mockRequestModelBuilder = mock(PredictRequestModelBuilder::class.java).apply {
-            whenever(withLogic(any(Logic::class.java), any(LastTrackedItemContainer::class.java))).thenReturn(this)
+            whenever(withLogic(anyNotNull(), anyNotNull())).thenReturn(this)
             whenever(withLimit(any())).thenReturn(this)
-            whenever(withShardData(any())).thenReturn(this)
+            whenever(withShardData(anyMap())).thenReturn(this)
             whenever(withFilters(any())).thenReturn(this)
             whenever(build()).thenReturn(mockRequestModel)
         }

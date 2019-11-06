@@ -66,7 +66,7 @@ class PredictShardListMergerTest {
 
         mockPredictRequestModelBuilder = mock(PredictRequestModelBuilder::class.java).apply {
             whenever(withLimit(any())).thenReturn(this)
-            whenever(withShardData(any())).thenReturn(this)
+            whenever(withShardData(anyMap())).thenReturn(this)
         }
 
         mockPredictRequestModelBuilderProvider = mock(PredictRequestModelBuilderProvider::class.java).apply {
@@ -207,7 +207,7 @@ class PredictShardListMergerTest {
 
         val result = merger.map(listOf(shard1))
 
-        verify(mockPredictRequestModelBuilder).withShardData(any())
+        verify(mockPredictRequestModelBuilder).withShardData(anyMap())
         verify(mockPredictRequestModelBuilder).build()
         result shouldBe expected
     }
