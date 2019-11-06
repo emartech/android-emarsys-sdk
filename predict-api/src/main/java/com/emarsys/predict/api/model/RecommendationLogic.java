@@ -20,6 +20,7 @@ public class RecommendationLogic implements Logic {
     public static final String ALSO_BOUGHT = "ALSO_BOUGHT";
     public static final String POPULAR = "POPULAR";
     public static final String PERSONAL = "PERSONAL";
+    public static final String HOME = "HOME";
 
     private String logicName;
     private Map<String, String> data;
@@ -123,6 +124,17 @@ public class RecommendationLogic implements Logic {
         Map<String, String> data = new HashMap<>();
 
         return new RecommendationLogic(PERSONAL, data, variants);
+    }
+
+    public static Logic home() {
+        return home(new ArrayList<String>());
+    }
+
+    public static Logic home(@Nullable List<String> variants) {
+        Assert.notNull(variants, "Variants must not be null!");
+        Map<String, String> data = new HashMap<>();
+
+        return new RecommendationLogic(HOME, data, variants);
     }
 
     @Override

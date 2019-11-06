@@ -69,7 +69,8 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
             limit = DEFAULT_LIMIT
         }
 
-        val url: String = if (RecommendationLogic.PERSONAL == logic.logicName) {
+        val url: String = if (RecommendationLogic.PERSONAL == logic.logicName
+                || RecommendationLogic.HOME == logic.logicName) {
             createUrlWithVariants(logic)
         } else {
             createUrlWithData(logic)

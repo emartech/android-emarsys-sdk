@@ -240,4 +240,35 @@ public class RecommendationLogicTest {
     public void testPersonal_variants_mustNotBeNull() {
         RecommendationLogic.personal(null);
     }
+
+    @Test
+    public void testHome_shouldFillFields() {
+        Map<String, String> expected = new HashMap<>();
+
+        Logic result = RecommendationLogic.home();
+
+        assertEquals(expected, result.getData());
+        assertEquals("HOME", result.getLogicName());
+    }
+
+    @Test
+    public void testHome_shouldFillFields_withVariants() {
+        Map<String, String> expectedData = new HashMap<>();
+
+        List<String> expectedVariants = new ArrayList<>();
+        expectedVariants.add("1");
+        expectedVariants.add("2");
+        expectedVariants.add("3");
+
+        Logic result = RecommendationLogic.home(expectedVariants);
+
+        assertEquals(expectedData, result.getData());
+        assertEquals(expectedVariants, result.getVariants());
+        assertEquals("HOME", result.getLogicName());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testHome_variants_mustNotBeNull() {
+        RecommendationLogic.home(null);
+    }
 }
