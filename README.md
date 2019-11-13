@@ -2,8 +2,9 @@
 
 - [What is the Emarsys SDK?](#what-is-the-emarsys-sdk "Emarsys SDK")
 - [1. Setup](#1-setup)
-    - [1.1 Installation with Gradle](#11-installation-with-gradle "Gradle")
-    - [1.2 Add Gradle dependency](#12-add-gradle-dependency "Add as dependency")
+    - [1.1 Sample App](#11-sample-app "Sample App")
+    - [1.2 Installation with Gradle](#12-installation-with-gradle "Gradle")
+    - [1.3 Add Gradle dependency](#13-add-gradle-dependency "Add as dependency")
 - [2. Requirements](#2-requirements "Requirements")
     - [2.1 Using AndroidX](#21-using-androidx "AndroidX")
     - [2.2 Firebase](#22-firebase "Firebase")
@@ -28,12 +29,18 @@ be up-to-date with what we are working on.
 Using the SDK is also beneficial from the product aspect: it simply makes it much easier to send push messages through your app. Please always use the latest version of the SDK in your app.
 
 ## 1. Setup
-### 1.1 Installation with Gradle
+
+### 1.1 Sample app
+
+We created a sample application to help in the integration and give an example. Find instructions for the build process [here](https://github.com/emartech/android-emarsys-sdk/blob/master/sample).
+
+
+### 1.2 Installation with Gradle
 
 Gradle is a build system for Android, which automates and simplifies the process of using 3rd-party libraries.
 
 
-### 1.2 Add Gradle dependency
+### 1.3 Add Gradle dependency
 
 To integrate EmarsysSDK into your Android project using Gradle, specify it in your application's build.gradle file:
 
