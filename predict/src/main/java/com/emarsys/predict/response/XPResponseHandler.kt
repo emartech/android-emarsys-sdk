@@ -6,7 +6,7 @@ import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.predict.DefaultPredictInternal
 import com.emarsys.predict.endpoint.Endpoint
 
-class XPResponseHandler constructor(private val keyValueStore: KeyValueStore) : AbstractResponseHandler() {
+class XPResponseHandler(private val keyValueStore: KeyValueStore) : AbstractResponseHandler() {
 
     companion object {
         private const val XP = "xp"

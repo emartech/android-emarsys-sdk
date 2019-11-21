@@ -6,6 +6,7 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.util.JsonUtils
+import com.emarsys.predict.DefaultPredictInternal
 import com.emarsys.predict.api.model.Logic
 import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.api.model.RecommendationLogic
@@ -67,6 +68,19 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
     private fun createRecommendationUrl(logic: Logic): String {
         if (limit == null) {
             limit = DEFAULT_LIMIT
+        }
+        val keyValueStore = requestContext.keyValueStore
+
+        val visitorId = keyValueStore.getString(DefaultPredictInternal.VISITOR_ID_KEY)
+
+        if (visitorId != null) {
+            uriBuilder.appendQueryParameter("vi", visitorId)
+        }
+
+        val contactId = keyValueStore.getString(DefaultPredictInternal.CONTACT_ID_KEY)
+
+        if (contactId != null) {
+            uriBuilder.appendQueryParameter("ci", contactId)
         }
 
         val url: String = if (RecommendationLogic.PERSONAL == logic.logicName
