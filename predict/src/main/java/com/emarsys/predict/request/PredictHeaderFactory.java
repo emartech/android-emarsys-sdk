@@ -19,8 +19,17 @@ public class PredictHeaderFactory {
         Map<String, String> result = new HashMap<>();
         result.put("User-Agent", "EmarsysSDK|osversion:" + requestContext.getDeviceInfo().getOsVersion() + "|platform:" + requestContext.getDeviceInfo().getPlatform());
         String xp = requestContext.getKeyValueStore().getString(DefaultPredictInternal.XP_KEY);
+        String visitorId = requestContext.getKeyValueStore().getString(DefaultPredictInternal.VISITOR_ID_KEY);
+        StringBuilder cookies = new StringBuilder();
+
         if (xp != null) {
-            result.put("Cookie", "xp=" + xp);
+            cookies.append("xp=").append(xp).append(";");
+        }
+        if (visitorId != null) {
+            cookies.append("cdv=").append(visitorId);
+        }
+        if (xp != null || visitorId != null) {
+            result.put("Cookie", cookies.toString());
         }
         return result;
     }

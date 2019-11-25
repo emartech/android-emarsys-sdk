@@ -57,10 +57,42 @@ class PredictHeaderFactoryTest {
     }
 
     @Test
-    fun testCreateBaseHeader_shouldPutCookiesInHeader_whenXpIsNotNull() {
+    fun testCreateBaseHeader_shouldPutXpInCookiesInHeader_whenXpIsNotNull() {
         whenever(mockKeyValueStore.getString("xp")).thenReturn("testXpCookie")
         val expected = mapOf("User-Agent" to "EmarsysSDK|osversion:$OS_VERSION|platform:$PLATFORM",
-                "Cookie" to "xp=testXpCookie")
+                "Cookie" to "xp=testXpCookie;")
+
+        val result = headerFactory.createBaseHeader()
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateBaseHeader_shouldPutVisitorIdInCookiesInHeader_whenVisitorIdIsNotNull() {
+        whenever(mockKeyValueStore.getString("predict_visitor_id")).thenReturn("testVisitorId")
+        val expected = mapOf("User-Agent" to "EmarsysSDK|osversion:$OS_VERSION|platform:$PLATFORM",
+                "Cookie" to "cdv=testVisitorId")
+
+        val result = headerFactory.createBaseHeader()
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateBaseHeader_shouldPutVisitorIdAndXpInCookiesInHeader_whenBothAvailable() {
+        whenever(mockKeyValueStore.getString("xp")).thenReturn("testXpCookie")
+        whenever(mockKeyValueStore.getString("predict_visitor_id")).thenReturn("testVisitorId")
+        val expected = mapOf("User-Agent" to "EmarsysSDK|osversion:$OS_VERSION|platform:$PLATFORM",
+                "Cookie" to "xp=testXpCookie;cdv=testVisitorId")
+
+        val result = headerFactory.createBaseHeader()
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateBaseHeader_shouldNotIncludeCookie_whenNeitherIsAvailable() {
+        val expected = mapOf("User-Agent" to "EmarsysSDK|osversion:$OS_VERSION|platform:$PLATFORM")
 
         val result = headerFactory.createBaseHeader()
 
