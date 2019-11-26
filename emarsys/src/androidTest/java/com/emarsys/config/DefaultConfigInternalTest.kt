@@ -1,9 +1,12 @@
 package com.emarsys.config
 
+import com.emarsys.EmarsysRequestModelFactory
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.notification.NotificationManagerHelper
+import com.emarsys.core.request.RequestManager
+import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.feature.InnerFeature
 import com.emarsys.mobileengage.MobileEngageInternal
@@ -14,6 +17,7 @@ import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.After
@@ -46,6 +50,8 @@ class DefaultConfigInternalTest {
     private lateinit var mockContactFieldValueStorage: Storage<String>
     private lateinit var mockDeviceInfo: DeviceInfo
     private lateinit var latch: CountDownLatch
+    private lateinit var mockRequestManager: RequestManager
+    private lateinit var mockEmarsysRequestModelFactory: EmarsysRequestModelFactory
 
     @Rule
     @JvmField
@@ -90,11 +96,15 @@ class DefaultConfigInternalTest {
             }
         }
 
+        mockEmarsysRequestModelFactory = mock(EmarsysRequestModelFactory::class.java)
+
+        mockRequestManager = mock(RequestManager::class.java)
+
         mockPredictInternal = mock(PredictInternal::class.java)
 
         mockDeviceInfo = mock(DeviceInfo::class.java)
 
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext,mockDeviceInfo )
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext, mockDeviceInfo, mockRequestManager, mockEmarsysRequestModelFactory)
     }
 
     @After
@@ -173,7 +183,7 @@ class DefaultConfigInternalTest {
         whenever(mockMobileEngageInternal.clearContact(any())).thenAnswer { invocation ->
             (invocation.getArgument(0) as CompletionListener).onCompleted(Throwable())
         }
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext, mockDeviceInfo)
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext, mockDeviceInfo, mockRequestManager, mockEmarsysRequestModelFactory)
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {
             latch.countDown()
@@ -200,7 +210,7 @@ class DefaultConfigInternalTest {
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
         }
 
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext, mockDeviceInfo)
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext, mockDeviceInfo, mockRequestManager, mockEmarsysRequestModelFactory)
 
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener {
             latch.countDown()
@@ -226,7 +236,7 @@ class DefaultConfigInternalTest {
                 (invocation.getArgument(1) as CompletionListener).onCompleted(Throwable())
             }
         }
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext, mockDeviceInfo)
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext, mockDeviceInfo, mockRequestManager, mockEmarsysRequestModelFactory)
 
         val completionListener = CompletionListener {
             latch.countDown()
@@ -254,7 +264,7 @@ class DefaultConfigInternalTest {
                 (invocation.getArgument(0) as CompletionListener).onCompleted(null)
             }
         }
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext, mockDeviceInfo)
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext, mockMobileEngageInternal, mockPushInternal, mockPushTokenProvider, mockPredictRequestContext, mockDeviceInfo, mockRequestManager, mockEmarsysRequestModelFactory)
 
         val completionListener = CompletionListener {
             latch.countDown()
@@ -386,5 +396,15 @@ class DefaultConfigInternalTest {
         val result = configInternal.notificationSettings
 
         result shouldBe notificationSettings
+    }
+
+    @Test
+    fun testFetchRemoteConfig_shouldCallRequestManager_withCorrectRequestModel() {
+        val requestModel = mock(RequestModel::class.java)
+        whenever(mockEmarsysRequestModelFactory.createRemoteConfigRequest()).thenReturn(requestModel)
+
+        configInternal.fetchRemoteConfig()
+
+        verify(mockRequestManager).submitNow(eq(requestModel), anyNotNull())
     }
 }

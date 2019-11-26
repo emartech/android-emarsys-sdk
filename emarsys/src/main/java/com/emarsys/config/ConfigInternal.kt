@@ -21,4 +21,6 @@ interface ConfigInternal {
 
     fun changeMerchantId(merchantId: String?)
 
+    fun fetchRemoteConfig()
+
 }

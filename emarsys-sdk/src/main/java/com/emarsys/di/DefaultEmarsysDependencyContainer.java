@@ -10,11 +10,13 @@ import android.os.Looper;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.emarsys.Emarsys;
+import com.emarsys.EmarsysRequestModelFactory;
 import com.emarsys.config.ConfigApi;
 import com.emarsys.config.ConfigInternal;
 import com.emarsys.config.ConfigProxy;
 import com.emarsys.config.DefaultConfigInternal;
 import com.emarsys.config.EmarsysConfig;
+import com.emarsys.config.FetchRemoteConfigAction;
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.Mapper;
 import com.emarsys.core.RunnerProxy;
@@ -205,6 +207,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private ConfigApi configApi;
     private PredictRequestContext predictRequestContext;
     private PushTokenProvider pushTokenProvider;
+    private EmarsysRequestModelFactory emarsysRequestModelFactory;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeFeatures(emarsysConfig);
@@ -491,6 +494,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         requestModelFactory = new MobileEngageRequestModelFactory(requestContext);
 
+        emarsysRequestModelFactory = new EmarsysRequestModelFactory(requestContext);
+
         contactTokenResponseHandler = new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage);
 
         notificationCache = new NotificationCache();
@@ -586,7 +591,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         loggingInAppInternal = new LoggingInAppInternal(Emarsys.InApp.class);
         loggingInboxInternal = inboxInternalProvider.provideLoggingInboxInternal(Emarsys.Inbox.class);
 
-        configInternal = new DefaultConfigInternal(requestContext, mobileEngageInternal, pushInternal, getPushTokenProvider(), predictRequestContext, getDeviceInfo());
+        configInternal = new DefaultConfigInternal(requestContext, mobileEngageInternal, pushInternal, getPushTokenProvider(), predictRequestContext, getDeviceInfo(), requestManager, emarsysRequestModelFactory);
 
         inboxApi = new InboxProxy(runnerProxy, getInboxInternal());
         loggingInboxApi = new InboxProxy(runnerProxy, getLoggingInboxInternal());
@@ -621,7 +626,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private void initializeActivityLifecycleWatchdog() {
         ActivityLifecycleAction[] applicationStartActions = new ActivityLifecycleAction[]{
                 new DeviceInfoStartAction(getClientServiceInternal(), deviceInfoHashStorage, getDeviceInfo()),
-                new InAppStartAction(eventServiceInternal, contactTokenStorage)
+                new InAppStartAction(eventServiceInternal, contactTokenStorage),
+                new FetchRemoteConfigAction(configInternal)
         };
 
         ActivityLifecycleAction[] activityCreatedActions = new ActivityLifecycleAction[]{
