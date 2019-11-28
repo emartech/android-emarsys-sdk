@@ -11,6 +11,7 @@ import com.emarsys.core.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class NotificationManagerProxy {
     private NotificationManager notificationManager;
@@ -45,5 +46,20 @@ public class NotificationManagerProxy {
                     notificationChannel.shouldShowLights()));
         }
         return channelSettings;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NotificationManagerProxy that = (NotificationManagerProxy) o;
+        return Objects.equals(notificationManager, that.notificationManager) &&
+                Objects.equals(notificationManagerCompat, that.notificationManagerCompat) &&
+                Objects.equals(areNotificationsEnabled(), that.areNotificationsEnabled());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(notificationManager, notificationManagerCompat, areNotificationsEnabled());
     }
 }

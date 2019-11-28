@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi;
 import com.emarsys.core.util.Assert;
 
 import java.util.List;
+import java.util.Objects;
 
 public class NotificationManagerHelper implements NotificationSettings {
 
@@ -32,5 +33,18 @@ public class NotificationManagerHelper implements NotificationSettings {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public List<ChannelSettings> getChannelSettings() {
         return notificationManagerProxy.getNotificationChannels();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NotificationManagerHelper that = (NotificationManagerHelper) o;
+        return Objects.equals(notificationManagerProxy, that.notificationManagerProxy);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(notificationManagerProxy);
     }
 }
