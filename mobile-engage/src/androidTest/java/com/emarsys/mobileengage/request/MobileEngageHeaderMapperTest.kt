@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.request
 
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.CompositeRequestModel
@@ -8,10 +9,8 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
-import com.emarsys.mobileengage.util.RequestUrlUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -31,6 +30,8 @@ class MobileEngageHeaderMapperTest {
         const val REQUEST_ID = "request_id"
         const val HARDWARE_ID = "hwid"
         const val APPLICATION_CODE = "applicationCode"
+        const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
+        const val EVENT_HOST = "https://mobile-event.eservice.emarsys.net"
     }
 
     private lateinit var mobileEngageHeaderMapper: MobileEngageHeaderMapper
@@ -42,6 +43,8 @@ class MobileEngageHeaderMapperTest {
     private lateinit var mockContactTokenStorage: Storage<String>
     private lateinit var mockRefreshTokenStorage: Storage<String>
     private lateinit var mockDeviceInfo: DeviceInfo
+    private lateinit var mockClientServiceProvider: ServiceEndpointProvider
+    private lateinit var mockEventServiceProvider: ServiceEndpointProvider
 
     @Rule
     @JvmField
@@ -50,7 +53,12 @@ class MobileEngageHeaderMapperTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-
+        mockClientServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(CLIENT_HOST)
+        }
+        mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
+        }
         mockClientStateStorage = (mock(Storage::class.java) as Storage<String>).apply {
             whenever(get()).thenReturn(CLIENT_STATE)
         }
@@ -84,12 +92,23 @@ class MobileEngageHeaderMapperTest {
             whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
         }
 
-        mobileEngageHeaderMapper = MobileEngageHeaderMapper(mockRequestContext)
+        mobileEngageHeaderMapper = MobileEngageHeaderMapper(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider)
     }
+
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestContext_mustNotBeNull() {
-        MobileEngageHeaderMapper(null)
+        MobileEngageHeaderMapper(null, mockClientServiceProvider, mockEventServiceProvider)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_clientServiceProvider_mustNotBeNull() {
+        MobileEngageHeaderMapper(mockRequestContext, null, mockEventServiceProvider)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_eventServiceProvider_mustNotBeNull() {
+        MobileEngageHeaderMapper(mockRequestContext, mockClientServiceProvider, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -185,7 +204,7 @@ class MobileEngageHeaderMapperTest {
     }
 
     private fun createMobileEngageRequest(extraHeaders: Map<String, String> = mapOf()) = RequestModel(
-            Endpoint.ME_V3_CLIENT_BASE,
+            "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client",
             RequestMethod.POST,
             null,
             RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
@@ -196,7 +215,7 @@ class MobileEngageHeaderMapperTest {
 
 
     private fun createRefreshContactTokenRequest(extraHeaders: Map<String, String> = mapOf()) = RequestModel(
-            RequestUrlUtils.createRefreshContactTokenUrl(mockRequestContext),
+            "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact-token",
             RequestMethod.POST,
             RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext),
             RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
@@ -207,7 +226,7 @@ class MobileEngageHeaderMapperTest {
 
     private fun createCustomEventCompositeRequest(extraHeaders: Map<String, String> = mapOf()) = CompositeRequestModel(
             "0",
-            Endpoint.ME_V3_CLIENT_BASE,
+            "https://mobile-event.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
             RequestMethod.POST,
             null,
             RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,

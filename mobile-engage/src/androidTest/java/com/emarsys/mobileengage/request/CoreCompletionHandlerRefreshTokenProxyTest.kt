@@ -2,6 +2,7 @@ package com.emarsys.mobileengage.request
 
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
@@ -29,6 +30,8 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
     companion object {
         const val REQUEST_ID = "testRequestId"
+        const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
+        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
     }
 
     private lateinit var mockCoreCompletionHandler: CoreCompletionHandler
@@ -38,6 +41,8 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockRestClient: RestClient
     private lateinit var mockContactTokenStorage: Storage<String>
+    private lateinit var mockClientServiceProvider: ServiceEndpointProvider
+    private lateinit var mockEventServiceProvider: ServiceEndpointProvider
 
     @Before
     @Suppress("UNCHECKED_CAST")
@@ -51,27 +56,46 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
         mockRefreshTokenInternal = mock(RefreshTokenInternal::class.java)
         mockRestClient = mock(RestClient::class.java)
         mockContactTokenStorage = mock(Storage::class.java) as Storage<String>
-        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage)
+        mockClientServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(CLIENT_HOST)
+        }
+        mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
+        }
+
+        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage, mockClientServiceProvider, mockEventServiceProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_coreCompletionHandler_mustNotBeNull() {
-        CoreCompletionHandlerRefreshTokenProxy(null, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage)
+        CoreCompletionHandlerRefreshTokenProxy(null, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage, mockClientServiceProvider, mockEventServiceProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_refreshTokenInternal_mustNotBeNull() {
-        CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, null, mockRestClient, mockContactTokenStorage)
+        CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, null, mockRestClient, mockContactTokenStorage, mockClientServiceProvider, mockEventServiceProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_restClient_mustNotBeNull() {
-        CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, mockRefreshTokenInternal, null, mockContactTokenStorage)
+        CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, mockRefreshTokenInternal, null, mockContactTokenStorage, mockClientServiceProvider, mockEventServiceProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_contactTokenStorage_mustNotBeNull() {
-        CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, mockRefreshTokenInternal, mockRestClient, null)
+        CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, mockRefreshTokenInternal, mockRestClient, null, mockClientServiceProvider, mockEventServiceProvider)
+
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_clientServiceProvider_mustNotBeNull() {
+        CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage, null, mockEventServiceProvider)
+
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_eventServiceProvider_mustNotBeNull() {
+        CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage, mockClientServiceProvider, null)
     }
 
     @Test
@@ -136,7 +160,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
     @Test
     fun testOnError_shouldDelegateRequestModelsContactToken_whenStatusCodeIs401() {
-        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, FakeMobileEngageRefreshTokenInternal(true), mockRestClient, mockContactTokenStorage)
+        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, FakeMobileEngageRefreshTokenInternal(true), mockRestClient, mockContactTokenStorage, mockClientServiceProvider, mockEventServiceProvider)
         val requestModel = RequestModel("https://mobile-events.eservice.emarsys.net", RequestMethod.POST, emptyMap(), mapOf("X-Contact-Token" to "testContactToken", "X-Client-State" to "testClientState"), 12345, Long.MAX_VALUE, REQUEST_ID)
 
         whenever(mockResponseModel.statusCode).thenReturn(401)
@@ -153,7 +177,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
         whenever(mockRequestModel.url).thenReturn(URL("https://mobile-events.eservice.emarsys.net"))
         whenever(mockResponseModel.statusCode).thenReturn(401)
 
-        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, FakeMobileEngageRefreshTokenInternal(), mockRestClient, mockContactTokenStorage)
+        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, FakeMobileEngageRefreshTokenInternal(), mockRestClient, mockContactTokenStorage, mockClientServiceProvider, mockEventServiceProvider)
 
         proxy.onError(REQUEST_ID, mockResponseModel)
 
@@ -172,7 +196,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
         whenever(mockResponseModel.statusCode).thenReturn(401)
 
 
-        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, FakeMobileEngageRefreshTokenInternal(), mockRestClient, mockContactTokenStorage)
+        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, FakeMobileEngageRefreshTokenInternal(), mockRestClient, mockContactTokenStorage, mockClientServiceProvider, mockEventServiceProvider)
 
         proxy.onError("compositeRequestId", mockResponseModel)
 

@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.request;
 
 import com.emarsys.core.Mapper;
+import com.emarsys.core.endpoint.ServiceEndpointProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.Assert;
@@ -13,11 +14,17 @@ import java.util.Map;
 public class MobileEngageHeaderMapper implements Mapper<RequestModel, RequestModel> {
 
     private final MobileEngageRequestContext requestContext;
+    private final ServiceEndpointProvider clientServiceProvider;
+    private final ServiceEndpointProvider eventServiceProvider;
 
-    public MobileEngageHeaderMapper(MobileEngageRequestContext requestContext) {
+    public MobileEngageHeaderMapper(MobileEngageRequestContext requestContext, ServiceEndpointProvider clientServiceProvider, ServiceEndpointProvider eventServiceProvider) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
+        Assert.notNull(clientServiceProvider, "ClientServiceProvider must not be null!");
+        Assert.notNull(eventServiceProvider, "EventServiceProvider must not be null!");
 
         this.requestContext = requestContext;
+        this.clientServiceProvider = clientServiceProvider;
+        this.eventServiceProvider = eventServiceProvider;
     }
 
     @Override
@@ -27,7 +34,7 @@ public class MobileEngageHeaderMapper implements Mapper<RequestModel, RequestMod
         Map<String, String> headersToInject = getHeadersToInject(requestModel);
 
         RequestModel updatedRequestModel = requestModel;
-        if (RequestModelUtils.isMobileEngageV3Request(requestModel)) {
+        if (RequestModelUtils.isMobileEngageV3Request(requestModel, eventServiceProvider, clientServiceProvider)) {
 
             Map<String, String> updatedHeaders = new HashMap<>(requestModel.getHeaders());
             updatedHeaders.putAll(headersToInject);
@@ -53,7 +60,7 @@ public class MobileEngageHeaderMapper implements Mapper<RequestModel, RequestMod
             headersToInject.put("X-Client-State", clientState);
         }
         String contactToken = requestContext.getContactTokenStorage().get();
-        if (contactToken != null && !RequestModelUtils.isRefreshContactTokenRequest(requestModel)) {
+        if (contactToken != null && !RequestModelUtils.isRefreshContactTokenRequest(requestModel, clientServiceProvider)) {
             headersToInject.put("X-Contact-Token", contactToken);
         }
         headersToInject.put("X-Request-Order", String.valueOf(requestContext.getTimestampProvider().provideTimestamp()));

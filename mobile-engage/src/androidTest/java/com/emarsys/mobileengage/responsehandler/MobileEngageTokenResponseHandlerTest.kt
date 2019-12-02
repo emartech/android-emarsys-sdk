@@ -1,9 +1,9 @@
 package com.emarsys.mobileengage.responsehandler
 
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
-import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -16,12 +16,19 @@ import org.mockito.Mockito.verify
 import java.net.URL
 
 class MobileEngageTokenResponseHandlerTest {
+    private companion object {
+        const val CLIENT_HOST = "https://mobile-events.eservice.emarsys.net"
+        const val CLIENT_BASE = "$CLIENT_HOST/v3/apps/%s/client"
+        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
+    }
 
     private lateinit var token: String
     private lateinit var tokenKey: String
     private lateinit var tokenResponseHandler: MobileEngageTokenResponseHandler
     private lateinit var mockStorage: Storage<String>
     private lateinit var requestModelMock: RequestModel
+    private lateinit var mockClientServiceProvider: ServiceEndpointProvider
+    private lateinit var mockEventServiceProvider: ServiceEndpointProvider
 
     @Rule
     @JvmField
@@ -34,10 +41,17 @@ class MobileEngageTokenResponseHandlerTest {
         tokenKey = "refreshToken"
         mockStorage = mock(Storage::class.java) as Storage<String>
 
-        requestModelMock = mock(RequestModel::class.java).apply {
-            whenever(url).thenReturn(URL(Endpoint.ME_V3_CLIENT_BASE))
+        mockClientServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(CLIENT_HOST)
         }
-        tokenResponseHandler = MobileEngageTokenResponseHandler(tokenKey, mockStorage)
+        mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
+        }
+
+        requestModelMock = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL(CLIENT_BASE))
+        }
+        tokenResponseHandler = MobileEngageTokenResponseHandler(tokenKey, mockStorage, mockClientServiceProvider, mockEventServiceProvider)
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.emarsys.mobileengage.responsehandler;
 
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.endpoint.ServiceEndpointProvider;
 import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
@@ -19,14 +20,19 @@ public class InAppCleanUpResponseHandler extends AbstractResponseHandler {
 
     private final Repository<DisplayedIam, SqlSpecification> displayedIamRepository;
     private final Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
+    private final ServiceEndpointProvider eventServiceProvider;
 
     public InAppCleanUpResponseHandler(
             Repository<DisplayedIam, SqlSpecification> displayedIamRepository,
-            Repository<ButtonClicked, SqlSpecification> buttonClickedRepository) {
+            Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
+            ServiceEndpointProvider eventServiceProvider) {
         Assert.notNull(displayedIamRepository, "DisplayedIamRepository must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
+        Assert.notNull(eventServiceProvider, "EventServiceProvider must not be null!");
+
         this.displayedIamRepository = displayedIamRepository;
         this.buttonClickedRepository = buttonClickedRepository;
+        this.eventServiceProvider = eventServiceProvider;
     }
 
     @Override
@@ -42,7 +48,7 @@ public class InAppCleanUpResponseHandler extends AbstractResponseHandler {
     }
 
     private boolean isCustomEventResponseModel(ResponseModel responseModel) {
-        return RequestModelUtils.isCustomEvent_V3(responseModel.getRequestModel());
+        return RequestModelUtils.isCustomEvent_V3(responseModel.getRequestModel(), eventServiceProvider);
     }
 
     @Override

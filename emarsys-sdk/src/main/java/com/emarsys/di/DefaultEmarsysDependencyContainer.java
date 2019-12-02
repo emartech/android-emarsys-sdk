@@ -34,6 +34,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
+import com.emarsys.core.endpoint.ServiceEndpointProvider;
 import com.emarsys.core.feature.FeatureRegistry;
 import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.notification.NotificationManagerProxy;
@@ -84,6 +85,7 @@ import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.deeplink.DefaultDeepLinkInternal;
 import com.emarsys.mobileengage.deeplink.LoggingDeepLinkInternal;
 import com.emarsys.mobileengage.device.DeviceInfoStartAction;
+import com.emarsys.mobileengage.endpoint.Endpoint;
 import com.emarsys.mobileengage.event.DefaultEventServiceInternal;
 import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.mobileengage.event.LoggingEventServiceInternal;
@@ -129,6 +131,7 @@ import com.emarsys.predict.request.PredictRequestContext;
 import com.emarsys.predict.response.VisitorIdResponseHandler;
 import com.emarsys.predict.response.XPResponseHandler;
 import com.emarsys.predict.shard.PredictShardListMerger;
+import com.emarsys.predict.storage.PredictStorageKey;
 import com.emarsys.push.PushApi;
 import com.emarsys.push.PushProxy;
 
@@ -208,6 +211,20 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     private PredictRequestContext predictRequestContext;
     private PushTokenProvider pushTokenProvider;
     private EmarsysRequestModelFactory emarsysRequestModelFactory;
+    private Storage<String> eventServiceUrlStorage;
+    private Storage<String> clientServiceUrlStorage;
+    private Storage<String> inboxServiceUrlStorage;
+    private Storage<String> mobileEngageV2ServiceUrlStorage;
+    private Storage<String> deepLinkServiceUrlStorage;
+    private Storage<String> predictServiceUrlStorage;
+
+    private ServiceEndpointProvider eventServiceProvider;
+    private ServiceEndpointProvider clientServiceProvider;
+    private ServiceEndpointProvider inboxServiceProvider;
+    private ServiceEndpointProvider mobileEngageV2ServiceProvider;
+    private ServiceEndpointProvider deepLinkServiceProvider;
+    private ServiceEndpointProvider predictServiceProvider;
+
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeFeatures(emarsysConfig);
@@ -453,6 +470,20 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         pushTokenStorage = new StringStorage(MobileEngageStorageKey.PUSH_TOKEN, prefs);
         pushTokenProvider = new DefaultPushTokenProvider(pushTokenStorage);
 
+        eventServiceUrlStorage = new StringStorage(MobileEngageStorageKey.EVENT_SERVICE_URL, prefs);
+        clientServiceUrlStorage = new StringStorage(MobileEngageStorageKey.CLIENT_SERVICE_URL, prefs);
+        inboxServiceUrlStorage = new StringStorage(MobileEngageStorageKey.INBOX_SERVICE_URL, prefs);
+        mobileEngageV2ServiceUrlStorage = new StringStorage(MobileEngageStorageKey.ME_V2_SERVICE_URL, prefs);
+        deepLinkServiceUrlStorage = new StringStorage(MobileEngageStorageKey.DEEPLINK_SERVICE_URL, prefs);
+        predictServiceUrlStorage = new StringStorage(PredictStorageKey.PREDICT_SERVICE_URL, prefs);
+
+        eventServiceProvider = new ServiceEndpointProvider(eventServiceUrlStorage, Endpoint.ME_V3_EVENT_HOST);
+        clientServiceProvider = new ServiceEndpointProvider(clientServiceUrlStorage, Endpoint.ME_V3_CLIENT_HOST);
+        inboxServiceProvider = new ServiceEndpointProvider(inboxServiceUrlStorage, Endpoint.INBOX_BASE);
+        mobileEngageV2ServiceProvider = new ServiceEndpointProvider(mobileEngageV2ServiceUrlStorage, Endpoint.ME_BASE_V2);
+        deepLinkServiceProvider = new ServiceEndpointProvider(deepLinkServiceUrlStorage, Endpoint.DEEP_LINK);
+        predictServiceProvider = new ServiceEndpointProvider(predictServiceUrlStorage, com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL);
+
         responseHandlersProcessor = new ResponseHandlersProcessor(new ArrayList<AbstractResponseHandler>());
 
         LanguageProvider languageProvider = new LanguageProvider();
@@ -492,11 +523,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         restClient = new RestClient(new ConnectionProvider(), timestampProvider, getResponseHandlersProcessor(), createRequestModelMappers());
 
-        requestModelFactory = new MobileEngageRequestModelFactory(requestContext);
+        requestModelFactory = new MobileEngageRequestModelFactory(requestContext, clientServiceProvider, eventServiceProvider, mobileEngageV2ServiceProvider, inboxServiceProvider);
 
         emarsysRequestModelFactory = new EmarsysRequestModelFactory(requestContext);
 
-        contactTokenResponseHandler = new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage);
+        contactTokenResponseHandler = new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage, clientServiceProvider, eventServiceProvider);
 
         notificationCache = new NotificationCache();
 
@@ -517,7 +548,9 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 coreCompletionHandlerMiddlewareProvider,
                 refreshTokenInternal,
                 getRestClient(),
-                contactTokenStorage
+                contactTokenStorage,
+                clientServiceProvider,
+                eventServiceProvider
         );
         Worker worker = new DefaultWorker(
                 requestModelRepository,
@@ -552,7 +585,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         predictRequestContext = new PredictRequestContext(config.getPredictMerchantId(), deviceInfo, timestampProvider, uuidProvider, sharedPrefsKeyStore);
 
         PredictHeaderFactory headerFactory = new PredictHeaderFactory(predictRequestContext);
-        PredictRequestModelBuilderProvider predictRequestModelBuilderProvider = new PredictRequestModelBuilderProvider(predictRequestContext, headerFactory);
+        PredictRequestModelBuilderProvider predictRequestModelBuilderProvider = new PredictRequestModelBuilderProvider(predictRequestContext, headerFactory, predictServiceProvider);
         PredictResponseMapper predictResponseMapper = new PredictResponseMapper();
 
         predictShardTrigger = new BatchingShardTrigger(
@@ -572,7 +605,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         mobileEngageInternal = new DefaultMobileEngageInternal(requestManager, requestModelFactory, requestContext);
         eventServiceInternal = new DefaultEventServiceInternal(requestManager, requestModelFactory);
         clientServiceInternal = new DefaultClientServiceInternal(requestManager, requestModelFactory);
-        deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext);
+        deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext, deepLinkServiceProvider);
 
         pushInternal = new DefaultPushInternal(requestManager, uiHandler, requestModelFactory, eventServiceInternal, pushTokenStorage);
         inAppInternal = new DefaultInAppInternal(inAppEventHandler, eventServiceInternal);
@@ -614,12 +647,13 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 buttonClickedRepository,
                 timestampProvider,
                 uuidProvider,
-                inAppEventHandler);
+                inAppEventHandler,
+                eventServiceProvider);
     }
 
     private List<Mapper<RequestModel, RequestModel>> createRequestModelMappers() {
         List<Mapper<RequestModel, RequestModel>> mappers = new ArrayList<>();
-        mappers.add(new MobileEngageHeaderMapper(requestContext));
+        mappers.add(new MobileEngageHeaderMapper(requestContext, clientServiceProvider, eventServiceProvider));
         return mappers;
     }
 
@@ -655,12 +689,12 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         List<AbstractResponseHandler> responseHandlers = new ArrayList<>();
 
-        responseHandlers.add(new VisitorIdResponseHandler(sharedPrefsKeyStore));
-        responseHandlers.add(new XPResponseHandler(sharedPrefsKeyStore));
+        responseHandlers.add(new VisitorIdResponseHandler(sharedPrefsKeyStore, predictServiceProvider));
+        responseHandlers.add(new XPResponseHandler(sharedPrefsKeyStore, predictServiceProvider));
 
-        responseHandlers.add(new MobileEngageTokenResponseHandler("refreshToken", refreshTokenStorage));
+        responseHandlers.add(new MobileEngageTokenResponseHandler("refreshToken", refreshTokenStorage, clientServiceProvider, eventServiceProvider));
         responseHandlers.add(contactTokenResponseHandler);
-        responseHandlers.add(new MobileEngageClientStateResponseHandler(getClientStateStorage()));
+        responseHandlers.add(new MobileEngageClientStateResponseHandler(getClientStateStorage(), clientServiceProvider, eventServiceProvider));
         responseHandlers.add(new ClientInfoResponseHandler(getDeviceInfo(), getDeviceInfoHashStorage()));
 
         responseHandlers.add(new InAppMessageResponseHandler(
@@ -669,7 +703,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         responseHandlers.add(new InAppCleanUpResponseHandler(
                 displayedIamRepository,
-                buttonClickedRepository
+                buttonClickedRepository,
+                eventServiceProvider
         ));
         responseHandlersProcessor.addResponseHandlers(responseHandlers);
     }

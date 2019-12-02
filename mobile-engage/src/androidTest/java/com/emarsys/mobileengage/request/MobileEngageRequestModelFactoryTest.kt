@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.request
 
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.notification.NotificationSettings
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -9,11 +10,8 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.endpoint.Endpoint.INBOX_FETCH_V1
-import com.emarsys.mobileengage.endpoint.Endpoint.INBOX_RESET_BADGE_COUNT_V1
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
-import com.emarsys.mobileengage.util.RequestUrlUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -33,6 +31,10 @@ class MobileEngageRequestModelFactoryTest {
         const val PUSH_TOKEN = "kjhygtfdrtrtdtguyihoj3iurf8y7t6fqyua2gyi8fhu"
         const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
+        const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
+        const val MOBILE_ENGAGE_V2_HOST = "https://push.eservice.emarsys.net/api/mobileengage/v2/"
+        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
+        const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/api/"
     }
 
     lateinit var mockRequestContext: MobileEngageRequestContext
@@ -42,6 +44,10 @@ class MobileEngageRequestModelFactoryTest {
     lateinit var mockRefreshTokenStorage: Storage<String>
     lateinit var mockNotificationSettings: NotificationSettings
     lateinit var requestFactory: MobileEngageRequestModelFactory
+    lateinit var eventServiceProvider: ServiceEndpointProvider
+    lateinit var clientServiceProvider: ServiceEndpointProvider
+    lateinit var mobileEngageV2Provider: ServiceEndpointProvider
+    lateinit var inboxServiceProvider: ServiceEndpointProvider
 
     @Rule
     @JvmField
@@ -50,6 +56,19 @@ class MobileEngageRequestModelFactoryTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
+        eventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
+        }
+        clientServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(CLIENT_HOST)
+        }
+        mobileEngageV2Provider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(MOBILE_ENGAGE_V2_HOST)
+        }
+        inboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(INBOX_HOST)
+        }
+
         mockNotificationSettings = mock(NotificationSettings::class.java).apply {
             whenever(channelSettings).thenReturn(listOf())
             whenever(importance).thenReturn(0)
@@ -82,12 +101,32 @@ class MobileEngageRequestModelFactoryTest {
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
         }
 
-        requestFactory = MobileEngageRequestModelFactory(mockRequestContext)
+        requestFactory = MobileEngageRequestModelFactory(mockRequestContext, clientServiceProvider, eventServiceProvider, mobileEngageV2Provider, inboxServiceProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestContext_mustNotBeNull() {
-        MobileEngageRequestModelFactory(null)
+        MobileEngageRequestModelFactory(null, clientServiceProvider, eventServiceProvider, mobileEngageV2Provider, inboxServiceProvider)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_clientServiceProvider_mustNotBeNull() {
+        MobileEngageRequestModelFactory(mockRequestContext, null, eventServiceProvider, mobileEngageV2Provider, inboxServiceProvider)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_eventServiceProvider_mustNotBeNull() {
+        MobileEngageRequestModelFactory(mockRequestContext, clientServiceProvider, null, mobileEngageV2Provider, inboxServiceProvider)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_mobileEngageV2Provider_mustNotBeNull() {
+        MobileEngageRequestModelFactory(mockRequestContext, clientServiceProvider, eventServiceProvider, null, inboxServiceProvider)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_inboxServiceProvider_mustNotBeNull() {
+        MobileEngageRequestModelFactory(mockRequestContext, clientServiceProvider, eventServiceProvider, mobileEngageV2Provider, null)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -98,7 +137,7 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateSetPushTokenRequest() {
         val expected = RequestModel(
-                RequestUrlUtils.createSetPushTokenUrl(mockRequestContext),
+                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/push-token",
                 RequestMethod.PUT,
                 RequestPayloadUtils.createSetPushTokenPayload(PUSH_TOKEN),
                 RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
@@ -115,8 +154,7 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateRemovePushTokenRequest() {
         val expected = RequestModel(
-                RequestUrlUtils.createRemovePushTokenUrl(mockRequestContext),
-                RequestMethod.DELETE,
+                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/push-token", RequestMethod.DELETE,
                 null,
                 RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
                 TIMESTAMP,
@@ -132,7 +170,7 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateTrackDeviceInfoRequest() {
         val expected = RequestModel(
-                RequestUrlUtils.createTrackDeviceInfoUrl(mockRequestContext),
+                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client",
                 RequestMethod.POST,
                 RequestPayloadUtils.createTrackDeviceInfoPayload(mockRequestContext),
                 RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
@@ -148,7 +186,7 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateSetContactRequest() {
         val expected = RequestModel(
-                RequestUrlUtils.createSetContactUrl(mockRequestContext),
+                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
                 RequestMethod.POST,
                 RequestPayloadUtils.createSetContactPayload("contactFieldValue", mockRequestContext),
                 RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
@@ -164,7 +202,7 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateSetContactRequest_withoutContactFieldValue() {
         val expected = RequestModel(
-                RequestUrlUtils.createSetContactUrl(mockRequestContext) + "?anonymous=true",
+                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact?anonymous=true",
                 RequestMethod.POST,
                 emptyMap(),
                 RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
@@ -185,7 +223,7 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateCustomEventRequest() {
         val expected = RequestModel(
-                RequestUrlUtils.createCustomEventUrl(mockRequestContext),
+                "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
                 RequestMethod.POST,
                 RequestPayloadUtils.createCustomEventPayload("eventName", emptyMap(), mockRequestContext),
                 RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
@@ -207,7 +245,7 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateInternalCustomEventRequest() {
         val expected = RequestModel(
-                RequestUrlUtils.createCustomEventUrl(mockRequestContext),
+                "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
                 RequestMethod.POST,
                 RequestPayloadUtils.createInternalCustomEventPayload("eventName", emptyMap(), mockRequestContext),
                 RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
@@ -224,7 +262,7 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateRefreshContactTokenRequest() {
         val expected = RequestModel(
-                RequestUrlUtils.createRefreshContactTokenUrl(mockRequestContext),
+                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact-token",
                 RequestMethod.POST,
                 RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext),
                 RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + RequestHeaderUtils.createDefaultHeaders(mockRequestContext),
@@ -246,7 +284,7 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateTrackNotificationOpenRequest() {
         val expected = RequestModel(
-                RequestUrlUtils.createEventUrl_V2("message_open"),
+                "https://push.eservice.emarsys.net/api/mobileengage/v2/events/message_open",
                 RequestMethod.POST,
                 RequestPayloadUtils.createTrackNotificationOpenPayload("sid", mockRequestContext),
                 RequestHeaderUtils.createBaseHeaders_V2(mockRequestContext),
@@ -263,7 +301,7 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateResetBadgeCountRequest() {
         val expected = RequestModel(
-                INBOX_RESET_BADGE_COUNT_V1,
+                "https://me-inbox.eservice.emarsys.net/api/reset-badge-count",
                 RequestMethod.POST,
                 null,
                 RequestHeaderUtils.createInboxHeaders(mockRequestContext),
@@ -280,7 +318,7 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateFetchNotificationsRequest() {
         val expected = RequestModel(
-                INBOX_FETCH_V1,
+                "https://me-inbox.eservice.emarsys.net/api/notifications",
                 RequestMethod.GET,
                 null,
                 RequestHeaderUtils.createInboxHeaders(mockRequestContext),

@@ -1,11 +1,13 @@
 package com.emarsys.predict.response
 
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.mockito.whenever
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -21,17 +23,26 @@ class VisitorIdResponseHandlerTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var keyValueStore: KeyValueStore
+    private lateinit var mockServiceEndpointProvider: ServiceEndpointProvider
     private lateinit var responseHandler: VisitorIdResponseHandler
 
     @Before
     fun init() {
         keyValueStore = mock(KeyValueStore::class.java)
-        responseHandler = VisitorIdResponseHandler(keyValueStore)
+        mockServiceEndpointProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn("https://recommender.scarabresearch.com")
+        }
+        responseHandler = VisitorIdResponseHandler(keyValueStore, mockServiceEndpointProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_keyValueStore_mustNotBeNull() {
-        VisitorIdResponseHandler(null)
+        VisitorIdResponseHandler(null, mockServiceEndpointProvider)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_mockServiceEndpointProvider_mustNotBeNull() {
+        VisitorIdResponseHandler(keyValueStore, null)
     }
 
     @Test

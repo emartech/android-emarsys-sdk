@@ -3,6 +3,7 @@ package com.emarsys.predict.request
 import android.net.Uri
 import android.text.TextUtils
 import com.emarsys.core.Mockable
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.util.JsonUtils
@@ -10,12 +11,13 @@ import com.emarsys.predict.DefaultPredictInternal
 import com.emarsys.predict.api.model.Logic
 import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.api.model.RecommendationLogic
-import com.emarsys.predict.endpoint.Endpoint
 import com.emarsys.predict.model.LastTrackedItemContainer
 import java.util.*
 
 @Mockable
-class PredictRequestModelBuilder(private val requestContext: PredictRequestContext, private val headerFactory: PredictHeaderFactory) {
+class PredictRequestModelBuilder(private val requestContext: PredictRequestContext,
+                                 private val headerFactory: PredictHeaderFactory,
+                                 private val predictServiceEndpointProvider: ServiceEndpointProvider) {
 
     companion object {
         private const val DEFAULT_LIMIT = 5
@@ -26,7 +28,7 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
     private var lastTrackedItemContainer: LastTrackedItemContainer? = null
     private var limit: Int? = null
     private var filters: List<RecommendationFilter>? = null
-    private val uriBuilder: Uri.Builder = Uri.parse(Endpoint.PREDICT_BASE_URL)
+    private val uriBuilder: Uri.Builder = Uri.parse(predictServiceEndpointProvider.provideEndpointHost())
             .buildUpon()
             .appendPath(requestContext.merchantId)
 
@@ -148,7 +150,7 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
     }
 
     private fun createUrl(shardData: Map<String, Any>): String {
-        val uriBuilder = Uri.parse(Endpoint.PREDICT_BASE_URL)
+        val uriBuilder = Uri.parse(predictServiceEndpointProvider.provideEndpointHost())
                 .buildUpon()
                 .appendPath(requestContext.merchantId)
 

@@ -8,6 +8,7 @@ import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.database.trigger.TriggerKey;
+import com.emarsys.core.endpoint.ServiceEndpointProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
@@ -23,7 +24,6 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
-import com.emarsys.mobileengage.util.RequestUrlUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.RandomTestUtils;
@@ -52,9 +52,10 @@ import static org.mockito.Mockito.when;
 
 public class RequestRepositoryProxyTest {
 
-    public static final long TIMESTAMP = 80_000L;
-    public static final String REQUEST_ID = "REQUEST_ID";
-    public static final String APPLICATION_CODE = "applicationCode";
+    private static final long TIMESTAMP = 80_000L;
+    private static final String REQUEST_ID = "REQUEST_ID";
+    private static final String APPLICATION_CODE = "applicationCode";
+    private static final String EVENT_HOST = "https://mobile-events.eservice.emarsys.net";
 
     private MobileEngageRequestContext mockRequestContext;
 
@@ -71,6 +72,7 @@ public class RequestRepositoryProxyTest {
 
     private RequestRepositoryProxy compositeRepository;
     private UUIDProvider uuidProvider;
+    private ServiceEndpointProvider mockEventServiceProvider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -104,43 +106,51 @@ public class RequestRepositoryProxyTest {
 
         inAppEventHandlerInternal = mock(InAppEventHandlerInternal.class);
 
+        mockEventServiceProvider = mock(ServiceEndpointProvider.class);
+        when(mockEventServiceProvider.provideEndpointHost()).thenReturn(EVENT_HOST);
+
         compositeRepository = new RequestRepositoryProxy(
                 mockRequestModelRepository,
                 mockDisplayedIamRepository,
                 mockButtonClickedRepository,
                 timestampProvider,
                 uuidProvider,
-                inAppEventHandlerInternal);
+                inAppEventHandlerInternal, mockEventServiceProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(null, mockDisplayedIamRepository, mockButtonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal);
+        new RequestRepositoryProxy(null, mockDisplayedIamRepository, mockButtonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_displayedIamRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, null, mockButtonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal);
+        new RequestRepositoryProxy(mockRequestModelRepository, null, mockButtonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_buttonClickedRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, null, timestampProvider, uuidProvider, inAppEventHandlerInternal);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, null, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_timestampProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, null, uuidProvider, inAppEventHandlerInternal);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, null, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_inAppInternal_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, uuidProvider, null);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, uuidProvider, null, mockEventServiceProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_uuidProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, null, inAppEventHandlerInternal);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, null, inAppEventHandlerInternal, mockEventServiceProvider);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_eventServiceProvider_mustNotBeNull() {
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, null);
     }
 
     @Test
@@ -250,7 +260,7 @@ public class RequestRepositoryProxyTest {
 
         RequestModel expectedComposite = new CompositeRequestModel(
                 REQUEST_ID,
-                RequestUrlUtils.createCustomEventUrl(mockRequestContext),
+                "https://mobile-events.eservice.emarsys.net/v3/apps/" + APPLICATION_CODE + "/client/events",
                 RequestMethod.POST,
                 payload,
                 customEvent1.getHeaders(),
@@ -321,7 +331,7 @@ public class RequestRepositoryProxyTest {
 
         RequestModel expectedComposite = new CompositeRequestModel(
                 REQUEST_ID,
-                RequestUrlUtils.createCustomEventUrl(mockRequestContext),
+                "https://mobile-events.eservice.emarsys.net/v3/apps/" + APPLICATION_CODE + "/client/events",
                 RequestMethod.POST,
                 payload,
                 customEvent1.getHeaders(),
@@ -410,7 +420,7 @@ public class RequestRepositoryProxyTest {
 
         RequestModel expectedComposite = new CompositeRequestModel(
                 REQUEST_ID,
-                RequestUrlUtils.createCustomEventUrl(mockRequestContext),
+                "https://mobile-events.eservice.emarsys.net/v3/apps/" + APPLICATION_CODE + "/client/events",
                 RequestMethod.POST,
                 payload,
                 customEvent1.getHeaders(),
@@ -463,7 +473,8 @@ public class RequestRepositoryProxyTest {
                 buttonClickedRepository,
                 timestampProvider,
                 uuidProvider,
-                inAppEventHandlerInternal
+                inAppEventHandlerInternal,
+                mockEventServiceProvider
         );
     }
 
@@ -490,7 +501,7 @@ public class RequestRepositoryProxyTest {
         headers.put("custom_event_header2", "custom_event_value2");
 
         return new RequestModel(
-                RequestUrlUtils.createCustomEventUrl(mockRequestContext),
+                "https://mobile-events.eservice.emarsys.net/v3/apps/" + APPLICATION_CODE + "/client/events",
                 RequestMethod.POST,
                 payload,
                 headers,

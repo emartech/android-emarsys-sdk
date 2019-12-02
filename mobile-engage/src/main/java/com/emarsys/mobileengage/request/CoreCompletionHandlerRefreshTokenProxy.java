@@ -4,6 +4,7 @@ import androidx.annotation.Nullable;
 
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.api.result.CompletionListener;
+import com.emarsys.core.endpoint.ServiceEndpointProvider;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.storage.Storage;
@@ -11,23 +12,31 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.RefreshTokenInternal;
 import com.emarsys.mobileengage.util.RequestModelUtils;
 
+import java.util.Objects;
+
 
 public class CoreCompletionHandlerRefreshTokenProxy implements CoreCompletionHandler {
     private final CoreCompletionHandler coreCompletionHandler;
     private final RefreshTokenInternal refreshTokenInternal;
     private final RestClient restClient;
     private final Storage<String> contactTokenStorage;
+    private final ServiceEndpointProvider clientServiceProvider;
+    private final ServiceEndpointProvider eventServiceProvider;
 
-    public CoreCompletionHandlerRefreshTokenProxy(CoreCompletionHandler coreCompletionHandler, RefreshTokenInternal refreshTokenInternal, RestClient restClient, Storage<String> contactTokenStorage) {
+    public CoreCompletionHandlerRefreshTokenProxy(CoreCompletionHandler coreCompletionHandler, RefreshTokenInternal refreshTokenInternal, RestClient restClient, Storage<String> contactTokenStorage, ServiceEndpointProvider clientServiceProvider, ServiceEndpointProvider eventServiceProvider) {
         Assert.notNull(coreCompletionHandler, "CoreCompletionHandler must not be null!");
         Assert.notNull(refreshTokenInternal, "RefreshTokenInternal must not be null!");
         Assert.notNull(restClient, "RestClient must not be null!");
         Assert.notNull(contactTokenStorage, "ContactTokenStorage must not be null!");
+        Assert.notNull(clientServiceProvider, "ClientServiceProvider must not be null!");
+        Assert.notNull(eventServiceProvider, "EventServiceProvider must not be null!");
 
         this.coreCompletionHandler = coreCompletionHandler;
         this.refreshTokenInternal = refreshTokenInternal;
         this.restClient = restClient;
         this.contactTokenStorage = contactTokenStorage;
+        this.clientServiceProvider = clientServiceProvider;
+        this.eventServiceProvider = eventServiceProvider;
     }
 
     @Override
@@ -37,7 +46,7 @@ public class CoreCompletionHandlerRefreshTokenProxy implements CoreCompletionHan
 
     @Override
     public void onError(final String originalId, final ResponseModel originalResponseModel) {
-        if (originalResponseModel.getStatusCode() == 401 && RequestModelUtils.isMobileEngageV3Request(originalResponseModel.getRequestModel())) {
+        if (originalResponseModel.getStatusCode() == 401 && RequestModelUtils.isMobileEngageV3Request(originalResponseModel.getRequestModel(), eventServiceProvider, clientServiceProvider)) {
             refreshTokenInternal.refreshContactToken(new CompletionListener() {
                 @Override
                 public void onCompleted(@Nullable Throwable errorCause) {
@@ -67,13 +76,13 @@ public class CoreCompletionHandlerRefreshTokenProxy implements CoreCompletionHan
 
         CoreCompletionHandlerRefreshTokenProxy that = (CoreCompletionHandlerRefreshTokenProxy) o;
 
-        if (coreCompletionHandler != null ? !coreCompletionHandler.equals(that.coreCompletionHandler) : that.coreCompletionHandler != null)
+        if (!Objects.equals(coreCompletionHandler, that.coreCompletionHandler))
             return false;
-        if (refreshTokenInternal != null ? !refreshTokenInternal.equals(that.refreshTokenInternal) : that.refreshTokenInternal != null)
+        if (!Objects.equals(refreshTokenInternal, that.refreshTokenInternal))
             return false;
-        if (restClient != null ? !restClient.equals(that.restClient) : that.restClient != null)
+        if (!Objects.equals(restClient, that.restClient))
             return false;
-        return contactTokenStorage != null ? contactTokenStorage.equals(that.contactTokenStorage) : that.contactTokenStorage == null;
+        return Objects.equals(contactTokenStorage, that.contactTokenStorage);
     }
 
     @Override

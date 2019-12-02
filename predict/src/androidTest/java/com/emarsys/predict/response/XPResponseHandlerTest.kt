@@ -1,17 +1,21 @@
 package com.emarsys.predict.response
 
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.testUtil.TimeoutUtils
-import org.junit.Assert.*
+import com.emarsys.testUtil.mockito.whenever
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito
+import org.mockito.Mockito.mock
 
 class XPResponseHandlerTest {
 
@@ -21,11 +25,15 @@ class XPResponseHandlerTest {
 
     private lateinit var keyValueStore: KeyValueStore
     private lateinit var responseHandler: XPResponseHandler
+    private lateinit var mockPredictServiceProvider: ServiceEndpointProvider
 
     @Before
     fun init() {
-        keyValueStore = Mockito.mock(KeyValueStore::class.java)
-        responseHandler = XPResponseHandler(keyValueStore)
+        mockPredictServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn("https://recommender.scarabresearch.com")
+        }
+        keyValueStore = mock(KeyValueStore::class.java)
+        responseHandler = XPResponseHandler(keyValueStore, mockPredictServiceProvider)
     }
 
     @Test

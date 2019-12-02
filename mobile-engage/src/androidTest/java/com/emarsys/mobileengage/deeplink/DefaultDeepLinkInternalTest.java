@@ -7,6 +7,7 @@ import android.os.Build;
 
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.device.DeviceInfo;
+import com.emarsys.core.endpoint.ServiceEndpointProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
@@ -34,7 +35,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class DeepLinkInternalTest {
+public class DefaultDeepLinkInternalTest {
 
     private Activity mockActivity;
     private DeepLinkInternal deepLinkInternal;
@@ -43,7 +44,9 @@ public class DeepLinkInternalTest {
     private TimestampProvider timestampProvider;
     private UUIDProvider uuidProvider;
     private DeviceInfo mockDeviceInfo;
+    private ServiceEndpointProvider mockDeepLinkServiceProvider;
     private static final String APPLICATION_CODE = "applicationCode";
+    private static final String DEEPLINK_BASE = "https://deep-link.eservice.emarsys.net/api/";
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
@@ -72,17 +75,24 @@ public class DeepLinkInternalTest {
                 mock(Storage.class)
         );
 
-        deepLinkInternal = new DefaultDeepLinkInternal(manager, requestContext);
+        mockDeepLinkServiceProvider = mock(ServiceEndpointProvider.class);
+        when(mockDeepLinkServiceProvider.provideEndpointHost()).thenReturn(DEEPLINK_BASE);
+        deepLinkInternal = new DefaultDeepLinkInternal(manager, requestContext, mockDeepLinkServiceProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestManagerMustNotBeNull() {
-        new DefaultDeepLinkInternal(null, requestContext);
+        new DefaultDeepLinkInternal(null, requestContext, mockDeepLinkServiceProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestContextMustNotBeNull() {
-        new DefaultDeepLinkInternal(manager, null);
+        new DefaultDeepLinkInternal(manager, null, mockDeepLinkServiceProvider);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_deepLinkServiceProvider_mustNotBeNull() {
+        new DefaultDeepLinkInternal(manager, requestContext, null);
     }
 
     @Test
@@ -104,7 +114,7 @@ public class DeepLinkInternalTest {
                 String.format("Emarsys SDK %s Android %s", requestContext.getDeviceInfo().getSdkVersion(), Build.VERSION.SDK_INT));
 
         RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
-                .url("https://deep-link.eservice.emarsys.net/api/clicks")
+                .url(DEEPLINK_BASE + "clicks")
                 .headers(headers)
                 .payload(payload)
                 .build();

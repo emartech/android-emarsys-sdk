@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.responsehandler
 
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
@@ -11,18 +12,23 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito
+import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import java.net.URL
 
 class MobileEngageClientStateResponseHandlerTest {
     private companion object {
         const val X_CLIENT_STATE_VALUE = "TG9yZW0gSXBzdW0gaXMgc2ltcGx5IGR1bW15IHRleHQgb2YgdGhlIHByaW50aW5nIGFuZCB0"
+        const val APPLICATION_CODE = "applicationCode"
+        const val CLIENT_HOST = "https://mobile-events.eservice.emarsys.net"
+        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
     }
 
     private lateinit var mockStorage: Storage<String>
     private lateinit var requestModelMock: RequestModel
     private lateinit var clientStateResponseHandler: MobileEngageClientStateResponseHandler
+    private lateinit var mockClientServiceProvider: ServiceEndpointProvider
+    private lateinit var mockEventServiceProvider: ServiceEndpointProvider
 
     @Rule
     @JvmField
@@ -31,12 +37,19 @@ class MobileEngageClientStateResponseHandlerTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        mockStorage = Mockito.mock(Storage::class.java) as Storage<String>
+        mockStorage = mock(Storage::class.java) as Storage<String>
 
-        requestModelMock = Mockito.mock(RequestModel::class.java).apply {
-            whenever(url).thenReturn(URL(Endpoint.ME_V3_CLIENT_BASE))
+        mockClientServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(CLIENT_HOST)
         }
-        clientStateResponseHandler = MobileEngageClientStateResponseHandler(mockStorage)
+        mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
+        }
+
+        requestModelMock = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL(CLIENT_HOST + Endpoint.clientBase(APPLICATION_CODE)))
+        }
+        clientStateResponseHandler = MobileEngageClientStateResponseHandler(mockStorage, mockClientServiceProvider, mockEventServiceProvider)
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.emarsys.predict.request
 
 import android.net.Uri
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
@@ -56,6 +57,7 @@ class PredictRequestModelBuilderTest {
     private lateinit var mockDeviceInfo: DeviceInfo
     private lateinit var mockKeyValueStore: KeyValueStore
     private lateinit var lastTrackedItemContainer: LastTrackedItemContainer
+    private lateinit var mockServiceProvider: ServiceEndpointProvider
 
     @Rule
     @JvmField
@@ -93,8 +95,10 @@ class PredictRequestModelBuilderTest {
         lastTrackedItemContainer.lastSearchTerm = SEARCH_TERM
         lastTrackedItemContainer.lastCartItems = CART_ITEMS
         lastTrackedItemContainer.lastItemView = "itemId"
-
-        requestModelBuilder = PredictRequestModelBuilder(mockRequestContext, mockHeaderFactory)
+        mockServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn("https://recommender.scarabresearch.com")
+        }
+        requestModelBuilder = PredictRequestModelBuilder(mockRequestContext, mockHeaderFactory, mockServiceProvider)
     }
 
     @Test

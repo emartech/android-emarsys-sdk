@@ -3,13 +3,13 @@ package com.emarsys.mobileengage.iam.model.requestRepositoryProxy;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;
+import com.emarsys.core.endpoint.ServiceEndpointProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.FilterByUrlPattern;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.endpoint.Endpoint;
 import com.emarsys.mobileengage.iam.InAppEventHandlerInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
@@ -23,14 +23,13 @@ import java.util.Map;
 
 public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpecification> {
 
-    private static final String CUSTOM_EVENT_URL_PATTERN = Endpoint.ME_V3_EVENT_HOST + "%";
-
     private final Repository<RequestModel, SqlSpecification> requestRepository;
     private final Repository<DisplayedIam, SqlSpecification> iamRepository;
     private final Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
     private final TimestampProvider timestampProvider;
     private final UUIDProvider uuidProvider;
     private final InAppEventHandlerInternal inAppEventHandlerInternal;
+    private final ServiceEndpointProvider eventServiceProvider;
 
     public RequestRepositoryProxy(
             Repository<RequestModel, SqlSpecification> requestRepository,
@@ -38,13 +37,14 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             TimestampProvider timestampProvider,
             UUIDProvider uuidProvider,
-            InAppEventHandlerInternal inAppEventHandlerInternal) {
+            InAppEventHandlerInternal inAppEventHandlerInternal, ServiceEndpointProvider eventServiceProvider) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(iamRepository, "IamRepository must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
         Assert.notNull(inAppEventHandlerInternal, "InAppEventHandlerInternal must not be null!");
         Assert.notNull(uuidProvider, "UuidProvider must not be null!");
+        Assert.notNull(eventServiceProvider, "EventServiceProvider must not be null!");
 
         this.requestRepository = requestRepository;
         this.iamRepository = iamRepository;
@@ -52,6 +52,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         this.timestampProvider = timestampProvider;
         this.inAppEventHandlerInternal = inAppEventHandlerInternal;
         this.uuidProvider = uuidProvider;
+        this.eventServiceProvider = eventServiceProvider;
     }
 
     @Override
@@ -77,7 +78,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         List<RequestModel> customEventsInResult = collectCustomEvents(result);
 
         if (!customEventsInResult.isEmpty()) {
-            List<RequestModel> customEvents = requestRepository.query(new FilterByUrlPattern(CUSTOM_EVENT_URL_PATTERN));
+            List<RequestModel> customEvents = requestRepository.query(new FilterByUrlPattern(eventServiceProvider.provideEndpointHost() + "%"));
             RequestModel composite = createCompositeCustomEvent(customEvents);
 
             RequestModel firstCustomEvent = customEventsInResult.get(0);
@@ -92,7 +93,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private List<RequestModel> collectCustomEvents(List<RequestModel> models) {
         List<RequestModel> result = new ArrayList<>();
         for (RequestModel requestModel : models) {
-            if (RequestModelUtils.isCustomEvent_V3(requestModel)) {
+            if (RequestModelUtils.isCustomEvent_V3(requestModel, eventServiceProvider)) {
                 result.add(requestModel);
             }
         }
