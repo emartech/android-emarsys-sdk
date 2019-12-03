@@ -2,6 +2,7 @@ package com.emarsys.mobileengage.di;
 
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.di.DependencyContainer;
+import com.emarsys.core.endpoint.ServiceEndpointProvider;
 import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.mobileengage.MobileEngageInternal;
@@ -71,4 +72,24 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
     NotificationCache getNotificationCache();
 
     PushTokenProvider getPushTokenProvider();
+
+    ServiceEndpointProvider getClientServiceProvider();
+
+    ServiceEndpointProvider getEventServiceProvider();
+
+    ServiceEndpointProvider getDeepLinkServiceProvider();
+
+    ServiceEndpointProvider getInboxServiceProvider();
+
+    ServiceEndpointProvider getMobileEngageV2ServiceProvider();
+
+    Storage<String> getClientServiceStorage();
+
+    Storage<String> getEventServiceStorage();
+
+    Storage<String> getDeepLinkServiceStorage();
+
+    Storage<String> getInboxServiceStorage();
+
+    Storage<String> getMobileEngageV2ServiceStorage();
 }

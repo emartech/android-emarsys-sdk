@@ -1,14 +1,19 @@
 package com.emarsys.config
 
 import com.emarsys.EmarsysRequestModelFactory
+import com.emarsys.config.model.RemoteConfig
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mockable
+import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.api.result.ResultListener
+import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.notification.NotificationSettings
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.core.storage.Storage
 import com.emarsys.feature.InnerFeature
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
@@ -24,7 +29,14 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val predictRequestContext: PredictRequestContext,
                             private val deviceInfo: DeviceInfo,
                             private val requestManager: RequestManager,
-                            private val emarsysRequestModelFactory: EmarsysRequestModelFactory) : ConfigInternal {
+                            private val emarsysRequestModelFactory: EmarsysRequestModelFactory,
+                            private val configResponseMapper: RemoteConfigResponseMapper,
+                            private val clientServiceStorage: Storage<String>,
+                            private val eventServiceStorage: Storage<String>,
+                            private val deeplinkServiceStorage: Storage<String>,
+                            private val inboxServiceStorage: Storage<String>,
+                            private val mobileEngageV2ServiceStorage: Storage<String>,
+                            private val predictServiceStorage: Storage<String>) : ConfigInternal {
 
     override val applicationCode: String?
         get() = mobileEngageRequestContext.applicationCode
@@ -120,17 +132,38 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         }
     }
 
-    override fun fetchRemoteConfig() {
+    override fun fetchRemoteConfig(resultListener: ResultListener<Try<RemoteConfig>>) {
         val requestModel = emarsysRequestModelFactory.createRemoteConfigRequest()
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String?, responseModel: ResponseModel?) {
+                val remoteConfig = Try.success(configResponseMapper.map(responseModel))
+
+                resultListener.onResult(remoteConfig)
             }
 
             override fun onError(id: String?, responseModel: ResponseModel?) {
+                val response = Try.failure<RemoteConfig>(ResponseErrorException(
+                        responseModel!!.statusCode,
+                        responseModel.message,
+                        responseModel.body))
+
+                resultListener.onResult(response)
             }
 
             override fun onError(id: String?, cause: Exception?) {
+                val response = Try.failure<RemoteConfig>(cause)
+
+                resultListener.onResult(response)
             }
         })
+    }
+
+    override fun applyRemoteConfig(remoteConfig: RemoteConfig) {
+        clientServiceStorage.set(remoteConfig.clientServiceUrl)
+        eventServiceStorage.set(remoteConfig.eventServiceUrl)
+        deeplinkServiceStorage.set(remoteConfig.deepLinkServiceUrl)
+        inboxServiceStorage.set(remoteConfig.inboxServiceUrl)
+        mobileEngageV2ServiceStorage.set(remoteConfig.mobileEngageV2ServiceUrl)
+        predictServiceStorage.set(remoteConfig.predictServiceUrl)
     }
 }

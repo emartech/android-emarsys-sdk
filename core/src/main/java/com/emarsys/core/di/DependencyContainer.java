@@ -40,5 +40,4 @@ public interface DependencyContainer {
     Logger getLogger();
 
     RestClient getRestClient();
-
 }

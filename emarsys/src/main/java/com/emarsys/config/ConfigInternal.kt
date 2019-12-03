@@ -1,6 +1,9 @@
 package com.emarsys.config
 
+import com.emarsys.config.model.RemoteConfig
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.api.result.ResultListener
+import com.emarsys.core.api.result.Try
 import com.emarsys.core.notification.NotificationSettings
 
 interface ConfigInternal {
@@ -21,6 +24,8 @@ interface ConfigInternal {
 
     fun changeMerchantId(merchantId: String?)
 
-    fun fetchRemoteConfig()
+    fun fetchRemoteConfig(resultListener: ResultListener<Try<RemoteConfig>>)
+
+    fun applyRemoteConfig(remoteConfig: RemoteConfig)
 
 }

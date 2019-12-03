@@ -194,7 +194,7 @@ public class DefaultPredictInternal implements PredictInternal {
 
             @Override
             public void onError(String id, ResponseModel responseModel) {
-                resultListener.onResult(Try.failure(new ResponseErrorException(
+                resultListener.onResult(Try.<List<Product>>failure(new ResponseErrorException(
                         responseModel.getStatusCode(),
                         responseModel.getMessage(),
                         responseModel.getBody())));
@@ -202,7 +202,7 @@ public class DefaultPredictInternal implements PredictInternal {
 
             @Override
             public void onError(String id, Exception cause) {
-                resultListener.onResult(Try.failure(cause));
+                resultListener.onResult(Try.<List<Product>>failure(cause));
             }
         });
     }

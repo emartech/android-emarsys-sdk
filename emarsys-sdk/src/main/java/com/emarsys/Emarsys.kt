@@ -15,8 +15,8 @@ import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.util.Assert
 import com.emarsys.di.DefaultEmarsysDependencyContainer
+import com.emarsys.di.EmarsysDependencyContainer
 import com.emarsys.di.EmarsysDependencyInjection
-import com.emarsys.di.EmarysDependencyContainer
 import com.emarsys.feature.InnerFeature.MOBILE_ENGAGE
 import com.emarsys.feature.InnerFeature.PREDICT
 import com.emarsys.inapp.InAppApi
@@ -53,7 +53,7 @@ object Emarsys {
     val predict: PredictApi
         get() = EmarsysDependencyInjection.predict()
 
-    private val container: EmarysDependencyContainer
+    private val container: EmarsysDependencyContainer
         get() = DependencyInjection.getContainer()
 
     private val runnerProxy: RunnerProxy

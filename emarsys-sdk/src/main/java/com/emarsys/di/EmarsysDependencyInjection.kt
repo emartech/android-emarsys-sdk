@@ -104,8 +104,8 @@ object EmarsysDependencyInjection : DependencyInjection() {
         return FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT)
     }
 
-    private fun container(): EmarysDependencyContainer {
+    private fun container(): EmarsysDependencyContainer {
         checkNotNull(container) { "DependencyInjection must be setup before accessing container!" }
-        return container as EmarysDependencyContainer
+        return container as EmarsysDependencyContainer
     }
 }

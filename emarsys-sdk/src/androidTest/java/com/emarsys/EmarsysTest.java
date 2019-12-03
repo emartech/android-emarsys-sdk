@@ -8,6 +8,7 @@ import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.emarsys.config.ConfigApi;
+import com.emarsys.config.ConfigInternal;
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.RunnerProxy;
@@ -28,6 +29,7 @@ import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.di.DependencyInjection;
+import com.emarsys.core.endpoint.ServiceEndpointProvider;
 import com.emarsys.core.feature.FeatureRegistry;
 import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
@@ -309,7 +311,20 @@ public class EmarsysTest {
                 mockPredict,
                 mockLoggingPredict,
                 mockConfig,
-                pushTokenProvider
+                pushTokenProvider,
+                mock(ServiceEndpointProvider.class),
+                mock(ServiceEndpointProvider.class),
+                mock(ServiceEndpointProvider.class),
+                mock(ServiceEndpointProvider.class),
+                mock(ServiceEndpointProvider.class),
+                mock(ServiceEndpointProvider.class),
+                mock(ConfigInternal.class),
+                mock(Storage.class),
+                mock(Storage.class),
+                mock(Storage.class),
+                mock(Storage.class),
+                mock(Storage.class),
+                mock(Storage.class)
         ));
         FeatureTestUtils.resetFeatures();
     }

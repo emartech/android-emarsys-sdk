@@ -2,11 +2,13 @@ package com.emarsys.config
 
 import com.emarsys.config.model.RemoteConfig
 import com.emarsys.core.Mapper
+import com.emarsys.core.Mockable
 import com.emarsys.core.response.ResponseModel
 import org.json.JSONObject
 
+@Mockable
 class RemoteConfigResponseMapper : Mapper<ResponseModel, RemoteConfig> {
-    override fun map(responseModel: ResponseModel?): RemoteConfig? {
+    override fun map(responseModel: ResponseModel?): RemoteConfig {
         var remoteConfig = RemoteConfig()
         if (responseModel != null) {
             val jsonResponse = JSONObject(responseModel.body)

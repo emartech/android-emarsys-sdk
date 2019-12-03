@@ -9,14 +9,16 @@ import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.di.DefaultEmarsysDependencyContainer
-import com.emarsys.di.EmarysDependencyContainer
+import com.emarsys.di.EmarsysDependencyContainer
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
+import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
@@ -80,6 +82,14 @@ class DefaultInboxIntegrationTest {
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
 
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
+            override fun getClientServiceProvider(): ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java).apply {
+                whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_CLIENT_HOST)
+            }
+
+            override fun getEventServiceProvider(): ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java).apply {
+                whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_EVENT_HOST)
+            }
+
             override fun getDeviceInfo() = DeviceInfo(
                     application,
                     mock(HardwareIdProvider::class.java).apply {
@@ -103,7 +113,12 @@ class DefaultInboxIntegrationTest {
 
         Emarsys.setup(baseConfig)
 
-
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.remove()
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.remove()
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.remove()
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.remove()
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.remove()
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.remove()
     }
 
     @After
@@ -111,12 +126,17 @@ class DefaultInboxIntegrationTest {
         try {
             FeatureTestUtils.resetFeatures()
 
-            with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
+            with(DependencyInjection.getContainer<EmarsysDependencyContainer>()) {
                 application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
                 application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
                 coreSdkHandler.looper.quit()
             }
-
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.remove()
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.remove()
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.remove()
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.remove()
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.remove()
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.remove()
             DependencyInjection.tearDown()
         } catch (e: Exception) {
             e.printStackTrace()

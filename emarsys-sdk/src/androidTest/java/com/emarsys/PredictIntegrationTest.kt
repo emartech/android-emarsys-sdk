@@ -18,7 +18,7 @@ import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
-import com.emarsys.di.EmarysDependencyContainer
+import com.emarsys.di.EmarsysDependencyContainer
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.api.model.RecommendationFilter
@@ -145,12 +145,19 @@ class PredictIntegrationTest {
         deviceInfoHashStorage.remove()
 
         Emarsys.setup(baseConfig)
+
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.set(null)
     }
 
     @After
     fun tearDown() {
         try {
-            with(DependencyInjection.getContainer<EmarysDependencyContainer>()) {
+            with(DependencyInjection.getContainer<EmarsysDependencyContainer>()) {
                 application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
                 application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
                 coreSdkHandler.looper.quitSafely()
@@ -160,6 +167,12 @@ class PredictIntegrationTest {
             contactTokenStorage.remove()
             refreshTokenStorage.remove()
             deviceInfoHashStorage.remove()
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.set(null)
             DependencyInjection.tearDown()
         } catch (e: Exception) {
             e.printStackTrace()

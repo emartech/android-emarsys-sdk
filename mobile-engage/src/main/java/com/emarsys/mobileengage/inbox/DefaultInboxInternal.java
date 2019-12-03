@@ -51,7 +51,7 @@ public class DefaultInboxInternal implements InboxInternal {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    resultListener.onResult(Try.failure(new NotificationInboxException("AppLogin must be called before calling fetchNotifications!")));
+                    resultListener.onResult(Try.<NotificationInboxStatus>failure(new NotificationInboxException("AppLogin must be called before calling fetchNotifications!")));
                 }
             });
         }
@@ -70,7 +70,7 @@ public class DefaultInboxInternal implements InboxInternal {
 
             @Override
             public void onError(String id, ResponseModel responseModel) {
-                resultListener.onResult(Try.failure(new ResponseErrorException(
+                resultListener.onResult(Try.<NotificationInboxStatus>failure(new ResponseErrorException(
                         responseModel.getStatusCode(),
                         responseModel.getMessage(),
                         responseModel.getBody())));
@@ -78,7 +78,7 @@ public class DefaultInboxInternal implements InboxInternal {
 
             @Override
             public void onError(String id, Exception cause) {
-                resultListener.onResult(Try.failure(cause));
+                resultListener.onResult(Try.<NotificationInboxStatus>failure(cause));
             }
         });
     }

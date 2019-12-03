@@ -17,6 +17,7 @@ import com.emarsys.config.ConfigProxy;
 import com.emarsys.config.DefaultConfigInternal;
 import com.emarsys.config.EmarsysConfig;
 import com.emarsys.config.FetchRemoteConfigAction;
+import com.emarsys.config.RemoteConfigResponseMapper;
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.Mapper;
 import com.emarsys.core.RunnerProxy;
@@ -139,7 +140,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DefaultEmarsysDependencyContainer implements EmarysDependencyContainer {
+public class DefaultEmarsysDependencyContainer implements EmarsysDependencyContainer {
 
     private static final String EMARSYS_SHARED_PREFERENCES_NAME = "emarsys_shared_preferences";
 
@@ -477,12 +478,12 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         deepLinkServiceUrlStorage = new StringStorage(MobileEngageStorageKey.DEEPLINK_SERVICE_URL, prefs);
         predictServiceUrlStorage = new StringStorage(PredictStorageKey.PREDICT_SERVICE_URL, prefs);
 
-        eventServiceProvider = new ServiceEndpointProvider(eventServiceUrlStorage, Endpoint.ME_V3_EVENT_HOST);
-        clientServiceProvider = new ServiceEndpointProvider(clientServiceUrlStorage, Endpoint.ME_V3_CLIENT_HOST);
-        inboxServiceProvider = new ServiceEndpointProvider(inboxServiceUrlStorage, Endpoint.INBOX_BASE);
-        mobileEngageV2ServiceProvider = new ServiceEndpointProvider(mobileEngageV2ServiceUrlStorage, Endpoint.ME_BASE_V2);
-        deepLinkServiceProvider = new ServiceEndpointProvider(deepLinkServiceUrlStorage, Endpoint.DEEP_LINK);
-        predictServiceProvider = new ServiceEndpointProvider(predictServiceUrlStorage, com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL);
+        eventServiceProvider = new ServiceEndpointProvider(getEventServiceStorage(), Endpoint.ME_V3_EVENT_HOST);
+        clientServiceProvider = new ServiceEndpointProvider(getClientServiceStorage(), Endpoint.ME_V3_CLIENT_HOST);
+        inboxServiceProvider = new ServiceEndpointProvider(getInboxServiceStorage(), Endpoint.INBOX_BASE);
+        mobileEngageV2ServiceProvider = new ServiceEndpointProvider(getMobileEngageV2ServiceStorage(), Endpoint.ME_BASE_V2);
+        deepLinkServiceProvider = new ServiceEndpointProvider(getDeepLinkServiceStorage(), Endpoint.DEEP_LINK);
+        predictServiceProvider = new ServiceEndpointProvider(getPredictServiceStorage(), com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL);
 
         responseHandlersProcessor = new ResponseHandlersProcessor(new ArrayList<AbstractResponseHandler>());
 
@@ -523,11 +524,11 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
 
         restClient = new RestClient(new ConnectionProvider(), timestampProvider, getResponseHandlersProcessor(), createRequestModelMappers());
 
-        requestModelFactory = new MobileEngageRequestModelFactory(requestContext, clientServiceProvider, eventServiceProvider, mobileEngageV2ServiceProvider, inboxServiceProvider);
+        requestModelFactory = new MobileEngageRequestModelFactory(requestContext, getClientServiceProvider(), getEventServiceProvider(), getMobileEngageV2ServiceProvider(), getInboxServiceProvider());
 
         emarsysRequestModelFactory = new EmarsysRequestModelFactory(requestContext);
 
-        contactTokenResponseHandler = new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage, clientServiceProvider, eventServiceProvider);
+        contactTokenResponseHandler = new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage, getClientServiceProvider(), getEventServiceProvider());
 
         notificationCache = new NotificationCache();
 
@@ -549,8 +550,8 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 refreshTokenInternal,
                 getRestClient(),
                 contactTokenStorage,
-                clientServiceProvider,
-                eventServiceProvider
+                getClientServiceProvider(),
+                getEventServiceProvider()
         );
         Worker worker = new DefaultWorker(
                 requestModelRepository,
@@ -585,7 +586,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         predictRequestContext = new PredictRequestContext(config.getPredictMerchantId(), deviceInfo, timestampProvider, uuidProvider, sharedPrefsKeyStore);
 
         PredictHeaderFactory headerFactory = new PredictHeaderFactory(predictRequestContext);
-        PredictRequestModelBuilderProvider predictRequestModelBuilderProvider = new PredictRequestModelBuilderProvider(predictRequestContext, headerFactory, predictServiceProvider);
+        PredictRequestModelBuilderProvider predictRequestModelBuilderProvider = new PredictRequestModelBuilderProvider(predictRequestContext, headerFactory, getPredictServiceProvider());
         PredictResponseMapper predictResponseMapper = new PredictResponseMapper();
 
         predictShardTrigger = new BatchingShardTrigger(
@@ -605,7 +606,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         mobileEngageInternal = new DefaultMobileEngageInternal(requestManager, requestModelFactory, requestContext);
         eventServiceInternal = new DefaultEventServiceInternal(requestManager, requestModelFactory);
         clientServiceInternal = new DefaultClientServiceInternal(requestManager, requestModelFactory);
-        deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext, deepLinkServiceProvider);
+        deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext, getDeepLinkServiceProvider());
 
         pushInternal = new DefaultPushInternal(requestManager, uiHandler, requestModelFactory, eventServiceInternal, pushTokenStorage);
         inAppInternal = new DefaultInAppInternal(inAppEventHandler, eventServiceInternal);
@@ -624,7 +625,22 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         loggingInAppInternal = new LoggingInAppInternal(Emarsys.InApp.class);
         loggingInboxInternal = inboxInternalProvider.provideLoggingInboxInternal(Emarsys.Inbox.class);
 
-        configInternal = new DefaultConfigInternal(requestContext, mobileEngageInternal, pushInternal, getPushTokenProvider(), predictRequestContext, getDeviceInfo(), requestManager, emarsysRequestModelFactory);
+        configInternal = new DefaultConfigInternal(
+                requestContext,
+                mobileEngageInternal,
+                pushInternal,
+                getPushTokenProvider(),
+                predictRequestContext,
+                getDeviceInfo(),
+                requestManager,
+                emarsysRequestModelFactory,
+                new RemoteConfigResponseMapper(),
+                getClientServiceStorage(),
+                getEventServiceStorage(),
+                getDeepLinkServiceStorage(),
+                getInboxServiceStorage(),
+                getMobileEngageV2ServiceStorage(),
+                getPredictServiceStorage());
 
         inboxApi = new InboxProxy(runnerProxy, getInboxInternal());
         loggingInboxApi = new InboxProxy(runnerProxy, getLoggingInboxInternal());
@@ -648,12 +664,12 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandler,
-                eventServiceProvider);
+                getEventServiceProvider());
     }
 
     private List<Mapper<RequestModel, RequestModel>> createRequestModelMappers() {
         List<Mapper<RequestModel, RequestModel>> mappers = new ArrayList<>();
-        mappers.add(new MobileEngageHeaderMapper(requestContext, clientServiceProvider, eventServiceProvider));
+        mappers.add(new MobileEngageHeaderMapper(requestContext, getClientServiceProvider(), getEventServiceProvider()));
         return mappers;
     }
 
@@ -692,9 +708,9 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         responseHandlers.add(new VisitorIdResponseHandler(sharedPrefsKeyStore, predictServiceProvider));
         responseHandlers.add(new XPResponseHandler(sharedPrefsKeyStore, predictServiceProvider));
 
-        responseHandlers.add(new MobileEngageTokenResponseHandler("refreshToken", refreshTokenStorage, clientServiceProvider, eventServiceProvider));
+        responseHandlers.add(new MobileEngageTokenResponseHandler("refreshToken", refreshTokenStorage, getClientServiceProvider(), getEventServiceProvider()));
         responseHandlers.add(contactTokenResponseHandler);
-        responseHandlers.add(new MobileEngageClientStateResponseHandler(getClientStateStorage(), clientServiceProvider, eventServiceProvider));
+        responseHandlers.add(new MobileEngageClientStateResponseHandler(getClientStateStorage(), getClientServiceProvider(), getEventServiceProvider()));
         responseHandlers.add(new ClientInfoResponseHandler(getDeviceInfo(), getDeviceInfoHashStorage()));
 
         responseHandlers.add(new InAppMessageResponseHandler(
@@ -704,7 +720,7 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
         responseHandlers.add(new InAppCleanUpResponseHandler(
                 displayedIamRepository,
                 buttonClickedRepository,
-                eventServiceProvider
+                getEventServiceProvider()
         ));
         responseHandlersProcessor.addResponseHandlers(responseHandlers);
     }
@@ -752,5 +768,70 @@ public class DefaultEmarsysDependencyContainer implements EmarysDependencyContai
     @Override
     public ConfigApi getConfig() {
         return configApi;
+    }
+
+    @Override
+    public ConfigInternal getConfigInternal() {
+        return configInternal;
+    }
+
+    @Override
+    public ServiceEndpointProvider getClientServiceProvider() {
+        return clientServiceProvider;
+    }
+
+    @Override
+    public ServiceEndpointProvider getEventServiceProvider() {
+        return eventServiceProvider;
+    }
+
+    @Override
+    public ServiceEndpointProvider getDeepLinkServiceProvider() {
+        return deepLinkServiceProvider;
+    }
+
+    @Override
+    public ServiceEndpointProvider getInboxServiceProvider() {
+        return inboxServiceProvider;
+    }
+
+    @Override
+    public ServiceEndpointProvider getMobileEngageV2ServiceProvider() {
+        return mobileEngageV2ServiceProvider;
+    }
+
+    @Override
+    public ServiceEndpointProvider getPredictServiceProvider() {
+        return predictServiceProvider;
+    }
+
+    @Override
+    public Storage<String> getClientServiceStorage() {
+        return clientServiceUrlStorage;
+    }
+
+    @Override
+    public Storage<String> getEventServiceStorage() {
+        return eventServiceUrlStorage;
+    }
+
+    @Override
+    public Storage<String> getDeepLinkServiceStorage() {
+        return deepLinkServiceUrlStorage;
+    }
+
+    @Override
+    public Storage<String> getInboxServiceStorage() {
+        return inboxServiceUrlStorage;
+    }
+
+    @Override
+    public Storage<String> getMobileEngageV2ServiceStorage() {
+        return mobileEngageV2ServiceUrlStorage;
+    }
+
+    @Override
+    public Storage<String> getPredictServiceStorage() {
+        return predictServiceUrlStorage;
     }
 }

@@ -1,17 +1,22 @@
 package com.emarsys
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.util.FileUtils
 import com.emarsys.di.DefaultEmarsysDependencyContainer
+import com.emarsys.di.EmarsysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
+import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.iam.InAppPresenter
 import com.emarsys.mobileengage.service.IntentUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
+import com.emarsys.testUtil.mockito.whenever
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -51,6 +56,11 @@ class InappNotificationIntegrationTest {
 
         DatabaseTestUtils.deleteCoreDatabase()
 
+        application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
+                .edit()
+                .clear()
+                .commit()
+
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
                 .inAppEventHandler(mock(EventHandler::class.java))
@@ -67,12 +77,27 @@ class InappNotificationIntegrationTest {
         }.`when`(mockInappPresenter).present(any(String::class.java), isNull(), any(String::class.java), isNull(), any(Long::class.java), any(String::class.java), isNull())
 
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
+            override fun getClientServiceProvider(): ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java).apply {
+                whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_CLIENT_HOST)
+            }
+
+            override fun getEventServiceProvider(): ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java).apply {
+                whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_EVENT_HOST)
+            }
+
             override fun getInAppPresenter() = mockInappPresenter
         })
 
         ConnectionTestUtils.checkConnection(application)
 
         Emarsys.setup(baseConfig)
+
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.set(null)
 
         IntegrationTestUtils.doLogin()
     }
@@ -81,6 +106,12 @@ class InappNotificationIntegrationTest {
     fun tearDown() {
         try {
             FeatureTestUtils.resetFeatures()
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.set(null)
             DependencyInjection.tearDown()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -90,7 +121,7 @@ class InappNotificationIntegrationTest {
 
     @Test
     fun testInappPresent() {
-        val context = InstrumentationRegistry.getTargetContext().getApplicationContext()
+        val context = InstrumentationRegistry.getTargetContext().applicationContext
         val url = FileUtils.download(context, "https://www.google.com")
         val emsPayload = "{\"inapp\": {\"campaignId\": \"222\",\"url\": \"https://www.google.com\",\"fileUrl\": \"$url\"}}"
         val remoteMessageData = mapOf("ems" to emsPayload)

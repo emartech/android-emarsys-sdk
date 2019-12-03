@@ -2,6 +2,7 @@ package com.emarsys.di
 
 import android.os.Handler
 import com.emarsys.config.ConfigApi
+import com.emarsys.config.ConfigInternal
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.RunnerProxy
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -10,6 +11,7 @@ import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RestClient
@@ -100,7 +102,21 @@ class FakeDependencyContainer(
         private val predict: PredictApi = mock(PredictApi::class.java),
         private val loggingPredict: PredictApi = mock(PredictApi::class.java),
         private val config: ConfigApi = mock(ConfigApi::class.java),
-        private val pushTokenProvider: PushTokenProvider = mock(PushTokenProvider::class.java)) : EmarysDependencyContainer {
+        private val pushTokenProvider: PushTokenProvider = mock(PushTokenProvider::class.java),
+        private val clientServiceProvider: ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java),
+        private val eventServiceProvider: ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java),
+        private val deepLinkServiceProvider: ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java),
+        private val mobileEngageV2ServiceProvider: ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java),
+        private val inboxServiceProvider: ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java),
+        private val predictServiceProvider: ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java),
+        private val configInternal: ConfigInternal = mock(ConfigInternal::class.java),
+        private val clientServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
+        private val eventServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
+        private val deepLinkServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
+        private val mobileEngageV2ServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
+        private val inboxServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
+        private val predictServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>
+) : EmarsysDependencyContainer {
 
     override fun getLoggingClientServiceInternal(): ClientServiceInternal {
         return loggingClientServiceInternal
@@ -301,5 +317,57 @@ class FakeDependencyContainer(
 
     override fun getPushTokenProvider(): PushTokenProvider {
         return pushTokenProvider
+    }
+
+    override fun getDeepLinkServiceProvider(): ServiceEndpointProvider {
+        return deepLinkServiceProvider
+    }
+
+    override fun getMobileEngageV2ServiceProvider(): ServiceEndpointProvider {
+        return mobileEngageV2ServiceProvider
+    }
+
+    override fun getPredictServiceProvider(): ServiceEndpointProvider {
+        return predictServiceProvider
+    }
+
+    override fun getClientServiceProvider(): ServiceEndpointProvider {
+        return clientServiceProvider
+    }
+
+    override fun getInboxServiceProvider(): ServiceEndpointProvider {
+        return inboxServiceProvider
+    }
+
+    override fun getConfigInternal(): ConfigInternal {
+        return configInternal;
+    }
+
+    override fun getEventServiceProvider(): ServiceEndpointProvider {
+        return eventServiceProvider
+    }
+
+    override fun getClientServiceStorage(): Storage<String> {
+        return clientServiceStorage
+    }
+
+    override fun getEventServiceStorage(): Storage<String> {
+        return eventServiceStorage
+    }
+
+    override fun getPredictServiceStorage(): Storage<String> {
+        return predictServiceStorage
+    }
+
+    override fun getDeepLinkServiceStorage(): Storage<String> {
+        return deepLinkServiceStorage
+    }
+
+    override fun getInboxServiceStorage(): Storage<String> {
+        return inboxServiceStorage
+    }
+
+    override fun getMobileEngageV2ServiceStorage(): Storage<String> {
+        return mobileEngageV2ServiceStorage
     }
 }
