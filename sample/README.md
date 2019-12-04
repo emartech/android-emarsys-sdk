@@ -4,8 +4,8 @@ We created a sample app to demonstrate the basic functionality of our SDK, and t
 
 ## Getting started with the released SDK
 
-1. Clone the project from [here](https://github.com/emartech/android-emarsys-sdk)
-2. Run `./gradlew build` in the terminal in the root directory of the repository
+1. Clone the project from [here](https://github.com/emartech/android-emarsys-sdk).
+2. Run `./gradlew build` in the terminal in the root directory of the repository.
 
 > __`Note`__
 >  
@@ -14,9 +14,9 @@ We created a sample app to demonstrate the basic functionality of our SDK, and t
 
 ## Getting started with the current development state of the SDK
 
-1. Clone the project from [here](https://github.com/emartech/android-emarsys-sdk)
+1. Clone the project from [here](https://github.com/emartech/android-emarsys-sdk).
 2. Create a file named `localConfig.properties` in the root directory of the project and paste `useLocalDependencies=true` in it.
-3. Run `./gradlew build` in the terminal in the root directory of the repository
+3. Run `./gradlew build` in the terminal in the root directory of the repository.
 
 > __`Note`__
 >  
