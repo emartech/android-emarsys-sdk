@@ -7,6 +7,7 @@ import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
+import com.emarsys.core.api.result.Try
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
@@ -145,7 +146,7 @@ class DefaultConfigInternalTest {
         mockInboxServiceStorage = mock(Storage::class.java) as Storage<String>
         mockMobileEngageV2ServiceStorage = mock(Storage::class.java) as Storage<String>
         mockPredictServiceStorage = mock(Storage::class.java) as Storage<String>
-        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext,
+        configInternal = spy(DefaultConfigInternal(mockMobileEngageRequestContext,
                 mockMobileEngageInternal,
                 mockPushInternal,
                 mockPushTokenProvider,
@@ -159,7 +160,7 @@ class DefaultConfigInternalTest {
                 mockDeeplinkServiceStorage,
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
-                mockPredictServiceStorage)
+                mockPredictServiceStorage))
     }
 
     @After
@@ -458,7 +459,37 @@ class DefaultConfigInternalTest {
         inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         verifyZeroInteractions(mockPushInternal)
         inOrder.verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
+    }
 
+    @Test
+    fun testChangeApplicationCode_shouldResetRemoteConfig() {
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener { })
+
+        verify(configInternal).resetRemoteConfig()
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldRefreshRemoteConfig_whenChangeWasSuccessfull() {
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener { })
+
+        val inOrder = inOrder(configInternal, mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
+        inOrder.verify(configInternal).resetRemoteConfig()
+
+        inOrder.verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
+        inOrder.verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
+        inOrder.verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
+
+        inOrder.verify(configInternal).refreshRemoteConfig()
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldNotRefreshRemoteConfig_whenMobileEngageIsDisabled() {
+        configInternal.changeApplicationCode(null, CompletionListener { latch.countDown() })
+        latch.await()
+
+        verify(configInternal, times(0)).refreshRemoteConfig()
+        verify(configInternal, times(1)).resetRemoteConfig()
     }
 
     @Test
@@ -482,6 +513,34 @@ class DefaultConfigInternalTest {
         configInternal.changeMerchantId(MERCHANT_ID)
 
         verify(mockPredictRequestContext).merchantId = MERCHANT_ID
+    }
+
+    @Test
+    fun testChangeMerchantId_shouldResetRemoteConfig() {
+        configInternal.changeMerchantId(MERCHANT_ID)
+        val inOrder = inOrder(configInternal, mockPredictRequestContext)
+        inOrder.verify(configInternal).resetRemoteConfig()
+        inOrder.verify(mockPredictRequestContext).merchantId = MERCHANT_ID
+    }
+
+    @Test
+    fun testChangeMerchantId_shouldRefreshRemoteConfigAfterChange() {
+        configInternal.changeMerchantId(MERCHANT_ID)
+
+        val inOrder = inOrder(configInternal, mockPredictRequestContext)
+        inOrder.verify(configInternal).resetRemoteConfig()
+        inOrder.verify(mockPredictRequestContext).merchantId = MERCHANT_ID
+        inOrder.verify(configInternal).refreshRemoteConfig()
+    }
+
+    @Test
+    fun testChangeMerchantId_shouldNotRefreshRemoteConfig_whenPredictGotDisabled() {
+        configInternal.changeMerchantId(null)
+
+        val inOrder = inOrder(configInternal, mockPredictRequestContext)
+        inOrder.verify(configInternal).resetRemoteConfig()
+        inOrder.verify(mockPredictRequestContext).merchantId = null
+        inOrder.verifyNoMoreInteractions()
     }
 
     @Test
@@ -513,7 +572,7 @@ class DefaultConfigInternalTest {
         val requestModel = mock(RequestModel::class.java)
         whenever(mockEmarsysRequestModelFactory.createRemoteConfigRequest()).thenReturn(requestModel)
 
-        configInternal.fetchRemoteConfig(ResultListener { })
+        configInternal.refreshRemoteConfig()
 
         verify(mockRequestManager).submitNow(eq(requestModel), anyNotNull())
     }
@@ -570,7 +629,7 @@ class DefaultConfigInternalTest {
                 mockPredictServiceStorage)
 
         val resultListener = FakeResultListener<RemoteConfig>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        configInternal.fetchRemoteConfig(resultListener)
+        (configInternal as DefaultConfigInternal).fetchRemoteConfig(resultListener)
 
         latch.await()
 
@@ -613,7 +672,7 @@ class DefaultConfigInternalTest {
                 clientServiceUrl = CLIENT_SERVICE_URL
         )
 
-        configInternal.applyRemoteConfig(remoteConfig)
+        (configInternal as DefaultConfigInternal).applyRemoteConfig(remoteConfig)
 
         verify(mockClientServiceStorage).set(CLIENT_SERVICE_URL)
         verify(mockEventServiceStorage).set(null)
@@ -634,7 +693,7 @@ class DefaultConfigInternalTest {
                 predictServiceUrl = PREDICT_SERVICE_URL
         )
 
-        configInternal.applyRemoteConfig(remoteConfig)
+        (configInternal as DefaultConfigInternal).applyRemoteConfig(remoteConfig)
 
         verify(mockClientServiceStorage).set(CLIENT_SERVICE_URL)
         verify(mockEventServiceStorage).set(EVENT_SERVICE_URL)
@@ -642,6 +701,46 @@ class DefaultConfigInternalTest {
         verify(mockInboxServiceStorage).set(INBOX_SERVICE_URL)
         verify(mockMobileEngageV2ServiceStorage).set(MOBILE_ENGAGE_V2_SERVICE_URL)
         verify(mockPredictServiceStorage).set(PREDICT_SERVICE_URL)
+    }
+
+    @Test
+    fun testResetRemoteConfig() {
+        configInternal.resetRemoteConfig()
+
+        verify(mockClientServiceStorage).set(null)
+        verify(mockEventServiceStorage).set(null)
+        verify(mockDeeplinkServiceStorage).set(null)
+        verify(mockInboxServiceStorage).set(null)
+        verify(mockMobileEngageV2ServiceStorage).set(null)
+        verify(mockPredictServiceStorage).set(null)
+    }
+
+    @Test
+    fun testRefreshRemoteConfig_verifyApplyRemoteConfigCalled_onSuccess() {
+        val expectedRemoteConfig = RemoteConfig(eventServiceUrl = "https://test.emarsys.com")
+
+        doAnswer {
+            val result: Try<RemoteConfig> = Try.success(expectedRemoteConfig)
+            (it.arguments[0] as ResultListener<Try<RemoteConfig>>).onResult(result)
+        }.`when`(configInternal as DefaultConfigInternal).fetchRemoteConfig(anyNotNull())
+
+        configInternal.refreshRemoteConfig()
+
+        verify((configInternal as DefaultConfigInternal)).applyRemoteConfig(expectedRemoteConfig)
+    }
+
+    @Test
+    fun testRefreshRemoteConfig_verifyResetRemoteConfigCalled_onFailure() {
+        val expectedException: Exception = mock(Exception::class.java)
+
+        doAnswer {
+            val result = Try.failure<Exception>(expectedException)
+            (it.arguments[0] as ResultListener<Try<Exception>>).onResult(result)
+        }.`when`(configInternal as DefaultConfigInternal).fetchRemoteConfig(anyNotNull())
+
+        configInternal.refreshRemoteConfig()
+
+        verify(configInternal as DefaultConfigInternal).resetRemoteConfig()
     }
 
     @Suppress("UNCHECKED_CAST")

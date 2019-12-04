@@ -59,12 +59,22 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
 
     override fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?) {
         val originalContactFieldValue = mobileEngageRequestContext.contactFieldValueStorage.get()
-
+        resetRemoteConfig()
+        val completionListenerWrapper = wrapCompletionListenerWithRefreshRemoteConfig(completionListener)
         if (mobileEngageRequestContext.applicationCode == null) {
-            changeApplicationCode(applicationCode, originalContactFieldValue, completionListener)
+            changeApplicationCode(applicationCode, originalContactFieldValue, completionListenerWrapper)
         } else {
-            clearCurrentContact(completionListener) {
-                changeApplicationCode(applicationCode, originalContactFieldValue, completionListener)
+            clearCurrentContact(completionListenerWrapper) {
+                changeApplicationCode(applicationCode, originalContactFieldValue, completionListenerWrapper)
+            }
+        }
+    }
+
+    private fun wrapCompletionListenerWithRefreshRemoteConfig(completionListener: CompletionListener?): CompletionListener {
+        return CompletionListener {
+            completionListener?.onCompleted(it)
+            if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
+                refreshRemoteConfig()
             }
         }
     }
@@ -124,15 +134,28 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     }
 
     override fun changeMerchantId(merchantId: String?) {
+        resetRemoteConfig()
         predictRequestContext.merchantId = merchantId
         if (merchantId == null) {
             FeatureRegistry.disableFeature(InnerFeature.PREDICT)
         } else {
             FeatureRegistry.enableFeature(InnerFeature.PREDICT)
+            refreshRemoteConfig()
         }
     }
 
-    override fun fetchRemoteConfig(resultListener: ResultListener<Try<RemoteConfig>>) {
+    override fun refreshRemoteConfig() {
+        fetchRemoteConfig(ResultListener {
+            it.result?.let { remoteConfig ->
+                applyRemoteConfig(remoteConfig)
+            }
+            it.errorCause?.let {
+                resetRemoteConfig()
+            }
+        })
+    }
+
+    fun fetchRemoteConfig(resultListener: ResultListener<Try<RemoteConfig>>) {
         val requestModel = emarsysRequestModelFactory.createRemoteConfigRequest()
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String?, responseModel: ResponseModel?) {
@@ -158,12 +181,21 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         })
     }
 
-    override fun applyRemoteConfig(remoteConfig: RemoteConfig) {
+    fun applyRemoteConfig(remoteConfig: RemoteConfig) {
         clientServiceStorage.set(remoteConfig.clientServiceUrl)
         eventServiceStorage.set(remoteConfig.eventServiceUrl)
         deeplinkServiceStorage.set(remoteConfig.deepLinkServiceUrl)
         inboxServiceStorage.set(remoteConfig.inboxServiceUrl)
         mobileEngageV2ServiceStorage.set(remoteConfig.mobileEngageV2ServiceUrl)
         predictServiceStorage.set(remoteConfig.predictServiceUrl)
+    }
+
+    override fun resetRemoteConfig() {
+        clientServiceStorage.set(null)
+        eventServiceStorage.set(null)
+        deeplinkServiceStorage.set(null)
+        inboxServiceStorage.set(null)
+        mobileEngageV2ServiceStorage.set(null)
+        predictServiceStorage.set(null)
     }
 }

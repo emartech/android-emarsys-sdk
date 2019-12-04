@@ -2,6 +2,7 @@ package com.emarsys
 
 import android.app.Application
 import androidx.test.rule.ActivityTestRule
+import com.emarsys.config.DefaultConfigInternal
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.config.FetchRemoteConfigAction
 import com.emarsys.core.api.result.ResultListener
@@ -122,7 +123,7 @@ class RemoteConfigIntegrationTest {
         DependencyInjection.getContainer<EmarsysDependencyContainer>().activityLifecycleWatchdog.applicationStartActions
                 .filterIsInstance<FetchRemoteConfigAction>().first().execute(activityRule.activity)
 
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().configInternal.fetchRemoteConfig(ResultListener {
+        (DependencyInjection.getContainer<EmarsysDependencyContainer>().configInternal as DefaultConfigInternal).fetchRemoteConfig(ResultListener {
             latch.countDown()
         })
 
