@@ -61,7 +61,7 @@ class EmarsysRequestModelFactoryTest {
     fun testCreateRemoteConfigRequest() {
         val expected = RequestModel.Builder(mockMobileEngageRequestContext.timestampProvider, mockMobileEngageRequestContext.uuidProvider)
                 .method(RequestMethod.GET)
-                .url("https://api.myjson.com/bins/s6was")
+                .url("https://api.myjson.com/bins/1d2i64")
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(mockMobileEngageRequestContext))
                 .build()
 

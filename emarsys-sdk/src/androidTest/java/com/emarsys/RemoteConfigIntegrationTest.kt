@@ -2,10 +2,7 @@ package com.emarsys
 
 import android.app.Application
 import androidx.test.rule.ActivityTestRule
-import com.emarsys.config.DefaultConfigInternal
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.config.FetchRemoteConfigAction
-import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
@@ -18,11 +15,9 @@ import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
-import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
-import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito
 import java.util.concurrent.CountDownLatch
@@ -116,20 +111,5 @@ class RemoteConfigIntegrationTest {
             e.printStackTrace()
             throw e
         }
-    }
-
-    @Test
-    fun testRemoteConfig() {
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().activityLifecycleWatchdog.applicationStartActions
-                .filterIsInstance<FetchRemoteConfigAction>().first().execute(activityRule.activity)
-
-        (DependencyInjection.getContainer<EmarsysDependencyContainer>().configInternal as DefaultConfigInternal).fetchRemoteConfig(ResultListener {
-            latch.countDown()
-        })
-
-        latch.await()
-
-        val endpointHost = DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceProvider.provideEndpointHost()
-        endpointHost shouldBe "https://integraiton.me-client.eservice.emarsys.net"
     }
 }
