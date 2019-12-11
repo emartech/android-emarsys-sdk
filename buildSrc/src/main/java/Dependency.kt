@@ -1,17 +1,17 @@
 object Versions {
-    const val kotlin_version = "1.3.50"
+    const val kotlin_version = "1.3.61"
     const val kotlin_test_version = "3.1.11"
     const val mockito_version = "3.0.0"
     const val espresso_version = "3.2.0"
-    const val firebase_core_version = "17.2.0"
-    const val firebase_messaging_version = "20.0.0"
-    const val hamcrest_version = "2.1"
+    const val firebase_core_version = "17.2.1"
+    const val firebase_messaging_version = "20.1.0"
+    const val hamcrest_version = "2.2"
     const val support_test_version = "1.2.0"
-    const val support_library = "1.0.2"
+    const val support_library = "1.1.0"
     const val support_annotations = "1.1.0"
     const val buildToolsVersion = "29.0.0"
     const val multiDexVersion = "2.0.0"
-    const val androidJunit4 = "1.1.0"
+    const val androidJunit4 = "1.1.1"
 }
 
 object Libs {
