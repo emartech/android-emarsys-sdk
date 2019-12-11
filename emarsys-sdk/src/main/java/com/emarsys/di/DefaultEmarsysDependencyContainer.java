@@ -676,8 +676,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private void initializeActivityLifecycleWatchdog() {
         ActivityLifecycleAction[] applicationStartActions = new ActivityLifecycleAction[]{
                 new DeviceInfoStartAction(getClientServiceInternal(), deviceInfoHashStorage, getDeviceInfo()),
-                new InAppStartAction(eventServiceInternal, contactTokenStorage),
-                new FetchRemoteConfigAction(configInternal)
+                new InAppStartAction(eventServiceInternal, contactTokenStorage)
         };
 
         ActivityLifecycleAction[] activityCreatedActions = new ActivityLifecycleAction[]{

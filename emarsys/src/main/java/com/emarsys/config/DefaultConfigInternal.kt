@@ -73,9 +73,6 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     private fun wrapCompletionListenerWithRefreshRemoteConfig(completionListener: CompletionListener?): CompletionListener {
         return CompletionListener {
             completionListener?.onCompleted(it)
-            if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
-                refreshRemoteConfig()
-            }
         }
     }
 
@@ -140,7 +137,6 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
             FeatureRegistry.disableFeature(InnerFeature.PREDICT)
         } else {
             FeatureRegistry.enableFeature(InnerFeature.PREDICT)
-            refreshRemoteConfig()
         }
     }
 
