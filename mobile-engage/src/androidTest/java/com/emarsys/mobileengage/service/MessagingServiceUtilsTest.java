@@ -15,7 +15,6 @@ import androidx.test.filters.SdkSuppress;
 import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.device.LanguageProvider;
 import com.emarsys.core.notification.ChannelSettings;
-import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.notification.NotificationSettings;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
@@ -41,6 +40,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static android.os.Build.VERSION_CODES.KITKAT;
@@ -70,6 +70,9 @@ public class MessagingServiceUtilsTest {
     private static final String DEFAULT_TITLE = "This is a default title";
     private static final String BODY = "body";
     private static final String CHANNEL_ID = "channelId";
+    private static final String HARDWARE_ID = "hwid";
+    private static final String SDK_VERSION = "sdkVersion";
+    private static final String LANGUAGE = "en-US";
 
     private Context context;
     private DeviceInfo deviceInfo;
@@ -88,13 +91,23 @@ public class MessagingServiceUtilsTest {
     public void init() {
         context = InstrumentationRegistry.getTargetContext();
 
-        NotificationManagerHelper notificationManagerHelper = mock(NotificationManagerHelper.class);
+        NotificationSettings mockNotificationSettings = mock(NotificationSettings.class);
+        HardwareIdProvider mockHardwareIdProvider = mock(HardwareIdProvider.class);
+        VersionProvider mockVersionProvider = mock(VersionProvider.class);
+        LanguageProvider mockLanguageProvider = mock(LanguageProvider.class);
+        ChannelSettings channelSettings = mock(ChannelSettings.class);
+
+        when(channelSettings.getChannelId()).thenReturn(CHANNEL_ID);
+        when(mockNotificationSettings.getChannelSettings()).thenReturn(Collections.singletonList(channelSettings));
+        when(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID);
+        when(mockLanguageProvider.provideLanguage(any(Locale.class))).thenReturn(LANGUAGE);
+        when(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION);
 
         deviceInfo = new DeviceInfo(context,
-                mock(HardwareIdProvider.class),
-                mock(VersionProvider.class),
-                mock(LanguageProvider.class),
-                notificationManagerHelper,
+                mockHardwareIdProvider,
+                mockVersionProvider,
+                mockLanguageProvider,
+                mockNotificationSettings,
                 true);
 
         metaDataReader = mock(MetaDataReader.class);
@@ -104,9 +117,6 @@ public class MessagingServiceUtilsTest {
 
         when(mockTimestampProvider.provideTimestamp()).thenReturn(1L);
 
-        ChannelSettings channelSettings = mock(ChannelSettings.class);
-        when(channelSettings.getChannelId()).thenReturn(CHANNEL_ID);
-        when(notificationManagerHelper.getChannelSettings()).thenReturn(Collections.singletonList(channelSettings));
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -21,10 +21,17 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.*
+import java.util.*
 
 
 class EmarsysMessagingServiceTest {
+
+    private lateinit var mockHardwareIdProvider: HardwareIdProvider
+    private lateinit var mockLanguageProvider: LanguageProvider
+    private lateinit var mockVersionProvider: VersionProvider
+    private lateinit var mockNotificationSettings: NotificationSettings
 
     @Rule
     @JvmField
@@ -33,6 +40,9 @@ class EmarsysMessagingServiceTest {
     private companion object {
         private const val APPLICATION_CODE = "56789876"
         private const val CONTACT_FIELD_ID = 3
+        private const val HARDWARE_ID = "hwid"
+        private const val SDK_VERSION = "sdkVersion"
+        private const val LANGUAGE = "en-US"
     }
 
     private val application: Application
@@ -51,6 +61,15 @@ class EmarsysMessagingServiceTest {
         mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
         }
+
+        mockHardwareIdProvider = mock(HardwareIdProvider::class.java)
+        mockLanguageProvider = mock(LanguageProvider::class.java)
+        mockVersionProvider = mock(VersionProvider::class.java)
+        mockNotificationSettings = mock(NotificationSettings::class.java)
+        whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
+        whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn(LANGUAGE)
+        whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
+
         baseConfig = createConfig()
         FeatureTestUtils.resetFeatures()
         DependencyInjection.tearDown()
@@ -90,10 +109,10 @@ class EmarsysMessagingServiceTest {
 
     private fun setupEmarsys(isAutomaticPushSending: Boolean) {
         val deviceInfo = DeviceInfo(application,
-                mock(HardwareIdProvider::class.java),
-                mock(VersionProvider::class.java),
-                mock(LanguageProvider::class.java),
-                mock(NotificationSettings::class.java),
+                mockHardwareIdProvider,
+                mockVersionProvider,
+                mockLanguageProvider,
+                mockNotificationSettings,
                 isAutomaticPushSending)
 
         fakeDependencyContainer = FakeDependencyContainer(

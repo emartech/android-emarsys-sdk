@@ -57,6 +57,8 @@ class DefaultInboxInternalTest {
         private const val CONTACT_FIELD_ID = 1
         private const val REQUEST_ID = "REQUEST_ID"
         private const val TIMESTAMP: Long = 100000
+        private const val SDK_VERSION = "sdkVersion"
+        private const val LANGUAGE = "en-US"
     }
 
     private lateinit var mockResultListener: ResultListener<Try<NotificationInboxStatus>>
@@ -74,6 +76,7 @@ class DefaultInboxInternalTest {
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockHardwareIdProvider: HardwareIdProvider
+    private lateinit var mockVersionProvider: VersionProvider
     private lateinit var mockContactFieldValueStorage: Storage<String>
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var notificationList: List<Notification>
@@ -94,9 +97,13 @@ class DefaultInboxInternalTest {
         notificationList = createNotificationList()
         mockHardwareIdProvider = mock(HardwareIdProvider::class.java)
         mockLanguageProvider = mock(LanguageProvider::class.java)
+        mockVersionProvider = mock(VersionProvider::class.java)
 
         whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
-        deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mock(VersionProvider::class.java), mockLanguageProvider, mock(NotificationManagerHelper::class.java), true)
+        whenever(mockLanguageProvider.provideLanguage(any(Locale::class.java))).thenReturn(LANGUAGE)
+        whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
+        deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mockVersionProvider,
+                mockLanguageProvider, mock(NotificationManagerHelper::class.java), true)
 
         mockUuidProvider = mock(UUIDProvider::class.java)
         whenever(mockUuidProvider.provideId()).thenReturn(REQUEST_ID)

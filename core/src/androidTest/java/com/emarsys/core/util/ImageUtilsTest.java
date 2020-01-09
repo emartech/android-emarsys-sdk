@@ -18,28 +18,41 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.io.File;
+import java.util.Locale;
 
 import static com.emarsys.testUtil.TestUrls.LARGE_IMAGE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ImageUtilsTest {
     private Context context;
     private DeviceInfo deviceInfo;
-
+    private HardwareIdProvider mockHardwareIdProvider;
+    private LanguageProvider mockLanguageProvider;
+    private VersionProvider mockVersionProvider;
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
     @Before
     public void setup() {
         context = InstrumentationRegistry.getTargetContext();
+
+        mockHardwareIdProvider = mock(HardwareIdProvider.class);
+        mockLanguageProvider = mock(LanguageProvider.class);
+        mockVersionProvider = mock(VersionProvider.class);
+
+        when(mockLanguageProvider.provideLanguage(any(Locale.class))).thenReturn("language");
+        when(mockHardwareIdProvider.provideHardwareId()).thenReturn("hardwareId");
+        when(mockVersionProvider.provideSdkVersion()).thenReturn("version");
         deviceInfo = new DeviceInfo(context,
-                mock(HardwareIdProvider.class),
-                mock(VersionProvider.class),
-                mock(LanguageProvider.class),
+                mockHardwareIdProvider,
+                mockVersionProvider,
+                mockLanguageProvider,
                 mock(NotificationManagerHelper.class),
                 true);
     }

@@ -100,6 +100,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -168,6 +169,7 @@ public class EmarsysTest {
     private PredictApi mockPredict;
     private PredictApi mockLoggingPredict;
     private ConfigApi mockConfig;
+    private HardwareIdProvider mockHardwareIdProvider;
 
     private LanguageProvider mockLanguageProvider;
     private NotificationManagerHelper mockNotificationManagerHelper;
@@ -239,6 +241,7 @@ public class EmarsysTest {
         mockInAppPresenter = mock(InAppPresenter.class);
         mockNotificationEventHandler = mock(NotificationEventHandler.class);
         mockRestClient = mock(RestClient.class);
+        mockHardwareIdProvider = mock(HardwareIdProvider.class);
 
         mockInbox = mock(InboxApi.class);
         mockLoggingInbox = mock(InboxApi.class);
@@ -252,8 +255,13 @@ public class EmarsysTest {
         mockLogic = mock(Logic.class);
         mockRecommendationFilter = mock(RecommendationFilter.class);
         PushTokenProvider pushTokenProvider = mock(PushTokenProvider.class);
-        HardwareIdProvider hardwareIdProvider = mock(HardwareIdProvider.class);
-        deviceInfo = new DeviceInfo(application, hardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true);
+
+        when(mockHardwareIdProvider.provideHardwareId()).thenReturn("hwid");
+        when(mockLanguageProvider.provideLanguage(any(Locale.class))).thenReturn("language");
+        when(mockVersionProvider.provideSdkVersion()).thenReturn("version");
+
+        deviceInfo = new DeviceInfo(application, mockHardwareIdProvider, mockVersionProvider,
+                mockLanguageProvider, mockNotificationManagerHelper, true);
 
         when(mockRequestContext.getApplicationCode()).thenReturn(APPLICATION_CODE);
         when(mockDeviceInfoHashStorage.get()).thenReturn(deviceInfo.getHash());
