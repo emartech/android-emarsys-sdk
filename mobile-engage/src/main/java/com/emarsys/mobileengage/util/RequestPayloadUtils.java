@@ -1,8 +1,8 @@
 package com.emarsys.mobileengage.util;
 
+import com.emarsys.core.api.notification.ChannelSettings;
+import com.emarsys.core.api.notification.NotificationSettings;
 import com.emarsys.core.device.DeviceInfo;
-import com.emarsys.core.notification.ChannelSettings;
-import com.emarsys.core.notification.NotificationSettings;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.MobileEngageRequestContext;

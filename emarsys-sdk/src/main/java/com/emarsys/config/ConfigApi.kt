@@ -1,5 +1,6 @@
 package com.emarsys.config
 
+import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 
 interface ConfigApi {
@@ -9,6 +10,12 @@ interface ConfigApi {
     val applicationCode: String?
 
     val merchantId: String?
+
+    val hardwareId: String
+
+    val language: String
+
+    val notificationSettings: NotificationSettings
 
     fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?)
 

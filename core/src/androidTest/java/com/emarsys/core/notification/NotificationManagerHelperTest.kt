@@ -1,5 +1,6 @@
 package com.emarsys.core.notification
 
+import com.emarsys.core.api.notification.ChannelSettings
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe

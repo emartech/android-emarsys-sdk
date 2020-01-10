@@ -2,9 +2,9 @@ package com.emarsys.mobileengage.util
 
 
 import androidx.test.filters.SdkSuppress
+import com.emarsys.core.api.notification.ChannelSettings
+import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.notification.ChannelSettings
-import com.emarsys.core.notification.NotificationSettings
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.TimestampUtils

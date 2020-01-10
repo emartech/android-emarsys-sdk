@@ -1,7 +1,7 @@
 package com.emarsys.config
 
+import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.notification.NotificationSettings
 
 interface ConfigInternal {
 

@@ -7,6 +7,7 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.emarsys.core.api.notification.ChannelSettings;
 import com.emarsys.core.util.Assert;
 
 import java.util.ArrayList;

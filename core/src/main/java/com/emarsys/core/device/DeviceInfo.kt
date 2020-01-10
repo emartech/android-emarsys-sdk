@@ -7,7 +7,7 @@ import android.content.res.Resources
 import android.os.Build
 import android.util.DisplayMetrics
 import com.emarsys.core.Mockable
-import com.emarsys.core.notification.NotificationSettings
+import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import java.text.SimpleDateFormat

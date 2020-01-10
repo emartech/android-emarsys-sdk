@@ -13,9 +13,9 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Action;
 import androidx.core.content.ContextCompat;
 
+import com.emarsys.core.api.notification.ChannelSettings;
+import com.emarsys.core.api.notification.NotificationSettings;
 import com.emarsys.core.device.DeviceInfo;
-import com.emarsys.core.notification.ChannelSettings;
-import com.emarsys.core.notification.NotificationSettings;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.core.util.Assert;

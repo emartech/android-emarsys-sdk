@@ -4,6 +4,8 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import com.emarsys.core.api.notification.ChannelSettings;
+import com.emarsys.core.api.notification.NotificationSettings;
 import com.emarsys.core.util.Assert;
 
 import java.util.List;

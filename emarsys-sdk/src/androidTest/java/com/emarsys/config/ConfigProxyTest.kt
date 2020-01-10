@@ -2,6 +2,7 @@ package com.emarsys.config
 
 import com.emarsys.core.Callable
 import com.emarsys.core.RunnerProxy
+import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -77,6 +78,42 @@ class ConfigProxyTest {
 
         result shouldBe "testMerchantId"
         verify(mockConfigInternal).merchantId
+        verify(mockRunnerProxy).logException(any(Callable::class.java))
+    }
+
+    @Test
+    fun testGetNotificationSettings_delegatesTo_internal_byUsingRunnerProxy() {
+        val mockNotificationSettings = mock(NotificationSettings::class.java)
+        whenever(mockConfigInternal.notificationSettings).thenReturn(mockNotificationSettings)
+
+        val result = configProxy.notificationSettings
+
+        result shouldBe mockNotificationSettings
+        verify(mockConfigInternal).notificationSettings
+        verify(mockRunnerProxy).logException(any(Callable::class.java))
+    }
+
+    @Test
+    fun testGetLanguage_delegatesTo_internal_byUsingRunnerProxy() {
+        val language = "testLanguage"
+        whenever(mockConfigInternal.language).thenReturn(language)
+
+        val result = configProxy.language
+
+        result shouldBe language
+        verify(mockConfigInternal).language
+        verify(mockRunnerProxy).logException(any(Callable::class.java))
+    }
+
+    @Test
+    fun testGetHardwareId_delegatesTo_internal_byUsingRunnerProxy() {
+        val hardwareId = "testHardwareId"
+        whenever(mockConfigInternal.hardwareId).thenReturn(hardwareId)
+
+        val result = configProxy.hardwareId
+
+        result shouldBe hardwareId
+        verify(mockConfigInternal).hardwareId
         verify(mockRunnerProxy).logException(any(Callable::class.java))
     }
 }

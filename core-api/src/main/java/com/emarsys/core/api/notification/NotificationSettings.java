@@ -1,4 +1,4 @@
-package com.emarsys.core.notification;
+package com.emarsys.core.api.notification;
 
 import java.util.List;
 
