@@ -84,7 +84,7 @@ class FakeDependencyContainer(
         private val inAppPresenter: InAppPresenter = mock(InAppPresenter::class.java),
         private val notificationEventHandler: NotificationEventHandler = mock(NotificationEventHandler::class.java),
         private val predictShardTrigger: Runnable = mock(Runnable::class.java),
-        private val runnerProxy: RunnerProxy = mock(RunnerProxy::class.java),
+        private val runnerProxy: RunnerProxy = RunnerProxy(),
         private val logger: Logger = mock(Logger::class.java),
         private val deviceInfoHashStorage: Storage<Int> = mock(Storage::class.java) as Storage<Int>,
         private val contactFieldValueStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,

@@ -69,8 +69,6 @@ object Emarsys {
 
         DependencyInjection.setup(DefaultEmarsysDependencyContainer(emarsysConfig))
 
-
-
         initializeInAppInternal(emarsysConfig)
 
         registerWatchDogs(emarsysConfig)

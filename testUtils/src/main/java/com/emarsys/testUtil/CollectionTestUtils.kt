@@ -5,16 +5,11 @@ import java.util.*
 object CollectionTestUtils {
 
     @JvmStatic
-    fun numberOfElementsIn(list: List<*>, type: Class<*>): Int {
-        var count = 0
-
-        for (o in list) {
-            if (o != null && o::class.java == type) {
-                count++
-            }
-        }
-
-        return count
+    fun numberOfElementsIn(list: List<Any?>, type: Class<*>): Int {
+        return list
+                .filterNotNull()
+                .filter { it::class.java == type }
+                .count()
     }
 
     @JvmStatic
