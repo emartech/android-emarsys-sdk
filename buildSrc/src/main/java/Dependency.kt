@@ -12,6 +12,7 @@ object Versions {
     const val buildToolsVersion = "29.0.0"
     const val multiDexVersion = "2.0.0"
     const val androidJunit4 = "1.1.1"
+    const val kotlinMockito = "2.2.0"
 }
 
 object Libs {
@@ -26,6 +27,7 @@ object Libs {
 object TestLibs {
     const val kotlin_test = "io.kotlintest:kotlintest-runner-junit4:${Versions.kotlin_test_version}"
     const val mockito_android = "org.mockito:mockito-android:${Versions.mockito_version}"
+    const val kotlin_mockito = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.kotlinMockito}"
     const val espresso_core = "androidx.test.espresso:espresso-core:${Versions.espresso_version}"
     const val support_test_runner = "androidx.test:runner:${Versions.support_test_version}"
     const val support_test_rules = "androidx.test:rules:${Versions.support_test_version}"

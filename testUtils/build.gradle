@@ -34,6 +34,7 @@ dependencies {
     api Libs.kotlin
     api TestLibs.kotlin_test
     api TestLibs.mockito_android
+    api TestLibs.kotlin_mockito
     api TestLibs.support_test_runner
     api TestLibs.support_test_rules
     api TestLibs.hamcrest_core
