@@ -14,6 +14,7 @@ import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
@@ -21,6 +22,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -227,6 +229,20 @@ class AbstractSqliteRepositoryTest {
         db.execSQL("DELETE FROM request;")
 
         repository.isEmpty shouldBe true
+    }
+
+    @Test
+    fun testCursor_shouldBeClosed_afterException() {
+        val mockCursor = mock(Cursor::class.java).apply {
+            whenever(moveToFirst()).thenThrow(RuntimeException("TestException"))
+        }
+        whenever(dbMock.query(anyBoolean(), anyNotNull(), anyNotNull(), anyNotNull(), anyNotNull(), anyNotNull(), anyNotNull(), anyNotNull(), anyNotNull())).thenReturn(mockCursor)
+        try {
+            repository.query(dummySpecification)
+        } catch (ignored: RuntimeException) {
+        }
+
+        verify(mockCursor).close()
     }
 
     private fun contentValuesFrom(item: RequestModel): ContentValues {

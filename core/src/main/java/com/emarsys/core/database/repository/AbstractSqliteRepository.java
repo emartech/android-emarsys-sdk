@@ -44,8 +44,7 @@ public abstract class AbstractSqliteRepository<T> implements Repository<T, SqlSp
         Assert.notNull(specification, "Specification must not be null!");
 
         CoreSQLiteDatabase database = dbHelper.getReadableCoreDatabase();
-        Cursor cursor = database.query(
-                specification.isDistinct(),
+        try (Cursor cursor = database.query(specification.isDistinct(),
                 tableName,
                 specification.getColumns(),
                 specification.getSelection(),
@@ -53,10 +52,9 @@ public abstract class AbstractSqliteRepository<T> implements Repository<T, SqlSp
                 specification.getGroupBy(),
                 specification.getHaving(),
                 specification.getOrderBy(),
-                specification.getLimit()
-        );
-
-        return mapCursorToResultList(cursor);
+                specification.getLimit())) {
+            return mapCursorToResultList(cursor);
+        }
     }
 
     @Override
@@ -76,18 +74,17 @@ public abstract class AbstractSqliteRepository<T> implements Repository<T, SqlSp
     @Override
     public boolean isEmpty() {
         CoreSQLiteDatabase database = dbHelper.getReadableCoreDatabase();
-        Cursor cursor = database.rawQuery(
+        try (Cursor cursor = database.rawQuery(
                 String.format("SELECT COUNT(*) FROM %s;", tableName),
-                null);
-        cursor.moveToFirst();
-        int count = cursor.getInt(cursor.getColumnIndex("COUNT(*)"));
-        cursor.close();
-        return count == 0;
+                null)) {
+            cursor.moveToFirst();
+            int count = cursor.getInt(cursor.getColumnIndex("COUNT(*)"));
+            return count == 0;
+        }
     }
 
     private List<T> mapCursorToResultList(Cursor cursor) {
         List<T> result = new ArrayList<>();
-
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
                 T item = itemFromCursor(cursor);
@@ -95,8 +92,6 @@ public abstract class AbstractSqliteRepository<T> implements Repository<T, SqlSp
                 cursor.moveToNext();
             }
         }
-        cursor.close();
-
         return result;
     }
 }
