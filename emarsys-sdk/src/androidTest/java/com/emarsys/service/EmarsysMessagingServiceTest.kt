@@ -16,10 +16,9 @@ import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
+import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.*
@@ -43,6 +42,22 @@ class EmarsysMessagingServiceTest {
         private const val HARDWARE_ID = "hwid"
         private const val SDK_VERSION = "sdkVersion"
         private const val LANGUAGE = "en-US"
+
+        @BeforeClass
+        @JvmStatic
+        fun beforeAll() {
+            val options: FirebaseOptions = FirebaseOptions.Builder()
+                    .setApplicationId("com.emarsys.sdk")
+                    .build()
+
+            FirebaseApp.initializeApp(InstrumentationRegistry.getTargetContext(), options)
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun afterAll() {
+            FirebaseApp.clearInstancesForTest()
+        }
     }
 
     private val application: Application

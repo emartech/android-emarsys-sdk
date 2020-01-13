@@ -27,13 +27,12 @@ import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 import io.kotlintest.matchers.numerics.shouldBeInRange
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.mock
@@ -45,6 +44,22 @@ class MobileEngageIntegrationTest {
         private const val APP_ID = "14C19-A121F"
         private const val OTHER_APP_ID = "EMS11-C3FD3"
         private const val CONTACT_FIELD_ID = 3
+
+        @BeforeClass
+        @JvmStatic
+        fun beforeAll() {
+            val options: FirebaseOptions = FirebaseOptions.Builder()
+                    .setApplicationId("com.emarsys.sdk")
+                    .build()
+
+            FirebaseApp.initializeApp(InstrumentationRegistry.getTargetContext(), options)
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun afterAll() {
+            FirebaseApp.clearInstancesForTest()
+        }
     }
 
     private var completionHandlerLatch: CountDownLatch? = null

@@ -17,12 +17,11 @@ import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.Mockito
 import java.util.concurrent.CountDownLatch
@@ -32,6 +31,25 @@ class MobileEngageRefreshContactTokenIntegrationTest {
     companion object {
         private const val APP_ID = "14C19-A121F"
         private const val CONTACT_FIELD_ID = 3
+
+        @BeforeClass
+        @JvmStatic
+        fun beforeAll() {
+            val options: FirebaseOptions = FirebaseOptions.Builder()
+                    .setApplicationId("com.emarsys.sdk")
+                    .build()
+
+            try {
+                FirebaseApp.initializeApp(InstrumentationRegistry.getTargetContext(), options)
+            } catch (ignored: java.lang.Exception) {
+
+            }
+        }
+        @AfterClass
+        @JvmStatic
+        fun afterAll() {
+            FirebaseApp.clearInstancesForTest()
+        }
     }
 
     private lateinit var completionListenerLatch: CountDownLatch

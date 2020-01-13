@@ -85,6 +85,8 @@ import com.emarsys.testUtil.FeatureTestUtils.resetFeatures
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils.getInstanceField
 import com.emarsys.testUtil.TimeoutUtils
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
@@ -103,6 +105,26 @@ class EmarsysTest {
             Mockito.mock(Application::class.java)
             Mockito.mock(Activity::class.java)
             Mockito.mock(Intent::class.java)
+        }
+
+        @BeforeClass
+        @JvmStatic
+        fun beforeAll() {
+            val options: FirebaseOptions = FirebaseOptions.Builder()
+                    .setApplicationId("com.emarsys.sdk")
+                    .build()
+
+            try {
+                FirebaseApp.initializeApp(getTargetContext(), options)
+            } catch (ignored: java.lang.Exception) {
+
+            }
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun afterAll() {
+            FirebaseApp.clearInstancesForTest()
         }
 
         init {

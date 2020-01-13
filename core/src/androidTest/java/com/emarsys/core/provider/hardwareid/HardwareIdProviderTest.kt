@@ -1,24 +1,45 @@
 package com.emarsys.core.provider.hardwareid
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.provider.Settings
+import com.emarsys.core.storage.Storage
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
+import com.google.firebase.iid.FirebaseInstanceId
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import io.kotlintest.shouldBe
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.TestRule
-import org.mockito.Mockito
-import org.mockito.Mockito.*
+
 
 class HardwareIdProviderTest {
 
     companion object {
-        private const val HARDWARE_ID_KEY = "hardwareId"
         private const val HARDWARE_ID = "hw_value"
+        private const val FIREBASE_HARDWARE_ID = "firebase_hw_value"
+
+        @BeforeClass
+        @JvmStatic
+        fun beforeAll() {
+            val options: FirebaseOptions = FirebaseOptions.Builder()
+                    .setApplicationId("com.emarsys.sdk")
+                    .build()
+
+            FirebaseApp.initializeApp(InstrumentationRegistry.getTargetContext(), options)
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun afterAll() {
+            FirebaseApp.clearInstancesForTest()
+        }
+
     }
 
     @Rule
@@ -26,73 +47,56 @@ class HardwareIdProviderTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var context: Context
-    private lateinit var sharedPrefs: SharedPreferences
-    private lateinit var sharedPrefsEdit: SharedPreferences.Editor
+    private lateinit var mockStorage: Storage<String>
     private lateinit var hardwareIdProvider: HardwareIdProvider
+    private lateinit var mockFirebaseInstanceId: FirebaseInstanceId
 
     @Before
     fun init() {
-        context = InstrumentationRegistry.getTargetContext().applicationContext
+        context = InstrumentationRegistry.getTargetContext()
+        mockStorage = mock()
 
-        sharedPrefs = mock(SharedPreferences::class.java)
-        sharedPrefsEdit = mock(SharedPreferences.Editor::class.java)
-        whenever(sharedPrefsEdit.putString(any(), any())).thenReturn(sharedPrefsEdit)
-        whenever(sharedPrefs.edit()).thenReturn(sharedPrefsEdit)
-
-        hardwareIdProvider = HardwareIdProvider(context, sharedPrefs)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_context_shouldNotBeNull() {
-        HardwareIdProvider(null, mock(SharedPreferences::class.java))
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_sharedPreferences_shouldNotBeNull() {
-        HardwareIdProvider(InstrumentationRegistry.getTargetContext(), null)
+        mockFirebaseInstanceId = mock {
+            on { id } doReturn FIREBASE_HARDWARE_ID
+        }
+        hardwareIdProvider = HardwareIdProvider(context, mockFirebaseInstanceId, mockStorage)
     }
 
     @Test
-    fun testProvideHardwareId_shouldGetHardwareId_fromSharedPrefs_ifSetThere() {
-        whenever(sharedPrefs.getString(HARDWARE_ID_KEY, null)).thenReturn(HARDWARE_ID)
-        val mockContext = mock(Context::class.java)
+    fun testProvideHardwareId_shouldGetHardwareId_fromStorage_ifExists() {
+        whenever(mockStorage.get()).thenReturn(HARDWARE_ID)
 
-        hardwareIdProvider = HardwareIdProvider(mockContext, sharedPrefs)
+        val result = hardwareIdProvider.provideHardwareId()
 
-        val hardwareId = hardwareIdProvider.provideHardwareId()
-
-        verify(sharedPrefs).getString(HARDWARE_ID_KEY, null)
-        verifyZeroInteractions(mockContext)
-        hardwareId shouldBe HARDWARE_ID
+        verify(mockStorage).get()
+        result shouldBe HARDWARE_ID
     }
 
     @Test
-    fun testProvideHardwareId_shouldGetHardwareId_fromContext_ifNotFoundInSharedPrefs() {
-        val expectedHardwareId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-
-        whenever(sharedPrefs.getString(HARDWARE_ID_KEY, null)).thenReturn(null)
-
-        val actualHardwareId = hardwareIdProvider.provideHardwareId()
-
-        verify(sharedPrefs).getString(HARDWARE_ID_KEY, null)
-        actualHardwareId shouldBe expectedHardwareId
+    fun testProvideHardwareId_shouldGetHardwareId_fromFirebase_ifNotExists() {
+        val result = hardwareIdProvider.provideHardwareId()
+        result shouldBe FIREBASE_HARDWARE_ID
     }
 
     @Test
-    fun testProvideHardwareId_shouldSetHardwareId_inSharedPrefs_ifMissing() {
-        val expectedHardwareId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-
-        whenever(sharedPrefs.getString(HARDWARE_ID_KEY, null)).thenReturn(null)
-
+    fun testProvideHardwareId_shouldStore_whenEmpty() {
         hardwareIdProvider.provideHardwareId()
 
-        Mockito.inOrder(sharedPrefs, sharedPrefsEdit).apply {
-            verify(sharedPrefs).getString(HARDWARE_ID_KEY, null)
-            verify(sharedPrefs).edit()
-            verify(sharedPrefsEdit).putString(HARDWARE_ID_KEY, expectedHardwareId)
-            verify(sharedPrefsEdit).commit()
-        }
-
+        verify(mockStorage).set(FIREBASE_HARDWARE_ID)
     }
 
+    @Test
+    fun testProvideHardwareId_shouldFallbackToLegacySolution_whenFirebaseInstanceId_isNotAvailable() {
+        val mockContext = mock<Context>()
+        val expectedHardwareId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+        mockFirebaseInstanceId = mock {
+            on { id } doReturn null
+        }
+        hardwareIdProvider = HardwareIdProvider(context, mockFirebaseInstanceId, mockStorage)
+
+        val result = hardwareIdProvider.provideHardwareId()
+
+        verifyZeroInteractions(mockContext)
+        result shouldBe expectedHardwareId
+    }
 }

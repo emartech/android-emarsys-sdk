@@ -27,13 +27,12 @@ import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.mock
@@ -47,6 +46,22 @@ class PredictIntegrationTest {
         private const val CONTACT_FIELD_ID = 3
         private const val MERCHANT_ID = "1428C8EE286EC34B"
         private const val OTHER_MERCHANT_ID = "test_1428C8EE286EC34B"
+
+        @BeforeClass
+        @JvmStatic
+        fun beforeAll() {
+            val options: FirebaseOptions = FirebaseOptions.Builder()
+                    .setApplicationId("com.emarsys.sdk")
+                    .build()
+
+            FirebaseApp.initializeApp(InstrumentationRegistry.getTargetContext(), options)
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun afterAll() {
+            FirebaseApp.clearInstancesForTest()
+        }
     }
 
     private lateinit var latch: CountDownLatch

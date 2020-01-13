@@ -54,6 +54,7 @@ import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.shard.ShardModelRepository;
 import com.emarsys.core.shard.specification.FilterByShardType;
+import com.emarsys.core.storage.CoreStorageKey;
 import com.emarsys.core.storage.DefaultKeyValueStore;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.storage.Storage;
@@ -134,6 +135,7 @@ import com.emarsys.predict.shard.PredictShardListMerger;
 import com.emarsys.predict.storage.PredictStorageKey;
 import com.emarsys.push.PushApi;
 import com.emarsys.push.PushProxy;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -485,9 +487,9 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         predictServiceProvider = new ServiceEndpointProvider(getPredictServiceStorage(), com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL);
 
         responseHandlersProcessor = new ResponseHandlersProcessor(new ArrayList<AbstractResponseHandler>());
-
+        Storage<String> hardwareIdStorage = new StringStorage(CoreStorageKey.HARDWARE_ID, prefs);
         LanguageProvider languageProvider = new LanguageProvider();
-        HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, prefs);
+        HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, FirebaseInstanceId.getInstance(), hardwareIdStorage);
         VersionProvider versionProvider = new VersionProvider();
 
         NotificationManager notificationManager = (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
