@@ -61,22 +61,14 @@ class RequestPayloadUtilsTest {
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockChannelSettings = listOf(
-                mock(ChannelSettings::class.java).apply {
-                    whenever(channelId).thenReturn(CHANNEL_ID_1)
-                    whenever(importance).thenReturn(IMPORTANCE)
-                    whenever(isCanBypassDnd).thenReturn(true)
-                    whenever(isCanShowBadge).thenReturn(true)
-                    whenever(isShouldShowLights).thenReturn(true)
-                    whenever(isShouldVibrate).thenReturn(true)
-                },
-                mock(ChannelSettings::class.java).apply {
-                    whenever(channelId).thenReturn(CHANNEL_ID_2)
-                    whenever(importance).thenReturn(IMPORTANCE)
-                    whenever(isCanBypassDnd).thenReturn(false)
-                    whenever(isCanShowBadge).thenReturn(false)
-                    whenever(isShouldShowLights).thenReturn(false)
-                    whenever(isShouldVibrate).thenReturn(false)
-                })
+                ChannelSettings(channelId = CHANNEL_ID_1,
+                        importance = IMPORTANCE,
+                        isCanBypassDnd = true,
+                        isCanShowBadge = true,
+                        isShouldShowLights = true,
+                        isShouldVibrate = true),
+                ChannelSettings(channelId = CHANNEL_ID_2,
+                        importance = IMPORTANCE))
         mockNotificationSettings = mock(NotificationSettings::class.java).apply {
             whenever(areNotificationsEnabled()).thenReturn(ARE_NOTIFICATIONS_ENABLED)
             whenever(importance).thenReturn(IMPORTANCE)
