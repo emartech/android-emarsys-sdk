@@ -6,8 +6,8 @@ import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.helper.DbHelper
 
 private inline fun CoreSQLiteDatabase.inTransaction(statement: CoreSQLiteDatabase.() -> Unit) {
+    this.beginTransaction()
     try {
-        this.beginTransaction()
         statement(this)
         this.setTransactionSuccessful()
     } finally {
