@@ -28,7 +28,7 @@ public class RequestModelRepository extends AbstractSqliteRepository<RequestMode
     }
 
     @Override
-    protected ContentValues contentValuesFromItem(RequestModel item) {
+    public ContentValues contentValuesFromItem(RequestModel item) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(REQUEST_COLUMN_NAME_REQUEST_ID, item.getId());
         contentValues.put(REQUEST_COLUMN_NAME_METHOD, item.getMethod().name());
@@ -42,7 +42,7 @@ public class RequestModelRepository extends AbstractSqliteRepository<RequestMode
 
     @Override
     @SuppressWarnings("unchecked")
-    protected RequestModel itemFromCursor(Cursor cursor) {
+    public RequestModel itemFromCursor(Cursor cursor) {
         String requestId = cursor.getString(cursor.getColumnIndex(REQUEST_COLUMN_NAME_REQUEST_ID));
         RequestMethod method = RequestMethod.valueOf(cursor.getString(cursor.getColumnIndex(REQUEST_COLUMN_NAME_METHOD)));
         String url = cursor.getString(cursor.getColumnIndex(REQUEST_COLUMN_NAME_URL));

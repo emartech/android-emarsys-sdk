@@ -21,7 +21,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
@@ -80,31 +79,14 @@ class AbstractSqliteRepositoryTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_tableName_mustNotBeNull() {
-        val tableName: String? = null
-
-        object : AbstractSqliteRepository<Any>(tableName, dbHelperMock) {
-            override fun contentValuesFromItem(item: Any?) = null
-
-            override fun itemFromCursor(cursor: Cursor?) = null
-
-        }
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testAdd_shouldNotAcceptNull() {
-        repository.add(null)
-    }
-
     @Test
     fun testAdd_shouldInsertIntoDb() {
         val contentValues = ContentValues().apply {
             put("key", "value")
         }
-        whenever(repository.contentValuesFromItem(any())).thenReturn(contentValues)
+        whenever(repository.contentValuesFromItem(anyNotNull())).thenReturn(contentValues)
 
-        val input = Any()
+        val input = anyNotNull<Any>()
 
         repository.add(input)
 
@@ -113,11 +95,6 @@ class AbstractSqliteRepositoryTest {
         verify(dbMock).insert(TABLE_NAME, null, contentValues)
         verify(dbMock).setTransactionSuccessful()
         verify(dbMock).endTransaction()
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testQuery_shouldNotAcceptNull() {
-        repository.query(null)
     }
 
     @Test
@@ -182,11 +159,6 @@ class AbstractSqliteRepositoryTest {
         result shouldBe emptyList()
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testRemove_shouldNotAcceptNull() {
-        repository.remove(null)
-    }
-
     @Test
     fun testRemove_shouldDeleteSpecifiedRow() {
         repository.remove(dummySpecification)
@@ -213,7 +185,7 @@ class AbstractSqliteRepositoryTest {
                     db.insert(DatabaseContract.REQUEST_TABLE_NAME, null, contentValuesFrom(it))
                 }
 
-        repository.isEmpty shouldBe false
+        repository.isEmpty() shouldBe false
     }
 
     @Test
@@ -228,7 +200,7 @@ class AbstractSqliteRepositoryTest {
 
         db.execSQL("DELETE FROM request;")
 
-        repository.isEmpty shouldBe true
+        repository.isEmpty() shouldBe true
     }
 
     @Test

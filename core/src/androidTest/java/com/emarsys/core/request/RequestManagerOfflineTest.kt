@@ -96,7 +96,7 @@ class RequestManagerOfflineTest {
 
         prepareTestCaseAndWait()
 
-        requestRepository.isEmpty shouldBe false
+        requestRepository.isEmpty() shouldBe false
         completionHandler.latch = CountDownLatch(1)
 
         uiHandler.post { watchDog.connectionChangeListener.onConnectionChanged(ConnectionState.CONNECTED, true) }
@@ -153,7 +153,7 @@ class RequestManagerOfflineTest {
 
         completionHandler.onSuccessCount shouldBe 0
         completionHandler.onErrorCount shouldBe 0
-        requestRepository.isEmpty shouldBe false
+        requestRepository.isEmpty() shouldBe false
 
         val result = requestRepository.query(Everything())
         result shouldBe requestModels.toList()
@@ -187,7 +187,7 @@ class RequestManagerOfflineTest {
 
         completionHandler.onSuccessCount shouldBe 1
         completionHandler.onErrorCount shouldBe 0
-        requestRepository.isEmpty shouldBe false
+        requestRepository.isEmpty() shouldBe false
     }
 
     @Test
@@ -202,7 +202,7 @@ class RequestManagerOfflineTest {
 
         completionHandler.onSuccessCount shouldBe 1
         completionHandler.onErrorCount shouldBe 0
-        requestRepository.isEmpty shouldBe false
+        requestRepository.isEmpty() shouldBe false
     }
 
     @Test
@@ -218,7 +218,7 @@ class RequestManagerOfflineTest {
 
         completionHandler.onSuccessCount shouldBe 3
         completionHandler.onErrorCount shouldBe 0
-        requestRepository.isEmpty shouldBe false
+        requestRepository.isEmpty() shouldBe false
 
         requestRepository.remove(FilterByRequestId(lastNormal))
 

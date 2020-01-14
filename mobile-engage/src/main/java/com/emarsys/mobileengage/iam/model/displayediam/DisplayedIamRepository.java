@@ -14,7 +14,7 @@ public class DisplayedIamRepository extends AbstractSqliteRepository<DisplayedIa
     }
 
     @Override
-    protected ContentValues contentValuesFromItem(DisplayedIam item) {
+    public ContentValues contentValuesFromItem(DisplayedIam item) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID, item.getCampaignId());
         contentValues.put(DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP, item.getTimestamp());
@@ -22,7 +22,7 @@ public class DisplayedIamRepository extends AbstractSqliteRepository<DisplayedIa
     }
 
     @Override
-    protected DisplayedIam itemFromCursor(Cursor cursor) {
+    public DisplayedIam itemFromCursor(Cursor cursor) {
         String campaignId = cursor.getString(cursor.getColumnIndex(DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID));
         long timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP));
         return new DisplayedIam(campaignId, timestamp);

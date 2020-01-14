@@ -13,6 +13,7 @@ import com.emarsys.core.util.log.entry.LogEntry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
@@ -20,9 +21,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
-import org.mockito.Mockito.*
+
 
 class LoggerTest {
 
@@ -48,20 +47,20 @@ class LoggerTest {
     @Suppress("UNCHECKED_CAST")
     fun init() {
         handler = CoreSdkHandlerProvider().provideHandler()
-        shardRepositoryMock = mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>
-        timestampProviderMock = mock(TimestampProvider::class.java).apply {
+        shardRepositoryMock = mock()
+        timestampProviderMock = mock<TimestampProvider>().apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
-        uuidProviderMock = mock(UUIDProvider::class.java).apply {
+        uuidProviderMock = mock<UUIDProvider>().apply {
             whenever(provideId()).thenReturn(UUID)
         }
         loggerInstance = Logger(handler,
                 shardRepositoryMock,
                 timestampProviderMock,
                 uuidProviderMock)
-        loggerMock = mock(Logger::class.java)
+        loggerMock = mock()
 
-        dependencyContainer = mock(DependencyContainer::class.java).apply {
+        dependencyContainer = mock<DependencyContainer>().apply {
             whenever(logger).thenReturn(loggerMock)
         }
 
@@ -117,7 +116,7 @@ class LoggerTest {
 
         val captor = ArgumentCaptor.forClass(ShardModel::class.java)
 
-        verify(shardRepositoryMock, Mockito.timeout(100)).add(captor.capture())
+        verify(shardRepositoryMock, timeout(100)).add(capture<ShardModel>(captor))
 
         captor.value shouldBe ShardModel(
                 UUID,
@@ -130,7 +129,8 @@ class LoggerTest {
     @Test
     fun testPersistLog_addsLog_toShardRepository_viaCoreSdkHandler() {
         val threadSpy = ThreadSpy<Unit>()
-        doAnswer(threadSpy).`when`(shardRepositoryMock).add(ArgumentMatchers.any())
+
+        org.mockito.Mockito.doAnswer(threadSpy).`when`(shardRepositoryMock).add(any())
 
         loggerInstance.persistLog(logEntryMock())
 
@@ -143,14 +143,14 @@ class LoggerTest {
 
         Logger.log(logEntry)
 
-        verify(loggerMock, Mockito.timeout(100)).persistLog(logEntry)
+        verify(loggerMock, timeout(100)).persistLog(logEntry)
     }
 
     @Test
     fun testLog_doesNotLogAnything_ifDependencyInjection_isNotSetup() {
         DependencyInjection.tearDown()
 
-        dependencyContainer = mock(DependencyContainer::class.java)
+        dependencyContainer = mock()
 
         DependencyInjection.setup(dependencyContainer)
         DependencyInjection.tearDown()
@@ -161,7 +161,7 @@ class LoggerTest {
     }
 
     private fun logEntryMock(topic: String = "", data: Map<String, Any> = mapOf()) =
-            mock(LogEntry::class.java).apply {
+            mock<LogEntry>().apply {
                 whenever(getData()).thenReturn(data)
                 whenever(getTopic()).thenReturn(topic)
             }

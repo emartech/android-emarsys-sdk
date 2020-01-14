@@ -19,7 +19,7 @@ public class ButtonClickedRepository extends AbstractSqliteRepository<ButtonClic
     }
 
     @Override
-    protected ContentValues contentValuesFromItem(ButtonClicked item) {
+    public ContentValues contentValuesFromItem(ButtonClicked item) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(BUTTON_CLICKED_COLUMN_NAME_CAMPAIGN_ID, item.getCampaignId());
         contentValues.put(BUTTON_CLICKED_COLUMN_NAME_BUTTON_ID, item.getButtonId());
@@ -28,7 +28,7 @@ public class ButtonClickedRepository extends AbstractSqliteRepository<ButtonClic
     }
 
     @Override
-    protected ButtonClicked itemFromCursor(Cursor cursor) {
+    public ButtonClicked itemFromCursor(Cursor cursor) {
         String campaignId = cursor.getString(cursor.getColumnIndex(BUTTON_CLICKED_COLUMN_NAME_CAMPAIGN_ID));
         String buttonId = cursor.getString(cursor.getColumnIndex(BUTTON_CLICKED_COLUMN_NAME_BUTTON_ID));
         long timestamp = cursor.getLong(cursor.getColumnIndex(BUTTON_CLICKED_COLUMN_NAME_TIMESTAMP));

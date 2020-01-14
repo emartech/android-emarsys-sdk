@@ -26,7 +26,7 @@ public class ShardModelRepository extends AbstractSqliteRepository<ShardModel> {
     }
 
     @Override
-    protected ContentValues contentValuesFromItem(ShardModel item) {
+    public ContentValues contentValuesFromItem(ShardModel item) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(SHARD_COLUMN_ID, item.getId());
         contentValues.put(SHARD_COLUMN_TYPE, item.getType());
@@ -39,7 +39,7 @@ public class ShardModelRepository extends AbstractSqliteRepository<ShardModel> {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected ShardModel itemFromCursor(Cursor cursor) {
+    public ShardModel itemFromCursor(Cursor cursor) {
         String id = cursor.getString(cursor.getColumnIndex(SHARD_COLUMN_ID));
         String type = cursor.getString(cursor.getColumnIndex(SHARD_COLUMN_TYPE));
 
@@ -55,6 +55,4 @@ public class ShardModelRepository extends AbstractSqliteRepository<ShardModel> {
 
         return new ShardModel(id, type, data, timeStamp, ttl);
     }
-
-
 }
