@@ -160,9 +160,9 @@ class LoggerTest {
         verifyZeroInteractions(dependencyContainer)
     }
 
-    private fun logEntryMock(topic: String = "", data: Map<String, Any> = mapOf()) =
+    private fun logEntryMock(testTopic: String = "", testData: Map<String, Any> = mapOf()) =
             mock<LogEntry>().apply {
-                whenever(getData()).thenReturn(data)
-                whenever(getTopic()).thenReturn(topic)
+                whenever(data).thenReturn(testData)
+                whenever(topic).thenReturn(testTopic)
             }
 }

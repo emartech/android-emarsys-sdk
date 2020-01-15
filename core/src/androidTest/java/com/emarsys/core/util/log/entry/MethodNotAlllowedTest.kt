@@ -20,16 +20,6 @@ class MethodNotAllowedTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_classNameMustNotBeNull() {
-        MethodNotAllowed(null, testCallerMethodName, null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_callerMethodNameMustNotBeNull() {
-        MethodNotAllowed(MethodNotAllowedTest::class.java, null, null)
-    }
-
     @Test
     fun testGetTopic() {
         MethodNotAllowed(MethodNotAllowedTest::class.java, testCallerMethodName, null).topic shouldBe "log_method_not_allowed"
