@@ -12,7 +12,6 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.util.log.entry.LogEntry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
-import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.junit.After
@@ -73,46 +72,13 @@ class LoggerTest {
         DependencyInjection.tearDown()
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_handler_mustNotBeNull() {
-        Logger(null,
-                shardRepositoryMock,
-                timestampProviderMock,
-                uuidProviderMock)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_shardRepository_mustNotBeNull() {
-        Logger(handler,
-                null,
-                timestampProviderMock,
-                uuidProviderMock)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_timestampProvider_mustNotBeNull() {
-        Logger(handler,
-                shardRepositoryMock,
-                null,
-                uuidProviderMock)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_uuidProvider_mustNotBeNull() {
-        Logger(handler,
-                shardRepositoryMock,
-                timestampProviderMock,
-                null)
-    }
-
     @Test
     fun testPersistLog_addsLog_toShardRepository() {
-        val logContent = mapOf(
+        loggerInstance.persistLog(LogLevel.ERROR, logEntryMock("log_crash", mapOf(
                 "key1" to "value",
                 "key2" to 3,
                 "key3" to true
-        )
-        loggerInstance.persistLog(logEntryMock("log_crash", logContent))
+        )))
 
         val captor = ArgumentCaptor.forClass(ShardModel::class.java)
 
@@ -121,7 +87,12 @@ class LoggerTest {
         captor.value shouldBe ShardModel(
                 UUID,
                 "log_crash",
-                logContent,
+                mapOf(
+                        "key1" to "value",
+                        "key2" to 3,
+                        "key3" to true,
+                        "level" to "ERROR"
+                ),
                 TIMESTAMP,
                 TTL)
     }
@@ -132,18 +103,18 @@ class LoggerTest {
 
         org.mockito.Mockito.doAnswer(threadSpy).`when`(shardRepositoryMock).add(any())
 
-        loggerInstance.persistLog(logEntryMock())
+        loggerInstance.persistLog(LogLevel.INFO, logEntryMock())
 
         threadSpy.verifyCalledOnCoreSdkThread()
     }
 
     @Test
-    fun testLog_delegatesToInstance() {
-        val logEntry = logEntryMock()
+    fun testLog_delegatesToInstance_withINFOLogLevel() {
+        val logEntry = logEntryMock(testTopic = "testTopic", testData = mapOf("testKey" to "testValue"))
 
         Logger.log(logEntry)
 
-        verify(loggerMock, timeout(100)).persistLog(logEntry)
+        verify(loggerMock, timeout(100)).persistLog(LogLevel.INFO, logEntry)
     }
 
     @Test
@@ -160,9 +131,9 @@ class LoggerTest {
         verifyZeroInteractions(dependencyContainer)
     }
 
-    private fun logEntryMock(testTopic: String = "", testData: Map<String, Any> = mapOf()) =
-            mock<LogEntry>().apply {
-                whenever(data).thenReturn(testData)
-                whenever(topic).thenReturn(testTopic)
+    private fun logEntryMock(testTopic: String = "", testData: Map<String, Any?> = mapOf()) =
+            mock<LogEntry> {
+                on { data }.doReturn(testData)
+                on { topic }.doReturn(testTopic)
             }
 }

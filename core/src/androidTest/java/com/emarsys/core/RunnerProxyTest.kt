@@ -2,16 +2,18 @@ package com.emarsys.core
 
 import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
 class RunnerProxyTest {
@@ -25,9 +27,9 @@ class RunnerProxyTest {
 
     @Before
     fun setUp() {
-        mockLogger = mock(Logger::class.java)
+        mockLogger = mock()
 
-        val dependencyContainer = mock(DependencyContainer::class.java).apply {
+        val dependencyContainer = mock<DependencyContainer>().apply {
             whenever(logger).thenReturn(mockLogger)
         }
 
@@ -42,7 +44,7 @@ class RunnerProxyTest {
 
     @Test
     fun testLogException_shouldDelegateToRunnable() {
-        val runnable = mock(Runnable::class.java)
+        val runnable = mock<Runnable>()
 
         runnerProxy.logException(runnable)
 
@@ -51,7 +53,7 @@ class RunnerProxyTest {
 
     @Test
     fun testLogException_shouldDelegateToCallable() {
-        val callable = mock(Callable::class.java)
+        val callable = mock<Callable<Any>>()
 
         runnerProxy.logException(callable)
 
@@ -60,14 +62,14 @@ class RunnerProxyTest {
 
     @Test
     fun testLogException_shouldLogCrashes() {
-        val runnable = mock(Runnable::class.java).apply {
+        val runnable = mock<Runnable>().apply {
             whenever(run()).thenThrow(RuntimeException())
         }
         try {
             runnerProxy.logException(runnable)
-        } catch (exception: java.lang.RuntimeException) {
+        } catch (exception: RuntimeException) {
 
         }
-        verify(mockLogger).persistLog(any())
+        verify(mockLogger).persistLog(eq(LogLevel.ERROR), any())
     }
 }

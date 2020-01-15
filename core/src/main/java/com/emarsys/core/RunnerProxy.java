@@ -9,7 +9,7 @@ public class RunnerProxy {
         try {
             runnable.run();
         } catch (Exception exception) {
-            Logger.log(new CrashLog(exception));
+            Logger.error(new CrashLog(exception));
             throw exception;
         }
     }
@@ -18,7 +18,7 @@ public class RunnerProxy {
         try {
             return callable.call();
         } catch (Exception exception) {
-            Logger.log(new CrashLog(exception));
+            Logger.error(new CrashLog(exception));
             throw exception;
         }
     }
