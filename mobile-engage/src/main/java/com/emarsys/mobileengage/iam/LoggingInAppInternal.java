@@ -26,7 +26,7 @@ public class LoggingInAppInternal implements InAppInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 
@@ -39,7 +39,7 @@ public class LoggingInAppInternal implements InAppInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 
@@ -47,21 +47,21 @@ public class LoggingInAppInternal implements InAppInternal {
     public void pause() {
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, null));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, null));
     }
 
     @Override
     public void resume() {
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, null));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, null));
     }
 
     @Override
     public boolean isPaused() {
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, null));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, null));
         return false;
     }
 
@@ -72,14 +72,14 @@ public class LoggingInAppInternal implements InAppInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 
     @Override
     public EventHandler getEventHandler() {
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, null));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, null));
         return null;
     }
 }

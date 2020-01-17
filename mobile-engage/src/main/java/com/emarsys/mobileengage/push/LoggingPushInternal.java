@@ -26,7 +26,7 @@ public class LoggingPushInternal implements PushInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 
     @Override
@@ -36,7 +36,7 @@ public class LoggingPushInternal implements PushInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 
     @Override
@@ -47,6 +47,6 @@ public class LoggingPushInternal implements PushInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 }

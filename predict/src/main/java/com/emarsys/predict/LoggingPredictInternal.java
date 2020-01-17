@@ -31,14 +31,14 @@ public class LoggingPredictInternal implements PredictInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 
     @Override
     public void clearContact() {
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, null));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, null));
     }
 
     @Override
@@ -48,7 +48,7 @@ public class LoggingPredictInternal implements PredictInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 
@@ -60,7 +60,7 @@ public class LoggingPredictInternal implements PredictInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 
@@ -71,7 +71,7 @@ public class LoggingPredictInternal implements PredictInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 
@@ -82,7 +82,7 @@ public class LoggingPredictInternal implements PredictInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 
@@ -93,7 +93,7 @@ public class LoggingPredictInternal implements PredictInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 
@@ -105,7 +105,7 @@ public class LoggingPredictInternal implements PredictInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 
     @Override
@@ -118,7 +118,7 @@ public class LoggingPredictInternal implements PredictInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 
     @Override
@@ -128,7 +128,7 @@ public class LoggingPredictInternal implements PredictInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 }

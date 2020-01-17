@@ -29,7 +29,6 @@ import com.google.firebase.messaging.RemoteMessage
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
@@ -373,7 +372,6 @@ class MessagingServiceUtilsTest {
 
     @Test
     @SdkSuppress(minSdkVersion = VERSION_CODES.KITKAT)
-    @Throws(JSONException::class)
     fun testCreateNotification_setsActionsIfAvailable() {
         val ems = JSONObject()
                 .put("actions", JSONArray()
@@ -424,7 +422,6 @@ class MessagingServiceUtilsTest {
 
     @Test
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
-    @Throws(Exception::class)
     fun testCreateNotification_returnDebugMessage_whenThereIsChannelIdMismatch() {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
@@ -446,7 +443,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testCreateNotification_returnOriginalTitle_evenIfThereIsChannelMismatch_but_weAreNotInDebugMode() {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
@@ -536,7 +532,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @Throws(JSONException::class)
     fun testGetInAppDescriptor_shouldReturnValidDescriptor_whenThereIsInAppInPayload() {
         val result = JSONObject(MessagingServiceUtils.getInAppDescriptor(context, createInAppInPayload()))
 
@@ -546,7 +541,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @Throws(JSONException::class)
     fun testGetInAppDescriptor_shouldBeNull_whenCampaignIdIsMissing() {
         val payload: MutableMap<String, String> = HashMap()
         val ems = JSONObject()
@@ -558,7 +552,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @Throws(JSONException::class)
     fun testGetInAppDescriptor_shouldBeNull_whenUrlIsMissing() {
         val payload: MutableMap<String, String> = HashMap()
         val ems = JSONObject()
@@ -571,7 +564,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @Throws(JSONException::class)
     fun testGetInAppDescriptor_shouldReturnWithUrlAndCampaignId_whenFileUrlIsNull() {
         val payload: MutableMap<String, String> = HashMap()
         val ems = JSONObject()
@@ -589,7 +581,6 @@ class MessagingServiceUtilsTest {
 
     @Test
     @SdkSuppress(minSdkVersion = VERSION_CODES.KITKAT)
-    @Throws(JSONException::class)
     fun testCreatePreloadedRemoteMessageData_shouldPutInAppDescriptorUnderEms_whenAvailableAndInAppIsTurnedOn() {
         val inAppDescriptor = "InAppDescriptor"
         val inAppPayload = createNoInAppInPayload()
@@ -599,7 +590,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @Throws(JSONException::class)
     fun testCreatePreloadedRemoteMessageData_shouldNotPutInAppDescriptorUnderEms_whenNotAvailable() {
         val inAppDescriptor: String? = null
         val inAppPayload = createNoInAppInPayload()
@@ -652,7 +642,6 @@ class MessagingServiceUtilsTest {
         return payload
     }
 
-    @Throws(JSONException::class)
     private fun createInAppInPayload(): Map<String, String> {
         val payload: MutableMap<String, String> = HashMap()
         val ems = JSONObject()

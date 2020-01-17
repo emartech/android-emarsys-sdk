@@ -25,7 +25,7 @@ public class LoggingEventServiceInternal implements EventServiceInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 
@@ -38,7 +38,7 @@ public class LoggingEventServiceInternal implements EventServiceInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
 }

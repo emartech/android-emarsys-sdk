@@ -44,7 +44,7 @@ public class PredictResponseMapper implements Mapper<ResponseModel, List<Product
                 }
             }
         } catch (JSONException e) {
-            Logger.log(new CrashLog(e));
+            Logger.error(new CrashLog(e));
         }
         return result;
     }

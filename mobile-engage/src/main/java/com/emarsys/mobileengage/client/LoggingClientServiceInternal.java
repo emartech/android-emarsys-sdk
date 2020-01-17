@@ -15,6 +15,6 @@ public class LoggingClientServiceInternal implements ClientServiceInternal {
     public void trackDeviceInfo() {
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.log(new MethodNotAllowed(klass, callerMethodName, null));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, null));
     }
 }

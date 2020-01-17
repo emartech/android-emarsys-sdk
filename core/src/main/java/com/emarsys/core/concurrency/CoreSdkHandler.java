@@ -18,7 +18,7 @@ public class CoreSdkHandler extends Handler {
         try {
             super.dispatchMessage(msg);
         } catch (Exception e) {
-            Logger.log(new CrashLog(e));
+            Logger.error(new CrashLog(e));
         }
     }
 }
