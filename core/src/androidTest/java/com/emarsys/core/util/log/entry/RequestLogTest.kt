@@ -12,20 +12,18 @@ import java.net.URL
 class RequestLogTest {
     private companion object {
         const val TOPIC = "log_request"
-        const val IN_DATABASE_TIME_END = 4L
-        const val NETWORKING_TIME_START = 3L
-        const val QUEUE_SIZE = 24
+        const val IN_DATABASE_TIME_END = 3L
     }
 
-    private lateinit var mockResponseModel : ResponseModel
+    private lateinit var mockResponseModel: ResponseModel
     private lateinit var mockRequestModel: RequestModel
-    private lateinit var requestLog : RequestLog
+    private lateinit var requestLog: RequestLog
 
     @Before
     fun setUp() {
         mockRequestModel = mock {
             on { url }.doReturn(URL("https://emarsys.com"))
-            on { timestamp }.doReturn(2L)
+            on { timestamp }.doReturn(1L)
             on { id }.doReturn("testId")
         }
 
@@ -35,7 +33,7 @@ class RequestLogTest {
             on { statusCode }.doReturn(200)
         }
 
-        requestLog = RequestLog(mockResponseModel, IN_DATABASE_TIME_END, NETWORKING_TIME_START, QUEUE_SIZE)
+        requestLog = RequestLog(mockResponseModel, IN_DATABASE_TIME_END)
     }
 
     @Test
@@ -51,9 +49,8 @@ class RequestLogTest {
                 "request_id" to "testId",
                 "url" to URL("https://emarsys.com"),
                 "status_code" to 200,
-                "queue_size" to 24,
-                "in_db_start" to 2L,
-                "in_db_end" to 4L,
+                "in_db_start" to 1L,
+                "in_db_end" to 3L,
                 "in_db_duration" to 2L,
                 "networking_start" to 3L,
                 "networking_end" to 6L,

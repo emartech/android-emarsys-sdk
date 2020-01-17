@@ -13,8 +13,7 @@ import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.JsonUtils;
 import com.emarsys.core.util.log.Logger;
-import com.emarsys.core.util.log.entry.InDatabaseTime;
-import com.emarsys.core.util.log.entry.NetworkingTime;
+import com.emarsys.core.util.log.entry.RequestLog;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -66,7 +65,6 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         long dbEnd = timestampProvider.provideTimestamp();
-        Logger.log(new InDatabaseTime(requestModel, dbEnd));
 
         HttpsURLConnection connection = null;
         try {
@@ -79,8 +77,7 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
             connection.connect();
             sendBody(connection, updatedRequestModel);
             responseModel = readResponse(connection);
-
-            Logger.log(new NetworkingTime(responseModel, dbEnd));
+            Logger.info(new RequestLog(responseModel, dbEnd));
         } catch (Exception e) {
             exception = e;
         } finally {
