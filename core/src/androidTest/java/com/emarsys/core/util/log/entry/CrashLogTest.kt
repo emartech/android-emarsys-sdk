@@ -33,7 +33,7 @@ class CrashLogTest {
         val expected = mapOf(
                 "exception" to exception::class.java.name,
                 "reason" to exception.message,
-                "stack_trace" to exception.stackTrace.map(StackTraceElement::toString)
+                "stackTrace" to exception.stackTrace.map(StackTraceElement::toString)
         )
         result shouldBe expected
     }

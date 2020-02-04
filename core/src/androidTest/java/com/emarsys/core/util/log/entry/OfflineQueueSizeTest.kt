@@ -23,6 +23,6 @@ class OfflineQueueSizeTest {
     fun testData() {
         val result = OfflineQueueSize(3)
 
-        result.data shouldBe mapOf("queue_size" to 3)
+        result.data shouldBe mapOf("queueSize" to 3)
     }
 }

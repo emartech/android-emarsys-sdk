@@ -8,19 +8,19 @@ class InAppLog(inAppLoadingTime: InAppLoadingTime, onScreenTime: OnScreenTime, c
 
     init {
         data = mutableMapOf(
-                "loading_time_start" to inAppLoadingTime.startTime,
-                "loading_time_end" to inAppLoadingTime.endTime,
-                "loading_time_duration" to  inAppLoadingTime.endTime - inAppLoadingTime.startTime,
-                "on_screen_time_start" to onScreenTime.startTime,
-                "on_screen_time_end" to onScreenTime.endTime,
-                "on_screen_time_duration" to  onScreenTime.duration,
-                "campaign_id" to campaignId
+                "loadingTimeStart" to inAppLoadingTime.startTime,
+                "loadingTimeEnd" to inAppLoadingTime.endTime,
+                "loadingTimeDuration" to  inAppLoadingTime.endTime - inAppLoadingTime.startTime,
+                "onScreenTimeStart" to onScreenTime.startTime,
+                "onScreenTimeEnd" to onScreenTime.endTime,
+                "onScreenTimeDuration" to  onScreenTime.duration,
+                "campaignId" to campaignId
         )
 
         if (requestId == null) {
             data["source"] = "push"
         } else {
-            data["request_id"] = requestId
+            data["requestId"] = requestId
             data["source"] = "customEvent"
         }
     }

@@ -56,7 +56,7 @@ public class LogShardListMerger implements Mapper<List<ShardModel>, RequestModel
         for (ShardModel shard : shards) {
             Map<String, Object> data = new HashMap<>();
             data.put("type", shard.getType());
-            data.put("device_info", deviceInfo);
+            data.put("deviceInfo", deviceInfo);
             data.putAll(shard.getData());
             datas.add(data);
         }
@@ -68,13 +68,13 @@ public class LogShardListMerger implements Mapper<List<ShardModel>, RequestModel
     private Map<String, String> createDeviceInfo() {
         Map<String, String> data = new HashMap<>();
         data.put("platform", deviceInfo.getPlatform());
-        data.put("app_version", deviceInfo.getApplicationVersion());
-        data.put("sdk_version", deviceInfo.getSdkVersion());
-        data.put("os_version", deviceInfo.getOsVersion());
+        data.put("appVersion", deviceInfo.getApplicationVersion());
+        data.put("sdkVersion", deviceInfo.getSdkVersion());
+        data.put("osVersion", deviceInfo.getOsVersion());
         data.put("model", deviceInfo.getModel());
-        data.put("hw_id", deviceInfo.getHwid());
-        data.put("application_code", applicationCode);
-        data.put("merchant_id", merchantId);
+        data.put("hwId", deviceInfo.getHwid());
+        data.put("applicationCode", applicationCode);
+        data.put("merchantId", merchantId);
         return data;
     }
 

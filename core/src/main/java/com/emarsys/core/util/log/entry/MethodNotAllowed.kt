@@ -13,8 +13,8 @@ class MethodNotAllowed(klass: Class<*>, callerMethodName: String, parameters: Ma
 
     init {
         data = mutableMapOf(
-                "class_name" to klass.simpleName,
-                "method_name" to callerMethodName
+                "className" to klass.simpleName,
+                "methodName" to callerMethodName
         )
         if (parameters != null) {
             data["parameters"] = parameters

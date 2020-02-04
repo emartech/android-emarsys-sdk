@@ -28,8 +28,8 @@ class MethodNotAllowedTest {
     @Test
     fun testGetData_dataDoesNotContainsParameters_whenParametersInConstructorInNull() {
         val expectedResult = mapOf(
-                "class_name" to "MethodNotAllowedTest",
-                "method_name" to testCallerMethodName
+                "className" to "MethodNotAllowedTest",
+                "methodName" to testCallerMethodName
         )
 
         MethodNotAllowed(MethodNotAllowedTest::class.java, testCallerMethodName, null).data shouldBe expectedResult
@@ -38,8 +38,8 @@ class MethodNotAllowedTest {
     @Test
     fun testGetData() {
         val expectedResult = mapOf(
-                "class_name" to "MethodNotAllowedTest",
-                "method_name" to testCallerMethodName,
+                "className" to "MethodNotAllowedTest",
+                "methodName" to testCallerMethodName,
                 "parameters" to testParameters
         )
 

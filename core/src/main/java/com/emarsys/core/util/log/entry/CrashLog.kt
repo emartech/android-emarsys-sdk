@@ -12,7 +12,7 @@ class CrashLog(throwable: Throwable?) : LogEntry {
             mapOf(
                     "exception" to throwable.javaClass.name,
                     "reason" to throwable.message,
-                    "stack_trace" to getStackTrace(throwable)
+                    "stackTrace" to getStackTrace(throwable)
             )
         } else {
             emptyMap()

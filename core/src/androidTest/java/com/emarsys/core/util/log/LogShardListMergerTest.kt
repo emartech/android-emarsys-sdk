@@ -96,7 +96,7 @@ class LogShardListMergerTest {
         val type = "log_crash"
         val shard = ShardModel("id", type, shardData, 1234, 4321)
 
-        val logData = shardData + mapOf("type" to type) + mapOf("device_info" to createDeviceInfo())
+        val logData = shardData + mapOf("type" to type) + mapOf("deviceInfo" to createDeviceInfo())
         val requestPayload = mapOf("logs" to listOf(logData))
         val expectedRequestModel = requestModel(requestPayload)
 
@@ -107,7 +107,7 @@ class LogShardListMergerTest {
     fun testMap_multipleElementsInList() {
         val shards = (1..5).map { randomShardModel() }
 
-        val logDatas = shards.map { it.data + mapOf("type" to it.type) + mapOf("device_info" to createDeviceInfo()) }
+        val logDatas = shards.map { it.data + mapOf("type" to it.type) + mapOf("deviceInfo" to createDeviceInfo()) }
 
         val expectedRequestModel = requestModel(mapOf("logs" to logDatas))
 
@@ -134,13 +134,13 @@ class LogShardListMergerTest {
     private fun createDeviceInfo(): Map<String, String> {
         return mapOf(
                 "platform" to "android",
-                "app_version" to "1.0.0",
-                "sdk_version" to "1.6.1",
-                "os_version" to "8.0",
+                "appVersion" to "1.0.0",
+                "sdkVersion" to "1.6.1",
+                "osVersion" to "8.0",
                 "model" to "Pixel",
-                "hw_id" to "hardwareId",
-                "application_code" to APPLICATION_CODE,
-                "merchant_id" to MERCHANT_ID
+                "hwId" to "hardwareId",
+                "applicationCode" to APPLICATION_CODE,
+                "merchantId" to MERCHANT_ID
         )
     }
 

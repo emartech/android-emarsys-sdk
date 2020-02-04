@@ -45,13 +45,13 @@ class InAppLogTest {
 
         result.data shouldBe mapOf(
                 "source" to "push",
-                "loading_time_start" to startTime,
-                "loading_time_end" to endTime,
-                "loading_time_duration" to duration,
-                "on_screen_time_start" to startScreenTime,
-                "on_screen_time_end" to endScreenTime,
-                "on_screen_time_duration" to onScreenTime,
-                "campaign_id" to "campaignId"
+                "loadingTimeStart" to startTime,
+                "loadingTimeEnd" to endTime,
+                "loadingTimeDuration" to duration,
+                "onScreenTimeStart" to startScreenTime,
+                "onScreenTimeEnd" to endScreenTime,
+                "onScreenTimeDuration" to onScreenTime,
+                "campaignId" to "campaignId"
         )
     }
 
@@ -66,14 +66,14 @@ class InAppLogTest {
 
         result.data shouldBe mapOf(
                 "source" to "customEvent",
-                "request_id" to requestId,
-                "loading_time_start" to startTime,
-                "loading_time_end" to endTime,
-                "loading_time_duration" to duration,
-                "on_screen_time_start" to startScreenTime,
-                "on_screen_time_end" to endScreenTime,
-                "on_screen_time_duration" to onScreenTime,
-                "campaign_id" to "campaignId"
+                "requestId" to requestId,
+                "loadingTimeStart" to startTime,
+                "loadingTimeEnd" to endTime,
+                "loadingTimeDuration" to duration,
+                "onScreenTimeStart" to startScreenTime,
+                "onScreenTimeEnd" to endScreenTime,
+                "onScreenTimeDuration" to onScreenTime,
+                "campaignId" to "campaignId"
         )
     }
 }

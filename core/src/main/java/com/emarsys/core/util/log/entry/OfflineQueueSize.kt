@@ -7,7 +7,7 @@ class OfflineQueueSize(queueSize: Int) : LogEntry {
 
     init {
         data = mapOf(
-                "queue_size" to queueSize
+                "queueSize" to queueSize
         )
     }
 }

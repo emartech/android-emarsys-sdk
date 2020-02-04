@@ -46,15 +46,15 @@ class RequestLogTest {
     @Test
     fun testData() {
         val expected = mapOf(
-                "request_id" to "testId",
+                "requestId" to "testId",
                 "url" to URL("https://emarsys.com"),
-                "status_code" to 200,
-                "in_db_start" to 1L,
-                "in_db_end" to 3L,
-                "in_db_duration" to 2L,
-                "networking_start" to 3L,
-                "networking_end" to 6L,
-                "networking_duration" to 3L
+                "statusCode" to 200,
+                "inDbStart" to 1L,
+                "inDbEnd" to 3L,
+                "inDbDuration" to 2L,
+                "networkingStart" to 3L,
+                "networkingEnd" to 6L,
+                "networkingDuration" to 3L
         )
 
         val data = requestLog.data

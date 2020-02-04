@@ -14,15 +14,15 @@ class RequestLog(responseModel: ResponseModel, inDatabaseTimeEnd: Long) : LogEnt
         val networkingTimeEnd = responseModel.timestamp
         val networkingTimeDuration = networkingTimeEnd - inDatabaseTimeEnd
         data = mapOf(
-                "request_id" to requestModel.id,
+                "requestId" to requestModel.id,
                 "url" to requestModel.url,
-                "status_code" to responseModel.statusCode,
-                "in_db_start" to inDatabaseTimeStart,
-                "in_db_end" to inDatabaseTimeEnd,
-                "in_db_duration" to inDatabaseTimeDuration,
-                "networking_start" to inDatabaseTimeEnd,
-                "networking_end" to networkingTimeEnd,
-                "networking_duration" to networkingTimeDuration
+                "statusCode" to responseModel.statusCode,
+                "inDbStart" to inDatabaseTimeStart,
+                "inDbEnd" to inDatabaseTimeEnd,
+                "inDbDuration" to inDatabaseTimeDuration,
+                "networkingStart" to inDatabaseTimeEnd,
+                "networkingEnd" to networkingTimeEnd,
+                "networkingDuration" to networkingTimeDuration
         )
     }
 }
