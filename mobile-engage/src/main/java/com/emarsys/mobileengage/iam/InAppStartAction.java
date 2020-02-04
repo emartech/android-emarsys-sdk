@@ -5,6 +5,8 @@ import android.app.Activity;
 import com.emarsys.core.activity.ActivityLifecycleAction;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
+import com.emarsys.core.util.log.Logger;
+import com.emarsys.core.util.log.entry.AppEventLog;
 import com.emarsys.mobileengage.event.EventServiceInternal;
 
 public class InAppStartAction implements ActivityLifecycleAction {
@@ -25,5 +27,6 @@ public class InAppStartAction implements ActivityLifecycleAction {
         if (contactTokenStorage.get() != null) {
             eventServiceInternal.trackInternalCustomEvent("app:start", null, null);
         }
+        Logger.info(new AppEventLog("app:start", null));
     }
 }
