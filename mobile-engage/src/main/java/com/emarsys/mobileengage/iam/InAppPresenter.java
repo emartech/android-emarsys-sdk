@@ -14,7 +14,6 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.Gettable;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.log.entry.InAppLoadingTime;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider;
@@ -85,7 +84,9 @@ public class InAppPresenter {
             public void onMessageLoaded() {
                 Activity currentActivity = currentActivityProvider.get();
                 long endTimestamp = timestampProvider.provideTimestamp();
-                Logger.log(new InAppLoadingTime(startTimestamp, endTimestamp, campaignId, requestId));
+
+                iamDialog.setInAppLoadingTime(new InAppLoadingTime(startTimestamp, endTimestamp));
+
                 if (currentActivity instanceof AppCompatActivity) {
                     FragmentManager fragmentManager = ((AppCompatActivity) currentActivity).getSupportFragmentManager();
                     Fragment fragment = fragmentManager.findFragmentByTag(IamDialog.TAG);

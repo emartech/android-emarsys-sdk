@@ -19,6 +19,8 @@ import androidx.fragment.app.DialogFragment;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.Logger;
+import com.emarsys.core.util.log.entry.InAppLoadingTime;
+import com.emarsys.core.util.log.entry.InAppLog;
 import com.emarsys.core.util.log.entry.OnScreenTime;
 import com.emarsys.mobileengage.R;
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
@@ -37,6 +39,7 @@ public class IamDialog extends DialogFragment {
     public static final String IS_SHOWN = "isShown";
     public static final String ON_SCREEN_TIME = "on_screen_time";
     public static final String END_SCREEN_TIME = "end_screen_time";
+    public static final String LOADING_TIME = "loading_time";
 
     private List<OnDialogShownAction> actions;
     private FrameLayout webViewContainer;
@@ -91,7 +94,7 @@ public class IamDialog extends DialogFragment {
     public void onStart() {
         super.onStart();
 
-         webViewContainer.addView(webView);
+        webViewContainer.addView(webView);
 
         getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
@@ -165,6 +168,10 @@ public class IamDialog extends DialogFragment {
         super.onDestroyView();
     }
 
+    public void setInAppLoadingTime(InAppLoadingTime inAppLoadingTime) {
+        getArguments().putParcelable(LOADING_TIME, inAppLoadingTime);
+    }
+
     private void updateOnScreenTime() {
         if (!dismissed) {
             long endScreenTime = timestampProvider.provideTimestamp();
@@ -178,12 +185,15 @@ public class IamDialog extends DialogFragment {
     private void saveOnScreenTime() {
         updateOnScreenTime();
         Bundle args = getArguments();
-        Logger.log(new OnScreenTime(
-                args.getLong(ON_SCREEN_TIME),
-                startTime,
-                args.getLong(END_SCREEN_TIME),
-                args.getString(CAMPAIGN_ID),
-                args.getString(REQUEST_ID)));
+        Logger.info(
+                new InAppLog(
+                        args.<InAppLoadingTime>getParcelable(LOADING_TIME),
+                        new OnScreenTime(
+                                args.getLong(ON_SCREEN_TIME),
+                                startTime,
+                                args.getLong(END_SCREEN_TIME)),
+                        args.getString(CAMPAIGN_ID),
+                        args.getString(REQUEST_ID)));
         dismissed = true;
     }
 }

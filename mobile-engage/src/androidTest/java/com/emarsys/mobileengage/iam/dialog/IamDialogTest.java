@@ -13,6 +13,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 
 import com.emarsys.core.provider.timestamp.TimestampProvider;
+import com.emarsys.core.util.log.entry.InAppLoadingTime;
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.testUtil.InstrumentationRegistry;
@@ -68,6 +69,7 @@ public class IamDialogTest {
                 new CountDownLatch(1),
                 new CountDownLatch(1)
         );
+        dialog.setInAppLoadingTime(new InAppLoadingTime(1, 1));
 
         initWebViewProvider();
     }
@@ -189,6 +191,7 @@ public class IamDialogTest {
     @Test
     public void testDialog_cancel_turnsRetainInstanceOff() {
         final IamDialog iamDialog = IamDialog.create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY);
+        iamDialog.setInAppLoadingTime(new InAppLoadingTime(1, 1));
         final AppCompatActivity activity = activityRule.getActivity();
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -210,6 +213,7 @@ public class IamDialogTest {
     @Test
     public void testDialog_dismiss_turnsRetainInstanceOff() {
         final IamDialog iamDialog = IamDialog.create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY);
+        iamDialog.setInAppLoadingTime(new InAppLoadingTime(1, 1));
         final AppCompatActivity activity = activityRule.getActivity();
         activity.runOnUiThread(new Runnable() {
             @Override

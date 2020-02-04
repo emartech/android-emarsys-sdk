@@ -12,6 +12,7 @@ modules.each {
         apply plugin: 'com.android.library'
         apply plugin: 'kotlin-android'
         apply plugin: "kotlin-allopen"
+        apply plugin: "kotlin-android-extensions"
 
         android {
             buildToolsVersion Config.buildToolsVersion
