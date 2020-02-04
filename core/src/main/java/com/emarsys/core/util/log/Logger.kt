@@ -6,6 +6,7 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.endpoint.Endpoint.LOG_URL
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
@@ -48,12 +49,14 @@ class Logger(private val coreSdkHandler: Handler,
     }
 
     fun persistLog(logLevel: LogLevel, logEntry: LogEntry) {
-        coreSdkHandler.post {
-            val shard = ShardModel.Builder(timestampProvider, uuidProvider)
-                    .type(logEntry.topic)
-                    .payloadEntries(logEntry.dataWithLogLevel(logLevel))
-                    .build()
-            shardRepository.add(shard)
+        if (logEntry.topic != "log_request" || logEntry.data["url"] != LOG_URL) {
+            coreSdkHandler.post {
+                val shard = ShardModel.Builder(timestampProvider, uuidProvider)
+                        .type(logEntry.topic)
+                        .payloadEntries(logEntry.dataWithLogLevel(logLevel))
+                        .build()
+                shardRepository.add(shard)
+            }
         }
     }
 }

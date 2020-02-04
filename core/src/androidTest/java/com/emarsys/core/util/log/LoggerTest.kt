@@ -74,7 +74,7 @@ class LoggerTest {
 
     @Test
     fun testPersistLog_addsLog_toShardRepository() {
-        loggerInstance.persistLog(LogLevel.ERROR, logEntryMock("log_crash", mapOf(
+        loggerInstance.persistLog(LogLevel.ERROR, logEntryMock("log_request", mapOf(
                 "key1" to "value",
                 "key2" to 3,
                 "key3" to true
@@ -86,13 +86,29 @@ class LoggerTest {
 
         captor.value shouldBe ShardModel(
                 UUID,
-                "log_crash",
+                "log_request",
                 mapOf(
                         "key1" to "value",
                         "key2" to 3,
                         "key3" to true,
                         "level" to "ERROR"
                 ),
+                TIMESTAMP,
+                TTL)
+    }
+
+    @Test
+    fun testPersistLog_addsOtherLog_toShardRepository() {
+        loggerInstance.persistLog(LogLevel.INFO, logEntryMock("any_log", mapOf()))
+
+        val captor = ArgumentCaptor.forClass(ShardModel::class.java)
+
+        verify(shardRepositoryMock, timeout(100)).add(capture<ShardModel>(captor))
+
+        captor.value shouldBe ShardModel(
+                UUID,
+                "any_log",
+                mapOf("level" to "INFO"),
                 TIMESTAMP,
                 TTL)
     }
@@ -129,6 +145,24 @@ class LoggerTest {
         Logger.log(logEntryMock())
 
         verifyZeroInteractions(dependencyContainer)
+    }
+
+    @Test
+    fun testPersistLog_shouldNotPersist_whenLoggingOurLog() {
+        loggerInstance.persistLog(
+                LogLevel.INFO,
+
+                logEntryMock("log_request",
+                        mapOf(
+                                "url" to "https://log-dealer.eservice.emarsys.net/v1/log",
+                                "key2" to 3,
+                                "key3" to true
+                        )
+                )
+
+        )
+
+        verify(shardRepositoryMock, timeout(100).times(0)).add(any())
     }
 
     private fun logEntryMock(testTopic: String = "", testData: Map<String, Any?> = mapOf()) =
