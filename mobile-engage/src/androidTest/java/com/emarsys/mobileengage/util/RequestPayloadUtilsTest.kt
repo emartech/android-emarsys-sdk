@@ -106,11 +106,6 @@ class RequestPayloadUtilsTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateBasePayload_requestContext_ShouldNotBeNull() {
-        RequestPayloadUtils.createBasePayload(null)
-    }
-
     @Test
     fun testCreateBasePayload_shouldReturnTheCorrectPayload_withoutLogin() {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
@@ -137,22 +132,12 @@ class RequestPayloadUtilsTest {
         payload shouldBe expected
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateSetPushTokenPayload_pushToken_mustNotBeNull() {
-        RequestPayloadUtils.createSetPushTokenPayload(null)
-    }
-
     @Test
     fun testCreateSetPushTokenPayload() {
         val payload = RequestPayloadUtils.createSetPushTokenPayload(PUSH_TOKEN)
         payload shouldBe mapOf(
                 "pushToken" to PUSH_TOKEN
         )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateTrackDeviceInfoPayload_requestContext_mustNotBeNull() {
-        RequestPayloadUtils.createTrackDeviceInfoPayload(null)
     }
 
     @Test
@@ -211,16 +196,6 @@ class RequestPayloadUtilsTest {
 
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateSetContactPayload_contactFieldValue_mustNotBeNull() {
-        RequestPayloadUtils.createSetContactPayload(null, mockRequestContext)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateSetContactPayload_requestContext_mustNotBeNull() {
-        RequestPayloadUtils.createSetContactPayload(CONTACT_FIELD_VALUE, null)
-    }
-
     @Test
     fun testCreateSetContactPayload() {
         val payload = RequestPayloadUtils.createSetContactPayload(CONTACT_FIELD_VALUE, mockRequestContext)
@@ -228,16 +203,6 @@ class RequestPayloadUtilsTest {
                 "contactFieldId" to CONTACT_FIELD_ID,
                 "contactFieldValue" to CONTACT_FIELD_VALUE
         )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateCustomEventPayload_eventName_mustNotBeNull() {
-        RequestPayloadUtils.createCustomEventPayload(null, emptyMap(), mockRequestContext)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateCustomEventPayload_requestContext_mustNotBeNull() {
-        RequestPayloadUtils.createCustomEventPayload(EVENT_NAME, emptyMap(), null)
     }
 
     @Test
@@ -300,17 +265,6 @@ class RequestPayloadUtilsTest {
         actualPayload shouldBe expectedPayload
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateInternalCustomEventPayload_eventName_mustNotBeNull() {
-        RequestPayloadUtils.createInternalCustomEventPayload(null, emptyMap(), mockRequestContext)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateInternalCustomEventPayload_requestContext_mustNotBeNull() {
-        RequestPayloadUtils.createInternalCustomEventPayload(EVENT_NAME, emptyMap(), null)
-    }
-
-
     @Test
     fun testCreateInternalCustomEventPayload_whenEventAttributesIsNull() {
         val event = mapOf(
@@ -371,37 +325,10 @@ class RequestPayloadUtilsTest {
         actualPayload shouldBe expectedPayload
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateCompositeRequestModelPayload_eventsMustNotBeNull() {
-        RequestPayloadUtils.createCompositeRequestModelPayload(
-                null,
-                emptyList(),
-                emptyList(),
-                false)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateCompositeRequestModelPayload_displayedIamsMustNotBeNull() {
-        RequestPayloadUtils.createCompositeRequestModelPayload(
-                emptyList<Any>(),
-                null,
-                emptyList(),
-                false)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateCompositeRequestModelPayload_buttonClicksMustNotBeNull() {
-        RequestPayloadUtils.createCompositeRequestModelPayload(
-                emptyList<Any>(),
-                emptyList(),
-                null,
-                false)
-    }
-
     @Test
     fun testCreateCompositeRequestModelPayload_payloadContainsDoNotDisturb_whenDoNotDisturbIsTrue() {
         val payload = RequestPayloadUtils.createCompositeRequestModelPayload(
-                emptyList<Any>(),
+                emptyList(),
                 emptyList(),
                 emptyList(),
                 true)
@@ -440,11 +367,6 @@ class RequestPayloadUtilsTest {
         resultPayload shouldBe expectedPayload
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateRefreshContactTokenPayload_requestContext_mustNotBeNull() {
-        RequestPayloadUtils.createRefreshContactTokenPayload(null)
-    }
-
     @Test
     fun testCreateRefreshContactTokenPayload() {
         val expectedPayload = mapOf(
@@ -454,16 +376,6 @@ class RequestPayloadUtilsTest {
         val resultPayload = RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext)
 
         resultPayload shouldBe expectedPayload
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateTrackNotificationOpenPayload_sid_mustNotBeNull() {
-        RequestPayloadUtils.createTrackNotificationOpenPayload(null, mockRequestContext)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateTrackNotificationOpenPayload_requestContext_mustNotBeNull() {
-        RequestPayloadUtils.createTrackNotificationOpenPayload("sid", null)
     }
 
     @Test
