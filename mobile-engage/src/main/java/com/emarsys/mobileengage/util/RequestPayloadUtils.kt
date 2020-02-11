@@ -5,6 +5,7 @@ import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.IamConversionUtils
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
+import java.util.*
 
 object RequestPayloadUtils {
     fun createBasePayload(requestContext: MobileEngageRequestContext): MutableMap<String, Any?> {
@@ -134,4 +135,12 @@ object RequestPayloadUtils {
 
 internal enum class EventType {
     CUSTOM, INTERNAL
+}
+
+internal fun EventType.eventType(): String{
+    return if (AndroidVersionUtils.isLollipopOrAbove()) {
+        this.name.toLowerCase(Locale.forLanguageTag("en_US"))
+    } else {
+        this.name.toLowerCase(Locale("en", "US"))
+    }
 }

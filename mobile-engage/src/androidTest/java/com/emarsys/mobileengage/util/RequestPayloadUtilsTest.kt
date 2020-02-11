@@ -395,4 +395,9 @@ class RequestPayloadUtilsTest {
 
         resultPayload shouldBe expectedPayload
     }
+    @Test
+    fun testEnum_eventType() {
+        EventType.CUSTOM.eventType() shouldBe "custom"
+        EventType.INTERNAL.eventType() shouldBe "internal"
+    }
 }
