@@ -107,30 +107,6 @@ class MessagingServiceUtilsTest {
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(1L)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testHandleMessage_contextShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(null, createEMSRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testHandleMessage_remoteMessageShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(context, null, deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testHandleMessage_deviceInfoShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), null, mockNotificationCache, mockTimestampProvider, mockFileDownloader)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testHandleMessage_notificationCacheShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, null, mockTimestampProvider, mockFileDownloader)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testHandleMessage_fileDownloaderShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, null, mockTimestampProvider, null)
-    }
 
     @Test
     fun testHandleMessage_shouldReturnFalse_ifMessageIsNotHandled() {
@@ -144,20 +120,20 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testIsMobileEngageMessage_shouldBeFalse_withEmptyData() {
-        val remoteMessageData: Map<String, String> = HashMap()
+        val remoteMessageData: Map<String, String?> = HashMap()
         MessagingServiceUtils.isMobileEngageMessage(remoteMessageData) shouldBe false
     }
 
     @Test
     fun testIsMobileEngageMessage_shouldBeTrue_withDataWhichContainsTheCorrectKey() {
-        val remoteMessageData: MutableMap<String, String> = HashMap()
+        val remoteMessageData: MutableMap<String, String?> = HashMap()
         remoteMessageData["ems_msg"] = "value"
         MessagingServiceUtils.isMobileEngageMessage(remoteMessageData) shouldBe true
     }
 
     @Test
     fun testIsMobileEngageMessage_shouldBeFalse_withDataWithout_ems_msg() {
-        val remoteMessageData: MutableMap<String, String> = HashMap()
+        val remoteMessageData: MutableMap<String, String?> = HashMap()
         remoteMessageData["key1"] = "value1"
         remoteMessageData["key2"] = "value2"
         MessagingServiceUtils.isMobileEngageMessage(remoteMessageData) shouldBe false
@@ -641,18 +617,13 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testCacheNotification_shouldCacheNotification() {
-        val remoteData: MutableMap<String, String> = HashMap()
-        remoteData["ems_msg"] = "true"
-        remoteData["u"] = "{\"test_field\":\"\",\"image\":\"https:\\/\\/media.giphy.com\\/media\\/ktvFa67wmjDEI\\/giphy.gif\",\"deep_link\":\"lifestylelabels.com\\/mobile\\/product\\/3245678\",\"sid\":\"sid_here\"}"
-        remoteData["id"] = "21022.150123121212.43223434c3b9"
-        remoteData["inbox"] = "true"
-        remoteData["title"] = "hello there"
-        remoteData["rootParam1"] = "param_param"
-        val customData: MutableMap<String, String> = HashMap()
-        customData["test_field"] = ""
-        customData["image"] = "https://media.giphy.com/media/ktvFa67wmjDEI/giphy.gif"
-        customData["deep_link"] = "lifestylelabels.com/mobile/product/3245678"
-        customData["sid"] = "sid_here"
+        val remoteData: MutableMap<String, String?> = mutableMapOf(
+                "ems_msg" to "true",
+                "u" to """{"test_field":"","image":"https://media.giphy.com/media/ktvFa67wmjDEI/giphy.gif","deep_link":"lifestylelabels.com/mobile/product/3245678","sid":"sid_here"}""",
+                "id" to "21022.150123121212.43223434c3b9",
+                "inbox" to "true",
+                "title" to "hello there",
+                "rootParam1" to "param_param")
         MessagingServiceUtils.cacheNotification(mockTimestampProvider, mockNotificationCache, remoteData)
         val notification = InboxParseUtils.parseNotificationFromPushMessage(mockTimestampProvider, false, remoteData)
         verify(mockNotificationCache).cache(notification)

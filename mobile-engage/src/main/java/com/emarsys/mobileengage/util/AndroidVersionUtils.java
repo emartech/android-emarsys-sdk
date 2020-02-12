@@ -15,4 +15,8 @@ public class AndroidVersionUtils {
     public static boolean isLollipopOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
+
+    public static boolean isBelowMarshmallow() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
+    }
 }
