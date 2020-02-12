@@ -88,7 +88,7 @@ object RequestPayloadUtils {
 
     private fun createEvent(eventType: EventType, eventName: String, eventAttributes: Map<String, String>?, requestContext: MobileEngageRequestContext): Map<String, Any> {
         val event: MutableMap<String, Any> = mutableMapOf(
-                "type" to eventType.name.toLowerCase(),
+                "type" to eventType.eventType(),
                 "name" to eventName,
                 "timestamp" to TimestampUtils.formatTimestampWithUTC(requestContext.timestampProvider.provideTimestamp())
         )

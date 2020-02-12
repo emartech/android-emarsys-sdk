@@ -18,6 +18,7 @@ import com.emarsys.core.request.RestClient
 import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.Storage
+import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
@@ -115,7 +116,8 @@ class FakeDependencyContainer(
         private val deepLinkServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
         private val mobileEngageV2ServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
         private val inboxServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
-        private val predictServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>
+        private val predictServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
+        private val fileDownloader: FileDownloader = mock(FileDownloader::class.java)
 ) : EmarsysDependencyContainer {
 
     override fun getLoggingClientServiceInternal(): ClientServiceInternal {
@@ -148,6 +150,10 @@ class FakeDependencyContainer(
 
     override fun getCoreSdkHandler(): Handler {
         return coreSdkHandler
+    }
+
+    override fun getFileDownloader(): FileDownloader {
+        return fileDownloader
     }
 
     override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog {

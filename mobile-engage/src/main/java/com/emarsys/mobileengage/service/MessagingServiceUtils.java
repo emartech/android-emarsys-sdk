@@ -19,7 +19,7 @@ import com.emarsys.core.device.DeviceInfo;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.resource.MetaDataReader;
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.FileUtils;
+import com.emarsys.core.util.FileDownloader;
 import com.emarsys.core.util.ImageUtils;
 import com.emarsys.core.validate.JsonObjectValidator;
 import com.emarsys.mobileengage.inbox.InboxParseUtils;
@@ -41,11 +41,12 @@ public class MessagingServiceUtils {
     public static final String METADATA_NOTIFICATION_COLOR = "com.emarsys.mobileengage.notification_color";
     public static final int DEFAULT_SMALL_NOTIFICATION_ICON = com.emarsys.mobileengage.R.drawable.default_small_notification_icon;
 
-    public static boolean handleMessage(Context context, RemoteMessage remoteMessage, DeviceInfo deviceInfo, NotificationCache notificationCache, TimestampProvider timestampProvider) {
+    public static boolean handleMessage(Context context, RemoteMessage remoteMessage, DeviceInfo deviceInfo, NotificationCache notificationCache, TimestampProvider timestampProvider, FileDownloader fileDownloader) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(remoteMessage, "RemoteMessage must not be null!");
         Assert.notNull(deviceInfo, "DeviceInfo must not be null!");
         Assert.notNull(notificationCache, "NotificationCache must not be null!");
+        Assert.notNull(fileDownloader, "FileDownloader must not be null!");
         boolean handled = false;
         Map<String, String> remoteData = remoteMessage.getData();
 
@@ -60,7 +61,8 @@ public class MessagingServiceUtils {
                     context.getApplicationContext(),
                     remoteData,
                     deviceInfo,
-                    new MetaDataReader());
+                    new MetaDataReader(),
+                    fileDownloader);
 
             ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE))
                     .notify(notificationId, notification);
@@ -80,11 +82,12 @@ public class MessagingServiceUtils {
             Context context,
             Map<String, String> remoteMessageData,
             DeviceInfo deviceInfo,
-            MetaDataReader metaDataReader) {
+            MetaDataReader metaDataReader,
+            FileDownloader fileDownloader) {
 
         int smallIconResourceId = metaDataReader.getInt(context, METADATA_SMALL_NOTIFICATION_ICON_KEY, DEFAULT_SMALL_NOTIFICATION_ICON);
         int colorResourceId = metaDataReader.getInt(context, METADATA_NOTIFICATION_COLOR);
-        Bitmap image = ImageUtils.loadOptimizedBitmap(context, remoteMessageData.get("image_url"), deviceInfo);
+        Bitmap image = ImageUtils.loadOptimizedBitmap(fileDownloader, remoteMessageData.get("image_url"), deviceInfo);
         String title = getTitle(remoteMessageData, context);
         String body = remoteMessageData.get("body");
         String channelId = remoteMessageData.get("channel_id");
@@ -101,7 +104,7 @@ public class MessagingServiceUtils {
 
         List<Action> actions = NotificationActionUtils.createActions(context, remoteMessageData, notificationId);
 
-        Map<String, String> preloadedRemoteMessageData = createPreloadedRemoteMessageData(remoteMessageData, getInAppDescriptor(context, remoteMessageData));
+        Map<String, String> preloadedRemoteMessageData = createPreloadedRemoteMessageData(remoteMessageData, getInAppDescriptor(fileDownloader, remoteMessageData));
         PendingIntent resultPendingIntent = IntentUtils.createNotificationHandlerServicePendingIntent(context, preloadedRemoteMessageData, notificationId);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
@@ -149,7 +152,7 @@ public class MessagingServiceUtils {
         return title;
     }
 
-    static String getInAppDescriptor(Context context, Map<String, String> remoteMessageData) {
+    static String getInAppDescriptor(FileDownloader fileDownloader, Map<String, String> remoteMessageData) {
         String result = null;
 
         try {
@@ -168,7 +171,7 @@ public class MessagingServiceUtils {
                         JSONObject inAppDescriptor = new JSONObject();
                         inAppDescriptor.put("campaignId", inAppPayload.getString("campaign_id"));
                         inAppDescriptor.put("url", inAppUrl);
-                        inAppDescriptor.put("fileUrl", FileUtils.download(context, inAppUrl));
+                        inAppDescriptor.put("fileUrl", fileDownloader.download(inAppUrl));
 
                         result = inAppDescriptor.toString();
                     }

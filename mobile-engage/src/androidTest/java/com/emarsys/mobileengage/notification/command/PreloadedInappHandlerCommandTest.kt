@@ -10,10 +10,11 @@ import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.timestamp.TimestampProvider
-import com.emarsys.core.util.FileUtils
+import com.emarsys.core.util.FileDownloader
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.iam.InAppPresenter
 import com.emarsys.mobileengage.iam.PushToInAppAction
+import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -55,12 +56,16 @@ class PreloadedInappHandlerCommandTest {
         mockCoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
 
         mockActivityLifecycleWatchdog = mock(ActivityLifecycleWatchdog::class.java)
-
+        val mockFileDownloader = mock(FileDownloader::class.java).apply {
+            whenever(readFileIntoString(any())).thenReturn("html")
+            whenever(readURLIntoString(any())).thenReturn("html")
+        }
         mockDependencyContainer = mock(MobileEngageDependencyContainer::class.java).apply {
             whenever(activityLifecycleWatchdog).thenReturn(mockActivityLifecycleWatchdog)
             whenever(inAppPresenter).thenReturn(mock(InAppPresenter::class.java))
             whenever(timestampProvider).thenReturn(mock(TimestampProvider::class.java))
             whenever(coreSdkHandler).thenReturn(mockCoreSdkHandler)
+            whenever(fileDownloader).thenReturn(mockFileDownloader)
         }
 
     }
@@ -84,7 +89,7 @@ class PreloadedInappHandlerCommandTest {
 
     @Test
     fun testHandlePreloadedInAppMessage_shouldCallAddTriggerOnActivityAction_whenFileUrlIsAvailable() {
-        FileUtils.writeToFile("test", fileUrl)
+        FileTestUtils.writeToFile("test", fileUrl)
 
         val inapp = JSONObject().apply {
             put("campaignId", "campaignId")
@@ -109,7 +114,7 @@ class PreloadedInappHandlerCommandTest {
 
     @Test
     fun testHandlePreloadedInAppMessage_shouldCallAddTriggerOnActivityAction_whenFileUrlIsAvailableButTheFileIsMissing() {
-        FileUtils.writeToFile("test", fileUrl)
+        FileTestUtils.writeToFile("test", fileUrl)
         File(fileUrl).delete()
 
         val inapp = JSONObject().apply {
@@ -159,7 +164,7 @@ class PreloadedInappHandlerCommandTest {
 
     @Test
     fun testHandlePreloadedInAppMessage_shouldDeleteFile_afterPushToInAppActionIsScheduled() {
-        FileUtils.writeToFile("test", fileUrl)
+        FileTestUtils.writeToFile("test", fileUrl)
 
         val inapp = JSONObject().apply {
             put("campaignId", "campaignId")

@@ -13,6 +13,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.shard.ShardModel;
+import com.emarsys.core.util.FileDownloader;
 import com.emarsys.core.util.log.Logger;
 
 public interface DependencyContainer {
@@ -40,4 +41,6 @@ public interface DependencyContainer {
     Logger getLogger();
 
     RestClient getRestClient();
+
+    FileDownloader getFileDownloader();
 }

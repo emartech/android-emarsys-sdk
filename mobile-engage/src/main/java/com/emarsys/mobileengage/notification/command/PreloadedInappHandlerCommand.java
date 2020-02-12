@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.FileUtils;
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.mobileengage.iam.PushToInAppAction;
 
@@ -48,11 +47,11 @@ public class PreloadedInappHandlerCommand implements Runnable {
                             public void run() {
                                 String html = null;
                                 if (fileUrl != null) {
-                                    html = FileUtils.readFileIntoString(fileUrl);
+                                    html = dependencyContainer.getFileDownloader().readFileIntoString(fileUrl);
                                     new File(fileUrl).delete();
                                 }
                                 if (html == null && url != null) {
-                                    html = FileUtils.readURLIntoString(url);
+                                    html = dependencyContainer.getFileDownloader().readURLIntoString(url);
                                 }
                                 if (campaignId != null && html != null) {
                                     scheduleInAppDisplay(campaignId, html, dependencyContainer, sid, url);

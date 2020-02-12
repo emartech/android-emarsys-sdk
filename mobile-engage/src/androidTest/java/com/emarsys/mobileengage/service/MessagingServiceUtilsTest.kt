@@ -17,15 +17,16 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.resource.MetaDataReader
+import com.emarsys.core.util.FileDownloader
 import com.emarsys.mobileengage.inbox.InboxParseUtils
 import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils.instantiate
 import com.emarsys.testUtil.RetryUtils.retryRule
-import com.emarsys.testUtil.TestUrls.LARGE_IMAGE
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.whenever
+import com.emarsys.testUtil.copyInputStreamToFile
 import com.google.firebase.messaging.RemoteMessage
+import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONArray
@@ -35,7 +36,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
+import org.mockito.Mockito.*
+import java.io.File
 import java.util.*
 
 class MessagingServiceUtilsTest {
@@ -47,6 +49,9 @@ class MessagingServiceUtilsTest {
         private const val HARDWARE_ID = "hwid"
         private const val SDK_VERSION = "sdkVersion"
         private const val LANGUAGE = "en-US"
+        private const val IMAGE_URL = "https://emarsys.com/image"
+        private const val HTML_URL = "https://hu.wikipedia.org/wiki/Mont_Blanc"
+
     }
 
     private lateinit var context: Context
@@ -54,7 +59,7 @@ class MessagingServiceUtilsTest {
     private lateinit var metaDataReader: MetaDataReader
     private lateinit var mockNotificationCache: NotificationCache
     private lateinit var mockTimestampProvider: TimestampProvider
-
+    private lateinit var mockFileDownloader: FileDownloader
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
@@ -66,14 +71,29 @@ class MessagingServiceUtilsTest {
     @Before
     fun init() {
         context = getTargetContext()
-        val mockNotificationSettings = Mockito.mock(NotificationSettings::class.java)
-        val mockHardwareIdProvider = Mockito.mock(HardwareIdProvider::class.java)
-        val mockVersionProvider = Mockito.mock(VersionProvider::class.java)
-        val mockLanguageProvider = Mockito.mock(LanguageProvider::class.java)
+        val mockNotificationSettings = mock(NotificationSettings::class.java)
+        val mockHardwareIdProvider = mock(HardwareIdProvider::class.java)
+        val mockVersionProvider = mock(VersionProvider::class.java)
+        val mockLanguageProvider = mock(LanguageProvider::class.java)
         val channelSettings = ChannelSettings(channelId = CHANNEL_ID)
+        mockFileDownloader = mock(FileDownloader::class.java).apply {
+            whenever(download(any())).thenAnswer {
+                if (it.arguments[0] == IMAGE_URL || it.arguments[0] == HTML_URL) {
+                    val fileContent = getTargetContext().resources.openRawResource(
+                            getTargetContext().resources.getIdentifier("test_image",
+                                    "raw", getTargetContext().packageName))
+                    val file = File(getTargetContext().cacheDir.toURI().toURL().path + "/testFile.tmp")
+                    file.copyInputStreamToFile(fileContent)
+                    file.toURI().toURL().path
+                } else {
+                    null
+                }
+            }
+        }
         whenever(mockNotificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
-        whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn(LANGUAGE)
+        whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::
+        class.java))).thenReturn(LANGUAGE)
         whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
         deviceInfo = DeviceInfo(context,
                 mockHardwareIdProvider,
@@ -81,40 +101,45 @@ class MessagingServiceUtilsTest {
                 mockLanguageProvider,
                 mockNotificationSettings,
                 true)
-        metaDataReader = Mockito.mock(MetaDataReader::class.java)
-        mockNotificationCache = Mockito.mock(NotificationCache::class.java)
-        mockTimestampProvider = Mockito.mock(TimestampProvider::class.java)
+        metaDataReader = mock(MetaDataReader::class.java)
+        mockNotificationCache = mock(NotificationCache::class.java)
+        mockTimestampProvider = mock(TimestampProvider::class.java)
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(1L)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testHandleMessage_contextShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(null, createEMSRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider)
+        MessagingServiceUtils.handleMessage(null, createEMSRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testHandleMessage_remoteMessageShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(context, null, deviceInfo, mockNotificationCache, mockTimestampProvider)
+        MessagingServiceUtils.handleMessage(context, null, deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testHandleMessage_deviceInfoShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), null, mockNotificationCache, mockTimestampProvider)
+        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), null, mockNotificationCache, mockTimestampProvider, mockFileDownloader)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testHandleMessage_notificationCacheShouldNotBeNull() {
-        MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, null, mockTimestampProvider)
+        MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, null, mockTimestampProvider, mockFileDownloader)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testHandleMessage_fileDownloaderShouldNotBeNull() {
+        MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, null, mockTimestampProvider, null)
     }
 
     @Test
     fun testHandleMessage_shouldReturnFalse_ifMessageIsNotHandled() {
-        MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider) shouldBe false
+        MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader) shouldBe false
     }
 
     @Test
     fun testHandleMessage_shouldReturnTrue_ifMessageIsHandled() {
-        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider) shouldBe true
+        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader) shouldBe true
     }
 
     @Test
@@ -145,7 +170,8 @@ class MessagingServiceUtilsTest {
                 context,
                 HashMap(),
                 deviceInfo,
-                metaDataReader) shouldNotBe null
+                metaDataReader,
+                mockFileDownloader) shouldNotBe null
     }
 
     @Test
@@ -160,7 +186,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
         result.extras.getString(NotificationCompat.EXTRA_TITLE) shouldBe TITLE
         result.extras.getString(NotificationCompat.EXTRA_TITLE_BIG) shouldBe TITLE
         result.extras.getString(NotificationCompat.EXTRA_TEXT) shouldBe BODY
@@ -179,7 +206,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
         result.extras.getString(NotificationCompat.EXTRA_TITLE) shouldBe TITLE
         result.extras.getString(NotificationCompat.EXTRA_TITLE_BIG) shouldBe TITLE
         result.extras.getString(NotificationCompat.EXTRA_TEXT) shouldBe null
@@ -198,7 +226,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
         val expectedTitle = expectedBasedOnApiLevel(applicationName, "")
 
         result.extras.getString(NotificationCompat.EXTRA_TITLE) shouldBe expectedTitle
@@ -220,7 +249,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
         val expectedTitle = expectedBasedOnApiLevel(DEFAULT_TITLE, "")
 
         result.extras.getString(NotificationCompat.EXTRA_TITLE) shouldBe expectedTitle
@@ -236,14 +266,15 @@ class MessagingServiceUtilsTest {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
-        input["image_url"] = LARGE_IMAGE
+        input["image_url"] = IMAGE_URL
         input["channel_id"] = CHANNEL_ID
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
 
         result.extras.getString(NotificationCompat.EXTRA_TITLE) shouldBe TITLE
         result.extras.getString(NotificationCompat.EXTRA_TITLE_BIG) shouldBe TITLE
@@ -266,7 +297,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
 
         result.extras.getString(NotificationCompat.EXTRA_TITLE) shouldBe TITLE
         result.extras.getString(NotificationCompat.EXTRA_TITLE_BIG) shouldBe TITLE
@@ -289,7 +321,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
 
         result.color shouldBe expectedColor
     }
@@ -305,7 +338,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
 
         result.color shouldBe Notification.COLOR_DEFAULT
     }
@@ -322,7 +356,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
 
         result.channelId shouldBe CHANNEL_ID
     }
@@ -333,8 +368,8 @@ class MessagingServiceUtilsTest {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
-        val notificationSettings = Mockito.mock(NotificationSettings::class.java)
-        val deviceInfo = Mockito.mock(DeviceInfo::class.java)
+        val notificationSettings = mock(NotificationSettings::class.java)
+        val deviceInfo = mock(DeviceInfo::class.java)
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
@@ -344,7 +379,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
 
         result.channelId shouldBe null
     }
@@ -355,8 +391,8 @@ class MessagingServiceUtilsTest {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
-        val notificationSettings = Mockito.mock(NotificationSettings::class.java)
-        val deviceInfo = Mockito.mock(DeviceInfo::class.java)
+        val notificationSettings = mock(NotificationSettings::class.java)
+        val deviceInfo = mock(DeviceInfo::class.java)
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
@@ -366,7 +402,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
         result.channelId shouldBe "ems_debug"
     }
 
@@ -398,7 +435,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
         result.actions shouldNotBe null
         result.actions.size shouldBe 2
         result.actions[0].title shouldBe "title1"
@@ -416,7 +454,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
         result.actions shouldBe null
     }
 
@@ -427,8 +466,8 @@ class MessagingServiceUtilsTest {
         input["title"] = TITLE
         input["body"] = BODY
         input["channel_id"] = CHANNEL_ID
-        val notificationSettings = Mockito.mock(NotificationSettings::class.java)
-        val deviceInfo = Mockito.mock(DeviceInfo::class.java)
+        val notificationSettings = mock(NotificationSettings::class.java)
+        val deviceInfo = mock(DeviceInfo::class.java)
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
@@ -438,7 +477,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
         result.extras.getString(NotificationCompat.EXTRA_TEXT) shouldBe "DEBUG - channel_id mismatch: channelId not found!"
     }
 
@@ -448,9 +488,9 @@ class MessagingServiceUtilsTest {
         input["title"] = TITLE
         input["body"] = BODY
         input["channel_id"] = CHANNEL_ID
-        val notificationSettings = Mockito.mock(NotificationSettings::class.java)
+        val notificationSettings = mock(NotificationSettings::class.java)
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
-        val deviceInfo = Mockito.mock(DeviceInfo::class.java)
+        val deviceInfo = mock(DeviceInfo::class.java)
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(false)
@@ -459,7 +499,8 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader)
+                metaDataReader,
+                mockFileDownloader)
         result.extras.getString(NotificationCompat.EXTRA_TEXT) shouldBe BODY
     }
 
@@ -518,25 +559,25 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testGetInAppDescriptor_shouldReturnNull_forNullInput() {
-        MessagingServiceUtils.getInAppDescriptor(context, null) shouldBe null
+        MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, null) shouldBe null
     }
 
     @Test
     fun testGetInAppDescriptor_shouldReturnNull_whenThereIsNoEmsInPayload() {
-        MessagingServiceUtils.getInAppDescriptor(context, createNoEmsInPayload()) shouldBe null
+        MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, createNoEmsInPayload()) shouldBe null
     }
 
     @Test
     fun testGetInAppDescriptor_shouldReturnNull_whenThereIsNoInAppInPayload() {
-        MessagingServiceUtils.getInAppDescriptor(context, createNoInAppInPayload()) shouldBe null
+        MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, createNoInAppInPayload()) shouldBe null
     }
 
     @Test
     fun testGetInAppDescriptor_shouldReturnValidDescriptor_whenThereIsInAppInPayload() {
-        val result = JSONObject(MessagingServiceUtils.getInAppDescriptor(context, createInAppInPayload()))
+        val result = JSONObject(MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, createInAppInPayload()))
 
         result.getString("campaignId") shouldBe "someId"
-        result.getString("url") shouldBe "https://hu.wikipedia.org/wiki/Mont_Blanc"
+        result.getString("url") shouldBe HTML_URL
         result.getString("fileUrl") shouldNotBe null
     }
 
@@ -545,10 +586,10 @@ class MessagingServiceUtilsTest {
         val payload: MutableMap<String, String> = HashMap()
         val ems = JSONObject()
         val inapp = JSONObject()
-        inapp.put("url", "https://hu.wikipedia.org/wiki/Mont_Blanc")
+        inapp.put("url", HTML_URL)
         ems.put("inapp", inapp)
         payload["ems"] = ems.toString()
-        MessagingServiceUtils.getInAppDescriptor(context, payload) shouldBe null
+        MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, payload) shouldBe null
     }
 
     @Test
@@ -560,7 +601,7 @@ class MessagingServiceUtilsTest {
         ems.put("inapp", inapp)
         payload["ems"] = ems.toString()
 
-        MessagingServiceUtils.getInAppDescriptor(context, payload) shouldBe null
+        MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, payload) shouldBe null
     }
 
     @Test
@@ -572,7 +613,7 @@ class MessagingServiceUtilsTest {
         inapp.put("url", "https://thisIsNotARealUrl")
         ems.put("inapp", inapp)
         payload["ems"] = ems.toString()
-        val result = JSONObject(MessagingServiceUtils.getInAppDescriptor(context, payload))
+        val result = JSONObject(MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, payload))
 
         result.getString("campaignId") shouldBe "someId"
         result.getString("url") shouldBe "https://thisIsNotARealUrl"
@@ -614,7 +655,7 @@ class MessagingServiceUtilsTest {
         customData["sid"] = "sid_here"
         MessagingServiceUtils.cacheNotification(mockTimestampProvider, mockNotificationCache, remoteData)
         val notification = InboxParseUtils.parseNotificationFromPushMessage(mockTimestampProvider, false, remoteData)
-        Mockito.verify(mockNotificationCache).cache(notification)
+        verify(mockNotificationCache).cache(notification)
     }
 
     private fun createRemoteMessage(): RemoteMessage {
@@ -633,13 +674,13 @@ class MessagingServiceUtilsTest {
     }
 
     private fun createNoEmsInPayload(): Map<String, String> {
-        return HashMap()
+        return emptyMap()
     }
 
     private fun createNoInAppInPayload(): Map<String, String> {
-        val payload: MutableMap<String, String> = HashMap()
-        payload["ems"] = "{}"
-        return payload
+        return mapOf(
+                "ems" to "{}"
+        )
     }
 
     private fun createInAppInPayload(): Map<String, String> {
@@ -647,7 +688,7 @@ class MessagingServiceUtilsTest {
         val ems = JSONObject()
         val inapp = JSONObject()
         inapp.put("campaign_id", "someId")
-        inapp.put("url", "https://hu.wikipedia.org/wiki/Mont_Blanc")
+        inapp.put("url", HTML_URL)
         ems.put("inapp", inapp)
         payload["ems"] = ems.toString()
         return payload
@@ -662,7 +703,7 @@ class MessagingServiceUtilsTest {
     }
 
     private val applicationName: String
-        private get() {
+        get() {
             val applicationInfo = context.applicationInfo
             val stringId = applicationInfo.labelRes
             return if (stringId == 0) applicationInfo.nonLocalizedLabel.toString() else context.getString(stringId)

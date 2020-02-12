@@ -28,7 +28,8 @@ public class EmarsysMessagingServiceUtils {
                         remoteMessage,
                         container.getDeviceInfo(),
                         container.getNotificationCache(),
-                        container.getTimestampProvider());
+                        container.getTimestampProvider(),
+                        container.getFileDownloader());
             }
         });
     }

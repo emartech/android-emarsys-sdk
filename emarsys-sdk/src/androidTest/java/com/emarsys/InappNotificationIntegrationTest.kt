@@ -7,7 +7,7 @@ import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.endpoint.ServiceEndpointProvider
-import com.emarsys.core.util.FileUtils
+import com.emarsys.core.util.FileDownloader
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarsysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
@@ -136,8 +136,8 @@ class InappNotificationIntegrationTest {
     @Test
     fun testInappPresent() {
         val context = InstrumentationRegistry.getTargetContext().applicationContext
-        val url = FileUtils.download(context, "https://www.google.com")
-        val emsPayload = "{\"inapp\": {\"campaignId\": \"222\",\"url\": \"https://www.google.com\",\"fileUrl\": \"$url\"}}"
+        val url = FileDownloader(context).download("https://www.google.com")
+        val emsPayload = """{"inapp": {"campaignId": "222","url": "https://www.google.com","fileUrl": "$url"}}"""
         val remoteMessageData = mapOf("ems" to emsPayload)
 
         val intent = IntentUtils.createNotificationHandlerServiceIntent(

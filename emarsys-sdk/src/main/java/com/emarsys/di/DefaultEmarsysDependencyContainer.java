@@ -59,6 +59,7 @@ import com.emarsys.core.storage.DefaultKeyValueStore;
 import com.emarsys.core.storage.KeyValueStore;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.storage.StringStorage;
+import com.emarsys.core.util.FileDownloader;
 import com.emarsys.core.util.batch.BatchingShardTrigger;
 import com.emarsys.core.util.batch.ListChunker;
 import com.emarsys.core.util.log.LogShardListMerger;
@@ -227,6 +228,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private ServiceEndpointProvider deepLinkServiceProvider;
     private ServiceEndpointProvider predictServiceProvider;
 
+    private FileDownloader fileDownloader;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeFeatures(emarsysConfig);
@@ -444,6 +446,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         return restClient;
     }
 
+    @Override
+    public FileDownloader getFileDownloader() {
+        return fileDownloader;
+    }
+
     private void initializeFeatures(EmarsysConfig emarsysConfig) {
         if (emarsysConfig.getMobileEngageApplicationCode() != null) {
             FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE);
@@ -654,6 +661,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         configApi = new ConfigProxy(runnerProxy, configInternal);
 
         logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
+
+        fileDownloader = new FileDownloader(application.getApplicationContext());
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
