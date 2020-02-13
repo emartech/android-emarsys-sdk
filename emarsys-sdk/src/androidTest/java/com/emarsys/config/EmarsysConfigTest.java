@@ -26,6 +26,7 @@ public class EmarsysConfigTest {
     private Application application;
     private EventHandler defaultInAppEventHandler;
     private NotificationEventHandler defaultNotificationEventHandler;
+    private NotificationEventHandler defaultSilentMessageNotificationEventHandler;
     private FlipperFeature[] features;
     private boolean automaticPushTokenSending;
 
@@ -38,6 +39,7 @@ public class EmarsysConfigTest {
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
         defaultInAppEventHandler = mock(EventHandler.class);
         defaultNotificationEventHandler = mock(NotificationEventHandler.class);
+        defaultSilentMessageNotificationEventHandler = mock(NotificationEventHandler.class);
         features = new FlipperFeature[]{
                 mock(FlipperFeature.class),
                 mock(FlipperFeature.class)
@@ -53,6 +55,7 @@ public class EmarsysConfigTest {
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
+                defaultSilentMessageNotificationEventHandler,
                 features,
                 automaticPushTokenSending);
     }
@@ -66,6 +69,7 @@ public class EmarsysConfigTest {
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
+                defaultSilentMessageNotificationEventHandler,
                 features,
                 automaticPushTokenSending);
     }
@@ -79,6 +83,7 @@ public class EmarsysConfigTest {
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
+                defaultSilentMessageNotificationEventHandler,
                 null,
                 automaticPushTokenSending);
     }
@@ -92,6 +97,7 @@ public class EmarsysConfigTest {
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
+                defaultSilentMessageNotificationEventHandler,
                 new FlipperFeature[]{mock(FlipperFeature.class), null},
                 automaticPushTokenSending);
     }
@@ -105,6 +111,7 @@ public class EmarsysConfigTest {
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
+                defaultSilentMessageNotificationEventHandler,
                 features,
                 automaticPushTokenSending);
 
@@ -116,6 +123,7 @@ public class EmarsysConfigTest {
                 .enableExperimentalFeatures(features)
                 .inAppEventHandler(defaultInAppEventHandler)
                 .notificationEventHandler(defaultNotificationEventHandler)
+                .silentMessageEventHandler(defaultSilentMessageNotificationEventHandler)
                 .build();
 
         assertEquals(expected, result);
@@ -128,6 +136,7 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
+                null,
                 null,
                 null,
                 new FlipperFeature[]{},
@@ -194,6 +203,7 @@ public class EmarsysConfigTest {
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
+                defaultSilentMessageNotificationEventHandler,
                 features,
                 automaticPushTokenSending);
 

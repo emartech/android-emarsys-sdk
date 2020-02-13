@@ -21,6 +21,7 @@ public class EmarsysConfig {
     private final String predictMerchantId;
     private final EventHandler inAppEventHandler;
     private final NotificationEventHandler notificationEventHandler;
+    private final NotificationEventHandler silentMessageEventHandler;
     private final FlipperFeature[] experimentalFeatures;
     private final boolean automaticPushTokenSending;
 
@@ -30,6 +31,7 @@ public class EmarsysConfig {
                   String predictMerchantId,
                   EventHandler inAppEventHandler,
                   NotificationEventHandler notificationEventHandler,
+                  NotificationEventHandler silentMessageEventHandler,
                   FlipperFeature[] experimentalFeatures,
                   boolean automaticPushTokenSending) {
         Assert.notNull(application, "Application must not be null");
@@ -43,6 +45,7 @@ public class EmarsysConfig {
         this.predictMerchantId = predictMerchantId;
         this.inAppEventHandler = inAppEventHandler;
         this.notificationEventHandler = notificationEventHandler;
+        this.silentMessageEventHandler = silentMessageEventHandler;
         this.experimentalFeatures = experimentalFeatures;
         this.automaticPushTokenSending = automaticPushTokenSending;
     }
@@ -71,6 +74,10 @@ public class EmarsysConfig {
         return notificationEventHandler;
     }
 
+    public NotificationEventHandler getSilentMessageEventHandler() {
+        return silentMessageEventHandler;
+    }
+
     public FlipperFeature[] getExperimentalFeatures() {
         return experimentalFeatures;
     }
@@ -91,12 +98,13 @@ public class EmarsysConfig {
                 Objects.equals(predictMerchantId, config.predictMerchantId) &&
                 Objects.equals(inAppEventHandler, config.inAppEventHandler) &&
                 Objects.equals(notificationEventHandler, config.notificationEventHandler) &&
+                Objects.equals(silentMessageEventHandler, config.silentMessageEventHandler) &&
                 Arrays.equals(experimentalFeatures, config.experimentalFeatures);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(application, mobileEngageApplicationCode, contactFieldId, predictMerchantId, inAppEventHandler, notificationEventHandler, automaticPushTokenSending);
+        int result = Objects.hash(application, mobileEngageApplicationCode, contactFieldId, predictMerchantId, inAppEventHandler, notificationEventHandler, silentMessageEventHandler, automaticPushTokenSending);
         result = 31 * result + Arrays.hashCode(experimentalFeatures);
         return result;
     }
@@ -110,6 +118,7 @@ public class EmarsysConfig {
                 ", predictMerchantId='" + predictMerchantId + '\'' +
                 ", inAppEventHandler=" + inAppEventHandler +
                 ", notificationEventHandler=" + notificationEventHandler +
+                ", silentMessageEventHandler=" + silentMessageEventHandler +
                 ", experimentalFeatures=" + Arrays.toString(experimentalFeatures) +
                 ", automaticPushTokenSending=" + automaticPushTokenSending +
                 '}';
@@ -122,6 +131,7 @@ public class EmarsysConfig {
         private String predictMerchantId;
         private EventHandler defaultInAppEventHandler;
         private NotificationEventHandler notificationEventHandler;
+        private NotificationEventHandler silentMessageEventHandler;
         private FlipperFeature[] experimentalFeatures;
         private boolean automaticPushTokenSending = true;
 
@@ -133,6 +143,7 @@ public class EmarsysConfig {
             predictMerchantId = baseConfig.getPredictMerchantId();
             defaultInAppEventHandler = baseConfig.getInAppEventHandler();
             notificationEventHandler = baseConfig.getNotificationEventHandler();
+            silentMessageEventHandler = baseConfig.getSilentMessageEventHandler();
             experimentalFeatures = baseConfig.getExperimentalFeatures();
             automaticPushTokenSending = baseConfig.isAutomaticPushTokenSendingEnabled();
             return this;
@@ -178,6 +189,11 @@ public class EmarsysConfig {
             return this;
         }
 
+        public Builder silentMessageEventHandler(NotificationEventHandler silentMessageEventHandler) {
+            this.silentMessageEventHandler = silentMessageEventHandler;
+            return this;
+        }
+
         public EmarsysConfig build() {
             experimentalFeatures = experimentalFeatures == null ? new FlipperFeature[]{} : experimentalFeatures;
 
@@ -188,6 +204,7 @@ public class EmarsysConfig {
                     predictMerchantId,
                     defaultInAppEventHandler,
                     notificationEventHandler,
+                    silentMessageEventHandler,
                     experimentalFeatures,
                     automaticPushTokenSending);
         }

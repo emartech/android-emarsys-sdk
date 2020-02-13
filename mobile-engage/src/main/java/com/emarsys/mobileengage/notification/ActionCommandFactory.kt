@@ -19,7 +19,6 @@ class ActionCommandFactory(private val context: Context,
                            private val eventServiceInternal: EventServiceInternal,
                            private val notificationEventHandler: NotificationEventHandler?) {
 
-
     fun createActionCommand(action: JSONObject): Runnable? {
         var result: Runnable? = null
         val type: String
@@ -41,7 +40,7 @@ class ActionCommandFactory(private val context: Context,
 
     @Throws(JSONException::class)
     fun findActionWithId(actions: JSONArray, actionId: String): JSONObject? {
-        for (i in 0..actions.length()) {
+        for (i in 0 until actions.length()) {
             val action = actions.optJSONObject(i)
             if (action != null && actionId == action.optString("id")) {
                 return action

@@ -73,6 +73,7 @@ class FakeDependencyContainer(
         private val requestContext: MobileEngageRequestContext = mock(),
         private val inAppPresenter: InAppPresenter = mock(),
         private val notificationEventHandler: NotificationEventHandler = mock(),
+        private val silentMessageEventHandler: NotificationEventHandler = mock(),
         private val predictShardTrigger: Runnable = mock(),
         private val runnerProxy: RunnerProxy = RunnerProxy(),
         private val logger: Logger = mock(),
@@ -107,7 +108,8 @@ class FakeDependencyContainer(
         private val inboxServiceStorage: Storage<String> = mock(),
         private val predictServiceStorage: Storage<String> = mock(),
         private val fileDownloader: FileDownloader = mock(),
-        private val actionCommandFactory: ActionCommandFactory = mock()
+        private val actionCommandFactory: ActionCommandFactory = mock(),
+        private val silentMessageActionCommandFactory: ActionCommandFactory = mock()
 ) : EmarsysDependencyContainer {
 
     override fun getLoggingClientServiceInternal(): ClientServiceInternal {
@@ -232,6 +234,10 @@ class FakeDependencyContainer(
 
     override fun getNotificationEventHandler(): NotificationEventHandler {
         return notificationEventHandler
+    }
+
+    override fun getSilentMessageEventHandler(): NotificationEventHandler {
+        return silentMessageEventHandler
     }
 
     override fun getPredictShardTrigger(): Runnable {
@@ -367,7 +373,11 @@ class FakeDependencyContainer(
         return mobileEngageV2ServiceStorage
     }
 
-    override fun getActionCommandFactory(): ActionCommandFactory {
+    override fun getNotificationActionCommandFactory(): ActionCommandFactory {
         return actionCommandFactory
+    }
+
+    override fun getSilentMessageActionCommandFactory(): ActionCommandFactory {
+        return silentMessageActionCommandFactory
     }
 }

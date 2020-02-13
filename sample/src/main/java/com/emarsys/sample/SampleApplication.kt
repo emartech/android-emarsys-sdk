@@ -13,6 +13,7 @@ import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.api.NotificationEventHandler
 import org.json.JSONObject
 
+
 open class SampleApplication : Application(), EventHandler, NotificationEventHandler {
     override fun onCreate() {
         super.onCreate()
@@ -23,6 +24,7 @@ open class SampleApplication : Application(), EventHandler, NotificationEventHan
                 .predictMerchantId("1428C8EE286EC34B")
                 .inAppEventHandler(this)
                 .notificationEventHandler(this)
+                .silentMessageEventHandler(this)
                 .build()
 
         createNotificationChannels()

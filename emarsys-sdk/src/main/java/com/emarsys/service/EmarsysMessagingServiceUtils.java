@@ -29,7 +29,8 @@ public class EmarsysMessagingServiceUtils {
                         container.getDeviceInfo(),
                         container.getNotificationCache(),
                         container.getTimestampProvider(),
-                        container.getFileDownloader());
+                        container.getFileDownloader(),
+                        container.getSilentMessageActionCommandFactory());
             }
         });
     }

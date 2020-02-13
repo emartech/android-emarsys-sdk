@@ -41,7 +41,7 @@ public class NotificationCommandFactory {
         this.dependencyContainer = dependencyContainer;
         this.eventServiceInternal = dependencyContainer.getEventServiceInternal();
         this.pushInternal = dependencyContainer.getPushInternal();
-        this.actionCommandFactory = dependencyContainer.getActionCommandFactory();
+        this.actionCommandFactory = dependencyContainer.getNotificationActionCommandFactory();
 
         Assert.notNull(eventServiceInternal, "EventServiceInternal from dependency container must not be null!");
         Assert.notNull(pushInternal, "PushInternal from dependency container must not be null!");
@@ -162,6 +162,4 @@ public class NotificationCommandFactory {
         }
         return sid;
     }
-
-
 }

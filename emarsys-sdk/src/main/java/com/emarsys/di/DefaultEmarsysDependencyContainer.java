@@ -176,6 +176,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private DefaultCoreCompletionHandler completionHandler;
     private InAppPresenter inAppPresenter;
     private NotificationEventHandler notificationEventHandler;
+    private NotificationEventHandler silentMessageEventHandler;
     private CoreSQLiteDatabase coreDatabase;
     private Runnable predictShardTrigger;
 
@@ -230,7 +231,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private ServiceEndpointProvider predictServiceProvider;
 
     private FileDownloader fileDownloader;
-    private ActionCommandFactory actionCommandFactory;
+    private ActionCommandFactory notificationActionCommandFactory;
+    private ActionCommandFactory silentActionCommandFactory;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeFeatures(emarsysConfig);
@@ -376,6 +378,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     @Override
     public NotificationEventHandler getNotificationEventHandler() {
         return notificationEventHandler;
+    }
+
+    @Override
+    public NotificationEventHandler getSilentMessageEventHandler() {
+        return silentMessageEventHandler;
     }
 
     @Override
@@ -584,6 +591,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
         notificationEventHandler = config.getNotificationEventHandler();
+        silentMessageEventHandler = config.getSilentMessageEventHandler();
         logShardTrigger = new BatchingShardTrigger(
                 shardModelRepository,
                 new ListSizeAtLeast<ShardModel>(10),
@@ -665,7 +673,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
 
         fileDownloader = new FileDownloader(application.getApplicationContext());
-        actionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getNotificationEventHandler());
+        notificationActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getNotificationEventHandler());
+        silentActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getSilentMessageEventHandler());
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
@@ -843,8 +852,13 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     }
 
     @Override
-    public ActionCommandFactory getActionCommandFactory() {
-        return actionCommandFactory;
+    public ActionCommandFactory getNotificationActionCommandFactory() {
+        return notificationActionCommandFactory;
+    }
+
+    @Override
+    public ActionCommandFactory getSilentMessageActionCommandFactory() {
+        return silentActionCommandFactory;
     }
 
     @Override

@@ -56,7 +56,7 @@ class NotificationCommandFactoryTest {
             whenever(eventServiceInternal).thenReturn(mockEventServiceInternal)
             whenever(pushInternal).thenReturn(mockPushInternal)
             whenever(notificationEventHandler).thenReturn(mockNotificationEventHandler)
-            whenever(actionCommandFactory).thenReturn(mockActionCommandFactory)
+            whenever(notificationActionCommandFactory).thenReturn(mockActionCommandFactory)
         }
 
         factory = NotificationCommandFactory(context, mockDependencyContainer)
@@ -336,7 +336,7 @@ class NotificationCommandFactoryTest {
         val remoteMessageData = mapOf("ems" to emsPayload)
 
         val intent = IntentUtils.createNotificationHandlerServiceIntent(
-                InstrumentationRegistry.getTargetContext().getApplicationContext(),
+                InstrumentationRegistry.getTargetContext().applicationContext,
                 remoteMessageData,
                 0,
                 "actionId"

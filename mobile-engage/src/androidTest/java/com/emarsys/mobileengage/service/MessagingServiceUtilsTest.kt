@@ -20,6 +20,8 @@ import com.emarsys.core.resource.MetaDataReader
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.mobileengage.inbox.InboxParseUtils
 import com.emarsys.mobileengage.inbox.model.NotificationCache
+import com.emarsys.mobileengage.notification.ActionCommandFactory
+import com.emarsys.mobileengage.notification.command.AppEventCommand
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils.instantiate
 import com.emarsys.testUtil.RetryUtils.retryRule
@@ -62,6 +64,7 @@ class MessagingServiceUtilsTest {
     private lateinit var mockNotificationCache: NotificationCache
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockFileDownloader: FileDownloader
+    private lateinit var mockActionCommandFactory: ActionCommandFactory
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
@@ -92,6 +95,8 @@ class MessagingServiceUtilsTest {
                 }
             }
         }
+        mockActionCommandFactory = mock()
+
         whenever(mockNotificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
         whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::
@@ -109,15 +114,14 @@ class MessagingServiceUtilsTest {
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(1L)
     }
 
-
     @Test
     fun testHandleMessage_shouldReturnFalse_ifMessageIsNotHandled() {
-        MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader) shouldBe false
+        MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader, mockActionCommandFactory) shouldBe false
     }
 
     @Test
     fun testHandleMessage_shouldReturnTrue_ifMessageIsHandled() {
-        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader) shouldBe true
+        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader, mockActionCommandFactory) shouldBe true
     }
 
     @Test
@@ -660,6 +664,48 @@ class MessagingServiceUtilsTest {
         MessagingServiceUtils.cacheNotification(mockTimestampProvider, mockNotificationCache, remoteData)
         val notification = InboxParseUtils.parseNotificationFromPushMessage(mockTimestampProvider, false, remoteData)
         verify(mockNotificationCache).cache(notification)
+    }
+
+    @Test
+    fun testCreateSilentPushCommands_shouldReturnEmptyList_whenNoActionIsDefined() {
+        val message = mapOf(
+                "ems_msg" to "value",
+                "ems" to JSONObject(mapOf(
+                        "silent" to true
+                )).toString()
+        )
+
+        MessagingServiceUtils.createSilentPushCommands(mockActionCommandFactory, message) shouldBe emptyList()
+    }
+
+    @Test
+    fun testCreateSilentPushCommands_shouldReturnListOfCommands_whenActionIsDefined() {
+        val expectedCommand1 = AppEventCommand(context, mock(), "MEAppEvent", null)
+        val expectedCommand2 = AppEventCommand(context, mock(), "MEAppEvent", JSONObject(mapOf("key" to "value")))
+        whenever(mockActionCommandFactory.createActionCommand(any())).thenReturn(expectedCommand1).thenReturn(expectedCommand2)
+        val message = mapOf(
+                "ems_msg" to "value",
+                "ems" to JSONObject(mapOf(
+                        "silent" to true,
+                        "actions" to JSONArray(listOf(
+                                JSONObject(mapOf(
+                                        "type" to "MEAppEvent",
+                                        "name" to "nameOfTheAppEvent"
+                                )),
+                                JSONObject(mapOf(
+                                        "type" to "MEAppEvent",
+                                        "name" to "nameOfTheAppEvent",
+                                        "payload" to JSONObject(mapOf(
+                                                "key" to "value"
+                                        ))
+                                ))
+                        ))
+                )).toString()
+        )
+
+        MessagingServiceUtils.createSilentPushCommands(mockActionCommandFactory, message) shouldBe listOf(
+                expectedCommand1,
+                expectedCommand2)
     }
 
     private fun createRemoteMessage(): RemoteMessage {

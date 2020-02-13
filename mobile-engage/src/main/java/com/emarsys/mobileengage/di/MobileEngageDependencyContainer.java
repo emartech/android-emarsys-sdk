@@ -60,6 +60,8 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
 
     NotificationEventHandler getNotificationEventHandler();
 
+    NotificationEventHandler getSilentMessageEventHandler();
+
     Storage<Integer> getDeviceInfoHashStorage();
 
     Storage<String> getContactFieldValueStorage();
@@ -94,5 +96,7 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
 
     Storage<String> getMobileEngageV2ServiceStorage();
 
-    ActionCommandFactory getActionCommandFactory();
+    ActionCommandFactory getNotificationActionCommandFactory();
+
+    ActionCommandFactory getSilentMessageActionCommandFactory();
 }

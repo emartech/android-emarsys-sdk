@@ -6,6 +6,8 @@ import android.app.NotificationManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -20,6 +22,7 @@ import com.emarsys.core.validate.JsonObjectValidator
 import com.emarsys.mobileengage.R
 import com.emarsys.mobileengage.inbox.InboxParseUtils
 import com.emarsys.mobileengage.inbox.model.NotificationCache
+import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.util.AndroidVersionUtils
 import com.google.firebase.messaging.RemoteMessage
 import org.json.JSONException
@@ -39,25 +42,47 @@ object MessagingServiceUtils {
                       deviceInfo: DeviceInfo,
                       notificationCache: NotificationCache,
                       timestampProvider: TimestampProvider?,
-                      fileDownloader: FileDownloader): Boolean {
+                      fileDownloader: FileDownloader,
+                      actionCommandFactory: ActionCommandFactory): Boolean {
 
         var handled = false
         val remoteData = remoteMessage.data
         if (isMobileEngageMessage(remoteData)) {
-            cacheNotification(timestampProvider, notificationCache, remoteData)
-            val notificationId = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
-            val notification = createNotification(
-                    notificationId,
-                    context.applicationContext,
-                    remoteData,
-                    deviceInfo,
-                    MetaDataReader(),
-                    fileDownloader)
-            (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                    .notify(notificationId, notification)
+            if (isSilent(remoteData)) {
+                createSilentPushCommands(actionCommandFactory, remoteData).forEach {
+                    Handler(Looper.getMainLooper()).post {
+                        it?.run()
+                    }
+                }
+            } else {
+                cacheNotification(timestampProvider, notificationCache, remoteData)
+                val notificationId = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
+                val notification = createNotification(
+                        notificationId,
+                        context.applicationContext,
+                        remoteData,
+                        deviceInfo,
+                        MetaDataReader(),
+                        fileDownloader)
+                (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                        .notify(notificationId, notification)
+            }
             handled = true
         }
         return handled
+    }
+
+    fun createSilentPushCommands(actionCommandFactory: ActionCommandFactory, remoteMessageData: Map<String, String?>): List<Runnable?> {
+        val actionsJsonArray = JSONObject(remoteMessageData["ems"]).optJSONArray("actions")
+        val actions: MutableList<Runnable?> = mutableListOf()
+
+        if (actionsJsonArray != null) {
+            for (i in 0 until actionsJsonArray.length()) {
+                val action = actionsJsonArray.optJSONObject(i)
+                actions.add(actionCommandFactory.createActionCommand(action))
+            }
+        }
+        return actions
     }
 
     fun isSilent(remoteMessageData: Map<String, String?>?): Boolean {
