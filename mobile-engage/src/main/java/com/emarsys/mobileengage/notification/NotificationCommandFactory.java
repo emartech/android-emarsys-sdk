@@ -2,21 +2,15 @@ package com.emarsys.mobileengage.notification;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 
 import com.emarsys.core.util.Assert;
-import com.emarsys.core.util.JsonUtils;
-import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.mobileengage.event.EventServiceInternal;
-import com.emarsys.mobileengage.notification.command.AppEventCommand;
 import com.emarsys.mobileengage.notification.command.CompositeCommand;
-import com.emarsys.mobileengage.notification.command.CustomEventCommand;
 import com.emarsys.mobileengage.notification.command.DismissNotificationCommand;
 import com.emarsys.mobileengage.notification.command.HideNotificationShadeCommand;
 import com.emarsys.mobileengage.notification.command.LaunchApplicationCommand;
-import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand;
 import com.emarsys.mobileengage.notification.command.PreloadedInappHandlerCommand;
 import com.emarsys.mobileengage.notification.command.TrackActionClickCommand;
 import com.emarsys.mobileengage.notification.command.TrackMessageOpenCommand;
@@ -28,7 +22,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class NotificationCommandFactory {
 
@@ -36,7 +29,7 @@ public class NotificationCommandFactory {
     private final MobileEngageDependencyContainer dependencyContainer;
     private final EventServiceInternal eventServiceInternal;
     private final PushInternal pushInternal;
-    private final NotificationEventHandler notificationEventHandler;
+    private final ActionCommandFactory actionCommandFactory;
 
     public NotificationCommandFactory(
             Context context,
@@ -47,8 +40,8 @@ public class NotificationCommandFactory {
         this.context = context;
         this.dependencyContainer = dependencyContainer;
         this.eventServiceInternal = dependencyContainer.getEventServiceInternal();
-        this.notificationEventHandler = dependencyContainer.getNotificationEventHandler();
         this.pushInternal = dependencyContainer.getPushInternal();
+        this.actionCommandFactory = dependencyContainer.getActionCommandFactory();
 
         Assert.notNull(eventServiceInternal, "EventServiceInternal from dependency container must not be null!");
         Assert.notNull(pushInternal, "PushInternal from dependency container must not be null!");
@@ -83,7 +76,7 @@ public class NotificationCommandFactory {
     }
 
     private List<Runnable> createMandatoryCommands(Intent intent) {
-        List<Runnable> commands =  new ArrayList<>();
+        List<Runnable> commands = new ArrayList<>();
         commands.add(new HideNotificationShadeCommand(context));
         commands.add(new DismissNotificationCommand(context, intent));
 
@@ -93,7 +86,7 @@ public class NotificationCommandFactory {
     private Runnable handleAction(JSONObject action) {
         Runnable result = null;
         if (action != null) {
-            Runnable actionCommand = getCommand(action);
+            Runnable actionCommand = actionCommandFactory.createActionCommand(action);
             if (actionCommand != null) {
                 result = actionCommand;
             }
@@ -135,31 +128,6 @@ public class NotificationCommandFactory {
         return result;
     }
 
-    private Runnable getCommand(JSONObject action) {
-        Runnable result = null;
-        if (action != null) {
-            String type;
-            try {
-                type = action.getString("type");
-                if ("MEAppEvent".equals(type)) {
-                    result = createAppEventCommand(action);
-                }
-                if ("OpenExternalUrl".equals(type)) {
-                    Runnable openExternalUrl = createOpenExternalUrlCommand(action);
-                    if (openExternalUrl != null) {
-                        result = openExternalUrl;
-                    }
-                }
-                if ("MECustomEvent".equals(type)) {
-                    result = createCustomEventCommand(action);
-                }
-
-            } catch (JSONException ignored) {
-            }
-        }
-        return result;
-    }
-
     private JSONObject getAction(Bundle bundle, String actionId) {
         JSONObject result = null;
         if (bundle != null) {
@@ -168,7 +136,7 @@ public class NotificationCommandFactory {
                 try {
                     if (actionId != null) {
                         JSONArray actions = new JSONObject(emsPayload).getJSONArray("actions");
-                        result = findActionWithId(actions, actionId);
+                        result = actionCommandFactory.findActionWithId(actions, actionId);
                     } else {
                         result = new JSONObject(emsPayload).getJSONObject("default_action");
                     }
@@ -195,45 +163,5 @@ public class NotificationCommandFactory {
         return sid;
     }
 
-    private JSONObject findActionWithId(JSONArray actions, String actionId) throws JSONException {
-        for (int i = 0; i < actions.length(); ++i) {
-            JSONObject action = actions.optJSONObject(i);
-            if (action != null && actionId.equals(action.optString("id"))) {
-                return action;
-            }
-        }
-        throw new JSONException("Cannot find action with id: " + actionId);
-    }
-
-    private Runnable createAppEventCommand(JSONObject action) throws JSONException {
-        return new AppEventCommand(
-                context,
-                notificationEventHandler,
-                action.getString("name"),
-                action.optJSONObject("payload"));
-    }
-
-    private Runnable createOpenExternalUrlCommand(JSONObject action) throws JSONException {
-        Runnable result = null;
-
-        Uri link = Uri.parse(action.getString("url"));
-        Intent externalCommandIntent = new Intent(Intent.ACTION_VIEW, link);
-        externalCommandIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (externalCommandIntent.resolveActivity(context.getPackageManager()) != null) {
-            result = new OpenExternalUrlCommand(externalCommandIntent, context);
-        }
-        return result;
-    }
-
-    private Runnable createCustomEventCommand(JSONObject action) throws JSONException {
-        String name = action.getString("name");
-        JSONObject payload = action.optJSONObject("payload");
-        Map<String, String> eventAttribute = null;
-        if (payload != null) {
-            eventAttribute = JsonUtils.toFlatMap(payload);
-        }
-
-        return new CustomEventCommand(eventServiceInternal, name, eventAttribute);
-    }
 
 }

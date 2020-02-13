@@ -105,6 +105,7 @@ import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternalProvider;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
+import com.emarsys.mobileengage.notification.ActionCommandFactory;
 import com.emarsys.mobileengage.push.DefaultPushInternal;
 import com.emarsys.mobileengage.push.DefaultPushTokenProvider;
 import com.emarsys.mobileengage.push.LoggingPushInternal;
@@ -229,6 +230,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private ServiceEndpointProvider predictServiceProvider;
 
     private FileDownloader fileDownloader;
+    private ActionCommandFactory actionCommandFactory;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeFeatures(emarsysConfig);
@@ -663,6 +665,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
 
         fileDownloader = new FileDownloader(application.getApplicationContext());
+        actionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getNotificationEventHandler());
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
@@ -837,6 +840,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     @Override
     public Storage<String> getMobileEngageV2ServiceStorage() {
         return mobileEngageV2ServiceUrlStorage;
+    }
+
+    @Override
+    public ActionCommandFactory getActionCommandFactory() {
+        return actionCommandFactory;
     }
 
     @Override

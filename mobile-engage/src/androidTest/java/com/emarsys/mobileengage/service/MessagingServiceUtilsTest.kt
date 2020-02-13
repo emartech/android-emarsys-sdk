@@ -26,6 +26,9 @@ import com.emarsys.testUtil.RetryUtils.retryRule
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.copyInputStreamToFile
 import com.google.firebase.messaging.RemoteMessage
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -36,7 +39,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.*
 import java.io.File
 import java.util.*
 
@@ -71,12 +73,12 @@ class MessagingServiceUtilsTest {
     @Before
     fun init() {
         context = getTargetContext()
-        val mockNotificationSettings = mock(NotificationSettings::class.java)
-        val mockHardwareIdProvider = mock(HardwareIdProvider::class.java)
-        val mockVersionProvider = mock(VersionProvider::class.java)
-        val mockLanguageProvider = mock(LanguageProvider::class.java)
+        val mockNotificationSettings: NotificationSettings = mock()
+        val mockHardwareIdProvider: HardwareIdProvider = mock()
+        val mockVersionProvider: VersionProvider = mock()
+        val mockLanguageProvider: LanguageProvider = mock()
         val channelSettings = ChannelSettings(channelId = CHANNEL_ID)
-        mockFileDownloader = mock(FileDownloader::class.java).apply {
+        mockFileDownloader = mock<FileDownloader>().apply {
             whenever(download(any())).thenAnswer {
                 if (it.arguments[0] == IMAGE_URL || it.arguments[0] == HTML_URL) {
                     val fileContent = getTargetContext().resources.openRawResource(
@@ -101,9 +103,9 @@ class MessagingServiceUtilsTest {
                 mockLanguageProvider,
                 mockNotificationSettings,
                 true)
-        metaDataReader = mock(MetaDataReader::class.java)
-        mockNotificationCache = mock(NotificationCache::class.java)
-        mockTimestampProvider = mock(TimestampProvider::class.java)
+        metaDataReader = mock()
+        mockNotificationCache = mock()
+        mockTimestampProvider = mock()
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(1L)
     }
 
@@ -116,6 +118,37 @@ class MessagingServiceUtilsTest {
     @Test
     fun testHandleMessage_shouldReturnTrue_ifMessageIsHandled() {
         MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader) shouldBe true
+    }
+
+    @Test
+    fun testHandleMessage_shouldReturnTrue_whenSilent() {
+        val message = mapOf(
+                "ems_msg" to "value",
+                "ems" to JSONObject(mapOf(
+                        "silent" to true
+                )).toString()
+        )
+        MessagingServiceUtils.isSilent(message) shouldBe true
+    }
+
+    @Test
+    fun testHandleMessage_shouldReturnFalse_whenNotSilent() {
+        val message = mapOf(
+                "ems_msg" to "value",
+                "ems" to JSONObject(mapOf(
+                        "silent" to false
+                )).toString()
+        )
+        MessagingServiceUtils.isSilent(message) shouldBe false
+    }
+
+    @Test
+    fun testHandleMessage_shouldReturnFalse_whenSilentIsNotDefined() {
+        val message = mapOf(
+                "ems_msg" to "value",
+                "ems" to JSONObject().toString()
+        )
+        MessagingServiceUtils.isSilent(message) shouldBe false
     }
 
     @Test
@@ -344,8 +377,8 @@ class MessagingServiceUtilsTest {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
-        val notificationSettings = mock(NotificationSettings::class.java)
-        val deviceInfo = mock(DeviceInfo::class.java)
+        val notificationSettings: NotificationSettings = mock()
+        val deviceInfo: DeviceInfo = mock()
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
@@ -367,8 +400,8 @@ class MessagingServiceUtilsTest {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
-        val notificationSettings = mock(NotificationSettings::class.java)
-        val deviceInfo = mock(DeviceInfo::class.java)
+        val notificationSettings: NotificationSettings = mock()
+        val deviceInfo: DeviceInfo = mock()
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
@@ -442,8 +475,8 @@ class MessagingServiceUtilsTest {
         input["title"] = TITLE
         input["body"] = BODY
         input["channel_id"] = CHANNEL_ID
-        val notificationSettings = mock(NotificationSettings::class.java)
-        val deviceInfo = mock(DeviceInfo::class.java)
+        val notificationSettings: NotificationSettings = mock()
+        val deviceInfo: DeviceInfo = mock()
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
@@ -464,9 +497,9 @@ class MessagingServiceUtilsTest {
         input["title"] = TITLE
         input["body"] = BODY
         input["channel_id"] = CHANNEL_ID
-        val notificationSettings = mock(NotificationSettings::class.java)
+        val notificationSettings: NotificationSettings = mock()
+        val deviceInfo: DeviceInfo = mock()
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
-        val deviceInfo = mock(DeviceInfo::class.java)
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(false)

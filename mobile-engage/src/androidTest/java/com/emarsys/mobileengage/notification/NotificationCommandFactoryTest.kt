@@ -42,6 +42,7 @@ class NotificationCommandFactoryTest {
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockPushInternal: PushInternal
     private lateinit var mockNotificationEventHandler: NotificationEventHandler
+    private lateinit var mockActionCommandFactory: ActionCommandFactory
 
     @Before
     fun setUp() {
@@ -50,11 +51,13 @@ class NotificationCommandFactoryTest {
         mockEventServiceInternal = mock(EventServiceInternal::class.java)
         mockPushInternal = mock(PushInternal::class.java)
         mockNotificationEventHandler = mock(NotificationEventHandler::class.java)
-        mockDependencyContainer = mock(MobileEngageDependencyContainer::class.java)
-
-        whenever(mockDependencyContainer.eventServiceInternal).thenReturn(mockEventServiceInternal)
-        whenever(mockDependencyContainer.pushInternal).thenReturn(mockPushInternal)
-        whenever(mockDependencyContainer.notificationEventHandler).thenReturn(mockNotificationEventHandler)
+        mockActionCommandFactory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationEventHandler)
+        mockDependencyContainer = mock(MobileEngageDependencyContainer::class.java).apply {
+            whenever(eventServiceInternal).thenReturn(mockEventServiceInternal)
+            whenever(pushInternal).thenReturn(mockPushInternal)
+            whenever(notificationEventHandler).thenReturn(mockNotificationEventHandler)
+            whenever(actionCommandFactory).thenReturn(mockActionCommandFactory)
+        }
 
         factory = NotificationCommandFactory(context, mockDependencyContainer)
     }

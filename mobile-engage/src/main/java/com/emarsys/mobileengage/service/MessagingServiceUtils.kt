@@ -9,6 +9,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
@@ -25,6 +26,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
+@Mockable
 object MessagingServiceUtils {
     const val MESSAGE_FILTER = "ems_msg"
     private const val METADATA_SMALL_NOTIFICATION_ICON_KEY = "com.emarsys.mobileengage.small_notification_icon"
@@ -56,6 +58,14 @@ object MessagingServiceUtils {
             handled = true
         }
         return handled
+    }
+
+    fun isSilent(remoteMessageData: Map<String, String?>?): Boolean {
+        val emsPayload = remoteMessageData?.get("ems")
+        if (emsPayload != null) {
+            return JSONObject(emsPayload).optBoolean("silent", false)
+        }
+        return false
     }
 
     @JvmStatic

@@ -22,102 +22,92 @@ import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
-import com.emarsys.mobileengage.*
+import com.emarsys.mobileengage.MobileEngageInternal
+import com.emarsys.mobileengage.MobileEngageRequestContext
+import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.api.NotificationEventHandler
 import com.emarsys.mobileengage.client.ClientServiceInternal
-import com.emarsys.mobileengage.client.DefaultClientServiceInternal
-import com.emarsys.mobileengage.client.LoggingClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
-import com.emarsys.mobileengage.deeplink.DefaultDeepLinkInternal
-import com.emarsys.mobileengage.deeplink.LoggingDeepLinkInternal
-import com.emarsys.mobileengage.event.DefaultEventServiceInternal
 import com.emarsys.mobileengage.event.EventServiceInternal
-import com.emarsys.mobileengage.event.LoggingEventServiceInternal
-import com.emarsys.mobileengage.iam.DefaultInAppInternal
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.InAppPresenter
-import com.emarsys.mobileengage.iam.LoggingInAppInternal
-import com.emarsys.mobileengage.inbox.DefaultInboxInternal
 import com.emarsys.mobileengage.inbox.InboxInternal
-import com.emarsys.mobileengage.inbox.LoggingInboxInternal
 import com.emarsys.mobileengage.inbox.model.NotificationCache
-import com.emarsys.mobileengage.push.DefaultPushInternal
-import com.emarsys.mobileengage.push.LoggingPushInternal
+import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
-import com.emarsys.predict.DefaultPredictInternal
-import com.emarsys.predict.LoggingPredictInternal
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictInternal
 import com.emarsys.push.PushApi
-import org.mockito.Mockito.mock
+import com.nhaarman.mockitokotlin2.mock
 
 @Suppress("UNCHECKED_CAST")
 class FakeDependencyContainer(
-        private val coreSdkHandler: Handler = mock(Handler::class.java),
-        private val activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(ActivityLifecycleWatchdog::class.java),
-        private val currentActivityWatchdog: CurrentActivityWatchdog = mock(CurrentActivityWatchdog::class.java),
-        private val coreSQLiteDatabase: CoreSQLiteDatabase = mock(CoreSQLiteDatabase::class.java),
-        private val deviceInfo: DeviceInfo = mock(DeviceInfo::class.java),
-        private val shardRepository: Repository<ShardModel, SqlSpecification> = mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>,
-        private val timestampProvider: TimestampProvider = mock(TimestampProvider::class.java),
-        private val uuidProvider: UUIDProvider = mock(UUIDProvider::class.java),
-        private val logShardTrigger: Runnable = mock(Runnable::class.java),
-        private val mobileEngageInternal: MobileEngageInternal = mock(DefaultMobileEngageInternal::class.java),
-        private val loggingMobileEngageInternal: MobileEngageInternal = mock(LoggingMobileEngageInternal::class.java),
-        private val pushInternal: PushInternal = mock(DefaultPushInternal::class.java),
-        private val loggingPushInternal: PushInternal = mock(LoggingPushInternal::class.java),
-        private val inboxInternal: InboxInternal = mock(DefaultInboxInternal::class.java),
-        private val loggingInboxInternal: InboxInternal = mock(LoggingInboxInternal::class.java),
-        private val inAppInternal: InAppInternal = mock(DefaultInAppInternal::class.java),
-        private val loggingInAppInternal: InAppInternal = mock(LoggingInAppInternal::class.java),
-        private val deepLinkInternal: DeepLinkInternal = mock(DefaultDeepLinkInternal::class.java),
-        private val loggingDeepLinkInternal: DeepLinkInternal = mock(LoggingDeepLinkInternal::class.java),
-        private val eventServiceInternal: EventServiceInternal = mock(DefaultEventServiceInternal::class.java),
-        private val loggingEventServiceInternal: EventServiceInternal = mock(LoggingEventServiceInternal::class.java),
-        private val clientServiceInternal: ClientServiceInternal = mock(DefaultClientServiceInternal::class.java),
-        private val loggingClientServiceInternal: ClientServiceInternal = mock(LoggingClientServiceInternal::class.java),
-        private val predictInternal: PredictInternal = mock(DefaultPredictInternal::class.java),
-        private val loggingPredictInternal: PredictInternal = mock(LoggingPredictInternal::class.java),
-        private val refreshTokenInternal: RefreshTokenInternal = mock(RefreshTokenInternal::class.java),
-        private val completionHandler: DefaultCoreCompletionHandler = mock(DefaultCoreCompletionHandler::class.java),
-        private val requestContext: MobileEngageRequestContext = mock(MobileEngageRequestContext::class.java),
-        private val inAppPresenter: InAppPresenter = mock(InAppPresenter::class.java),
-        private val notificationEventHandler: NotificationEventHandler = mock(NotificationEventHandler::class.java),
-        private val predictShardTrigger: Runnable = mock(Runnable::class.java),
+        private val coreSdkHandler: Handler = mock(),
+        private val activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(),
+        private val currentActivityWatchdog: CurrentActivityWatchdog = mock(),
+        private val coreSQLiteDatabase: CoreSQLiteDatabase = mock(),
+        private val deviceInfo: DeviceInfo = mock(),
+        private val shardRepository: Repository<ShardModel, SqlSpecification> = mock(),
+        private val timestampProvider: TimestampProvider = mock(),
+        private val uuidProvider: UUIDProvider = mock(),
+        private val logShardTrigger: Runnable = mock(),
+        private val mobileEngageInternal: MobileEngageInternal = mock(),
+        private val loggingMobileEngageInternal: MobileEngageInternal = mock(),
+        private val pushInternal: PushInternal = mock(),
+        private val loggingPushInternal: PushInternal = mock(),
+        private val inboxInternal: InboxInternal = mock(),
+        private val loggingInboxInternal: InboxInternal = mock(),
+        private val inAppInternal: InAppInternal = mock(),
+        private val loggingInAppInternal: InAppInternal = mock(),
+        private val deepLinkInternal: DeepLinkInternal = mock(),
+        private val loggingDeepLinkInternal: DeepLinkInternal = mock(),
+        private val eventServiceInternal: EventServiceInternal = mock(),
+        private val loggingEventServiceInternal: EventServiceInternal = mock(),
+        private val clientServiceInternal: ClientServiceInternal = mock(),
+        private val loggingClientServiceInternal: ClientServiceInternal = mock(),
+        private val predictInternal: PredictInternal = mock(),
+        private val loggingPredictInternal: PredictInternal = mock(),
+        private val refreshTokenInternal: RefreshTokenInternal = mock(),
+        private val completionHandler: DefaultCoreCompletionHandler = mock(),
+        private val requestContext: MobileEngageRequestContext = mock(),
+        private val inAppPresenter: InAppPresenter = mock(),
+        private val notificationEventHandler: NotificationEventHandler = mock(),
+        private val predictShardTrigger: Runnable = mock(),
         private val runnerProxy: RunnerProxy = RunnerProxy(),
-        private val logger: Logger = mock(Logger::class.java),
-        private val deviceInfoHashStorage: Storage<Int> = mock(Storage::class.java) as Storage<Int>,
-        private val contactFieldValueStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
-        private val contactTokenStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
-        private val clientStateStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
-        private val responseHandlersProcessor: ResponseHandlersProcessor = mock(ResponseHandlersProcessor::class.java),
-        private val notificationCache: NotificationCache = mock(NotificationCache::class.java),
-        private val restClient: RestClient = mock(RestClient::class.java),
-        private val inbox: InboxApi = mock(InboxApi::class.java),
-        private val loggingInbox: InboxApi = mock(InboxApi::class.java),
-        private val inApp: InAppApi = mock(InAppApi::class.java),
-        private val loggingInApp: InAppApi = mock(InAppApi::class.java),
-        private val push: PushApi = mock(PushApi::class.java),
-        private val loggingPush: PushApi = mock(PushApi::class.java),
-        private val predict: PredictApi = mock(PredictApi::class.java),
-        private val loggingPredict: PredictApi = mock(PredictApi::class.java),
-        private val config: ConfigApi = mock(ConfigApi::class.java),
-        private val pushTokenProvider: PushTokenProvider = mock(PushTokenProvider::class.java),
-        private val clientServiceProvider: ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java),
-        private val eventServiceProvider: ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java),
-        private val deepLinkServiceProvider: ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java),
-        private val mobileEngageV2ServiceProvider: ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java),
-        private val inboxServiceProvider: ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java),
-        private val predictServiceProvider: ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java),
-        private val configInternal: ConfigInternal = mock(ConfigInternal::class.java),
-        private val clientServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
-        private val eventServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
-        private val deepLinkServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
-        private val mobileEngageV2ServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
-        private val inboxServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
-        private val predictServiceStorage: Storage<String> = mock(Storage::class.java) as Storage<String>,
-        private val fileDownloader: FileDownloader = mock(FileDownloader::class.java)
+        private val logger: Logger = mock(),
+        private val deviceInfoHashStorage: Storage<Int> = mock(),
+        private val contactFieldValueStorage: Storage<String> = mock(),
+        private val contactTokenStorage: Storage<String> = mock(),
+        private val clientStateStorage: Storage<String> = mock(),
+        private val responseHandlersProcessor: ResponseHandlersProcessor = mock(),
+        private val notificationCache: NotificationCache = mock(),
+        private val restClient: RestClient = mock(),
+        private val inbox: InboxApi = mock(),
+        private val loggingInbox: InboxApi = mock(),
+        private val inApp: InAppApi = mock(),
+        private val loggingInApp: InAppApi = mock(),
+        private val push: PushApi = mock(),
+        private val loggingPush: PushApi = mock(),
+        private val predict: PredictApi = mock(),
+        private val loggingPredict: PredictApi = mock(),
+        private val config: ConfigApi = mock(),
+        private val pushTokenProvider: PushTokenProvider = mock(),
+        private val clientServiceProvider: ServiceEndpointProvider = mock(),
+        private val eventServiceProvider: ServiceEndpointProvider = mock(),
+        private val deepLinkServiceProvider: ServiceEndpointProvider = mock(),
+        private val mobileEngageV2ServiceProvider: ServiceEndpointProvider = mock(),
+        private val inboxServiceProvider: ServiceEndpointProvider = mock(),
+        private val predictServiceProvider: ServiceEndpointProvider = mock(),
+        private val configInternal: ConfigInternal = mock(),
+        private val clientServiceStorage: Storage<String> = mock(),
+        private val eventServiceStorage: Storage<String> = mock(),
+        private val deepLinkServiceStorage: Storage<String> = mock(),
+        private val mobileEngageV2ServiceStorage: Storage<String> = mock(),
+        private val inboxServiceStorage: Storage<String> = mock(),
+        private val predictServiceStorage: Storage<String> = mock(),
+        private val fileDownloader: FileDownloader = mock(),
+        private val actionCommandFactory: ActionCommandFactory = mock()
 ) : EmarsysDependencyContainer {
 
     override fun getLoggingClientServiceInternal(): ClientServiceInternal {
@@ -375,5 +365,9 @@ class FakeDependencyContainer(
 
     override fun getMobileEngageV2ServiceStorage(): Storage<String> {
         return mobileEngageV2ServiceStorage
+    }
+
+    override fun getActionCommandFactory(): ActionCommandFactory {
+        return actionCommandFactory
     }
 }
