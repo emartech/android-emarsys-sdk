@@ -5,6 +5,7 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 
 import com.emarsys.core.api.result.CompletionListener;
+import com.emarsys.mobileengage.api.event.EventHandler;
 
 public interface PushApi {
     void trackMessageOpen(@NonNull final Intent intent);
@@ -22,4 +23,8 @@ public interface PushApi {
     void clearPushToken();
 
     void clearPushToken(final CompletionListener completionListener);
+
+    void setNotificationEventHandler(EventHandler notificationEventHandler);
+
+    void setSilentMessageEventHandler(EventHandler silentMesssageEventHandler);
 }

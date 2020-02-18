@@ -2,7 +2,7 @@ package com.emarsys.inapp;
 
 import androidx.annotation.NonNull;
 
-import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.event.EventHandler;
 
 public interface InAppApi {
 
@@ -13,4 +13,5 @@ public interface InAppApi {
     boolean isPaused();
 
     void setEventHandler(@NonNull final EventHandler eventHandler);
+
 }

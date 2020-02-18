@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.emarsys.Emarsys;
@@ -78,7 +80,7 @@ import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal;
 import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.RefreshTokenInternal;
-import com.emarsys.mobileengage.api.NotificationEventHandler;
+import com.emarsys.mobileengage.api.event.EventHandler;
 import com.emarsys.mobileengage.client.ClientServiceInternal;
 import com.emarsys.mobileengage.client.DefaultClientServiceInternal;
 import com.emarsys.mobileengage.client.LoggingClientServiceInternal;
@@ -89,6 +91,7 @@ import com.emarsys.mobileengage.deeplink.LoggingDeepLinkInternal;
 import com.emarsys.mobileengage.device.DeviceInfoStartAction;
 import com.emarsys.mobileengage.endpoint.Endpoint;
 import com.emarsys.mobileengage.event.DefaultEventServiceInternal;
+import com.emarsys.mobileengage.event.EventHandlerProvider;
 import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.mobileengage.event.LoggingEventServiceInternal;
 import com.emarsys.mobileengage.iam.DefaultInAppInternal;
@@ -139,6 +142,8 @@ import com.emarsys.push.PushApi;
 import com.emarsys.push.PushProxy;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -175,8 +180,6 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private MobileEngageRequestContext requestContext;
     private DefaultCoreCompletionHandler completionHandler;
     private InAppPresenter inAppPresenter;
-    private NotificationEventHandler notificationEventHandler;
-    private NotificationEventHandler silentMessageEventHandler;
     private CoreSQLiteDatabase coreDatabase;
     private Runnable predictShardTrigger;
 
@@ -233,6 +236,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private FileDownloader fileDownloader;
     private ActionCommandFactory notificationActionCommandFactory;
     private ActionCommandFactory silentActionCommandFactory;
+    private EventHandlerProvider notificationEventHandlerProvider;
+    private EventHandlerProvider silentMessageEventHandlerProvider;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeFeatures(emarsysConfig);
@@ -376,16 +381,6 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     }
 
     @Override
-    public NotificationEventHandler getNotificationEventHandler() {
-        return notificationEventHandler;
-    }
-
-    @Override
-    public NotificationEventHandler getSilentMessageEventHandler() {
-        return silentMessageEventHandler;
-    }
-
-    @Override
     public Storage<Integer> getDeviceInfoHashStorage() {
         return deviceInfoHashStorage;
     }
@@ -470,7 +465,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         }
     }
 
-    private void initializeDependencies(EmarsysConfig config) {
+    private void initializeDependencies(final EmarsysConfig config) {
         application = config.getApplication();
         runnerProxy = new RunnerProxy();
 
@@ -548,7 +543,6 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         contactTokenResponseHandler = new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage, getClientServiceProvider(), getEventServiceProvider());
 
         notificationCache = new NotificationCache();
-
         refreshTokenInternal = new MobileEngageRefreshTokenInternal(
                 contactTokenResponseHandler,
                 getRestClient(),
@@ -590,8 +584,15 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(requestContext));
 
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
-        notificationEventHandler = config.getNotificationEventHandler();
-        silentMessageEventHandler = config.getSilentMessageEventHandler();
+        EventHandler notificationEventHandler = new EventHandler() {
+            @Override
+            public void handleEvent(@NonNull Context context, @NonNull String eventName, @Nullable JSONObject payload) {
+                config.getNotificationEventHandler().handleEvent(context, eventName, payload);
+            }
+        };
+        notificationEventHandlerProvider = new EventHandlerProvider(notificationEventHandler);
+        silentMessageEventHandlerProvider = new EventHandlerProvider(null);
+
         logShardTrigger = new BatchingShardTrigger(
                 shardModelRepository,
                 new ListSizeAtLeast<ShardModel>(10),
@@ -626,7 +627,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         clientServiceInternal = new DefaultClientServiceInternal(requestManager, requestModelFactory);
         deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext, getDeepLinkServiceProvider());
 
-        pushInternal = new DefaultPushInternal(requestManager, uiHandler, requestModelFactory, eventServiceInternal, pushTokenStorage);
+        pushInternal = new DefaultPushInternal(requestManager, uiHandler, requestModelFactory, eventServiceInternal, pushTokenStorage,
+                notificationEventHandlerProvider, silentMessageEventHandlerProvider);
         inAppInternal = new DefaultInAppInternal(inAppEventHandler, eventServiceInternal);
 
         inboxInternal = inboxInternalProvider.provideInboxInternal(
@@ -673,8 +675,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
 
         fileDownloader = new FileDownloader(application.getApplicationContext());
-        notificationActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getNotificationEventHandler());
-        silentActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getSilentMessageEventHandler());
+        notificationActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getNotificationEventHandlerProvider());
+        silentActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getNotificationEventHandlerProvider());
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
@@ -859,6 +861,16 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     @Override
     public ActionCommandFactory getSilentMessageActionCommandFactory() {
         return silentActionCommandFactory;
+    }
+
+    @Override
+    public EventHandlerProvider getNotificationEventHandlerProvider() {
+        return notificationEventHandlerProvider;
+    }
+
+    @Override
+    public EventHandlerProvider getSilentMessageEventHandlerProvider() {
+        return silentMessageEventHandlerProvider;
     }
 
     @Override

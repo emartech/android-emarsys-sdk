@@ -4,6 +4,7 @@ import android.content.Intent;
 
 import com.emarsys.core.RunnerProxy;
 import com.emarsys.core.api.result.CompletionListener;
+import com.emarsys.mobileengage.api.event.EventHandler;
 import com.emarsys.mobileengage.push.PushInternal;
 import com.emarsys.push.PushProxy;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -21,6 +22,7 @@ public class PushProxyTest {
     private RunnerProxy runnerProxy;
     private PushInternal mockPushInternal;
     private CompletionListener mockCompletionListener;
+    private EventHandler mockEventHandler;
     private PushProxy pushProxy;
 
     @Rule
@@ -31,6 +33,7 @@ public class PushProxyTest {
         runnerProxy = new RunnerProxy();
         mockPushInternal = mock(PushInternal.class);
         mockCompletionListener = mock(CompletionListener.class);
+        mockEventHandler = mock(EventHandler.class);
 
         pushProxy = new PushProxy(runnerProxy, mockPushInternal);
     }
@@ -127,5 +130,19 @@ public class PushProxyTest {
         pushProxy.clearPushToken(mockCompletionListener);
 
         verify(mockPushInternal).clearPushToken(mockCompletionListener);
+    }
+
+    @Test
+    public void testPush_setNotificationEventHandler_delegatesTo_pushInternal() {
+        pushProxy.setNotificationEventHandler(mockEventHandler);
+
+        verify(mockPushInternal).setNotificationEventHandler(mockEventHandler);
+    }
+
+    @Test
+    public void testPush_setSilentMessageEventHandler_delegatesTo_pushInternal() {
+        pushProxy.setSilentMessageEventHandler(mockEventHandler);
+
+        verify(mockPushInternal).setSilentMessageEventHandler(mockEventHandler);
     }
 }

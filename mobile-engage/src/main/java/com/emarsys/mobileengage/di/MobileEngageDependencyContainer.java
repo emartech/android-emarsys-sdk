@@ -8,9 +8,9 @@ import com.emarsys.core.storage.Storage;
 import com.emarsys.mobileengage.MobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.RefreshTokenInternal;
-import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.client.ClientServiceInternal;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
+import com.emarsys.mobileengage.event.EventHandlerProvider;
 import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
@@ -58,10 +58,6 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
 
     InAppPresenter getInAppPresenter();
 
-    NotificationEventHandler getNotificationEventHandler();
-
-    NotificationEventHandler getSilentMessageEventHandler();
-
     Storage<Integer> getDeviceInfoHashStorage();
 
     Storage<String> getContactFieldValueStorage();
@@ -99,4 +95,8 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
     ActionCommandFactory getNotificationActionCommandFactory();
 
     ActionCommandFactory getSilentMessageActionCommandFactory();
+
+    EventHandlerProvider getNotificationEventHandlerProvider();
+
+    EventHandlerProvider getSilentMessageEventHandlerProvider();
 }

@@ -1,6 +1,7 @@
 package com.emarsys
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.EmarsysConfig
@@ -21,7 +22,7 @@ import com.emarsys.feature.InnerFeature.MOBILE_ENGAGE
 import com.emarsys.feature.InnerFeature.PREDICT
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
-import com.emarsys.mobileengage.api.EventHandler
+import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
 import com.emarsys.predict.PredictApi
@@ -30,6 +31,7 @@ import com.emarsys.predict.api.model.Logic
 import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.push.PushApi
+import org.json.JSONObject
 
 object Emarsys {
 
@@ -206,7 +208,7 @@ object Emarsys {
         }
     }
 
-    @Deprecated(message = "Use config property instead", replaceWith = ReplaceWith("Emarsys.config"))
+    @Deprecated(message = "Use config property instead, will be removed in 3.0.0", replaceWith = ReplaceWith("Emarsys.config"))
     object Config {
 
         @JvmStatic
@@ -242,7 +244,7 @@ object Emarsys {
         }
     }
 
-    @Deprecated(message = "Use push property instead", replaceWith = ReplaceWith("Emarsys.push"))
+    @Deprecated(message = "Use push property instead, will be removed in 3.0.0", replaceWith = ReplaceWith("Emarsys.push"))
     object Push {
 
         @JvmStatic
@@ -297,9 +299,19 @@ object Emarsys {
         fun clearPushToken(completionListener: CompletionListener) {
             push.clearPushToken(completionListener)
         }
+
+        @JvmStatic
+        fun setNotificationEventHandler(notificationEventHandler: EventHandler) {
+            push.setNotificationEventHandler(notificationEventHandler)
+        }
+
+        @JvmStatic
+        fun setSilentMesssageEventHandler(silentNotificationEventHandler: EventHandler) {
+            push.setSilentMessageEventHandler(silentNotificationEventHandler)
+        }
     }
 
-    @Deprecated(message = "Use predict property instead", replaceWith = ReplaceWith("Emarsys.predict"))
+    @Deprecated(message = "Use predict property instead, will be removed in 3.0.0", replaceWith = ReplaceWith("Emarsys.predict"))
     object Predict {
 
         @JvmStatic
@@ -379,7 +391,7 @@ object Emarsys {
         }
     }
 
-    @Deprecated(message = "Use inApp property instead", replaceWith = ReplaceWith("Emarsys.inApp"))
+    @Deprecated(message = "Use inApp property instead, will be removed in 3.0.0", replaceWith = ReplaceWith("Emarsys.inApp"))
     object InApp {
 
         @JvmStatic
@@ -402,7 +414,7 @@ object Emarsys {
         }
     }
 
-    @Deprecated(message = "Use inbox property instead", replaceWith = ReplaceWith("Emarsys.inbox"))
+    @Deprecated(message = "Use inbox property instead, will be removed in 3.0.0", replaceWith = ReplaceWith("Emarsys.inbox"))
     object Inbox {
 
         @JvmStatic
@@ -446,11 +458,16 @@ object Emarsys {
         }
     }
 
+    @Deprecated(message = "Will be removed in 3.0.0")
     private fun initializeInAppInternal(config: EmarsysConfig) {
         val inAppEventHandler = config.inAppEventHandler
 
         if (inAppEventHandler != null) {
-            inApp.setEventHandler(inAppEventHandler)
+            inApp.setEventHandler(object : EventHandler {
+                override fun handleEvent(context: Context, eventName: String, payload: JSONObject?) {
+                    inAppEventHandler.handleEvent(eventName, payload)
+                }
+            })
         }
     }
 

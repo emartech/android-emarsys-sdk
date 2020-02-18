@@ -19,7 +19,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.Gettable;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.JsonUtils;
-import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.event.EventHandler;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
@@ -94,7 +94,8 @@ public class IamJsBridge {
                 @Override
                 public JSONObject execute(String property, JSONObject json) throws Exception {
                     final JSONObject payload = json.optJSONObject("payload");
-                    inAppEventHandler.handleEvent(property, payload);
+                    Activity currentActivity = currentActivityProvider.get();
+                    inAppEventHandler.handleEvent(currentActivity, property, payload);
                     return null;
                 }
             });

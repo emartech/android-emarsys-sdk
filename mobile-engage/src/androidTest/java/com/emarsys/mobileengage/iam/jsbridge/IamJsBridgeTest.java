@@ -16,7 +16,7 @@ import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.provider.Gettable;
-import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.event.EventHandler;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
@@ -44,6 +44,7 @@ import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
@@ -189,6 +190,9 @@ public class IamJsBridgeTest {
 
     @Test
     public void testTriggerAppEvent_shouldCallHandleApplicationEventMethodOnInAppMessageHandler() throws JSONException {
+        Activity activity = mock(Activity.class);
+        when(currentActivityProvider.get()).thenReturn(activity);
+
         JSONObject payload =
                 new JSONObject()
                         .put("payloadKey1",
@@ -204,7 +208,7 @@ public class IamJsBridgeTest {
 
         ArgumentCaptor<String> nameCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<JSONObject> payloadCaptor = ArgumentCaptor.forClass(JSONObject.class);
-        verify(inAppEventHandler, Mockito.timeout(1000)).handleEvent(nameCaptor.capture(), payloadCaptor.capture());
+        verify(inAppEventHandler, Mockito.timeout(1000)).handleEvent(eq(activity), nameCaptor.capture(), payloadCaptor.capture());
 
         assertEquals(payload.toString(), payloadCaptor.getValue().toString());
         assertEquals("eventName", nameCaptor.getValue());
@@ -317,11 +321,14 @@ public class IamJsBridgeTest {
 
     @Test
     public void testTriggerAppEvent_inAppMessageHandler_calledOnMainThread() throws JSONException {
+        Activity activity = mock(Activity.class);
+        when(currentActivityProvider.get()).thenReturn(activity);
+
         JSONObject json = new JSONObject().put("name", "eventName").put("id", "123456789");
         ThreadSpy threadSpy = new ThreadSpy();
 
         EventHandler messageHandler = mock(EventHandler.class);
-        doAnswer(threadSpy).when(messageHandler).handleEvent("eventName", null);
+        doAnswer(threadSpy).when(messageHandler).handleEvent(activity, "eventName", null);
 
         InAppInternal inAppInternal = mock(InAppInternal.class);
         when(inAppInternal.getEventHandler()).thenReturn(messageHandler);

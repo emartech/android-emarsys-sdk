@@ -9,6 +9,8 @@ import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.core.util.Assert;
+import com.emarsys.mobileengage.api.event.EventHandler;
+import com.emarsys.mobileengage.event.EventHandlerProvider;
 import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory;
 
@@ -23,13 +25,21 @@ public class DefaultPushInternal implements PushInternal {
     private final MobileEngageRequestModelFactory requestModelFactory;
     private final EventServiceInternal eventServiceInternal;
     private final Storage<String> pushTokenStorage;
+    private final EventHandlerProvider notificationEventHandlerProvider;
+    private final EventHandlerProvider silentMessageEventHandlerProvider;
 
-    public DefaultPushInternal(RequestManager requestManager, Handler uiHandler, MobileEngageRequestModelFactory requestModelFactory, EventServiceInternal eventServiceInternal, Storage<String> pushTokenStorage) {
+    public DefaultPushInternal(RequestManager requestManager, Handler uiHandler, MobileEngageRequestModelFactory requestModelFactory,
+                               EventServiceInternal eventServiceInternal, Storage<String> pushTokenStorage,
+                               EventHandlerProvider notificationEventHandlerProvider, EventHandlerProvider silentMessageEventHandlerProvider) {
+        Assert.notNull(notificationEventHandlerProvider, "NotificationEventHandlerProvider must not be null!");
+        Assert.notNull(silentMessageEventHandlerProvider, "SilentMessageEventHandlerProvider must not be null!");
         this.requestManager = requestManager;
         this.uiHandler = uiHandler;
         this.requestModelFactory = requestModelFactory;
         this.eventServiceInternal = eventServiceInternal;
         this.pushTokenStorage = pushTokenStorage;
+        this.notificationEventHandlerProvider = notificationEventHandlerProvider;
+        this.silentMessageEventHandlerProvider = silentMessageEventHandlerProvider;
     }
 
     @Override
@@ -93,4 +103,13 @@ public class DefaultPushInternal implements PushInternal {
         eventServiceInternal.trackInternalCustomEvent("push:click", attributes, completionListener);
     }
 
+    @Override
+    public void setNotificationEventHandler(EventHandler notificationEventHandler) {
+        notificationEventHandlerProvider.setEventHandler(notificationEventHandler);
+    }
+
+    @Override
+    public void setSilentMessageEventHandler(EventHandler silentMessageEventHandler) {
+        silentMessageEventHandlerProvider.setEventHandler(silentMessageEventHandler);
+    }
 }

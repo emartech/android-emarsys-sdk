@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.iam;
 
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.event.EventHandler;
 import com.emarsys.mobileengage.event.EventServiceInternal;
 
 import java.util.Map;

@@ -1,8 +1,8 @@
 package com.emarsys.mobileengage.notification
 
 import android.content.Context
-import com.emarsys.mobileengage.api.NotificationEventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
+import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.notification.command.AppEventCommand
 import com.emarsys.mobileengage.notification.command.CustomEventCommand
@@ -30,20 +30,20 @@ class ActionCommandFactoryTest {
     private lateinit var context: Context
     private lateinit var mockDependencyContainer: MobileEngageDependencyContainer
     private lateinit var mockEventServiceInternal: EventServiceInternal
-    private lateinit var mockNotificationEventHandler: NotificationEventHandler
+    private lateinit var mockNotificationEventHandlerProvider: EventHandlerProvider
 
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
 
         mockEventServiceInternal = mock()
-        mockNotificationEventHandler = mock()
+        mockNotificationEventHandlerProvider = mock()
         mockDependencyContainer = mock()
 
         whenever(mockDependencyContainer.eventServiceInternal).thenReturn(mockEventServiceInternal)
-        whenever(mockDependencyContainer.notificationEventHandler).thenReturn(mockNotificationEventHandler)
+        whenever(mockDependencyContainer.notificationEventHandlerProvider).thenReturn(mockNotificationEventHandlerProvider)
 
-        factory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationEventHandler)
+        factory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationEventHandlerProvider)
     }
 
     @Test

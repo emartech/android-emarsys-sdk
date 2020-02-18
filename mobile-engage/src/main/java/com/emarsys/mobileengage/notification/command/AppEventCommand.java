@@ -3,7 +3,8 @@ package com.emarsys.mobileengage.notification.command;
 import android.content.Context;
 
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.api.NotificationEventHandler;
+import com.emarsys.mobileengage.api.event.EventHandler;
+import com.emarsys.mobileengage.event.EventHandlerProvider;
 
 import org.json.JSONObject;
 
@@ -12,13 +13,14 @@ public class AppEventCommand implements Runnable {
     private String name;
     private JSONObject payload;
     private Context context;
-    private NotificationEventHandler notificationEventHandler;
+    private EventHandlerProvider eventHandlerProvider;
 
-    public AppEventCommand(Context context, NotificationEventHandler notificationEventHandler, String name, JSONObject payload) {
+    public AppEventCommand(Context context, EventHandlerProvider eventHandlerProvider, String name, JSONObject payload) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(name, "Name must not be null!");
+        Assert.notNull(eventHandlerProvider, "EventHandlerProvider must not be null!");
         this.context = context;
-        this.notificationEventHandler = notificationEventHandler;
+        this.eventHandlerProvider = eventHandlerProvider;
         this.name = name;
         this.payload = payload;
     }
@@ -35,14 +37,15 @@ public class AppEventCommand implements Runnable {
         return payload;
     }
 
-    public NotificationEventHandler getNotificationEventHandler() {
-        return notificationEventHandler;
+    public EventHandler getNotificationEventHandler() {
+        return eventHandlerProvider.getEventHandler();
     }
 
     @Override
     public void run() {
-        if (notificationEventHandler != null) {
-            notificationEventHandler.handleEvent(context, name, payload);
+        EventHandler eventHandler = eventHandlerProvider.getEventHandler();
+        if (eventHandler != null) {
+            eventHandler.handleEvent(context, name, payload);
         }
     }
 }

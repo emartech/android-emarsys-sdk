@@ -4,8 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import com.emarsys.mobileengage.api.NotificationEventHandler
+import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
+import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.notification.command.*
 import com.emarsys.mobileengage.push.PushInternal
@@ -41,8 +42,9 @@ class NotificationCommandFactoryTest {
     private lateinit var mockDependencyContainer: MobileEngageDependencyContainer
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockPushInternal: PushInternal
-    private lateinit var mockNotificationEventHandler: NotificationEventHandler
+    private lateinit var mockNotificationEventHandlerProvider: EventHandlerProvider
     private lateinit var mockActionCommandFactory: ActionCommandFactory
+    private lateinit var mockEventHandler: EventHandler
 
     @Before
     fun setUp() {
@@ -50,12 +52,15 @@ class NotificationCommandFactoryTest {
 
         mockEventServiceInternal = mock(EventServiceInternal::class.java)
         mockPushInternal = mock(PushInternal::class.java)
-        mockNotificationEventHandler = mock(NotificationEventHandler::class.java)
-        mockActionCommandFactory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationEventHandler)
+        mockEventHandler = mock(EventHandler::class.java)
+        mockNotificationEventHandlerProvider = mock(EventHandlerProvider::class.java).apply {
+            whenever(eventHandler).thenReturn(mockEventHandler)
+        }
+        mockActionCommandFactory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationEventHandlerProvider)
         mockDependencyContainer = mock(MobileEngageDependencyContainer::class.java).apply {
             whenever(eventServiceInternal).thenReturn(mockEventServiceInternal)
             whenever(pushInternal).thenReturn(mockPushInternal)
-            whenever(notificationEventHandler).thenReturn(mockNotificationEventHandler)
+            whenever(notificationEventHandlerProvider).thenReturn(mockNotificationEventHandlerProvider)
             whenever(notificationActionCommandFactory).thenReturn(mockActionCommandFactory)
         }
 
@@ -149,7 +154,7 @@ class NotificationCommandFactoryTest {
 
         val handler = command.notificationEventHandler
 
-        handler shouldBe mockNotificationEventHandler
+        handler shouldBe mockEventHandler
     }
 
     @Test
@@ -323,7 +328,7 @@ class NotificationCommandFactoryTest {
 
         val handler = command.notificationEventHandler
 
-        handler shouldBe mockNotificationEventHandler
+        handler shouldBe mockEventHandler
     }
 
     @Test

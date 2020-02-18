@@ -2,7 +2,7 @@ package com.emarsys;
 
 import com.emarsys.core.RunnerProxy;
 import com.emarsys.inapp.InAppProxy;
-import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.event.EventHandler;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.testUtil.TimeoutUtils;
 

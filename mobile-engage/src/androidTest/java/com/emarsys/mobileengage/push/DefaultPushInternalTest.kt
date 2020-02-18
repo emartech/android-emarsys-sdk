@@ -11,12 +11,15 @@ import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.MobileEngageRequestContext
+import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeCompletionListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.shouldBe
 import org.junit.Before
@@ -50,6 +53,8 @@ class DefaultPushInternalTest {
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var mockRequestModel: RequestModel
+    private lateinit var mockNotificationEventHandlerProvider: EventHandlerProvider
+    private lateinit var mockSilentMessageEventHandlerProvider: EventHandlerProvider
     private lateinit var mockContactFieldValueStorage: Storage<String>
     private lateinit var mockRefreshTokenStorage: Storage<String>
     private lateinit var mockContactTokenStorage: Storage<String>
@@ -94,7 +99,22 @@ class DefaultPushInternalTest {
 
         mockCompletionListener = mock(CompletionListener::class.java)
         mockEventServiceInternal = mock(EventServiceInternal::class.java)
-        pushInternal = DefaultPushInternal(mockRequestManager, uiHandler, mockRequestModelFactory, mockEventServiceInternal, mockPushTokenStorage)
+        mockNotificationEventHandlerProvider = mock()
+        mockSilentMessageEventHandlerProvider = mock()
+        pushInternal = DefaultPushInternal(mockRequestManager, uiHandler, mockRequestModelFactory, mockEventServiceInternal,
+                mockPushTokenStorage, mockNotificationEventHandlerProvider, mockSilentMessageEventHandlerProvider)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_notificationEventHandler_mustNotBeBNull() {
+        DefaultPushInternal(mockRequestManager, uiHandler, mockRequestModelFactory, mockEventServiceInternal,
+                mockPushTokenStorage, null, mockSilentMessageEventHandlerProvider)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_silentMessageEventHandlerProvider_mustNotBeBNull() {
+        DefaultPushInternal(mockRequestManager, uiHandler, mockRequestModelFactory, mockEventServiceInternal,
+                mockPushTokenStorage, mockNotificationEventHandlerProvider, null)
     }
 
     @Test
@@ -273,5 +293,21 @@ class DefaultPushInternalTest {
         return Intent().apply {
             putExtra("payload", bundlePayload)
         }
+    }
+
+    @Test
+    fun testSetNotificationEventHandler_shouldSetInProvider() {
+        val mockEventHandler: EventHandler = mock()
+        pushInternal.setNotificationEventHandler(mockEventHandler)
+
+        verify(mockNotificationEventHandlerProvider).eventHandler = mockEventHandler
+    }
+
+    @Test
+    fun testSetSilentMessageEventHandler_shouldSetInProvider() {
+        val mockEventHandler: EventHandler = mock()
+        pushInternal.setSilentMessageEventHandler(mockEventHandler)
+
+        verify(mockSilentMessageEventHandlerProvider).eventHandler = mockEventHandler
     }
 }

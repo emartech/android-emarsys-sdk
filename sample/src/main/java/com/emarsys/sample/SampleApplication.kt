@@ -9,12 +9,11 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.emarsys.Emarsys
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.mobileengage.api.EventHandler
-import com.emarsys.mobileengage.api.NotificationEventHandler
+import com.emarsys.mobileengage.api.event.EventHandler
 import org.json.JSONObject
 
 
-open class SampleApplication : Application(), EventHandler, NotificationEventHandler {
+open class SampleApplication : Application(), EventHandler {
     override fun onCreate() {
         super.onCreate()
         val config = EmarsysConfig.Builder()
@@ -22,14 +21,14 @@ open class SampleApplication : Application(), EventHandler, NotificationEventHan
                 .mobileEngageApplicationCode("EMS11-C3FD3")
                 .contactFieldId(3)
                 .predictMerchantId("1428C8EE286EC34B")
-                .inAppEventHandler(this)
-                .notificationEventHandler(this)
-                .silentMessageEventHandler(this)
                 .build()
 
         createNotificationChannels()
-
         Emarsys.setup(config)
+
+        Emarsys.inApp.setEventHandler(this)
+        Emarsys.push.setNotificationEventHandler(this)
+        Emarsys.push.setSilentMessageEventHandler(this)
     }
 
     private fun createNotificationChannels() {
@@ -47,11 +46,7 @@ open class SampleApplication : Application(), EventHandler, NotificationEventHan
         notificationManager.createNotificationChannel(channel)
     }
 
-    override fun handleEvent(eventName: String?, payload: JSONObject?) {
-        Toast.makeText(this, eventName + " - " + payload.toString(), Toast.LENGTH_LONG).show()
-    }
-
-    override fun handleEvent(context: Context?, eventName: String?, payload: JSONObject?) {
+    override fun handleEvent(context: Context, eventName: String, payload: JSONObject?) {
         Toast.makeText(this, eventName + " - " + payload.toString(), Toast.LENGTH_LONG).show()
     }
 }

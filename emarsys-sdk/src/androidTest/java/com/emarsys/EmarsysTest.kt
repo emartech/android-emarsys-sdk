@@ -24,7 +24,9 @@ import com.emarsys.Emarsys.Predict.trackRecommendationClick
 import com.emarsys.Emarsys.Predict.trackSearchTerm
 import com.emarsys.Emarsys.Predict.trackTag
 import com.emarsys.Emarsys.Push.clearPushToken
+import com.emarsys.Emarsys.Push.setNotificationEventHandler
 import com.emarsys.Emarsys.Push.setPushToken
+import com.emarsys.Emarsys.Push.setSilentMesssageEventHandler
 import com.emarsys.Emarsys.Push.trackMessageOpen
 import com.emarsys.Emarsys.clearContact
 import com.emarsys.Emarsys.setContact
@@ -60,7 +62,7 @@ import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.api.EventHandler
+import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
 import com.emarsys.mobileengage.client.ClientServiceInternal
@@ -87,6 +89,8 @@ import com.emarsys.testUtil.ReflectionTestUtils.getInstanceField
 import com.emarsys.testUtil.TimeoutUtils
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
@@ -167,6 +171,7 @@ class EmarsysTest {
     private lateinit var mockLogic: Logic
     private lateinit var mockRecommendationFilter: RecommendationFilter
     private lateinit var inappEventHandler: EventHandler
+    private lateinit var oldInappEventHandler: com.emarsys.mobileengage.api.EventHandler
     private lateinit var application: Application
     private lateinit var completionListener: CompletionListener
     private lateinit var mockResultListener: ResultListener<Try<List<Product>>>
@@ -195,12 +200,13 @@ class EmarsysTest {
         mockLanguageProvider = Mockito.mock(LanguageProvider::class.java)
         mockVersionProvider = Mockito.mock(VersionProvider::class.java)
         inappEventHandler = Mockito.mock(EventHandler::class.java)
+        oldInappEventHandler = Mockito.mock(com.emarsys.mobileengage.api.EventHandler::class.java)
         mockDeviceInfoHashStorage = Mockito.mock(Storage::class.java) as Storage<Int>
         mockContactFieldValueStorage = Mockito.mock(Storage::class.java) as Storage<String>
         mockContactTokenStorage = Mockito.mock(Storage::class.java) as Storage<String>
         mockClientStateStorage = Mockito.mock(Storage::class.java) as Storage<String>
         mockNotificationManagerHelper = Mockito.mock(NotificationManagerHelper::class.java)
-        configWithInAppEventHandler = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).inAppEventHandler(inappEventHandler).build()
+        configWithInAppEventHandler = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).inAppEventHandler { eventName, payload -> oldInappEventHandler.handleEvent(eventName, payload) }.build()
         baseConfig = createConfig().build()
         mobileEngageConfig = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).build()
         predictConfig = createConfig().predictMerchantId(MERCHANT_ID).build()
@@ -391,7 +397,7 @@ class EmarsysTest {
     @Test
     fun testSetup_setsInAppEventHandler_whenProvidedInConfig() {
         setup(configWithInAppEventHandler)
-        Mockito.verify(mockInApp).setEventHandler(inappEventHandler)
+        Mockito.verify(mockInApp).setEventHandler(any())
     }
 
     @Test
@@ -756,6 +762,22 @@ class EmarsysTest {
         val mockCompletionListener = Mockito.mock(CompletionListener::class.java)
         clearPushToken(mockCompletionListener)
         Mockito.verify(mockPush).clearPushToken(mockCompletionListener)
+    }
+
+    @Test
+    fun testPush_setNotificationEventhandler_delegatesTo_pushInstance() {
+        setup(mobileEngageConfig)
+        val mockEventHandler: EventHandler = mock()
+        setNotificationEventHandler(mockEventHandler)
+        Mockito.verify(mockPush).setNotificationEventHandler(mockEventHandler)
+    }
+
+    @Test
+    fun testPush_setSilentMessageEventhandler_delegatesTo_pushInstance() {
+        setup(mobileEngageConfig)
+        val mockEventHandler: EventHandler = mock()
+        setSilentMesssageEventHandler(mockEventHandler)
+        Mockito.verify(mockPush).setSilentMessageEventHandler(mockEventHandler)
     }
 
     @Test

@@ -2,14 +2,13 @@ package com.emarsys.mobileengage.iam
 
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.mobileengage.api.EventHandler
+import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
@@ -88,7 +87,7 @@ class InAppInternalTest {
     fun testTrackCustomEvent() {
         inAppInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
 
-        Mockito.verify(mockEventServiceInternal).trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
+        verify(mockEventServiceInternal).trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -100,7 +99,7 @@ class InAppInternalTest {
     fun testTrackInternalCustomEvent() {
         inAppInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
 
-        Mockito.verify(mockEventServiceInternal).trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
+        verify(mockEventServiceInternal).trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
     }
 
 }

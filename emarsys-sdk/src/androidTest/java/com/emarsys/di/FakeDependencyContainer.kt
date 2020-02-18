@@ -25,9 +25,9 @@ import com.emarsys.inbox.InboxApi
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.RefreshTokenInternal
-import com.emarsys.mobileengage.api.NotificationEventHandler
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
+import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.InAppPresenter
@@ -72,8 +72,6 @@ class FakeDependencyContainer(
         private val completionHandler: DefaultCoreCompletionHandler = mock(),
         private val requestContext: MobileEngageRequestContext = mock(),
         private val inAppPresenter: InAppPresenter = mock(),
-        private val notificationEventHandler: NotificationEventHandler = mock(),
-        private val silentMessageEventHandler: NotificationEventHandler = mock(),
         private val predictShardTrigger: Runnable = mock(),
         private val runnerProxy: RunnerProxy = RunnerProxy(),
         private val logger: Logger = mock(),
@@ -109,7 +107,9 @@ class FakeDependencyContainer(
         private val predictServiceStorage: Storage<String> = mock(),
         private val fileDownloader: FileDownloader = mock(),
         private val actionCommandFactory: ActionCommandFactory = mock(),
-        private val silentMessageActionCommandFactory: ActionCommandFactory = mock()
+        private val silentMessageActionCommandFactory: ActionCommandFactory = mock(),
+        private val notificationEventHandlerProvider: EventHandlerProvider = mock(),
+        private val silentMessageEventHandlerProvider: EventHandlerProvider = mock()
 ) : EmarsysDependencyContainer {
 
     override fun getLoggingClientServiceInternal(): ClientServiceInternal {
@@ -230,14 +230,6 @@ class FakeDependencyContainer(
 
     override fun getInAppPresenter(): InAppPresenter {
         return inAppPresenter
-    }
-
-    override fun getNotificationEventHandler(): NotificationEventHandler {
-        return notificationEventHandler
-    }
-
-    override fun getSilentMessageEventHandler(): NotificationEventHandler {
-        return silentMessageEventHandler
     }
 
     override fun getPredictShardTrigger(): Runnable {
@@ -379,5 +371,13 @@ class FakeDependencyContainer(
 
     override fun getSilentMessageActionCommandFactory(): ActionCommandFactory {
         return silentMessageActionCommandFactory
+    }
+
+    override fun getNotificationEventHandlerProvider(): EventHandlerProvider {
+        return notificationEventHandlerProvider
+    }
+
+    override fun getSilentMessageEventHandlerProvider(): EventHandlerProvider {
+        return silentMessageEventHandlerProvider
     }
 }

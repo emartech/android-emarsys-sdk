@@ -1,6 +1,6 @@
 package com.emarsys.mobileengage.iam;
 
-import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.event.EventHandler;
 
 
 public class InAppEventHandlerInternal implements InAppEventHandler {

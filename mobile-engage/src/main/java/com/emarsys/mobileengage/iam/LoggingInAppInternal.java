@@ -4,7 +4,7 @@ import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.util.SystemUtils;
 import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.log.entry.MethodNotAllowed;
-import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.event.EventHandler;
 
 import java.util.HashMap;
 import java.util.Map;

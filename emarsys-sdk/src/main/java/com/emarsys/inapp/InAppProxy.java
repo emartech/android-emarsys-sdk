@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import com.emarsys.core.Callable;
 import com.emarsys.core.RunnerProxy;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.api.EventHandler;
+import com.emarsys.mobileengage.api.event.EventHandler;
 import com.emarsys.mobileengage.iam.InAppInternal;
 
 public class InAppProxy implements InAppApi {

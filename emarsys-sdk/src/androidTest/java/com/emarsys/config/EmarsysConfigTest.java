@@ -3,11 +3,12 @@ package com.emarsys.config;
 import android.app.Application;
 
 import com.emarsys.core.api.experimental.FlipperFeature;
-import com.emarsys.mobileengage.api.EventHandler;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
+import com.emarsys.mobileengage.api.event.EventHandler;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
 public class EmarsysConfigTest {
@@ -25,8 +27,7 @@ public class EmarsysConfigTest {
     private String MERCHANT_ID = "MERCHANT_ID";
     private Application application;
     private EventHandler defaultInAppEventHandler;
-    private NotificationEventHandler defaultNotificationEventHandler;
-    private NotificationEventHandler defaultSilentMessageNotificationEventHandler;
+    private EventHandler defaultNotificationEventHandler;
     private FlipperFeature[] features;
     private boolean automaticPushTokenSending;
 
@@ -38,8 +39,7 @@ public class EmarsysConfigTest {
         automaticPushTokenSending = true;
         application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
         defaultInAppEventHandler = mock(EventHandler.class);
-        defaultNotificationEventHandler = mock(NotificationEventHandler.class);
-        defaultSilentMessageNotificationEventHandler = mock(NotificationEventHandler.class);
+        defaultNotificationEventHandler = mock(EventHandler.class);
         features = new FlipperFeature[]{
                 mock(FlipperFeature.class),
                 mock(FlipperFeature.class)
@@ -55,7 +55,6 @@ public class EmarsysConfigTest {
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                defaultSilentMessageNotificationEventHandler,
                 features,
                 automaticPushTokenSending);
     }
@@ -69,7 +68,6 @@ public class EmarsysConfigTest {
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                defaultSilentMessageNotificationEventHandler,
                 features,
                 automaticPushTokenSending);
     }
@@ -83,7 +81,6 @@ public class EmarsysConfigTest {
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                defaultSilentMessageNotificationEventHandler,
                 null,
                 automaticPushTokenSending);
     }
@@ -97,7 +94,6 @@ public class EmarsysConfigTest {
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                defaultSilentMessageNotificationEventHandler,
                 new FlipperFeature[]{mock(FlipperFeature.class), null},
                 automaticPushTokenSending);
     }
@@ -111,7 +107,6 @@ public class EmarsysConfigTest {
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                defaultSilentMessageNotificationEventHandler,
                 features,
                 automaticPushTokenSending);
 
@@ -121,12 +116,17 @@ public class EmarsysConfigTest {
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
                 .enableExperimentalFeatures(features)
-                .inAppEventHandler(defaultInAppEventHandler)
-                .notificationEventHandler(defaultNotificationEventHandler)
-                .silentMessageEventHandler(defaultSilentMessageNotificationEventHandler)
+                .inAppEventHandler(any(com.emarsys.mobileengage.api.EventHandler.class))
+                .notificationEventHandler(any(NotificationEventHandler.class))
                 .build();
 
-        assertEquals(expected, result);
+        assertEquals(expected.getApplication(), result.getApplication());
+        assertEquals(expected.getContactFieldId(), result.getContactFieldId());
+        assertEquals(expected.getExperimentalFeatures(), result.getExperimentalFeatures());
+        assertEquals(expected.getMobileEngageApplicationCode(), result.getMobileEngageApplicationCode());
+        assertEquals(expected.getPredictMerchantId(), result.getPredictMerchantId());
+        Assert.assertTrue(result.getInAppEventHandler().getClass().isInstance(expected.getInAppEventHandler()));
+        Assert.assertTrue(result.getNotificationEventHandler().getClass().isInstance(expected.getNotificationEventHandler()));
     }
 
     @Test
@@ -136,7 +136,6 @@ public class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                null,
                 null,
                 null,
                 new FlipperFeature[]{},
@@ -203,7 +202,6 @@ public class EmarsysConfigTest {
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                defaultSilentMessageNotificationEventHandler,
                 features,
                 automaticPushTokenSending);
 
@@ -211,6 +209,12 @@ public class EmarsysConfigTest {
                 .from(expected)
                 .build();
 
-        assertEquals(expected, result);
+        assertEquals(expected.getApplication(), result.getApplication());
+        assertEquals(expected.getContactFieldId(), result.getContactFieldId());
+        assertEquals(expected.getExperimentalFeatures(), result.getExperimentalFeatures());
+        assertEquals(expected.getMobileEngageApplicationCode(), result.getMobileEngageApplicationCode());
+        assertEquals(expected.getPredictMerchantId(), result.getPredictMerchantId());
+        Assert.assertTrue(result.getInAppEventHandler().getClass().isInstance(expected.getInAppEventHandler()));
+        Assert.assertTrue(result.getNotificationEventHandler().getClass().isInstance(expected.getNotificationEventHandler()));
     }
 }
