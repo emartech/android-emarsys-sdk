@@ -32,7 +32,7 @@ class ProductsAdapter : RecyclerView.Adapter<ViewHolder>() {
         holder.productImage.setImageResource(placeholder)
 
         holder.cardView.setOnClickListener {
-            Emarsys.Predict.trackRecommendationClick(products[position])
+            Emarsys.predict.trackRecommendationClick(products[position])
         }
     }
 

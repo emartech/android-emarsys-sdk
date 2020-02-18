@@ -45,7 +45,7 @@ class InboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
     }
 
     private fun loadNotifications() {
-        Emarsys.Inbox.fetchNotifications {
+        Emarsys.inbox.fetchNotifications {
             it.result?.let { notificationStatus ->
                 Log.i(TAG, "Badge count: ${notificationStatus.badgeCount}")
 

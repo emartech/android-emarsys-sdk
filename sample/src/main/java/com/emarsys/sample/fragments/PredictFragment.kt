@@ -35,7 +35,7 @@ class PredictFragment : Fragment() {
         buttonTrackItemView.setOnClickListener {
             val itemView = itemId.text.toString()
             if (itemView.isNotEmpty()) {
-                Emarsys.Predict.trackItemView(itemView)
+                Emarsys.predict.trackItemView(itemView)
                 view.showSnackBar("Track of:$itemView = OK")
             }
         }
@@ -43,7 +43,7 @@ class PredictFragment : Fragment() {
         buttonTrackCategoryView.setOnClickListener {
             val categoryView = categoryView.text.toString()
             if (categoryView.isNotEmpty()) {
-                Emarsys.Predict.trackCategoryView(categoryView)
+                Emarsys.predict.trackCategoryView(categoryView)
                 view.showSnackBar("Track of:$categoryView = OK")
             }
         }
@@ -51,7 +51,7 @@ class PredictFragment : Fragment() {
         buttonSearchTerm.setOnClickListener {
             val searchTerm = searchTerm.text.toString()
             if (searchTerm.isNotEmpty()) {
-                Emarsys.Predict.trackSearchTerm(searchTerm)
+                Emarsys.predict.trackSearchTerm(searchTerm)
                 view.showSnackBar("Track of:$searchTerm = OK")
             }
         }
@@ -64,7 +64,7 @@ class PredictFragment : Fragment() {
 
         buttonTrackCartItems.setOnClickListener {
             if (cartContent.isNotEmpty()) {
-                Emarsys.Predict.trackCart(cartContent as List<CartItem>)
+                Emarsys.predict.trackCart(cartContent as List<CartItem>)
                 view.showSnackBar("Tracking cart: OK")
             }
         }
@@ -72,7 +72,7 @@ class PredictFragment : Fragment() {
         buttonTrackPurchase.setOnClickListener {
             val item = orderId.text.toString()
             if (item.isNotEmpty()) {
-                Emarsys.Predict.trackPurchase(item, cartContent as List<CartItem>)
+                Emarsys.predict.trackPurchase(item, cartContent as List<CartItem>)
                 view.showSnackBar("Track purchase of $item: OK")
             }
         }
@@ -80,7 +80,7 @@ class PredictFragment : Fragment() {
         buttonRecommend.setOnClickListener {
             val searchTerm = searchTermForRecommend.text.toString()
             if (searchTerm.isNotEmpty()) {
-                Emarsys.Predict.recommendProducts(RecommendationLogic.search(searchTerm)) {
+                Emarsys.predict.recommendProducts(RecommendationLogic.search(searchTerm)) {
                     if (it.result != null) {
                         val products = it.result ?: listOf()
                         (productsRecycleView.adapter as ProductsAdapter).addItems(products)
