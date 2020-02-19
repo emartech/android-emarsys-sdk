@@ -114,7 +114,6 @@ public class MyMessagingService extends FirebaseMessagingService {
         if (!handledByEmarsysSDK) {
             //handle your custom push message here
             ...
-            Emarsys.Push.trackMessageOpen(remoteMessage);
         }
     }
 }
@@ -136,7 +135,6 @@ class MyMessagingService : FirebaseMessagingService() {
         if (!handledByEmarsysSDK) {
             //handle your custom push message here
             ...
-            Emarsys.Push.trackMessageOpen(remoteMessage)
         }
     }
 }
