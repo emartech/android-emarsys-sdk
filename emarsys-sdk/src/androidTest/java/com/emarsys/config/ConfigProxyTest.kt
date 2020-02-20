@@ -45,9 +45,11 @@ class ConfigProxyTest {
     @Test
     fun testChangeApplicationCode_delegatesTo_internal_byUsingRunnerProxy() {
         val mockCompletionListener = mock(CompletionListener::class.java)
+        whenever(mockConfigInternal.contactFieldId).thenReturn(3)
+
         configProxy.changeApplicationCode("testApplicationCode", mockCompletionListener)
 
-        verify(mockConfigInternal).changeApplicationCode("testApplicationCode", mockCompletionListener)
+        verify(mockConfigInternal).changeApplicationCode("testApplicationCode", 3, mockCompletionListener)
         verify(mockRunnerProxy).logException(any(Runnable::class.java))
     }
 

@@ -17,7 +17,7 @@ interface ConfigInternal {
 
     val notificationSettings: NotificationSettings
 
-    fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?)
+    fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: CompletionListener?)
 
     fun changeMerchantId(merchantId: String?)
 

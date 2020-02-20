@@ -54,7 +54,6 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.storage.Storage
-import com.emarsys.core.util.batch.BatchingShardTrigger
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.feature.InnerFeature
@@ -89,13 +88,11 @@ import com.emarsys.testUtil.ReflectionTestUtils.getInstanceField
 import com.emarsys.testUtil.TimeoutUtils
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.*
 import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
 import java.util.*
 
 class EmarsysTest {
@@ -105,11 +102,6 @@ class EmarsysTest {
         private const val MERCHANT_ID = "merchantId"
         private const val SDK_VERSION = "sdkVersion"
         private const val CONTACT_ID = "CONTACT_ID"
-        private fun cacheMocks() {
-            Mockito.mock(Application::class.java)
-            Mockito.mock(Activity::class.java)
-            Mockito.mock(Intent::class.java)
-        }
 
         @BeforeClass
         @JvmStatic
@@ -129,10 +121,6 @@ class EmarsysTest {
         @JvmStatic
         fun afterAll() {
             FirebaseApp.clearInstancesForTest()
-        }
-
-        init {
-            cacheMocks()
         }
     }
 
@@ -183,56 +171,56 @@ class EmarsysTest {
 
     @Before
     fun init() {
-        application = Mockito.spy(getTargetContext().applicationContext as Application)
-        completionListener = Mockito.mock(CompletionListener::class.java)
-        mockResultListener = Mockito.mock(ResultListener::class.java) as ResultListener<Try<List<Product>>>
-        activityLifecycleWatchdog = Mockito.mock(ActivityLifecycleWatchdog::class.java)
-        currentActivityWatchdog = Mockito.mock(CurrentActivityWatchdog::class.java)
-        mockCoreSQLiteDatabase = Mockito.mock(CoreSQLiteDatabase::class.java)
-        mockMobileEngageInternal = Mockito.mock(MobileEngageInternal::class.java)
-        mockDeepLinkInternal = Mockito.mock(DeepLinkInternal::class.java)
-        mockEventServiceInternal = Mockito.mock(EventServiceInternal::class.java)
-        mockEventServiceInternal = Mockito.mock(EventServiceInternal::class.java)
-        mockClientServiceInternal = Mockito.mock(ClientServiceInternal::class.java)
-        mockPredictInternal = Mockito.mock(PredictInternal::class.java)
-        mockPredictShardTrigger = Mockito.mock(BatchingShardTrigger::class.java)
-        mockLogShardTrigger = Mockito.mock(BatchingShardTrigger::class.java)
-        mockLanguageProvider = Mockito.mock(LanguageProvider::class.java)
-        mockVersionProvider = Mockito.mock(VersionProvider::class.java)
-        inappEventHandler = Mockito.mock(EventHandler::class.java)
-        oldInappEventHandler = Mockito.mock(com.emarsys.mobileengage.api.EventHandler::class.java)
-        mockDeviceInfoHashStorage = Mockito.mock(Storage::class.java) as Storage<Int>
-        mockContactFieldValueStorage = Mockito.mock(Storage::class.java) as Storage<String>
-        mockContactTokenStorage = Mockito.mock(Storage::class.java) as Storage<String>
-        mockClientStateStorage = Mockito.mock(Storage::class.java) as Storage<String>
-        mockNotificationManagerHelper = Mockito.mock(NotificationManagerHelper::class.java)
+        application = spy(getTargetContext().applicationContext as Application)
+        completionListener = mock()
+        mockResultListener = mock()
+        activityLifecycleWatchdog = mock()
+        currentActivityWatchdog = mock()
+        mockCoreSQLiteDatabase = mock()
+        mockMobileEngageInternal = mock()
+        mockDeepLinkInternal = mock()
+        mockEventServiceInternal = mock()
+        mockEventServiceInternal = mock()
+        mockClientServiceInternal = mock()
+        mockPredictInternal = mock()
+        mockPredictShardTrigger = mock()
+        mockLogShardTrigger = mock()
+        mockLanguageProvider = mock()
+        mockVersionProvider = mock()
+        inappEventHandler = mock()
+        oldInappEventHandler = mock()
+        mockDeviceInfoHashStorage = mock()
+        mockContactFieldValueStorage = mock()
+        mockContactTokenStorage = mock()
+        mockClientStateStorage = mock()
+        mockNotificationManagerHelper = mock()
         configWithInAppEventHandler = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).inAppEventHandler { eventName, payload -> oldInappEventHandler.handleEvent(eventName, payload) }.build()
         baseConfig = createConfig().build()
-        mobileEngageConfig = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).build()
+        mobileEngageConfig = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).contactFieldId(CONTACT_FIELD_ID).build()
         predictConfig = createConfig().predictMerchantId(MERCHANT_ID).build()
-        mockRequestContext = Mockito.mock(MobileEngageRequestContext::class.java)
-        mockHardwareIdProvider = Mockito.mock(HardwareIdProvider::class.java)
-        mockInbox = Mockito.mock(InboxApi::class.java)
-        mockLoggingInbox = Mockito.mock(InboxApi::class.java)
-        mockInApp = Mockito.mock(InAppApi::class.java)
-        mockLoggingInApp = Mockito.mock(InAppApi::class.java)
-        mockPush = Mockito.mock(PushApi::class.java)
-        mockLoggingPush = Mockito.mock(PushApi::class.java)
-        mockPredict = Mockito.mock(PredictApi::class.java)
-        mockLoggingPredict = Mockito.mock(PredictApi::class.java)
-        mockConfig = Mockito.mock(ConfigApi::class.java)
-        mockLogic = Mockito.mock(Logic::class.java)
-        mockRecommendationFilter = Mockito.mock(RecommendationFilter::class.java)
-        Mockito.`when`(mockHardwareIdProvider.provideHardwareId()).thenReturn("hwid")
-        Mockito.`when`(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn("language")
-        Mockito.`when`(mockVersionProvider.provideSdkVersion()).thenReturn("version")
+        mockRequestContext = mock()
+        mockHardwareIdProvider = mock()
+        mockInbox = mock()
+        mockLoggingInbox = mock()
+        mockInApp = mock()
+        mockLoggingInApp = mock()
+        mockPush = mock()
+        mockLoggingPush = mock()
+        mockPredict = mock()
+        mockLoggingPredict = mock()
+        mockConfig = mock()
+        mockLogic = mock()
+        mockRecommendationFilter = mock()
+        whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn("hwid")
+        whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn("language")
+        whenever(mockVersionProvider.provideSdkVersion()).thenReturn("version")
         deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mockVersionProvider,
                 mockLanguageProvider, mockNotificationManagerHelper, true)
-        Mockito.`when`(mockRequestContext.applicationCode).thenReturn(APPLICATION_CODE)
-        Mockito.`when`(mockDeviceInfoHashStorage.get()).thenReturn(deviceInfo.hash)
-        Mockito.`when`(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
-        Mockito.`when`(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
-        Mockito.`when`(mockContactTokenStorage.get()).thenReturn("contactToken")
+        whenever(mockRequestContext.applicationCode).thenReturn(APPLICATION_CODE)
+        whenever(mockDeviceInfoHashStorage.get()).thenReturn(deviceInfo.hash)
+        whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
+        whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
+        whenever(mockContactTokenStorage.get()).thenReturn("contactToken")
         DependencyInjection.setup(FakeDependencyContainer(
                 activityLifecycleWatchdog = activityLifecycleWatchdog,
                 currentActivityWatchdog = currentActivityWatchdog,
@@ -344,28 +332,28 @@ class EmarsysTest {
     @Test
     fun testSetup_registersPredictTrigger_whenPredictIsEnabled() {
         setup(predictConfig)
-        Mockito.verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockPredictShardTrigger)
+        verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockPredictShardTrigger)
     }
 
     @Test
     fun testSetup_doNotRegistersPredictTrigger_whenPredictIsDisabled() {
         setup(mobileEngageConfig)
         val argumentCaptor = ArgumentCaptor.forClass(Runnable::class.java)
-        Mockito.verify(mockCoreSQLiteDatabase, Mockito.times(1)).registerTrigger(ArgumentMatchers.any(String::class.java), ArgumentMatchers.any(TriggerType::class.java), ArgumentMatchers.any(TriggerEvent::class.java), argumentCaptor.capture())
+        verify(mockCoreSQLiteDatabase, times(1)).registerTrigger(ArgumentMatchers.any(String::class.java), ArgumentMatchers.any(TriggerType::class.java), ArgumentMatchers.any(TriggerEvent::class.java), argumentCaptor.capture())
         Assert.assertEquals(mockLogShardTrigger, argumentCaptor.value)
-        Mockito.verifyNoMoreInteractions(mockCoreSQLiteDatabase)
+        verifyNoMoreInteractions(mockCoreSQLiteDatabase)
     }
 
     @Test
     fun testSetup_registersLogTrigger() {
         setup(mobileEngageConfig)
-        Mockito.verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockLogShardTrigger)
+        verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockLogShardTrigger)
     }
 
     @Test
     fun testSetup_registers_activityLifecycleWatchdog() {
         setup(mobileEngageConfig)
-        Mockito.verify(application).registerActivityLifecycleCallbacks(activityLifecycleWatchdog)
+        verify(application).registerActivityLifecycleCallbacks(activityLifecycleWatchdog)
     }
 
     @Test
@@ -373,7 +361,7 @@ class EmarsysTest {
         DependencyInjection.tearDown()
         val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
         setup(mobileEngageConfig)
-        Mockito.verify(application, Mockito.times(2)).registerActivityLifecycleCallbacks(captor.capture())
+        verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
         val actions = getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java)?.applicationStartActions?.toList()
         Assert.assertEquals(1, numberOfElementsIn(actions!!, InAppStartAction::class.java).toLong())
     }
@@ -383,7 +371,7 @@ class EmarsysTest {
         DependencyInjection.tearDown()
         val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
         setup(mobileEngageConfig)
-        Mockito.verify(application, Mockito.times(2)).registerActivityLifecycleCallbacks(captor.capture())
+        verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
         val actions = getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java)?.activityCreatedActions?.toList()
         Assert.assertEquals(1, numberOfElementsIn(actions!!, DeepLinkAction::class.java).toLong())
     }
@@ -391,61 +379,61 @@ class EmarsysTest {
     @Test
     fun testSetup_registers_currentActivityWatchDog() {
         setup(mobileEngageConfig)
-        Mockito.verify(application).registerActivityLifecycleCallbacks(currentActivityWatchdog)
+        verify(application).registerActivityLifecycleCallbacks(currentActivityWatchdog)
     }
 
     @Test
     fun testSetup_setsInAppEventHandler_whenProvidedInConfig() {
         setup(configWithInAppEventHandler)
-        Mockito.verify(mockInApp).setEventHandler(any())
+        verify(mockInApp).setEventHandler(any())
     }
 
     @Test
     fun testSetup_doesNotSetInAppEventHandler_whenMissingFromConfig() {
         setup(mobileEngageConfig)
-        Mockito.verifyZeroInteractions(mockInApp)
+        verifyZeroInteractions(mockInApp)
     }
 
     @Test
     fun testSetup_sendClientInfo() {
-        Mockito.`when`(mockClientStateStorage.get()).thenReturn(null)
-        Mockito.`when`(mockContactFieldValueStorage.get()).thenReturn(null)
-        Mockito.`when`(mockContactTokenStorage.get()).thenReturn(null)
+        whenever(mockClientStateStorage.get()).thenReturn(null)
+        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
+        whenever(mockContactTokenStorage.get()).thenReturn(null)
         setup(mobileEngageConfig)
-        Mockito.verify(mockClientServiceInternal).trackDeviceInfo()
+        verify(mockClientServiceInternal).trackDeviceInfo()
     }
 
     @Test
     fun testSetup_doNotSendClientInfo_whenHashIsUnChanged() {
-        Mockito.`when`(mockClientStateStorage.get()).thenReturn("asdfsaf")
+        whenever(mockClientStateStorage.get()).thenReturn("asdfsaf")
         setup(mobileEngageConfig)
-        Mockito.verify(mockClientServiceInternal, Mockito.never()).trackDeviceInfo()
+        verify(mockClientServiceInternal, never()).trackDeviceInfo()
     }
 
     @Test
     fun testSetup_doNotSendClientInfo_whenAnonymousContactIsNotNeededToSend() {
-        Mockito.`when`(mockClientStateStorage.get()).thenReturn(null)
-        Mockito.`when`(mockContactFieldValueStorage.get()).thenReturn("asdf")
-        Mockito.`when`(mockContactTokenStorage.get()).thenReturn("asdf")
+        whenever(mockClientStateStorage.get()).thenReturn(null)
+        whenever(mockContactFieldValueStorage.get()).thenReturn("asdf")
+        whenever(mockContactTokenStorage.get()).thenReturn("asdf")
         setup(mobileEngageConfig)
-        Mockito.verify(mockClientServiceInternal, Mockito.never()).trackDeviceInfo()
+        verify(mockClientServiceInternal, never()).trackDeviceInfo()
     }
 
     @Test
     fun testSetup_sendAnonymousContact() {
-        Mockito.`when`(mockContactFieldValueStorage.get()).thenReturn(null)
-        Mockito.`when`(mockContactTokenStorage.get()).thenReturn(null)
+        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
+        whenever(mockContactTokenStorage.get()).thenReturn(null)
         setup(mobileEngageConfig)
-        Mockito.verify(mockMobileEngageInternal).setContact(null, null)
+        verify(mockMobileEngageInternal).setContact(null, null)
     }
 
     @Test
     fun testSetup_sendDeviceInfoAndAnonymousContact_inOrder() {
-        Mockito.`when`(mockContactFieldValueStorage.get()).thenReturn(null)
-        Mockito.`when`(mockContactTokenStorage.get()).thenReturn(null)
-        Mockito.`when`(mockDeviceInfoHashStorage.get()).thenReturn(2345)
+        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
+        whenever(mockContactTokenStorage.get()).thenReturn(null)
+        whenever(mockDeviceInfoHashStorage.get()).thenReturn(2345)
         setup(mobileEngageConfig)
-        val inOrder = Mockito.inOrder(mockMobileEngageInternal, mockClientServiceInternal)
+        val inOrder = inOrder(mockMobileEngageInternal, mockClientServiceInternal)
         inOrder.verify(mockClientServiceInternal).trackDeviceInfo()
         inOrder.verify(mockMobileEngageInternal).setContact(null, null)
         inOrder.verifyNoMoreInteractions()
@@ -454,212 +442,212 @@ class EmarsysTest {
     @Test
     fun testSetup_doNotSendAnonymousContact_whenContactFieldValueIsPresent() {
         setup(mobileEngageConfig)
-        Mockito.verify(mockMobileEngageInternal, Mockito.never()).setContact(null, null)
+        verify(mockMobileEngageInternal, never()).setContact(null, null)
     }
 
     @Test
     fun testSetup_doNotSendAnonymousContact_whenContactTokenIsPresent() {
-        Mockito.`when`(mockContactFieldValueStorage.get()).thenReturn(null)
+        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         setup(mobileEngageConfig)
-        Mockito.verify(mockMobileEngageInternal, Mockito.never()).setContact(null, null)
+        verify(mockMobileEngageInternal, never()).setContact(null, null)
     }
 
     @Test
     fun testSetContactWithCompletionListener_delegatesToPredictInternal_whenPredictEnabled() {
         setup(predictConfig)
         setContact(CONTACT_ID, completionListener)
-        Mockito.verifyZeroInteractions(mockMobileEngageInternal)
-        Mockito.verify(mockPredictInternal).setContact(CONTACT_ID)
+        verifyZeroInteractions(mockMobileEngageInternal)
+        verify(mockPredictInternal).setContact(CONTACT_ID)
     }
 
     @Test
     fun testSetContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageEnabled() {
         setup(mobileEngageConfig)
         setContact(CONTACT_ID, completionListener)
-        Mockito.verifyZeroInteractions(mockPredictInternal)
-        Mockito.verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener)
+        verifyZeroInteractions(mockPredictInternal)
+        verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener)
     }
 
     @Test
     fun testSetContactWithCompletionListener_doNotDelegatesToPredictInternal_whenPredictDisabled() {
         setup(mobileEngageConfig)
         setContact(CONTACT_ID, completionListener)
-        Mockito.verifyZeroInteractions(mockPredictInternal)
+        verifyZeroInteractions(mockPredictInternal)
     }
 
     @Test
     fun testSetContactWithCompletionListener_doNotDelegatesToMobileEngageInternal_whenMobileEngageDisabled() {
         setup(predictConfig)
         setContact(CONTACT_ID, completionListener)
-        Mockito.verifyZeroInteractions(mockMobileEngageInternal)
+        verifyZeroInteractions(mockMobileEngageInternal)
     }
 
     @Test
     fun testSetContactWithCompletionListener_delegatesToInternals_whenBothFeaturesEnabled() {
         setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
         setContact(CONTACT_ID, completionListener)
-        Mockito.verify(mockPredictInternal).setContact(CONTACT_ID)
-        Mockito.verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener)
+        verify(mockPredictInternal).setContact(CONTACT_ID)
+        verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener)
     }
 
     @Test
     fun testSetContactWithCompletionListener_delegatesToMobileEngageOnly_whenBothFeaturesDisabled() {
         setup(baseConfig)
         setContact(CONTACT_ID, completionListener)
-        Mockito.verifyZeroInteractions(mockPredictInternal)
-        Mockito.verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener)
+        verifyZeroInteractions(mockPredictInternal)
+        verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener)
     }
 
     @Test
     fun testSetContact_delegatesToMobileEngageInternal_whenMobileEngageIsEnabled() {
         setup(mobileEngageConfig)
         setContact(CONTACT_ID)
-        Mockito.verify(mockMobileEngageInternal).setContact(CONTACT_ID, null)
+        verify(mockMobileEngageInternal).setContact(CONTACT_ID, null)
     }
 
     @Test
     fun testSetContact_delegatesToInternal_whenPredictIsEnabled() {
         setup(predictConfig)
         setContact(CONTACT_ID)
-        Mockito.verify(mockPredictInternal).setContact(CONTACT_ID)
+        verify(mockPredictInternal).setContact(CONTACT_ID)
     }
 
     @Test
     fun testSetContact_doNotDelegatesToMobileEngageInternal_whenMobileEngageIsDisabled() {
         setup(predictConfig)
         setContact(CONTACT_ID)
-        Mockito.verifyZeroInteractions(mockMobileEngageInternal)
+        verifyZeroInteractions(mockMobileEngageInternal)
     }
 
     @Test
     fun testSetContact_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
         setup(mobileEngageConfig)
         setContact(CONTACT_ID)
-        Mockito.verifyZeroInteractions(mockPredictInternal)
+        verifyZeroInteractions(mockPredictInternal)
     }
 
     @Test
     fun testSetContact_delegatesToInternals_whenBothFeaturesAreEnabled() {
         setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
         setContact(CONTACT_ID)
-        Mockito.verify(mockPredictInternal).setContact(CONTACT_ID)
-        Mockito.verify(mockMobileEngageInternal).setContact(CONTACT_ID, null)
+        verify(mockPredictInternal).setContact(CONTACT_ID)
+        verify(mockMobileEngageInternal).setContact(CONTACT_ID, null)
     }
 
     @Test
     fun testSetContact_delegatesToMobileEngageInternalOnly_whenBothFeaturesAreDisabled() {
         setup(baseConfig)
         setContact(CONTACT_ID)
-        Mockito.verifyZeroInteractions(mockPredictInternal)
-        Mockito.verify(mockMobileEngageInternal).setContact(CONTACT_ID, null)
+        verifyZeroInteractions(mockPredictInternal)
+        verify(mockMobileEngageInternal).setContact(CONTACT_ID, null)
     }
 
     @Test
     fun testClearContactWithCompletionListener_delegatesToPredictInternal_whenPredictIsEnabled() {
         setup(predictConfig)
         clearContact(completionListener)
-        Mockito.verifyZeroInteractions(mockMobileEngageInternal)
-        Mockito.verify(mockPredictInternal).clearContact()
+        verifyZeroInteractions(mockMobileEngageInternal)
+        verify(mockPredictInternal).clearContact()
     }
 
     @Test
     fun testClearContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageIsEnabled() {
         setup(mobileEngageConfig)
         clearContact(completionListener)
-        Mockito.verifyZeroInteractions(mockPredictInternal)
-        Mockito.verify(mockMobileEngageInternal).clearContact(completionListener)
+        verifyZeroInteractions(mockPredictInternal)
+        verify(mockMobileEngageInternal).clearContact(completionListener)
     }
 
     @Test
     fun testClearContactWithCompletionListener_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
         setup(mobileEngageConfig)
         clearContact(completionListener)
-        Mockito.verifyZeroInteractions(mockPredictInternal)
+        verifyZeroInteractions(mockPredictInternal)
     }
 
     @Test
     fun testClearContactWithCompletionListener_doNotDelegatesToMobileEngageInternal_whenMobileEngageIsDisabled() {
         setup(predictConfig)
         clearContact(completionListener)
-        Mockito.verifyZeroInteractions(mockMobileEngageInternal)
+        verifyZeroInteractions(mockMobileEngageInternal)
     }
 
     @Test
     fun testClearContactWithCompletionListener_delegatesToInternals_whenBothEnabled() {
         setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
         clearContact(completionListener)
-        Mockito.verify(mockPredictInternal).clearContact()
-        Mockito.verify(mockMobileEngageInternal).clearContact(completionListener)
+        verify(mockPredictInternal).clearContact()
+        verify(mockMobileEngageInternal).clearContact(completionListener)
     }
 
     @Test
     fun testClearContactWithCompletionListener_delegatesToMobileEngageInternalOnly_whenBothDisabled() {
         setup(baseConfig)
         clearContact(completionListener)
-        Mockito.verifyZeroInteractions(mockPredictInternal)
-        Mockito.verify(mockMobileEngageInternal).clearContact(completionListener)
+        verifyZeroInteractions(mockPredictInternal)
+        verify(mockMobileEngageInternal).clearContact(completionListener)
     }
 
     @Test
     fun testClearContact_delegatesToMobileEngageInternal_whenMobileEngageIsEnabled() {
         setup(mobileEngageConfig)
         clearContact()
-        Mockito.verifyZeroInteractions(mockPredictInternal)
-        Mockito.verify(mockMobileEngageInternal).clearContact(null)
+        verifyZeroInteractions(mockPredictInternal)
+        verify(mockMobileEngageInternal).clearContact(null)
     }
 
     @Test
     fun testClearContact_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
         setup(mobileEngageConfig)
         clearContact()
-        Mockito.verifyZeroInteractions(mockPredictInternal)
+        verifyZeroInteractions(mockPredictInternal)
     }
 
     @Test
     fun testClearContact_doNotDelegatesToMobileEngageInternal_whenMobileEngageIsDisabled() {
         setup(predictConfig)
         clearContact()
-        Mockito.verifyZeroInteractions(mockMobileEngageInternal)
+        verifyZeroInteractions(mockMobileEngageInternal)
     }
 
     @Test
     fun testClearContact_delegatesToPredictInternal_whenPredictIsEnabled() {
         setup(predictConfig)
         clearContact()
-        Mockito.verifyZeroInteractions(mockMobileEngageInternal)
-        Mockito.verify(mockPredictInternal).clearContact()
+        verifyZeroInteractions(mockMobileEngageInternal)
+        verify(mockPredictInternal).clearContact()
     }
 
     @Test
     fun testClearContact_delegatesToInternals_whenBothFeaturesAreEnabled() {
         setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
         clearContact()
-        Mockito.verify(mockPredictInternal).clearContact()
-        Mockito.verify(mockMobileEngageInternal).clearContact(null)
+        verify(mockPredictInternal).clearContact()
+        verify(mockMobileEngageInternal).clearContact(null)
     }
 
     @Test
     fun testClearContact_shouldCallMobileEngageOnly_whenBothFeaturesAreDisabled() {
         setup(baseConfig)
         clearContact()
-        Mockito.verifyZeroInteractions(mockPredictInternal)
-        Mockito.verify(mockMobileEngageInternal).clearContact(null)
+        verifyZeroInteractions(mockPredictInternal)
+        verify(mockMobileEngageInternal).clearContact(null)
     }
 
     @Test
     fun testTrackDeepLink_delegatesTo_deepLinkInternal() {
-        val mockActivity = Mockito.mock(Activity::class.java)
-        val mockIntent = Mockito.mock(Intent::class.java)
+        val mockActivity: Activity = mock()
+        val mockIntent: Intent = mock()
         trackDeepLink(mockActivity, mockIntent)
-        Mockito.verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, mockIntent, null)
+        verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, mockIntent, null)
     }
 
     @Test
     fun testTrackDeepLinkWithCompletionListener_delegatesTo_deepLinkInternal() {
-        val mockActivity = Mockito.mock(Activity::class.java)
-        val mockIntent = Mockito.mock(Intent::class.java)
+        val mockActivity: Activity = mock()
+        val mockIntent: Intent = mock()
         trackDeepLink(mockActivity, mockIntent, completionListener)
-        Mockito.verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, mockIntent, completionListener)
+        verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, mockIntent, completionListener)
     }
 
     @Test
@@ -667,7 +655,7 @@ class EmarsysTest {
         val eventName = "eventName"
         val eventAttributes = HashMap<String, String>()
         trackCustomEvent(eventName, eventAttributes)
-        Mockito.verify(mockEventServiceInternal).trackCustomEvent(eventName, eventAttributes, null)
+        verify(mockEventServiceInternal).trackCustomEvent(eventName, eventAttributes, null)
     }
 
     @Test
@@ -675,29 +663,29 @@ class EmarsysTest {
         val eventName = "eventName"
         val eventAttributes = HashMap<String, String>()
         trackCustomEvent(eventName, eventAttributes, completionListener)
-        Mockito.verify(mockEventServiceInternal).trackCustomEvent(eventName, eventAttributes, completionListener)
+        verify(mockEventServiceInternal).trackCustomEvent(eventName, eventAttributes, completionListener)
     }
 
     @Test
     fun testConfig_changeApplicationCode_delegatesTo_configInstance() {
         setup(mobileEngageConfig)
-        changeApplicationCode(APPLICATION_CODE)
-        Mockito.verify(mockConfig).changeApplicationCode(APPLICATION_CODE, null as CompletionListener?)
+        changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID)
+        verify(mockConfig).changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID, null)
     }
 
     @Test
     fun testConfig_changeApplicationCode_withCompletionListener_delegatesTo_configInstance() {
         setup(mobileEngageConfig)
-        changeApplicationCode(APPLICATION_CODE, completionListener)
-        Mockito.verify(mockConfig).changeApplicationCode(APPLICATION_CODE, completionListener)
+        changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
+        verify(mockConfig).changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
     }
 
     @Test
     fun testConfig_getApplicationCode_delegatesTo_configInstance() {
         setup(mobileEngageConfig)
-        Mockito.`when`(mockConfig.applicationCode).thenReturn(APPLICATION_CODE)
+        whenever(mockConfig.applicationCode).thenReturn(APPLICATION_CODE)
         val applicationCode = applicationCode
-        Mockito.verify(mockConfig).applicationCode
+        verify(mockConfig).applicationCode
         Assert.assertEquals(APPLICATION_CODE, applicationCode)
     }
 
@@ -705,63 +693,63 @@ class EmarsysTest {
     fun testConfig_changeMerchantId_delegatesTo_configInstance() {
         setup(predictConfig)
         changeMerchantId(MERCHANT_ID)
-        Mockito.verify(mockConfig).changeMerchantId(MERCHANT_ID)
+        verify(mockConfig).changeMerchantId(MERCHANT_ID)
     }
 
     @Test
     fun testConfig_getContactFieldId_delegatesTo_configInstance() {
         setup(baseConfig)
-        Mockito.`when`(mockConfig.contactFieldId).thenReturn(CONTACT_FIELD_ID)
+        whenever(mockConfig.contactFieldId).thenReturn(CONTACT_FIELD_ID)
         val contactFieldId = contactFieldId
-        Mockito.verify(mockConfig).contactFieldId
+        verify(mockConfig).contactFieldId
         Assert.assertEquals(CONTACT_FIELD_ID.toLong(), contactFieldId.toLong())
     }
 
     @Test
     fun testPush_trackMessageOpen_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
-        val mockIntent = Mockito.mock(Intent::class.java)
+        val mockIntent: Intent = mock()
         trackMessageOpen(mockIntent)
-        Mockito.verify(mockPush).trackMessageOpen(mockIntent)
+        verify(mockPush).trackMessageOpen(mockIntent)
     }
 
     @Test
     fun testPush_trackMessageOpen_withCompletionListener_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
-        val mockIntent = Mockito.mock(Intent::class.java)
-        val mockCompletionListener = Mockito.mock(CompletionListener::class.java)
+        val mockIntent: Intent = mock()
+        val mockCompletionListener: CompletionListener = mock()
         trackMessageOpen(mockIntent, mockCompletionListener)
-        Mockito.verify(mockPush).trackMessageOpen(mockIntent, mockCompletionListener)
+        verify(mockPush).trackMessageOpen(mockIntent, mockCompletionListener)
     }
 
     @Test
     fun testPush_setPushToken_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
         setPushToken("pushToken")
-        Mockito.verify(mockPush).setPushToken("pushToken")
+        verify(mockPush).setPushToken("pushToken")
     }
 
     @Test
     fun testPush_setPushToken_withCompletionListener_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
-        val mockCompletionListener = Mockito.mock(CompletionListener::class.java)
+        val mockCompletionListener: CompletionListener = mock()
         setPushToken("pushToken", mockCompletionListener)
-        Mockito.verify(mockPush).setPushToken("pushToken", mockCompletionListener)
+        verify(mockPush).setPushToken("pushToken", mockCompletionListener)
     }
 
     @Test
     fun testPush_clearPushToken_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
         clearPushToken()
-        Mockito.verify(mockPush).clearPushToken()
+        verify(mockPush).clearPushToken()
     }
 
     @Test
     fun testPush_clearPushToken_withCompletionListener_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
-        val mockCompletionListener = Mockito.mock(CompletionListener::class.java)
+        val mockCompletionListener: CompletionListener = mock()
         clearPushToken(mockCompletionListener)
-        Mockito.verify(mockPush).clearPushToken(mockCompletionListener)
+        verify(mockPush).clearPushToken(mockCompletionListener)
     }
 
     @Test
@@ -769,7 +757,7 @@ class EmarsysTest {
         setup(mobileEngageConfig)
         val mockEventHandler: EventHandler = mock()
         setNotificationEventHandler(mockEventHandler)
-        Mockito.verify(mockPush).setNotificationEventHandler(mockEventHandler)
+        verify(mockPush).setNotificationEventHandler(mockEventHandler)
     }
 
     @Test
@@ -777,7 +765,7 @@ class EmarsysTest {
         setup(mobileEngageConfig)
         val mockEventHandler: EventHandler = mock()
         setSilentMesssageEventHandler(mockEventHandler)
-        Mockito.verify(mockPush).setSilentMessageEventHandler(mockEventHandler)
+        verify(mockPush).setSilentMessageEventHandler(mockEventHandler)
     }
 
     @Test
@@ -785,7 +773,7 @@ class EmarsysTest {
         setup(predictConfig)
         val cartItems: List<CartItem> = ArrayList()
         trackCart(cartItems)
-        Mockito.verify(mockPredict).trackCart(cartItems)
+        verify(mockPredict).trackCart(cartItems)
     }
 
     @Test
@@ -793,63 +781,63 @@ class EmarsysTest {
         setup(predictConfig)
         val cartItems: List<CartItem> = ArrayList()
         trackPurchase("orderId", cartItems)
-        Mockito.verify(mockPredict).trackPurchase("orderId", cartItems)
+        verify(mockPredict).trackPurchase("orderId", cartItems)
     }
 
     @Test
     fun testPredict_trackItemView_delegatesTo_predictInstance() {
         setup(predictConfig)
         trackItemView("itemId")
-        Mockito.verify(mockPredict).trackItemView("itemId")
+        verify(mockPredict).trackItemView("itemId")
     }
 
     @Test
     fun testPredict_trackCategoryView_delegatesTo_predictInstance() {
         setup(predictConfig)
         trackCategoryView("categoryPath")
-        Mockito.verify(mockPredict).trackCategoryView("categoryPath")
+        verify(mockPredict).trackCategoryView("categoryPath")
     }
 
     @Test
     fun testPredict_trackSearchTerm_delegatesTo_predictInstance() {
         setup(predictConfig)
         trackSearchTerm("searchTerm")
-        Mockito.verify(mockPredict).trackSearchTerm("searchTerm")
+        verify(mockPredict).trackSearchTerm("searchTerm")
     }
 
     @Test
     fun testPredict_trackTag_delegatesTo_predictInstance() {
         setup(predictConfig)
         trackTag("testTag", HashMap())
-        Mockito.verify(mockPredict).trackTag("testTag", HashMap())
+        verify(mockPredict).trackTag("testTag", HashMap())
     }
 
     @Test
     fun testPredict_recommendProducts_delegatesTo_predictInstance() {
         setup(predictConfig)
         recommendProducts(mockLogic, mockResultListener)
-        Mockito.verify(mockPredict).recommendProducts(mockLogic, mockResultListener)
+        verify(mockPredict).recommendProducts(mockLogic, mockResultListener)
     }
 
     @Test
     fun testPredict_recommendProductsWithLimit_delegatesTo_predictInstance() {
         setup(predictConfig)
         recommendProducts(mockLogic, 5, mockResultListener)
-        Mockito.verify(mockPredict).recommendProducts(mockLogic, 5, mockResultListener)
+        verify(mockPredict).recommendProducts(mockLogic, 5, mockResultListener)
     }
 
     @Test
     fun testPredict_recommendProductsWithFilters_delegatesTo_predictInstance() {
         setup(predictConfig)
         recommendProducts(mockLogic, listOf(mockRecommendationFilter), mockResultListener)
-        Mockito.verify(mockPredict).recommendProducts(mockLogic, listOf(mockRecommendationFilter), mockResultListener)
+        verify(mockPredict).recommendProducts(mockLogic, listOf(mockRecommendationFilter), mockResultListener)
     }
 
     @Test
     fun testPredict_recommendProductsWithLimitAndFilters_delegatesTo_predictInstance() {
         setup(predictConfig)
         recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, mockResultListener)
-        Mockito.verify(mockPredict).recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, mockResultListener)
+        verify(mockPredict).recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, mockResultListener)
     }
 
     @Test
@@ -857,76 +845,76 @@ class EmarsysTest {
         setup(predictConfig)
         val product = Product.Builder("itemId", "title", "https://emarsys.com", "RELATED", "AAAA").build()
         trackRecommendationClick(product)
-        Mockito.verify(mockPredict).trackRecommendationClick(product)
+        verify(mockPredict).trackRecommendationClick(product)
     }
 
     @Test
     fun testInApp_pause_delegatesTo_inAppInstance() {
         setup(mobileEngageConfig)
         pause()
-        Mockito.verify(mockInApp).pause()
+        verify(mockInApp).pause()
     }
 
     @Test
     fun testInApp_resume_delegatesTo_inAppInstance() {
         setup(mobileEngageConfig)
         resume()
-        Mockito.verify(mockInApp).resume()
+        verify(mockInApp).resume()
     }
 
     @Test
     fun testInApp_isPaused_delegatesTo_inAppInstance() {
         setup(mobileEngageConfig)
         isPaused
-        Mockito.verify(mockInApp).isPaused
+        verify(mockInApp).isPaused
     }
 
     @Test
     fun testInApp_setEventHandler_delegatesTo_inAppInstance() {
         setup(mobileEngageConfig)
-        val mockEventHandler = Mockito.mock(EventHandler::class.java)
+        val mockEventHandler: EventHandler = mock()
         setEventHandler(mockEventHandler)
-        Mockito.verify(mockInApp).setEventHandler(mockEventHandler)
+        verify(mockInApp).setEventHandler(mockEventHandler)
     }
 
     @Test
     fun testInbox_fetchNotification_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
-        val mockResultListener = Mockito.mock(ResultListener::class.java) as ResultListener<Try<NotificationInboxStatus>>
+        val mockResultListener: ResultListener<Try<NotificationInboxStatus>> = mock()
         fetchNotifications(mockResultListener)
-        Mockito.verify(mockInbox).fetchNotifications(mockResultListener)
+        verify(mockInbox).fetchNotifications(mockResultListener)
     }
 
     @Test
     fun testInbox_trackNotificationOpen_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
-        val mockNotification = Mockito.mock(Notification::class.java)
+        val mockNotification: Notification = mock()
         trackNotificationOpen(mockNotification)
-        Mockito.verify(mockInbox).trackNotificationOpen(mockNotification)
+        verify(mockInbox).trackNotificationOpen(mockNotification)
     }
 
     @Test
     fun testInbox_trackNotificationOpen_withCompletionListener_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
-        val mockNotification = Mockito.mock(Notification::class.java)
-        val mockCompletionListener = Mockito.mock(CompletionListener::class.java)
+        val mockNotification: Notification = mock()
+        val mockCompletionListener: CompletionListener = mock()
         trackNotificationOpen(mockNotification, mockCompletionListener)
-        Mockito.verify(mockInbox).trackNotificationOpen(mockNotification, mockCompletionListener)
+        verify(mockInbox).trackNotificationOpen(mockNotification, mockCompletionListener)
     }
 
     @Test
     fun testInbox_resetBadgeCount_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
         resetBadgeCount()
-        Mockito.verify(mockInbox).resetBadgeCount()
+        verify(mockInbox).resetBadgeCount()
     }
 
     @Test
     fun testInbox_resetBadgeCount_withCompletionListener_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
-        val mockCompletionListener = Mockito.mock(CompletionListener::class.java)
+        val mockCompletionListener: CompletionListener = mock()
         resetBadgeCount(mockCompletionListener)
-        Mockito.verify(mockInbox).resetBadgeCount(mockCompletionListener)
+        verify(mockInbox).resetBadgeCount(mockCompletionListener)
     }
 
     @Test
@@ -934,8 +922,8 @@ class EmarsysTest {
         setup(predictConfig)
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
         isPaused
-        Mockito.verify(mockInApp).isPaused
-        Mockito.verifyZeroInteractions(mockLoggingInApp)
+        verify(mockInApp).isPaused
+        verifyZeroInteractions(mockLoggingInApp)
     }
 
     @Test
@@ -943,8 +931,8 @@ class EmarsysTest {
         setup(mobileEngageConfig)
         FeatureRegistry.enableFeature(InnerFeature.PREDICT)
         trackItemView("testItemId")
-        Mockito.verify(mockPredict).trackItemView("testItemId")
-        Mockito.verifyZeroInteractions(mockLoggingPredict)
+        verify(mockPredict).trackItemView("testItemId")
+        verifyZeroInteractions(mockLoggingPredict)
     }
 
     private fun createConfig(vararg experimentalFeatures: FlipperFeature): EmarsysConfig.Builder {
