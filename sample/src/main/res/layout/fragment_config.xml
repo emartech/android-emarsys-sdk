@@ -62,8 +62,7 @@
                         android:text="@string/change_application_code_button"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/newApplicationCode" />
-
+                        app:layout_constraintTop_toBottomOf="@+id/newContactFieldId" />
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/newApplicationCode"
@@ -73,16 +72,32 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="8dp"
-                        android:layout_marginBottom="8dp"
                         android:ems="10"
                         android:hint="@string/change_application_code_hint"
                         android:importantForAutofill="no"
                         android:inputType="text"
-                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.452"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/currentApplicationCode"
+                        tools:targetApi="o" />
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/newContactFieldId"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:ems="10"
+                        android:hint="@string/change_contact_field_id_hint"
+                        android:importantForAutofill="no"
+                        android:inputType="numberDecimal"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.452"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/newApplicationCode"
                         tools:targetApi="o" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
