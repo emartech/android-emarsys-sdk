@@ -263,12 +263,12 @@ object Emarsys {
     object Push {
 
         @JvmStatic
-        @Deprecated(message = "This method is not neccesary anymore. EmarsysMessagingService takes care of it.", replaceWith = ReplaceWith("EmarsysMessagingService.handleMessage()"))
+        @Deprecated(message = "This method is not necessary anymore. EmarsysMessagingService takes care of it.", replaceWith = ReplaceWith("EmarsysMessagingService.handleMessage()"))
         fun trackMessageOpen(intent: Intent) {
             push.trackMessageOpen(intent)
         }
 
-        @Deprecated(message = "This method is not neccesary anymore. EmarsysMessagingService takes care of it.", replaceWith = ReplaceWith("EmarsysMessagingService.handleMessage()"))
+        @Deprecated(message = "This method is not necessary anymore. EmarsysMessagingService takes care of it.", replaceWith = ReplaceWith("EmarsysMessagingService.handleMessage()"))
         @JvmStatic
         fun trackMessageOpen(
                 intent: Intent,
@@ -276,7 +276,7 @@ object Emarsys {
             trackMessageOpen(intent, CompletionListener { completionListener(it) })
         }
 
-        @Deprecated(message = "This method is not neccesary anymore. EmarsysMessagingService takes care of it.", replaceWith = ReplaceWith("EmarsysMessagingService.handleMessage()"))
+        @Deprecated(message = "This method is not necessary anymore. EmarsysMessagingService takes care of it.", replaceWith = ReplaceWith("EmarsysMessagingService.handleMessage()"))
         @JvmStatic
         fun trackMessageOpen(
                 intent: Intent,
