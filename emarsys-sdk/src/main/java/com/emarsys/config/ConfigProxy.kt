@@ -21,12 +21,28 @@ class ConfigProxy(private val runnerProxy: RunnerProxy, private val configIntern
     override val notificationSettings: NotificationSettings
         get() = runnerProxy.logException(Callable<NotificationSettings> { configInternal.notificationSettings })
 
+    override fun changeApplicationCode(applicationCode: String?) {
+        changeApplicationCode(applicationCode, contactFieldId)
+    }
+
     override fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?) {
-        runnerProxy.logException { configInternal.changeApplicationCode(applicationCode, completionListener) }
+        changeApplicationCode(applicationCode, contactFieldId, completionListener)
     }
 
     override fun changeApplicationCode(applicationCode: String?, completionListener: (throwable: Throwable?) -> Unit) {
         changeApplicationCode(applicationCode, CompletionListener { completionListener(it) })
+    }
+
+    override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int) {
+        changeApplicationCode(applicationCode, contactFieldId, null)
+    }
+
+    override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: CompletionListener?) {
+        runnerProxy.logException { configInternal.changeApplicationCode(applicationCode, contactFieldId, completionListener) }
+    }
+
+    override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: (throwable: Throwable?) -> Unit) {
+        changeApplicationCode(applicationCode, contactFieldId, CompletionListener { completionListener(it) })
     }
 
     override fun changeMerchantId(merchantId: String?) {

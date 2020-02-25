@@ -8,8 +8,18 @@ import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.mobileengage.api.event.EventHandler;
 
 public interface PushApi {
+    /**
+     * @deprecated This method is not necessary anymore. EmarsysMessagingService takes care of it.
+     * Use EmarsysMessagingService.handleMessage() instead!
+     */
+    @Deprecated
     void trackMessageOpen(@NonNull final Intent intent);
 
+    /**
+     * @deprecated This method is not necessary anymore. EmarsysMessagingService takes care of it.
+     * Use EmarsysMessagingService.handleMessage() instead!
+     */
+    @Deprecated
     void trackMessageOpen(
             @NonNull final Intent intent,
             @NonNull final CompletionListener completionListener);

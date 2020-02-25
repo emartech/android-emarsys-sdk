@@ -14,29 +14,25 @@ class ConfigFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-
         return inflater.inflate(R.layout.fragment_config, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        currentApplicationCode.text = resources.getString(R.string.current_application_code, Emarsys.config.applicationCode)
+        currentApplicationCode.text = resources.getString(R.string.current_application_code, Emarsys.config.applicationCode, Emarsys.config.contactFieldId)
         currentMerchantId.text = resources.getString(R.string.current_merchant_id, Emarsys.config.merchantId)
 
         buttonChangeApplicationCode.setOnClickListener {
-            Emarsys.config.changeApplicationCode(newApplicationCode.text.toString()) {
-                if (it == null) {
-                    currentApplicationCode.text = resources.getString(R.string.current_application_code, Emarsys.config.applicationCode)
-                    newApplicationCode.text?.clear()
-                    view.showSnackBar("ApplicationCode has been changed!")
-                } else {
-                    view.showSnackBar(it.message
-                            ?: "Error during ApplicationCode change, Mobile Engage is disabled!")
-                    currentApplicationCode.text = resources.getString(R.string.current_application_code, Emarsys.config.applicationCode)
+            if (newContactFieldId.text.isNullOrEmpty()) {
+                Emarsys.config.changeApplicationCode(newApplicationCode.text.toString()) { throwable ->
+                    onAppCodeChange(throwable, view)
+                }
+            } else {
+                Emarsys.config.changeApplicationCode(newApplicationCode.text.toString(), newContactFieldId.text.toString().toInt()) { throwable ->
+                    onAppCodeChange(throwable, view)
                 }
             }
-
         }
 
         buttonChangeMerchantId.setOnClickListener {
@@ -44,8 +40,20 @@ class ConfigFragment : Fragment() {
             currentMerchantId.text = resources.getString(R.string.current_merchant_id, Emarsys.config.merchantId)
             newMerchantId.text?.clear()
             view.showSnackBar("MerchantId has been changed!")
-
         }
 
+    }
+
+    private fun onAppCodeChange(throwable: Throwable?, view: View) {
+        if (throwable == null) {
+            currentApplicationCode.text = resources.getString(R.string.current_application_code, Emarsys.config.applicationCode, Emarsys.config.contactFieldId)
+            newApplicationCode.text?.clear()
+            newContactFieldId.text?.clear()
+            view.showSnackBar("ApplicationCode has been changed!")
+        } else {
+            view.showSnackBar(throwable.message
+                    ?: "Error during ApplicationCode change, Mobile Engage is disabled!")
+            currentApplicationCode.text = resources.getString(R.string.current_application_code, Emarsys.config.applicationCode, Emarsys.config.contactFieldId)
+        }
     }
 }

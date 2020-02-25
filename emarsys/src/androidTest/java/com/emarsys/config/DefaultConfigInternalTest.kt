@@ -188,14 +188,14 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testChangeApplicationCode_shouldCallClearContact() {
-        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener { })
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener { })
 
         verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
     }
 
     @Test
     fun testChangeApplicationCode_shouldCallSetContactWithOriginalContactFieldIdAndContactFieldValue() {
-        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener {
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
             verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
             verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
         })
@@ -204,7 +204,7 @@ class DefaultConfigInternalTest {
     @Test
     fun testChangeApplicationCode_shouldCallSetPushToken() {
         val latch = CountDownLatch(1)
-        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener {
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
             latch.countDown()
         })
         latch.await()
@@ -218,7 +218,7 @@ class DefaultConfigInternalTest {
     fun testChangeApplicationCode_shouldChangeApplicationCodeAfterClearContact() {
         val latch = CountDownLatch(1)
 
-        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener {
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
             latch.countDown()
         })
         latch.await()
@@ -236,6 +236,7 @@ class DefaultConfigInternalTest {
         whenever(mockMobileEngageInternal.clearContact(any())).thenAnswer { invocation ->
             (invocation.getArgument(0) as CompletionListener).onCompleted(Throwable())
         }
+
         configInternal = DefaultConfigInternal(mockMobileEngageRequestContext,
                 mockMobileEngageInternal,
                 mockPushInternal,
@@ -255,15 +256,17 @@ class DefaultConfigInternalTest {
         val completionListener = CompletionListener {
             latch.countDown()
         }
-        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, completionListener)
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
         latch.await()
         verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
         verify(mockMobileEngageRequestContext).applicationCode
         verify(mockMobileEngageRequestContext).contactFieldValueStorage
+        verify(mockMobileEngageRequestContext).contactFieldId
         verifyZeroInteractions(mockPushInternal)
         verifyNoMoreInteractions(mockMobileEngageInternal)
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
         verify(mockMobileEngageRequestContext).applicationCode = null
+        verify(mockMobileEngageRequestContext).contactFieldId = CONTACT_FIELD_ID
         verifyNoMoreInteractions(mockMobileEngageRequestContext)
 
     }
@@ -275,6 +278,7 @@ class DefaultConfigInternalTest {
         val mockMobileEngageRequestContext = mock(MobileEngageRequestContext::class.java).apply {
             whenever(applicationCode).thenReturn(null)
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
+            whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)
         }
 
         configInternal = DefaultConfigInternal(mockMobileEngageRequestContext,
@@ -293,7 +297,7 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage)
 
-        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener {
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
             latch.countDown()
         })
 
@@ -337,7 +341,7 @@ class DefaultConfigInternalTest {
             latch.countDown()
         }
 
-        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, completionListener)
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
         latch.await()
 
         verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
@@ -379,7 +383,7 @@ class DefaultConfigInternalTest {
             latch.countDown()
         }
 
-        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, completionListener)
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
 
         latch.await()
 
@@ -393,7 +397,7 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testChangeApplicationCode_shouldWorkWithoutCompletionListener() {
-        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, null)
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, null)
 
         val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
         inOrder.verify(mockMobileEngageInternal, timeout(50)).clearContact(any(CompletionListener::class.java))
@@ -404,7 +408,7 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testChangeApplicationCode_shouldEnableFeature() {
-        configInternal.changeApplicationCode(APPLICATION_CODE, CompletionListener {
+        configInternal.changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
             latch.countDown()
         })
 
@@ -417,7 +421,7 @@ class DefaultConfigInternalTest {
     fun testChangeApplicationCode_shouldDisableFeature() {
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
 
-        configInternal.changeApplicationCode(null, CompletionListener {
+        configInternal.changeApplicationCode(null, CONTACT_FIELD_ID, CompletionListener {
             latch.countDown()
         })
 
@@ -432,9 +436,10 @@ class DefaultConfigInternalTest {
         val completionListener = CompletionListener {
             latch.countDown()
         }
-        configInternal.changeApplicationCode(null, completionListener)
+        configInternal.changeApplicationCode(null, CONTACT_FIELD_ID, completionListener)
         latch.await()
         verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockMobileEngageRequestContext).contactFieldId
         verify(mockMobileEngageRequestContext).contactFieldValueStorage
         verify(mockMobileEngageRequestContext).applicationCode
         verifyNoMoreInteractions(mockMobileEngageRequestContext)
@@ -447,7 +452,7 @@ class DefaultConfigInternalTest {
         whenever(mockPushTokenProvider.providePushToken()).thenReturn(null)
         val latch = CountDownLatch(1)
 
-        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener {
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
             latch.countDown()
         })
         latch.await()
@@ -460,15 +465,15 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testChangeApplicationCode_shouldResetRemoteConfig() {
-        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener { })
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener { })
 
         verify(configInternal).resetRemoteConfig()
     }
 
-    @Ignore
     @Test
-    fun testChangeApplicationCode_shouldRefreshRemoteConfig_whenChangeWasSuccessfull() {
-        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CompletionListener { })
+    @Ignore
+    fun testChangeApplicationCode_shouldRefreshRemoteConfig_whenChangeWasSuccessful() {
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener { })
 
         val inOrder = inOrder(configInternal, mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
         inOrder.verify(configInternal).resetRemoteConfig()
@@ -481,14 +486,74 @@ class DefaultConfigInternalTest {
         inOrder.verify(configInternal).refreshRemoteConfig()
     }
 
-    @Ignore
     @Test
+    @Ignore
     fun testChangeApplicationCode_shouldNotRefreshRemoteConfig_whenMobileEngageIsDisabled() {
-        configInternal.changeApplicationCode(null, CompletionListener { latch.countDown() })
+        configInternal.changeApplicationCode(null, CONTACT_FIELD_ID, CompletionListener { latch.countDown() })
         latch.await()
 
         verify(configInternal, times(0)).refreshRemoteConfig()
         verify(configInternal, times(1)).resetRemoteConfig()
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldNotCallSetContact_whenContactFieldIdHasBeenChanged() {
+        whenever(mockMobileEngageRequestContext.contactFieldId).thenReturn(1)
+        val latch = CountDownLatch(1)
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
+        latch.await()
+        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockMobileEngageRequestContext).contactFieldValueStorage
+        verify(mockMobileEngageRequestContext).applicationCode
+        verify(mockMobileEngageRequestContext).contactFieldId
+        verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
+        verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
+        verify(mockMobileEngageRequestContext).contactFieldId = CONTACT_FIELD_ID
+        verifyNoMoreInteractions(mockMobileEngageRequestContext)
+        verifyNoMoreInteractions(mockMobileEngageInternal)
+    }
+
+    @Test
+    fun testChangeApplicationCode_whenChangeContactFieldIdHasFailed_resetBackToOriginal() {
+        val mockPushInternal = mock(PushInternal::class.java).apply {
+            whenever(setPushToken(any(), any())).thenAnswer { invocation ->
+                (invocation.getArgument(1) as CompletionListener).onCompleted(Throwable())
+            }
+        }
+        configInternal = DefaultConfigInternal(mockMobileEngageRequestContext,
+                mockMobileEngageInternal,
+                mockPushInternal,
+                mockPushTokenProvider,
+                mockPredictRequestContext,
+                mockDeviceInfo,
+                mockRequestManager,
+                mockEmarsysRequestModelFactory,
+                mockConfigResponseMapper,
+                mockClientServiceStorage,
+                mockEventServiceStorage,
+                mockDeeplinkServiceStorage,
+                mockInboxServiceStorage,
+                mockMobileEngageV2ServiceStorage,
+                mockPredictServiceStorage)
+
+        whenever(mockMobileEngageRequestContext.contactFieldId).thenReturn(1)
+        val latch = CountDownLatch(1)
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
+        latch.await()
+        
+        verify(mockMobileEngageRequestContext).contactFieldId
+        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
+        verify(mockMobileEngageRequestContext).contactFieldId = CONTACT_FIELD_ID
+        verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
+        verify(mockMobileEngageRequestContext).contactFieldId = 1
+
     }
 
     @Test
@@ -522,8 +587,8 @@ class DefaultConfigInternalTest {
         inOrder.verify(mockPredictRequestContext).merchantId = MERCHANT_ID
     }
 
-    @Ignore
     @Test
+    @Ignore
     fun testChangeMerchantId_shouldRefreshRemoteConfigAfterChange() {
         configInternal.changeMerchantId(MERCHANT_ID)
 

@@ -45,11 +45,12 @@
     <string name="pull_down_to_refresh">Pull down to refresh</string>
 
     <!-- Config String Resources -->
-    <string name="current_application_code">ApplicationCode: <b>%1$s</b></string>
+    <string name="current_application_code">ApplicationCode: <b>%1$s</b> ContactFieldId: <b>%2$d</b></string>
     <string name="change_application_code_hint">an other Application Code</string>
     <string name="change_application_code_button">change</string>
     <string name="current_merchant_id">MerchantId: <b>%1$s</b></string>
     <string name="change_merchant_id_hint">an other Merchant ID</string>
     <string name="change_merchant_id_button">change</string>
+    <string name="change_contact_field_id_hint">an other contactFieldId (optional)</string>
 
 </resources>
