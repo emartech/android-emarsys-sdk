@@ -4,7 +4,7 @@ import org.json.JSONObject
 
 data class Trigger(val id: String,
                    val type: Enum<TriggerType>,
-                   val loiteringDelay: Int,
+                   val loiteringDelay: Int = 0,
                    val action: JSONObject)
 
 enum class TriggerType {

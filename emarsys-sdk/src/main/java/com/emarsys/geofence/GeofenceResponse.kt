@@ -1,3 +1,7 @@
 package com.emarsys.geofence
 
-data class GeofenceResponse(val geofenceGroups: List<GeofenceGroup>, val refreshRadiusRatio: Double? = 0.5)
+data class GeofenceResponse(val geofenceGroups: List<GeofenceGroup>, val refreshRadiusRatio: Double = DEFAULT_REFRESH_RADIUS_RATIO) {
+    companion object {
+        const val DEFAULT_REFRESH_RADIUS_RATIO = 0.5
+    }
+}

@@ -59,7 +59,6 @@ class GeofenceResponseMapperTest {
                               {
                                 "id": "triggerId1",
                                  "type":"ENTER",
-                                 "loiteringDelay":7,
                                  "action":{
                                     "id":"testActionId1",
                                     "title":"Custom event",
@@ -93,7 +92,7 @@ class GeofenceResponseMapperTest {
 
         whenever(mockResponseModel.body).thenReturn(responseBody)
 
-        val trigger1 = Trigger("triggerId1", TriggerType.ENTER, 7, JSONObject("""
+        val trigger1 = Trigger("triggerId1", TriggerType.ENTER, action= JSONObject("""
                 {
                     "id":"testActionId1",
                     "title":"Custom event",
