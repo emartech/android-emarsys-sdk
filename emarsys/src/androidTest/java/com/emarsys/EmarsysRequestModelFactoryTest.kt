@@ -69,4 +69,17 @@ class EmarsysRequestModelFactoryTest {
 
         result shouldBe expected
     }
+
+    @Test
+    fun testCreateFetchGeofenceRequest() {
+        val expected = RequestModel.Builder(mockMobileEngageRequestContext.timestampProvider, mockMobileEngageRequestContext.uuidProvider)
+                .method(RequestMethod.GET)
+                .url("https://ems-mobile-development.s3-eu-west-1.amazonaws.com/geofenceTest.json")
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(mockMobileEngageRequestContext))
+                .build()
+
+        val result = requestFactory.createFetchGeofenceRequest()
+
+        result shouldBe expected
+    }
 }

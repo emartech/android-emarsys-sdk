@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.fake
+package com.emarsys.testUtil
 
 import android.os.Handler
 import android.os.Looper
@@ -13,17 +13,16 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.worker.Worker
-import org.mockito.Mockito.mock
+import org.mockito.Mockito
 
-@Suppress("UNCHECKED_CAST")
 class FakeRequestManager(private val responseType: ResponseType, private val response: ResponseModel) : RequestManager(
         Handler(Looper.getMainLooper()),
-        mock(Repository::class.java) as Repository<RequestModel, SqlSpecification>,
-        mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>,
-        mock(Worker::class.java),
-        mock(RestClient::class.java),
-        mock(Registry::class.java) as Registry<RequestModel, CompletionListener>,
-        mock(CoreCompletionHandler::class.java)) {
+        Mockito.mock(Repository::class.java) as Repository<RequestModel, SqlSpecification>,
+        Mockito.mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>,
+        Mockito.mock(Worker::class.java),
+        Mockito.mock(RestClient::class.java),
+        Mockito.mock(Registry::class.java) as Registry<RequestModel, CompletionListener>,
+        Mockito.mock(CoreCompletionHandler::class.java)) {
 
     enum class ResponseType {
         SUCCESS,

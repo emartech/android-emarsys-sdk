@@ -70,6 +70,11 @@ import com.emarsys.core.util.predicate.ListSizeAtLeast;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.feature.InnerFeature;
+import com.emarsys.geofence.DefaultGeofenceInternal;
+import com.emarsys.geofence.FetchGeofencesAction;
+import com.emarsys.geofence.GeofenceInternal;
+import com.emarsys.geofence.GeofenceResponseMapper;
+import com.emarsys.geofence.LoggingGeofenceInternal;
 import com.emarsys.inapp.InAppApi;
 import com.emarsys.inapp.InAppProxy;
 import com.emarsys.inbox.InboxApi;
@@ -169,6 +174,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private ClientServiceInternal loggingClientServiceInternal;
     private EventServiceInternal eventServiceInternal;
     private EventServiceInternal loggingEventServiceInternal;
+    private GeofenceInternal geofenceInternal;
+    private GeofenceInternal loggingGeofenceInternal;
 
     private Handler coreSdkHandler;
     private InAppEventHandlerInternal inAppEventHandler;
@@ -624,6 +631,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
         mobileEngageInternal = new DefaultMobileEngageInternal(requestManager, requestModelFactory, requestContext);
         eventServiceInternal = new DefaultEventServiceInternal(requestManager, requestModelFactory);
+        geofenceInternal = new DefaultGeofenceInternal(emarsysRequestModelFactory, requestManager, new GeofenceResponseMapper());
         clientServiceInternal = new DefaultClientServiceInternal(requestManager, requestModelFactory);
         deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext, getDeepLinkServiceProvider());
 
@@ -642,6 +650,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         loggingPushInternal = new LoggingPushInternal(Emarsys.Push.class);
         loggingClientServiceInternal = new LoggingClientServiceInternal(Emarsys.class);
         loggingEventServiceInternal = new LoggingEventServiceInternal(Emarsys.class);
+        loggingGeofenceInternal = new LoggingGeofenceInternal(Emarsys.class);
         loggingInAppInternal = new LoggingInAppInternal(Emarsys.InApp.class);
         loggingInboxInternal = inboxInternalProvider.provideLoggingInboxInternal(Emarsys.Inbox.class);
 
@@ -700,7 +709,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private void initializeActivityLifecycleWatchdog() {
         ActivityLifecycleAction[] applicationStartActions = new ActivityLifecycleAction[]{
                 new DeviceInfoStartAction(getClientServiceInternal(), deviceInfoHashStorage, getDeviceInfo()),
-                new InAppStartAction(eventServiceInternal, contactTokenStorage)
+                new InAppStartAction(eventServiceInternal, contactTokenStorage),
+                new FetchGeofencesAction(geofenceInternal)
         };
 
         ActivityLifecycleAction[] activityCreatedActions = new ActivityLifecycleAction[]{

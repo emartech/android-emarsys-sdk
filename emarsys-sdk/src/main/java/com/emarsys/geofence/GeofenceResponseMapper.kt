@@ -1,6 +1,7 @@
 package com.emarsys.geofence
 
 import com.emarsys.core.Mapper
+import com.emarsys.core.Mockable
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
@@ -8,6 +9,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
+@Mockable
 class GeofenceResponseMapper : Mapper<ResponseModel, GeofenceResponse> {
 
     override fun map(responseModel: ResponseModel?): GeofenceResponse {
