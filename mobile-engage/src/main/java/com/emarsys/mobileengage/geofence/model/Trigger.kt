@@ -1,4 +1,4 @@
-package com.emarsys.geofence
+package com.emarsys.mobileengage.geofence.model
 
 import org.json.JSONObject
 

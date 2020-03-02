@@ -1,6 +1,8 @@
 package com.emarsys.geofence
 
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.mobileengage.geofence.GeofenceResponseMapper
+import com.emarsys.mobileengage.geofence.model.*
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
@@ -92,7 +94,7 @@ class GeofenceResponseMapperTest {
 
         whenever(mockResponseModel.body).thenReturn(responseBody)
 
-        val trigger1 = Trigger("triggerId1", TriggerType.ENTER, action= JSONObject("""
+        val trigger1 = Trigger("triggerId1", TriggerType.ENTER, action = JSONObject("""
                 {
                     "id":"testActionId1",
                     "title":"Custom event",

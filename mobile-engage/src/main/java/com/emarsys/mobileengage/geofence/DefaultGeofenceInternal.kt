@@ -1,11 +1,11 @@
-package com.emarsys.geofence
+package com.emarsys.mobileengage.geofence
 
-import com.emarsys.EmarsysRequestModelFactory
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 
-class DefaultGeofenceInternal(private val requestModelFactory: EmarsysRequestModelFactory,
+class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageRequestModelFactory,
                               private val requestManager: RequestManager,
                               private val geofenceResponseMapper: GeofenceResponseMapper) : GeofenceInternal {
 

@@ -1,4 +1,4 @@
-package com.emarsys.geofence
+package com.emarsys.mobileengage.geofence.model
 
 data class GeofenceGroup(val id: String,
                          val waitInterval: Double?,

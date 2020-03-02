@@ -1,4 +1,4 @@
-package com.emarsys.geofence
+package com.emarsys.mobileengage.geofence.model
 
 data class Geofence(val id: String,
                     val lat: Double,

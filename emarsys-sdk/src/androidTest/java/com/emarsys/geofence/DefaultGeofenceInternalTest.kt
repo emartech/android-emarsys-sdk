@@ -1,9 +1,12 @@
 package com.emarsys.geofence
 
-import com.emarsys.EmarsysRequestModelFactory
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.mobileengage.geofence.DefaultGeofenceInternal
+import com.emarsys.mobileengage.geofence.GeofenceInternal
+import com.emarsys.mobileengage.geofence.GeofenceResponseMapper
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.FakeRequestManager
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.any
@@ -23,7 +26,7 @@ class DefaultGeofenceInternalTest {
 
     private lateinit var mockFetchGeofenceRequestModel: RequestModel
     private lateinit var mockResponseModel: ResponseModel
-    private lateinit var mockRequestModelFactory: EmarsysRequestModelFactory
+    private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var fakeRequestManager: RequestManager
     private lateinit var mockRequestManager: RequestManager
     private lateinit var mockGeofenceResponseMapper: GeofenceResponseMapper

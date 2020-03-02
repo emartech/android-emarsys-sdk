@@ -104,36 +104,6 @@ class MobileEngageRequestModelFactoryTest {
         requestFactory = MobileEngageRequestModelFactory(mockRequestContext, clientServiceProvider, eventServiceProvider, mobileEngageV2Provider, inboxServiceProvider)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestContext_mustNotBeNull() {
-        MobileEngageRequestModelFactory(null, clientServiceProvider, eventServiceProvider, mobileEngageV2Provider, inboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_clientServiceProvider_mustNotBeNull() {
-        MobileEngageRequestModelFactory(mockRequestContext, null, eventServiceProvider, mobileEngageV2Provider, inboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_eventServiceProvider_mustNotBeNull() {
-        MobileEngageRequestModelFactory(mockRequestContext, clientServiceProvider, null, mobileEngageV2Provider, inboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_mobileEngageV2Provider_mustNotBeNull() {
-        MobileEngageRequestModelFactory(mockRequestContext, clientServiceProvider, eventServiceProvider, null, inboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_inboxServiceProvider_mustNotBeNull() {
-        MobileEngageRequestModelFactory(mockRequestContext, clientServiceProvider, eventServiceProvider, mobileEngageV2Provider, null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateSetPushTokenRequest_pushToken_mustNotBeNull() {
-        requestFactory.createSetPushTokenRequest(null)
-    }
-
     @Test
     fun testCreateSetPushTokenRequest() {
         val expected = RequestModel(
@@ -215,11 +185,6 @@ class MobileEngageRequestModelFactoryTest {
         result shouldBe expected
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateCustomEvent_eventName_mustNotBeNull() {
-        requestFactory.createCustomEventRequest(null, emptyMap())
-    }
-
     @Test
     fun testCreateCustomEventRequest() {
         val expected = RequestModel(
@@ -235,11 +200,6 @@ class MobileEngageRequestModelFactoryTest {
         val result = requestFactory.createCustomEventRequest("eventName", emptyMap())
 
         result shouldBe expected
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateInternalCustomEventRequest_eventName_mustNotBeNull() {
-        requestFactory.createInternalCustomEventRequest(null, emptyMap())
     }
 
     @Test
@@ -274,11 +234,6 @@ class MobileEngageRequestModelFactoryTest {
         val result = requestFactory.createRefreshContactTokenRequest()
 
         result shouldBe expected
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateTrackNotificationOpenRequest_sid_mustNotBeNull() {
-        requestFactory.createTrackNotificationOpenRequest(null)
     }
 
     @Test
@@ -328,6 +283,19 @@ class MobileEngageRequestModelFactoryTest {
         )
 
         val result = requestFactory.createFetchNotificationsRequest()
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateFetchGeofenceRequest() {
+        val expected = RequestModel.Builder(mockRequestContext.timestampProvider, mockRequestContext.uuidProvider)
+                .method(RequestMethod.GET)
+                .url("https://ems-mobile-development.s3-eu-west-1.amazonaws.com/geofenceTest.json")
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext))
+                .build()
+
+        val result = requestFactory.createFetchGeofenceRequest()
 
         result shouldBe expected
     }

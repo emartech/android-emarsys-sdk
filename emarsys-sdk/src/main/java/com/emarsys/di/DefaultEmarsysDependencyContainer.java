@@ -70,11 +70,6 @@ import com.emarsys.core.util.predicate.ListSizeAtLeast;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.feature.InnerFeature;
-import com.emarsys.geofence.DefaultGeofenceInternal;
-import com.emarsys.geofence.FetchGeofencesAction;
-import com.emarsys.geofence.GeofenceInternal;
-import com.emarsys.geofence.GeofenceResponseMapper;
-import com.emarsys.geofence.LoggingGeofenceInternal;
 import com.emarsys.inapp.InAppApi;
 import com.emarsys.inapp.InAppProxy;
 import com.emarsys.inbox.InboxApi;
@@ -99,6 +94,11 @@ import com.emarsys.mobileengage.event.DefaultEventServiceInternal;
 import com.emarsys.mobileengage.event.EventHandlerProvider;
 import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.mobileengage.event.LoggingEventServiceInternal;
+import com.emarsys.mobileengage.geofence.DefaultGeofenceInternal;
+import com.emarsys.mobileengage.geofence.FetchGeofencesAction;
+import com.emarsys.mobileengage.geofence.GeofenceInternal;
+import com.emarsys.mobileengage.geofence.GeofenceResponseMapper;
+import com.emarsys.mobileengage.geofence.LoggingGeofenceInternal;
 import com.emarsys.mobileengage.iam.DefaultInAppInternal;
 import com.emarsys.mobileengage.iam.InAppEventHandlerInternal;
 import com.emarsys.mobileengage.iam.InAppInternal;
@@ -631,7 +631,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
         mobileEngageInternal = new DefaultMobileEngageInternal(requestManager, requestModelFactory, requestContext);
         eventServiceInternal = new DefaultEventServiceInternal(requestManager, requestModelFactory);
-        geofenceInternal = new DefaultGeofenceInternal(emarsysRequestModelFactory, requestManager, new GeofenceResponseMapper());
+        geofenceInternal = new DefaultGeofenceInternal(requestModelFactory, requestManager, new GeofenceResponseMapper());
         clientServiceInternal = new DefaultClientServiceInternal(requestManager, requestModelFactory);
         deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext, getDeepLinkServiceProvider());
 

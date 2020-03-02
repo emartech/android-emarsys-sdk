@@ -16,12 +16,4 @@ class EmarsysRequestModelFactory(private val mobileEngageRequestContext: MobileE
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(mobileEngageRequestContext))
                 .build()
     }
-
-    fun createFetchGeofenceRequest(): RequestModel {
-        return RequestModel.Builder(mobileEngageRequestContext.timestampProvider, mobileEngageRequestContext.uuidProvider)
-                .method(RequestMethod.GET)
-                .url(Endpoint.FETCH_GEOFENCES_URL)
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(mobileEngageRequestContext))
-                .build()
-    }
 }

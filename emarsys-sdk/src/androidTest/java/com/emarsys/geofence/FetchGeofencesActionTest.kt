@@ -1,6 +1,8 @@
 package com.emarsys.geofence
 
 import android.app.Activity
+import com.emarsys.mobileengage.geofence.FetchGeofencesAction
+import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify

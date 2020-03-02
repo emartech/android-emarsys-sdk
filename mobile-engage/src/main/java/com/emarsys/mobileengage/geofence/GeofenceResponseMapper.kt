@@ -1,10 +1,11 @@
-package com.emarsys.geofence
+package com.emarsys.mobileengage.geofence
 
 import com.emarsys.core.Mapper
 import com.emarsys.core.Mockable
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
+import com.emarsys.mobileengage.geofence.model.*
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject

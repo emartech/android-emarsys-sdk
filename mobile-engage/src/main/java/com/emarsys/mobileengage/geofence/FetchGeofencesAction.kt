@@ -1,4 +1,4 @@
-package com.emarsys.geofence
+package com.emarsys.mobileengage.geofence
 
 import android.app.Activity
 import com.emarsys.core.activity.ActivityLifecycleAction
