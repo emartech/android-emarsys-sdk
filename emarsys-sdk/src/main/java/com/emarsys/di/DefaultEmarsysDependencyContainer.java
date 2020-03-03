@@ -4,6 +4,7 @@ import android.app.Application;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -41,6 +42,7 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider;
 import com.emarsys.core.feature.FeatureRegistry;
 import com.emarsys.core.notification.NotificationManagerHelper;
 import com.emarsys.core.notification.NotificationManagerProxy;
+import com.emarsys.core.permission.PermissionChecker;
 import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
@@ -631,10 +633,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
 
         InboxInternalProvider inboxInternalProvider = new InboxInternalProvider();
+        LocationManager locationManager = (LocationManager) application.getSystemService(Context.LOCATION_SERVICE);
 
         mobileEngageInternal = new DefaultMobileEngageInternal(requestManager, requestModelFactory, requestContext);
         eventServiceInternal = new DefaultEventServiceInternal(requestManager, requestModelFactory);
-        geofenceInternal = new DefaultGeofenceInternal(requestModelFactory, requestManager, new GeofenceResponseMapper());
+        geofenceInternal = new DefaultGeofenceInternal(requestModelFactory, requestManager, new GeofenceResponseMapper(), new PermissionChecker(application.getApplicationContext()), locationManager);
         clientServiceInternal = new DefaultClientServiceInternal(requestManager, requestModelFactory);
         deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext, getDeepLinkServiceProvider());
 
