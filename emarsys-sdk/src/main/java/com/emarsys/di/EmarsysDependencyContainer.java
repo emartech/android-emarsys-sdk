@@ -2,6 +2,7 @@ package com.emarsys.di;
 
 import com.emarsys.config.ConfigApi;
 import com.emarsys.config.ConfigInternal;
+import com.emarsys.geofence.GeofenceApi;
 import com.emarsys.inapp.InAppApi;
 import com.emarsys.inbox.InboxApi;
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
@@ -27,6 +28,8 @@ public interface EmarsysDependencyContainer extends MobileEngageDependencyContai
     PredictApi getLoggingPredict();
 
     ConfigApi getConfig();
+
+    GeofenceApi getGeofence();
 
     ConfigInternal getConfigInternal();
 }

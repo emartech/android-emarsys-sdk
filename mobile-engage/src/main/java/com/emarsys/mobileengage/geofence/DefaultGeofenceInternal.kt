@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.geofence
 
 import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
@@ -27,4 +28,6 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         })
     }
 
+    override fun enable(completionListener: CompletionListener?) {
+    }
 }

@@ -70,6 +70,8 @@ import com.emarsys.core.util.predicate.ListSizeAtLeast;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
 import com.emarsys.feature.InnerFeature;
+import com.emarsys.geofence.GeofenceApi;
+import com.emarsys.geofence.GeofenceProxy;
 import com.emarsys.inapp.InAppApi;
 import com.emarsys.inapp.InAppProxy;
 import com.emarsys.inbox.InboxApi;
@@ -223,6 +225,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private PredictApi predictApi;
     private PredictApi loggingPredictApi;
     private ConfigApi configApi;
+    private GeofenceApi geofenceApi;
     private PredictRequestContext predictRequestContext;
     private PushTokenProvider pushTokenProvider;
     private EmarsysRequestModelFactory emarsysRequestModelFactory;
@@ -680,6 +683,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         predictApi = new PredictProxy(runnerProxy, getPredictInternal());
         loggingPredictApi = new PredictProxy(runnerProxy, getLoggingPredictInternal());
         configApi = new ConfigProxy(runnerProxy, configInternal);
+        geofenceApi = new GeofenceProxy(geofenceInternal, runnerProxy);
 
         logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
 
@@ -801,6 +805,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     @Override
     public ConfigApi getConfig() {
         return configApi;
+    }
+
+    @Override
+    public GeofenceApi getGeofence() {
+        return geofenceApi;
     }
 
     @Override

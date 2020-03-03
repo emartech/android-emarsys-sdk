@@ -20,6 +20,7 @@ import com.emarsys.di.EmarsysDependencyContainer
 import com.emarsys.di.EmarsysDependencyInjection
 import com.emarsys.feature.InnerFeature.MOBILE_ENGAGE
 import com.emarsys.feature.InnerFeature.PREDICT
+import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.mobileengage.api.event.EventHandler
@@ -34,6 +35,10 @@ import com.emarsys.push.PushApi
 import org.json.JSONObject
 
 object Emarsys {
+
+    @JvmStatic
+    val geofence: GeofenceApi
+        get() = container.geofence
 
     @JvmStatic
     val config: ConfigApi

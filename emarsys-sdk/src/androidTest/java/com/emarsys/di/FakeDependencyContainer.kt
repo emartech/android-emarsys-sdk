@@ -20,6 +20,7 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
+import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.mobileengage.MobileEngageInternal
@@ -91,6 +92,7 @@ class FakeDependencyContainer(
         private val predict: PredictApi = mock(),
         private val loggingPredict: PredictApi = mock(),
         private val config: ConfigApi = mock(),
+        private val geofence: GeofenceApi = mock(),
         private val pushTokenProvider: PushTokenProvider = mock(),
         private val clientServiceProvider: ServiceEndpointProvider = mock(),
         private val eventServiceProvider: ServiceEndpointProvider = mock(),
@@ -307,6 +309,10 @@ class FakeDependencyContainer(
 
     override fun getConfig(): ConfigApi {
         return config
+    }
+
+    override fun getGeofence(): GeofenceApi {
+        return geofence
     }
 
     override fun getPushTokenProvider(): PushTokenProvider {
