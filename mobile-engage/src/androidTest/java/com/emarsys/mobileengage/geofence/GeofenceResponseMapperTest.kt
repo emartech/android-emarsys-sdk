@@ -1,7 +1,6 @@
-package com.emarsys.geofence
+package com.emarsys.mobileengage.geofence
 
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.mobileengage.geofence.GeofenceResponseMapper
 import com.emarsys.mobileengage.geofence.model.*
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.mock

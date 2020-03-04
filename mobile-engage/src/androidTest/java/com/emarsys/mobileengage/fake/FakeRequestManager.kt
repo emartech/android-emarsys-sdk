@@ -1,4 +1,4 @@
-package com.emarsys.testUtil
+package com.emarsys.mobileengage.fake
 
 import android.os.Handler
 import android.os.Looper
