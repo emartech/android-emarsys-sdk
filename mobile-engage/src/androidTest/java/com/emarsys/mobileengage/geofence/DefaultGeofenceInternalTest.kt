@@ -2,6 +2,7 @@ package com.emarsys.mobileengage.geofence
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Location
 import android.location.LocationManager
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.api.result.CompletionListener
@@ -10,6 +11,7 @@ import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.fake.FakeRequestManager
+import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.*
@@ -34,6 +36,8 @@ class DefaultGeofenceInternalTest {
     private lateinit var mockGeofenceResponseMapper: GeofenceResponseMapper
     private lateinit var geofenceInternal: GeofenceInternal
     private lateinit var mockPermissionChecker: PermissionChecker
+    private lateinit var mockGeofenceFilter: GeofenceFilter
+    private lateinit var mockLocation: Location
 
     @Before
     fun setUp() {
@@ -48,8 +52,10 @@ class DefaultGeofenceInternalTest {
         mockGeofenceResponseMapper = mock()
         mockPermissionChecker = mock()
         mockLocationManager = mock()
+        mockGeofenceFilter = mock()
+        mockLocation = mock()
 
-        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, mockRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager)
+        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, mockRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter)
     }
 
     @Test
@@ -61,7 +67,7 @@ class DefaultGeofenceInternalTest {
 
     @Test
     fun testFetchGeofences_callsMapOnResponseMapper_onSuccess() {
-        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager)
+        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter)
 
         geofenceInternal.fetchGeofences()
 
@@ -101,8 +107,38 @@ class DefaultGeofenceInternalTest {
     }
 
     @Test
+    fun testEnable_callsFindNearestGeofencesOnGeofenceFilter_whenPermissionGranted_andFetchingWasSuccessful() {
+        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter)
+
+        val geofenceResponse = GeofenceResponse(listOf(), 0.0)
+        whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
+        whenever(mockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)).thenReturn(mockLocation)
+        whenever(mockGeofenceResponseMapper.map(any())).thenReturn(geofenceResponse)
+        var completionListenerHasBeenCalled = false
+
+        geofenceInternal.fetchGeofences()
+
+        geofenceInternal.enable(CompletionListener {
+            it shouldBe null
+            completionListenerHasBeenCalled = true
+        })
+
+        completionListenerHasBeenCalled shouldBe true
+        verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+        verify(mockLocationManager).getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        verify(mockGeofenceFilter).findNearestGeofences(eq(mockLocation), any())
+    }
+
+    @Test
     fun testEnable_returnNoPermissionForLocationException_whenPermissionDenied() {
+        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter)
+
+        val geofenceResponse = GeofenceResponse(listOf(), 0.0)
+
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_DENIED)
+        whenever(mockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)).thenReturn(mockLocation)
+        whenever(mockGeofenceResponseMapper.map(any())).thenReturn(geofenceResponse)
+
         var completionListenerHasBeenCalled = false
         geofenceInternal.enable(CompletionListener {
             it is MissingPermissionException
@@ -113,5 +149,6 @@ class DefaultGeofenceInternalTest {
         completionListenerHasBeenCalled shouldBe true
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
         verifyZeroInteractions(mockLocationManager)
+        verifyZeroInteractions(mockGeofenceFilter)
     }
 }

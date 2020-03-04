@@ -17,7 +17,8 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                               private val requestManager: RequestManager,
                               private val geofenceResponseMapper: GeofenceResponseMapper,
                               private val permissionChecker: PermissionChecker,
-                              private val locationManager: LocationManager) : GeofenceInternal {
+                              private val locationManager: LocationManager,
+                              private val geofenceFiler: GeofenceFilter) : GeofenceInternal {
     private var geofences: GeofenceResponse? = null
     private var currentLocation: Location? = null
 
@@ -44,6 +45,9 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         if (locationPermissionGranted) {
             currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             completionListener?.onCompleted(null)
+            if (currentLocation != null && geofences != null) {
+                geofenceFiler.findNearestGeofences(currentLocation!!, geofences!!)
+            }
         } else {
             completionListener?.onCompleted(MissingPermissionException("Couldn't acquire permission for ACCESS_FINE_LOCATION"))
         }
