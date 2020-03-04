@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager

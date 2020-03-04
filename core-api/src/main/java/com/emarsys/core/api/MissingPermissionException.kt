@@ -1,3 +1,3 @@
-package com.emarsys.mobileengage.geofence
+package com.emarsys.core.api
 
 class MissingPermissionException(message: String) : Exception(message)
