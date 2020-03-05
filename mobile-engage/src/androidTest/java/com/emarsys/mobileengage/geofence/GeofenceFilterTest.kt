@@ -20,11 +20,11 @@ class GeofenceFilterTest {
         }
         val trigger = Trigger(id = "triggerId", type = TriggerType.ENTER, action = JSONObject())
         val allGeofences = listOf(
-                Geofence("geofenceId1", 47.493160, 19.058355, 10, null, listOf(trigger)),
-                Geofence("geofenceId2", 47.493812, 19.058537, 10, null, listOf(trigger)),
-                Geofence("geofenceId3", 47.493827, 19.060715, 10, null, listOf(trigger)),
-                Geofence("geofenceId4", 47.489680, 19.061230, 350, null, listOf(trigger)),
-                Geofence("geofenceId5", 47.492292, 19.056440, 10, null, listOf(trigger))
+                Geofence("geofenceId1", 47.493160, 19.058355, 10.0, null, listOf(trigger)),
+                Geofence("geofenceId2", 47.493812, 19.058537, 10.0, null, listOf(trigger)),
+                Geofence("geofenceId3", 47.493827, 19.060715, 10.0, null, listOf(trigger)),
+                Geofence("geofenceId4", 47.489680, 19.061230, 350.0, null, listOf(trigger)),
+                Geofence("geofenceId5", 47.492292, 19.056440, 10.0, null, listOf(trigger))
         )
     }
 
@@ -43,12 +43,12 @@ class GeofenceFilterTest {
     @Test
     fun testFindNearestGeofences_shouldReturnListOfGeofences_whenMoreThanOneGroupIsTheGeofenceResponse() {
         val expected = listOf(
-                Geofence("geofenceId1", 47.493160, 19.058355, 10, null, listOf(trigger)),
-                Geofence("geofenceId2", 47.493812, 19.058537, 10, null, listOf(trigger)),
-                Geofence("geofenceId4", 47.489680, 19.061230, 350, null, listOf(trigger)),
-                Geofence("geofenceId5", 47.492292, 19.056440, 10, null, listOf(trigger)),
-                Geofence("geofenceId6", 47.492292, 19.056440, 10, null, listOf(trigger)))
-        val geofenceResponse = GeofenceResponse(listOf(GeofenceGroup("group1", null, allGeofences), GeofenceGroup("group2", null, listOf(Geofence("geofenceId6", 47.492292, 19.056440, 10, null, listOf(trigger))))))
+                Geofence("geofenceId1", 47.493160, 19.058355, 10.0, null, listOf(trigger)),
+                Geofence("geofenceId2", 47.493812, 19.058537, 10.0, null, listOf(trigger)),
+                Geofence("geofenceId4", 47.489680, 19.061230, 350.0, null, listOf(trigger)),
+                Geofence("geofenceId5", 47.492292, 19.056440, 10.0, null, listOf(trigger)),
+                Geofence("geofenceId6", 47.492292, 19.056440, 10.0, null, listOf(trigger)))
+        val geofenceResponse = GeofenceResponse(listOf(GeofenceGroup("group1", null, allGeofences), GeofenceGroup("group2", null, listOf(Geofence("geofenceId6", 47.492292, 19.056440, 10.0, null, listOf(trigger))))))
 
         val result = geofenceFilter.findNearestGeofences(currentLocation, geofenceResponse)
 
@@ -60,9 +60,9 @@ class GeofenceFilterTest {
         geofenceFilter = GeofenceFilter(3)
 
         val expected = listOf(
-                Geofence("geofenceId1", 47.493160, 19.058355, 10, null, listOf(trigger)),
-                Geofence("geofenceId2", 47.493812, 19.058537, 10, null, listOf(trigger)),
-                Geofence("geofenceId4", 47.489680, 19.061230, 350, null, listOf(trigger)))
+                Geofence("geofenceId1", 47.493160, 19.058355, 10.0, null, listOf(trigger)),
+                Geofence("geofenceId2", 47.493812, 19.058537, 10.0, null, listOf(trigger)),
+                Geofence("geofenceId4", 47.489680, 19.061230, 350.0, null, listOf(trigger)))
 
         val geofenceResponse = GeofenceResponse(listOf(GeofenceGroup("group1", null, allGeofences)))
         val result = geofenceFilter.findNearestGeofences(currentLocation, geofenceResponse)

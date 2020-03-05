@@ -60,7 +60,7 @@ class GeofenceResponseMapper : Mapper<ResponseModel, GeofenceResponse> {
             val geofenceId = geofenceJson.getString("id")
             val lat = geofenceJson.getDouble("lat")
             val lon = geofenceJson.getDouble("lon")
-            val r = geofenceJson.getInt("r")
+            val r = geofenceJson.getDouble("r")
             val waitInterval = geofenceJson.optDouble("waitInterval", 0.0)
 
             val triggerJsonArray = geofenceJson.getJSONArray("triggers")

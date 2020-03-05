@@ -115,7 +115,7 @@ class GeofenceResponseMapperTest {
                         }
                  }"""))
 
-        val geoFence = Geofence("geofenceId1", 34.5, 12.789, 5, 30.0, listOf(trigger1, trigger2))
+        val geoFence = Geofence("geofenceId1", 34.5, 12.789, 5.0, 30.0, listOf(trigger1, trigger2))
 
         val expected = GeofenceResponse(listOf(GeofenceGroup("geoGroupId1", 20.0, listOf(geoFence))), 0.3)
 

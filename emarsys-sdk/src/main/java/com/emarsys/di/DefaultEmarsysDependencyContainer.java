@@ -100,6 +100,7 @@ import com.emarsys.mobileengage.event.EventServiceInternal;
 import com.emarsys.mobileengage.event.LoggingEventServiceInternal;
 import com.emarsys.mobileengage.geofence.DefaultGeofenceInternal;
 import com.emarsys.mobileengage.geofence.FetchGeofencesAction;
+import com.emarsys.mobileengage.geofence.GeofenceFilter;
 import com.emarsys.mobileengage.geofence.GeofenceInternal;
 import com.emarsys.mobileengage.geofence.GeofenceResponseMapper;
 import com.emarsys.mobileengage.geofence.LoggingGeofenceInternal;
@@ -160,6 +161,7 @@ import java.util.List;
 public class DefaultEmarsysDependencyContainer implements EmarsysDependencyContainer {
 
     private static final String EMARSYS_SHARED_PREFERENCES_NAME = "emarsys_shared_preferences";
+    private static final int GEOFENCE_LIMIT = 100;
 
     private MobileEngageInternal mobileEngageInternal;
     private MobileEngageInternal loggingMobileEngageInternal;
@@ -634,10 +636,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
         InboxInternalProvider inboxInternalProvider = new InboxInternalProvider();
         LocationManager locationManager = (LocationManager) application.getSystemService(Context.LOCATION_SERVICE);
+        GeofenceFilter geofenceFilter = new GeofenceFilter(GEOFENCE_LIMIT);
 
         mobileEngageInternal = new DefaultMobileEngageInternal(requestManager, requestModelFactory, requestContext);
         eventServiceInternal = new DefaultEventServiceInternal(requestManager, requestModelFactory);
-        geofenceInternal = new DefaultGeofenceInternal(requestModelFactory, requestManager, new GeofenceResponseMapper(), new PermissionChecker(application.getApplicationContext()), locationManager);
+        geofenceInternal = new DefaultGeofenceInternal(requestModelFactory, requestManager, new GeofenceResponseMapper(), new PermissionChecker(application.getApplicationContext()), locationManager, geofenceFilter);
         clientServiceInternal = new DefaultClientServiceInternal(requestManager, requestModelFactory);
         deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext, getDeepLinkServiceProvider());
 

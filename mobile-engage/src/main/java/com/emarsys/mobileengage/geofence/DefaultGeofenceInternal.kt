@@ -5,21 +5,27 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.Mockable
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.mobileengage.geofence.model.Geofence
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
+import com.emarsys.mobileengage.geofence.model.Trigger
+import com.emarsys.mobileengage.geofence.model.TriggerType
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
+import org.json.JSONObject
 
+@Mockable
 class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageRequestModelFactory,
                               private val requestManager: RequestManager,
                               private val geofenceResponseMapper: GeofenceResponseMapper,
                               private val permissionChecker: PermissionChecker,
-                              private val locationManager: LocationManager,
+                              private val locationManager: LocationManager?,
                               private val geofenceFiler: GeofenceFilter) : GeofenceInternal {
-    private var geofences: GeofenceResponse? = null
+    private var geofenceResponse: GeofenceResponse? = null
     private var currentLocation: Location? = null
 
     override fun fetchGeofences() {
@@ -27,7 +33,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String?, responseModel: ResponseModel?) {
                 if (responseModel != null) {
-                    geofences = geofenceResponseMapper.map(responseModel)
+                    geofenceResponse = geofenceResponseMapper.map(responseModel)
                 }
             }
 
@@ -43,13 +49,27 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     override fun enable(completionListener: CompletionListener?) {
         val locationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         if (locationPermissionGranted) {
-            currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            currentLocation = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             completionListener?.onCompleted(null)
-            if (currentLocation != null && geofences != null) {
-                geofenceFiler.findNearestGeofences(currentLocation!!, geofences!!)
+            if (currentLocation != null && geofenceResponse != null) {
+                val nearestGeofences = geofenceFiler.findNearestGeofences(currentLocation!!, geofenceResponse!!).toMutableList()
+                nearestGeofences.add(createRefreshAreaGeofence(nearestGeofences))
+                registerGeofences(nearestGeofences)
             }
         } else {
             completionListener?.onCompleted(MissingPermissionException("Couldn't acquire permission for ACCESS_FINE_LOCATION"))
         }
+    }
+
+    private fun createRefreshAreaGeofence(nearestGeofences: List<Geofence>): Geofence {
+        val furthestGeofence = nearestGeofences.last()
+        val result = floatArrayOf(1F)
+        Location.distanceBetween(currentLocation!!.latitude, currentLocation!!.longitude, furthestGeofence.lat, furthestGeofence.lon, result)
+        val radius = (result[0] - furthestGeofence.radius) * geofenceResponse!!.refreshRadiusRatio
+        return Geofence("refreshArea", currentLocation!!.latitude, currentLocation!!.longitude, radius, null, listOf<Trigger>(Trigger("refreshAreaTriggerId", TriggerType.EXIT, 0, JSONObject())))
+    }
+
+    override fun registerGeofences(geofences: List<Geofence>) {
+
     }
 }
