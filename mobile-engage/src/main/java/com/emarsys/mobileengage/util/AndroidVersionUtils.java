@@ -19,4 +19,8 @@ public class AndroidVersionUtils {
     public static boolean isBelowMarshmallow() {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
     }
+
+    public static boolean isBelowQ() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.Q;
+    }
 }

@@ -16,6 +16,7 @@ import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 import com.emarsys.mobileengage.geofence.model.Trigger
 import com.emarsys.mobileengage.geofence.model.TriggerType
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
+import com.emarsys.mobileengage.util.AndroidVersionUtils
 import org.json.JSONObject
 
 @Mockable
@@ -47,8 +48,12 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     }
 
     override fun enable(completionListener: CompletionListener?) {
-        val locationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        if (locationPermissionGranted) {
+        val fineLocationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+        val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ()) true else {
+            permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+        }
+        if (fineLocationPermissionGranted && backgroundLocationPermissionGranted) {
             currentLocation = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             completionListener?.onCompleted(null)
             if (currentLocation != null && geofenceResponse != null) {
@@ -57,7 +62,14 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                 registerGeofences(nearestGeofences)
             }
         } else {
-            completionListener?.onCompleted(MissingPermissionException("Couldn't acquire permission for ACCESS_FINE_LOCATION"))
+            val permissionName = if (!fineLocationPermissionGranted && backgroundLocationPermissionGranted) {
+                "ACCESS_FINE_LOCATION"
+            } else if (!backgroundLocationPermissionGranted && fineLocationPermissionGranted) {
+                "ACCESS_BACKGROUND_LOCATION"
+            } else {
+                "ACCESS_FINE_LOCATION, ACCESS_BACKGROUND_LOCATION"
+            }
+            completionListener?.onCompleted(MissingPermissionException("Couldn't acquire permission for $permissionName"))
         }
     }
 
