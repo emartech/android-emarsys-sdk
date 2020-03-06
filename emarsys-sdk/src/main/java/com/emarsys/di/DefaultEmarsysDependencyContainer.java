@@ -150,6 +150,7 @@ import com.emarsys.predict.shard.PredictShardListMerger;
 import com.emarsys.predict.storage.PredictStorageKey;
 import com.emarsys.push.PushApi;
 import com.emarsys.push.PushProxy;
+import com.google.android.gms.location.GeofencingClient;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONObject;
@@ -637,10 +638,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         InboxInternalProvider inboxInternalProvider = new InboxInternalProvider();
         LocationManager locationManager = (LocationManager) application.getSystemService(Context.LOCATION_SERVICE);
         GeofenceFilter geofenceFilter = new GeofenceFilter(GEOFENCE_LIMIT);
+        GeofencingClient geofencingClient = new GeofencingClient(application);
 
         mobileEngageInternal = new DefaultMobileEngageInternal(requestManager, requestModelFactory, requestContext);
         eventServiceInternal = new DefaultEventServiceInternal(requestManager, requestModelFactory);
-        geofenceInternal = new DefaultGeofenceInternal(requestModelFactory, requestManager, new GeofenceResponseMapper(), new PermissionChecker(application.getApplicationContext()), locationManager, geofenceFilter);
+        geofenceInternal = new DefaultGeofenceInternal(requestModelFactory, requestManager, new GeofenceResponseMapper(), new PermissionChecker(application.getApplicationContext()), locationManager, geofenceFilter, geofencingClient, application);
         clientServiceInternal = new DefaultClientServiceInternal(requestManager, requestModelFactory);
         deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext, getDeepLinkServiceProvider());
 

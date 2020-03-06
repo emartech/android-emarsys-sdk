@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.fake
 import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.Mockable
 import com.emarsys.core.Registry
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.database.repository.Repository
@@ -15,6 +16,7 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.worker.Worker
 import org.mockito.Mockito
 
+@Mockable
 class FakeRequestManager(private val responseType: ResponseType, private val response: ResponseModel) : RequestManager(
         Handler(Looper.getMainLooper()),
         Mockito.mock(Repository::class.java) as Repository<RequestModel, SqlSpecification>,
