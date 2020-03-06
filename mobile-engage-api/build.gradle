@@ -3,6 +3,7 @@ dependencies {
 
     api Libs.firebase_messaging, { exclude group: 'androidx' }
     api Libs.espresso_idling_resources, { exclude group: 'androidx' }
+    api Libs.location_services
 
     androidTestImplementation project(':testUtils')
 }

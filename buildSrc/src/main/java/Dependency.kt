@@ -1,7 +1,7 @@
 object Versions {
     const val kotlin_version = "1.3.61"
     const val kotlin_test_version = "3.1.11"
-    const val mockito_version = "3.0.0"
+    const val mockito_version = "2.25.0"
     const val espresso_version = "3.2.0"
     const val firebase_core_version = "17.2.1"
     const val firebase_messaging_version = "20.1.0"
@@ -13,6 +13,7 @@ object Versions {
     const val multiDexVersion = "2.0.0"
     const val androidJunit4 = "1.1.1"
     const val kotlinMockito = "2.2.0"
+    const val location_services_version = "17.0.0"
 }
 
 object Libs {
@@ -22,6 +23,7 @@ object Libs {
     const val firebase_messaging = "com.google.firebase:firebase-messaging:${Versions.firebase_messaging_version}"
     const val espresso_idling_resources = "androidx.test.espresso:espresso-idling-resource:${Versions.espresso_version}"
     const val kotlin = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin_version}"
+    const val location_services = "com.google.android.gms:play-services-location:${Versions.location_services_version}"
 }
 
 object TestLibs {
