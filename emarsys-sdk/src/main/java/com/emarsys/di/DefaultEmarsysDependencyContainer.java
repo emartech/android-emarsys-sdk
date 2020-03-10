@@ -900,6 +900,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     }
 
     @Override
+    public CurrentActivityProvider getCurrentActivityProvider() {
+        return currentActivityProvider;
+    }
+
+    @Override
     public Storage<String> getPredictServiceStorage() {
         return predictServiceUrlStorage;
     }

@@ -1,9 +1,11 @@
 package com.emarsys.mobileengage.notification
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.event.EventHandlerProvider
@@ -14,6 +16,7 @@ import com.emarsys.mobileengage.service.IntentUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.data.forall
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -45,6 +48,7 @@ class NotificationCommandFactoryTest {
     private lateinit var mockNotificationEventHandlerProvider: EventHandlerProvider
     private lateinit var mockActionCommandFactory: ActionCommandFactory
     private lateinit var mockEventHandler: EventHandler
+    private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
 
     @Before
     fun setUp() {
@@ -57,11 +61,15 @@ class NotificationCommandFactoryTest {
             whenever(eventHandler).thenReturn(mockEventHandler)
         }
         mockActionCommandFactory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationEventHandlerProvider)
+        mockCurrentActivityProvider = mock(CurrentActivityProvider::class.java).apply {
+            whenever(get()).thenReturn(null)
+        }
         mockDependencyContainer = mock(MobileEngageDependencyContainer::class.java).apply {
             whenever(eventServiceInternal).thenReturn(mockEventServiceInternal)
             whenever(pushInternal).thenReturn(mockPushInternal)
             whenever(notificationEventHandlerProvider).thenReturn(mockNotificationEventHandlerProvider)
             whenever(notificationActionCommandFactory).thenReturn(mockActionCommandFactory)
+            whenever(currentActivityProvider).thenReturn(mockCurrentActivityProvider)
         }
 
         factory = NotificationCommandFactory(context, mockDependencyContainer)
@@ -460,6 +468,16 @@ class NotificationCommandFactoryTest {
         val compositeCommands = factory.createNotificationCommand(intent) as CompositeCommand
 
         compositeCommands.commands[2]::class.java shouldBe LaunchApplicationCommand::class.java
+    }
+
+    @Test
+    fun testCreateNotificationCommand_shouldNotCreateLaunchCommand_whenInForeground() {
+        val mockActivity: Activity = mock()
+        whenever(mockCurrentActivityProvider.get()).thenReturn(mockActivity)
+        val intent = createOpenExternalLinkIntent()
+        val compositeCommands = factory.createNotificationCommand(intent) as CompositeCommand
+
+        compositeCommands.commands.forEach { it::class.java shouldNotBe LaunchApplicationCommand::class.java }
     }
 
     @Suppress("UNCHECKED_CAST")

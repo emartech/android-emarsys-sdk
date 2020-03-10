@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.di;
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.di.DependencyContainer;
 import com.emarsys.core.endpoint.ServiceEndpointProvider;
+import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.storage.Storage;
 import com.emarsys.mobileengage.MobileEngageInternal;
@@ -99,4 +100,6 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
     EventHandlerProvider getNotificationEventHandlerProvider();
 
     EventHandlerProvider getSilentMessageEventHandlerProvider();
+
+    CurrentActivityProvider getCurrentActivityProvider();
 }

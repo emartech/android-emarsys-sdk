@@ -54,7 +54,9 @@ public class NotificationCommandFactory {
         List<Runnable> commands = createMandatoryCommands(intent);
 
         if (action == null || !action.optString("type").equals("Dismiss")) {
-            commands.add(new LaunchApplicationCommand(intent, context));
+            if (dependencyContainer.getCurrentActivityProvider().get() == null) {
+                commands.add(new LaunchApplicationCommand(intent, context));
+            }
         }
 
         Runnable inappCommand = handleInapp(intent, bundle);

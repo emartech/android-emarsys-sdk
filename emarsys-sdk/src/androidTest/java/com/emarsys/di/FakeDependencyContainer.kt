@@ -12,6 +12,7 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.endpoint.ServiceEndpointProvider
+import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RestClient
@@ -111,7 +112,8 @@ class FakeDependencyContainer(
         private val actionCommandFactory: ActionCommandFactory = mock(),
         private val silentMessageActionCommandFactory: ActionCommandFactory = mock(),
         private val notificationEventHandlerProvider: EventHandlerProvider = mock(),
-        private val silentMessageEventHandlerProvider: EventHandlerProvider = mock()
+        private val silentMessageEventHandlerProvider: EventHandlerProvider = mock(),
+        private val currentActivityProvider: CurrentActivityProvider = mock()
 ) : EmarsysDependencyContainer {
 
     override fun getLoggingClientServiceInternal(): ClientServiceInternal {
@@ -156,6 +158,10 @@ class FakeDependencyContainer(
 
     override fun getCurrentActivityWatchdog(): CurrentActivityWatchdog {
         return currentActivityWatchdog
+    }
+
+    override fun getCurrentActivityProvider(): CurrentActivityProvider {
+        return currentActivityProvider
     }
 
     override fun getCoreSQLiteDatabase(): CoreSQLiteDatabase {
