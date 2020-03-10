@@ -53,6 +53,10 @@ public class NotificationCommandFactory {
         JSONObject action = getAction(bundle, actionId);
         List<Runnable> commands = createMandatoryCommands(intent);
 
+        if (action == null || !action.optString("type").equals("Dismiss")) {
+            commands.add(new LaunchApplicationCommand(intent, context));
+        }
+
         Runnable inappCommand = handleInapp(intent, bundle);
         if (inappCommand != null) {
             commands.add(inappCommand);
@@ -66,10 +70,6 @@ public class NotificationCommandFactory {
         Runnable actionCommand = handleAction(action);
         if (actionCommand != null) {
             commands.add(actionCommand);
-        }
-
-        if (action == null || !action.optString("type").equals("Dismiss")) {
-            commands.add(new LaunchApplicationCommand(intent, context));
         }
 
         return new CompositeCommand(commands);

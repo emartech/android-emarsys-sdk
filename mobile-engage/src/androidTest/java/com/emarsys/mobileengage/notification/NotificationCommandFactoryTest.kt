@@ -454,6 +454,14 @@ class NotificationCommandFactoryTest {
         command.eventAttributes shouldBe null
     }
 
+    @Test
+    fun testCreateNotificationCommand_launchCommandShouldBeThirdCommand() {
+        val intent = createOpenExternalLinkIntent()
+        val compositeCommands = factory.createNotificationCommand(intent) as CompositeCommand
+
+        compositeCommands.commands[2]::class.java shouldBe LaunchApplicationCommand::class.java
+    }
+
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : Runnable> extractCommandFromComposite(intent: Intent) =
             (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<T>().let { list ->
