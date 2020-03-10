@@ -6,40 +6,19 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
-import com.google.firebase.iid.FirebaseInstanceId
-import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import io.kotlintest.shouldBe
-import org.junit.*
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TestRule
-
+import org.mockito.Mockito
 
 class HardwareIdProviderTest {
 
     companion object {
         private const val HARDWARE_ID = "hw_value"
-        private const val FIREBASE_HARDWARE_ID = "firebase_hw_value"
-
-        @BeforeClass
-        @JvmStatic
-        fun beforeAll() {
-            val options: FirebaseOptions = FirebaseOptions.Builder()
-                    .setApplicationId("com.emarsys.sdk")
-                    .build()
-
-            FirebaseApp.initializeApp(InstrumentationRegistry.getTargetContext(), options)
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun afterAll() {
-            FirebaseApp.clearInstancesForTest()
-        }
-
     }
 
     @Rule
@@ -49,17 +28,14 @@ class HardwareIdProviderTest {
     private lateinit var context: Context
     private lateinit var mockStorage: Storage<String>
     private lateinit var hardwareIdProvider: HardwareIdProvider
-    private lateinit var mockFirebaseInstanceId: FirebaseInstanceId
 
     @Before
     fun init() {
         context = InstrumentationRegistry.getTargetContext()
         mockStorage = mock()
 
-        mockFirebaseInstanceId = mock {
-            on { id } doReturn FIREBASE_HARDWARE_ID
-        }
-        hardwareIdProvider = HardwareIdProvider(context, mockFirebaseInstanceId, mockStorage)
+
+        hardwareIdProvider = HardwareIdProvider(context, mockStorage)
     }
 
     @Test
@@ -73,30 +49,38 @@ class HardwareIdProviderTest {
     }
 
     @Test
-    fun testProvideHardwareId_shouldGetHardwareId_fromFirebase_ifNotExists() {
-        val result = hardwareIdProvider.provideHardwareId()
-        result shouldBe FIREBASE_HARDWARE_ID
-    }
-
-    @Test
     fun testProvideHardwareId_shouldStore_whenEmpty() {
+        val expectedHardwareId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
         hardwareIdProvider.provideHardwareId()
 
-        verify(mockStorage).set(FIREBASE_HARDWARE_ID)
+        verify(mockStorage).set(expectedHardwareId)
     }
 
     @Test
-    fun testProvideHardwareId_shouldFallbackToLegacySolution_whenFirebaseInstanceId_isNotAvailable() {
-        val mockContext = mock<Context>()
+    fun testProvideHardwareId_shouldGetHardwareId_fromContext_ifNotFoundInStorage() {
         val expectedHardwareId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-        mockFirebaseInstanceId = mock {
-            on { id } doReturn null
-        }
-        hardwareIdProvider = HardwareIdProvider(context, mockFirebaseInstanceId, mockStorage)
 
-        val result = hardwareIdProvider.provideHardwareId()
+        whenever(mockStorage.get()).thenReturn(null)
 
-        verifyZeroInteractions(mockContext)
-        result shouldBe expectedHardwareId
+        val actualHardwareId = hardwareIdProvider.provideHardwareId()
+
+        verify(mockStorage).get()
+        actualHardwareId shouldBe expectedHardwareId
     }
+
+    @Test
+    fun testProvideHardwareId_shouldSetHardwareId_inStorage_ifMissing() {
+        val expectedHardwareId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+
+        whenever(mockStorage.get()).thenReturn(null)
+
+        hardwareIdProvider.provideHardwareId()
+
+        Mockito.inOrder(mockStorage).apply {
+            verify(mockStorage).get()
+            verify(mockStorage).set(expectedHardwareId)
+        }
+
+    }
+
 }

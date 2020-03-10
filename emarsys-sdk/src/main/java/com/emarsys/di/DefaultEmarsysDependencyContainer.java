@@ -151,7 +151,6 @@ import com.emarsys.predict.storage.PredictStorageKey;
 import com.emarsys.push.PushApi;
 import com.emarsys.push.PushProxy;
 import com.google.android.gms.location.GeofencingClient;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONObject;
 
@@ -515,7 +514,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         responseHandlersProcessor = new ResponseHandlersProcessor(new ArrayList<AbstractResponseHandler>());
         Storage<String> hardwareIdStorage = new StringStorage(CoreStorageKey.HARDWARE_ID, prefs);
         LanguageProvider languageProvider = new LanguageProvider();
-        HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, FirebaseInstanceId.getInstance(), hardwareIdStorage);
+        HardwareIdProvider hardwareIdProvider = new HardwareIdProvider(application, hardwareIdStorage);
         VersionProvider versionProvider = new VersionProvider();
 
         NotificationManager notificationManager = (NotificationManager) application.getSystemService(Context.NOTIFICATION_SERVICE);
