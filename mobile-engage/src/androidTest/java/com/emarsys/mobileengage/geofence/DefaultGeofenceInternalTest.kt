@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.permission.PermissionChecker
@@ -98,8 +99,10 @@ class DefaultGeofenceInternalTest {
     fun testEnable_checksForLocationPermissions_throughPermissionChecker() {
         geofenceInternal.enable(null)
 
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
     }
 
     @Test
@@ -109,8 +112,10 @@ class DefaultGeofenceInternalTest {
 
         geofenceInternal.enable(null)
 
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         verify(mockLocationManager).getLastKnownLocation(LocationManager.GPS_PROVIDER)
     }
 
@@ -126,8 +131,10 @@ class DefaultGeofenceInternalTest {
         })
 
         completionListenerHasBeenCalled shouldBe true
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         verify(mockLocationManager).getLastKnownLocation(LocationManager.GPS_PROVIDER)
     }
 
@@ -148,8 +155,10 @@ class DefaultGeofenceInternalTest {
         })
 
         completionListenerHasBeenCalled shouldBe true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         verifyZeroInteractions(mockLocationManager)
         verifyZeroInteractions(mockGeofenceFilter)
     }
@@ -166,15 +175,19 @@ class DefaultGeofenceInternalTest {
         var completionListenerHasBeenCalled = false
         geofenceInternal.enable(CompletionListener {
             it is MissingPermissionException
-            it?.message shouldBe "Couldn't acquire permission for ACCESS_BACKGROUND_LOCATION"
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                it?.message shouldBe "Couldn't acquire permission for ACCESS_BACKGROUND_LOCATION"
+            }
             completionListenerHasBeenCalled = true
         })
 
         completionListenerHasBeenCalled shouldBe true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            verifyZeroInteractions(mockLocationManager)
+            verifyZeroInteractions(mockGeofenceFilter)
+        }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-        verifyZeroInteractions(mockLocationManager)
-        verifyZeroInteractions(mockGeofenceFilter)
     }
 
     @Test
@@ -189,13 +202,19 @@ class DefaultGeofenceInternalTest {
         var completionListenerHasBeenCalled = false
         geofenceInternal.enable(CompletionListener {
             it is MissingPermissionException
-            it?.message shouldBe "Couldn't acquire permission for ACCESS_FINE_LOCATION, ACCESS_BACKGROUND_LOCATION"
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                it?.message shouldBe "Couldn't acquire permission for ACCESS_FINE_LOCATION, ACCESS_BACKGROUND_LOCATION"
+            } else {
+                it?.message shouldBe "Couldn't acquire permission for ACCESS_FINE_LOCATION"
+            }
             completionListenerHasBeenCalled = true
         })
 
         completionListenerHasBeenCalled shouldBe true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         verifyZeroInteractions(mockLocationManager)
         verifyZeroInteractions(mockGeofenceFilter)
     }
@@ -216,8 +235,10 @@ class DefaultGeofenceInternalTest {
         })
 
         completionListenerHasBeenCalled shouldBe true
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         verifyZeroInteractions(mockLocationManager)
         verifyZeroInteractions(mockGeofenceFilter)
     }
