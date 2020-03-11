@@ -1,8 +1,6 @@
-package com.emarsys.di
+package com.emarsys.mobileengage.fake
 
 import android.os.Handler
-import com.emarsys.config.ConfigApi
-import com.emarsys.config.ConfigInternal
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.RunnerProxy
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -21,14 +19,12 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
-import com.emarsys.geofence.GeofenceApi
-import com.emarsys.inapp.InAppApi
-import com.emarsys.inbox.InboxApi
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.geofence.GeofenceInternal
@@ -39,13 +35,9 @@ import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
-import com.emarsys.predict.PredictApi
-import com.emarsys.predict.PredictInternal
-import com.emarsys.push.PushApi
 import com.nhaarman.mockitokotlin2.mock
 
-@Suppress("UNCHECKED_CAST")
-class FakeDependencyContainer(
+class FakeMobileEngageDependencyContainer(
         private val coreSdkHandler: Handler = mock(),
         private val activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(),
         private val currentActivityWatchdog: CurrentActivityWatchdog = mock(),
@@ -69,8 +61,6 @@ class FakeDependencyContainer(
         private val loggingEventServiceInternal: EventServiceInternal = mock(),
         private val clientServiceInternal: ClientServiceInternal = mock(),
         private val loggingClientServiceInternal: ClientServiceInternal = mock(),
-        private val predictInternal: PredictInternal = mock(),
-        private val loggingPredictInternal: PredictInternal = mock(),
         private val refreshTokenInternal: RefreshTokenInternal = mock(),
         private val completionHandler: DefaultCoreCompletionHandler = mock(),
         private val requestContext: MobileEngageRequestContext = mock(),
@@ -85,24 +75,12 @@ class FakeDependencyContainer(
         private val responseHandlersProcessor: ResponseHandlersProcessor = mock(),
         private val notificationCache: NotificationCache = mock(),
         private val restClient: RestClient = mock(),
-        private val inbox: InboxApi = mock(),
-        private val loggingInbox: InboxApi = mock(),
-        private val inApp: InAppApi = mock(),
-        private val loggingInApp: InAppApi = mock(),
-        private val push: PushApi = mock(),
-        private val loggingPush: PushApi = mock(),
-        private val predict: PredictApi = mock(),
-        private val loggingPredict: PredictApi = mock(),
-        private val config: ConfigApi = mock(),
-        private val geofence: GeofenceApi = mock(),
         private val pushTokenProvider: PushTokenProvider = mock(),
         private val clientServiceProvider: ServiceEndpointProvider = mock(),
         private val eventServiceProvider: ServiceEndpointProvider = mock(),
         private val deepLinkServiceProvider: ServiceEndpointProvider = mock(),
         private val mobileEngageV2ServiceProvider: ServiceEndpointProvider = mock(),
         private val inboxServiceProvider: ServiceEndpointProvider = mock(),
-        private val predictServiceProvider: ServiceEndpointProvider = mock(),
-        private val configInternal: ConfigInternal = mock(),
         private val clientServiceStorage: Storage<String> = mock(),
         private val eventServiceStorage: Storage<String> = mock(),
         private val deepLinkServiceStorage: Storage<String> = mock(),
@@ -116,7 +94,7 @@ class FakeDependencyContainer(
         private val silentMessageEventHandlerProvider: EventHandlerProvider = mock(),
         private val currentActivityProvider: CurrentActivityProvider = mock(),
         private val geofenceInternal: GeofenceInternal = mock()
-) : EmarsysDependencyContainer {
+) : MobileEngageDependencyContainer {
 
     override fun getLoggingClientServiceInternal(): ClientServiceInternal {
         return loggingClientServiceInternal
@@ -140,10 +118,6 @@ class FakeDependencyContainer(
 
     override fun getLoggingEventServiceInternal(): EventServiceInternal {
         return loggingEventServiceInternal
-    }
-
-    override fun getLoggingPredictInternal(): PredictInternal {
-        return loggingPredictInternal
     }
 
     override fun getCoreSdkHandler(): Handler {
@@ -214,10 +188,6 @@ class FakeDependencyContainer(
         return inAppInternal
     }
 
-    override fun getPredictInternal(): PredictInternal {
-        return predictInternal
-    }
-
     override fun getPushInternal(): PushInternal {
         return pushInternal
     }
@@ -244,10 +214,6 @@ class FakeDependencyContainer(
 
     override fun getInAppPresenter(): InAppPresenter {
         return inAppPresenter
-    }
-
-    override fun getPredictShardTrigger(): Runnable {
-        return predictShardTrigger
     }
 
     override fun getRunnerProxy(): RunnerProxy {
@@ -286,47 +252,6 @@ class FakeDependencyContainer(
         return notificationCache
     }
 
-
-    override fun getInbox(): InboxApi {
-        return inbox
-    }
-
-    override fun getLoggingInbox(): InboxApi {
-        return loggingInbox
-    }
-
-    override fun getInApp(): InAppApi {
-        return inApp
-    }
-
-    override fun getLoggingInApp(): InAppApi {
-        return loggingInApp
-    }
-
-    override fun getPush(): PushApi {
-        return push
-    }
-
-    override fun getLoggingPush(): PushApi {
-        return loggingPush
-    }
-
-    override fun getPredict(): PredictApi {
-        return predict
-    }
-
-    override fun getLoggingPredict(): PredictApi {
-        return loggingPredict
-    }
-
-    override fun getConfig(): ConfigApi {
-        return config
-    }
-
-    override fun getGeofence(): GeofenceApi {
-        return geofence
-    }
-
     override fun getPushTokenProvider(): PushTokenProvider {
         return pushTokenProvider
     }
@@ -339,20 +264,12 @@ class FakeDependencyContainer(
         return mobileEngageV2ServiceProvider
     }
 
-    override fun getPredictServiceProvider(): ServiceEndpointProvider {
-        return predictServiceProvider
-    }
-
     override fun getClientServiceProvider(): ServiceEndpointProvider {
         return clientServiceProvider
     }
 
     override fun getInboxServiceProvider(): ServiceEndpointProvider {
         return inboxServiceProvider
-    }
-
-    override fun getConfigInternal(): ConfigInternal {
-        return configInternal;
     }
 
     override fun getEventServiceProvider(): ServiceEndpointProvider {
@@ -365,10 +282,6 @@ class FakeDependencyContainer(
 
     override fun getEventServiceStorage(): Storage<String> {
         return eventServiceStorage
-    }
-
-    override fun getPredictServiceStorage(): Storage<String> {
-        return predictServiceStorage
     }
 
     override fun getDeepLinkServiceStorage(): Storage<String> {

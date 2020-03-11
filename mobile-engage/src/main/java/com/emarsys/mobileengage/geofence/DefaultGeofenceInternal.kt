@@ -7,6 +7,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.MissingPermissionException
@@ -17,6 +19,8 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 import com.emarsys.mobileengage.geofence.model.Trigger
 import com.emarsys.mobileengage.geofence.model.TriggerType
+import com.emarsys.mobileengage.geofence.model.TriggeringGeofence
+import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.util.AndroidVersionUtils
 import com.google.android.gms.location.Geofence
@@ -33,13 +37,16 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                               private val locationManager: LocationManager?,
                               private val geofenceFiler: GeofenceFilter,
                               private val geofencingClient: GeofencingClient,
-                              private val context: Context) : GeofenceInternal {
+                              private val context: Context,
+                              private val actionCommandFactory: ActionCommandFactory) : GeofenceInternal {
     private var geofenceResponse: GeofenceResponse? = null
+    private lateinit var nearestGeofences: MutableList<MEGeofence>
     private var currentLocation: Location? = null
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
         PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
+
     override fun fetchGeofences() {
         val requestModel = requestModelFactory.createFetchGeofenceRequest()
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
@@ -68,7 +75,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
             currentLocation = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             completionListener?.onCompleted(null)
             if (currentLocation != null && geofenceResponse != null) {
-                val nearestGeofences = geofenceFiler.findNearestGeofences(currentLocation!!, geofenceResponse!!).toMutableList()
+                nearestGeofences = geofenceFiler.findNearestGeofences(currentLocation!!, geofenceResponse!!).toMutableList()
                 nearestGeofences.add(createRefreshAreaGeofence(nearestGeofences))
                 registerGeofences(nearestGeofences)
             }
@@ -103,5 +110,21 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         }
         val geofenceRequest = GeofencingRequest.Builder().addGeofences(geofencesToRegister).build()
         geofencingClient.addGeofences(geofenceRequest, geofencePendingIntent)
+    }
+
+    override fun onGeofenceTriggered(events: List<TriggeringGeofence>) {
+        events.flatMap { triggeringGeofence ->
+            nearestGeofences.filter { it.id == triggeringGeofence.geofenceId }
+        }.flatMap { nearestTriggeredGeofences ->
+            createActionsFromTriggers(nearestTriggeredGeofences)
+        }.forEach { action ->
+            Handler(Looper.getMainLooper()).post {
+                action.run()
+            }
+        }
+    }
+
+    private fun createActionsFromTriggers(it: MEGeofence): List<Runnable> {
+        return it.triggers.mapNotNull { actionCommandFactory.createActionCommand(it.action) }
     }
 }

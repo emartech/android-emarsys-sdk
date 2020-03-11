@@ -16,8 +16,11 @@ import com.emarsys.mobileengage.fake.FakeRequestManager
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 import com.emarsys.mobileengage.geofence.model.Trigger
 import com.emarsys.mobileengage.geofence.model.TriggerType
+import com.emarsys.mobileengage.geofence.model.TriggeringGeofence
+import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
@@ -29,6 +32,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import java.util.concurrent.CountDownLatch
 import com.emarsys.mobileengage.geofence.model.Geofence as MEGeofence
 
 class DefaultGeofenceInternalTest {
@@ -60,6 +64,7 @@ class DefaultGeofenceInternalTest {
     private lateinit var mockLocation: Location
     private lateinit var mockGeofencingClient: GeofencingClient
     private lateinit var context: Context
+    private lateinit var mockActionCommandFactory: ActionCommandFactory
 
     @Before
     fun setUp() {
@@ -77,8 +82,9 @@ class DefaultGeofenceInternalTest {
         mockLocation = mock()
         mockGeofencingClient = mock()
         context = InstrumentationRegistry.getTargetContext()
+        mockActionCommandFactory = mock()
 
-        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter, mockGeofencingClient, context)
+        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory)
     }
 
     @Test
@@ -221,7 +227,7 @@ class DefaultGeofenceInternalTest {
 
     @Test
     fun testEnable_whenLocationManagerIsNull() {
-        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, null, mockGeofenceFilter, mockGeofencingClient, context)
+        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, null, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory)
         val geofenceResponse = GeofenceResponse(listOf(), 0.0)
 
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
@@ -294,5 +300,42 @@ class DefaultGeofenceInternalTest {
                 .setExpirationDuration(Long.MAX_VALUE)
                 .setCircularRegion(geofence.lon, geofence.lat, geofence.radius.toFloat())
                 .build()
+    }
+
+    @Test
+    fun testOnGeofenceTriggered() {
+        val latch = CountDownLatch(1)
+        val mockAction: Runnable = mock()
+        val appEventAction = JSONObject("""
+            {
+                    "type": "MEAppEvent",
+                    "name": "nameValue",
+                    "payload": {
+                      "someKey": "someValue"
+                    }
+                }
+        """.trimIndent())
+
+        val testTrigger = Trigger(id = "appEventActionId", type = TriggerType.ENTER, action = appEventAction)
+        val trigger = Trigger(id = "triggerId", type = TriggerType.ENTER, action = JSONObject())
+        val allGeofences = listOf(
+                MEGeofence("geofenceId1", 47.493160, 19.058355, 10.0, null, listOf(trigger)),
+                MEGeofence("geofenceId2", 47.493812, 19.058537, 10.0, null, listOf(trigger)),
+                MEGeofence("testId", 47.493827, 19.060715, 10.0, null, listOf(testTrigger)),
+                MEGeofence("geofenceId4", 47.489680, 19.061230, 350.0, null, listOf(trigger)),
+                MEGeofence("geofenceId5", 47.492292, 19.056440, 10.0, null, listOf(trigger))
+        )
+
+        ReflectionTestUtils.setInstanceField(geofenceInternal, "nearestGeofences", allGeofences)
+        whenever(mockAction.run()).thenAnswer { latch.countDown() }
+        whenever(mockActionCommandFactory.createActionCommand(appEventAction)).thenReturn(mockAction)
+
+        geofenceInternal.onGeofenceTriggered(listOf(TriggeringGeofence("testId", TriggerType.ENTER)))
+
+        verify(mockActionCommandFactory).createActionCommand(appEventAction)
+
+        latch.await()
+
+        verify(mockAction).run()
     }
 }

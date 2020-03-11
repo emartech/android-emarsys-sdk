@@ -13,6 +13,7 @@ import com.emarsys.mobileengage.client.ClientServiceInternal;
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal;
 import com.emarsys.mobileengage.event.EventHandlerProvider;
 import com.emarsys.mobileengage.event.EventServiceInternal;
+import com.emarsys.mobileengage.geofence.GeofenceInternal;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.inbox.InboxInternal;
@@ -102,4 +103,6 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
     EventHandlerProvider getSilentMessageEventHandlerProvider();
 
     CurrentActivityProvider getCurrentActivityProvider();
+
+    GeofenceInternal getGeofenceInternal();
 }
