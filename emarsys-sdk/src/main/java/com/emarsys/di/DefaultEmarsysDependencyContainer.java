@@ -698,7 +698,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         predictApi = new PredictProxy(runnerProxy, getPredictInternal());
         loggingPredictApi = new PredictProxy(runnerProxy, getLoggingPredictInternal());
         configApi = new ConfigProxy(runnerProxy, configInternal);
-        geofenceApi = new GeofenceProxy(geofenceInternal, runnerProxy);
+        geofenceApi = new GeofenceProxy(getGeofenceInternal(), runnerProxy);
 
         logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
 
@@ -728,7 +728,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         ActivityLifecycleAction[] applicationStartActions = new ActivityLifecycleAction[]{
                 new DeviceInfoStartAction(getClientServiceInternal(), deviceInfoHashStorage, getDeviceInfo()),
                 new InAppStartAction(eventServiceInternal, contactTokenStorage),
-                new FetchGeofencesAction(geofenceInternal)
+                new FetchGeofencesAction(getGeofenceInternal())
         };
 
         ActivityLifecycleAction[] activityCreatedActions = new ActivityLifecycleAction[]{
@@ -918,7 +918,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
     @Override
     public GeofenceInternal getGeofenceInternal() {
-        return geofenceInternal;
+        return loggingGeofenceInternal;
     }
 
     @Override
