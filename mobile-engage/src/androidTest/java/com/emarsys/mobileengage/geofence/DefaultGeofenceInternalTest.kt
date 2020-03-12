@@ -13,10 +13,7 @@ import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.fake.FakeRequestManager
-import com.emarsys.mobileengage.geofence.model.GeofenceResponse
-import com.emarsys.mobileengage.geofence.model.Trigger
-import com.emarsys.mobileengage.geofence.model.TriggerType
-import com.emarsys.mobileengage.geofence.model.TriggeringGeofence
+import com.emarsys.mobileengage.geofence.model.*
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.InstrumentationRegistry
@@ -337,5 +334,68 @@ class DefaultGeofenceInternalTest {
         latch.await()
 
         verify(mockAction).run()
+    }
+
+    @Test
+    fun testOnGeofenceTriggered_onRefreshArea_recalculateGeofences() {
+        val spyGeofenceInternal = spy(geofenceInternal)
+        val latch = CountDownLatch(1)
+        val mockAction: Runnable = mock()
+        val appEventAction = JSONObject("""
+            {
+                    "type": "MEAppEvent",
+                    "name": "nameValue",
+                    "payload": {
+                      "someKey": "someValue"
+                    }
+                }
+        """.trimIndent())
+
+        val testTrigger = Trigger(id = "appEventActionId", type = TriggerType.ENTER, action = appEventAction)
+        val trigger = Trigger(id = "triggerId", type = TriggerType.ENTER, action = JSONObject())
+        val currentLocation = (Location(LocationManager.GPS_PROVIDER).apply {
+            this.latitude = 47.493160
+            this.longitude = 19.058355
+        })
+        val allGeofences = listOf(
+                MEGeofence("geofenceId1", 47.493160, 19.058355, 10.0, null, listOf(trigger)),
+                MEGeofence("geofenceId2", 47.493812, 19.058537, 10.0, null, listOf(trigger)),
+                MEGeofence("testId", 47.493827, 19.060715, 10.0, null, listOf(testTrigger)),
+                MEGeofence("geofenceId4", 47.489680, 19.061230, 350.0, null, listOf(trigger))
+        )
+        val geofenceResponse = GeofenceResponse(listOf(GeofenceGroup("group1", null, allGeofences), GeofenceGroup("group2", null, listOf(MEGeofence("geofenceId6", 47.492292, 19.056440, 10.0, null, listOf(trigger))))))
+        val refreshArea = MEGeofence("refreshArea", 47.493160, 19.058355, 36.63777160644531, null, listOf(refreshTrigger))
+
+        val nearestGeofences1 = listOf(
+                MEGeofence("geofenceId1", 47.493160, 19.058355, 10.0, null, listOf(testTrigger)),
+                MEGeofence("geofenceId2", 47.493812, 19.058537, 10.0, null, listOf(trigger)),
+                MEGeofence("refreshArea", 47.492292, 19.056440, 400.0, null, listOf(trigger))
+
+        )
+
+        val nearestGeofences2 = listOf(
+                MEGeofence("testId", 47.493812, 19.058537, 0.5, null, listOf(testTrigger))
+        )
+
+        ReflectionTestUtils.setInstanceField(spyGeofenceInternal, "nearestGeofences", nearestGeofences1)
+        ReflectionTestUtils.setInstanceField(spyGeofenceInternal, "geofenceResponse", geofenceResponse)
+        whenever(mockAction.run()).thenAnswer { latch.countDown() }
+        whenever(mockActionCommandFactory.createActionCommand(appEventAction)).thenReturn(mockAction)
+        whenever(mockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)).thenReturn(currentLocation)
+        whenever(mockGeofenceFilter.findNearestGeofences(currentLocation, geofenceResponse)).thenReturn(nearestGeofences2)
+
+        spyGeofenceInternal.onGeofenceTriggered(listOf(TriggeringGeofence("geofenceId1", TriggerType.ENTER), TriggeringGeofence("refreshArea", TriggerType.EXIT)))
+
+        verify(mockActionCommandFactory).createActionCommand(appEventAction)
+
+        latch.await()
+
+        verify(mockAction).run()
+        verify(mockGeofenceFilter).findNearestGeofences(currentLocation, geofenceResponse)
+        argumentCaptor<List<MEGeofence>>().apply {
+            verify(spyGeofenceInternal).registerGeofences(capture())
+            allValues[0].size shouldBe 2
+            allValues[0][1].toString() shouldBe refreshArea.toString()
+        }
     }
 }
