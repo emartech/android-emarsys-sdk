@@ -102,6 +102,8 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
 
     EventHandlerProvider getSilentMessageEventHandlerProvider();
 
+    EventHandlerProvider getGeofenceEventHandlerProvider();
+
     CurrentActivityProvider getCurrentActivityProvider();
 
     GeofenceInternal getGeofenceInternal();

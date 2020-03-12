@@ -65,7 +65,6 @@ class FakeMobileEngageDependencyContainer(
         private val completionHandler: DefaultCoreCompletionHandler = mock(),
         private val requestContext: MobileEngageRequestContext = mock(),
         private val inAppPresenter: InAppPresenter = mock(),
-        private val predictShardTrigger: Runnable = mock(),
         private val runnerProxy: RunnerProxy = RunnerProxy(),
         private val logger: Logger = mock(),
         private val deviceInfoHashStorage: Storage<Int> = mock(),
@@ -86,12 +85,12 @@ class FakeMobileEngageDependencyContainer(
         private val deepLinkServiceStorage: Storage<String> = mock(),
         private val mobileEngageV2ServiceStorage: Storage<String> = mock(),
         private val inboxServiceStorage: Storage<String> = mock(),
-        private val predictServiceStorage: Storage<String> = mock(),
         private val fileDownloader: FileDownloader = mock(),
         private val actionCommandFactory: ActionCommandFactory = mock(),
         private val silentMessageActionCommandFactory: ActionCommandFactory = mock(),
         private val notificationEventHandlerProvider: EventHandlerProvider = mock(),
         private val silentMessageEventHandlerProvider: EventHandlerProvider = mock(),
+        private val geofenceEventHandlerProvider: EventHandlerProvider = mock(),
         private val currentActivityProvider: CurrentActivityProvider = mock(),
         private val geofenceInternal: GeofenceInternal = mock()
 ) : MobileEngageDependencyContainer {
@@ -246,6 +245,10 @@ class FakeMobileEngageDependencyContainer(
 
     override fun getResponseHandlersProcessor(): ResponseHandlersProcessor {
         return responseHandlersProcessor
+    }
+
+    override fun getGeofenceEventHandlerProvider(): EventHandlerProvider {
+        return geofenceEventHandlerProvider
     }
 
     override fun getNotificationCache(): NotificationCache {

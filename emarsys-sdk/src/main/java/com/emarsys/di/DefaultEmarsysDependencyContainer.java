@@ -250,8 +250,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private FileDownloader fileDownloader;
     private ActionCommandFactory notificationActionCommandFactory;
     private ActionCommandFactory silentActionCommandFactory;
+    private ActionCommandFactory geofenceActionCommandFactory;
+
     private EventHandlerProvider notificationEventHandlerProvider;
     private EventHandlerProvider silentMessageEventHandlerProvider;
+    private EventHandlerProvider geofenceEventHandlerProvider;
 
     public DefaultEmarsysDependencyContainer(EmarsysConfig emarsysConfig) {
         initializeFeatures(emarsysConfig);
@@ -606,6 +609,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         };
         notificationEventHandlerProvider = new EventHandlerProvider(notificationEventHandler);
         silentMessageEventHandlerProvider = new EventHandlerProvider(null);
+        geofenceEventHandlerProvider = new EventHandlerProvider(null);
 
         logShardTrigger = new BatchingShardTrigger(
                 shardModelRepository,
@@ -641,7 +645,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
         mobileEngageInternal = new DefaultMobileEngageInternal(requestManager, requestModelFactory, requestContext);
         eventServiceInternal = new DefaultEventServiceInternal(requestManager, requestModelFactory);
-        geofenceInternal = new DefaultGeofenceInternal(requestModelFactory, requestManager, new GeofenceResponseMapper(), new PermissionChecker(application.getApplicationContext()), locationManager, geofenceFilter, geofencingClient, application);
+
+        silentActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getSilentMessageEventHandlerProvider());
+        geofenceActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getGeofenceEventHandlerProvider());
+
+        geofenceInternal = new DefaultGeofenceInternal(requestModelFactory, requestManager, new GeofenceResponseMapper(), new PermissionChecker(application.getApplicationContext()), locationManager, geofenceFilter, geofencingClient, application, geofenceActionCommandFactory);
         clientServiceInternal = new DefaultClientServiceInternal(requestManager, requestModelFactory);
         deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext, getDeepLinkServiceProvider());
 
@@ -696,7 +704,6 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
         fileDownloader = new FileDownloader(application.getApplicationContext());
         notificationActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getNotificationEventHandlerProvider());
-        silentActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getNotificationEventHandlerProvider());
     }
 
     private Repository<RequestModel, SqlSpecification> createRequestModelRepository(CoreDbHelper coreDbHelper) {
@@ -900,8 +907,18 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     }
 
     @Override
+    public EventHandlerProvider getGeofenceEventHandlerProvider() {
+        return geofenceEventHandlerProvider;
+    }
+
+    @Override
     public CurrentActivityProvider getCurrentActivityProvider() {
         return currentActivityProvider;
+    }
+
+    @Override
+    public GeofenceInternal getGeofenceInternal() {
+        return geofenceInternal;
     }
 
     @Override

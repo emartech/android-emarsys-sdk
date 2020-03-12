@@ -114,6 +114,7 @@ class FakeDependencyContainer(
         private val silentMessageActionCommandFactory: ActionCommandFactory = mock(),
         private val notificationEventHandlerProvider: EventHandlerProvider = mock(),
         private val silentMessageEventHandlerProvider: EventHandlerProvider = mock(),
+        private val geofenceEventHandlerProvider: EventHandlerProvider = mock(),
         private val currentActivityProvider: CurrentActivityProvider = mock(),
         private val geofenceInternal: GeofenceInternal = mock()
 ) : EmarsysDependencyContainer {
@@ -280,6 +281,10 @@ class FakeDependencyContainer(
 
     override fun getResponseHandlersProcessor(): ResponseHandlersProcessor {
         return responseHandlersProcessor
+    }
+
+    override fun getGeofenceEventHandlerProvider(): EventHandlerProvider {
+        return geofenceEventHandlerProvider
     }
 
     override fun getNotificationCache(): NotificationCache {
