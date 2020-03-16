@@ -65,10 +65,16 @@ public class PredictResponseMapper implements Mapper<ResponseModel, List<Product
             productBuilder.available(Boolean.valueOf(available));
         }
         if (msrp != null) {
-            productBuilder.msrp(Float.parseFloat(msrp));
+            try {
+                productBuilder.msrp(Float.parseFloat(msrp));
+            } catch (Exception ignored) {
+            }
         }
         if (price != null) {
-            productBuilder.price(Float.parseFloat(price));
+            try {
+                productBuilder.price(Float.parseFloat(price));
+            } catch (Exception ignored) {
+            }
         }
         productBuilder.imageUrl(productFields.remove("image"));
         productBuilder.zoomImageUrl(productFields.remove("zoom_image"));

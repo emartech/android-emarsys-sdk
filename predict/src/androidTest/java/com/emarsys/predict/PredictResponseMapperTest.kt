@@ -27,48 +27,53 @@ class PredictResponseMapperTest {
         mockResponseModel = Mockito.mock(ResponseModel::class.java)
     }
 
-    private fun getExpectedResult(feature: String): List<Product> {
+    private fun getExpectedResult(feature: String, msrp: Float?, available: Boolean, price: Float?): List<Product> {
+        val productBuilder = Product.Builder(
+                "2119",
+                "LSL Men Polo Shirt SE16",
+                "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
+                feature,
+                "AAAA")
+                .categoryPath("MEN>Shirts")
+                .available(available)
+        if (msrp != null) {
+            productBuilder.msrp(msrp)
+        }
+        if (price != null) {
+            productBuilder.price(price)
+        }
+        productBuilder
+                .imageUrl("http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg")
+                .zoomImageUrl("http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg")
+                .productDescription("product Description")
+                .album("album")
+                .actor("actor")
+                .artist("artist")
+                .author("author")
+                .brand("brand")
+                .year(2000)
+                .customFields(hashMapOf(
+                        "msrp_gpb" to "83.2",
+                        "price_gpb" to "83.2",
+                        "msrp_aed" to "100",
+                        "price_aed" to "100",
+                        "msrp_cad" to "100",
+                        "price_cad" to "100",
+                        "msrp_mxn" to "2057.44",
+                        "price_mxn" to "2057.44",
+                        "msrp_pln" to "100",
+                        "price_pln" to "100",
+                        "msrp_rub" to "100",
+                        "price_rub" to "100",
+                        "msrp_sek" to "100",
+                        "price_sek" to "100",
+                        "msrp_try" to "339.95",
+                        "price_try" to "339.95",
+                        "msrp_usd" to "100",
+                        "price_usd" to "100"
+                ))
         return listOf(
-                Product.Builder(
-                        "2119",
-                        "LSL Men Polo Shirt SE16",
-                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
-                        feature,
-                        "AAAA")
-                        .categoryPath("MEN>Shirts")
-                        .available(true)
-                        .msrp(100.0F)
-                        .price(100.0F)
-                        .imageUrl("http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg")
-                        .zoomImageUrl("http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg")
-                        .productDescription("product Description")
-                        .album("album")
-                        .actor("actor")
-                        .artist("artist")
-                        .author("author")
-                        .brand("brand")
-                        .year(2000)
-                        .customFields(hashMapOf(
-                                "msrp_gpb" to "83.2",
-                                "price_gpb" to "83.2",
-                                "msrp_aed" to "100",
-                                "price_aed" to "100",
-                                "msrp_cad" to "100",
-                                "price_cad" to "100",
-                                "msrp_mxn" to "2057.44",
-                                "price_mxn" to "2057.44",
-                                "msrp_pln" to "100",
-                                "price_pln" to "100",
-                                "msrp_rub" to "100",
-                                "price_rub" to "100",
-                                "msrp_sek" to "100",
-                                "price_sek" to "100",
-                                "msrp_try" to "339.95",
-                                "price_try" to "339.95",
-                                "msrp_usd" to "100",
-                                "price_usd" to "100"
-                        ))
-                        .build(),
+                productBuilder.build(),
                 Product.Builder(
                         "2120",
                         "LSL Men Polo Shirt SE16",
@@ -83,7 +88,7 @@ class PredictResponseMapperTest {
         whenever(mockResponseModel.body).thenReturn(getBodyFor("SEARCH"))
         val predictResponseMapper = PredictResponseMapper()
         val result = predictResponseMapper.map(mockResponseModel)
-        expectedResult = getExpectedResult("SEARCH")
+        expectedResult = getExpectedResult("SEARCH", 100F, true, 100F)
         result shouldContainAll expectedResult
 
         result.count() shouldBe 2
@@ -92,11 +97,22 @@ class PredictResponseMapperTest {
     }
 
     @Test
+    fun testMap_shouldNotCrash_whenParsedValuesAreNull() {
+        whenever(mockResponseModel.body).thenReturn(getBodyFor("SEARCH", "null", "null", "null"))
+        val predictResponseMapper = PredictResponseMapper()
+        val expectedResult = getExpectedResult("SEARCH", null, false, null)[0]
+
+        val result = predictResponseMapper.map(mockResponseModel)[0]
+
+        result shouldBe expectedResult
+    }
+
+    @Test
     fun testMap_withCart_shouldPreserveOrder() {
         whenever(mockResponseModel.body).thenReturn(getBodyFor("CART"))
         val predictResponseMapper = PredictResponseMapper()
         val result = predictResponseMapper.map(mockResponseModel)
-        expectedResult = getExpectedResult("CART")
+        expectedResult = getExpectedResult("CART", 100F, true, 100F)
 
         result shouldContainAll expectedResult
 
@@ -110,7 +126,7 @@ class PredictResponseMapperTest {
         whenever(mockResponseModel.body).thenReturn(getBodyFor("RELATED"))
         val predictResponseMapper = PredictResponseMapper()
         val result = predictResponseMapper.map(mockResponseModel)
-        expectedResult = getExpectedResult("RELATED")
+        expectedResult = getExpectedResult("RELATED", 100F, true, 100F)
 
         result shouldContainAll expectedResult
 
@@ -130,7 +146,7 @@ class PredictResponseMapperTest {
         result shouldBe expectedResult
     }
 
-    private fun getBodyFor(feature: String): String {
+    private fun getBodyFor(feature: String, msrp: String = "100", available: String = "true", price: String = "100.0"): String {
         return """{
            "cohort":"AAAA",
            "visitor":"16BCC0D2745E6B36",
@@ -152,9 +168,9 @@ class PredictResponseMapperTest {
                  "item":"2119",
                  "category":"MEN>Shirts",
                  "title":"LSL Men Polo Shirt SE16",
-                 "available":true,
-                 "msrp":100.0,
-                 "price":100.0,
+                 "available":$available,
+                 "msrp":$msrp,
+                 "price":$price,
                  "msrp_gpb":"83.2",
                  "price_gpb":"83.2",
                  "msrp_aed":"100",
