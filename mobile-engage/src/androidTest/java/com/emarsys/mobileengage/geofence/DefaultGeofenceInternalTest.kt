@@ -62,6 +62,8 @@ class DefaultGeofenceInternalTest {
     private lateinit var mockGeofencingClient: GeofencingClient
     private lateinit var context: Context
     private lateinit var mockActionCommandFactory: ActionCommandFactory
+    private lateinit var mockContext: Context
+    private lateinit var geofenceInternalWithMockContext: GeofenceInternal
 
     @Before
     fun setUp() {
@@ -79,9 +81,12 @@ class DefaultGeofenceInternalTest {
         mockLocation = mock()
         mockGeofencingClient = mock()
         context = InstrumentationRegistry.getTargetContext()
+        mockContext = mock()
         mockActionCommandFactory = mock()
 
         geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory)
+
+        geofenceInternalWithMockContext = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter, mockGeofencingClient, mockContext, mockActionCommandFactory)
     }
 
     @Test
@@ -106,6 +111,30 @@ class DefaultGeofenceInternalTest {
             verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+    @Test
+    fun testEnable_registersGeofenceBroadcastReceiver() {
+        geofenceInternalWithMockContext.enable(null)
+        geofenceInternalWithMockContext.enable(null)
+
+        verify(mockContext, times(1)).registerReceiver(any<GeofenceBroadcastReceiver>(), any())
+    }
+
+    @Test
+    fun testDisable_unregistersGeofenceBroadcastReceiver() {
+        geofenceInternalWithMockContext.disable()
+
+        verify(mockContext).unregisterReceiver(any<GeofenceBroadcastReceiver>())
+    }
+
+    @Test
+    fun testDisable() {
+        geofenceInternalWithMockContext.enable(null)
+        geofenceInternalWithMockContext.disable()
+        geofenceInternalWithMockContext.enable(null)
+
+        verify(mockContext, times(2)).registerReceiver(any<GeofenceBroadcastReceiver>(), any())
     }
 
     @Test

@@ -12,6 +12,9 @@ class LoggingGeofenceInternal(private val klass: Class<*>): GeofenceInternal {
     override fun enable(completionListener: CompletionListener?) {
     }
 
+    override fun disable() {
+    }
+
     override fun registerGeofences(geofences: List<Geofence>) {
     }
 

@@ -8,6 +8,7 @@ interface GeofenceInternal {
 
     fun fetchGeofences()
     fun enable(completionListener: CompletionListener?)
+    fun disable()
     fun registerGeofences(geofences: List<Geofence>)
     fun onGeofenceTriggered(events: List<TriggeringGeofence>)
 }

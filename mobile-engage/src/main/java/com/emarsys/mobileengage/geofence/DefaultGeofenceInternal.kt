@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
@@ -40,13 +41,15 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                               private val geofencingClient: GeofencingClient,
                               private val context: Context,
                               private val actionCommandFactory: ActionCommandFactory) : GeofenceInternal {
+    private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver()
     private var geofenceResponse: GeofenceResponse? = null
     private lateinit var nearestGeofences: MutableList<MEGeofence>
     private var currentLocation: Location? = null
     private val geofencePendingIntent: PendingIntent by lazy {
-        val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
+        val intent = Intent("com.emarsys.sdk.GEOFENCE_ACTION")
         PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
+    private var receiverRegistered = false
 
     override fun fetchGeofences() {
         val requestModel = requestModelFactory.createFetchGeofenceRequest()
@@ -75,10 +78,19 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
 
         if (fineLocationPermissionGranted && backgroundLocationPermissionGranted) {
             registerNearestGeofences(completionListener)
+            if (!receiverRegistered) {
+                context.registerReceiver(geofenceBroadcastReceiver, IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION"))
+                receiverRegistered = true
+            }
         } else {
             val permissionName = findMissingPermission(fineLocationPermissionGranted, backgroundLocationPermissionGranted)
             completionListener?.onCompleted(MissingPermissionException("Couldn't acquire permission for $permissionName"))
         }
+    }
+
+    override fun disable() {
+        context.unregisterReceiver(geofenceBroadcastReceiver)
+        receiverRegistered = false
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION])
@@ -146,7 +158,6 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
             }
         }
     }
-
 
     private fun createActionsFromTriggers(it: MEGeofence): List<Runnable?> {
         return it.triggers.mapNotNull { actionCommandFactory.createActionCommand(it.action) }
