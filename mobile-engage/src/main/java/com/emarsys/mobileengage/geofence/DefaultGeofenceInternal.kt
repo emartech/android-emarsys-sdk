@@ -18,6 +18,8 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 import com.emarsys.mobileengage.geofence.model.Trigger
 import com.emarsys.mobileengage.geofence.model.TriggerType
@@ -40,7 +42,8 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                               private val geofenceFilter: GeofenceFilter,
                               private val geofencingClient: GeofencingClient,
                               private val context: Context,
-                              private val actionCommandFactory: ActionCommandFactory) : GeofenceInternal {
+                              private val actionCommandFactory: ActionCommandFactory,
+                              private val geofenceEventHandlerProvider: EventHandlerProvider) : GeofenceInternal {
     private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver()
     private var geofenceResponse: GeofenceResponse? = null
     private lateinit var nearestGeofences: MutableList<MEGeofence>
@@ -157,6 +160,10 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                 registerNearestGeofences(null)
             }
         }
+    }
+
+    override fun setEventHandler(eventHandler: EventHandler) {
+        this.geofenceEventHandlerProvider.eventHandler = eventHandler
     }
 
     private fun createActionsFromTriggers(it: MEGeofence): List<Runnable?> {

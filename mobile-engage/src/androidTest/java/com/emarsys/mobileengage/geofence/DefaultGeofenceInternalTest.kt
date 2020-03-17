@@ -12,6 +12,8 @@ import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.fake.FakeRequestManager
 import com.emarsys.mobileengage.geofence.model.*
 import com.emarsys.mobileengage.notification.ActionCommandFactory
@@ -63,6 +65,7 @@ class DefaultGeofenceInternalTest {
     private lateinit var context: Context
     private lateinit var mockActionCommandFactory: ActionCommandFactory
     private lateinit var mockContext: Context
+    private lateinit var mockEventHandlerProvider: EventHandlerProvider
     private lateinit var geofenceInternalWithMockContext: GeofenceInternal
 
     @Before
@@ -83,10 +86,11 @@ class DefaultGeofenceInternalTest {
         context = InstrumentationRegistry.getTargetContext()
         mockContext = mock()
         mockActionCommandFactory = mock()
+        mockEventHandlerProvider = mock()
 
-        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory)
+        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory, mockEventHandlerProvider)
 
-        geofenceInternalWithMockContext = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter, mockGeofencingClient, mockContext, mockActionCommandFactory)
+        geofenceInternalWithMockContext = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter, mockGeofencingClient, mockContext, mockActionCommandFactory, mockEventHandlerProvider)
     }
 
     @Test
@@ -253,7 +257,7 @@ class DefaultGeofenceInternalTest {
 
     @Test
     fun testEnable_whenLocationManagerIsNull() {
-        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, null, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory)
+        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, null, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory, mockEventHandlerProvider)
         val geofenceResponse = GeofenceResponse(listOf(), 0.0)
 
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
@@ -426,5 +430,13 @@ class DefaultGeofenceInternalTest {
             allValues[0].size shouldBe 2
             allValues[0][1].toString() shouldBe refreshArea.toString()
         }
+    }
+
+    @Test
+    fun testSetEventHandler() {
+        val mockEventHandler:EventHandler = mock()
+       geofenceInternal.setEventHandler(mockEventHandler)
+
+        verify(mockEventHandlerProvider).eventHandler = mockEventHandler
     }
 }

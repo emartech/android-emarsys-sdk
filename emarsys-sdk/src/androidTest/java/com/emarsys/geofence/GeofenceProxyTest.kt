@@ -2,6 +2,7 @@ package com.emarsys.geofence
 
 import com.emarsys.core.RunnerProxy
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -38,5 +39,14 @@ class GeofenceProxyTest {
 
         verify(spyRunnerProxy).logException(any())
         verify(mockGeofenceInternal).enable(mockCompletionListener)
+    }
+
+    @Test
+    fun testSetEventHandler() {
+        val eventHandler: EventHandler = mock()
+
+        geofenceProxy.setEventHandler(eventHandler)
+
+        verify(mockGeofenceInternal).setEventHandler(eventHandler)
     }
 }

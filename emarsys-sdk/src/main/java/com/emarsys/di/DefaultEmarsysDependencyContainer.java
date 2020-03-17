@@ -649,7 +649,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         silentActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getSilentMessageEventHandlerProvider());
         geofenceActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getGeofenceEventHandlerProvider());
 
-        geofenceInternal = new DefaultGeofenceInternal(requestModelFactory, requestManager, new GeofenceResponseMapper(), new PermissionChecker(application.getApplicationContext()), locationManager, geofenceFilter, geofencingClient, application, geofenceActionCommandFactory);
+        geofenceInternal = new DefaultGeofenceInternal(requestModelFactory, requestManager, new GeofenceResponseMapper(), new PermissionChecker(application.getApplicationContext()), locationManager, geofenceFilter, geofencingClient, application, geofenceActionCommandFactory, getGeofenceEventHandlerProvider());
         clientServiceInternal = new DefaultClientServiceInternal(requestManager, requestModelFactory);
         deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext, getDeepLinkServiceProvider());
 
