@@ -377,6 +377,25 @@ public class JsonUtilsTest {
     }
 
     @Test
+    public void testToFloatMap_withJsonObjectOfStringValuesAndNull() throws JSONException {
+        JSONObject input = new JSONObject()
+                .put("key1", "value1")
+                .put("key2", "value2")
+                .put("key3", null)
+                .put("key4", new JSONObject()
+                        .put("nestedKey1", "nestedValue1")
+                        .put("nestedKey2", null));
+        Map<String, String> result = JsonUtils.toFlatMap(input);
+
+        Map<String, String> expected = new HashMap<>();
+        expected.put("key1", "value1");
+        expected.put("key2", "value2");
+        expected.put("key4", "{\"nestedKey1\":\"nestedValue1\"}");
+
+        assertEquals(expected, result);
+    }
+
+    @Test
     public void testToFloatMap_withJsonObjectOfMixedValues() throws JSONException {
         JSONObject input = new JSONObject()
                 .put("key1", "value1")
