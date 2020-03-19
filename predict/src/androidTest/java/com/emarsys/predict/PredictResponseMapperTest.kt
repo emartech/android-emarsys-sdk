@@ -27,7 +27,7 @@ class PredictResponseMapperTest {
         mockResponseModel = Mockito.mock(ResponseModel::class.java)
     }
 
-    private fun getExpectedResult(feature: String, msrp: Float?, available: Boolean, price: Float?): List<Product> {
+    private fun getExpectedResult(feature: String, msrp: Float?, available: Boolean?, price: Float?): List<Product> {
         val productBuilder = Product.Builder(
                 "2119",
                 "LSL Men Polo Shirt SE16",
@@ -41,6 +41,9 @@ class PredictResponseMapperTest {
         }
         if (price != null) {
             productBuilder.price(price)
+        }
+        if (available != null) {
+            productBuilder.available(available)
         }
         productBuilder
                 .imageUrl("http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg")
@@ -100,7 +103,7 @@ class PredictResponseMapperTest {
     fun testMap_shouldNotCrash_whenParsedValuesAreNull() {
         whenever(mockResponseModel.body).thenReturn(getBodyFor("SEARCH", "null", "null", "null"))
         val predictResponseMapper = PredictResponseMapper()
-        val expectedResult = getExpectedResult("SEARCH", null, false, null)[0]
+        val expectedResult = getExpectedResult("SEARCH", null, null, null)[0]
 
         val result = predictResponseMapper.map(mockResponseModel)[0]
 

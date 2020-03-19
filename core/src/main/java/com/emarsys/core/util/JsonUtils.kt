@@ -76,8 +76,10 @@ object JsonUtils {
         while (iterator.hasNext()) {
             try {
                 val key = iterator.next()
-                val value = jsonObject.getString(key)
-                result[key] = value
+                val value = jsonObject.getString(key).convertNullStringValueToNull()
+                if (value != null) {
+                    result[key] = value
+                }
             } catch (ignore: JSONException) {
             }
         }
@@ -94,4 +96,8 @@ object JsonUtils {
         }
         require(nullCount != jsonObjects.size) { "Argument must contain at least one not null element!" }
     }
+}
+
+private fun String.convertNullStringValueToNull(): String? {
+    return if (this == "null") null else this
 }
