@@ -73,7 +73,7 @@ class ActionCommandFactory(private val context: Context,
     private fun createCustomEventCommand(action: JSONObject): Runnable? {
         val name = action.getString("name")
         val payload = action.optJSONObject("payload")
-        var eventAttribute: Map<String?, String?>? = null
+        var eventAttribute: Map<String, String>? = null
         if (payload != null) {
             eventAttribute = JsonUtils.toFlatMap(payload)
         }
