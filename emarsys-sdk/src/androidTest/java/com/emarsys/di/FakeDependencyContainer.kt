@@ -101,6 +101,7 @@ class FakeDependencyContainer(
         private val deepLinkServiceProvider: ServiceEndpointProvider = mock(),
         private val mobileEngageV2ServiceProvider: ServiceEndpointProvider = mock(),
         private val inboxServiceProvider: ServiceEndpointProvider = mock(),
+        private val messageInboxServiceProvider: ServiceEndpointProvider = mock(),
         private val predictServiceProvider: ServiceEndpointProvider = mock(),
         private val configInternal: ConfigInternal = mock(),
         private val clientServiceStorage: Storage<String> = mock(),
@@ -108,6 +109,7 @@ class FakeDependencyContainer(
         private val deepLinkServiceStorage: Storage<String> = mock(),
         private val mobileEngageV2ServiceStorage: Storage<String> = mock(),
         private val inboxServiceStorage: Storage<String> = mock(),
+        private val messageInboxServiceStorage: Storage<String> = mock(),
         private val predictServiceStorage: Storage<String> = mock(),
         private val fileDownloader: FileDownloader = mock(),
         private val actionCommandFactory: ActionCommandFactory = mock(),
@@ -402,5 +404,13 @@ class FakeDependencyContainer(
 
     override fun getSilentMessageEventHandlerProvider(): EventHandlerProvider {
         return silentMessageEventHandlerProvider
+    }
+
+    override fun getMessageInboxServiceProvider(): ServiceEndpointProvider {
+        return messageInboxServiceProvider
+    }
+
+    override fun getMessageInboxServiceStorage(): Storage<String> {
+        return messageInboxServiceStorage
     }
 }

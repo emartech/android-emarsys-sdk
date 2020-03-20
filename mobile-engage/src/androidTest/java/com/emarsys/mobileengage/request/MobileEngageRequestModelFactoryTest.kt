@@ -35,6 +35,7 @@ class MobileEngageRequestModelFactoryTest {
         const val MOBILE_ENGAGE_V2_HOST = "https://push.eservice.emarsys.net/api/mobileengage/v2/"
         const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/api/"
+        const val INBOX_V3_HOST = "https://me-inbox.eservice.emarsys.net"
     }
 
     lateinit var mockRequestContext: MobileEngageRequestContext
@@ -43,11 +44,12 @@ class MobileEngageRequestModelFactoryTest {
     lateinit var mockDeviceInfo: DeviceInfo
     lateinit var mockRefreshTokenStorage: Storage<String>
     lateinit var mockNotificationSettings: NotificationSettings
+    lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
     lateinit var requestFactory: MobileEngageRequestModelFactory
-    lateinit var eventServiceProvider: ServiceEndpointProvider
-    lateinit var clientServiceProvider: ServiceEndpointProvider
-    lateinit var mobileEngageV2Provider: ServiceEndpointProvider
-    lateinit var inboxServiceProvider: ServiceEndpointProvider
+    lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    lateinit var mockClientServiceProvider: ServiceEndpointProvider
+    lateinit var mockMobileEngageV2Provider: ServiceEndpointProvider
+    lateinit var mockInboxServiceProvider: ServiceEndpointProvider
 
     @Rule
     @JvmField
@@ -56,16 +58,16 @@ class MobileEngageRequestModelFactoryTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        eventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+        mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
         }
-        clientServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+        mockClientServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(CLIENT_HOST)
         }
-        mobileEngageV2Provider = mock(ServiceEndpointProvider::class.java).apply {
+        mockMobileEngageV2Provider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(MOBILE_ENGAGE_V2_HOST)
         }
-        inboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+        mockInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(INBOX_HOST)
         }
 
@@ -88,6 +90,10 @@ class MobileEngageRequestModelFactoryTest {
             whenever(get()).thenReturn(REFRESH_TOKEN)
         }
 
+        mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(INBOX_V3_HOST)
+        }
+
         val mockContactFieldValueStorage = (mock(Storage::class.java) as Storage<String>).apply {
             whenever(get()).thenReturn(CONTACT_FIELD_VALUE)
         }
@@ -101,7 +107,7 @@ class MobileEngageRequestModelFactoryTest {
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
         }
 
-        requestFactory = MobileEngageRequestModelFactory(mockRequestContext, clientServiceProvider, eventServiceProvider, mobileEngageV2Provider, inboxServiceProvider)
+        requestFactory = MobileEngageRequestModelFactory(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, mockMobileEngageV2Provider, mockInboxServiceProvider, mockMessageInboxServiceProvider)
     }
 
     @Test
@@ -283,6 +289,23 @@ class MobileEngageRequestModelFactoryTest {
         )
 
         val result = requestFactory.createFetchNotificationsRequest()
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateFetchInboxMessagesRequest() {
+        val expected = RequestModel(
+                "https://me-inbox.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/inbox",
+                RequestMethod.GET,
+                null,
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+
+        val result = requestFactory.createFetchInboxMessagesRequest()
 
         result shouldBe expected
     }

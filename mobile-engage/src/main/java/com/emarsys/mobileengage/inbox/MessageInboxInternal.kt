@@ -8,7 +8,7 @@ import com.emarsys.mobileengage.api.inbox.MessageInboxResult
 
 
 interface MessageInboxInternal {
-    fun fetchNotifications(resultListener: ResultListener<Try<MessageInboxResult>>)
+    fun fetchInboxMessages(resultListener: ResultListener<Try<MessageInboxResult>>)
 
     fun trackNotificationOpen(notification: InboxMessage, completionListener: CompletionListener?)
 }

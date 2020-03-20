@@ -236,6 +236,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private Storage<String> eventServiceUrlStorage;
     private Storage<String> clientServiceUrlStorage;
     private Storage<String> inboxServiceUrlStorage;
+    private Storage<String> messageInboxServiceUrlStorage;
     private Storage<String> mobileEngageV2ServiceUrlStorage;
     private Storage<String> deepLinkServiceUrlStorage;
     private Storage<String> predictServiceUrlStorage;
@@ -243,6 +244,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private ServiceEndpointProvider eventServiceProvider;
     private ServiceEndpointProvider clientServiceProvider;
     private ServiceEndpointProvider inboxServiceProvider;
+    private ServiceEndpointProvider messageInboxServiceProvider;
     private ServiceEndpointProvider mobileEngageV2ServiceProvider;
     private ServiceEndpointProvider deepLinkServiceProvider;
     private ServiceEndpointProvider predictServiceProvider;
@@ -503,6 +505,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         eventServiceUrlStorage = new StringStorage(MobileEngageStorageKey.EVENT_SERVICE_URL, prefs);
         clientServiceUrlStorage = new StringStorage(MobileEngageStorageKey.CLIENT_SERVICE_URL, prefs);
         inboxServiceUrlStorage = new StringStorage(MobileEngageStorageKey.INBOX_SERVICE_URL, prefs);
+        messageInboxServiceUrlStorage = new StringStorage(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL, prefs);
         mobileEngageV2ServiceUrlStorage = new StringStorage(MobileEngageStorageKey.ME_V2_SERVICE_URL, prefs);
         deepLinkServiceUrlStorage = new StringStorage(MobileEngageStorageKey.DEEPLINK_SERVICE_URL, prefs);
         predictServiceUrlStorage = new StringStorage(PredictStorageKey.PREDICT_SERVICE_URL, prefs);
@@ -510,6 +513,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         eventServiceProvider = new ServiceEndpointProvider(getEventServiceStorage(), Endpoint.ME_V3_EVENT_HOST);
         clientServiceProvider = new ServiceEndpointProvider(getClientServiceStorage(), Endpoint.ME_V3_CLIENT_HOST);
         inboxServiceProvider = new ServiceEndpointProvider(getInboxServiceStorage(), Endpoint.INBOX_BASE);
+        messageInboxServiceProvider = new ServiceEndpointProvider(getMessageInboxServiceStorage(), Endpoint.ME_V3_INBOX_HOST);
         mobileEngageV2ServiceProvider = new ServiceEndpointProvider(getMobileEngageV2ServiceStorage(), Endpoint.ME_BASE_V2);
         deepLinkServiceProvider = new ServiceEndpointProvider(getDeepLinkServiceStorage(), Endpoint.DEEP_LINK);
         predictServiceProvider = new ServiceEndpointProvider(getPredictServiceStorage(), com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL);
@@ -553,7 +557,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
         restClient = new RestClient(new ConnectionProvider(), timestampProvider, getResponseHandlersProcessor(), createRequestModelMappers());
 
-        requestModelFactory = new MobileEngageRequestModelFactory(requestContext, getClientServiceProvider(), getEventServiceProvider(), getMobileEngageV2ServiceProvider(), getInboxServiceProvider());
+        requestModelFactory = new MobileEngageRequestModelFactory(requestContext, getClientServiceProvider(), getEventServiceProvider(), getMobileEngageV2ServiceProvider(), getInboxServiceProvider(), getMessageInboxServiceProvider());
 
         emarsysRequestModelFactory = new EmarsysRequestModelFactory(requestContext);
 
@@ -852,6 +856,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     }
 
     @Override
+    public ServiceEndpointProvider getMessageInboxServiceProvider() {
+        return messageInboxServiceProvider;
+    }
+
+    @Override
     public ServiceEndpointProvider getMobileEngageV2ServiceProvider() {
         return mobileEngageV2ServiceProvider;
     }
@@ -879,6 +888,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     @Override
     public Storage<String> getInboxServiceStorage() {
         return inboxServiceUrlStorage;
+    }
+
+    @Override
+    public Storage<String> getMessageInboxServiceStorage() {
+        return messageInboxServiceUrlStorage;
     }
 
     @Override

@@ -24,27 +24,27 @@ class MessageInboxProxyTest {
     }
 
     @Test
-    fun testFetchNotificationsDelegatesToInternalMethod_throughRunnerProxy() {
+    fun testFetchInboxMessagesDelegatesToInternalMethod_throughRunnerProxy() {
         val resultListener = mock<ResultListener<Try<MessageInboxResult>>>()
         inboxProxy.fetchNotifications(resultListener)
 
         verify(spyRunnerProxy).logException(any())
-        verify(mockInboxInternal).fetchNotifications(resultListener)
+        verify(mockInboxInternal).fetchInboxMessages(resultListener)
     }
 
     @Test
-    fun testFetchNotificationsWithLambdaDelegatesToInternalMethod_throughRunnerProxy() {
+    fun testFetchInboxMessagesWithLambdaDelegatesToInternalMethod_throughRunnerProxy() {
         val resultListener: (Try<MessageInboxResult>) -> Unit = {}
 
         inboxProxy.fetchNotifications(resultListener)
 
         verify(spyRunnerProxy).logException(any())
-        verify(mockInboxInternal).fetchNotifications(any())
+        verify(mockInboxInternal).fetchInboxMessages(any())
     }
 
     @Test
     fun testTrackNotificationOpenDelegatesToInternalMethod_throughRunnerProxy() {
-        val inboxMessage = InboxMessage("test")
+        val inboxMessage = createInboxMessage()
         inboxProxy.trackNotificationOpen(inboxMessage)
 
         verify(spyRunnerProxy).logException(any())
@@ -53,7 +53,7 @@ class MessageInboxProxyTest {
 
     @Test
     fun testTrackNotificationOpenWithResultListenerDelegatesToInternalMethod_throughRunnerProxy() {
-        val inboxMessage = InboxMessage("test")
+        val inboxMessage = createInboxMessage()
         val mockCompletionListener = mock<CompletionListener>()
         inboxProxy.trackNotificationOpen(inboxMessage, mockCompletionListener)
 
@@ -63,11 +63,30 @@ class MessageInboxProxyTest {
 
     @Test
     fun testTrackNotificationOpenWithLambdaDelegatesToInternalMethod_throughRunnerProxy() {
-        val inboxMessage = InboxMessage("test")
+        val inboxMessage = createInboxMessage()
         val mockCompletionListener: (Throwable?) -> Unit = {}
         inboxProxy.trackNotificationOpen(inboxMessage, mockCompletionListener)
 
         verify(spyRunnerProxy).logException(any())
         verify(mockInboxInternal).trackNotificationOpen(eq(inboxMessage), any())
+    }
+
+    private fun createInboxMessage(): InboxMessage {
+        return InboxMessage(
+                "messageId",
+                1,
+                "campaignId",
+                "title",
+                "body",
+                "imageUrl",
+                "action",
+                12341234,
+                12341234,
+                1,
+                listOf(),
+                1,
+                1,
+                "sourceType"
+        )
     }
 }

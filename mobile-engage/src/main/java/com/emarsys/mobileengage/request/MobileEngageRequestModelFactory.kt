@@ -21,7 +21,8 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
                                       private val clientServiceProvider: ServiceEndpointProvider,
                                       private val eventServiceProvider: ServiceEndpointProvider,
                                       private val mobileEngageV2Provider: ServiceEndpointProvider,
-                                      private val inboxServiceProvider: ServiceEndpointProvider) {
+                                      private val inboxServiceProvider: ServiceEndpointProvider,
+                                      private val messageInboxServiceProvider: ServiceEndpointProvider) {
 
     fun createSetPushTokenRequest(pushToken: String): RequestModel {
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
@@ -117,6 +118,14 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
                 .url("${inboxServiceProvider.provideEndpointHost()}notifications")
                 .headers(RequestHeaderUtils.createInboxHeaders(requestContext))
                 .method(RequestMethod.GET)
+                .build()
+    }
+
+    fun createFetchInboxMessagesRequest(): RequestModel {
+        return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
+                .method(RequestMethod.GET)
+                .url("${messageInboxServiceProvider.provideEndpointHost()}${Endpoint.inboxBase(requestContext.applicationCode)}")
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .build()
     }
 

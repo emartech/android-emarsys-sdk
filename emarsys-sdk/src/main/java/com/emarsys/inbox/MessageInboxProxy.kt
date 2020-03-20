@@ -12,7 +12,7 @@ import com.emarsys.mobileengage.inbox.MessageInboxInternal
 class MessageInboxProxy(private val runnerProxy: RunnerProxy, private val inboxInternal: MessageInboxInternal) : MessageInboxApi {
     override fun fetchNotifications(resultListener: ResultListener<Try<MessageInboxResult>>) {
         runnerProxy.logException {
-            inboxInternal.fetchNotifications(resultListener)
+            inboxInternal.fetchInboxMessages(resultListener)
         }
     }
 

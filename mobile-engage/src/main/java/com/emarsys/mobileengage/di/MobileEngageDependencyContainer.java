@@ -82,6 +82,8 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
 
     ServiceEndpointProvider getInboxServiceProvider();
 
+    ServiceEndpointProvider getMessageInboxServiceProvider();
+
     ServiceEndpointProvider getMobileEngageV2ServiceProvider();
 
     Storage<String> getClientServiceStorage();
@@ -91,6 +93,8 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
     Storage<String> getDeepLinkServiceStorage();
 
     Storage<String> getInboxServiceStorage();
+
+    Storage<String> getMessageInboxServiceStorage();
 
     Storage<String> getMobileEngageV2ServiceStorage();
 
