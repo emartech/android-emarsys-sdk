@@ -85,7 +85,7 @@ class MessageInboxProxyTest {
                 1,
                 listOf(),
                 1,
-                1,
+                "1",
                 "sourceType"
         )
     }

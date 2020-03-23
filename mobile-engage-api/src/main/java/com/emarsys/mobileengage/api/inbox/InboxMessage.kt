@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.api.inbox
 
 data class InboxMessage(
         val id: String,
-        val multiChannelId: Int?,
+        val multichannelId: Int?,
         val campaignId: String?,
         val title: String,
         val body: String,
@@ -13,6 +13,6 @@ data class InboxMessage(
         val ttl: Int?,
         val tags: List<String>?,
         val sourceId: Int,
-        val sourceRunId: Int?,
+        val sourceRunId: String?,
         val sourceType: String
 )
