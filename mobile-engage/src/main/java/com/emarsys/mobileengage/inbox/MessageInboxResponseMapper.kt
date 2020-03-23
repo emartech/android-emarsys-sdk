@@ -1,11 +1,13 @@
 package com.emarsys.mobileengage.inbox
 
 import com.emarsys.core.Mapper
+import com.emarsys.core.Mockable
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.api.inbox.InboxMessage
 import com.emarsys.mobileengage.api.inbox.MessageInboxResult
 import org.json.JSONObject
 
+@Mockable
 class MessageInboxResponseMapper : Mapper<ResponseModel, MessageInboxResult> {
 
     override fun map(responseModel: ResponseModel?): MessageInboxResult {

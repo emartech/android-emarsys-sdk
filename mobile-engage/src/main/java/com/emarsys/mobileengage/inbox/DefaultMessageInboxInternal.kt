@@ -18,7 +18,8 @@ class DefaultMessageInboxInternal(private val NotificationCache: NotificationCac
                                   private val requestManager: RequestManager,
                                   private val mobileEngageRequestContext: MobileEngageRequestContext,
                                   private val mobileEngageRequestModelFactory: MobileEngageRequestModelFactory,
-                                  private val handler: Handler) : MessageInboxInternal {
+                                  private val handler: Handler,
+                                  private val messageInboxResponseMapper: MessageInboxResponseMapper) : MessageInboxInternal {
 
     override fun fetchInboxMessages(resultListener: ResultListener<Try<MessageInboxResult>>) {
         if (mobileEngageRequestContext.contactFieldValueStorage.get() != null) {
@@ -35,7 +36,7 @@ class DefaultMessageInboxInternal(private val NotificationCache: NotificationCac
 
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
-                resultListener.onResult(Try.success(MessageInboxResult(listOf())))
+                resultListener.onResult(Try.success(messageInboxResponseMapper.map(responseModel)))
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {

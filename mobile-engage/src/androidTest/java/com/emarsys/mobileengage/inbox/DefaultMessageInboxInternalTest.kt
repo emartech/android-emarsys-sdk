@@ -30,6 +30,7 @@ class DefaultMessageInboxInternalTest {
     private lateinit var mockNotificationCache: NotificationCache
     private lateinit var mockRequestManager: RequestManager
     private lateinit var mockRequestContext: MobileEngageRequestContext
+    private lateinit var mockMessageInboxResponseMapper: MessageInboxResponseMapper
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockContactFieldValueStorage: Storage<String>
@@ -44,7 +45,9 @@ class DefaultMessageInboxInternalTest {
     @Before
     fun setUp() {
         latch = CountDownLatch(1)
-
+        mockMessageInboxResponseMapper = mock {
+            on { map(any()) } doReturn MessageInboxResult(listOf())
+        }
         mockContactFieldValueStorage = mock {
             on { get() } doReturn "contactFieldValue"
         }
@@ -67,13 +70,14 @@ class DefaultMessageInboxInternalTest {
                 mockRequestManager,
                 mockRequestContext,
                 mockRequestModelFactory,
-                handler)
+                handler,
+                mockMessageInboxResponseMapper
+        )
     }
 
     @Test
     fun testFetchInboxMessages_callsRequestModelFactoryForCreateFetchInboxMessagesRequest_andSubmitsToRequestManager() {
         val mockResultListener = mock<ResultListener<Try<MessageInboxResult>>>()
-
         messageInboxInternal.fetchInboxMessages(mockResultListener)
 
         verify(mockRequestModelFactory).createFetchInboxMessagesRequest()
@@ -107,7 +111,8 @@ class DefaultMessageInboxInternalTest {
                 requestManagerWithRestClient(FakeRestClient(mockResponse, FakeRestClient.Mode.SUCCESS)),
                 mockRequestContext,
                 mockRequestModelFactory,
-                handler
+                handler,
+                mockMessageInboxResponseMapper
         )
 
         val fakeResultListener = FakeResultListener<MessageInboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
@@ -116,6 +121,8 @@ class DefaultMessageInboxInternalTest {
         fakeResultListener.latch.await()
 
         fakeResultListener.successCount shouldBe 1
+        verify(mockMessageInboxResponseMapper).map(mockResponse)
+
     }
 
     @Test
@@ -131,7 +138,8 @@ class DefaultMessageInboxInternalTest {
                 requestManagerWithRestClient(FakeRestClient(errorResponse, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
                 mockRequestContext,
                 mockRequestModelFactory,
-                handler
+                handler,
+                mockMessageInboxResponseMapper
         )
 
         val fakeResultListener = FakeResultListener<MessageInboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
@@ -158,7 +166,8 @@ class DefaultMessageInboxInternalTest {
                 requestManagerWithRestClient(FakeRestClient(expectedException)),
                 mockRequestContext,
                 mockRequestModelFactory,
-                handler
+                handler,
+                mockMessageInboxResponseMapper
         )
 
         val fakeResultListener = FakeResultListener<MessageInboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
