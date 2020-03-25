@@ -14,7 +14,6 @@ import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.api.inbox.MessageInboxResult
 import com.emarsys.mobileengage.fake.FakeRestClient
 import com.emarsys.mobileengage.fake.FakeResultListener
-import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.*
@@ -27,7 +26,6 @@ import java.util.concurrent.CountDownLatch
 
 class DefaultMessageInboxInternalTest {
 
-    private lateinit var mockNotificationCache: NotificationCache
     private lateinit var mockRequestManager: RequestManager
     private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockMessageInboxResponseMapper: MessageInboxResponseMapper
@@ -51,7 +49,6 @@ class DefaultMessageInboxInternalTest {
         mockContactFieldValueStorage = mock {
             on { get() } doReturn "contactFieldValue"
         }
-        mockNotificationCache = mock()
         mockRequestManager = mock()
         mockRequestModel = mock {
             on { id } doReturn "requestId"
@@ -66,7 +63,6 @@ class DefaultMessageInboxInternalTest {
         handler = Handler(Looper.getMainLooper())
 
         messageInboxInternal = DefaultMessageInboxInternal(
-                mockNotificationCache,
                 mockRequestManager,
                 mockRequestContext,
                 mockRequestModelFactory,
@@ -107,7 +103,6 @@ class DefaultMessageInboxInternalTest {
             on { message } doReturn "OK"
         }
         val messageInboxInternal = DefaultMessageInboxInternal(
-                mockNotificationCache,
                 requestManagerWithRestClient(FakeRestClient(mockResponse, FakeRestClient.Mode.SUCCESS)),
                 mockRequestContext,
                 mockRequestModelFactory,
@@ -134,7 +129,6 @@ class DefaultMessageInboxInternalTest {
             on { body } doReturn "Error happened"
         }
         val messageInboxInternal = DefaultMessageInboxInternal(
-                mockNotificationCache,
                 requestManagerWithRestClient(FakeRestClient(errorResponse, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
                 mockRequestContext,
                 mockRequestModelFactory,
@@ -162,7 +156,6 @@ class DefaultMessageInboxInternalTest {
         val expectedException = Exception("TestException")
 
         val messageInboxInternal = DefaultMessageInboxInternal(
-                mockNotificationCache,
                 requestManagerWithRestClient(FakeRestClient(expectedException)),
                 mockRequestContext,
                 mockRequestModelFactory,

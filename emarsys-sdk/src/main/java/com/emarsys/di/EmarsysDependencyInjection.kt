@@ -5,6 +5,7 @@ import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.feature.InnerFeature
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
+import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
@@ -93,6 +94,15 @@ object EmarsysDependencyInjection : DependencyInjection() {
             container().predict
         } else {
             container().loggingPredict
+        }
+    }
+
+    @JvmStatic
+    fun messageInbox(): MessageInboxApi {
+        return if (isMobileEngageEnabled()) {
+            container().messageInbox
+        } else {
+            container().loggingMessageInbox
         }
     }
 

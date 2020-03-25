@@ -32,6 +32,7 @@ class MobileEngageHeaderMapperTest {
         const val APPLICATION_CODE = "applicationCode"
         const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
         const val EVENT_HOST = "https://mobile-event.eservice.emarsys.net"
+        const val INBOX_HOST = "https://mobile-events.eservice.emarsys.net/v3"
     }
 
     private lateinit var mobileEngageHeaderMapper: MobileEngageHeaderMapper
@@ -45,6 +46,7 @@ class MobileEngageHeaderMapperTest {
     private lateinit var mockDeviceInfo: DeviceInfo
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    private lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
 
     @Rule
     @JvmField
@@ -56,9 +58,15 @@ class MobileEngageHeaderMapperTest {
         mockClientServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(CLIENT_HOST)
         }
+
         mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
         }
+
+        mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(INBOX_HOST)
+        }
+
         mockClientStateStorage = (mock(Storage::class.java) as Storage<String>).apply {
             whenever(get()).thenReturn(CLIENT_STATE)
         }
@@ -92,23 +100,28 @@ class MobileEngageHeaderMapperTest {
             whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
         }
 
-        mobileEngageHeaderMapper = MobileEngageHeaderMapper(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider)
+        mobileEngageHeaderMapper = MobileEngageHeaderMapper(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
     }
 
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestContext_mustNotBeNull() {
-        MobileEngageHeaderMapper(null, mockClientServiceProvider, mockEventServiceProvider)
+        MobileEngageHeaderMapper(null, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_clientServiceProvider_mustNotBeNull() {
-        MobileEngageHeaderMapper(mockRequestContext, null, mockEventServiceProvider)
+        MobileEngageHeaderMapper(mockRequestContext, null, mockEventServiceProvider, mockMessageInboxServiceProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_eventServiceProvider_mustNotBeNull() {
-        MobileEngageHeaderMapper(mockRequestContext, mockClientServiceProvider, null)
+        MobileEngageHeaderMapper(mockRequestContext, mockClientServiceProvider, null, mockMessageInboxServiceProvider)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_messageInboxServiceProvider_mustNotBeNull() {
+        MobileEngageHeaderMapper(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, null)
     }
 
     @Test(expected = IllegalArgumentException::class)

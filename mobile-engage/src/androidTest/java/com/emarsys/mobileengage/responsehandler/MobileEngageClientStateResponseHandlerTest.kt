@@ -22,6 +22,7 @@ class MobileEngageClientStateResponseHandlerTest {
         const val APPLICATION_CODE = "applicationCode"
         const val CLIENT_HOST = "https://mobile-events.eservice.emarsys.net"
         const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
+        const val INBOX_HOST = "https://mobile-events.eservice.emarsys.net/v3"
     }
 
     private lateinit var mockStorage: Storage<String>
@@ -29,6 +30,7 @@ class MobileEngageClientStateResponseHandlerTest {
     private lateinit var clientStateResponseHandler: MobileEngageClientStateResponseHandler
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    private lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
 
     @Rule
     @JvmField
@@ -45,11 +47,14 @@ class MobileEngageClientStateResponseHandlerTest {
         mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
         }
+        mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(INBOX_HOST)
+        }
 
         requestModelMock = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(CLIENT_HOST + Endpoint.clientBase(APPLICATION_CODE)))
         }
-        clientStateResponseHandler = MobileEngageClientStateResponseHandler(mockStorage, mockClientServiceProvider, mockEventServiceProvider)
+        clientStateResponseHandler = MobileEngageClientStateResponseHandler(mockStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
     }
 
     @Test

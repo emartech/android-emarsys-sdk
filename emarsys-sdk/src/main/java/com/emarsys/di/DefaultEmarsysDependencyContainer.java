@@ -78,6 +78,8 @@ import com.emarsys.inapp.InAppApi;
 import com.emarsys.inapp.InAppProxy;
 import com.emarsys.inbox.InboxApi;
 import com.emarsys.inbox.InboxProxy;
+import com.emarsys.inbox.MessageInboxApi;
+import com.emarsys.inbox.MessageInboxProxy;
 import com.emarsys.mobileengage.DefaultMobileEngageInternal;
 import com.emarsys.mobileengage.LoggingMobileEngageInternal;
 import com.emarsys.mobileengage.MobileEngageInternal;
@@ -115,8 +117,12 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
+import com.emarsys.mobileengage.inbox.DefaultMessageInboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternal;
 import com.emarsys.mobileengage.inbox.InboxInternalProvider;
+import com.emarsys.mobileengage.inbox.LoggingMessageInboxInternal;
+import com.emarsys.mobileengage.inbox.MessageInboxInternal;
+import com.emarsys.mobileengage.inbox.MessageInboxResponseMapper;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.notification.ActionCommandFactory;
 import com.emarsys.mobileengage.push.DefaultPushInternal;
@@ -167,6 +173,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private MobileEngageInternal loggingMobileEngageInternal;
     private InboxInternal inboxInternal;
     private InboxInternal loggingInboxInternal;
+    private MessageInboxInternal messageInboxInternal;
+    private MessageInboxInternal loggingMessageInboxInternal;
     private DeepLinkInternal deepLinkInternal;
     private DeepLinkInternal loggingDeepLinkInternal;
     private PredictInternal predictInternal;
@@ -222,6 +230,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private NotificationCache notificationCache;
     private InboxApi inboxApi;
     private InboxApi loggingInboxApi;
+    private MessageInboxApi messageInboxApi;
+    private MessageInboxApi loggingMessageInboxApi;
     private InAppApi inAppApi;
     private InAppApi loggingInAppApi;
     private PushApi pushApi;
@@ -299,6 +309,16 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     @Override
     public InboxInternal getLoggingInboxInternal() {
         return loggingInboxInternal;
+    }
+
+    @Override
+    public MessageInboxInternal getMessageInboxInternal() {
+        return messageInboxInternal;
+    }
+
+    @Override
+    public MessageInboxInternal getLoggingMessageInboxInternal() {
+        return loggingMessageInboxInternal;
     }
 
     @Override
@@ -561,7 +581,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
         emarsysRequestModelFactory = new EmarsysRequestModelFactory(requestContext);
 
-        contactTokenResponseHandler = new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage, getClientServiceProvider(), getEventServiceProvider());
+        contactTokenResponseHandler = new MobileEngageTokenResponseHandler("contactToken", contactTokenStorage, getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider());
 
         notificationCache = new NotificationCache();
         refreshTokenInternal = new MobileEngageRefreshTokenInternal(
@@ -583,7 +603,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
                 getRestClient(),
                 contactTokenStorage,
                 getClientServiceProvider(),
-                getEventServiceProvider()
+                getEventServiceProvider(),
+                getMessageInboxServiceProvider()
         );
         Worker worker = new DefaultWorker(
                 requestModelRepository,
@@ -666,6 +687,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
                 requestContext,
                 requestModelFactory
         );
+        messageInboxInternal = new DefaultMessageInboxInternal(requestManager, requestContext, requestModelFactory, uiHandler, new MessageInboxResponseMapper());
 
         loggingMobileEngageInternal = new LoggingMobileEngageInternal(Emarsys.class);
         loggingDeepLinkInternal = new LoggingDeepLinkInternal(Emarsys.class);
@@ -675,6 +697,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         loggingGeofenceInternal = new LoggingGeofenceInternal(Emarsys.class);
         loggingInAppInternal = new LoggingInAppInternal(Emarsys.InApp.class);
         loggingInboxInternal = inboxInternalProvider.provideLoggingInboxInternal(Emarsys.Inbox.class);
+        loggingMessageInboxInternal = new LoggingMessageInboxInternal(Emarsys.class);
 
         configInternal = new DefaultConfigInternal(
                 requestContext,
@@ -695,6 +718,9 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
         inboxApi = new InboxProxy(runnerProxy, getInboxInternal());
         loggingInboxApi = new InboxProxy(runnerProxy, getLoggingInboxInternal());
+        messageInboxApi = new MessageInboxProxy(runnerProxy, getMessageInboxInternal());
+        loggingMessageInboxApi = new MessageInboxProxy(runnerProxy, getLoggingMessageInboxInternal());
+
         inAppApi = new InAppProxy(runnerProxy, getInAppInternal());
         loggingInAppApi = new InAppProxy(runnerProxy, getLoggingInAppInternal());
         pushApi = new PushProxy(runnerProxy, getPushInternal());
@@ -724,7 +750,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
     private List<Mapper<RequestModel, RequestModel>> createRequestModelMappers() {
         List<Mapper<RequestModel, RequestModel>> mappers = new ArrayList<>();
-        mappers.add(new MobileEngageHeaderMapper(requestContext, getClientServiceProvider(), getEventServiceProvider()));
+        mappers.add(new MobileEngageHeaderMapper(requestContext, getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()));
         return mappers;
     }
 
@@ -763,9 +789,9 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         responseHandlers.add(new VisitorIdResponseHandler(sharedPrefsKeyStore, predictServiceProvider));
         responseHandlers.add(new XPResponseHandler(sharedPrefsKeyStore, predictServiceProvider));
 
-        responseHandlers.add(new MobileEngageTokenResponseHandler("refreshToken", refreshTokenStorage, getClientServiceProvider(), getEventServiceProvider()));
+        responseHandlers.add(new MobileEngageTokenResponseHandler("refreshToken", refreshTokenStorage, getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()));
         responseHandlers.add(contactTokenResponseHandler);
-        responseHandlers.add(new MobileEngageClientStateResponseHandler(getClientStateStorage(), getClientServiceProvider(), getEventServiceProvider()));
+        responseHandlers.add(new MobileEngageClientStateResponseHandler(getClientStateStorage(), getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()));
         responseHandlers.add(new ClientInfoResponseHandler(getDeviceInfo(), getDeviceInfoHashStorage()));
 
         responseHandlers.add(new InAppMessageResponseHandler(
@@ -788,6 +814,16 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     @Override
     public InboxApi getLoggingInbox() {
         return loggingInboxApi;
+    }
+
+    @Override
+    public MessageInboxApi getMessageInbox() {
+        return messageInboxApi;
+    }
+
+    @Override
+    public MessageInboxApi getLoggingMessageInbox() {
+        return loggingMessageInboxApi;
     }
 
     @Override

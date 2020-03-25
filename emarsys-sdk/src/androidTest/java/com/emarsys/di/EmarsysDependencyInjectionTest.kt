@@ -5,6 +5,7 @@ import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.feature.InnerFeature
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
+import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.DefaultMobileEngageInternal
 import com.emarsys.mobileengage.LoggingMobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageInternal
@@ -44,6 +45,8 @@ class EmarsysDependencyInjectionTest {
 
     private lateinit var mockInbox: InboxApi
     private lateinit var mockLoggingInbox: InboxApi
+    private lateinit var mockMessageInbox: MessageInboxApi
+    private lateinit var mockLoggingMessageInbox: MessageInboxApi
 
     private lateinit var mockInApp: InAppApi
     private lateinit var mockLoggingInApp: InAppApi
@@ -67,6 +70,8 @@ class EmarsysDependencyInjectionTest {
 
         mockInbox = mock(InboxApi::class.java)
         mockLoggingInbox = mock(InboxApi::class.java)
+        mockMessageInbox = mock(MessageInboxApi::class.java)
+        mockLoggingMessageInbox = mock(MessageInboxApi::class.java)
 
         mockInApp = mock(InAppApi::class.java)
         mockLoggingInApp = mock(InAppApi::class.java)
@@ -94,6 +99,8 @@ class EmarsysDependencyInjectionTest {
                 loggingMobileEngageInternal = mockLoggingMobileEngageInternal,
                 inbox = mockInbox,
                 loggingInbox = mockLoggingInbox,
+                messageInbox = mockMessageInbox,
+                loggingMessageInbox = mockLoggingMessageInbox,
                 inApp = mockInApp,
                 loggingInApp = mockLoggingInApp,
                 deepLinkInternal = mockDeepLinkInternal,
@@ -250,5 +257,20 @@ class EmarsysDependencyInjectionTest {
         val result = EmarsysDependencyInjection.predict()
 
         result shouldBeSameInstanceAs mockLoggingPredict
+    }
+
+    @Test
+    fun testMessageInbox_shouldReturnDefaultInstance() {
+        FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+
+        val result = EmarsysDependencyInjection.messageInbox()
+        result shouldBeSameInstanceAs mockMessageInbox
+    }
+
+    @Test
+    fun testMessageInbox_shouldReturnLoggingInstance_whenMEIsDisabled() {
+        val result = EmarsysDependencyInjection.messageInbox()
+
+        result shouldBeSameInstanceAs mockLoggingMessageInbox
     }
 }

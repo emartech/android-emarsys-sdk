@@ -31,6 +31,7 @@ import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.InAppPresenter
 import com.emarsys.mobileengage.inbox.InboxInternal
+import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.PushInternal
@@ -53,6 +54,8 @@ class FakeMobileEngageDependencyContainer(
         private val loggingPushInternal: PushInternal = mock(),
         private val inboxInternal: InboxInternal = mock(),
         private val loggingInboxInternal: InboxInternal = mock(),
+        private val messageInboxInternal: MessageInboxInternal = mock(),
+        private val loggingMessageInboxInternal: MessageInboxInternal = mock(),
         private val inAppInternal: InAppInternal = mock(),
         private val loggingInAppInternal: InAppInternal = mock(),
         private val deepLinkInternal: DeepLinkInternal = mock(),
@@ -213,6 +216,10 @@ class FakeMobileEngageDependencyContainer(
         return requestContext
     }
 
+    override fun getMessageInboxInternal(): MessageInboxInternal {
+        return messageInboxInternal
+    }
+
     override fun getInAppPresenter(): InAppPresenter {
         return inAppPresenter
     }
@@ -295,6 +302,10 @@ class FakeMobileEngageDependencyContainer(
 
     override fun getInboxServiceStorage(): Storage<String> {
         return inboxServiceStorage
+    }
+
+    override fun getLoggingMessageInboxInternal(): MessageInboxInternal {
+        return loggingMessageInboxInternal
     }
 
     override fun getMobileEngageV2ServiceStorage(): Storage<String> {

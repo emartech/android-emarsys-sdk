@@ -65,6 +65,7 @@ class MessagingServiceUtilsTest {
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockFileDownloader: FileDownloader
     private lateinit var mockActionCommandFactory: ActionCommandFactory
+
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule

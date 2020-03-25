@@ -59,6 +59,7 @@ import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.feature.InnerFeature
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
+import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.api.event.EventHandler
@@ -144,14 +145,13 @@ class EmarsysTest {
     private lateinit var mockContactTokenStorage: Storage<String>
     private lateinit var mockClientStateStorage: Storage<String>
     private lateinit var mockInbox: InboxApi
-    private lateinit var mockLoggingInbox: InboxApi
     private lateinit var mockInApp: InAppApi
     private lateinit var mockLoggingInApp: InAppApi
     private lateinit var mockPush: PushApi
-    private lateinit var mockLoggingPush: PushApi
     private lateinit var mockPredict: PredictApi
     private lateinit var mockLoggingPredict: PredictApi
     private lateinit var mockConfig: ConfigApi
+    private lateinit var mockMessageInbox: MessageInboxApi
     private lateinit var mockHardwareIdProvider: HardwareIdProvider
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockNotificationManagerHelper: NotificationManagerHelper
@@ -171,89 +171,86 @@ class EmarsysTest {
 
     @Before
     fun init() {
-        application = spy(getTargetContext().applicationContext as Application)
-        completionListener = mock()
-        mockResultListener = mock()
-        activityLifecycleWatchdog = mock()
-        currentActivityWatchdog = mock()
-        mockCoreSQLiteDatabase = mock()
-        mockMobileEngageInternal = mock()
-        mockDeepLinkInternal = mock()
-        mockEventServiceInternal = mock()
-        mockEventServiceInternal = mock()
-        mockClientServiceInternal = mock()
-        mockPredictInternal = mock()
-        mockPredictShardTrigger = mock()
-        mockLogShardTrigger = mock()
-        mockLanguageProvider = mock()
-        mockVersionProvider = mock()
-        inappEventHandler = mock()
-        oldInappEventHandler = mock()
-        mockDeviceInfoHashStorage = mock()
-        mockContactFieldValueStorage = mock()
-        mockContactTokenStorage = mock()
-        mockClientStateStorage = mock()
-        mockNotificationManagerHelper = mock()
-        configWithInAppEventHandler = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).inAppEventHandler { eventName, payload -> oldInappEventHandler.handleEvent(eventName, payload) }.build()
-        baseConfig = createConfig().build()
-        mobileEngageConfig = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).contactFieldId(CONTACT_FIELD_ID).build()
-        predictConfig = createConfig().predictMerchantId(MERCHANT_ID).build()
-        mockRequestContext = mock()
-        mockHardwareIdProvider = mock()
-        mockInbox = mock()
-        mockLoggingInbox = mock()
-        mockInApp = mock()
-        mockLoggingInApp = mock()
-        mockPush = mock()
-        mockLoggingPush = mock()
-        mockPredict = mock()
-        mockLoggingPredict = mock()
-        mockConfig = mock()
-        mockLogic = mock()
-        mockRecommendationFilter = mock()
-        whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn("hwid")
-        whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn("language")
-        whenever(mockVersionProvider.provideSdkVersion()).thenReturn("version")
-        deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mockVersionProvider,
-                mockLanguageProvider, mockNotificationManagerHelper, true)
-        whenever(mockRequestContext.applicationCode).thenReturn(APPLICATION_CODE)
-        whenever(mockDeviceInfoHashStorage.get()).thenReturn(deviceInfo.hash)
-        whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
-        whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
-        whenever(mockContactTokenStorage.get()).thenReturn("contactToken")
-        DependencyInjection.setup(FakeDependencyContainer(
-                activityLifecycleWatchdog = activityLifecycleWatchdog,
-                currentActivityWatchdog = currentActivityWatchdog,
-                coreSQLiteDatabase = mockCoreSQLiteDatabase,
-                deviceInfo = deviceInfo,
-                logShardTrigger = mockLogShardTrigger,
-                mobileEngageInternal = mockMobileEngageInternal,
-                loggingMobileEngageInternal = mockMobileEngageInternal,
-                deepLinkInternal = mockDeepLinkInternal,
-                loggingDeepLinkInternal = mockDeepLinkInternal,
-                eventServiceInternal = mockEventServiceInternal,
-                loggingEventServiceInternal = mockEventServiceInternal,
-                clientServiceInternal = mockClientServiceInternal,
-                loggingClientServiceInternal = mockClientServiceInternal,
-                predictInternal = mockPredictInternal,
-                loggingPredictInternal = mockPredictInternal,
-                requestContext = mockRequestContext,
-                predictShardTrigger = mockPredictShardTrigger,
-                deviceInfoHashStorage = mockDeviceInfoHashStorage,
-                contactFieldValueStorage = mockContactFieldValueStorage,
-                contactTokenStorage = mockContactTokenStorage,
-                clientStateStorage = mockClientStateStorage,
-                inbox = mockInbox,
-                loggingInbox = mockLoggingInbox,
-                inApp = mockInApp,
-                loggingInApp = mockLoggingInApp,
-                push = mockPush,
-                loggingPush = mockLoggingPush,
-                predict = mockPredict,
-                loggingPredict = mockLoggingPredict,
-                config = mockConfig
-        ))
-        resetFeatures()
+            application = spy(getTargetContext().applicationContext as Application)
+            completionListener = mock()
+            mockResultListener = mock()
+            activityLifecycleWatchdog = mock()
+            currentActivityWatchdog = mock()
+            mockCoreSQLiteDatabase = mock()
+            mockMobileEngageInternal = mock()
+            mockDeepLinkInternal = mock()
+            mockEventServiceInternal = mock()
+            mockEventServiceInternal = mock()
+            mockClientServiceInternal = mock()
+            mockPredictInternal = mock()
+            mockPredictShardTrigger = mock()
+            mockLogShardTrigger = mock()
+            mockLanguageProvider = mock()
+            mockVersionProvider = mock()
+            inappEventHandler = mock()
+            oldInappEventHandler = mock()
+            mockDeviceInfoHashStorage = mock()
+            mockContactFieldValueStorage = mock()
+            mockContactTokenStorage = mock()
+            mockClientStateStorage = mock()
+            mockNotificationManagerHelper = mock()
+            configWithInAppEventHandler = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).inAppEventHandler { eventName, payload -> oldInappEventHandler.handleEvent(eventName, payload) }.build()
+            baseConfig = createConfig().build()
+            mobileEngageConfig = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).contactFieldId(CONTACT_FIELD_ID).build()
+            predictConfig = createConfig().predictMerchantId(MERCHANT_ID).build()
+            mockRequestContext = mock()
+            mockHardwareIdProvider = mock()
+            mockInbox = mock()
+            mockInApp = mock()
+            mockLoggingInApp = mock()
+            mockPush = mock()
+            mockPredict = mock()
+            mockLoggingPredict = mock()
+            mockConfig = mock()
+            mockMessageInbox = mock()
+            mockLogic = mock()
+            mockRecommendationFilter = mock()
+            whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn("hwid")
+            whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn("language")
+            whenever(mockVersionProvider.provideSdkVersion()).thenReturn("version")
+            deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mockVersionProvider,
+                    mockLanguageProvider, mockNotificationManagerHelper, true)
+            whenever(mockRequestContext.applicationCode).thenReturn(APPLICATION_CODE)
+            whenever(mockDeviceInfoHashStorage.get()).thenReturn(deviceInfo.hash)
+            whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
+            whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
+            whenever(mockContactTokenStorage.get()).thenReturn("contactToken")
+            DependencyInjection.setup(FakeDependencyContainer(
+                    activityLifecycleWatchdog = activityLifecycleWatchdog,
+                    currentActivityWatchdog = currentActivityWatchdog,
+                    coreSQLiteDatabase = mockCoreSQLiteDatabase,
+                    deviceInfo = deviceInfo,
+                    logShardTrigger = mockLogShardTrigger,
+                    mobileEngageInternal = mockMobileEngageInternal,
+                    loggingMobileEngageInternal = mockMobileEngageInternal,
+                    deepLinkInternal = mockDeepLinkInternal,
+                    loggingDeepLinkInternal = mockDeepLinkInternal,
+                    eventServiceInternal = mockEventServiceInternal,
+                    loggingEventServiceInternal = mockEventServiceInternal,
+                    clientServiceInternal = mockClientServiceInternal,
+                    loggingClientServiceInternal = mockClientServiceInternal,
+                    predictInternal = mockPredictInternal,
+                    loggingPredictInternal = mockPredictInternal,
+                    requestContext = mockRequestContext,
+                    predictShardTrigger = mockPredictShardTrigger,
+                    deviceInfoHashStorage = mockDeviceInfoHashStorage,
+                    contactFieldValueStorage = mockContactFieldValueStorage,
+                    contactTokenStorage = mockContactTokenStorage,
+                    clientStateStorage = mockClientStateStorage,
+                    inbox = mockInbox,
+                    inApp = mockInApp,
+                    loggingInApp = mockLoggingInApp,
+                    push = mockPush,
+                    predict = mockPredict,
+                    loggingPredict = mockLoggingPredict,
+                    config = mockConfig
+            ))
+            resetFeatures()
     }
 
     @After

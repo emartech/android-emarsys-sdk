@@ -11,7 +11,7 @@ public class Endpoint {
 
     public static final String ME_V3_EVENT_HOST = "https://mobile-events.eservice.emarsys.net";
 
-    public static final String ME_V3_INBOX_HOST = "https://me-inbox.eservice.emarsys.net";
+    public static final String ME_V3_INBOX_HOST = "https://me-inbox.eservice.emarsys.net/v3";
 
     public static final String FETCH_GEOFENCES_URL = "https://ems-mobile-development.s3-eu-west-1.amazonaws.com/geofenceTest.json";
 
@@ -24,6 +24,6 @@ public class Endpoint {
     }
 
     public static String inboxBase(String applicationCode) {
-        return "/v3/apps/" + applicationCode + "/inbox";
+        return "/apps/" + applicationCode + "/inbox";
     }
 }

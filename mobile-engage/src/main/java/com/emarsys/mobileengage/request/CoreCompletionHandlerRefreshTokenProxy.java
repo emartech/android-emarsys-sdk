@@ -22,14 +22,16 @@ public class CoreCompletionHandlerRefreshTokenProxy implements CoreCompletionHan
     private final Storage<String> contactTokenStorage;
     private final ServiceEndpointProvider clientServiceProvider;
     private final ServiceEndpointProvider eventServiceProvider;
+    private final ServiceEndpointProvider messageInboxServiceProvider;
 
-    public CoreCompletionHandlerRefreshTokenProxy(CoreCompletionHandler coreCompletionHandler, RefreshTokenInternal refreshTokenInternal, RestClient restClient, Storage<String> contactTokenStorage, ServiceEndpointProvider clientServiceProvider, ServiceEndpointProvider eventServiceProvider) {
+    public CoreCompletionHandlerRefreshTokenProxy(CoreCompletionHandler coreCompletionHandler, RefreshTokenInternal refreshTokenInternal, RestClient restClient, Storage<String> contactTokenStorage, ServiceEndpointProvider clientServiceProvider, ServiceEndpointProvider eventServiceProvider, ServiceEndpointProvider messageInboxServiceProvider) {
         Assert.notNull(coreCompletionHandler, "CoreCompletionHandler must not be null!");
         Assert.notNull(refreshTokenInternal, "RefreshTokenInternal must not be null!");
         Assert.notNull(restClient, "RestClient must not be null!");
         Assert.notNull(contactTokenStorage, "ContactTokenStorage must not be null!");
         Assert.notNull(clientServiceProvider, "ClientServiceProvider must not be null!");
         Assert.notNull(eventServiceProvider, "EventServiceProvider must not be null!");
+        Assert.notNull(messageInboxServiceProvider, "MessageInboxServiceProvider must not be null!");
 
         this.coreCompletionHandler = coreCompletionHandler;
         this.refreshTokenInternal = refreshTokenInternal;
@@ -37,6 +39,7 @@ public class CoreCompletionHandlerRefreshTokenProxy implements CoreCompletionHan
         this.contactTokenStorage = contactTokenStorage;
         this.clientServiceProvider = clientServiceProvider;
         this.eventServiceProvider = eventServiceProvider;
+        this.messageInboxServiceProvider = messageInboxServiceProvider;
     }
 
     @Override
@@ -46,7 +49,7 @@ public class CoreCompletionHandlerRefreshTokenProxy implements CoreCompletionHan
 
     @Override
     public void onError(final String originalId, final ResponseModel originalResponseModel) {
-        if (originalResponseModel.getStatusCode() == 401 && RequestModelUtils.isMobileEngageV3Request(originalResponseModel.getRequestModel(), eventServiceProvider, clientServiceProvider)) {
+        if (originalResponseModel.getStatusCode() == 401 && RequestModelUtils.isMobileEngageV3Request(originalResponseModel.getRequestModel(), eventServiceProvider, clientServiceProvider, messageInboxServiceProvider)) {
             refreshTokenInternal.refreshContactToken(new CompletionListener() {
                 @Override
                 public void onCompleted(@Nullable Throwable errorCause) {

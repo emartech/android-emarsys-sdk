@@ -18,11 +18,14 @@ class RequestUrlUtilsTest {
         const val CLIENT_BASE = "$CLIENT_HOST/v3/apps/%s/client"
         const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         const val EVENT_BASE = "$EVENT_HOST/v3/apps/%s/client/events"
+        const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/v3"
+        const val INBOX_BASE = "$INBOX_HOST/apps/%s/inbox"
     }
 
     private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    private lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
 
     @Rule
     @JvmField
@@ -39,47 +42,37 @@ class RequestUrlUtilsTest {
         mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
         }
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testIsMobileEngageUrl_url_mustNotBeNull() {
-        RequestUrlUtils.isMobileEngageV3Url(null, mockClientServiceProvider, mockEventServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testIsMobileEngageUrl_eventServiceProvider_mustNotBeNull() {
-        RequestUrlUtils.isMobileEngageV3Url(EVENT_BASE, mockClientServiceProvider, null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testIsMobileEngageUrl_clientServiceProvider_mustNotBeNull() {
-        RequestUrlUtils.isMobileEngageV3Url(EVENT_BASE, null, mockEventServiceProvider)
+        mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(INBOX_BASE)
+        }
     }
 
     @Test
     fun testIsMobileEngageUrl_true_whenItIsMobileEngageClient() {
-        val result = RequestUrlUtils.isMobileEngageV3Url(CLIENT_BASE, mockClientServiceProvider, mockEventServiceProvider)
+        val result = RequestUrlUtils.isMobileEngageV3Url(CLIENT_BASE, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
 
         result shouldBe true
     }
 
     @Test
     fun testIsMobileEngageUrl_true_whenItIsMobileEngageEvent() {
-        val result = RequestUrlUtils.isMobileEngageV3Url(EVENT_BASE, mockClientServiceProvider, mockEventServiceProvider)
+        val result = RequestUrlUtils.isMobileEngageV3Url(EVENT_BASE, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsMobileEngageUrl_true_whenItIsMobileEngageMessageInbox() {
+        val result = RequestUrlUtils.isMobileEngageV3Url(INBOX_BASE, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
 
         result shouldBe true
     }
 
     @Test
     fun testIsMobileEngageUrl_false_whenItIsNotMobileEngage() {
-        val result = RequestUrlUtils.isMobileEngageV3Url("https://not-mobile-engage.com", mockClientServiceProvider, mockEventServiceProvider)
+        val result = RequestUrlUtils.isMobileEngageV3Url("https://not-mobile-engage.com", mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
 
         result shouldBe false
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testIsCustomEvent_V3_requestModel_mustNotBeNull() {
-        RequestUrlUtils.isCustomEvent_V3(null, mockEventServiceProvider)
     }
 
     @Test
@@ -94,16 +87,6 @@ class RequestUrlUtilsTest {
         val result = RequestUrlUtils.isCustomEvent_V3(CLIENT_BASE, mockEventServiceProvider)
 
         result shouldBe false
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testIsRefreshContactTokenUrl_url_mustNotBeNull() {
-        RequestUrlUtils.isRefreshContactTokenUrl(null, mockEventServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testIsRefreshContactTokenUrl_eventServiceProvider_mustNotBeNull() {
-        RequestUrlUtils.isRefreshContactTokenUrl(CLIENT_HOST, null)
     }
 
     @Test

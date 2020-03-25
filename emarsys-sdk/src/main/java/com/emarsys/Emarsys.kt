@@ -23,6 +23,7 @@ import com.emarsys.feature.InnerFeature.PREDICT
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
+import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
@@ -55,6 +56,10 @@ object Emarsys {
     @JvmStatic
     val inbox: InboxApi
         get() = EmarsysDependencyInjection.inbox()
+
+    @JvmStatic
+    val messageInbox: MessageInboxApi
+        get() = EmarsysDependencyInjection.messageInbox()
 
     @JvmStatic
     val predict: PredictApi

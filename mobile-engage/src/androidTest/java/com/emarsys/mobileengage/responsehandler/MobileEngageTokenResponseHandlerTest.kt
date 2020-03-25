@@ -20,6 +20,7 @@ class MobileEngageTokenResponseHandlerTest {
         const val CLIENT_HOST = "https://mobile-events.eservice.emarsys.net"
         const val CLIENT_BASE = "$CLIENT_HOST/v3/apps/%s/client"
         const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
+        const val INBOX_HOST = "https://mobile-events.eservice.emarsys.net/v3"
     }
 
     private lateinit var token: String
@@ -29,6 +30,7 @@ class MobileEngageTokenResponseHandlerTest {
     private lateinit var requestModelMock: RequestModel
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    private lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
 
     @Rule
     @JvmField
@@ -47,11 +49,14 @@ class MobileEngageTokenResponseHandlerTest {
         mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
         }
+        mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(INBOX_HOST)
+        }
 
         requestModelMock = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(CLIENT_BASE))
         }
-        tokenResponseHandler = MobileEngageTokenResponseHandler(tokenKey, mockStorage, mockClientServiceProvider, mockEventServiceProvider)
+        tokenResponseHandler = MobileEngageTokenResponseHandler(tokenKey, mockStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
     }
 
     @Test

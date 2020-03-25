@@ -11,14 +11,15 @@ import com.emarsys.mobileengage.util.RequestModelUtils
 @Mockable
 class MobileEngageClientStateResponseHandler(private val clientStateStorage: Storage<String>,
                                              private val clientServiceProvider: ServiceEndpointProvider,
-                                             private val eventServiceProvider: ServiceEndpointProvider) : AbstractResponseHandler() {
+                                             private val eventServiceProvider: ServiceEndpointProvider,
+                                             private val messageInboxServiceProvider: ServiceEndpointProvider) : AbstractResponseHandler() {
 
     companion object {
         private const val X_CLIENT_STATE = "X-Client-State"
     }
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
-        val isMobileEngageRequest = RequestModelUtils.isMobileEngageV3Request(responseModel.requestModel, clientServiceProvider, eventServiceProvider)
+        val isMobileEngageRequest = RequestModelUtils.isMobileEngageV3Request(responseModel.requestModel, clientServiceProvider, eventServiceProvider, messageInboxServiceProvider)
         val hasClientState = getClientState(responseModel) != null
 
         return isMobileEngageRequest && hasClientState

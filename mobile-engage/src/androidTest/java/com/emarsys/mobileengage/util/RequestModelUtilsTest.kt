@@ -19,10 +19,13 @@ class RequestModelUtilsTest {
         const val CLIENT_BASE = "$CLIENT_HOST/v3/apps/%s/client"
         const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         const val EVENT_BASE = "$EVENT_HOST/v3/apps/%s/client/events"
+        const val INBOX_HOST = "https://mobile-events.eservice.emarsys.net/v3"
+        const val INBOX_BASE = "$INBOX_HOST/apps/%s/inbox"
     }
 
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    private lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
     private lateinit var mockRequestModel: RequestModel
 
     @Before
@@ -33,6 +36,9 @@ class RequestModelUtilsTest {
         mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
         }
+        mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(INBOX_HOST)
+        }
 
         mockRequestModel = mock(RequestModel::class.java)
     }
@@ -41,28 +47,12 @@ class RequestModelUtilsTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testIsMobileEngageRequest_requestModel_mustNotBeNull() {
-        RequestModelUtils.isMobileEngageV3Request(null, mockClientServiceProvider, mockEventServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testIsMobileEngageRequest_clientServiceProvider_mustNotBeNull() {
-        RequestModelUtils.isMobileEngageV3Request(mockRequestModel, null, mockEventServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testIsMobileEngageRequest_eventServiceProvider_mustNotBeNull() {
-        RequestModelUtils.isMobileEngageV3Request(mockRequestModel, mockClientServiceProvider, null)
-    }
-
-
     @Test
     fun testIsMobileEngageRequest_true_whenItIsMobileEngageClient() {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(CLIENT_BASE))
         }
-        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider)
+        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
 
         result shouldBe true
     }
@@ -72,7 +62,17 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(EVENT_BASE))
         }
-        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider)
+        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsMobileEngageRequest_true_whenItIsMobileEngageMessageInbox() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL(INBOX_BASE))
+        }
+        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
 
         result shouldBe true
     }
@@ -82,19 +82,9 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL("https://not-mobile-engage.com"))
         }
-        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider)
+        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
 
         result shouldBe false
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testIsCustomEvent_V3_requestModel_mustNotBeNull() {
-        RequestModelUtils.isCustomEvent_V3(null, mockEventServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testIsCustomEvent_V3_eventServiceProvider_mustNotBeNull() {
-        RequestModelUtils.isCustomEvent_V3(mockRequestModel, null)
     }
 
     @Test
@@ -115,16 +105,6 @@ class RequestModelUtilsTest {
         val result = RequestModelUtils.isCustomEvent_V3(requestModel, mockEventServiceProvider)
 
         result shouldBe false
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testIsRefreshContactTokenRequest_mustNotBeNull() {
-        RequestModelUtils.isRefreshContactTokenRequest(null, mockClientServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testIsRefreshContactTokenRequest_clientServiceProvider_mustNotBeNull() {
-        RequestModelUtils.isRefreshContactTokenRequest(mockRequestModel, null)
     }
 
     @Test

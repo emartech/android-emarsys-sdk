@@ -17,6 +17,7 @@ import com.emarsys.mobileengage.geofence.GeofenceInternal;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.InAppPresenter;
 import com.emarsys.mobileengage.inbox.InboxInternal;
+import com.emarsys.mobileengage.inbox.MessageInboxInternal;
 import com.emarsys.mobileengage.inbox.model.NotificationCache;
 import com.emarsys.mobileengage.notification.ActionCommandFactory;
 import com.emarsys.mobileengage.push.PushInternal;
@@ -35,6 +36,10 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
     InboxInternal getInboxInternal();
 
     InboxInternal getLoggingInboxInternal();
+
+    MessageInboxInternal getMessageInboxInternal();
+
+    MessageInboxInternal getLoggingMessageInboxInternal();
 
     InAppInternal getInAppInternal();
 

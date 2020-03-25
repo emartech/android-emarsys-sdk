@@ -5,6 +5,7 @@ import com.emarsys.config.ConfigInternal;
 import com.emarsys.geofence.GeofenceApi;
 import com.emarsys.inapp.InAppApi;
 import com.emarsys.inbox.InboxApi;
+import com.emarsys.inbox.MessageInboxApi;
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 import com.emarsys.predict.PredictApi;
 import com.emarsys.predict.di.PredictDependencyContainer;
@@ -14,6 +15,10 @@ public interface EmarsysDependencyContainer extends MobileEngageDependencyContai
     InboxApi getInbox();
 
     InboxApi getLoggingInbox();
+
+    MessageInboxApi getMessageInbox();
+
+    MessageInboxApi getLoggingMessageInbox();
 
     InAppApi getInApp();
 

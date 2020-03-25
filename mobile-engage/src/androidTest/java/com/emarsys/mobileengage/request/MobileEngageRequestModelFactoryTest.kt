@@ -35,7 +35,7 @@ class MobileEngageRequestModelFactoryTest {
         const val MOBILE_ENGAGE_V2_HOST = "https://push.eservice.emarsys.net/api/mobileengage/v2/"
         const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/api/"
-        const val INBOX_V3_HOST = "https://me-inbox.eservice.emarsys.net"
+        const val INBOX_V3_HOST = "https://me-inbox.eservice.emarsys.net/v3"
     }
 
     lateinit var mockRequestContext: MobileEngageRequestContext
