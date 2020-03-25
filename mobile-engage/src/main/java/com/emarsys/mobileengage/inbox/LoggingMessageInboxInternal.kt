@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.inbox
 
+import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.util.SystemUtils
@@ -12,5 +13,25 @@ class LoggingMessageInboxInternal(val klass: Class<*>) : MessageInboxInternal {
         val callerMethodName = SystemUtils.getCallerMethodName()
 
         debug(MethodNotAllowed(klass, callerMethodName, mapOf()))
+    }
+
+    override fun addTag(tag: String, messageId: String, completionListener: CompletionListener?) {
+        val callerMethodName = SystemUtils.getCallerMethodName()
+
+        debug(MethodNotAllowed(klass, callerMethodName, mapOf(
+                "tag" to tag,
+                "message_id" to messageId,
+                "completion_listener" to (completionListener != null)
+        )))
+    }
+
+    override fun removeTag(tag: String, messageId: String, completionListener: CompletionListener?) {
+        val callerMethodName = SystemUtils.getCallerMethodName()
+
+        debug(MethodNotAllowed(klass, callerMethodName, mapOf(
+                "tag" to tag,
+                "message_id" to messageId,
+                "completion_listener" to (completionListener != null)
+        )))
     }
 }

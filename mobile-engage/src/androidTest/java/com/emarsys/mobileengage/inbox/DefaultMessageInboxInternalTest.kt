@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.inbox
 import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.api.ResponseErrorException
+import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.request.RequestManager
@@ -25,6 +26,12 @@ import org.junit.rules.TestRule
 import java.util.concurrent.CountDownLatch
 
 class DefaultMessageInboxInternalTest {
+    private companion object {
+        private const val TAG = "READ"
+        private const val MESSAGE_ID = "testMessageId"
+        private const val ADD_EVENT_NAME = "inbox:tag:add"
+        private const val REMOVE_EVENT_NAME = "inbox:tag:remove"
+    }
 
     private lateinit var mockRequestManager: RequestManager
     private lateinit var mockRequestContext: MobileEngageRequestContext
@@ -171,6 +178,36 @@ class DefaultMessageInboxInternalTest {
         fakeResultListener.successCount shouldBe 0
         fakeResultListener.errorCount shouldBe 1
         fakeResultListener.errorCause shouldBe expectedException
+    }
+
+    @Test
+    fun testTrackAddTag_callsRequestModelFactoryForInternalCustomEventRequest_andSubmitsToRequestManager() {
+        val mockCompletionListener: CompletionListener = mock()
+        val eventAttributes = mapOf(
+                "messageId" to MESSAGE_ID,
+                "tag" to TAG
+        )
+        whenever(mockRequestModelFactory.createInternalCustomEventRequest(ADD_EVENT_NAME, eventAttributes)).thenReturn(mockRequestModel)
+
+        messageInboxInternal.addTag(TAG, MESSAGE_ID, mockCompletionListener)
+
+        verify(mockRequestModelFactory).createInternalCustomEventRequest(ADD_EVENT_NAME, eventAttributes)
+        verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+    }
+
+    @Test
+    fun testRemoveTag_callsRequestModelFactoryForInternalCustomEventRequest_andSubmitsToRequestManager() {
+        val mockCompletionListener: CompletionListener = mock()
+        val eventAttributes = mapOf(
+                "messageId" to MESSAGE_ID,
+                "tag" to TAG
+        )
+        whenever(mockRequestModelFactory.createInternalCustomEventRequest(REMOVE_EVENT_NAME, eventAttributes)).thenReturn(mockRequestModel)
+
+        messageInboxInternal.removeTag(TAG, MESSAGE_ID, mockCompletionListener)
+
+        verify(mockRequestModelFactory).createInternalCustomEventRequest(REMOVE_EVENT_NAME, eventAttributes)
+        verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
     }
 
     @Suppress("UNCHECKED_CAST")

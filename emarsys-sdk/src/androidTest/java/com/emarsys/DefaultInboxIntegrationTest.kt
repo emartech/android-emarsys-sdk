@@ -44,6 +44,7 @@ class DefaultInboxIntegrationTest {
         private const val CONTACT_FIELD_ID = 3
         private const val SDK_VERSION = "2.1.0-integration"
         private const val LANGUAGE = "en-US"
+
         @BeforeClass
         @JvmStatic
         fun beforeAll() {
@@ -172,14 +173,6 @@ class DefaultInboxIntegrationTest {
     }
 
     @Test
-    fun testFetchInboxMessages() {
-        Emarsys.messageInbox.fetchNotifications(eventuallyStoreResultInProperty(this::triedMessageInboxResult.setter)).eventuallyAssert {
-            triedMessageInboxResult.errorCause shouldBe null
-            triedMessageInboxResult.result shouldNotBe null
-        }
-    }
-
-    @Test
     fun testResetBadgeCount() {
         Emarsys.inbox.resetBadgeCount(eventuallyStoreResultInProperty(this::errorCause.setter)).eventuallyAssert {
             errorCause shouldBe null
@@ -202,6 +195,29 @@ class DefaultInboxIntegrationTest {
             errorCause shouldBe null
         }
     }
+
+    @Test
+    fun testFetchInboxMessages() {
+        Emarsys.messageInbox.fetchNotifications(eventuallyStoreResultInProperty(this::triedMessageInboxResult.setter)).eventuallyAssert {
+            triedMessageInboxResult.errorCause shouldBe null
+            triedMessageInboxResult.result shouldNotBe null
+        }
+    }
+
+    @Test
+    fun testAddTag() {
+        Emarsys.messageInbox.addTag("TEST_TAG", "testMessageId", eventuallyStoreResultInProperty(this::errorCause.setter)).eventuallyAssert {
+            errorCause shouldBe null
+        }
+    }
+
+    @Test
+    fun testRemoveTag() {
+        Emarsys.messageInbox.removeTag("TEST_TAG", "testMessageId", eventuallyStoreResultInProperty(this::errorCause.setter)).eventuallyAssert {
+            errorCause shouldBe null
+        }
+    }
+
 
     private fun <T> eventuallyStoreResultInProperty(setter: KMutableProperty0.Setter<T>): (T) -> Unit {
         return {

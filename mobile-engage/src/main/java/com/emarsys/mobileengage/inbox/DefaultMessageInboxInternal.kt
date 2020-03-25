@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.inbox
 import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
+import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.request.RequestManager
@@ -25,6 +26,26 @@ class DefaultMessageInboxInternal(private val requestManager: RequestManager,
                 resultListener.onResult(Try.failure(NotificationInboxException("setContact must be called before calling fetchInboxMessages!")))
             }
         }
+    }
+
+    override fun addTag(tag: String, messageId: String, completionListener: CompletionListener?) {
+        val eventAttributes = mapOf(
+                "messageId" to messageId,
+                "tag" to tag
+        )
+        val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest("inbox:tag:add", eventAttributes)
+
+        requestManager.submit(requestModel, completionListener)
+    }
+
+    override fun removeTag(tag: String, messageId: String, completionListener: CompletionListener?) {
+        val eventAttributes = mapOf(
+                "messageId" to messageId,
+                "tag" to tag
+        )
+        val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest("inbox:tag:remove", eventAttributes)
+
+        requestManager.submit(requestModel, completionListener)
     }
 
     private fun handleFetchRequest(resultListener: ResultListener<Try<MessageInboxResult>>) {
