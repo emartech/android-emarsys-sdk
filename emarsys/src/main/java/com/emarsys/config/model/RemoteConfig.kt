@@ -5,4 +5,5 @@ data class RemoteConfig(val eventServiceUrl: String? = null,
                         val predictServiceUrl: String? = null,
                         val mobileEngageV2ServiceUrl: String? = null,
                         val deepLinkServiceUrl: String? = null,
-                        val inboxServiceUrl: String? = null)
+                        val inboxServiceUrl: String? = null,
+                        val messageInboxServiceUrl: String? = null)

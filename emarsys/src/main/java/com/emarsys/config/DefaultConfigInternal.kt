@@ -36,7 +36,8 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val deeplinkServiceStorage: Storage<String>,
                             private val inboxServiceStorage: Storage<String>,
                             private val mobileEngageV2ServiceStorage: Storage<String>,
-                            private val predictServiceStorage: Storage<String>) : ConfigInternal {
+                            private val predictServiceStorage: Storage<String>,
+                            private val messageInboxServiceStorage: Storage<String>) : ConfigInternal {
 
     override val applicationCode: String?
         get() = mobileEngageRequestContext.applicationCode
@@ -194,6 +195,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         inboxServiceStorage.set(remoteConfig.inboxServiceUrl)
         mobileEngageV2ServiceStorage.set(remoteConfig.mobileEngageV2ServiceUrl)
         predictServiceStorage.set(remoteConfig.predictServiceUrl)
+        messageInboxServiceStorage.set(remoteConfig.messageInboxServiceUrl)
     }
 
     override fun resetRemoteConfig() {
@@ -203,5 +205,6 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         inboxServiceStorage.set(null)
         mobileEngageV2ServiceStorage.set(null)
         predictServiceStorage.set(null)
+        messageInboxServiceStorage.set(null)
     }
 }

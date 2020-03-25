@@ -55,6 +55,7 @@ class DefaultConfigInternalTest {
         const val INBOX_SERVICE_URL = "https://inbox.emarsys.com"
         const val MOBILE_ENGAGE_V2_SERVICE_URL = "https://mev2.emarsys.com"
         const val PREDICT_SERVICE_URL = "https://predict.emarsys.com"
+        const val MESSAGE_INBOX_SERVICE_URL = "https://inbox.v3.emarsys.com"
     }
 
     private lateinit var configInternal: ConfigInternal
@@ -78,6 +79,7 @@ class DefaultConfigInternalTest {
     private lateinit var mockInboxServiceStorage: Storage<String>
     private lateinit var mockMobileEngageV2ServiceStorage: Storage<String>
     private lateinit var mockPredictServiceStorage: Storage<String>
+    private lateinit var mockMessageInboxServiceStorage: Storage<String>
 
     @Rule
     @JvmField
@@ -143,6 +145,7 @@ class DefaultConfigInternalTest {
         mockInboxServiceStorage = mock(Storage::class.java) as Storage<String>
         mockMobileEngageV2ServiceStorage = mock(Storage::class.java) as Storage<String>
         mockPredictServiceStorage = mock(Storage::class.java) as Storage<String>
+        mockMessageInboxServiceStorage = mock(Storage::class.java) as Storage<String>
         configInternal = spy(DefaultConfigInternal(mockMobileEngageRequestContext,
                 mockMobileEngageInternal,
                 mockPushInternal,
@@ -157,7 +160,8 @@ class DefaultConfigInternalTest {
                 mockDeeplinkServiceStorage,
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
-                mockPredictServiceStorage))
+                mockPredictServiceStorage,
+                mockMessageInboxServiceStorage))
     }
 
     @After
@@ -251,7 +255,8 @@ class DefaultConfigInternalTest {
                 mockDeeplinkServiceStorage,
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
-                mockPredictServiceStorage)
+                mockPredictServiceStorage,
+                mockMessageInboxServiceStorage)
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {
             latch.countDown()
@@ -295,7 +300,8 @@ class DefaultConfigInternalTest {
                 mockDeeplinkServiceStorage,
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
-                mockPredictServiceStorage)
+                mockPredictServiceStorage,
+                mockMessageInboxServiceStorage)
 
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
             latch.countDown()
@@ -335,7 +341,8 @@ class DefaultConfigInternalTest {
                 mockDeeplinkServiceStorage,
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
-                mockPredictServiceStorage)
+                mockPredictServiceStorage,
+                mockMessageInboxServiceStorage)
 
         val completionListener = CompletionListener {
             latch.countDown()
@@ -377,7 +384,8 @@ class DefaultConfigInternalTest {
                 mockDeeplinkServiceStorage,
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
-                mockPredictServiceStorage)
+                mockPredictServiceStorage,
+                mockMessageInboxServiceStorage)
 
         val completionListener = CompletionListener {
             latch.countDown()
@@ -537,7 +545,8 @@ class DefaultConfigInternalTest {
                 mockDeeplinkServiceStorage,
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
-                mockPredictServiceStorage)
+                mockPredictServiceStorage,
+                mockMessageInboxServiceStorage)
 
         whenever(mockMobileEngageRequestContext.contactFieldId).thenReturn(1)
         val latch = CountDownLatch(1)
@@ -546,7 +555,7 @@ class DefaultConfigInternalTest {
         }
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
         latch.await()
-        
+
         verify(mockMobileEngageRequestContext).contactFieldId
         verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
         verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
@@ -662,7 +671,8 @@ class DefaultConfigInternalTest {
                 mockDeeplinkServiceStorage,
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
-                mockPredictServiceStorage)
+                mockPredictServiceStorage,
+                mockMessageInboxServiceStorage)
 
         whenever(mockConfigResponseMapper.map(mockResponseModel)).thenReturn(expectedResult)
 
@@ -692,7 +702,8 @@ class DefaultConfigInternalTest {
                 mockDeeplinkServiceStorage,
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
-                mockPredictServiceStorage)
+                mockPredictServiceStorage,
+                mockMessageInboxServiceStorage)
 
         val resultListener = FakeResultListener<RemoteConfig>(latch, FakeResultListener.Mode.MAIN_THREAD)
         (configInternal as DefaultConfigInternal).fetchRemoteConfig(resultListener)
@@ -721,7 +732,8 @@ class DefaultConfigInternalTest {
                 mockDeeplinkServiceStorage,
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
-                mockPredictServiceStorage)
+                mockPredictServiceStorage,
+                mockMessageInboxServiceStorage)
 
         val resultListener = FakeResultListener<RemoteConfig>(latch, FakeResultListener.Mode.MAIN_THREAD)
 
@@ -746,6 +758,7 @@ class DefaultConfigInternalTest {
         verify(mockInboxServiceStorage).set(null)
         verify(mockMobileEngageV2ServiceStorage).set(null)
         verify(mockPredictServiceStorage).set(null)
+        verify(mockMessageInboxServiceStorage).set(null)
     }
 
     @Test
@@ -756,7 +769,8 @@ class DefaultConfigInternalTest {
                 deepLinkServiceUrl = DEEPLINK_SERVICE_URL,
                 inboxServiceUrl = INBOX_SERVICE_URL,
                 mobileEngageV2ServiceUrl = MOBILE_ENGAGE_V2_SERVICE_URL,
-                predictServiceUrl = PREDICT_SERVICE_URL
+                predictServiceUrl = PREDICT_SERVICE_URL,
+                messageInboxServiceUrl = MESSAGE_INBOX_SERVICE_URL
         )
 
         (configInternal as DefaultConfigInternal).applyRemoteConfig(remoteConfig)
@@ -767,6 +781,7 @@ class DefaultConfigInternalTest {
         verify(mockInboxServiceStorage).set(INBOX_SERVICE_URL)
         verify(mockMobileEngageV2ServiceStorage).set(MOBILE_ENGAGE_V2_SERVICE_URL)
         verify(mockPredictServiceStorage).set(PREDICT_SERVICE_URL)
+        verify(mockMessageInboxServiceStorage).set(MESSAGE_INBOX_SERVICE_URL)
     }
 
     @Test
@@ -779,6 +794,7 @@ class DefaultConfigInternalTest {
         verify(mockInboxServiceStorage).set(null)
         verify(mockMobileEngageV2ServiceStorage).set(null)
         verify(mockPredictServiceStorage).set(null)
+        verify(mockMessageInboxServiceStorage).set(null)
     }
 
     @Ignore

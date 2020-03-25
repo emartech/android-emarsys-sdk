@@ -67,7 +67,6 @@ class RemoteConfigIntegrationTest {
 
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
-                .inAppEventHandler(Mockito.mock(EventHandler::class.java))
                 .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .build()
@@ -102,6 +101,7 @@ class RemoteConfigIntegrationTest {
         DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.remove()
         DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.remove()
         DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.remove()
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().messageInboxServiceStorage.remove()
 
         latch = CountDownLatch(1)
     }
@@ -122,6 +122,8 @@ class RemoteConfigIntegrationTest {
             DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.remove()
             DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.remove()
             DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.remove()
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().messageInboxServiceStorage.remove()
+
             DependencyInjection.tearDown()
         } catch (e: Exception) {
             e.printStackTrace()

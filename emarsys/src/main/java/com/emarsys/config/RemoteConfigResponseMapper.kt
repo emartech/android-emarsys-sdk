@@ -19,6 +19,7 @@ class RemoteConfigResponseMapper : Mapper<ResponseModel, RemoteConfig> {
                         clientServiceUrl = serviceUrls.optString("clientService", null),
                         deepLinkServiceUrl = serviceUrls.optString("deepLinkService", null),
                         inboxServiceUrl = serviceUrls.optString("inboxService", null),
+                        messageInboxServiceUrl = serviceUrls.optString("messageInboxService", null),
                         mobileEngageV2ServiceUrl = serviceUrls.optString("mobileEngageV2Service", null),
                         predictServiceUrl = serviceUrls.optString("predictService", null)
                 )

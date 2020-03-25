@@ -40,7 +40,8 @@ class RemoteConfigResponseMapperTest {
                                 "predictService":"https://testPredictService.url",
                                 "mobileEngageV2Service":"https://testMobileEngageV2Service.url",
                                 "deepLinkService":"https://testDeepLinkService.url",
-                                "inboxService":"https://testinboxService.url"
+                                "inboxService":"https://testinboxService.url",
+                                "messageInboxService":"https://testMessageInboxService.url"
                         }
                    }
                """.trimIndent()
@@ -52,7 +53,8 @@ class RemoteConfigResponseMapperTest {
                 "https://testPredictService.url",
                 "https://testMobileEngageV2Service.url",
                 "https://testDeepLinkService.url",
-                "https://testinboxService.url")
+                "https://testinboxService.url",
+                "https://testMessageInboxService.url")
 
         val result = remoteConfigResponseMapper.map(mockResponseModel)
 

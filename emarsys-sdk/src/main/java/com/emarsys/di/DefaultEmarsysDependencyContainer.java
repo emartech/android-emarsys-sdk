@@ -714,7 +714,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
                 getDeepLinkServiceStorage(),
                 getInboxServiceStorage(),
                 getMobileEngageV2ServiceStorage(),
-                getPredictServiceStorage());
+                getPredictServiceStorage(),
+                getMessageInboxServiceStorage());
 
         inboxApi = new InboxProxy(runnerProxy, getInboxInternal());
         loggingInboxApi = new InboxProxy(runnerProxy, getLoggingInboxInternal());
