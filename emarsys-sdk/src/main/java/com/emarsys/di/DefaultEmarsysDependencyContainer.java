@@ -626,12 +626,16 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(requestContext));
 
         sharedPrefsKeyStore = new DefaultKeyValueStore(prefs);
-        EventHandler notificationEventHandler = new EventHandler() {
-            @Override
-            public void handleEvent(@NonNull Context context, @NonNull String eventName, @Nullable JSONObject payload) {
-                config.getNotificationEventHandler().handleEvent(context, eventName, payload);
-            }
-        };
+
+        EventHandler notificationEventHandler = null;
+        if (config.getNotificationEventHandler() != null) {
+            notificationEventHandler = new EventHandler() {
+                @Override
+                public void handleEvent(@NonNull Context context, @NonNull String eventName, @Nullable JSONObject payload) {
+                    config.getNotificationEventHandler().handleEvent(context, eventName, payload);
+                }
+            };
+        }
         notificationEventHandlerProvider = new EventHandlerProvider(notificationEventHandler);
         silentMessageEventHandlerProvider = new EventHandlerProvider(null);
         geofenceEventHandlerProvider = new EventHandlerProvider(null);
