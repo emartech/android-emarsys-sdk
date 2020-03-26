@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import com.emarsys.core.provider.activity.CurrentActivityProvider
+import com.emarsys.core.util.JsonUtils
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.event.EventHandlerProvider
@@ -34,6 +35,7 @@ class NotificationCommandFactoryTest {
         private const val SID = "129487fw123"
         private const val MISSING_SID = "Missing sid"
         private const val NAME_OF_EVENT = "nameOfTheEvent"
+        private const val NAME_OF_MANDATORY_APP_EVENT = "push:payload"
     }
 
     @Rule
@@ -135,22 +137,22 @@ class NotificationCommandFactoryTest {
         contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackMessageOpenCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
+        command.commands.filterIsInstance<AppEventCommand>().size shouldBe 2
     }
 
     @Test
     fun testCreateNotificationCommand_defaultAction_shouldCreateAppEvent_withCorrectName() {
         val intent = createDefaultAppEventIntent()
-        val command = extractCommandFromComposite<AppEventCommand>(intent)
-
-        command.name shouldBe NAME_OF_EVENT
+        val commands = extractCommandsFromComposite<AppEventCommand>(intent)
+        val command = commands.first { it.name == NAME_OF_EVENT }
+        command shouldNotBe null
     }
 
     @Test
     fun testCreateNotificationCommand_defaultAction_shouldCreateAppEvent_withCorrectPayload() {
         val intent = createDefaultAppEventIntent()
-        val command = extractCommandFromComposite<AppEventCommand>(intent)
-
-        val payload = command.payload
+        val commands = extractCommandsFromComposite<AppEventCommand>(intent)
+        val payload = commands.first { it.name == NAME_OF_EVENT }.payload
 
         payload.getString("payloadKey") shouldBe "payloadValue"
     }
@@ -158,9 +160,8 @@ class NotificationCommandFactoryTest {
     @Test
     fun testCreateNotificationCommand_defaultAction_shouldCreateAppEvent_withCorrectNotificationEventHandler() {
         val intent = createDefaultAppEventIntent()
-        val command = extractCommandFromComposite<AppEventCommand>(intent)
-
-        val handler = command.notificationEventHandler
+        val commands = extractCommandsFromComposite<AppEventCommand>(intent)
+        val handler = commands.first { it.name == NAME_OF_EVENT }.notificationEventHandler
 
         handler shouldBe mockEventHandler
     }
@@ -180,6 +181,7 @@ class NotificationCommandFactoryTest {
         contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackMessageOpenCommand>(command) shouldBe true
         contains<OpenExternalUrlCommand>(command) shouldBe true
+        contains<AppEventCommand>(command) shouldBe true
     }
 
     @Test
@@ -203,6 +205,8 @@ class NotificationCommandFactoryTest {
         contains<DismissNotificationCommand>(command) shouldBe true
         contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackMessageOpenCommand>(command) shouldBe true
+        contains<AppEventCommand>(command) shouldBe true
+
     }
 
     @Test
@@ -219,6 +223,8 @@ class NotificationCommandFactoryTest {
         contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackMessageOpenCommand>(command) shouldBe true
         contains<CustomEventCommand>(command) shouldBe true
+        contains<AppEventCommand>(command) shouldBe true
+
     }
 
     @Test
@@ -281,6 +287,8 @@ class NotificationCommandFactoryTest {
         contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackActionClickCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
+        command.commands.filterIsInstance<AppEventCommand>().size shouldBe 2
+
     }
 
     @Test
@@ -293,10 +301,12 @@ class NotificationCommandFactoryTest {
 
         command as CompositeCommand
 
-        command.commands.size shouldBe 3
+        command.commands.size shouldBe 4
         contains<DismissNotificationCommand>(command) shouldBe true
         contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackActionClickCommand>(command) shouldBe true
+        contains<AppEventCommand>(command) shouldBe true
+
     }
 
     @Test
@@ -314,27 +324,51 @@ class NotificationCommandFactoryTest {
     @Test
     fun testCreateNotificationCommand_shouldCreateAppEvent_withCorrectName() {
         val intent = createAppEventIntent()
-        val command = extractCommandFromComposite<AppEventCommand>(intent)
+        val commands = extractCommandsFromComposite<AppEventCommand>(intent)
+        val command = commands.first { it.name == NAME_OF_EVENT }
 
-        command.name shouldBe NAME_OF_EVENT
+        command shouldNotBe null
     }
 
     @Test
     fun testCreateNotificationCommand_shouldCreateAppEvent_withCorrectPayload() {
         val intent = createAppEventIntent()
-        val command = extractCommandFromComposite<AppEventCommand>(intent)
-
-        val payload = command.payload
+        val commands = extractCommandsFromComposite<AppEventCommand>(intent)
+        val payload = commands.first { it.name == NAME_OF_EVENT }.payload
 
         payload.getString("payloadKey") shouldBe "payloadValue"
     }
 
     @Test
+    fun testCreateNotificationCommand_shouldCreateMandatoryAppEvent_withCorrectPayload() {
+        val intent = createAppEventIntent()
+        val commands = extractCommandsFromComposite<AppEventCommand>(intent)
+        val payload = commands.first { it.name == NAME_OF_MANDATORY_APP_EVENT }.payload
+        val expected = JSONObject(mapOf(
+                "customKey" to "customValue",
+                "title" to "testTitle",
+                "body" to "testBody",
+                "u" to mapOf(
+                        "sid" to "129487fw123"
+                ),
+                "ems" to mapOf(
+                        "actions" to JSONArray(listOf(JSONObject(mapOf(
+                                "type" to "MEAppEvent",
+                                "id" to "uniqueActionId",
+                                "title" to "title",
+                                "name" to NAME_OF_EVENT,
+                                "payload" to JSONObject(mapOf("payloadKey" to "payloadValue"))
+                        ))))
+                ))
+        )
+        JsonUtils.toFlatMap(payload) shouldBe JsonUtils.toFlatMap(expected)
+    }
+
+    @Test
     fun testCreateNotificationCommand_shouldCreateAppEvent_withCorrectNotificationEventHandler() {
         val intent = createAppEventIntent()
-        val command = extractCommandFromComposite<AppEventCommand>(intent)
-
-        val handler = command.notificationEventHandler
+        val commands = extractCommandsFromComposite<AppEventCommand>(intent)
+        val handler = commands.first { it.name == NAME_OF_EVENT }.notificationEventHandler
 
         handler shouldBe mockEventHandler
     }
@@ -355,9 +389,9 @@ class NotificationCommandFactoryTest {
                 "actionId"
         )
 
-        val command = extractCommandFromComposite<AppEventCommand>(intent)
-
-        command.name shouldBe "eventName"
+        val commands = extractCommandsFromComposite<AppEventCommand>(intent)
+        val command = commands.first { it.name == "eventName" }
+        command shouldNotBe null
     }
 
     @Test
@@ -375,6 +409,8 @@ class NotificationCommandFactoryTest {
         contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackActionClickCommand>(command) shouldBe true
         contains<OpenExternalUrlCommand>(command) shouldBe true
+        contains<AppEventCommand>(command) shouldBe true
+
     }
 
     @Test
@@ -415,6 +451,8 @@ class NotificationCommandFactoryTest {
         contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackActionClickCommand>(command) shouldBe true
         contains<CustomEventCommand>(command) shouldBe true
+        contains<AppEventCommand>(command) shouldBe true
+
     }
 
     @Test
@@ -467,7 +505,7 @@ class NotificationCommandFactoryTest {
         val intent = createOpenExternalLinkIntent()
         val compositeCommands = factory.createNotificationCommand(intent) as CompositeCommand
 
-        compositeCommands.commands[2]::class.java shouldBe LaunchApplicationCommand::class.java
+        compositeCommands.commands[3]::class.java shouldBe LaunchApplicationCommand::class.java
     }
 
     @Test
@@ -486,6 +524,10 @@ class NotificationCommandFactoryTest {
                 list.firstOrNull().takeIf { list.size == 1 }
                         ?: error("CompositeCommand contains multiple commands of type ${T::class.java}: $list")
             }
+
+    @Suppress("UNCHECKED_CAST")
+    private inline fun <reified T : Runnable> extractCommandsFromComposite(intent: Intent) =
+            (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<T>()
 
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : Runnable> contains(command: CompositeCommand) = command.commands.filterIsInstance<T>().isNotEmpty()
@@ -596,6 +638,9 @@ class NotificationCommandFactoryTest {
         intent.action = actionId
 
         val bundle = Bundle()
+        bundle.putString("customKey", "customValue")
+        bundle.putString("title", "testTitle")
+        bundle.putString("body", "testBody")
         bundle.putString("ems", payload.toString())
         if (hasSid) {
             bundle.putString("u", JSONObject().put("sid", SID).toString())

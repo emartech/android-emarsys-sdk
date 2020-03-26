@@ -21,7 +21,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class NotificationCommandFactory {
 
@@ -51,7 +54,7 @@ public class NotificationCommandFactory {
         String actionId = intent.getAction();
         Bundle bundle = intent.getBundleExtra("payload");
         JSONObject action = getAction(bundle, actionId);
-        List<Runnable> commands = createMandatoryCommands(intent);
+        List<Runnable> commands = createMandatoryCommands(intent, bundle);
 
         if (action == null || !action.optString("type").equals("Dismiss")) {
             if (dependencyContainer.getCurrentActivityProvider().get() == null) {
@@ -77,10 +80,11 @@ public class NotificationCommandFactory {
         return new CompositeCommand(commands);
     }
 
-    private List<Runnable> createMandatoryCommands(Intent intent) {
+    private List<Runnable> createMandatoryCommands(Intent intent, Bundle bundle) {
         List<Runnable> commands = new ArrayList<>();
         commands.add(new HideNotificationShadeCommand(context));
         commands.add(new DismissNotificationCommand(context, intent));
+        commands.add(actionCommandFactory.createActionCommand(createActionCommandPayload(bundle)));
 
         return commands;
     }
@@ -164,4 +168,28 @@ public class NotificationCommandFactory {
         }
         return sid;
     }
+
+    private JSONObject createActionCommandPayload(Bundle bundle) {
+        Map<String, Object> payloadMap = new HashMap<>();
+        payloadMap.put("type", "MEAppEvent");
+        payloadMap.put("name", "push:payload");
+        payloadMap.put("payload", extractMandatoryActionPayload(bundle));
+
+        return new JSONObject(payloadMap);
+    }
+
+    private JSONObject extractMandatoryActionPayload(Bundle bundle) {
+        JSONObject json = new JSONObject();
+        if (bundle != null) {
+            Set<String> keys = bundle.keySet();
+            for (String key : keys) {
+                try {
+                    json.put(key, JSONObject.wrap(bundle.get(key)));
+                } catch (JSONException ignored) {
+                }
+            }
+        }
+        return json;
+    }
+
 }
