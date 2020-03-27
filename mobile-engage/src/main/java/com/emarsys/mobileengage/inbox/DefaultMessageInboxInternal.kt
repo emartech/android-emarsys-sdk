@@ -9,7 +9,7 @@ import com.emarsys.core.api.result.Try
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.api.inbox.MessageInboxResult
+import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 
 class DefaultMessageInboxInternal(private val requestManager: RequestManager,
@@ -18,7 +18,7 @@ class DefaultMessageInboxInternal(private val requestManager: RequestManager,
                                   private val handler: Handler,
                                   private val messageInboxResponseMapper: MessageInboxResponseMapper) : MessageInboxInternal {
 
-    override fun fetchInboxMessages(resultListener: ResultListener<Try<MessageInboxResult>>) {
+    override fun fetchMessages(resultListener: ResultListener<Try<InboxResult>>) {
         if (mobileEngageRequestContext.contactFieldValueStorage.get() != null) {
             handleFetchRequest(resultListener)
         } else {
@@ -48,7 +48,7 @@ class DefaultMessageInboxInternal(private val requestManager: RequestManager,
         requestManager.submit(requestModel, completionListener)
     }
 
-    private fun handleFetchRequest(resultListener: ResultListener<Try<MessageInboxResult>>) {
+    private fun handleFetchRequest(resultListener: ResultListener<Try<InboxResult>>) {
         val requestModel = mobileEngageRequestModelFactory.createFetchInboxMessagesRequest()
 
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {

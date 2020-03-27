@@ -15,7 +15,7 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarsysDependencyContainer
-import com.emarsys.mobileengage.api.inbox.MessageInboxResult
+import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
@@ -65,7 +65,7 @@ class DefaultInboxIntegrationTest {
     private lateinit var latch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
     private lateinit var triedNotificationInboxStatus: Try<NotificationInboxStatus>
-    private lateinit var triedMessageInboxResult: Try<MessageInboxResult>
+    private lateinit var triedInboxResult: Try<InboxResult>
     private lateinit var sharedPreferences: SharedPreferences
 
     private var errorCause: Throwable? = null
@@ -198,9 +198,9 @@ class DefaultInboxIntegrationTest {
 
     @Test
     fun testFetchInboxMessages() {
-        Emarsys.messageInbox.fetchNotifications(eventuallyStoreResultInProperty(this::triedMessageInboxResult.setter)).eventuallyAssert {
-            triedMessageInboxResult.errorCause shouldBe null
-            triedMessageInboxResult.result shouldNotBe null
+        Emarsys.messageInbox.fetchMessages(eventuallyStoreResultInProperty(this::triedInboxResult.setter)).eventuallyAssert {
+            triedInboxResult.errorCause shouldBe null
+            triedInboxResult.result shouldNotBe null
         }
     }
 

@@ -5,20 +5,20 @@ import com.emarsys.core.RunnerProxy
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
-import com.emarsys.mobileengage.api.inbox.MessageInboxResult
+import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 
 @Mockable
 class MessageInboxProxy(private val runnerProxy: RunnerProxy, private val inboxInternal: MessageInboxInternal) : MessageInboxApi {
-    override fun fetchNotifications(resultListener: ResultListener<Try<MessageInboxResult>>) {
+    override fun fetchMessages(resultListener: ResultListener<Try<InboxResult>>) {
         runnerProxy.logException {
-            inboxInternal.fetchInboxMessages(resultListener)
+            inboxInternal.fetchMessages(resultListener)
         }
     }
 
-    override fun fetchNotifications(resultListener: (Try<MessageInboxResult>) -> Unit) {
-        val javaResultListener = ResultListener<Try<MessageInboxResult>> { resultListener.invoke(it) }
-        fetchNotifications(javaResultListener)
+    override fun fetchMessages(resultListener: (Try<InboxResult>) -> Unit) {
+        val javaResultListener = ResultListener<Try<InboxResult>> { resultListener.invoke(it) }
+        fetchMessages(javaResultListener)
     }
 
     override fun addTag(tag: String, messageId: String) {

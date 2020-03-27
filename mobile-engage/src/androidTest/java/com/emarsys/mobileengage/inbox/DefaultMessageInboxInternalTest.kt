@@ -12,7 +12,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.api.inbox.MessageInboxResult
+import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.fake.FakeRestClient
 import com.emarsys.mobileengage.fake.FakeResultListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
@@ -51,7 +51,7 @@ class DefaultMessageInboxInternalTest {
     fun setUp() {
         latch = CountDownLatch(1)
         mockMessageInboxResponseMapper = mock {
-            on { map(any()) } doReturn MessageInboxResult(listOf())
+            on { map(any()) } doReturn InboxResult(listOf())
         }
         mockContactFieldValueStorage = mock {
             on { get() } doReturn "contactFieldValue"
@@ -80,8 +80,8 @@ class DefaultMessageInboxInternalTest {
 
     @Test
     fun testFetchInboxMessages_callsRequestModelFactoryForCreateFetchInboxMessagesRequest_andSubmitsToRequestManager() {
-        val mockResultListener = mock<ResultListener<Try<MessageInboxResult>>>()
-        messageInboxInternal.fetchInboxMessages(mockResultListener)
+        val mockResultListener = mock<ResultListener<Try<InboxResult>>>()
+        messageInboxInternal.fetchMessages(mockResultListener)
 
         verify(mockRequestModelFactory).createFetchInboxMessagesRequest()
         verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
@@ -90,9 +90,9 @@ class DefaultMessageInboxInternalTest {
     @Test
     fun testFetchInboxMessages_shouldOnlyCallRequestManager_whenUserIsLoggedIn() {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
-        val fakeResultListener = FakeResultListener<MessageInboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val fakeResultListener = FakeResultListener<InboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
 
-        messageInboxInternal.fetchInboxMessages(fakeResultListener)
+        messageInboxInternal.fetchMessages(fakeResultListener)
 
         fakeResultListener.latch.await()
 
@@ -117,9 +117,9 @@ class DefaultMessageInboxInternalTest {
                 mockMessageInboxResponseMapper
         )
 
-        val fakeResultListener = FakeResultListener<MessageInboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val fakeResultListener = FakeResultListener<InboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
 
-        messageInboxInternal.fetchInboxMessages(fakeResultListener)
+        messageInboxInternal.fetchMessages(fakeResultListener)
         fakeResultListener.latch.await()
 
         fakeResultListener.successCount shouldBe 1
@@ -143,9 +143,9 @@ class DefaultMessageInboxInternalTest {
                 mockMessageInboxResponseMapper
         )
 
-        val fakeResultListener = FakeResultListener<MessageInboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val fakeResultListener = FakeResultListener<InboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
 
-        messageInboxInternal.fetchInboxMessages(fakeResultListener)
+        messageInboxInternal.fetchMessages(fakeResultListener)
         fakeResultListener.latch.await()
 
         val expectedException = ResponseErrorException(
@@ -170,9 +170,9 @@ class DefaultMessageInboxInternalTest {
                 mockMessageInboxResponseMapper
         )
 
-        val fakeResultListener = FakeResultListener<MessageInboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val fakeResultListener = FakeResultListener<InboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
 
-        messageInboxInternal.fetchInboxMessages(fakeResultListener)
+        messageInboxInternal.fetchMessages(fakeResultListener)
         fakeResultListener.latch.await()
 
         fakeResultListener.successCount shouldBe 0

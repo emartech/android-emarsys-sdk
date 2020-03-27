@@ -4,7 +4,7 @@ import com.emarsys.core.RunnerProxy
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
-import com.emarsys.mobileengage.api.inbox.MessageInboxResult
+import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Before
@@ -29,21 +29,21 @@ class MessageInboxProxyTest {
 
     @Test
     fun testFetchInboxMessagesDelegatesToInternalMethod_throughRunnerProxy() {
-        val resultListener = mock<ResultListener<Try<MessageInboxResult>>>()
-        inboxProxy.fetchNotifications(resultListener)
+        val resultListener = mock<ResultListener<Try<InboxResult>>>()
+        inboxProxy.fetchMessages(resultListener)
 
         verify(spyRunnerProxy).logException(any())
-        verify(mockInboxInternal).fetchInboxMessages(resultListener)
+        verify(mockInboxInternal).fetchMessages(resultListener)
     }
 
     @Test
     fun testFetchInboxMessagesWithLambdaDelegatesToInternalMethod_throughRunnerProxy() {
-        val resultListener: (Try<MessageInboxResult>) -> Unit = {}
+        val resultListener: (Try<InboxResult>) -> Unit = {}
 
-        inboxProxy.fetchNotifications(resultListener)
+        inboxProxy.fetchMessages(resultListener)
 
         verify(spyRunnerProxy).logException(any())
-        verify(mockInboxInternal).fetchInboxMessages(any())
+        verify(mockInboxInternal).fetchMessages(any())
     }
 
     @Test

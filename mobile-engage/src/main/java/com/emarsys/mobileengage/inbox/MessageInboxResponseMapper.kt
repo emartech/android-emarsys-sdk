@@ -3,18 +3,19 @@ package com.emarsys.mobileengage.inbox
 import com.emarsys.core.Mapper
 import com.emarsys.core.Mockable
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.mobileengage.api.inbox.InboxMessage
-import com.emarsys.mobileengage.api.inbox.MessageInboxResult
+import com.emarsys.core.util.JsonUtils
+import com.emarsys.mobileengage.api.inbox.Message
+import com.emarsys.mobileengage.api.inbox.InboxResult
 import org.json.JSONObject
 
 @Mockable
-class MessageInboxResponseMapper : Mapper<ResponseModel, MessageInboxResult> {
+class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
 
-    override fun map(responseModel: ResponseModel?): MessageInboxResult {
-        val inboxMessages = mutableListOf<InboxMessage>()
+    override fun map(responseModel: ResponseModel?): InboxResult {
+        val inboxMessages = mutableListOf<Message>()
 
         val messageInboxResult = responseModel?.parsedBody
-        val notificationsResponse = messageInboxResult?.optJSONArray("notifications")
+        val notificationsResponse = messageInboxResult?.optJSONArray("messages")
         if (notificationsResponse != null) {
             for (i in 0 until notificationsResponse.length()) {
                 val inboxMessageResponse = notificationsResponse.getJSONObject(i)
@@ -22,27 +23,22 @@ class MessageInboxResponseMapper : Mapper<ResponseModel, MessageInboxResult> {
                 inboxMessages.add(inboxMessage)
             }
         }
-        return MessageInboxResult(inboxMessages)
+        return InboxResult(inboxMessages)
     }
 
-    private fun inboxMessage(inboxMessageResponse: JSONObject): InboxMessage {
+    private fun inboxMessage(inboxMessageResponse: JSONObject): Message {
         val tags = parseTags(inboxMessageResponse)
 
-        return InboxMessage(
+        return Message(
                 inboxMessageResponse.getString("id"),
-                 if (inboxMessageResponse.isNull("multichannelId")) null else inboxMessageResponse.getInt("multichannelId"),
-                if(inboxMessageResponse.isNull("campaignId")) null else inboxMessageResponse.getString("campaignId"),
                 inboxMessageResponse.getString("title"),
                 inboxMessageResponse.getString("body"),
-                if(inboxMessageResponse.isNull("imageUrl")) null else inboxMessageResponse.getString("imageUrl"),
-                if(inboxMessageResponse.isNull("action")) null else inboxMessageResponse.getString("action"),
+                if (inboxMessageResponse.isNull("imageUrl")) null else inboxMessageResponse.getString("imageUrl"),
                 inboxMessageResponse.getLong("receivedAt"),
-                if(inboxMessageResponse.isNull("updatedAt")) null else inboxMessageResponse.getLong("updatedAt"),
+                inboxMessageResponse.getLong("updatedAt"),
                 if (inboxMessageResponse.isNull("ttl")) null else inboxMessageResponse.getInt("ttl"),
-                tags,
-                inboxMessageResponse.getInt("sourceId"),
-                if(inboxMessageResponse.isNull("sourceRunId")) null else inboxMessageResponse.getString("sourceRunId"),
-                inboxMessageResponse.getString("sourceType")
+                if (inboxMessageResponse.isNull("tags")) null else tags,
+                if (inboxMessageResponse.isNull("properties")) null else JsonUtils.toFlatMap(inboxMessageResponse.getJSONObject("properties"))
         )
     }
 
