@@ -10,6 +10,10 @@
         android:icon="@drawable/inbox_mailbox_icon"
         android:title="@string/menu_title_inbox" />
     <item
+        android:id="@+id/destinationMessageInboxFragment"
+        android:icon="@drawable/inbox_mailbox_icon"
+        android:title="@string/menu_title_message_inbox" />
+    <item
         android:id="@+id/destinationPredictFragment"
         android:icon="@drawable/predict_scarab_icon"
         android:title="@string/menu_title_predict" />

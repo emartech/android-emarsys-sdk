@@ -2,6 +2,7 @@
     <string name="app_name">Sample App</string>
     <string name="menu_title_mobile_engage">Mobile engage</string>
     <string name="menu_title_inbox">Inbox</string>
+    <string name="menu_title_message_inbox">Message Inbox</string>
     <string name="menu_title_predict">Predict</string>
     <string name="menu_title_config">Config</string>
     <string name="emarsys_app">Emarsys SDK: </string>

@@ -18,6 +18,10 @@
         android:label="Inbox"
         tools:layout="@layout/fragment_inbox" />
     <fragment
+        android:id="@+id/destinationMessageInboxFragment"
+        android:name="com.emarsys.sample.fragments.MessageInboxFragment"
+        android:label="Message Inbox" />
+    <fragment
         android:id="@+id/destinationPredictFragment"
         android:name="com.emarsys.sample.fragments.PredictFragment"
         android:label="Predict"

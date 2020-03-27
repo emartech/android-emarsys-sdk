@@ -1,0 +1,64 @@
+package com.emarsys.sample.fragments
+
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.emarsys.Emarsys
+import com.emarsys.sample.R
+import com.emarsys.sample.adapters.MessageInboxAdapter
+import com.emarsys.sample.extensions.showSnackBar
+import kotlinx.android.synthetic.main.fragment_inbox.*
+
+class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
+
+    private companion object {
+        val TAG: String = MessageInboxFragment::class.java.simpleName
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_inbox, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        notificationRecycleView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        notificationRecycleView.adapter = MessageInboxAdapter()
+
+        loadMessages()
+
+        swipeRefreshLayout.setOnRefreshListener {
+            onRefresh()
+        }
+    }
+
+    override fun onRefresh() {
+        swipeRefreshLayout.isRefreshing = true
+
+        loadMessages()
+    }
+
+    private fun loadMessages() {
+        Emarsys.messageInbox.fetchMessages {
+            it.result?.let { notificationStatus ->
+
+                notificationStatus.messages.forEach { notification ->
+                    Log.i(TAG, "Messages: ${notification.title}")
+                }
+
+                (notificationRecycleView.adapter as MessageInboxAdapter).addItems(notificationStatus.messages)
+            }
+
+            it.errorCause?.let { cause ->
+                inboxView.showSnackBar("Error fetching messages: ${cause.message}")
+            }
+        }
+        swipeRefreshLayout.isRefreshing = false
+    }
+}
