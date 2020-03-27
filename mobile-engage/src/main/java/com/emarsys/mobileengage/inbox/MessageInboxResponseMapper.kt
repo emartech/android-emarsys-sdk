@@ -6,6 +6,7 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.JsonUtils
 import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.mobileengage.api.inbox.InboxResult
+import org.json.JSONException
 import org.json.JSONObject
 
 @Mockable
@@ -18,9 +19,12 @@ class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
         val notificationsResponse = messageInboxResult?.optJSONArray("messages")
         if (notificationsResponse != null) {
             for (i in 0 until notificationsResponse.length()) {
-                val inboxMessageResponse = notificationsResponse.getJSONObject(i)
-                val inboxMessage = inboxMessage(inboxMessageResponse)
-                inboxMessages.add(inboxMessage)
+                try {
+                    val inboxMessageResponse = notificationsResponse.getJSONObject(i)
+                    val inboxMessage = inboxMessage(inboxMessageResponse)
+                    inboxMessages.add(inboxMessage)
+                } catch (ignored: JSONException) {
+                }
             }
         }
         return InboxResult(inboxMessages)
