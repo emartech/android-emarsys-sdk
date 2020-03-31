@@ -130,7 +130,7 @@ class DefaultGeofenceInternalTest {
         geofenceInternalWithMockContext.enable(null)
         geofenceInternalWithMockContext.enable(null)
 
-        verify(mockContext, times(1)).registerReceiver(any<GeofenceBroadcastReceiver>(), any())
+        verify(mockContext, timeout(100).times(1)).registerReceiver(any<GeofenceBroadcastReceiver>(), any())
     }
 
     @Test
