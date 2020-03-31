@@ -338,7 +338,7 @@
                         android:layout_marginBottom="16dp"
                         android:text="@string/geofence_title"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                        app:layout_constraintBottom_toTopOf="@+id/enableGeofence"
+                        app:layout_constraintBottom_toTopOf="@+id/buttonEnableGeofence"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
@@ -360,12 +360,11 @@
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
                         android:layout_marginEnd="8dp"
                         android:text="@string/button_disable_geofence"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/enableGeofence"
-                        app:layout_constraintTop_toBottomOf="@+id/geofenceTitle" />
+                        app:layout_constraintBottom_toBottomOf="@+id/buttonEnableGeofence"
+                        app:layout_constraintEnd_toStartOf="@+id/buttonEnableGeofence"
+                        app:layout_constraintTop_toTopOf="@+id/buttonEnableGeofence" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
