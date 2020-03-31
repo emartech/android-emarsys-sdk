@@ -69,4 +69,14 @@ class GeofenceFilterTest {
 
         result shouldBe expected
     }
+
+    @Test
+    fun testFindNearestGeofences_shouldUseGeofenceListSizeAsLimit_ifLesserThanLimit() {
+        geofenceFilter = GeofenceFilter(30)
+
+        val geofenceResponse = GeofenceResponse(listOf(GeofenceGroup("group1", null, allGeofences)))
+        val result = geofenceFilter.findNearestGeofences(currentLocation, geofenceResponse)
+
+        result.size shouldBe 5
+    }
 }

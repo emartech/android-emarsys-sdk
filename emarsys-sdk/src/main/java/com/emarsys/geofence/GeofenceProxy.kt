@@ -18,6 +18,12 @@ class GeofenceProxy(private val geofenceInternal: GeofenceInternal, private val 
         }
     }
 
+    override fun enable(completionListener: (Throwable?) -> Unit) {
+        runnerProxy.logException {
+            geofenceInternal.enable(CompletionListener { completionListener.invoke(it) })
+        }
+    }
+
     override fun disable() {
     }
 

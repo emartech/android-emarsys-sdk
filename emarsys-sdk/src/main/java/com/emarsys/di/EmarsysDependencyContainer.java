@@ -36,5 +36,7 @@ public interface EmarsysDependencyContainer extends MobileEngageDependencyContai
 
     GeofenceApi getGeofence();
 
+    GeofenceApi getLoggingGeofence();
+
     ConfigInternal getConfigInternal();
 }

@@ -3,6 +3,7 @@ package com.emarsys.di
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.feature.InnerFeature
+import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
@@ -103,6 +104,15 @@ object EmarsysDependencyInjection : DependencyInjection() {
             container().messageInbox
         } else {
             container().loggingMessageInbox
+        }
+    }
+
+    @JvmStatic
+    fun geofence(): GeofenceApi {
+        return if (isMobileEngageEnabled()) {
+            container().geofence
+        } else {
+            container().loggingGeofence
         }
     }
 

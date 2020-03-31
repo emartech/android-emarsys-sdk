@@ -116,4 +116,6 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
     CurrentActivityProvider getCurrentActivityProvider();
 
     GeofenceInternal getGeofenceInternal();
+
+    GeofenceInternal getLoggingGeofenceInternal();
 }

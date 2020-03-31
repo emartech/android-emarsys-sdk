@@ -106,6 +106,13 @@ class DefaultGeofenceInternalTest {
 
         verify(mockGeofenceResponseMapper).map(mockResponseModel)
     }
+    @Test
+    fun testFetchGeofences_callsEnable_onSuccess() {
+        val spyGeofenceInternal = spy(geofenceInternal)
+        spyGeofenceInternal.fetchGeofences()
+
+        verify(spyGeofenceInternal).enable(null)
+    }
 
     @Test
     fun testEnable_checksForLocationPermissions_throughPermissionChecker() {
@@ -434,8 +441,8 @@ class DefaultGeofenceInternalTest {
 
     @Test
     fun testSetEventHandler() {
-        val mockEventHandler:EventHandler = mock()
-       geofenceInternal.setEventHandler(mockEventHandler)
+        val mockEventHandler: EventHandler = mock()
+        geofenceInternal.setEventHandler(mockEventHandler)
 
         verify(mockEventHandlerProvider).eventHandler = mockEventHandler
     }

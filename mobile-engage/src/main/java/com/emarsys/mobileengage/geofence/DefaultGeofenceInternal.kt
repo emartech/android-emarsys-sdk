@@ -60,6 +60,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
             override fun onSuccess(id: String?, responseModel: ResponseModel?) {
                 if (responseModel != null) {
                     geofenceResponse = geofenceResponseMapper.map(responseModel)
+                    enable(null)
                 }
             }
 
@@ -82,7 +83,9 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         if (fineLocationPermissionGranted && backgroundLocationPermissionGranted) {
             registerNearestGeofences(completionListener)
             if (!receiverRegistered) {
-                context.registerReceiver(geofenceBroadcastReceiver, IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION"))
+                Handler(Looper.getMainLooper()).post {
+                    context.registerReceiver(geofenceBroadcastReceiver, IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION"))
+                }
                 receiverRegistered = true
             }
         } else {
@@ -129,8 +132,8 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         val geofencesToRegister = geofences.map {
             Geofence.Builder()
                     .setRequestId(it.id)
-                    .setCircularRegion(it.lon, it.lat, it.radius.toFloat())
-                    .setExpirationDuration(Long.MAX_VALUE)
+                    .setCircularRegion(it.lat, it.lon, it.radius.toFloat())
+                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
                     .build()
         }

@@ -18,6 +18,7 @@ import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.json.JSONObject
 import org.junit.After
@@ -25,8 +26,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.*
 import java.io.File
 import java.util.concurrent.CountDownLatch
 
@@ -55,17 +54,17 @@ class PreloadedInappHandlerCommandTest {
 
         mockCoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
 
-        mockActivityLifecycleWatchdog = mock(ActivityLifecycleWatchdog::class.java)
-        val mockFileDownloader = mock(FileDownloader::class.java).apply {
-            whenever(readFileIntoString(any())).thenReturn("html")
-            whenever(readURLIntoString(any())).thenReturn("html")
+        mockActivityLifecycleWatchdog = mock()
+        val mockFileDownloader: FileDownloader = mock {
+            on { readFileIntoString(any()) } doReturn "html"
+            on { readURLIntoString(any()) } doReturn "html"
         }
-        mockDependencyContainer = mock(MobileEngageDependencyContainer::class.java).apply {
-            whenever(activityLifecycleWatchdog).thenReturn(mockActivityLifecycleWatchdog)
-            whenever(inAppPresenter).thenReturn(mock(InAppPresenter::class.java))
-            whenever(timestampProvider).thenReturn(mock(TimestampProvider::class.java))
-            whenever(coreSdkHandler).thenReturn(mockCoreSdkHandler)
-            whenever(fileDownloader).thenReturn(mockFileDownloader)
+        mockDependencyContainer = mock {
+            on { activityLifecycleWatchdog } doReturn mockActivityLifecycleWatchdog
+            on { inAppPresenter } doReturn mock()
+            on { timestampProvider } doReturn mock()
+            on { coreSdkHandler } doReturn mockCoreSdkHandler
+            on { fileDownloader } doReturn mockFileDownloader
         }
 
     }
@@ -109,7 +108,7 @@ class PreloadedInappHandlerCommandTest {
 
         waitForEventLoopToFinish(mockCoreSdkHandler)
 
-        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
+        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any())
     }
 
     @Test
@@ -136,7 +135,7 @@ class PreloadedInappHandlerCommandTest {
 
         waitForEventLoopToFinish(mockCoreSdkHandler)
 
-        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
+        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any())
     }
 
     @Test
@@ -159,7 +158,7 @@ class PreloadedInappHandlerCommandTest {
 
         waitForEventLoopToFinish(mockCoreSdkHandler)
 
-        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
+        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any())
     }
 
     @Test
@@ -186,7 +185,7 @@ class PreloadedInappHandlerCommandTest {
 
         waitForEventLoopToFinish(mockCoreSdkHandler)
 
-        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any(PushToInAppAction::class.java))
+        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any())
 
         File(fileUrl).exists() shouldBe false
     }

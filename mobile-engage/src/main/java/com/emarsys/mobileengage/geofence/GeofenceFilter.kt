@@ -15,6 +15,9 @@ class GeofenceFilter(private val limit: Int) {
                 this.latitude = it.lat
             }.distanceTo(currentLocation) - it.radius)
         }
+        if (limit > geofences.size) {
+            return geofences
+        }
         return geofences.subList(0, limit)
     }
 }

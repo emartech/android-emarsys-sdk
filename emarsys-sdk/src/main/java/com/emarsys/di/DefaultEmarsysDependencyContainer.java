@@ -190,7 +190,6 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private EventServiceInternal loggingEventServiceInternal;
     private GeofenceInternal geofenceInternal;
     private GeofenceInternal loggingGeofenceInternal;
-
     private Handler coreSdkHandler;
     private InAppEventHandlerInternal inAppEventHandler;
     private DeviceInfo deviceInfo;
@@ -240,6 +239,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private PredictApi loggingPredictApi;
     private ConfigApi configApi;
     private GeofenceApi geofenceApi;
+    private GeofenceApi loggingGeofenceApi;
     private PredictRequestContext predictRequestContext;
     private PushTokenProvider pushTokenProvider;
     private EmarsysRequestModelFactory emarsysRequestModelFactory;
@@ -734,6 +734,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         loggingPredictApi = new PredictProxy(runnerProxy, getLoggingPredictInternal());
         configApi = new ConfigProxy(runnerProxy, configInternal);
         geofenceApi = new GeofenceProxy(getGeofenceInternal(), runnerProxy);
+        loggingGeofenceApi = new GeofenceProxy(getLoggingGeofenceInternal(), runnerProxy);
 
         logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
 
@@ -762,17 +763,21 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private void initializeActivityLifecycleWatchdog() {
         ActivityLifecycleAction[] applicationStartActions = new ActivityLifecycleAction[]{
                 new DeviceInfoStartAction(getClientServiceInternal(), deviceInfoHashStorage, getDeviceInfo()),
-                new InAppStartAction(eventServiceInternal, contactTokenStorage),
-                new FetchGeofencesAction(getGeofenceInternal())
+                new InAppStartAction(eventServiceInternal, contactTokenStorage)
         };
 
         ActivityLifecycleAction[] activityCreatedActions = new ActivityLifecycleAction[]{
                 new DeepLinkAction(deepLinkInternal)
         };
 
+        ActivityLifecycleAction[] initializeActions = new ActivityLifecycleAction[]{
+                new FetchGeofencesAction(getGeofenceInternal())
+        };
+
         activityLifecycleWatchdog = new ActivityLifecycleWatchdog(
                 applicationStartActions,
-                activityCreatedActions);
+                activityCreatedActions,
+                initializeActions);
     }
 
     private void initializeInAppPresenter(EmarsysConfig emarsysConfig) {
@@ -869,6 +874,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     @Override
     public GeofenceApi getGeofence() {
         return geofenceApi;
+    }
+
+    @Override
+    public GeofenceApi getLoggingGeofence() {
+        return loggingGeofenceApi;
     }
 
     @Override
@@ -973,6 +983,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
     @Override
     public GeofenceInternal getGeofenceInternal() {
+        return geofenceInternal;
+    }
+
+    @Override
+    public GeofenceInternal getLoggingGeofenceInternal() {
         return loggingGeofenceInternal;
     }
 

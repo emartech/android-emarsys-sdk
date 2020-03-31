@@ -3,6 +3,7 @@ package com.emarsys.di
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.feature.InnerFeature
+import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
@@ -59,6 +60,8 @@ class EmarsysDependencyInjectionTest {
     private lateinit var mockLoggingEventServiceInternal: EventServiceInternal
     private lateinit var mockPush: PushApi
     private lateinit var mockLoggingPush: PushApi
+    private lateinit var mockGeofence: GeofenceApi
+    private lateinit var mockLoggingGeofence: GeofenceApi
     private lateinit var mockPredict: PredictApi
     private lateinit var mockLoggingPredict: PredictApi
 
@@ -93,6 +96,8 @@ class EmarsysDependencyInjectionTest {
 
         mockPredictInternal = mock(PredictInternal::class.java)
         mockLoggingPredictInternal = mock(PredictInternal::class.java)
+        mockGeofence = mock(GeofenceApi::class.java)
+        mockLoggingGeofence = mock(GeofenceApi::class.java)
 
         DependencyInjection.setup(FakeDependencyContainer(
                 mobileEngageInternal = mockMobileEngageInternal,
@@ -114,7 +119,9 @@ class EmarsysDependencyInjectionTest {
                 predict = mockPredict,
                 predictInternal = mockPredictInternal,
                 loggingPredictInternal = mockLoggingPredictInternal,
-                loggingPredict = mockLoggingPredict
+                loggingPredict = mockLoggingPredict,
+                geofence = mockGeofence,
+                loggingGeofence = mockLoggingGeofence
         ))
     }
 
@@ -242,6 +249,22 @@ class EmarsysDependencyInjectionTest {
         val result = EmarsysDependencyInjection.push()
 
         result shouldBeSameInstanceAs mockLoggingPush
+    }
+
+    @Test
+    fun testGeofence_shouldReturnDefaultInstance() {
+        FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+
+        val result = EmarsysDependencyInjection.geofence()
+
+        result shouldBeSameInstanceAs mockGeofence
+    }
+
+    @Test
+    fun testGeofence_shouldReturnLoggingInstance() {
+        val result = EmarsysDependencyInjection.geofence()
+
+        result shouldBeSameInstanceAs mockLoggingGeofence
     }
 
     @Test

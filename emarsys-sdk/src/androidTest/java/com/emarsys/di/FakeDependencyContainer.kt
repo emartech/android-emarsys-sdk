@@ -101,6 +101,7 @@ class FakeDependencyContainer(
         private val loggingPredict: PredictApi = mock(),
         private val config: ConfigApi = mock(),
         private val geofence: GeofenceApi = mock(),
+        private val loggingGeofence: GeofenceApi = mock(),
         private val pushTokenProvider: PushTokenProvider = mock(),
         private val clientServiceProvider: ServiceEndpointProvider = mock(),
         private val eventServiceProvider: ServiceEndpointProvider = mock(),
@@ -124,7 +125,8 @@ class FakeDependencyContainer(
         private val silentMessageEventHandlerProvider: EventHandlerProvider = mock(),
         private val geofenceEventHandlerProvider: EventHandlerProvider = mock(),
         private val currentActivityProvider: CurrentActivityProvider = mock(),
-        private val geofenceInternal: GeofenceInternal = mock()
+        private val geofenceInternal: GeofenceInternal = mock(),
+        private val loggingGeofenceInternal: GeofenceInternal = mock()
 ) : EmarsysDependencyContainer {
 
     override fun getLoggingClientServiceInternal(): ClientServiceInternal {
@@ -243,12 +245,20 @@ class FakeDependencyContainer(
         return geofenceInternal
     }
 
+    override fun getLoggingGeofenceInternal(): GeofenceInternal {
+        return loggingGeofenceInternal
+    }
+
     override fun getCoreCompletionHandler(): DefaultCoreCompletionHandler {
         return completionHandler
     }
 
     override fun getRequestContext(): MobileEngageRequestContext {
         return requestContext
+    }
+
+    override fun getLoggingGeofence(): GeofenceApi {
+        return loggingGeofence
     }
 
     override fun getMessageInboxInternal(): MessageInboxInternal {

@@ -28,6 +28,7 @@ import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.geofence.GeofenceInternal
+import com.emarsys.mobileengage.geofence.LoggingGeofenceInternal
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.InAppPresenter
 import com.emarsys.mobileengage.inbox.InboxInternal
@@ -97,7 +98,8 @@ class FakeMobileEngageDependencyContainer(
         private val silentMessageEventHandlerProvider: EventHandlerProvider = mock(),
         private val geofenceEventHandlerProvider: EventHandlerProvider = mock(),
         private val currentActivityProvider: CurrentActivityProvider = mock(),
-        private val geofenceInternal: GeofenceInternal = mock()
+        private val geofenceInternal: GeofenceInternal = mock(),
+        private val loggingGeofenceInternal: LoggingGeofenceInternal = mock()
 ) : MobileEngageDependencyContainer {
 
     override fun getLoggingClientServiceInternal(): ClientServiceInternal {
@@ -130,6 +132,10 @@ class FakeMobileEngageDependencyContainer(
 
     override fun getFileDownloader(): FileDownloader {
         return fileDownloader
+    }
+
+    override fun getLoggingGeofenceInternal(): GeofenceInternal {
+        return loggingGeofenceInternal
     }
 
     override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog {

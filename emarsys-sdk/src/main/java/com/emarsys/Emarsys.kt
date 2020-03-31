@@ -39,7 +39,7 @@ object Emarsys {
 
     @JvmStatic
     val geofence: GeofenceApi
-        get() = container.geofence
+        get() = EmarsysDependencyInjection.geofence()
 
     @JvmStatic
     val config: ConfigApi
