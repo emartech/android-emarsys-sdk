@@ -8,8 +8,7 @@ import com.google.android.material.snackbar.Snackbar
 
 fun View.showSnackBar(message: String) = run {
     val snackBar: Snackbar = Snackbar.make(this, message, Snackbar.LENGTH_LONG)
-    val snackBarView = snackBar.view
-    val snackTextView = snackBarView
+    val snackTextView = snackBar.view
             .findViewById<TextView>(R.id.snackbar_text)
     snackTextView.gravity = Gravity.CENTER_HORIZONTAL
     snackBar.show()

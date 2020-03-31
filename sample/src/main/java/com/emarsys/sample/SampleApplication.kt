@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.emarsys.Emarsys
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.mobileengage.api.event.EventHandler
 import org.json.JSONObject
 
@@ -29,6 +30,7 @@ open class SampleApplication : Application(), EventHandler {
         Emarsys.inApp.setEventHandler(this)
         Emarsys.push.setNotificationEventHandler(this)
         Emarsys.push.setSilentMessageEventHandler(this)
+        Emarsys.geofence.setEventHandler(this)
     }
 
     private fun createNotificationChannels() {

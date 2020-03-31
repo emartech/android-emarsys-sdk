@@ -1,13 +1,20 @@
 package com.emarsys.sample.fragments
 
+import android.Manifest
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.emarsys.Emarsys
+import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.sample.R
 import com.emarsys.sample.extensions.copyToClipboard
 import com.emarsys.sample.extensions.showSnackBar
@@ -19,8 +26,9 @@ import org.json.JSONObject
 
 class MobileEngageFragment : Fragment() {
 
-    private companion object {
+    companion object {
         val TAG: String = MobileEngageFragment::class.java.simpleName
+        const val REQUEST_LOCATION_PERMISSIONS = 99
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -68,7 +76,7 @@ class MobileEngageFragment : Fragment() {
             payload.putString("key1", "value1")
             payload.putString("u", String.format("""{"sid":"%s"}""", id))
             intent.putExtra("payload", payload)
-            Emarsys.Push.trackMessageOpen(intent) {
+            Emarsys.push.trackMessageOpen(intent) {
                 if (it != null) {
                     Log.e(TAG, it.toString())
                 } else {
@@ -106,9 +114,9 @@ class MobileEngageFragment : Fragment() {
 
         switchDoNotDisturb.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                Emarsys.InApp.pause()
+                Emarsys.inApp.pause()
             } else {
-                Emarsys.InApp.resume()
+                Emarsys.inApp.resume()
             }
         }
 
@@ -123,6 +131,33 @@ class MobileEngageFragment : Fragment() {
                     view.showSnackBar("Push Token copied: $pushToken")
                 }
             }
+        }
+
+        buttonEnableGeofence.setOnClickListener {
+
+            if (checkLocationPermission(activity)) {
+                Emarsys.geofence.enable {
+                    view.showSnackBar("Geofence has been Enabled!")
+                }
+            }
+
+        }
+
+        buttonDisableGeofence.setOnClickListener {
+            Emarsys.geofence.enable {
+                view.showSnackBar("Geofence has been Disabled!")
+            }
+        }
+    }
+
+
+    fun checkLocationPermission(context: Activity?): Boolean {
+        return if (context != null && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(context, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION), REQUEST_LOCATION_PERMISSIONS)
+            false
+        } else {
+            true
         }
     }
 }

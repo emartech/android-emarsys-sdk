@@ -23,6 +23,9 @@
     <string name="get_push_token_title">Get Push Token</string>
     <string name="event_attributes_hint">eventAttributes</string>
     <string name="logged_in">Logged in as: </string>
+    <string name="geofence_title">Geofence</string>
+    <string name="button_enable_geofence">Enable</string>
+    <string name="button_disable_geofence">Disable</string>
 
     <!-- Predict String Resources -->
     <string name="item_view_card_title">Item View</string>
