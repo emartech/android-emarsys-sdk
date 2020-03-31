@@ -27,6 +27,7 @@ import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
+import com.emarsys.testUtil.rules.RetryRule
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
@@ -82,6 +83,10 @@ class PredictIntegrationTest {
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
+
+    @Rule
+    @JvmField
+    val retryRule: RetryRule = RetryUtils.retryRule
 
     @Rule
     @JvmField
