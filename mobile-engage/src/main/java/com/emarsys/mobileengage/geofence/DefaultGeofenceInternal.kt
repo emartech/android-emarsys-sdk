@@ -90,7 +90,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
             }
         } else {
             val permissionName = findMissingPermission(fineLocationPermissionGranted, backgroundLocationPermissionGranted)
-            completionListener?.onCompleted(MissingPermissionException("Couldn't acquire permission for $permissionName"))
+                completionListener?.onCompleted(MissingPermissionException("Couldn't acquire permission for $permissionName"))
         }
     }
 

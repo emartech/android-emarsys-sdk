@@ -106,6 +106,7 @@ class DefaultGeofenceInternalTest {
 
         verify(mockGeofenceResponseMapper).map(mockResponseModel)
     }
+
     @Test
     fun testFetchGeofences_callsEnable_onSuccess() {
         val spyGeofenceInternal = spy(geofenceInternal)
@@ -145,7 +146,7 @@ class DefaultGeofenceInternalTest {
         geofenceInternalWithMockContext.disable()
         geofenceInternalWithMockContext.enable(null)
 
-        verify(mockContext, times(2)).registerReceiver(any<GeofenceBroadcastReceiver>(), any())
+        verify(mockContext, timeout(100).times(2)).registerReceiver(any<GeofenceBroadcastReceiver>(), any())
     }
 
     @Test
