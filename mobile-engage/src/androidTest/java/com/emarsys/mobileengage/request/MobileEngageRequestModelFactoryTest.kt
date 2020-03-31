@@ -314,7 +314,7 @@ class MobileEngageRequestModelFactoryTest {
     fun testCreateFetchGeofenceRequest() {
         val expected = RequestModel.Builder(mockRequestContext.timestampProvider, mockRequestContext.uuidProvider)
                 .method(RequestMethod.GET)
-                .url("https://ems-mobile-development.s3-eu-west-1.amazonaws.com/geofenceTest.json")
+                .url("https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/geo-fences")
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext))
                 .build()
 

@@ -132,7 +132,7 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
     fun createFetchGeofenceRequest(): RequestModel {
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
                 .method(RequestMethod.GET)
-                .url(Endpoint.FETCH_GEOFENCES_URL)
+                .url("${clientServiceProvider.provideEndpointHost()}${Endpoint.geofencesBase(requestContext.applicationCode)}")
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .build()
     }

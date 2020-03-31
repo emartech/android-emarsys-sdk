@@ -13,8 +13,6 @@ public class Endpoint {
 
     public static final String ME_V3_INBOX_HOST = "https://me-inbox.eservice.emarsys.net/v3";
 
-    public static final String FETCH_GEOFENCES_URL = "https://ems-mobile-development.s3-eu-west-1.amazonaws.com/geofenceTest.json";
-
     public static String clientBase(String applicationCode) {
         return "/v3/apps/" + applicationCode + "/client";
     }
@@ -25,5 +23,9 @@ public class Endpoint {
 
     public static String inboxBase(String applicationCode) {
         return "/apps/" + applicationCode + "/inbox";
+    }
+
+    public static String geofencesBase(String applicationCode) {
+        return "/v3/apps/" + applicationCode + "/geo-fences";
     }
 }
