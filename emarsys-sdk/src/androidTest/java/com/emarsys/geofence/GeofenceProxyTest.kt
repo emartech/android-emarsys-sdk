@@ -58,4 +58,11 @@ class GeofenceProxyTest {
 
         verify(mockGeofenceInternal).setEventHandler(eventHandler)
     }
+
+    @Test
+    fun testIsEnabledDelegatesToGeofenceInternalMethod() {
+        geofenceProxy.isEnabled()
+
+        verify(mockGeofenceInternal).isEnabled()
+    }
 }

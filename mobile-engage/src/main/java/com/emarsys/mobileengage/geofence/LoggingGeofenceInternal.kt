@@ -10,10 +10,13 @@ import com.emarsys.mobileengage.geofence.model.TriggeringGeofence
 
 class LoggingGeofenceInternal(private val klass: Class<*>) : GeofenceInternal {
 
-    override fun fetchGeofences() {
+    override fun fetchGeofences(completionListener: CompletionListener?) {
+        val parameters = mapOf(
+                "completionListener" to (completionListener != null)
+        )
         val callerMethodName = SystemUtils.getCallerMethodName()
 
-        debug(MethodNotAllowed(klass, callerMethodName, null))
+        debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
     override fun enable(completionListener: CompletionListener?) {
@@ -30,6 +33,13 @@ class LoggingGeofenceInternal(private val klass: Class<*>) : GeofenceInternal {
         val callerMethodName = SystemUtils.getCallerMethodName()
 
         debug(MethodNotAllowed(klass, callerMethodName, null))
+    }
+
+    override fun isEnabled(): Boolean {
+        val callerMethodName = SystemUtils.getCallerMethodName()
+
+        debug(MethodNotAllowed(klass, callerMethodName, null))
+        return false
     }
 
     override fun registerGeofences(geofences: List<Geofence>) {

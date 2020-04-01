@@ -9,4 +9,5 @@ interface GeofenceApi {
     fun enable(completionListener: (Throwable?) -> Unit)
     fun disable()
     fun setEventHandler(eventHandler: EventHandler)
+    fun isEnabled(): Boolean
 }

@@ -1,5 +1,6 @@
 package com.emarsys.geofence
 
+import com.emarsys.core.Callable
 import com.emarsys.core.RunnerProxy
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.mobileengage.api.event.EventHandler
@@ -16,6 +17,12 @@ class GeofenceProxy(private val geofenceInternal: GeofenceInternal, private val 
         runnerProxy.logException {
             geofenceInternal.enable(completionListener)
         }
+    }
+
+    override fun isEnabled(): Boolean {
+        return runnerProxy.logException(Callable {
+            geofenceInternal.isEnabled()
+        })
     }
 
     override fun enable(completionListener: (Throwable?) -> Unit) {

@@ -58,6 +58,7 @@ import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.shard.ShardModelRepository;
 import com.emarsys.core.shard.specification.FilterByShardType;
+import com.emarsys.core.storage.BooleanStorage;
 import com.emarsys.core.storage.CoreStorageKey;
 import com.emarsys.core.storage.DefaultKeyValueStore;
 import com.emarsys.core.storage.KeyValueStore;
@@ -210,6 +211,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private Storage<String> clientStateStorage;
     private Storage<String> contactFieldValueStorage;
     private Storage<String> pushTokenStorage;
+    private Storage<Boolean> geofenceEnabledStorage;
     private RequestManager requestManager;
     private MobileEngageRequestModelFactory requestModelFactory;
     private ButtonClickedRepository buttonClickedRepository;
@@ -519,6 +521,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         refreshTokenStorage = new StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, prefs);
         clientStateStorage = new StringStorage(MobileEngageStorageKey.CLIENT_STATE, prefs);
         contactFieldValueStorage = new StringStorage(MobileEngageStorageKey.CONTACT_FIELD_VALUE, prefs);
+        geofenceEnabledStorage = new BooleanStorage(MobileEngageStorageKey.GEOFENCE_ENABLED, prefs);
         pushTokenStorage = new StringStorage(MobileEngageStorageKey.PUSH_TOKEN, prefs);
         pushTokenProvider = new DefaultPushTokenProvider(pushTokenStorage);
 
@@ -678,7 +681,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         silentActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getSilentMessageEventHandlerProvider());
         geofenceActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getGeofenceEventHandlerProvider());
 
-        geofenceInternal = new DefaultGeofenceInternal(requestModelFactory, requestManager, new GeofenceResponseMapper(), new PermissionChecker(application.getApplicationContext()), locationManager, geofenceFilter, geofencingClient, application, geofenceActionCommandFactory, getGeofenceEventHandlerProvider());
+        geofenceInternal = new DefaultGeofenceInternal(requestModelFactory, requestManager, new GeofenceResponseMapper(), new PermissionChecker(application.getApplicationContext()), locationManager, geofenceFilter, geofencingClient, application, geofenceActionCommandFactory, getGeofenceEventHandlerProvider(), geofenceEnabledStorage);
         clientServiceInternal = new DefaultClientServiceInternal(requestManager, requestModelFactory);
         deepLinkInternal = new DefaultDeepLinkInternal(requestManager, requestContext, getDeepLinkServiceProvider());
 

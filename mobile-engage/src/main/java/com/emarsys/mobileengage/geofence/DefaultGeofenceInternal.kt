@@ -18,6 +18,7 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
@@ -43,7 +44,8 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                               private val geofencingClient: GeofencingClient,
                               private val context: Context,
                               private val actionCommandFactory: ActionCommandFactory,
-                              private val geofenceEventHandlerProvider: EventHandlerProvider) : GeofenceInternal {
+                              private val geofenceEventHandlerProvider: EventHandlerProvider,
+                              private val geofenceEnabledStorage: Storage<Boolean>) : GeofenceInternal {
     private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver()
     private var geofenceResponse: GeofenceResponse? = null
     private lateinit var nearestGeofences: MutableList<MEGeofence>
@@ -54,13 +56,16 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     }
     private var receiverRegistered = false
 
-    override fun fetchGeofences() {
+    override fun fetchGeofences(completionListener: CompletionListener?) {
+        if (!geofenceEnabledStorage.get()) {
+            return
+        }
         val requestModel = requestModelFactory.createFetchGeofenceRequest()
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String?, responseModel: ResponseModel?) {
                 if (responseModel != null) {
                     geofenceResponse = geofenceResponseMapper.map(responseModel)
-                    enable(null)
+                    enable(completionListener)
                 }
             }
 
@@ -81,6 +86,13 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         }
 
         if (fineLocationPermissionGranted && backgroundLocationPermissionGranted) {
+            if (!geofenceEnabledStorage.get()) {
+                geofenceEnabledStorage.set(true)
+                if (geofenceResponse == null) {
+                    fetchGeofences(completionListener)
+                    return
+                }
+            }
             registerNearestGeofences(completionListener)
             if (!receiverRegistered) {
                 Handler(Looper.getMainLooper()).post {
@@ -90,13 +102,18 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
             }
         } else {
             val permissionName = findMissingPermission(fineLocationPermissionGranted, backgroundLocationPermissionGranted)
-                completionListener?.onCompleted(MissingPermissionException("Couldn't acquire permission for $permissionName"))
+            completionListener?.onCompleted(MissingPermissionException("Couldn't acquire permission for $permissionName"))
         }
     }
 
     override fun disable() {
         context.unregisterReceiver(geofenceBroadcastReceiver)
+        geofenceEnabledStorage.set(false)
         receiverRegistered = false
+    }
+
+    override fun isEnabled(): Boolean {
+        return geofenceEnabledStorage.get()
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION])

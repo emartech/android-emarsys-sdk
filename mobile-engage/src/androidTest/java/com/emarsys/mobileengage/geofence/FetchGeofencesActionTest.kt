@@ -30,6 +30,6 @@ class FetchGeofencesActionTest {
     fun testExecute_callsDefaultGeofenceInternalsFetchGeofences() {
         fetchGeofencesAction.execute(mockActivity)
 
-        verify(mockGeofenceInternal).fetchGeofences()
+        verify(mockGeofenceInternal).fetchGeofences(null)
     }
 }

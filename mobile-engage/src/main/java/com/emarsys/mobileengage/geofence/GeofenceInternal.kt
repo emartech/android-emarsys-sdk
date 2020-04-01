@@ -7,9 +7,10 @@ import com.emarsys.mobileengage.geofence.model.TriggeringGeofence
 
 interface GeofenceInternal {
 
-    fun fetchGeofences()
+    fun fetchGeofences(completionListener: CompletionListener?)
     fun enable(completionListener: CompletionListener?)
     fun disable()
+    fun isEnabled(): Boolean
     fun registerGeofences(geofences: List<Geofence>)
     fun onGeofenceTriggered(events: List<TriggeringGeofence>)
     fun setEventHandler(eventHandler: EventHandler)
