@@ -120,7 +120,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     private fun registerNearestGeofences(completionListener: CompletionListener?) {
         currentLocation = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
 
-        locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 1F, this)
+        locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1F, this)
 
         completionListener?.onCompleted(null)
         if (currentLocation != null && geofenceResponse != null) {
