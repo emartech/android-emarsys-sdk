@@ -180,7 +180,7 @@ class PredictIntegrationTest {
             with(DependencyInjection.getContainer<EmarsysDependencyContainer>()) {
                 application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
                 application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
-                coreSdkHandler.looper.quitSafely()
+                coreSdkHandler.looper.quit()
             }
 
             clientStateStorage.remove()

@@ -17,6 +17,7 @@ import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
+import com.emarsys.testUtil.rules.RetryRule
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import io.kotlintest.shouldBe
@@ -65,6 +66,10 @@ class MobileEngageRefreshContactTokenIntegrationTest {
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
+
+    @Rule
+    @JvmField
+    val retryRule: RetryRule = RetryUtils.retryRule
 
     @Before
     fun setup() {
