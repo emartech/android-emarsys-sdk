@@ -7,7 +7,9 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresPermission
@@ -28,9 +30,7 @@ import com.emarsys.mobileengage.geofence.model.TriggeringGeofence
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.util.AndroidVersionUtils
-import com.google.android.gms.location.Geofence
-import com.google.android.gms.location.GeofencingClient
-import com.google.android.gms.location.GeofencingRequest
+import com.google.android.gms.location.*
 import org.json.JSONObject
 import com.emarsys.mobileengage.geofence.model.Geofence as MEGeofence
 
@@ -45,7 +45,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                               private val context: Context,
                               private val actionCommandFactory: ActionCommandFactory,
                               private val geofenceEventHandlerProvider: EventHandlerProvider,
-                              private val geofenceEnabledStorage: Storage<Boolean>) : GeofenceInternal {
+                              private val geofenceEnabledStorage: Storage<Boolean>) : GeofenceInternal, LocationListener {
     private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver()
     private var geofenceResponse: GeofenceResponse? = null
     private lateinit var nearestGeofences: MutableList<MEGeofence>
@@ -119,6 +119,9 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION])
     private fun registerNearestGeofences(completionListener: CompletionListener?) {
         currentLocation = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+
+        locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 1F, this)
+
         completionListener?.onCompleted(null)
         if (currentLocation != null && geofenceResponse != null) {
             nearestGeofences = geofenceFilter.findNearestGeofences(currentLocation!!, geofenceResponse!!).toMutableList()
@@ -160,7 +163,9 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
 
     override fun onGeofenceTriggered(events: List<TriggeringGeofence>) {
         events.flatMap { triggeringGeofence ->
-            nearestGeofences.filter { it.id == triggeringGeofence.geofenceId }
+            nearestGeofences.filter {
+                it.id == triggeringGeofence.geofenceId && it.triggers.any { trigger -> trigger.type == triggeringGeofence.triggerType }
+            }
         }.flatMap { nearestTriggeredGeofences ->
             createActionsFromTriggers(nearestTriggeredGeofences)
         }.forEach { action ->
@@ -168,7 +173,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                 action?.run()
             }
         }
-        val refreshAreaTriggeringGeofence = events.find { it.geofenceId == "refreshArea" }
+        val refreshAreaTriggeringGeofence = events.find { it.geofenceId == "refreshArea" && it.triggerType == TriggerType.EXIT }
         if (refreshAreaTriggeringGeofence != null) {
             val fineLocationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
@@ -188,5 +193,17 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
 
     private fun createActionsFromTriggers(it: MEGeofence): List<Runnable?> {
         return it.triggers.mapNotNull { actionCommandFactory.createActionCommand(it.action) }
+    }
+
+    override fun onLocationChanged(p0: Location?) {
+    }
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+    }
+
+    override fun onProviderEnabled(provider: String?) {
+    }
+
+    override fun onProviderDisabled(provider: String?) {
     }
 }

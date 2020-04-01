@@ -16,10 +16,11 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
         val geofenceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().geofenceInternal
-
-        geofenceInternal.onGeofenceTriggered(geofencingEvent.triggeringGeofences.map {
-            TriggeringGeofence(it.requestId, convertTransitionToTriggerType(geofencingEvent.geofenceTransition))
-        })
+        if (geofencingEvent.triggeringGeofences != null) {
+            geofenceInternal.onGeofenceTriggered(geofencingEvent.triggeringGeofences.map {
+                TriggeringGeofence(it.requestId, convertTransitionToTriggerType(geofencingEvent.geofenceTransition))
+            })
+        }
     }
 
     private fun convertTransitionToTriggerType(transition: Int): TriggerType {
