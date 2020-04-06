@@ -169,6 +169,7 @@ class MobileEngageIntegrationTest {
         DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.set(null)
         DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.set(null)
         DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.set(null)
+        DependencyInjection.getContainer<MobileEngageDependencyContainer>().pushTokenStorage.remove()
 
 
         IntegrationTestUtils.doLogin()

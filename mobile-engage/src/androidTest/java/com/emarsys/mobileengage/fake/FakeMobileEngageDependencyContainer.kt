@@ -130,6 +130,10 @@ class FakeMobileEngageDependencyContainer(
         return coreSdkHandler
     }
 
+    override fun getPushTokenStorage(): Storage<String> {
+        return pushTokenStorage
+    }
+
     override fun getFileDownloader(): FileDownloader {
         return fileDownloader
     }

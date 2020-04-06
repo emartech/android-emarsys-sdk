@@ -110,6 +110,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
         contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.contactTokenStorage
         contactTokenStorage.remove()
+        DependencyInjection.getContainer<MobileEngageDependencyContainer>().pushTokenStorage.remove()
 
         IntegrationTestUtils.doLogin()
 

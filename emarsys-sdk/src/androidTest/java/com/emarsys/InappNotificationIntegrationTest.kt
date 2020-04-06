@@ -11,6 +11,7 @@ import com.emarsys.core.util.FileDownloader
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarsysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.iam.InAppPresenter
 import com.emarsys.mobileengage.service.IntentUtils
@@ -112,6 +113,7 @@ class InappNotificationIntegrationTest {
         DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.set(null)
         DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.set(null)
         DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.set(null)
+        DependencyInjection.getContainer<MobileEngageDependencyContainer>().pushTokenStorage.remove()
 
         IntegrationTestUtils.doLogin()
     }

@@ -105,37 +105,44 @@ class DefaultPushInternalTest {
                 mockPushTokenStorage, mockNotificationEventHandlerProvider, mockSilentMessageEventHandlerProvider)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_notificationEventHandler_mustNotBeBNull() {
-        DefaultPushInternal(mockRequestManager, uiHandler, mockRequestModelFactory, mockEventServiceInternal,
-                mockPushTokenStorage, null, mockSilentMessageEventHandlerProvider)
-    }
+    @Test
+    fun testSetPushToken_whenRequest_success() {
+        whenever(mockRequestManager.submit(eq(mockRequestModel), any())).thenAnswer {
+            (it.arguments[1] as CompletionListener).onCompleted(null)
+        }
+        pushInternal.setPushToken(PUSH_TOKEN) {
+            mockCompletionListener.onCompleted(null)
+        }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_silentMessageEventHandlerProvider_mustNotBeBNull() {
-        DefaultPushInternal(mockRequestManager, uiHandler, mockRequestModelFactory, mockEventServiceInternal,
-                mockPushTokenStorage, mockNotificationEventHandlerProvider, null)
+        verify(mockRequestManager).submit(eq(mockRequestModel), any())
+        verify(mockPushTokenStorage).set(PUSH_TOKEN)
+        verify(mockCompletionListener).onCompleted(any())
     }
 
     @Test
-    fun testSetPushToken() {
+    fun testSetPushToken_whenRequest_failure_shouldNotStorePushToken() {
+        val mockError: Throwable = mock()
+        whenever(mockRequestManager.submit(eq(mockRequestModel), any())).thenAnswer {
+            (it.arguments[1] as CompletionListener).onCompleted(mockError)
+        }
+
+        pushInternal.setPushToken(PUSH_TOKEN) {
+            mockCompletionListener.onCompleted(mockError)
+        }
+
+        verify(mockRequestManager).submit(eq(mockRequestModel), any())
+        verify(mockCompletionListener).onCompleted(mockError)
+        verify(mockPushTokenStorage).get()
+        verifyNoMoreInteractions(mockPushTokenStorage)
+    }
+
+    @Test
+    fun testSetPushToken_doNotSendWhenPushTokenIsTheSame() {
+        whenever(mockPushTokenStorage.get()).thenReturn(PUSH_TOKEN)
+
         pushInternal.setPushToken(PUSH_TOKEN, mockCompletionListener)
 
-        verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
-        verify(mockPushTokenStorage).set(PUSH_TOKEN)
-    }
-
-    @Test
-    fun testSetPushToken_completionListener_canBeNull() {
-        pushInternal.setPushToken(PUSH_TOKEN, null)
-
-        verify(mockRequestManager).submit(mockRequestModel, null)
-    }
-
-    @Test
-    fun testSetPushToken_whenPushTokenIsNull_callShouldBeIgnored() {
-        pushInternal.setPushToken(null, mockCompletionListener)
-
+        verifyZeroInteractions(mockRequestModelFactory)
         verifyZeroInteractions(mockRequestManager)
     }
 
@@ -212,11 +219,6 @@ class DefaultPushInternalTest {
         val result = pushInternal.getMessageId(intent)
 
         result shouldBe SID
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackMessageOpen_intent_mustNotBeNull() {
-        pushInternal.trackMessageOpen(null, mockCompletionListener)
     }
 
     @Test

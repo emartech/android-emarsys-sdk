@@ -442,6 +442,11 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     }
 
     @Override
+    public Storage<String> getPushTokenStorage() {
+        return pushTokenStorage;
+    }
+
+    @Override
     public Logger getLogger() {
         return logger;
     }

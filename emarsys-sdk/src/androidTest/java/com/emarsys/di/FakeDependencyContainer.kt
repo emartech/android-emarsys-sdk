@@ -86,6 +86,7 @@ class FakeDependencyContainer(
         private val contactFieldValueStorage: Storage<String> = mock(),
         private val contactTokenStorage: Storage<String> = mock(),
         private val clientStateStorage: Storage<String> = mock(),
+        private val pushTokenStorage: Storage<String> = mock(),
         private val responseHandlersProcessor: ResponseHandlersProcessor = mock(),
         private val notificationCache: NotificationCache = mock(),
         private val restClient: RestClient = mock(),
@@ -444,5 +445,9 @@ class FakeDependencyContainer(
 
     override fun getMessageInboxServiceStorage(): Storage<String> {
         return messageInboxServiceStorage
+    }
+
+    override fun getPushTokenStorage(): Storage<String> {
+        return pushTokenStorage
     }
 }
