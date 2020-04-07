@@ -147,6 +147,17 @@ class DefaultPushInternalTest {
     }
 
     @Test
+    fun testSetPushToken_shouldCallCompletionListener_onMainThread() {
+        whenever(mockPushTokenStorage.get()).thenReturn(PUSH_TOKEN)
+        val threadSpy: ThreadSpy<CompletionListener> = ThreadSpy()
+        whenever(mockCompletionListener.onCompleted(any())).thenAnswer(threadSpy)
+
+        pushInternal.setPushToken(PUSH_TOKEN, mockCompletionListener)
+
+        threadSpy.verifyCalledOnMainThread()
+    }
+
+    @Test
     fun testClearPushToken() {
         pushInternal.clearPushToken(mockCompletionListener)
 
