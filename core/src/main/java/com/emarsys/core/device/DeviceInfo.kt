@@ -10,6 +10,7 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -48,6 +49,29 @@ data class DeviceInfo(private val context: Context,
             return version
         }
 
-    val hash: Int
-        get() = hashCode()
+    val deviceInfoPayload: String
+        get() = JSONObject(mapOf(
+                "notificationSettings" to mapOf(
+                        "channelSettings" to notificationSettings.channelSettings.map {
+                            JSONObject(mapOf(
+                                    "channelId" to it.channelId,
+                                    "importance" to it.importance,
+                                    "isCanBypassDnd" to it.isCanBypassDnd,
+                                    "isCanShowBadge" to it.isCanShowBadge,
+                                    "isShouldVibrate" to it.isShouldVibrate
+                            ))
+                        },
+                        "importance" to notificationSettings.importance,
+                        "areNotificationsEnabled" to notificationSettings.areNotificationsEnabled()
+                ),
+                "hwid" to hwid,
+                "platform" to platform,
+                "language" to language,
+                "timezone" to timezone,
+                "manufacturer" to manufacturer,
+                "model" to model,
+                "osVersion" to osVersion,
+                "displayMetrics" to "${displayMetrics.widthPixels}x${displayMetrics.heightPixels}",
+                "sdkVersion" to sdkVersion
+        )).toString()
 }

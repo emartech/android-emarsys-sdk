@@ -5,6 +5,10 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.os.Build
+import android.util.DisplayMetrics
+import com.emarsys.core.api.notification.ChannelSettings
+import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.notification.NotificationManagerHelper
@@ -19,6 +23,7 @@ import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
+import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -42,7 +47,7 @@ class DeviceInfoTest {
     private lateinit var mockHardwareIdProvider: HardwareIdProvider
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockVersionProvider: VersionProvider
-    private lateinit var mockNotificationManagerHelper: NotificationManagerHelper
+    private lateinit var mockNotificationManagerHelper: NotificationSettings
 
     @Rule
     @JvmField
@@ -56,7 +61,7 @@ class DeviceInfoTest {
         mockHardwareIdProvider = Mockito.mock(HardwareIdProvider::class.java)
         mockLanguageProvider = Mockito.mock(LanguageProvider::class.java)
         mockVersionProvider = Mockito.mock(VersionProvider::class.java)
-        mockNotificationManagerHelper = Mockito.mock(NotificationManagerHelper::class.java)
+        mockNotificationManagerHelper = Mockito.mock(NotificationSettings::class.java)
         whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
         whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn(LANGUAGE)
         whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
@@ -119,12 +124,12 @@ class DeviceInfoTest {
         config.locale = locale
         resources.updateConfiguration(config, resources.displayMetrics)
         Locale.setDefault(previous)
-        "+0900" shouldBe  deviceInfo.timezone
+        "+0900" shouldBe deviceInfo.timezone
     }
 
     @Test
     fun testGetDisplayMetrics() {
-        deviceInfo.displayMetrics shouldBe  Resources.getSystem().displayMetrics
+        deviceInfo.displayMetrics shouldBe Resources.getSystem().displayMetrics
     }
 
     @Test
@@ -156,9 +161,33 @@ class DeviceInfoTest {
     }
 
     @Test
-    fun testGetHash_shouldEqualHashCode() {
-        val expectedHash = deviceInfo.hashCode()
-        deviceInfo.hash shouldBe expectedHash
+    fun testGetDeviceInfoPayload_shouldEqualPayload() {
+        whenever(mockNotificationManagerHelper.channelSettings).thenReturn(listOf(ChannelSettings(channelId = "channelId")))
+
+        val expectedPayload = JSONObject("""{
+                  "notificationSettings": {
+                    "channelSettings": [
+                     {
+                     "channelId":"channelId",
+                     "importance":-1000,
+                     "isCanBypassDnd":false,
+                     "isCanShowBadge":false,
+                     "isShouldVibrate":false}
+                    ],
+                    "importance": 0,
+                    "areNotificationsEnabled": false
+                  },
+                  "hwid": "hwid",
+                  "platform": "android",
+                  "language": "en-US",
+                  "timezone": "+0900",
+                  "manufacturer": "${Build.MANUFACTURER}",
+                  "model": "${Build.MODEL}",
+                  "osVersion": "${Build.VERSION.RELEASE}",
+                  "displayMetrics": "${Resources.getSystem().displayMetrics.widthPixels}x${Resources.getSystem().displayMetrics.heightPixels}",
+                  "sdkVersion": "sdkVersion"
+                }""").toString()
+        deviceInfo.deviceInfoPayload shouldBe expectedPayload
     }
 
     @Test

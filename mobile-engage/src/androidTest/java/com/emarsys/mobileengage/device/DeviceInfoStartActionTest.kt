@@ -15,7 +15,7 @@ import org.mockito.Mockito.*
 
 class DeviceInfoStartActionTest {
 
-    private lateinit var mockDeviceInfoHashStorage: Storage<Int>
+    private lateinit var deviceInfoPayloadStorage: Storage<String>
     private lateinit var mockClientServiceInternal: ClientServiceInternal
     private lateinit var startAction: DeviceInfoStartAction
     private lateinit var mockDeviceInfo: DeviceInfo
@@ -27,11 +27,11 @@ class DeviceInfoStartActionTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        mockDeviceInfoHashStorage = mock(Storage::class.java) as Storage<Int>
+        deviceInfoPayloadStorage = mock(Storage::class.java) as Storage<String>
         mockClientServiceInternal = mock(ClientServiceInternal::class.java)
         mockDeviceInfo = mock(DeviceInfo::class.java)
 
-        startAction = DeviceInfoStartAction(mockClientServiceInternal, mockDeviceInfoHashStorage, mockDeviceInfo)
+        startAction = DeviceInfoStartAction(mockClientServiceInternal, deviceInfoPayloadStorage, mockDeviceInfo)
 
     }
 
@@ -42,22 +42,22 @@ class DeviceInfoStartActionTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_mobileEngageInternal_mustNotBeNull() {
-        DeviceInfoStartAction(null, mockDeviceInfoHashStorage, mockDeviceInfo)
+        DeviceInfoStartAction(null, deviceInfoPayloadStorage, mockDeviceInfo)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_deviceInfoHashStorage_mustNotBeNull() {
+    fun testConstructor_deviceInfoPayloadStorage_mustNotBeNull() {
         DeviceInfoStartAction(mockClientServiceInternal, null, mockDeviceInfo)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_deviceInfo_mustNotBeNull() {
-        DeviceInfoStartAction(mockClientServiceInternal, mockDeviceInfoHashStorage, null)
+        DeviceInfoStartAction(mockClientServiceInternal, deviceInfoPayloadStorage, null)
     }
 
     @Test
     fun testExecute_callsMobileEngageInternal_whenStorageIsEmpty() {
-        whenever(mockDeviceInfoHashStorage.get()).thenReturn(null)
+        whenever(deviceInfoPayloadStorage.get()).thenReturn(null)
 
         startAction.execute(null)
 
@@ -66,8 +66,8 @@ class DeviceInfoStartActionTest {
 
     @Test
     fun testExecute_callsMobileEngageInternal_whenStorageHasChanged() {
-        whenever(mockDeviceInfoHashStorage.get()).thenReturn(42)
-        whenever(mockDeviceInfo.hash).thenReturn(43)
+        whenever(deviceInfoPayloadStorage.get()).thenReturn(createDeviceInfoPayload())
+        whenever(mockDeviceInfo.deviceInfoPayload).thenReturn(createOtherDeviceInfoPayload())
 
         startAction.execute(null)
 
@@ -76,12 +76,84 @@ class DeviceInfoStartActionTest {
 
     @Test
     fun testExecute_shouldNotCallsMobileEngageInternal_whenStorageHasNotChangedAndExists() {
-        whenever(mockDeviceInfoHashStorage.get()).thenReturn(42)
+        whenever(deviceInfoPayloadStorage.get()).thenReturn(createDeviceInfoPayload())
 
-        whenever(mockDeviceInfo.hash).thenReturn(42)
+        whenever(mockDeviceInfo.deviceInfoPayload).thenReturn(createDeviceInfoPayload())
 
         startAction.execute(null)
 
         verifyZeroInteractions(mockClientServiceInternal)
+    }
+
+    private fun createDeviceInfoPayload(): String {
+        return """{
+                  "notificationSettings": {
+                    "channelSettings": [
+                      [
+                        {
+                          "channelId": "ems_sample_news",
+                          "importance": 4,
+                          "isCanBypassDnd": false,
+                          "isCanShowBadge": true,
+                          "isShouldVibrate": false
+                        },
+                        {
+                          "channelId": "ems_sample_messages",
+                          "importance": 4,
+                          "isCanBypassDnd": false,
+                          "isCanShowBadge": true,
+                          "isShouldVibrate": false
+                        }
+                      ]
+                    ],
+                    "importance": -1000,
+                    "areNotificationsEnabled": true
+                  },
+                  "hwid": "1e1a57f2789e46ac",
+                  "platform": "android",
+                  "language": "en-US",
+                  "timezone": "+0200",
+                  "manufacturer": "Google",
+                  "model": "Android SDK built for x86",
+                  "osVersion": "10",
+                  "displayMetrics": "1080x1794",
+                  "sdkVersion": "2.5.0-5-gf8a8a5e"
+                }"""
+    }
+
+    private fun createOtherDeviceInfoPayload(): String {
+        return """{
+                  "notificationSettings": {
+                    "channelSettings": [
+                      [
+                        {
+                          "channelId": "ems_sample_news",
+                          "importance": 4,
+                          "isCanBypassDnd": false,
+                          "isCanShowBadge": true,
+                          "isShouldVibrate": false
+                        },
+                        {
+                          "channelId": "ems_sample_messages",
+                          "importance": 4,
+                          "isCanBypassDnd": false,
+                          "isCanShowBadge": true,
+                          "isShouldVibrate": false
+                        }
+                      ]
+                    ],
+                    "importance": -1000,
+                    "areNotificationsEnabled": true
+                  },
+                  "hwid": "total_mas_hw_id",
+                  "platform": "android",
+                  "language": "en-US",
+                  "timezone": "+0200",
+                  "manufacturer": "Google",
+                  "model": "Android SDK built for x86",
+                  "osVersion": "10",
+                  "displayMetrics": "1080x1794",
+                  "sdkVersion": "2.5.0-5-gf8a8a5e"
+                }"""
     }
 }

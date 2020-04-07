@@ -8,7 +8,8 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.endpoint.Endpoint
 
 @Mockable
-class ClientInfoResponseHandler(private val deviceInfo: DeviceInfo, private val deviceInfoHashStorage: Storage<Int>) : AbstractResponseHandler() {
+class ClientInfoResponseHandler(private val deviceInfo: DeviceInfo,
+                                private val deviceInfoPayloadStorage: Storage<String>) : AbstractResponseHandler() {
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
         val url = responseModel.requestModel.url.toString()
@@ -16,6 +17,6 @@ class ClientInfoResponseHandler(private val deviceInfo: DeviceInfo, private val 
     }
 
     override fun handleResponse(responseModel: ResponseModel) {
-        deviceInfoHashStorage.set(deviceInfo.hash)
+        deviceInfoPayloadStorage.set(deviceInfo.deviceInfoPayload)
     }
 }

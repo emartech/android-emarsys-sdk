@@ -38,6 +38,8 @@ import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.experimental.FlipperFeature
+import com.emarsys.core.api.notification.ChannelSettings
+import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
@@ -90,6 +92,7 @@ import com.emarsys.testUtil.TimeoutUtils
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.nhaarman.mockitokotlin2.*
+import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
@@ -140,7 +143,7 @@ class EmarsysTest {
     private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockPredictInternal: PredictInternal
     private lateinit var mockPredictShardTrigger: Runnable
-    private lateinit var mockDeviceInfoHashStorage: Storage<Int>
+    private lateinit var mockDeviceInfoPayloadStorage: Storage<String>
     private lateinit var mockContactFieldValueStorage: Storage<String>
     private lateinit var mockContactTokenStorage: Storage<String>
     private lateinit var mockClientStateStorage: Storage<String>
@@ -154,7 +157,7 @@ class EmarsysTest {
     private lateinit var mockMessageInbox: MessageInboxApi
     private lateinit var mockHardwareIdProvider: HardwareIdProvider
     private lateinit var mockLanguageProvider: LanguageProvider
-    private lateinit var mockNotificationManagerHelper: NotificationManagerHelper
+    private lateinit var mockNotificationManagerHelper: NotificationSettings
     private lateinit var mockVersionProvider: VersionProvider
     private lateinit var mockLogic: Logic
     private lateinit var mockRecommendationFilter: RecommendationFilter
@@ -180,7 +183,6 @@ class EmarsysTest {
             mockMobileEngageInternal = mock()
             mockDeepLinkInternal = mock()
             mockEventServiceInternal = mock()
-            mockEventServiceInternal = mock()
             mockClientServiceInternal = mock()
             mockPredictInternal = mock()
             mockPredictShardTrigger = mock()
@@ -189,7 +191,7 @@ class EmarsysTest {
             mockVersionProvider = mock()
             inappEventHandler = mock()
             oldInappEventHandler = mock()
-            mockDeviceInfoHashStorage = mock()
+            mockDeviceInfoPayloadStorage = mock()
             mockContactFieldValueStorage = mock()
             mockContactTokenStorage = mock()
             mockClientStateStorage = mock()
@@ -210,16 +212,21 @@ class EmarsysTest {
             mockMessageInbox = mock()
             mockLogic = mock()
             mockRecommendationFilter = mock()
+            whenever(mockNotificationManagerHelper.channelSettings).thenReturn(listOf(ChannelSettings(channelId = "channelId")))
+            whenever(mockNotificationManagerHelper.importance).thenReturn(-1000)
+            whenever(mockNotificationManagerHelper.areNotificationsEnabled()).thenReturn(false)
             whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn("hwid")
             whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn("language")
             whenever(mockVersionProvider.provideSdkVersion()).thenReturn("version")
             deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mockVersionProvider,
                     mockLanguageProvider, mockNotificationManagerHelper, true)
             whenever(mockRequestContext.applicationCode).thenReturn(APPLICATION_CODE)
-            whenever(mockDeviceInfoHashStorage.get()).thenReturn(deviceInfo.hash)
             whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
             whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
             whenever(mockContactTokenStorage.get()).thenReturn("contactToken")
+
+            whenever(mockDeviceInfoPayloadStorage.get()).thenReturn("deviceInfo.deviceInfoPayload")
+
             DependencyInjection.setup(FakeDependencyContainer(
                     activityLifecycleWatchdog = activityLifecycleWatchdog,
                     currentActivityWatchdog = currentActivityWatchdog,
@@ -238,7 +245,7 @@ class EmarsysTest {
                     loggingPredictInternal = mockPredictInternal,
                     requestContext = mockRequestContext,
                     predictShardTrigger = mockPredictShardTrigger,
-                    deviceInfoHashStorage = mockDeviceInfoHashStorage,
+                    deviceInfoPayloadStorage = mockDeviceInfoPayloadStorage,
                     contactFieldValueStorage = mockContactFieldValueStorage,
                     contactTokenStorage = mockContactTokenStorage,
                     clientStateStorage = mockClientStateStorage,
@@ -402,7 +409,13 @@ class EmarsysTest {
 
     @Test
     fun testSetup_doNotSendClientInfo_whenHashIsUnChanged() {
+        whenever(mockContactTokenStorage.get()).thenReturn(null)
+        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
+
+        val expectedDeviceInfo = deviceInfo.deviceInfoPayload
         whenever(mockClientStateStorage.get()).thenReturn("asdfsaf")
+        whenever(mockDeviceInfoPayloadStorage.get()).thenReturn(expectedDeviceInfo)
+
         setup(mobileEngageConfig)
         verify(mockClientServiceInternal, never()).trackDeviceInfo()
     }
@@ -428,7 +441,6 @@ class EmarsysTest {
     fun testSetup_sendDeviceInfoAndAnonymousContact_inOrder() {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         whenever(mockContactTokenStorage.get()).thenReturn(null)
-        whenever(mockDeviceInfoHashStorage.get()).thenReturn(2345)
         setup(mobileEngageConfig)
         val inOrder = inOrder(mockMobileEngageInternal, mockClientServiceInternal)
         inOrder.verify(mockClientServiceInternal).trackDeviceInfo()

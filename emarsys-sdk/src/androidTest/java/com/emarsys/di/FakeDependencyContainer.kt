@@ -82,7 +82,7 @@ class FakeDependencyContainer(
         private val predictShardTrigger: Runnable = mock(),
         private val runnerProxy: RunnerProxy = RunnerProxy(),
         private val logger: Logger = mock(),
-        private val deviceInfoHashStorage: Storage<Int> = mock(),
+        private val deviceInfoPayloadStorage: Storage<String> = mock(),
         private val contactFieldValueStorage: Storage<String> = mock(),
         private val contactTokenStorage: Storage<String> = mock(),
         private val clientStateStorage: Storage<String> = mock(),
@@ -286,8 +286,8 @@ class FakeDependencyContainer(
         return restClient
     }
 
-    override fun getDeviceInfoHashStorage(): Storage<Int> {
-        return deviceInfoHashStorage
+    override fun getDeviceInfoPayloadStorage(): Storage<String> {
+        return deviceInfoPayloadStorage
     }
 
     override fun getContactFieldValueStorage(): Storage<String> {

@@ -28,7 +28,7 @@ class ClientInfoResponseHandlerTest {
     private lateinit var clientInfoResponseHandler: ClientInfoResponseHandler
 
     private lateinit var mockDeviceInfo: DeviceInfo
-    private lateinit var mockDeviceInfoHashStorage: Storage<Int>
+    private lateinit var mockDeviceInfoPayloadStorage: Storage<String>
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var mockRequestModel: RequestModel
 
@@ -36,7 +36,7 @@ class ClientInfoResponseHandlerTest {
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockDeviceInfo = mock(DeviceInfo::class.java)
-        mockDeviceInfoHashStorage = mock(Storage::class.java) as Storage<Int>
+        mockDeviceInfoPayloadStorage = mock(Storage::class.java) as Storage<String>
 
         mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL)
@@ -45,7 +45,7 @@ class ClientInfoResponseHandlerTest {
             whenever(requestModel).thenReturn(mockRequestModel)
         }
 
-        clientInfoResponseHandler = ClientInfoResponseHandler(mockDeviceInfo, mockDeviceInfoHashStorage)
+        clientInfoResponseHandler = ClientInfoResponseHandler(mockDeviceInfo, mockDeviceInfoPayloadStorage)
     }
 
     @Test
@@ -57,10 +57,46 @@ class ClientInfoResponseHandlerTest {
 
     @Test
     fun testHandleResponse() {
-        whenever(mockDeviceInfo.hash).thenReturn(12345)
+        whenever(mockDeviceInfo.deviceInfoPayload).thenReturn(createDeviceInfoPayload())
 
         clientInfoResponseHandler.handleResponse(mockResponseModel)
 
-        verify(mockDeviceInfoHashStorage).set(12345)
+        verify(mockDeviceInfoPayloadStorage).set(createDeviceInfoPayload())
+    }
+
+    private fun createDeviceInfoPayload(): String {
+        return """{
+                  "notificationSettings": {
+                    "channelSettigns": [
+                      [
+                        {
+                          "channelId": "ems_sample_news",
+                          "importance": 4,
+                          "isCanBypassDnd": false,
+                          "isCanShowBadge": true,
+                          "isShouldVibrate": false
+                        },
+                        {
+                          "channelId": "ems_sample_messages",
+                          "importance": 4,
+                          "isCanBypassDnd": false,
+                          "isCanShowBadge": true,
+                          "isShouldVibrate": false
+                        }
+                      ]
+                    ],
+                    "importance": -1000,
+                    "areNotificationsEnabled": true
+                  },
+                  "hwid": "1e1a57f2789e46ac",
+                  "platform": "android",
+                  "language": "en-US",
+                  "timezone": "+0200",
+                  "manufacturer": "Google",
+                  "model": "Android SDK built for x86",
+                  "osVersion": "10",
+                  "displayMetrics": "1080x1794",
+                  "sdkVersion": "2.5.0-5-gf8a8a5e"
+                }"""
     }
 }

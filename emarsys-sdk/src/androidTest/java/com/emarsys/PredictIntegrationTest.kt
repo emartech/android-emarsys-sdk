@@ -74,7 +74,7 @@ class PredictIntegrationTest {
     private lateinit var clientStateStorage: Storage<String>
     private lateinit var contactTokenStorage: Storage<String>
     private lateinit var refreshTokenStorage: Storage<String>
-    private lateinit var deviceInfoHashStorage: Storage<Int>
+    private lateinit var deviceInfoPayloadStorage: Storage<String>
     lateinit var triedRecommendedProducts: Try<List<Product>>
 
     private val application: Application
@@ -158,11 +158,11 @@ class PredictIntegrationTest {
         clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.clientStateStorage
         contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.contactTokenStorage
         refreshTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.refreshTokenStorage
-        deviceInfoHashStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().deviceInfoHashStorage
+        deviceInfoPayloadStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().deviceInfoPayloadStorage
         clientStateStorage.remove()
         contactTokenStorage.remove()
         refreshTokenStorage.remove()
-        deviceInfoHashStorage.remove()
+        deviceInfoPayloadStorage.remove()
 
         Emarsys.setup(baseConfig)
 
@@ -186,7 +186,7 @@ class PredictIntegrationTest {
             clientStateStorage.remove()
             contactTokenStorage.remove()
             refreshTokenStorage.remove()
-            deviceInfoHashStorage.remove()
+            deviceInfoPayloadStorage.remove()
             DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.set(null)
             DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.set(null)
             DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.set(null)

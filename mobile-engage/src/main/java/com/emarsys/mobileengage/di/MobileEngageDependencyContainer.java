@@ -65,7 +65,7 @@ public interface MobileEngageDependencyContainer extends DependencyContainer {
 
     InAppPresenter getInAppPresenter();
 
-    Storage<Integer> getDeviceInfoHashStorage();
+    Storage<String> getDeviceInfoPayloadStorage();
 
     Storage<String> getContactFieldValueStorage();
 

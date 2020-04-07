@@ -126,7 +126,7 @@ class DefaultInboxIntegrationTest {
         DependencyInjection.getContainer<MobileEngageDependencyContainer>().clientStateStorage.remove()
         DependencyInjection.getContainer<MobileEngageDependencyContainer>().contactFieldValueStorage.remove()
         DependencyInjection.getContainer<MobileEngageDependencyContainer>().contactTokenStorage.remove()
-        DependencyInjection.getContainer<MobileEngageDependencyContainer>().deviceInfoHashStorage.remove()
+        DependencyInjection.getContainer<MobileEngageDependencyContainer>().deviceInfoPayloadStorage.remove()
         DependencyInjection.getContainer<MobileEngageDependencyContainer>().pushTokenStorage.remove()
 
         Emarsys.setup(baseConfig)

@@ -139,7 +139,6 @@ import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler;
 import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MobileEngageClientStateResponseHandler;
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler;
-import com.emarsys.mobileengage.storage.DeviceInfoHashStorage;
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey;
 import com.emarsys.mobileengage.util.RequestHeaderUtils;
 import com.emarsys.predict.DefaultPredictInternal;
@@ -205,7 +204,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private Runnable predictShardTrigger;
 
     private Handler uiHandler;
-    private Storage<Integer> deviceInfoHashStorage;
+    private Storage<String> deviceInfoPayloadStorage;
     private Storage<String> contactTokenStorage;
     private Storage<String> refreshTokenStorage;
     private Storage<String> clientStateStorage;
@@ -422,8 +421,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     }
 
     @Override
-    public Storage<Integer> getDeviceInfoHashStorage() {
-        return deviceInfoHashStorage;
+    public Storage<String> getDeviceInfoPayloadStorage() {
+        return deviceInfoPayloadStorage;
     }
 
     @Override
@@ -521,7 +520,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         coreSdkHandler = new CoreSdkHandlerProvider().provideHandler();
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
-        deviceInfoHashStorage = new DeviceInfoHashStorage(prefs);
+        deviceInfoPayloadStorage = new StringStorage(MobileEngageStorageKey.DEVICE_INFO_HASH, prefs);
         contactTokenStorage = new StringStorage(MobileEngageStorageKey.CONTACT_TOKEN, prefs);
         refreshTokenStorage = new StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, prefs);
         clientStateStorage = new StringStorage(MobileEngageStorageKey.CLIENT_STATE, prefs);
@@ -771,7 +770,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
     private void initializeActivityLifecycleWatchdog() {
         ActivityLifecycleAction[] applicationStartActions = new ActivityLifecycleAction[]{
-                new DeviceInfoStartAction(getClientServiceInternal(), deviceInfoHashStorage, getDeviceInfo()),
+                new DeviceInfoStartAction(getClientServiceInternal(), deviceInfoPayloadStorage, getDeviceInfo()),
                 new InAppStartAction(eventServiceInternal, contactTokenStorage)
         };
 
@@ -811,7 +810,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         responseHandlers.add(new MobileEngageTokenResponseHandler("refreshToken", refreshTokenStorage, getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()));
         responseHandlers.add(contactTokenResponseHandler);
         responseHandlers.add(new MobileEngageClientStateResponseHandler(getClientStateStorage(), getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()));
-        responseHandlers.add(new ClientInfoResponseHandler(getDeviceInfo(), getDeviceInfoHashStorage()));
+        responseHandlers.add(new ClientInfoResponseHandler(getDeviceInfo(), getDeviceInfoPayloadStorage()));
 
         responseHandlers.add(new InAppMessageResponseHandler(
                 inAppPresenter

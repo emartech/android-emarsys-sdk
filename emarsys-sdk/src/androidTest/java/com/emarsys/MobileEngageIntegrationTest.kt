@@ -72,7 +72,7 @@ class MobileEngageIntegrationTest {
     private lateinit var clientStateStorage: Storage<String>
     private lateinit var contactTokenStorage: Storage<String>
     private lateinit var refreshTokenStorage: Storage<String>
-    private lateinit var deviceInfoHashStorage: Storage<Int>
+    private lateinit var deviceInfoPayloadStorage: Storage<String>
 
     private var errorCause: Throwable? = null
 
@@ -156,12 +156,12 @@ class MobileEngageIntegrationTest {
         clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.clientStateStorage
         contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.contactTokenStorage
         refreshTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.refreshTokenStorage
-        deviceInfoHashStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().deviceInfoHashStorage
+        deviceInfoPayloadStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().deviceInfoPayloadStorage
 
         clientStateStorage.remove()
         contactTokenStorage.remove()
         refreshTokenStorage.remove()
-        deviceInfoHashStorage.remove()
+        deviceInfoPayloadStorage.remove()
 
         DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.set(null)
         DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.set(null)
@@ -192,7 +192,7 @@ class MobileEngageIntegrationTest {
             clientStateStorage.remove()
             contactTokenStorage.remove()
             refreshTokenStorage.remove()
-            deviceInfoHashStorage.remove()
+            deviceInfoPayloadStorage.remove()
 
             DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.set(null)
             DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.set(null)

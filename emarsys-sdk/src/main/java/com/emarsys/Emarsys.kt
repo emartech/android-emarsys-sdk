@@ -521,14 +521,14 @@ object Emarsys {
     }
 
     private fun initializeContact() {
-        val deviceInfoHash = container.deviceInfoHashStorage.get()
+        val deviceInfoPayload = container.deviceInfoPayloadStorage.get()
         val contactToken = container.contactTokenStorage.get()
         val contactFieldValue = container.contactFieldValueStorage.get()
         val clientState = container.clientStateStorage.get()
         val deviceInfo = container.deviceInfo
 
         if (contactToken == null && contactFieldValue == null) {
-            if (clientState == null || deviceInfoHash != null && deviceInfoHash != deviceInfo.hash) {
+            if (clientState == null || deviceInfoPayload != null && deviceInfoPayload != deviceInfo.deviceInfoPayload) {
                 EmarsysDependencyInjection.clientServiceInternal().trackDeviceInfo()
             }
             EmarsysDependencyInjection.mobileEngageInternal().setContact(null, null)
