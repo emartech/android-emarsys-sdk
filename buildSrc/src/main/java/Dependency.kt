@@ -4,7 +4,7 @@ object Versions {
     const val mockito_version = "2.25.0"
     const val espresso_version = "3.2.0"
     const val firebase_core_version = "17.3.0"
-    const val firebase_messaging_version = "20.1.4"
+    const val firebase_messaging_version = "20.1.5"
     const val hamcrest_version = "2.2"
     const val support_test_version = "1.2.0"
     const val support_library = "1.1.0"
