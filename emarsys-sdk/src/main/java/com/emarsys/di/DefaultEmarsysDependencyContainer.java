@@ -611,10 +611,10 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
                 refreshTokenInternal,
                 getRestClient(),
                 contactTokenStorage,
+                pushTokenStorage,
                 getClientServiceProvider(),
                 getEventServiceProvider(),
-                getMessageInboxServiceProvider()
-        );
+                getMessageInboxServiceProvider());
         Worker worker = new DefaultWorker(
                 requestModelRepository,
                 connectionWatchDog,

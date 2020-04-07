@@ -15,15 +15,17 @@ public class CoreCompletionHandlerRefreshTokenProxyProvider implements Completio
     private final RefreshTokenInternal refreshTokenInternal;
     private final RestClient restClient;
     private final Storage<String> contactTokenStorage;
+    private final Storage<String> pushTokenStorage;
     private final ServiceEndpointProvider clientServiceProvider;
     private final ServiceEndpointProvider eventServiceProvider;
     private final ServiceEndpointProvider messageInboxServiceProvider;
 
-    public CoreCompletionHandlerRefreshTokenProxyProvider(CoreCompletionHandlerMiddlewareProvider coreCompletionHandlerMiddlewareProvider, RefreshTokenInternal refreshTokenInternal, RestClient restClient, Storage<String> contactTokenStorage, ServiceEndpointProvider clientServiceProvider, ServiceEndpointProvider eventServiceProvider, ServiceEndpointProvider messageInboxServiceProvider) {
+    public CoreCompletionHandlerRefreshTokenProxyProvider(CoreCompletionHandlerMiddlewareProvider coreCompletionHandlerMiddlewareProvider, RefreshTokenInternal refreshTokenInternal, RestClient restClient, Storage<String> contactTokenStorage, Storage<String> pushTokenStorage, ServiceEndpointProvider clientServiceProvider, ServiceEndpointProvider eventServiceProvider, ServiceEndpointProvider messageInboxServiceProvider) {
         Assert.notNull(coreCompletionHandlerMiddlewareProvider, "CoreCompletionHandlerMiddlewareProvider must not be null!");
         Assert.notNull(refreshTokenInternal, "RefreshTokenInternal must not be null!");
         Assert.notNull(restClient, "RestClient must not be null!");
         Assert.notNull(contactTokenStorage, "ContactTokenStorage must not be null!");
+        Assert.notNull(pushTokenStorage, "PushTokenStorage must not be null!");
         Assert.notNull(clientServiceProvider, "ClientServiceProvider must not be null!");
         Assert.notNull(eventServiceProvider, "EventServiceProvider must not be null!");
         Assert.notNull(messageInboxServiceProvider, "MessageInboxServiceProvider must not be null!");
@@ -32,6 +34,7 @@ public class CoreCompletionHandlerRefreshTokenProxyProvider implements Completio
         this.refreshTokenInternal = refreshTokenInternal;
         this.restClient = restClient;
         this.contactTokenStorage = contactTokenStorage;
+        this.pushTokenStorage = pushTokenStorage;
         this.clientServiceProvider = clientServiceProvider;
         this.eventServiceProvider = eventServiceProvider;
         this.messageInboxServiceProvider = messageInboxServiceProvider;
@@ -43,6 +46,7 @@ public class CoreCompletionHandlerRefreshTokenProxyProvider implements Completio
 
         CoreCompletionHandler coreCompletionHandler = coreCompletionHandlerMiddlewareProvider.provideProxy(worker);
 
-        return new CoreCompletionHandlerRefreshTokenProxy(coreCompletionHandler, refreshTokenInternal, restClient, contactTokenStorage, clientServiceProvider, eventServiceProvider, messageInboxServiceProvider);
+        return new CoreCompletionHandlerRefreshTokenProxy(coreCompletionHandler, refreshTokenInternal, restClient, contactTokenStorage,
+                pushTokenStorage, clientServiceProvider, eventServiceProvider, messageInboxServiceProvider);
     }
 }
