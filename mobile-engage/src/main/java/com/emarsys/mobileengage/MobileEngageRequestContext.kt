@@ -16,4 +16,5 @@ data class MobileEngageRequestContext(
         val clientStateStorage: Storage<String>,
         val contactTokenStorage: Storage<String>,
         val refreshTokenStorage: Storage<String>,
-        val contactFieldValueStorage: Storage<String>)
+        val contactFieldValueStorage: Storage<String>,
+        val pushTokenStorage: Storage<String>)

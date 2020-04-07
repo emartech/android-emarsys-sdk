@@ -57,6 +57,7 @@ class DefaultMobileEngageInternalTest {
     private lateinit var mockRefreshTokenStorage: Storage<String>
     private lateinit var mockContactTokenStorage: Storage<String>
     private lateinit var mockClientStateStorage: Storage<String>
+    private lateinit var mockPushTokenStorage: Storage<String>
 
     private lateinit var uiHandler: Handler
 
@@ -74,6 +75,7 @@ class DefaultMobileEngageInternalTest {
         mockRefreshTokenStorage = mock(Storage::class.java) as Storage<String>
         mockContactTokenStorage = mock(Storage::class.java) as Storage<String>
         mockClientStateStorage = mock(Storage::class.java) as Storage<String>
+        mockPushTokenStorage = mock(Storage::class.java) as Storage<String>
 
         mockUuidProvider = mock(UUIDProvider::class.java).apply {
             whenever(provideId()).thenReturn(REQUEST_ID)
@@ -103,6 +105,7 @@ class DefaultMobileEngageInternalTest {
             whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
             whenever(contactTokenStorage).thenReturn(mockContactTokenStorage)
             whenever(clientStateStorage).thenReturn(mockClientStateStorage)
+            whenever(pushTokenStorage).thenReturn(mockPushTokenStorage)
         }
 
         mockRequestModel = mock(RequestModel::class.java)
@@ -180,7 +183,6 @@ class DefaultMobileEngageInternalTest {
         verify(mockRefreshTokenStorage).remove()
         verify(mockContactTokenStorage).remove()
         verify(mockContactFieldValueStorage).remove()
+        verify(mockPushTokenStorage).remove()
     }
-
-
 }

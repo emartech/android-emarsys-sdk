@@ -27,7 +27,6 @@ public class MobileEngageRefreshTokenInternal implements RefreshTokenInternal {
     @Override
     public void refreshContactToken(final CompletionListener completionListener) {
         final RequestModel requestModel = requestModelFactory.createRefreshContactTokenRequest();
-
         restClient.execute(requestModel, new CoreCompletionHandler() {
             @Override
             public void onSuccess(String id, ResponseModel responseModel) {

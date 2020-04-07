@@ -72,6 +72,7 @@ public class DefaultDeepLinkInternalTest {
                 mock(Storage.class),
                 mock(Storage.class),
                 mock(Storage.class),
+                mock(Storage.class),
                 mock(Storage.class)
         );
 

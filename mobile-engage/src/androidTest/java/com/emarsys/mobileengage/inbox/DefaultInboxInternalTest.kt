@@ -126,7 +126,8 @@ class DefaultInboxInternalTest {
                 mock(Storage::class.java) as Storage<String>,
                 mock(Storage::class.java) as Storage<String>,
                 mock(Storage::class.java) as Storage<String>,
-                mockContactFieldValueStorage
+                mockContactFieldValueStorage,
+                mock(Storage::class.java) as Storage<String>
         )
 
         defaultHeaders = RequestHeaderUtils.createDefaultHeaders(requestContext)

@@ -576,7 +576,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
                 clientStateStorage,
                 contactTokenStorage,
                 refreshTokenStorage,
-                contactFieldValueStorage);
+                contactFieldValueStorage,
+                pushTokenStorage);
 
         inAppEventHandler = new InAppEventHandlerInternal();
 

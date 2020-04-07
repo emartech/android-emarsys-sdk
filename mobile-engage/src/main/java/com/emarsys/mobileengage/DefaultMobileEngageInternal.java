@@ -43,6 +43,7 @@ public class DefaultMobileEngageInternal implements MobileEngageInternal {
         requestContext.getRefreshTokenStorage().remove();
         requestContext.getContactTokenStorage().remove();
         requestContext.getContactFieldValueStorage().remove();
+        requestContext.getPushTokenStorage().remove();
     }
 
 }
