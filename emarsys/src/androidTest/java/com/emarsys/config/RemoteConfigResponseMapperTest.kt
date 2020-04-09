@@ -2,6 +2,7 @@ package com.emarsys.config
 
 import com.emarsys.config.model.RemoteConfig
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.core.util.log.LogLevel
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -42,7 +43,8 @@ class RemoteConfigResponseMapperTest {
                                 "deepLinkService":"https://testDeepLinkService.url",
                                 "inboxService":"https://testinboxService.url",
                                 "messageInboxService":"https://testMessageInboxService.url"
-                        }
+                        },
+                        "logLevel": "INFO"
                    }
                """.trimIndent()
         )
@@ -54,7 +56,8 @@ class RemoteConfigResponseMapperTest {
                 "https://testMobileEngageV2Service.url",
                 "https://testDeepLinkService.url",
                 "https://testinboxService.url",
-                "https://testMessageInboxService.url")
+                "https://testMessageInboxService.url",
+                LogLevel.INFO)
 
         val result = remoteConfigResponseMapper.map(mockResponseModel)
 

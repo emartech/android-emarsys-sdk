@@ -37,7 +37,8 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val inboxServiceStorage: Storage<String>,
                             private val mobileEngageV2ServiceStorage: Storage<String>,
                             private val predictServiceStorage: Storage<String>,
-                            private val messageInboxServiceStorage: Storage<String>) : ConfigInternal {
+                            private val messageInboxServiceStorage: Storage<String>,
+                            private val logLevelStorage: Storage<String>) : ConfigInternal {
 
     override val applicationCode: String?
         get() = mobileEngageRequestContext.applicationCode
@@ -78,6 +79,9 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     private fun wrapCompletionListenerWithRefreshRemoteConfig(completionListener: CompletionListener?): CompletionListener {
         return CompletionListener {
             completionListener?.onCompleted(it)
+            if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
+                refreshRemoteConfig()
+            }
         }
     }
 
@@ -148,6 +152,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
             FeatureRegistry.disableFeature(InnerFeature.PREDICT)
         } else {
             FeatureRegistry.enableFeature(InnerFeature.PREDICT)
+            refreshRemoteConfig()
         }
     }
 
@@ -196,6 +201,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         mobileEngageV2ServiceStorage.set(remoteConfig.mobileEngageV2ServiceUrl)
         predictServiceStorage.set(remoteConfig.predictServiceUrl)
         messageInboxServiceStorage.set(remoteConfig.messageInboxServiceUrl)
+        logLevelStorage.set(remoteConfig.logLevel?.name)
     }
 
     override fun resetRemoteConfig() {
@@ -206,5 +212,6 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         mobileEngageV2ServiceStorage.set(null)
         predictServiceStorage.set(null)
         messageInboxServiceStorage.set(null)
+        logLevelStorage.set(null)
     }
 }

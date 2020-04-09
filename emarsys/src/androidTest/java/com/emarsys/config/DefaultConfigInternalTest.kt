@@ -19,6 +19,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.Storage
+import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.worker.Worker
 import com.emarsys.fake.FakeRestClient
 import com.emarsys.fake.FakeResultListener
@@ -34,7 +35,10 @@ import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
@@ -80,6 +84,7 @@ class DefaultConfigInternalTest {
     private lateinit var mockMobileEngageV2ServiceStorage: Storage<String>
     private lateinit var mockPredictServiceStorage: Storage<String>
     private lateinit var mockMessageInboxServiceStorage: Storage<String>
+    private lateinit var mockLogLevelStorage: Storage<String>
 
     @Rule
     @JvmField
@@ -146,6 +151,7 @@ class DefaultConfigInternalTest {
         mockMobileEngageV2ServiceStorage = mock(Storage::class.java) as Storage<String>
         mockPredictServiceStorage = mock(Storage::class.java) as Storage<String>
         mockMessageInboxServiceStorage = mock(Storage::class.java) as Storage<String>
+        mockLogLevelStorage = mock(Storage::class.java) as Storage<String>
         configInternal = spy(DefaultConfigInternal(mockMobileEngageRequestContext,
                 mockMobileEngageInternal,
                 mockPushInternal,
@@ -161,7 +167,8 @@ class DefaultConfigInternalTest {
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
-                mockMessageInboxServiceStorage))
+                mockMessageInboxServiceStorage,
+                mockLogLevelStorage))
     }
 
     @After
@@ -256,7 +263,8 @@ class DefaultConfigInternalTest {
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
-                mockMessageInboxServiceStorage)
+                mockMessageInboxServiceStorage,
+                mockLogLevelStorage)
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {
             latch.countDown()
@@ -301,7 +309,8 @@ class DefaultConfigInternalTest {
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
-                mockMessageInboxServiceStorage)
+                mockMessageInboxServiceStorage,
+                mockLogLevelStorage)
 
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
             latch.countDown()
@@ -342,7 +351,8 @@ class DefaultConfigInternalTest {
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
-                mockMessageInboxServiceStorage)
+                mockMessageInboxServiceStorage,
+                mockLogLevelStorage)
 
         val completionListener = CompletionListener {
             latch.countDown()
@@ -385,7 +395,8 @@ class DefaultConfigInternalTest {
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
-                mockMessageInboxServiceStorage)
+                mockMessageInboxServiceStorage,
+                mockLogLevelStorage)
 
         val completionListener = CompletionListener {
             latch.countDown()
@@ -479,7 +490,6 @@ class DefaultConfigInternalTest {
     }
 
     @Test
-    @Ignore
     fun testChangeApplicationCode_shouldRefreshRemoteConfig_whenChangeWasSuccessful() {
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener { })
 
@@ -495,7 +505,6 @@ class DefaultConfigInternalTest {
     }
 
     @Test
-    @Ignore
     fun testChangeApplicationCode_shouldNotRefreshRemoteConfig_whenMobileEngageIsDisabled() {
         configInternal.changeApplicationCode(null, CONTACT_FIELD_ID, CompletionListener { latch.countDown() })
         latch.await()
@@ -546,7 +555,8 @@ class DefaultConfigInternalTest {
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
-                mockMessageInboxServiceStorage)
+                mockMessageInboxServiceStorage,
+                mockLogLevelStorage)
 
         whenever(mockMobileEngageRequestContext.contactFieldId).thenReturn(1)
         val latch = CountDownLatch(1)
@@ -597,7 +607,6 @@ class DefaultConfigInternalTest {
     }
 
     @Test
-    @Ignore
     fun testChangeMerchantId_shouldRefreshRemoteConfigAfterChange() {
         configInternal.changeMerchantId(MERCHANT_ID)
 
@@ -607,7 +616,6 @@ class DefaultConfigInternalTest {
         inOrder.verify(configInternal).refreshRemoteConfig()
     }
 
-    @Ignore
     @Test
     fun testChangeMerchantId_shouldNotRefreshRemoteConfig_whenPredictGotDisabled() {
         configInternal.changeMerchantId(null)
@@ -672,7 +680,8 @@ class DefaultConfigInternalTest {
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
-                mockMessageInboxServiceStorage)
+                mockMessageInboxServiceStorage,
+                mockLogLevelStorage)
 
         whenever(mockConfigResponseMapper.map(mockResponseModel)).thenReturn(expectedResult)
 
@@ -703,7 +712,8 @@ class DefaultConfigInternalTest {
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
-                mockMessageInboxServiceStorage)
+                mockMessageInboxServiceStorage,
+                mockLogLevelStorage)
 
         val resultListener = FakeResultListener<RemoteConfig>(latch, FakeResultListener.Mode.MAIN_THREAD)
         (configInternal as DefaultConfigInternal).fetchRemoteConfig(resultListener)
@@ -733,7 +743,8 @@ class DefaultConfigInternalTest {
                 mockInboxServiceStorage,
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
-                mockMessageInboxServiceStorage)
+                mockMessageInboxServiceStorage,
+                mockLogLevelStorage)
 
         val resultListener = FakeResultListener<RemoteConfig>(latch, FakeResultListener.Mode.MAIN_THREAD)
 
@@ -770,7 +781,8 @@ class DefaultConfigInternalTest {
                 inboxServiceUrl = INBOX_SERVICE_URL,
                 mobileEngageV2ServiceUrl = MOBILE_ENGAGE_V2_SERVICE_URL,
                 predictServiceUrl = PREDICT_SERVICE_URL,
-                messageInboxServiceUrl = MESSAGE_INBOX_SERVICE_URL
+                messageInboxServiceUrl = MESSAGE_INBOX_SERVICE_URL,
+                logLevel = LogLevel.DEBUG
         )
 
         (configInternal as DefaultConfigInternal).applyRemoteConfig(remoteConfig)
@@ -782,6 +794,7 @@ class DefaultConfigInternalTest {
         verify(mockMobileEngageV2ServiceStorage).set(MOBILE_ENGAGE_V2_SERVICE_URL)
         verify(mockPredictServiceStorage).set(PREDICT_SERVICE_URL)
         verify(mockMessageInboxServiceStorage).set(MESSAGE_INBOX_SERVICE_URL)
+        verify(mockLogLevelStorage).set("DEBUG")
     }
 
     @Test
@@ -795,9 +808,9 @@ class DefaultConfigInternalTest {
         verify(mockMobileEngageV2ServiceStorage).set(null)
         verify(mockPredictServiceStorage).set(null)
         verify(mockMessageInboxServiceStorage).set(null)
+        verify(mockLogLevelStorage).set(null)
     }
 
-    @Ignore
     @Test
     fun testRefreshRemoteConfig_verifyApplyRemoteConfigCalled_onSuccess() {
         val expectedRemoteConfig = RemoteConfig(eventServiceUrl = "https://test.emarsys.com")
@@ -812,7 +825,6 @@ class DefaultConfigInternalTest {
         verify((configInternal as DefaultConfigInternal)).applyRemoteConfig(expectedRemoteConfig)
     }
 
-    @Ignore
     @Test
     fun testRefreshRemoteConfig_verifyResetRemoteConfigCalled_onFailure() {
         val expectedException: Exception = mock(Exception::class.java)
