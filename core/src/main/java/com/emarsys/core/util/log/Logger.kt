@@ -10,6 +10,7 @@ import com.emarsys.core.endpoint.Endpoint.LOG_URL
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
+import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.log.entry.LogEntry
 import com.emarsys.core.util.log.entry.dataWithLogLevel
 
@@ -17,7 +18,8 @@ import com.emarsys.core.util.log.entry.dataWithLogLevel
 class Logger(private val coreSdkHandler: Handler,
              private val shardRepository: Repository<ShardModel, SqlSpecification>,
              private val timestampProvider: TimestampProvider,
-             private val uuidProvider: UUIDProvider) {
+             private val uuidProvider: UUIDProvider,
+             private val logLevelStorage: Storage<String>) {
 
     companion object {
 
@@ -49,7 +51,7 @@ class Logger(private val coreSdkHandler: Handler,
     }
 
     fun persistLog(logLevel: LogLevel, logEntry: LogEntry) {
-        if (logEntry.topic != "log_request" || logEntry.data["url"] != LOG_URL) {
+        if (isNotLogLog(logEntry) && shouldLogBasedOnRemoteConfig(logLevel)) {
             coreSdkHandler.post {
                 val shard = ShardModel.Builder(timestampProvider, uuidProvider)
                         .type(logEntry.topic)
@@ -59,4 +61,12 @@ class Logger(private val coreSdkHandler: Handler,
             }
         }
     }
+
+    private fun shouldLogBasedOnRemoteConfig(logLevel: LogLevel): Boolean {
+        val savedLogLevel: LogLevel = if (logLevelStorage.get() == null) LogLevel.ERROR else LogLevel.valueOf(logLevelStorage.get())
+
+        return logLevel.priority >= savedLogLevel.priority
+    }
+
+    private fun isNotLogLog(logEntry: LogEntry) = logEntry.data["url"] != LOG_URL
 }

@@ -211,6 +211,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     private Storage<String> contactFieldValueStorage;
     private Storage<String> pushTokenStorage;
     private Storage<Boolean> geofenceEnabledStorage;
+    private Storage<String> logLevelStorage;
     private RequestManager requestManager;
     private MobileEngageRequestModelFactory requestModelFactory;
     private ButtonClickedRepository buttonClickedRepository;
@@ -446,6 +447,9 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     }
 
     @Override
+    public Storage<String> getLogLevelStorage() { return logLevelStorage; }
+
+    @Override
     public Logger getLogger() {
         return logger;
     }
@@ -527,6 +531,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         contactFieldValueStorage = new StringStorage(MobileEngageStorageKey.CONTACT_FIELD_VALUE, prefs);
         geofenceEnabledStorage = new BooleanStorage(MobileEngageStorageKey.GEOFENCE_ENABLED, prefs);
         pushTokenStorage = new StringStorage(MobileEngageStorageKey.PUSH_TOKEN, prefs);
+        logLevelStorage = new StringStorage(CoreStorageKey.LOG_LEVEL, prefs);
         pushTokenProvider = new DefaultPushTokenProvider(pushTokenStorage);
 
         eventServiceUrlStorage = new StringStorage(MobileEngageStorageKey.EVENT_SERVICE_URL, prefs);
@@ -727,7 +732,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
                 getInboxServiceStorage(),
                 getMobileEngageV2ServiceStorage(),
                 getPredictServiceStorage(),
-                getMessageInboxServiceStorage());
+                getMessageInboxServiceStorage(),
+                getLogLevelStorage());
 
         inboxApi = new InboxProxy(runnerProxy, getInboxInternal());
         loggingInboxApi = new InboxProxy(runnerProxy, getLoggingInboxInternal());
@@ -744,7 +750,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         geofenceApi = new GeofenceProxy(getGeofenceInternal(), runnerProxy);
         loggingGeofenceApi = new GeofenceProxy(getLoggingGeofenceInternal(), runnerProxy);
 
-        logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider);
+        logger = new Logger(coreSdkHandler, shardModelRepository, timestampProvider, uuidProvider, getLogLevelStorage());
 
         fileDownloader = new FileDownloader(application.getApplicationContext());
         notificationActionCommandFactory = new ActionCommandFactory(application.getApplicationContext(), getEventServiceInternal(), getNotificationEventHandlerProvider());

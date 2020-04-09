@@ -9,6 +9,7 @@ import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
+import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.log.entry.LogEntry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
@@ -41,6 +42,7 @@ class LoggerTest {
     private lateinit var dependencyContainer: DependencyContainer
     private lateinit var loggerInstance: Logger
     private lateinit var loggerMock: Logger
+    private lateinit var mockLogLevelStorage: Storage<String>
 
     @Before
     @Suppress("UNCHECKED_CAST")
@@ -53,10 +55,14 @@ class LoggerTest {
         uuidProviderMock = mock<UUIDProvider>().apply {
             whenever(provideId()).thenReturn(UUID)
         }
+        mockLogLevelStorage = mock()
+
         loggerInstance = Logger(handler,
                 shardRepositoryMock,
                 timestampProviderMock,
-                uuidProviderMock)
+                uuidProviderMock,
+                mockLogLevelStorage
+        )
         loggerMock = mock()
 
         dependencyContainer = mock<DependencyContainer>().apply {
@@ -99,7 +105,7 @@ class LoggerTest {
 
     @Test
     fun testPersistLog_addsOtherLog_toShardRepository() {
-        loggerInstance.persistLog(LogLevel.INFO, logEntryMock("any_log", mapOf()))
+        loggerInstance.persistLog(LogLevel.ERROR, logEntryMock("any_log", mapOf()))
 
         val captor = ArgumentCaptor.forClass(ShardModel::class.java)
 
@@ -108,7 +114,7 @@ class LoggerTest {
         captor.value shouldBe ShardModel(
                 UUID,
                 "any_log",
-                mapOf("level" to "INFO"),
+                mapOf("level" to "ERROR"),
                 TIMESTAMP,
                 TTL)
     }
@@ -119,13 +125,15 @@ class LoggerTest {
 
         org.mockito.Mockito.doAnswer(threadSpy).`when`(shardRepositoryMock).add(any())
 
-        loggerInstance.persistLog(LogLevel.INFO, logEntryMock())
+        loggerInstance.persistLog(LogLevel.ERROR, logEntryMock())
 
         threadSpy.verifyCalledOnCoreSdkThread()
     }
 
     @Test
     fun testLog_delegatesToInstance_withINFOLogLevel() {
+        whenever(mockLogLevelStorage.get()).thenReturn("INFO")
+
         val logEntry = logEntryMock(testTopic = "testTopic", testData = mapOf("testKey" to "testValue"))
 
         Logger.log(logEntry)
@@ -151,7 +159,6 @@ class LoggerTest {
     fun testPersistLog_shouldNotPersist_whenLoggingOurLog() {
         loggerInstance.persistLog(
                 LogLevel.INFO,
-
                 logEntryMock("log_request",
                         mapOf(
                                 "url" to "https://log-dealer.eservice.emarsys.net/v1/log",
@@ -159,10 +166,21 @@ class LoggerTest {
                                 "key3" to true
                         )
                 )
-
         )
 
         verify(shardRepositoryMock, timeout(100).times(0)).add(any())
+    }
+
+    @Test
+    fun testPersistLog_shouldNotPersist_whenLogLevelIsBelowStoredLogLevel() {
+        whenever(mockLogLevelStorage.get()).thenReturn("INFO")
+
+        loggerInstance.persistLog(
+                LogLevel.TRACE,
+                logEntryMock()
+        )
+
+        verify(shardRepositoryMock, times(0)).add(any())
     }
 
     private fun logEntryMock(testTopic: String = "", testData: Map<String, Any?> = mapOf()) =

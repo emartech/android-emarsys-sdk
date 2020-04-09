@@ -119,6 +119,7 @@ class FakeDependencyContainer(
         private val inboxServiceStorage: Storage<String> = mock(),
         private val messageInboxServiceStorage: Storage<String> = mock(),
         private val predictServiceStorage: Storage<String> = mock(),
+        private val logLevelStorage: Storage<String> = mock(),
         private val fileDownloader: FileDownloader = mock(),
         private val actionCommandFactory: ActionCommandFactory = mock(),
         private val silentMessageActionCommandFactory: ActionCommandFactory = mock(),
@@ -200,6 +201,10 @@ class FakeDependencyContainer(
 
     override fun getLogShardTrigger(): Runnable {
         return logShardTrigger
+    }
+
+    override fun getLogLevelStorage(): Storage<String> {
+        return logLevelStorage
     }
 
     override fun getMobileEngageInternal(): MobileEngageInternal {
