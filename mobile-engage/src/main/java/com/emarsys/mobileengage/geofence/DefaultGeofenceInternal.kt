@@ -81,7 +81,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     override fun enable(completionListener: CompletionListener?) {
         val fineLocationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
-        val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ) true else {
+        val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ()) true else {
             permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
         }
 
@@ -177,7 +177,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         if (refreshAreaTriggeringGeofence != null) {
             val fineLocationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
-            val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ) true else {
+            val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ()) true else {
                 permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
             }
 

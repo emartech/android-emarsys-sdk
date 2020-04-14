@@ -43,7 +43,7 @@ object RequestPayloadUtils {
                 "importance" to notificationSettings.importance
         )
         val channelSettings: MutableList<Map<String, Any>> = mutableListOf()
-        if (AndroidVersionUtils.isOreoOrAbove) {
+        if (AndroidVersionUtils.isOreoOrAbove()) {
             for ((channelId, importance, isCanBypassDnd, isCanShowBadge, isShouldVibrate, isShouldShowLights) in notificationSettings.channelSettings) {
                 val channelSettingMap: Map<String, Any> = mapOf(
                         "channelId" to channelId,
@@ -138,8 +138,8 @@ internal enum class EventType {
     CUSTOM, INTERNAL
 }
 
-internal fun EventType.eventType(): String{
-    return if (AndroidVersionUtils.isLollipopOrAbove) {
+internal fun EventType.eventType(): String {
+    return if (AndroidVersionUtils.isLollipopOrAbove()) {
         this.name.toLowerCase(Locale.forLanguageTag("en_US"))
     } else {
         this.name.toLowerCase(Locale("en", "US"))

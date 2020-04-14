@@ -69,7 +69,7 @@ data class DeviceInfo(private val context: Context,
         )).toString()
 
     private fun parseChannelSettings(): Pair<String, Any> {
-        return if (AndroidVersionUtils.isOreoOrAbove) {
+        return if (AndroidVersionUtils.isOreoOrAbove()) {
             "channelSettings" to notificationSettings.channelSettings.map {
                 JSONObject(mapOf(
                         "channelId" to it.channelId,

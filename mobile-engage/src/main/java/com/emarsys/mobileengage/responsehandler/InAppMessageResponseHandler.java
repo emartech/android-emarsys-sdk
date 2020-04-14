@@ -28,7 +28,7 @@ public class InAppMessageResponseHandler extends AbstractResponseHandler {
         boolean responseBodyNotNull = responseBody != null;
         boolean shouldHandle = false;
 
-        if (AndroidVersionUtils.INSTANCE.isKitKatOrAbove() && responseBodyNotNull) {
+        if (AndroidVersionUtils.isKitKatOrAbove() && responseBodyNotNull) {
             try {
                 JSONObject message = responseBody.getJSONObject("message");
                 shouldHandle = message.has("html");

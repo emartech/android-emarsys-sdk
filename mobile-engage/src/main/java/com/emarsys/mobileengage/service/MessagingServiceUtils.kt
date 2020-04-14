@@ -111,7 +111,7 @@ object MessagingServiceUtils {
         var title = getTitle(remoteMessageData, context)
         var body = remoteMessageData["body"]
         var channelId = remoteMessageData["channel_id"]
-        if (AndroidVersionUtils.isOreoOrAbove && deviceInfo.isDebugMode && !isValidChannel(deviceInfo.notificationSettings, channelId)) {
+        if (AndroidVersionUtils.isOreoOrAbove() && deviceInfo.isDebugMode && !isValidChannel(deviceInfo.notificationSettings, channelId)) {
             body = "DEBUG - channel_id mismatch: $channelId not found!"
             channelId = createDebugChannel(context)
             title = "Emarsys SDK"
@@ -196,7 +196,7 @@ object MessagingServiceUtils {
 
     fun createPreloadedRemoteMessageData(remoteMessageData: Map<String, String?>, inAppDescriptor: String?): Map<String, String?> {
         val preloadedRemoteMessageData = HashMap(remoteMessageData)
-        if (inAppDescriptor != null && AndroidVersionUtils.isKitKatOrAbove) {
+        if (inAppDescriptor != null && AndroidVersionUtils.isKitKatOrAbove()) {
             try {
                 val ems = JSONObject(preloadedRemoteMessageData["ems"])
                 ems.put("inapp", inAppDescriptor)
@@ -209,7 +209,7 @@ object MessagingServiceUtils {
 
     private fun getDefaultTitle(remoteMessageData: Map<String, String?>, context: Context): String {
         var title = ""
-        if (AndroidVersionUtils.isBelowMarshmallow) {
+        if (AndroidVersionUtils.isBelowMarshmallow()) {
             val applicationInfo = context.applicationInfo
             val stringId = applicationInfo.labelRes
 
