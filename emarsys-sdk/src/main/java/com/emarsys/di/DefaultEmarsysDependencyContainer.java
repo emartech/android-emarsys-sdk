@@ -45,6 +45,7 @@ import com.emarsys.core.notification.NotificationManagerProxy;
 import com.emarsys.core.permission.PermissionChecker;
 import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider;
+import com.emarsys.core.provider.random.RandomProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.provider.version.VersionProvider;
@@ -725,7 +726,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
                 getDeviceInfo(),
                 requestManager,
                 emarsysRequestModelFactory,
-                new RemoteConfigResponseMapper(),
+                new RemoteConfigResponseMapper(new RandomProvider()),
                 getClientServiceStorage(),
                 getEventServiceStorage(),
                 getDeepLinkServiceStorage(),

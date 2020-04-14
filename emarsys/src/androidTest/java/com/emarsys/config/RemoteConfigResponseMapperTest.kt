@@ -1,6 +1,7 @@
 package com.emarsys.config
 
 import com.emarsys.config.model.RemoteConfig
+import com.emarsys.core.provider.random.RandomProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.testUtil.TimeoutUtils
@@ -16,6 +17,7 @@ class RemoteConfigResponseMapperTest {
 
 
     private lateinit var mockResponseModel: ResponseModel
+    private lateinit var mockRandomProvider: RandomProvider
     private lateinit var remoteConfigResponseMapper: RemoteConfigResponseMapper
 
 
@@ -26,12 +28,14 @@ class RemoteConfigResponseMapperTest {
     @Before
     fun setup() {
         mockResponseModel = mock(ResponseModel::class.java)
+        mockRandomProvider = mock(RandomProvider::class.java)
 
-        remoteConfigResponseMapper = RemoteConfigResponseMapper()
+        remoteConfigResponseMapper = RemoteConfigResponseMapper(mockRandomProvider)
     }
 
     @Test
     fun testMap_mapsResponseModel_to_RemoteConfig() {
+        whenever(mockRandomProvider.provideDouble(1.0)).thenReturn(0.2)
         whenever(mockResponseModel.body).thenReturn(
                 """
                    {
@@ -44,7 +48,11 @@ class RemoteConfigResponseMapperTest {
                                 "inboxService":"https://testinboxService.url",
                                 "messageInboxService":"https://testMessageInboxService.url"
                         },
-                        "logLevel": "INFO"
+                        "logLevel": "ERROR",
+                        "luckyLogger": {
+                               "logLevel": "INFO",
+                               "threshold": 0.2
+                           }
                    }
                """.trimIndent()
         )
@@ -58,6 +66,50 @@ class RemoteConfigResponseMapperTest {
                 "https://testinboxService.url",
                 "https://testMessageInboxService.url",
                 LogLevel.INFO)
+
+        val result = remoteConfigResponseMapper.map(mockResponseModel)
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testMap_withZeroLuckyThreshold() {
+        whenever(mockRandomProvider.provideDouble(1.0)).thenReturn(0.0)
+        whenever(mockResponseModel.body).thenReturn(
+                """
+                   {
+                        "logLevel": "ERROR",
+                        "luckyLogger": {
+                               "logLevel": "INFO",
+                               "threshold": 0
+                           }
+                   }
+               """.trimIndent()
+        )
+
+        val expected = RemoteConfig(logLevel = LogLevel.ERROR)
+
+        val result = remoteConfigResponseMapper.map(mockResponseModel)
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testMap_withMaximumThreshold() {
+        whenever(mockRandomProvider.provideDouble(1.0)).thenReturn(1.0)
+        whenever(mockResponseModel.body).thenReturn(
+                """
+                   {
+                        "logLevel": "ERROR",
+                        "luckyLogger": {
+                               "logLevel": "INFO",
+                               "threshold": 1
+                           }
+                   }
+               """.trimIndent()
+        )
+
+        val expected = RemoteConfig(logLevel = LogLevel.INFO)
 
         val result = remoteConfigResponseMapper.map(mockResponseModel)
 
