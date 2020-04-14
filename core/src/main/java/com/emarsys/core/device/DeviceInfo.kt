@@ -10,6 +10,7 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
+import com.emarsys.core.util.AndroidVersionUtils
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -52,15 +53,7 @@ data class DeviceInfo(private val context: Context,
     val deviceInfoPayload: String
         get() = JSONObject(mapOf(
                 "notificationSettings" to mapOf(
-                        "channelSettings" to notificationSettings.channelSettings.map {
-                            JSONObject(mapOf(
-                                    "channelId" to it.channelId,
-                                    "importance" to it.importance,
-                                    "isCanBypassDnd" to it.isCanBypassDnd,
-                                    "isCanShowBadge" to it.isCanShowBadge,
-                                    "isShouldVibrate" to it.isShouldVibrate
-                            ))
-                        },
+                        parseChannelSettings(),
                         "importance" to notificationSettings.importance,
                         "areNotificationsEnabled" to notificationSettings.areNotificationsEnabled()
                 ),
@@ -74,4 +67,20 @@ data class DeviceInfo(private val context: Context,
                 "displayMetrics" to "${displayMetrics.widthPixels}x${displayMetrics.heightPixels}",
                 "sdkVersion" to sdkVersion
         )).toString()
+
+    private fun parseChannelSettings(): Pair<String, Any> {
+        return if (AndroidVersionUtils.isOreoOrAbove) {
+            "channelSettings" to notificationSettings.channelSettings.map {
+                JSONObject(mapOf(
+                        "channelId" to it.channelId,
+                        "importance" to it.importance,
+                        "isCanBypassDnd" to it.isCanBypassDnd,
+                        "isCanShowBadge" to it.isCanShowBadge,
+                        "isShouldVibrate" to it.isShouldVibrate
+                ))
+            }
+        } else {
+            "channelSettings" to listOf(JSONObject())
+        }
+    }
 }

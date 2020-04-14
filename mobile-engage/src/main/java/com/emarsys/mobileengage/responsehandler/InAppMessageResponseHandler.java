@@ -5,9 +5,9 @@ import android.os.Build;
 
 import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
+import com.emarsys.core.util.AndroidVersionUtils;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.iam.InAppPresenter;
-import com.emarsys.mobileengage.util.AndroidVersionUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,7 +28,7 @@ public class InAppMessageResponseHandler extends AbstractResponseHandler {
         boolean responseBodyNotNull = responseBody != null;
         boolean shouldHandle = false;
 
-        if (AndroidVersionUtils.isKitKatOrAbove() && responseBodyNotNull) {
+        if (AndroidVersionUtils.INSTANCE.isKitKatOrAbove() && responseBodyNotNull) {
             try {
                 JSONObject message = responseBody.getJSONObject("message");
                 shouldHandle = message.has("html");

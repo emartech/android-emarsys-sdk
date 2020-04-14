@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.util
 
+import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.IamConversionUtils
@@ -42,7 +43,7 @@ object RequestPayloadUtils {
                 "importance" to notificationSettings.importance
         )
         val channelSettings: MutableList<Map<String, Any>> = mutableListOf()
-        if (AndroidVersionUtils.isOreoOrAbove()) {
+        if (AndroidVersionUtils.isOreoOrAbove) {
             for ((channelId, importance, isCanBypassDnd, isCanShowBadge, isShouldVibrate, isShouldShowLights) in notificationSettings.channelSettings) {
                 val channelSettingMap: Map<String, Any> = mapOf(
                         "channelId" to channelId,
@@ -138,7 +139,7 @@ internal enum class EventType {
 }
 
 internal fun EventType.eventType(): String{
-    return if (AndroidVersionUtils.isLollipopOrAbove()) {
+    return if (AndroidVersionUtils.isLollipopOrAbove) {
         this.name.toLowerCase(Locale.forLanguageTag("en_US"))
     } else {
         this.name.toLowerCase(Locale("en", "US"))

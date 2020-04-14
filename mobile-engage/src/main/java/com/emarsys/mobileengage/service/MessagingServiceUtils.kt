@@ -16,6 +16,7 @@ import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.resource.MetaDataReader
+import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.ImageUtils.loadOptimizedBitmap
 import com.emarsys.core.validate.JsonObjectValidator
@@ -23,7 +24,6 @@ import com.emarsys.mobileengage.R
 import com.emarsys.mobileengage.inbox.InboxParseUtils
 import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
-import com.emarsys.mobileengage.util.AndroidVersionUtils
 import com.google.firebase.messaging.RemoteMessage
 import org.json.JSONException
 import org.json.JSONObject
@@ -111,7 +111,7 @@ object MessagingServiceUtils {
         var title = getTitle(remoteMessageData, context)
         var body = remoteMessageData["body"]
         var channelId = remoteMessageData["channel_id"]
-        if (AndroidVersionUtils.isOreoOrAbove() && deviceInfo.isDebugMode && !isValidChannel(deviceInfo.notificationSettings, channelId)) {
+        if (AndroidVersionUtils.isOreoOrAbove && deviceInfo.isDebugMode && !isValidChannel(deviceInfo.notificationSettings, channelId)) {
             body = "DEBUG - channel_id mismatch: $channelId not found!"
             channelId = createDebugChannel(context)
             title = "Emarsys SDK"
@@ -196,7 +196,7 @@ object MessagingServiceUtils {
 
     fun createPreloadedRemoteMessageData(remoteMessageData: Map<String, String?>, inAppDescriptor: String?): Map<String, String?> {
         val preloadedRemoteMessageData = HashMap(remoteMessageData)
-        if (inAppDescriptor != null && AndroidVersionUtils.isKitKatOrAbove()) {
+        if (inAppDescriptor != null && AndroidVersionUtils.isKitKatOrAbove) {
             try {
                 val ems = JSONObject(preloadedRemoteMessageData["ems"])
                 ems.put("inapp", inAppDescriptor)
@@ -209,7 +209,7 @@ object MessagingServiceUtils {
 
     private fun getDefaultTitle(remoteMessageData: Map<String, String?>, context: Context): String {
         var title = ""
-        if (AndroidVersionUtils.isBelowMarshmallow()) {
+        if (AndroidVersionUtils.isBelowMarshmallow) {
             val applicationInfo = context.applicationInfo
             val stringId = applicationInfo.labelRes
 

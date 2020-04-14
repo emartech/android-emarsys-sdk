@@ -6,14 +6,13 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.os.Build
-import android.util.DisplayMetrics
 import com.emarsys.core.api.notification.ChannelSettings
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
+import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.testUtil.ApplicationTestUtils.applicationDebug
 import com.emarsys.testUtil.ApplicationTestUtils.applicationRelease
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -164,16 +163,23 @@ class DeviceInfoTest {
     fun testGetDeviceInfoPayload_shouldEqualPayload() {
         whenever(mockNotificationManagerHelper.channelSettings).thenReturn(listOf(ChannelSettings(channelId = "channelId")))
 
+        var channelSettings = """
+        channelSettings: [
+            {
+                "channelId":"channelId",
+                "importance":-1000,
+                "isCanBypassDnd":false,
+                "isCanShowBadge":false,
+                "isShouldVibrate":false
+            }
+        ]"""
+
+        if (!AndroidVersionUtils.isOreoOrAbove) {
+            channelSettings = "channelSettings: [{}]"
+        }
         val expectedPayload = JSONObject("""{
                   "notificationSettings": {
-                    "channelSettings": [
-                     {
-                     "channelId":"channelId",
-                     "importance":-1000,
-                     "isCanBypassDnd":false,
-                     "isCanShowBadge":false,
-                     "isShouldVibrate":false}
-                    ],
+                    $channelSettings,
                     "importance": 0,
                     "areNotificationsEnabled": false
                   },

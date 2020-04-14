@@ -21,6 +21,7 @@ import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
+import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
@@ -29,7 +30,6 @@ import com.emarsys.mobileengage.geofence.model.TriggerType
 import com.emarsys.mobileengage.geofence.model.TriggeringGeofence
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import com.emarsys.mobileengage.util.AndroidVersionUtils
 import com.google.android.gms.location.*
 import org.json.JSONObject
 import com.emarsys.mobileengage.geofence.model.Geofence as MEGeofence
@@ -81,7 +81,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     override fun enable(completionListener: CompletionListener?) {
         val fineLocationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
-        val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ()) true else {
+        val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ) true else {
             permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
         }
 
@@ -177,7 +177,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         if (refreshAreaTriggeringGeofence != null) {
             val fineLocationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
-            val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ()) true else {
+            val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ) true else {
                 permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
             }
 
