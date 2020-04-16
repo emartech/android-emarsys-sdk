@@ -20,6 +20,7 @@ class RequestUrlUtilsTest {
         const val EVENT_BASE = "$EVENT_HOST/v3/apps/%s/client/events"
         const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/v3"
         const val INBOX_BASE = "$INBOX_HOST/apps/%s/inbox"
+        const val REMOTE_CONFIG_HOST = "https://mobile-sdk-config.eservice.emarsys.net"
     }
 
     private lateinit var mockRequestContext: MobileEngageRequestContext
@@ -76,8 +77,8 @@ class RequestUrlUtilsTest {
     }
 
     @Test
-    fun testIsCustomEvent_V3_true_whenItIsCustomEventV3Event() {
-        val result = RequestUrlUtils.isCustomEvent_V3(EVENT_BASE, mockEventServiceProvider)
+    fun testIsRemoteConfig_V3_true_whenItIsRemoteConfigUrl() {
+        val result = RequestUrlUtils.isMobileEngageV3Url("$REMOTE_CONFIG_HOST/$APPLICATION_CODE", mockClientServiceProvider,mockEventServiceProvider,mockMessageInboxServiceProvider)
 
         result shouldBe true
     }
@@ -87,6 +88,13 @@ class RequestUrlUtilsTest {
         val result = RequestUrlUtils.isCustomEvent_V3(CLIENT_BASE, mockEventServiceProvider)
 
         result shouldBe false
+    }
+
+    @Test
+    fun testIsCustomEvent_V3_true_whenItIsCustomEventV3Event() {
+        val result = RequestUrlUtils.isCustomEvent_V3(EVENT_BASE, mockEventServiceProvider)
+
+        result shouldBe true
     }
 
     @Test

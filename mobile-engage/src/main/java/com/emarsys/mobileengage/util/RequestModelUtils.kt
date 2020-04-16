@@ -8,7 +8,10 @@ import com.emarsys.mobileengage.util.RequestUrlUtils.isRefreshContactTokenUrl
 
 object RequestModelUtils {
     @JvmStatic
-    fun isMobileEngageV3Request(requestModel: RequestModel, clientServiceProvider: ServiceEndpointProvider, eventServiceProvider: ServiceEndpointProvider, messageInboxServiceProvider: ServiceEndpointProvider): Boolean {
+    fun isMobileEngageV3Request(requestModel: RequestModel,
+                                clientServiceProvider: ServiceEndpointProvider,
+                                eventServiceProvider: ServiceEndpointProvider,
+                                messageInboxServiceProvider: ServiceEndpointProvider): Boolean {
         val url = requestModel.url.toString()
         return isMobileEngageV3Url(url, clientServiceProvider, eventServiceProvider, messageInboxServiceProvider)
     }

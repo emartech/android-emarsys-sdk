@@ -22,6 +22,7 @@ class EmarsysRequestModelFactoryTest {
         const val HARDWARE_ID = "hardware_id"
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
+        const val APPLICATION_CODE = "applicationCode"
     }
 
     private lateinit var mockUUIDProvider: UUIDProvider
@@ -52,6 +53,7 @@ class EmarsysRequestModelFactoryTest {
             whenever(timestampProvider).thenReturn(mockTimeStampProvider)
             whenever(uuidProvider).thenReturn(mockUUIDProvider)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
+            whenever(applicationCode).thenReturn(APPLICATION_CODE)
         }
 
         requestFactory = EmarsysRequestModelFactory(mockMobileEngageRequestContext)
@@ -61,11 +63,24 @@ class EmarsysRequestModelFactoryTest {
     fun testCreateRemoteConfigRequest() {
         val expected = RequestModel.Builder(mockMobileEngageRequestContext.timestampProvider, mockMobileEngageRequestContext.uuidProvider)
                 .method(RequestMethod.GET)
-                .url("https://api.myjson.com/bins/1d2i64")
+                .url("https://mobile-sdk-config.eservice.emarsys.net/$APPLICATION_CODE")
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(mockMobileEngageRequestContext))
                 .build()
 
         val result = requestFactory.createRemoteConfigRequest()
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateRemoteConfigSignatureRequest() {
+        val expected = RequestModel.Builder(mockMobileEngageRequestContext.timestampProvider, mockMobileEngageRequestContext.uuidProvider)
+                .method(RequestMethod.GET)
+                .url("https://mobile-sdk-config.eservice.emarsys.net/signature/$APPLICATION_CODE")
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(mockMobileEngageRequestContext))
+                .build()
+
+        val result = requestFactory.createRemoteConfigSignatureRequest()
 
         result shouldBe expected
     }
