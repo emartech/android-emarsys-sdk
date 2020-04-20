@@ -5,6 +5,7 @@ import com.emarsys.EmarsysRequestModelFactory
 import com.emarsys.config.model.RemoteConfig
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
+import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
@@ -32,17 +33,13 @@ import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.anyNotNull
-import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.*
 import java.util.concurrent.CountDownLatch
 
 class DefaultConfigInternalTest {
@@ -97,61 +94,64 @@ class DefaultConfigInternalTest {
 
         latch = CountDownLatch(1)
 
-        mockPushTokenProvider = mock(PushTokenProvider::class.java).apply {
-            whenever(providePushToken()).thenReturn(PUSH_TOKEN)
+        mockPushTokenProvider = mock {
+            on { providePushToken() } doReturn PUSH_TOKEN
         }
 
-        mockContactFieldValueStorage = (mock(Storage::class.java) as Storage<String>).apply {
-            whenever(get()).thenReturn(CONTACT_FIELD_VALUE).thenReturn(null)
+
+        mockContactFieldValueStorage = mock()
+
+        whenever(mockContactFieldValueStorage.get()).thenReturn(CONTACT_FIELD_VALUE).thenReturn(null)
+
+
+        mockPredictRequestContext = mock() {
+            on { merchantId } doReturn MERCHANT_ID
         }
 
-        mockPredictRequestContext = mock(PredictRequestContext::class.java).apply {
-            whenever(merchantId).thenReturn(MERCHANT_ID)
+        mockMobileEngageRequestContext = mock() {
+            on { applicationCode } doReturn APPLICATION_CODE
+            on { contactFieldValueStorage } doReturn mockContactFieldValueStorage
+            on { contactFieldId } doReturn CONTACT_FIELD_ID
         }
-
-        mockMobileEngageRequestContext = mock(MobileEngageRequestContext::class.java).apply {
-            whenever(applicationCode).thenReturn(APPLICATION_CODE)
-            whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
-            whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)
-        }
-        mockMobileEngageInternal = mock(MobileEngageInternal::class.java).apply {
-            whenever(clearContact(any())).thenAnswer { invocation ->
+        mockMobileEngageInternal = mock() {
+            on { clearContact(any()) } doAnswer { invocation ->
                 mockContactFieldValueStorage.get()
                 (invocation.getArgument(0) as CompletionListener?)?.onCompleted(null)
             }
-            whenever(setContact(any(), any())).thenAnswer { invocation ->
+            on { setContact(any(), any()) } doAnswer { invocation ->
                 (invocation.getArgument(1) as CompletionListener?)?.onCompleted(null)
             }
         }
-        mockPushInternal = mock(PushInternal::class.java).apply {
-            whenever(setPushToken(any(), any())).thenAnswer { invocation ->
+        mockPushInternal = mock {
+            on { setPushToken(any(), any()) } doAnswer { invocation ->
                 (invocation.getArgument(1) as CompletionListener?)?.onCompleted(null)
             }
         }
 
-        mockRequestModel = mock(RequestModel::class.java)
+        mockRequestModel = mock()
 
-        mockEmarsysRequestModelFactory = mock(EmarsysRequestModelFactory::class.java).apply {
-            whenever(createRemoteConfigRequest()).thenReturn(mockRequestModel)
+        mockEmarsysRequestModelFactory = mock {
+            on { createRemoteConfigRequest() } doReturn mockRequestModel
+            on { createRemoteConfigSignatureRequest() } doReturn mockRequestModel
         }
 
-        mockRequestManager = mock(RequestManager::class.java)
+        mockRequestManager = mock()
 
-        mockPredictInternal = mock(PredictInternal::class.java)
+        mockPredictInternal = mock()
 
-        mockDeviceInfo = mock(DeviceInfo::class.java)
+        mockDeviceInfo = mock()
 
-        mockConfigResponseMapper = mock(RemoteConfigResponseMapper::class.java)
+        mockConfigResponseMapper = mock()
 
-        mockResponseModel = mock(ResponseModel::class.java)
-        mockClientServiceStorage = mock(Storage::class.java) as Storage<String>
-        mockEventServiceStorage = mock(Storage::class.java) as Storage<String>
-        mockDeeplinkServiceStorage = mock(Storage::class.java) as Storage<String>
-        mockInboxServiceStorage = mock(Storage::class.java) as Storage<String>
-        mockMobileEngageV2ServiceStorage = mock(Storage::class.java) as Storage<String>
-        mockPredictServiceStorage = mock(Storage::class.java) as Storage<String>
-        mockMessageInboxServiceStorage = mock(Storage::class.java) as Storage<String>
-        mockLogLevelStorage = mock(Storage::class.java) as Storage<String>
+        mockResponseModel = mock()
+        mockClientServiceStorage = mock()
+        mockEventServiceStorage = mock()
+        mockDeeplinkServiceStorage = mock()
+        mockInboxServiceStorage = mock()
+        mockMobileEngageV2ServiceStorage = mock()
+        mockPredictServiceStorage = mock()
+        mockMessageInboxServiceStorage = mock()
+        mockLogLevelStorage = mock()
         configInternal = spy(DefaultConfigInternal(mockMobileEngageRequestContext,
                 mockMobileEngageInternal,
                 mockPushInternal,
@@ -170,6 +170,7 @@ class DefaultConfigInternalTest {
                 mockMessageInboxServiceStorage,
                 mockLogLevelStorage))
     }
+
 
     @After
     fun tearDown() {
@@ -201,13 +202,13 @@ class DefaultConfigInternalTest {
     fun testChangeApplicationCode_shouldCallClearContact() {
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener { })
 
-        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockMobileEngageInternal).clearContact(any())
     }
 
     @Test
     fun testChangeApplicationCode_shouldCallSetContactWithOriginalContactFieldIdAndContactFieldValue() {
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
-            verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+            verify(mockMobileEngageInternal).clearContact(any())
             verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
         })
     }
@@ -220,7 +221,7 @@ class DefaultConfigInternalTest {
         })
         latch.await()
 
-        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockMobileEngageInternal).clearContact(any())
         verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
     }
@@ -234,7 +235,7 @@ class DefaultConfigInternalTest {
         })
         latch.await()
         val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
-        inOrder.verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        inOrder.verify(mockMobileEngageInternal).clearContact(any())
         inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         inOrder.verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         inOrder.verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
@@ -243,7 +244,7 @@ class DefaultConfigInternalTest {
     @Test
     fun testChangeApplicationCode_shouldInterruptFlow_andDisableFeature_whenErrorHappenedDuringClearContact() {
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
-        val mockMobileEngageInternal = mock(MobileEngageInternal::class.java)
+        val mockMobileEngageInternal: MobileEngageInternal = mock()
         whenever(mockMobileEngageInternal.clearContact(any())).thenAnswer { invocation ->
             (invocation.getArgument(0) as CompletionListener).onCompleted(Throwable())
         }
@@ -271,7 +272,7 @@ class DefaultConfigInternalTest {
         }
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
         latch.await()
-        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockMobileEngageInternal).clearContact(any())
         verify(mockMobileEngageRequestContext).applicationCode
         verify(mockMobileEngageRequestContext).contactFieldValueStorage
         verify(mockMobileEngageRequestContext).contactFieldId
@@ -288,10 +289,12 @@ class DefaultConfigInternalTest {
     fun testChangeApplicationCode_shouldDoOnlyLogin_whenApplicationCode_isNull() {
         val latch = CountDownLatch(1)
 
-        val mockMobileEngageRequestContext = mock(MobileEngageRequestContext::class.java).apply {
-            whenever(applicationCode).thenReturn(null)
-            whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
-            whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)
+        val mockMobileEngageRequestContext: MobileEngageRequestContext = mock {
+            on {
+                applicationCode
+            } doReturn null
+            on { contactFieldValueStorage } doReturn mockContactFieldValueStorage
+            on { contactFieldId } doReturn CONTACT_FIELD_ID
         }
 
         configInternal = DefaultConfigInternal(mockMobileEngageRequestContext,
@@ -324,15 +327,17 @@ class DefaultConfigInternalTest {
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
 
-        verify(mockMobileEngageInternal, times(0)).clearContact(any(CompletionListener::class.java))
+        verify(mockMobileEngageInternal, times(0)).clearContact(any())
     }
 
     @Test
     fun testChangeApplicationCode_shouldInterruptFlow_andDisableFeature_whenErrorHappenedDuringSetPushToken() {
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
 
-        val mockPushInternal = mock(PushInternal::class.java).apply {
-            whenever(setPushToken(any(), any())).thenAnswer { invocation ->
+        val mockPushInternal: PushInternal = mock {
+            on {
+                setPushToken(any(), any())
+            } doAnswer { invocation ->
                 (invocation.getArgument(1) as CompletionListener).onCompleted(Throwable())
             }
         }
@@ -361,7 +366,7 @@ class DefaultConfigInternalTest {
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
         latch.await()
 
-        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockMobileEngageInternal).clearContact(any())
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         verifyNoMoreInteractions(mockMobileEngageInternal)
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
@@ -372,13 +377,18 @@ class DefaultConfigInternalTest {
     fun testChangeApplicationCode_shouldInterruptFlow_andDisableFeature_whenErrorHappenedDuringSetContact() {
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
 
-        val mockMobileEngageInternal = mock(MobileEngageInternal::class.java).apply {
-            whenever(setContact(any(), any())).thenAnswer { invocation ->
+        val mockMobileEngageInternal: MobileEngageInternal = mock {
+            on {
+                setContact(any(), any())
+            } doAnswer { invocation ->
                 (invocation.getArgument(1) as CompletionListener).onCompleted(Throwable())
             }
-            whenever(clearContact(any())).thenAnswer { invocation ->
+            on {
+                clearContact(any())
+            } doAnswer { invocation ->
                 (invocation.getArgument(0) as CompletionListener).onCompleted(null)
             }
+
         }
         configInternal = DefaultConfigInternal(mockMobileEngageRequestContext,
                 mockMobileEngageInternal,
@@ -406,9 +416,9 @@ class DefaultConfigInternalTest {
 
         latch.await()
 
-        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockMobileEngageInternal).clearContact(any())
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
-        verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any(CompletionListener::class.java))
+        verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
 
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
         verify(mockMobileEngageRequestContext).applicationCode = null
@@ -419,7 +429,7 @@ class DefaultConfigInternalTest {
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, null)
 
         val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
-        inOrder.verify(mockMobileEngageInternal, timeout(50)).clearContact(any(CompletionListener::class.java))
+        inOrder.verify(mockMobileEngageInternal, timeout(50)).clearContact(any())
         inOrder.verify(mockMobileEngageRequestContext, timeout(50)).applicationCode = OTHER_APPLICATION_CODE
         inOrder.verify(mockPushInternal, timeout(50)).setPushToken(eq(PUSH_TOKEN), any())
         inOrder.verify(mockMobileEngageInternal, timeout(50)).setContact(eq(CONTACT_FIELD_VALUE), any())
@@ -457,7 +467,7 @@ class DefaultConfigInternalTest {
         }
         configInternal.changeApplicationCode(null, CONTACT_FIELD_ID, completionListener)
         latch.await()
-        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockMobileEngageInternal).clearContact(any())
         verify(mockMobileEngageRequestContext).contactFieldId
         verify(mockMobileEngageRequestContext).contactFieldValueStorage
         verify(mockMobileEngageRequestContext).applicationCode
@@ -476,7 +486,7 @@ class DefaultConfigInternalTest {
         })
         latch.await()
         val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
-        inOrder.verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        inOrder.verify(mockMobileEngageInternal).clearContact(any())
         inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         verifyZeroInteractions(mockPushInternal)
         inOrder.verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
@@ -496,7 +506,7 @@ class DefaultConfigInternalTest {
         val inOrder = inOrder(configInternal, mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
         inOrder.verify(configInternal).resetRemoteConfig()
 
-        inOrder.verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        inOrder.verify(mockMobileEngageInternal).clearContact(any())
         inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         inOrder.verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         inOrder.verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
@@ -522,7 +532,7 @@ class DefaultConfigInternalTest {
         }
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
         latch.await()
-        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockMobileEngageInternal).clearContact(any())
         verify(mockMobileEngageRequestContext).contactFieldValueStorage
         verify(mockMobileEngageRequestContext).applicationCode
         verify(mockMobileEngageRequestContext).contactFieldId
@@ -535,8 +545,10 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testChangeApplicationCode_whenChangeContactFieldIdHasFailed_resetBackToOriginal() {
-        val mockPushInternal = mock(PushInternal::class.java).apply {
-            whenever(setPushToken(any(), any())).thenAnswer { invocation ->
+        val mockPushInternal: PushInternal = mock {
+            on {
+                setPushToken(any(), any())
+            } doAnswer { invocation ->
                 (invocation.getArgument(1) as CompletionListener).onCompleted(Throwable())
             }
         }
@@ -567,12 +579,11 @@ class DefaultConfigInternalTest {
         latch.await()
 
         verify(mockMobileEngageRequestContext).contactFieldId
-        verify(mockMobileEngageInternal).clearContact(any(CompletionListener::class.java))
+        verify(mockMobileEngageInternal).clearContact(any())
         verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         verify(mockMobileEngageRequestContext).contactFieldId = CONTACT_FIELD_ID
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         verify(mockMobileEngageRequestContext).contactFieldId = 1
-
     }
 
     @Test
@@ -643,7 +654,7 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testGetHardwareId_shouldReturnNotificationSettingsFromDeviceInfo() {
-        val notificationSettings = mock(NotificationManagerHelper::class.java)
+        val notificationSettings: NotificationSettings = mock()
         whenever(mockDeviceInfo.notificationSettings).thenReturn(notificationSettings)
         val result = configInternal.notificationSettings
 
@@ -652,12 +663,22 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testFetchRemoteConfig_shouldCallRequestManager_withCorrectRequestModel() {
-        val requestModel = mock(RequestModel::class.java)
+        val requestModel: RequestModel = mock()
         whenever(mockEmarsysRequestModelFactory.createRemoteConfigRequest()).thenReturn(requestModel)
+
+        (configInternal as DefaultConfigInternal).fetchRemoteConfig(ResultListener { })
+
+        verify(mockRequestManager).submitNow(eq(requestModel), any())
+    }
+
+    @Test
+    fun testFetchRemoteConfigSignature_shouldCallRequestManager_withCorrectRequestModel() {
+        val requestModel: RequestModel = mock()
+        whenever(mockEmarsysRequestModelFactory.createRemoteConfigSignatureRequest()).thenReturn(requestModel)
 
         configInternal.refreshRemoteConfig()
 
-        verify(mockRequestManager).submitNow(eq(requestModel), anyNotNull())
+        verify(mockRequestManager).submitNow(eq(requestModel), any())
     }
 
     @Test
@@ -725,7 +746,7 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testFetchRemoteConfig_shouldCallConfigResponseMapper_onException() {
-        val mockException = mock(Exception::class.java)
+        val mockException: Exception = mock()
 
         val configInternal = DefaultConfigInternal(
                 mockMobileEngageRequestContext,
@@ -749,6 +770,99 @@ class DefaultConfigInternalTest {
         val resultListener = FakeResultListener<RemoteConfig>(latch, FakeResultListener.Mode.MAIN_THREAD)
 
         configInternal.fetchRemoteConfig(resultListener)
+
+        latch.await()
+
+        resultListener.errorCount shouldBe 1
+    }
+
+    @Test
+    fun testFetchRemoteConfigSignature_shouldCallConfigSignatureResultParser_onSuccess() {
+        val expectedResult = "signature"
+        val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        whenever(mockResponseModel.body).thenReturn("signature")
+
+        val configInternal = DefaultConfigInternal(mockMobileEngageRequestContext,
+                mockMobileEngageInternal,
+                mockPushInternal,
+                mockPushTokenProvider,
+                mockPredictRequestContext,
+                mockDeviceInfo,
+                requestManagerWithRestClient(FakeRestClient(mockResponseModel, FakeRestClient.Mode.SUCCESS)),
+                mockEmarsysRequestModelFactory,
+                mockConfigResponseMapper,
+                mockClientServiceStorage,
+                mockEventServiceStorage,
+                mockDeeplinkServiceStorage,
+                mockInboxServiceStorage,
+                mockMobileEngageV2ServiceStorage,
+                mockPredictServiceStorage,
+                mockMessageInboxServiceStorage,
+                mockLogLevelStorage)
+
+        configInternal.fetchRemoteConfigSignature(resultListener)
+
+        latch.await()
+
+        resultListener.resultStatus shouldBe expectedResult
+        resultListener.successCount shouldBe 1
+    }
+
+    @Test
+    fun testFetchRemoteConfigSignature_shouldCallConfigResponseMapper_onFailure() {
+        configInternal = DefaultConfigInternal(
+                mockMobileEngageRequestContext,
+                mockMobileEngageInternal,
+                mockPushInternal,
+                mockPushTokenProvider,
+                mockPredictRequestContext,
+                mockDeviceInfo,
+                requestManagerWithRestClient(FakeRestClient(mockResponseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
+                mockEmarsysRequestModelFactory,
+                mockConfigResponseMapper,
+                mockClientServiceStorage,
+                mockEventServiceStorage,
+                mockDeeplinkServiceStorage,
+                mockInboxServiceStorage,
+                mockMobileEngageV2ServiceStorage,
+                mockPredictServiceStorage,
+                mockMessageInboxServiceStorage,
+                mockLogLevelStorage)
+
+        val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        (configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(resultListener)
+
+        latch.await()
+
+        resultListener.errorCount shouldBe 1
+    }
+
+    @Test
+    fun testFetchRemoteConfigSignature_shouldCallConfigResponseMapper_onException() {
+        val mockException: Exception = mock()
+
+        val configInternal = DefaultConfigInternal(
+                mockMobileEngageRequestContext,
+                mockMobileEngageInternal,
+                mockPushInternal,
+                mockPushTokenProvider,
+                mockPredictRequestContext,
+                mockDeviceInfo,
+                requestManagerWithRestClient(FakeRestClient(mockException)),
+                mockEmarsysRequestModelFactory,
+                mockConfigResponseMapper,
+                mockClientServiceStorage,
+                mockEventServiceStorage,
+                mockDeeplinkServiceStorage,
+                mockInboxServiceStorage,
+                mockMobileEngageV2ServiceStorage,
+                mockPredictServiceStorage,
+                mockMessageInboxServiceStorage,
+                mockLogLevelStorage)
+
+        val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
+
+        configInternal.fetchRemoteConfigSignature(resultListener)
 
         latch.await()
 
@@ -812,13 +926,33 @@ class DefaultConfigInternalTest {
     }
 
     @Test
+    fun testRefreshRemoteConfig_shouldNotCall_fetchRemoteConfig_andCallResetRemoteConfig_ifSignatureFetchFailed() {
+        val expectedException: Exception = mock()
+
+        doAnswer {
+            val result: Try<String> = Try.failure(expectedException)
+            (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
+        }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
+
+        configInternal.refreshRemoteConfig()
+        verify(configInternal as DefaultConfigInternal).resetRemoteConfig()
+        verify(configInternal as DefaultConfigInternal, times(0)).fetchRemoteConfig(any())
+    }
+
+
+    @Test
     fun testRefreshRemoteConfig_verifyApplyRemoteConfigCalled_onSuccess() {
         val expectedRemoteConfig = RemoteConfig(eventServiceUrl = "https://test.emarsys.com")
 
         doAnswer {
+            val result: Try<String> = Try.success("signature")
+            (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
+        }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
+
+        doAnswer {
             val result: Try<RemoteConfig> = Try.success(expectedRemoteConfig)
             (it.arguments[0] as ResultListener<Try<RemoteConfig>>).onResult(result)
-        }.`when`(configInternal as DefaultConfigInternal).fetchRemoteConfig(anyNotNull())
+        }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfig(any())
 
         configInternal.refreshRemoteConfig()
 
@@ -827,12 +961,17 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testRefreshRemoteConfig_verifyResetRemoteConfigCalled_onFailure() {
-        val expectedException: Exception = mock(Exception::class.java)
+        val expectedException: Exception = mock()
 
         doAnswer {
-            val result = Try.failure<Exception>(expectedException)
-            (it.arguments[0] as ResultListener<Try<Exception>>).onResult(result)
-        }.`when`(configInternal as DefaultConfigInternal).fetchRemoteConfig(anyNotNull())
+            val result: Try<String> = Try.success("signature")
+            (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
+        }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
+
+        doAnswer {
+            val result = Try.failure<RemoteConfig>(expectedException)
+            (it.arguments[0] as ResultListener<Try<RemoteConfig>>).onResult(result)
+        }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfig(any())
 
         configInternal.refreshRemoteConfig()
 
@@ -840,15 +979,15 @@ class DefaultConfigInternalTest {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
+    fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
         return RequestManager(
-                mock(Handler::class.java),
-                mock(Repository::class.java) as Repository<RequestModel, SqlSpecification>,
-                mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>,
-                mock(Worker::class.java),
+                mock(),
+                mock() as Repository<RequestModel, SqlSpecification>,
+                mock() as Repository<ShardModel, SqlSpecification>,
+                mock(),
                 restClient,
-                mock(Registry::class.java) as Registry<RequestModel, CompletionListener>,
-                mock(CoreCompletionHandler::class.java)
+                mock() as Registry<RequestModel, CompletionListener>,
+                mock()
         )
     }
 }
