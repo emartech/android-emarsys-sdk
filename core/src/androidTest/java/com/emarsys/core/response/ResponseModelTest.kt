@@ -28,6 +28,7 @@ class ResponseModelTest {
     private lateinit var listHeaders: Map<String, List<String>>
     private lateinit var cookies: Map<String, HttpCookie>
     private lateinit var body: String
+    private lateinit var bytes: ByteArray
     private lateinit var timestampProvider: TimestampProvider
 
     private lateinit var requestModel: RequestModel
@@ -44,6 +45,7 @@ class ResponseModelTest {
         cookies = createCookies()
         listHeaders = headers.wrapValuesInList()
         body = "payload"
+        bytes = body.toByteArray()
         timestampProvider = mock(TimestampProvider::class.java)
         `when`(timestampProvider.provideTimestamp()).thenReturn(timestamp)
         requestModel = mock(RequestModel::class.java)
@@ -51,32 +53,32 @@ class ResponseModelTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun test_statusCodeShouldNotBeBelow200() {
-        ResponseModel(199, message, headers, cookies, body, timestamp, requestModel)
+        ResponseModel(199, message, headers, cookies, body, bytes, timestamp, requestModel)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun test_statusCodeShouldNotBeOver600() {
-        ResponseModel(600, message, headers, cookies, body, timestamp, requestModel)
+        ResponseModel(600, message, headers, cookies, body, bytes, timestamp, requestModel)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun test_messageShouldNotBeNull() {
-        ResponseModel(statusCode, null, headers, cookies, body, timestamp, requestModel)
+        ResponseModel(statusCode, null, headers, cookies, body, bytes, timestamp, requestModel)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun test_headersShouldNotBeNull() {
-        ResponseModel(statusCode, message, null, cookies, body, timestamp, requestModel)
+        ResponseModel(statusCode, message, null, cookies, body, bytes, timestamp, requestModel)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun test_cookiesShouldNotBeNull() {
-        ResponseModel(statusCode, message, headers, null, body, timestamp, requestModel)
+        ResponseModel(statusCode, message, headers, null, body, bytes, timestamp, requestModel)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun test_requestModelShouldNotBeNull() {
-        ResponseModel(statusCode, message, headers, cookies, body, timestamp, null)
+        ResponseModel(statusCode, message, headers, cookies, body, bytes, timestamp, null)
     }
 
     @Test
@@ -88,6 +90,7 @@ class ResponseModelTest {
                 mapOf(),
                 mapOf(),
                 "{ 'foo': 'bar', 'a': 1, 'nested': { 'b': 'c' }}",
+                bytes,
                 timestamp,
                 requestModel)
 
@@ -109,6 +112,7 @@ class ResponseModelTest {
                 mapOf(),
                 mapOf(),
                 "<html>Not valid json</html>",
+                bytes,
                 timestamp,
                 requestModel)
 
@@ -125,6 +129,24 @@ class ResponseModelTest {
                 mapOf(),
                 mapOf(),
                 null,
+                bytes,
+                timestamp,
+                requestModel)
+
+        val result = responseModel.parsedBody
+        assertNull(result)
+    }
+
+    @Test
+    @Throws(JSONException::class)
+    fun testGetParsedBody_whenBytesIsNull() {
+        val responseModel = ResponseModel(
+                200,
+                "",
+                mapOf(),
+                mapOf(),
+                "<html>Not valid json</html>",
+                null,
                 timestamp,
                 requestModel)
 
@@ -134,7 +156,7 @@ class ResponseModelTest {
 
     @Test
     fun testBuilder_withAllArguments() {
-        val expected = ResponseModel(statusCode, message, headers, cookies, body, timestamp, requestModel)
+        val expected = ResponseModel(statusCode, message, headers, cookies, body, bytes, timestamp, requestModel)
         val result = ResponseModel.Builder(timestampProvider)
                 .statusCode(statusCode)
                 .message(message)
@@ -147,7 +169,7 @@ class ResponseModelTest {
 
     @Test
     fun testBuilder_withMandatoryArguments() {
-        val expected = ResponseModel(statusCode, message, mapOf(), mapOf(), body, timestamp, requestModel)
+        val expected = ResponseModel(statusCode, message, mapOf(), mapOf(), body, bytes, timestamp, requestModel)
         val result = ResponseModel.Builder(timestampProvider)
                 .statusCode(statusCode)
                 .message(message)
@@ -185,7 +207,7 @@ class ResponseModelTest {
         val headers = mapOf("content" to "application/x-www-form-urlencoded")
         val headersAsList = headers.wrapValuesInList()
 
-        val expected = ResponseModel(statusCode, message, headers, mapOf(), null, timestamp, requestModel)
+        val expected = ResponseModel(statusCode, message, headers, mapOf(), null, null, timestamp, requestModel)
 
         val result = ResponseModel.Builder(timestampProvider)
                 .statusCode(statusCode)
@@ -221,7 +243,7 @@ class ResponseModelTest {
                 "UserID" to HttpCookie.parse("Set-Cookie: UserID=JohnDoe; Max-Age=3600; Version=1").first()
         )
 
-        val expected = ResponseModel(statusCode, message, headers, cookies, null, timestamp, requestModel)
+        val expected = ResponseModel(statusCode, message, headers, cookies, null, null, timestamp, requestModel)
 
         val result = ResponseModel.Builder(timestampProvider)
                 .statusCode(statusCode)

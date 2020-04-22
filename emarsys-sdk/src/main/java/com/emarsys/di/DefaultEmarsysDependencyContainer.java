@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Base64;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +32,7 @@ import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.connection.ConnectionWatchDog;
+import com.emarsys.core.crypto.Crypto;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.Repository;
@@ -161,6 +163,11 @@ import com.google.android.gms.location.GeofencingClient;
 
 import org.json.JSONObject;
 
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -169,6 +176,7 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
 
     private static final String EMARSYS_SHARED_PREFERENCES_NAME = "emarsys_shared_preferences";
     private static final int GEOFENCE_LIMIT = 100;
+    private static final String PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELjWEUIBX9zlm1OI4gF1hMCBLzpaBwgs9HlmSIBAqP4MDGy4ibOOV3FVDrnAY0Q34LZTbPBlp3gRNZJ19UoSy2Q==";
 
     private MobileEngageInternal mobileEngageInternal;
     private MobileEngageInternal loggingMobileEngageInternal;
@@ -448,7 +456,9 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     }
 
     @Override
-    public Storage<String> getLogLevelStorage() { return logLevelStorage; }
+    public Storage<String> getLogLevelStorage() {
+        return logLevelStorage;
+    }
 
     @Override
     public Logger getLogger() {
@@ -716,26 +726,28 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         loggingInAppInternal = new LoggingInAppInternal(Emarsys.InApp.class);
         loggingInboxInternal = inboxInternalProvider.provideLoggingInboxInternal(Emarsys.Inbox.class);
         loggingMessageInboxInternal = new LoggingMessageInboxInternal(Emarsys.class);
-
-        configInternal = new DefaultConfigInternal(
-                requestContext,
-                mobileEngageInternal,
-                pushInternal,
-                getPushTokenProvider(),
-                predictRequestContext,
-                getDeviceInfo(),
-                requestManager,
-                emarsysRequestModelFactory,
-                new RemoteConfigResponseMapper(new RandomProvider()),
-                getClientServiceStorage(),
-                getEventServiceStorage(),
-                getDeepLinkServiceStorage(),
-                getInboxServiceStorage(),
-                getMobileEngageV2ServiceStorage(),
-                getPredictServiceStorage(),
-                getMessageInboxServiceStorage(),
-                getLogLevelStorage());
-
+        try {
+            configInternal = new DefaultConfigInternal(
+                    requestContext,
+                    mobileEngageInternal,
+                    pushInternal,
+                    getPushTokenProvider(),
+                    predictRequestContext,
+                    getDeviceInfo(),
+                    requestManager,
+                    emarsysRequestModelFactory,
+                    new RemoteConfigResponseMapper(new RandomProvider()),
+                    getClientServiceStorage(),
+                    getEventServiceStorage(),
+                    getDeepLinkServiceStorage(),
+                    getInboxServiceStorage(),
+                    getMobileEngageV2ServiceStorage(),
+                    getPredictServiceStorage(),
+                    getMessageInboxServiceStorage(),
+                    getLogLevelStorage(),
+                    new Crypto(createPublicKey()));
+        } catch (Exception ignored) {
+        }
         inboxApi = new InboxProxy(runnerProxy, getInboxInternal());
         loggingInboxApi = new InboxProxy(runnerProxy, getLoggingInboxInternal());
         messageInboxApi = new MessageInboxProxy(runnerProxy, getMessageInboxInternal());
@@ -1009,5 +1021,13 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
     @Override
     public Storage<String> getPredictServiceStorage() {
         return predictServiceUrlStorage;
+    }
+
+    private PublicKey createPublicKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
+        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(
+                Base64.decode(PUBLIC_KEY, 0)
+        );
+        KeyFactory keyFactory = KeyFactory.getInstance("EC");
+        return keyFactory.generatePublic(publicKeySpec);
     }
 }

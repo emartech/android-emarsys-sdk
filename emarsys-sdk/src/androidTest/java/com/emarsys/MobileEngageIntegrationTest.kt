@@ -321,10 +321,10 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testConfig_changeApplicationCode() {
-        val originalApplicationCode = Emarsys.Config.applicationCode
-        Emarsys.Config.changeApplicationCode(OTHER_APP_ID, this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
-        originalApplicationCode shouldNotBe Emarsys.Config.applicationCode
-        Emarsys.Config.applicationCode shouldBe OTHER_APP_ID
+        val originalApplicationCode = Emarsys.config.applicationCode
+        Emarsys.config.changeApplicationCode(OTHER_APP_ID, this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
+        originalApplicationCode shouldNotBe Emarsys.config.applicationCode
+        Emarsys.config.applicationCode shouldBe OTHER_APP_ID
     }
 
     private fun eventuallyStoreResult(errorCause: Throwable?) {

@@ -2,7 +2,9 @@ package com.emarsys
 
 import android.app.Application
 import androidx.test.rule.ActivityTestRule
+import com.emarsys.config.DefaultConfigInternal
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
@@ -11,12 +13,12 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarsysDependencyContainer
-import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
+import io.kotlintest.shouldBe
 import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.Mockito
@@ -25,7 +27,7 @@ import java.util.concurrent.CountDownLatch
 class RemoteConfigIntegrationTest {
 
     private companion object {
-        private const val APP_ID = "14C19-A121F"
+        private const val APP_ID = "integrationTest"
         private const val CONTACT_FIELD_ID = 3
 
         @BeforeClass
@@ -130,4 +132,17 @@ class RemoteConfigIntegrationTest {
             throw e
         }
     }
+
+    @Test
+    fun testRemoteConfig() {
+        (DependencyInjection.getContainer<EmarsysDependencyContainer>().configInternal as DefaultConfigInternal).refreshRemoteConfig(CompletionListener { latch.countDown() })
+
+        latch.await()
+
+        val clientServiceEndpointHost = DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceProvider.provideEndpointHost()
+        val eventServiceEndpointHost = DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceProvider.provideEndpointHost()
+        clientServiceEndpointHost shouldBe "https://integration.me-client.eservice.emarsys.net"
+        eventServiceEndpointHost shouldBe "https://integration.mobile-events.eservice.emarsys.net"
+    }
+
 }

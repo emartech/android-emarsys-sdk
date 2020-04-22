@@ -1,19 +1,17 @@
 package com.emarsys.config
 
-import android.os.Handler
 import com.emarsys.EmarsysRequestModelFactory
 import com.emarsys.config.model.RemoteConfig
-import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
+import com.emarsys.core.crypto.Crypto
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.feature.FeatureRegistry
-import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.model.RequestModel
@@ -21,7 +19,6 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.log.LogLevel
-import com.emarsys.core.worker.Worker
 import com.emarsys.fake.FakeRestClient
 import com.emarsys.fake.FakeResultListener
 import com.emarsys.feature.InnerFeature
@@ -82,6 +79,7 @@ class DefaultConfigInternalTest {
     private lateinit var mockPredictServiceStorage: Storage<String>
     private lateinit var mockMessageInboxServiceStorage: Storage<String>
     private lateinit var mockLogLevelStorage: Storage<String>
+    private lateinit var mockCrypto: Crypto
 
     @Rule
     @JvmField
@@ -152,6 +150,7 @@ class DefaultConfigInternalTest {
         mockPredictServiceStorage = mock()
         mockMessageInboxServiceStorage = mock()
         mockLogLevelStorage = mock()
+        mockCrypto = mock()
         configInternal = spy(DefaultConfigInternal(mockMobileEngageRequestContext,
                 mockMobileEngageInternal,
                 mockPushInternal,
@@ -168,7 +167,8 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockLogLevelStorage))
+                mockLogLevelStorage,
+                mockCrypto))
     }
 
 
@@ -265,7 +265,8 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockLogLevelStorage)
+                mockLogLevelStorage,
+                mockCrypto)
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {
             latch.countDown()
@@ -313,7 +314,8 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockLogLevelStorage)
+                mockLogLevelStorage,
+                mockCrypto)
 
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
             latch.countDown()
@@ -357,7 +359,8 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockLogLevelStorage)
+                mockLogLevelStorage,
+                mockCrypto)
 
         val completionListener = CompletionListener {
             latch.countDown()
@@ -406,7 +409,8 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockLogLevelStorage)
+                mockLogLevelStorage,
+                mockCrypto)
 
         val completionListener = CompletionListener {
             latch.countDown()
@@ -511,7 +515,7 @@ class DefaultConfigInternalTest {
         inOrder.verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         inOrder.verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
 
-        inOrder.verify(configInternal).refreshRemoteConfig()
+        inOrder.verify(configInternal).refreshRemoteConfig(null)
     }
 
     @Test
@@ -519,7 +523,7 @@ class DefaultConfigInternalTest {
         configInternal.changeApplicationCode(null, CONTACT_FIELD_ID, CompletionListener { latch.countDown() })
         latch.await()
 
-        verify(configInternal, times(0)).refreshRemoteConfig()
+        verify(configInternal, times(0)).refreshRemoteConfig(null)
         verify(configInternal, times(1)).resetRemoteConfig()
     }
 
@@ -568,7 +572,8 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockLogLevelStorage)
+                mockLogLevelStorage,
+                mockCrypto)
 
         whenever(mockMobileEngageRequestContext.contactFieldId).thenReturn(1)
         val latch = CountDownLatch(1)
@@ -613,18 +618,7 @@ class DefaultConfigInternalTest {
     fun testChangeMerchantId_shouldResetRemoteConfig() {
         configInternal.changeMerchantId(MERCHANT_ID)
         val inOrder = inOrder(configInternal, mockPredictRequestContext)
-        inOrder.verify(configInternal).resetRemoteConfig()
         inOrder.verify(mockPredictRequestContext).merchantId = MERCHANT_ID
-    }
-
-    @Test
-    fun testChangeMerchantId_shouldRefreshRemoteConfigAfterChange() {
-        configInternal.changeMerchantId(MERCHANT_ID)
-
-        val inOrder = inOrder(configInternal, mockPredictRequestContext)
-        inOrder.verify(configInternal).resetRemoteConfig()
-        inOrder.verify(mockPredictRequestContext).merchantId = MERCHANT_ID
-        inOrder.verify(configInternal).refreshRemoteConfig()
     }
 
     @Test
@@ -632,7 +626,6 @@ class DefaultConfigInternalTest {
         configInternal.changeMerchantId(null)
 
         val inOrder = inOrder(configInternal, mockPredictRequestContext)
-        inOrder.verify(configInternal).resetRemoteConfig()
         inOrder.verify(mockPredictRequestContext).merchantId = null
         inOrder.verifyNoMoreInteractions()
     }
@@ -676,15 +669,14 @@ class DefaultConfigInternalTest {
         val requestModel: RequestModel = mock()
         whenever(mockEmarsysRequestModelFactory.createRemoteConfigSignatureRequest()).thenReturn(requestModel)
 
-        configInternal.refreshRemoteConfig()
+        configInternal.refreshRemoteConfig(null)
 
         verify(mockRequestManager).submitNow(eq(requestModel), any())
     }
 
     @Test
     fun testFetchRemoteConfig_shouldCallConfigResponseMapper_onSuccess() {
-        val expectedResult = RemoteConfig(eventServiceUrl = "https://emarsys.com")
-        val resultListener = FakeResultListener<RemoteConfig>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val resultListener = FakeResultListener<ResponseModel>(latch, FakeResultListener.Mode.MAIN_THREAD)
 
         val configInternal = DefaultConfigInternal(mockMobileEngageRequestContext,
                 mockMobileEngageInternal,
@@ -702,16 +694,14 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockLogLevelStorage)
-
-        whenever(mockConfigResponseMapper.map(mockResponseModel)).thenReturn(expectedResult)
+                mockLogLevelStorage,
+                mockCrypto)
 
         configInternal.fetchRemoteConfig(resultListener)
 
         latch.await()
 
-        verify(mockConfigResponseMapper).map(any())
-        resultListener.resultStatus shouldBe expectedResult
+        resultListener.resultStatus shouldBe mockResponseModel
         resultListener.successCount shouldBe 1
     }
 
@@ -734,9 +724,10 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockLogLevelStorage)
+                mockLogLevelStorage,
+                mockCrypto)
 
-        val resultListener = FakeResultListener<RemoteConfig>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val resultListener = FakeResultListener<ResponseModel>(latch, FakeResultListener.Mode.MAIN_THREAD)
         (configInternal as DefaultConfigInternal).fetchRemoteConfig(resultListener)
 
         latch.await()
@@ -765,9 +756,10 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockLogLevelStorage)
+                mockLogLevelStorage,
+                mockCrypto)
 
-        val resultListener = FakeResultListener<RemoteConfig>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val resultListener = FakeResultListener<ResponseModel>(latch, FakeResultListener.Mode.MAIN_THREAD)
 
         configInternal.fetchRemoteConfig(resultListener)
 
@@ -778,9 +770,9 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testFetchRemoteConfigSignature_shouldCallConfigSignatureResultParser_onSuccess() {
-        val expectedResult = "signature"
-        val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        whenever(mockResponseModel.body).thenReturn("signature")
+        val expectedResult = "signature".toByteArray()
+        val resultListener = FakeResultListener<ByteArray>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        whenever(mockResponseModel.bytes).thenReturn("signature".toByteArray())
 
         val configInternal = DefaultConfigInternal(mockMobileEngageRequestContext,
                 mockMobileEngageInternal,
@@ -798,7 +790,8 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockLogLevelStorage)
+                mockLogLevelStorage,
+                mockCrypto)
 
         configInternal.fetchRemoteConfigSignature(resultListener)
 
@@ -827,9 +820,10 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockLogLevelStorage)
+                mockLogLevelStorage,
+                mockCrypto)
 
-        val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val resultListener = FakeResultListener<ByteArray>(latch, FakeResultListener.Mode.MAIN_THREAD)
         (configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(resultListener)
 
         latch.await()
@@ -858,9 +852,10 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockLogLevelStorage)
+                mockLogLevelStorage,
+                mockCrypto)
 
-        val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val resultListener = FakeResultListener<ByteArray>(latch, FakeResultListener.Mode.MAIN_THREAD)
 
         configInternal.fetchRemoteConfigSignature(resultListener)
 
@@ -934,29 +929,76 @@ class DefaultConfigInternalTest {
             (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
 
-        configInternal.refreshRemoteConfig()
+        configInternal.refreshRemoteConfig(null)
         verify(configInternal as DefaultConfigInternal).resetRemoteConfig()
         verify(configInternal as DefaultConfigInternal, times(0)).fetchRemoteConfig(any())
     }
 
-
     @Test
     fun testRefreshRemoteConfig_verifyApplyRemoteConfigCalled_onSuccess() {
         val expectedRemoteConfig = RemoteConfig(eventServiceUrl = "https://test.emarsys.com")
+        val expectedResponseModel = ResponseModel.Builder().body("""
+                   {
+                        "serviceUrls":{
+                                "eventService":"https://test.emarsys.com"
+                        }
+                   }
+               """.trimIndent())
+                .statusCode(200)
+                .requestModel(mockRequestModel)
+                .message("responseMessage").build()
+        whenever(mockConfigResponseMapper.map(expectedResponseModel)).thenReturn(expectedRemoteConfig)
 
         doAnswer {
-            val result: Try<String> = Try.success("signature")
-            (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
+            val result: Try<ByteArray> = Try.success("signature".toByteArray())
+            (it.arguments[0] as ResultListener<Try<ByteArray>>).onResult(result)
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
 
         doAnswer {
-            val result: Try<RemoteConfig> = Try.success(expectedRemoteConfig)
-            (it.arguments[0] as ResultListener<Try<RemoteConfig>>).onResult(result)
+            val result: Try<ResponseModel> = Try.success(expectedResponseModel)
+            (it.arguments[0] as ResultListener<Try<ResponseModel>>).onResult(result)
+        }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfig(any())
+        whenever(mockCrypto.verify(expectedResponseModel.body.toByteArray(), "signature".toByteArray())).thenReturn(true)
+
+        configInternal.refreshRemoteConfig(null)
+
+        verify(mockCrypto).verify(expectedResponseModel.body.toByteArray(), "signature".toByteArray())
+        verify(mockConfigResponseMapper).map(any())
+        verify((configInternal as DefaultConfigInternal)).applyRemoteConfig(expectedRemoteConfig)
+    }
+
+    @Test
+    fun testRefreshRemoteConfig_verifyAndResetRemoteConfigCalled_onVerificationFailed() {
+        val expectedRemoteConfig = RemoteConfig(eventServiceUrl = "https://test.emarsys.com")
+        val expectedResponseModel = ResponseModel.Builder().body("""
+                   {
+                        "serviceUrls":{
+                                "eventService":"https://test.emarsys.com"
+                        }
+                   }
+               """.trimIndent())
+                .statusCode(200)
+                .requestModel(mockRequestModel)
+                .message("responseMessage").build()
+        whenever(mockConfigResponseMapper.map(expectedResponseModel)).thenReturn(expectedRemoteConfig)
+        whenever(mockCrypto.verify(expectedResponseModel.body.toByteArray(), "signature".toByteArray())).thenReturn(false)
+
+        doAnswer {
+            val result: Try<ByteArray> = Try.success("signature".toByteArray())
+            (it.arguments[0] as ResultListener<Try<ByteArray>>).onResult(result)
+        }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
+
+        doAnswer {
+            val result: Try<ResponseModel> = Try.success(expectedResponseModel)
+            (it.arguments[0] as ResultListener<Try<ResponseModel>>).onResult(result)
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfig(any())
 
-        configInternal.refreshRemoteConfig()
+        configInternal.refreshRemoteConfig(null)
 
-        verify((configInternal as DefaultConfigInternal)).applyRemoteConfig(expectedRemoteConfig)
+        verify(mockCrypto).verify(expectedResponseModel.body.toByteArray(), "signature".toByteArray())
+        verify((configInternal as DefaultConfigInternal)).resetRemoteConfig()
+        verifyZeroInteractions(mockConfigResponseMapper)
+        verify((configInternal as DefaultConfigInternal), times(0)).applyRemoteConfig(expectedRemoteConfig)
     }
 
     @Test
@@ -964,16 +1006,16 @@ class DefaultConfigInternalTest {
         val expectedException: Exception = mock()
 
         doAnswer {
-            val result: Try<String> = Try.success("signature")
-            (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
+            val result: Try<ByteArray> = Try.success("signature".toByteArray())
+            (it.arguments[0] as ResultListener<Try<ByteArray>>).onResult(result)
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
 
         doAnswer {
-            val result = Try.failure<RemoteConfig>(expectedException)
-            (it.arguments[0] as ResultListener<Try<RemoteConfig>>).onResult(result)
+            val result = Try.failure<ResponseModel>(expectedException)
+            (it.arguments[0] as ResultListener<Try<ResponseModel>>).onResult(result)
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfig(any())
 
-        configInternal.refreshRemoteConfig()
+        configInternal.refreshRemoteConfig(null)
 
         verify(configInternal as DefaultConfigInternal).resetRemoteConfig()
     }

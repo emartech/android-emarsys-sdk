@@ -21,7 +21,7 @@ interface ConfigInternal {
 
     fun changeMerchantId(merchantId: String?)
 
-    fun refreshRemoteConfig()
+    fun refreshRemoteConfig(completionListener: CompletionListener?)
 
     fun resetRemoteConfig()
 }

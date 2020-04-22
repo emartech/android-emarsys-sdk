@@ -21,6 +21,7 @@ public class ResponseModel {
     private final Map<String, String> headers;
     private final Map<String, HttpCookie> cookies;
     private final String body;
+    private final byte[] bytes;
     private final long timestamp;
     private final RequestModel requestModel;
 
@@ -30,6 +31,7 @@ public class ResponseModel {
             Map<String, String> headers,
             Map<String, HttpCookie> cookies,
             String body,
+            byte[] bytes,
             long timestamp,
             RequestModel requestModel) {
 
@@ -43,6 +45,7 @@ public class ResponseModel {
         this.headers = headers;
         this.cookies = cookies;
         this.body = body;
+        this.bytes = bytes;
         this.timestamp = timestamp;
         this.requestModel = requestModel;
     }
@@ -71,6 +74,9 @@ public class ResponseModel {
 
     public String getBody() {
         return body;
+    }
+    public byte[] getBytes() {
+        return bytes;
     }
 
     public JSONObject getParsedBody() {
@@ -141,6 +147,7 @@ public class ResponseModel {
         private Map<String, String> headers;
         private Map<String, HttpCookie> cookies;
         private String body;
+        private byte[] bytes;
         private RequestModel requestModel;
         private TimestampProvider timestampProvider;
 
@@ -175,6 +182,11 @@ public class ResponseModel {
             return this;
         }
 
+        public Builder bytes(byte[] bytes) {
+            this.bytes = bytes;
+            return this;
+        }
+
         public Builder requestModel(RequestModel requestModel) {
             this.requestModel = requestModel;
             return this;
@@ -187,6 +199,7 @@ public class ResponseModel {
                     headers,
                     cookies,
                     body,
+                    bytes,
                     timestampProvider.provideTimestamp(),
                     requestModel);
         }
@@ -220,7 +233,7 @@ public class ResponseModel {
 
             final String cookieKey = "set-cookie";
             for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-                if (entry.getKey()!=null && entry.getKey().toLowerCase().equals(cookieKey)) {
+                if (entry.getKey() != null && entry.getKey().toLowerCase().equals(cookieKey)) {
 
                     List<String> rawCookies = entry.getValue();
                     if (rawCookies != null) {

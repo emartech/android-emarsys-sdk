@@ -9,6 +9,7 @@ import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
+import com.emarsys.core.crypto.Crypto
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.request.RequestManager
@@ -38,7 +39,8 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val mobileEngageV2ServiceStorage: Storage<String>,
                             private val predictServiceStorage: Storage<String>,
                             private val messageInboxServiceStorage: Storage<String>,
-                            private val logLevelStorage: Storage<String>) : ConfigInternal {
+                            private val logLevelStorage: Storage<String>,
+                            private val crypto: Crypto) : ConfigInternal {
 
     override val applicationCode: String?
         get() = mobileEngageRequestContext.applicationCode
@@ -80,7 +82,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         return CompletionListener {
             completionListener?.onCompleted(it)
             if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
-                refreshRemoteConfig()
+                refreshRemoteConfig(null)
             }
         }
     }
@@ -146,46 +148,54 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     }
 
     override fun changeMerchantId(merchantId: String?) {
-        resetRemoteConfig()
         predictRequestContext.merchantId = merchantId
         if (merchantId == null) {
             FeatureRegistry.disableFeature(InnerFeature.PREDICT)
         } else {
             FeatureRegistry.enableFeature(InnerFeature.PREDICT)
-            refreshRemoteConfig()
         }
     }
 
-    override fun refreshRemoteConfig() {
+    override fun refreshRemoteConfig(completionListener: CompletionListener?) {
         fetchRemoteConfigSignature(ResultListener { signatureResponse ->
             signatureResponse.result?.let { signature ->
                 fetchRemoteConfig(ResultListener {
-                    it.result?.let { remoteConfig ->
-                        applyRemoteConfig(remoteConfig)
+                    it.result?.let { remoteConfigResponseModel ->
+                        if (crypto.verify(remoteConfigResponseModel.body.toByteArray(), signature)) {
+                            applyRemoteConfig(configResponseMapper.map(remoteConfigResponseModel))
+                            completionListener?.onCompleted(null)
+                        } else {
+                            resetRemoteConfig()
+                            completionListener?.onCompleted(Exception("Verify failed"))
+
+                        }
                     }
-                    it.errorCause?.let {
+                    it.errorCause?.let { throwable ->
                         resetRemoteConfig()
+                        completionListener?.onCompleted(throwable)
+
                     }
                 })
             }
-            signatureResponse.errorCause?.let {
+            signatureResponse.errorCause?.let { throwable ->
                 resetRemoteConfig()
+                completionListener?.onCompleted(throwable)
             }
         })
 
     }
 
-    fun fetchRemoteConfigSignature(resultListener: ResultListener<Try<String>>) {
+    fun fetchRemoteConfigSignature(resultListener: ResultListener<Try<ByteArray>>) {
         val requestModel = emarsysRequestModelFactory.createRemoteConfigSignatureRequest()
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String?, responseModel: ResponseModel?) {
-                val remoteConfigSignature = Try.success(responseModel!!.body)
+                val remoteConfigSignature = Try.success(responseModel!!.bytes)
 
                 resultListener.onResult(remoteConfigSignature)
             }
 
             override fun onError(id: String?, responseModel: ResponseModel?) {
-                val response = Try.failure<String>(ResponseErrorException(
+                val response = Try.failure<ByteArray>(ResponseErrorException(
                         responseModel!!.statusCode,
                         responseModel.message,
                         responseModel.body))
@@ -194,24 +204,24 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
             }
 
             override fun onError(id: String?, cause: Exception?) {
-                val response = Try.failure<String>(cause)
+                val response = Try.failure<ByteArray>(cause)
 
                 resultListener.onResult(response)
             }
         })
     }
 
-    fun fetchRemoteConfig(resultListener: ResultListener<Try<RemoteConfig>>) {
+    fun fetchRemoteConfig(resultListener: ResultListener<Try<ResponseModel>>) {
         val requestModel = emarsysRequestModelFactory.createRemoteConfigRequest()
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String?, responseModel: ResponseModel?) {
-                val remoteConfig = Try.success(configResponseMapper.map(responseModel))
+                val remoteConfig = Try.success(responseModel!!)
 
                 resultListener.onResult(remoteConfig)
             }
 
             override fun onError(id: String?, responseModel: ResponseModel?) {
-                val response = Try.failure<RemoteConfig>(ResponseErrorException(
+                val response = Try.failure<ResponseModel>(ResponseErrorException(
                         responseModel!!.statusCode,
                         responseModel.message,
                         responseModel.body))
@@ -220,7 +230,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
             }
 
             override fun onError(id: String?, cause: Exception?) {
-                val response = Try.failure<RemoteConfig>(cause)
+                val response = Try.failure<ResponseModel>(cause)
 
                 resultListener.onResult(response)
             }

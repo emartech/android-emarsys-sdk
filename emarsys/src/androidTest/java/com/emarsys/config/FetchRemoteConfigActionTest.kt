@@ -29,6 +29,6 @@ class FetchRemoteConfigActionTest {
     fun testExecute_invokesConfigInternalsRefreshRemoteConfigMethod() {
         fetchAction.execute(mock(Activity::class.java))
 
-        verify(mockConfigInternal).refreshRemoteConfig()
+        verify(mockConfigInternal).refreshRemoteConfig(null)
     }
 }

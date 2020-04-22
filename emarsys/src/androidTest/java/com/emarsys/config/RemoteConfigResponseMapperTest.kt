@@ -152,4 +152,23 @@ class RemoteConfigResponseMapperTest {
 
         result shouldBe expected
     }
+
+    @Test
+    fun test_withInvalidJSON() {
+        whenever(mockResponseModel.body).thenReturn(
+                """
+                   {x
+                        "serviceUrls":{
+                                "inboxService":"https://testinboxService.url", 
+                        }
+                   }
+               """.trimIndent()
+        )
+
+        val expected = RemoteConfig()
+
+        val result = remoteConfigResponseMapper.map(mockResponseModel)
+
+        result shouldBe expected
+    }
 }
