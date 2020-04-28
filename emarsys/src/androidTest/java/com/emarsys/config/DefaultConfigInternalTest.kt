@@ -770,9 +770,9 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testFetchRemoteConfigSignature_shouldCallConfigSignatureResultParser_onSuccess() {
-        val expectedResult = "signature".toByteArray()
-        val resultListener = FakeResultListener<ByteArray>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        whenever(mockResponseModel.bytes).thenReturn("signature".toByteArray())
+        val expectedResult = "signature"
+        val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        whenever(mockResponseModel.body).thenReturn("signature")
 
         val configInternal = DefaultConfigInternal(mockMobileEngageRequestContext,
                 mockMobileEngageInternal,
@@ -823,7 +823,7 @@ class DefaultConfigInternalTest {
                 mockLogLevelStorage,
                 mockCrypto)
 
-        val resultListener = FakeResultListener<ByteArray>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
         (configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(resultListener)
 
         latch.await()
@@ -855,7 +855,7 @@ class DefaultConfigInternalTest {
                 mockLogLevelStorage,
                 mockCrypto)
 
-        val resultListener = FakeResultListener<ByteArray>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
 
         configInternal.fetchRemoteConfigSignature(resultListener)
 
@@ -950,19 +950,19 @@ class DefaultConfigInternalTest {
         whenever(mockConfigResponseMapper.map(expectedResponseModel)).thenReturn(expectedRemoteConfig)
 
         doAnswer {
-            val result: Try<ByteArray> = Try.success("signature".toByteArray())
-            (it.arguments[0] as ResultListener<Try<ByteArray>>).onResult(result)
+            val result: Try<String> = Try.success("signature")
+            (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
 
         doAnswer {
             val result: Try<ResponseModel> = Try.success(expectedResponseModel)
             (it.arguments[0] as ResultListener<Try<ResponseModel>>).onResult(result)
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfig(any())
-        whenever(mockCrypto.verify(expectedResponseModel.body.toByteArray(), "signature".toByteArray())).thenReturn(true)
+        whenever(mockCrypto.verify(expectedResponseModel.body.toByteArray(), "signature")).thenReturn(true)
 
         configInternal.refreshRemoteConfig(null)
 
-        verify(mockCrypto).verify(expectedResponseModel.body.toByteArray(), "signature".toByteArray())
+        verify(mockCrypto).verify(expectedResponseModel.body.toByteArray(), "signature")
         verify(mockConfigResponseMapper).map(any())
         verify((configInternal as DefaultConfigInternal)).applyRemoteConfig(expectedRemoteConfig)
     }
@@ -981,11 +981,11 @@ class DefaultConfigInternalTest {
                 .requestModel(mockRequestModel)
                 .message("responseMessage").build()
         whenever(mockConfigResponseMapper.map(expectedResponseModel)).thenReturn(expectedRemoteConfig)
-        whenever(mockCrypto.verify(expectedResponseModel.body.toByteArray(), "signature".toByteArray())).thenReturn(false)
+        whenever(mockCrypto.verify(expectedResponseModel.body.toByteArray(), "signature")).thenReturn(false)
 
         doAnswer {
-            val result: Try<ByteArray> = Try.success("signature".toByteArray())
-            (it.arguments[0] as ResultListener<Try<ByteArray>>).onResult(result)
+            val result: Try<String> = Try.success("signature")
+            (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
 
         doAnswer {
@@ -995,7 +995,7 @@ class DefaultConfigInternalTest {
 
         configInternal.refreshRemoteConfig(null)
 
-        verify(mockCrypto).verify(expectedResponseModel.body.toByteArray(), "signature".toByteArray())
+        verify(mockCrypto).verify(expectedResponseModel.body.toByteArray(), "signature")
         verify((configInternal as DefaultConfigInternal)).resetRemoteConfig()
         verifyZeroInteractions(mockConfigResponseMapper)
         verify((configInternal as DefaultConfigInternal), times(0)).applyRemoteConfig(expectedRemoteConfig)
@@ -1006,8 +1006,8 @@ class DefaultConfigInternalTest {
         val expectedException: Exception = mock()
 
         doAnswer {
-            val result: Try<ByteArray> = Try.success("signature".toByteArray())
-            (it.arguments[0] as ResultListener<Try<ByteArray>>).onResult(result)
+            val result: Try<String> = Try.success("signature")
+            (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
 
         doAnswer {

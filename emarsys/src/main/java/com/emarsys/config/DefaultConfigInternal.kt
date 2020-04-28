@@ -185,17 +185,17 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
 
     }
 
-    fun fetchRemoteConfigSignature(resultListener: ResultListener<Try<ByteArray>>) {
+    fun fetchRemoteConfigSignature(resultListener: ResultListener<Try<String>>) {
         val requestModel = emarsysRequestModelFactory.createRemoteConfigSignatureRequest()
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String?, responseModel: ResponseModel?) {
-                val remoteConfigSignature = Try.success(responseModel!!.bytes)
+                val remoteConfigSignature = Try.success(responseModel!!.body)
 
                 resultListener.onResult(remoteConfigSignature)
             }
 
             override fun onError(id: String?, responseModel: ResponseModel?) {
-                val response = Try.failure<ByteArray>(ResponseErrorException(
+                val response = Try.failure<String>(ResponseErrorException(
                         responseModel!!.statusCode,
                         responseModel.message,
                         responseModel.body))
@@ -204,7 +204,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
             }
 
             override fun onError(id: String?, cause: Exception?) {
-                val response = Try.failure<ByteArray>(cause)
+                val response = Try.failure<String>(cause)
 
                 resultListener.onResult(response)
             }

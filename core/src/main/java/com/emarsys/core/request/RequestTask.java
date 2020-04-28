@@ -16,16 +16,15 @@ import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.log.entry.RequestLog;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
-
-import kotlin.text.Charsets;
 
 
 public class RequestTask extends AsyncTask<Void, Long, Void> {
@@ -141,18 +140,17 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
         int statusCode = connection.getResponseCode();
         String message = connection.getResponseMessage();
         Map<String, List<String>> headers = connection.getHeaderFields();
-        byte[] bodyBytes = readByteArray(connection);
+        String body = readBody(connection);
         return new ResponseModel.Builder(timestampProvider)
                 .statusCode(statusCode)
                 .message(message)
                 .headers(headers)
-                .body(new String(bodyBytes, Charsets.UTF_8))
-                .bytes(bodyBytes)
+                .body(body)
                 .requestModel(requestModel)
                 .build();
     }
 
-    private byte[] readByteArray(HttpsURLConnection connection) throws IOException {
+    private String readBody(HttpsURLConnection connection) throws IOException {
         int responseCode = connection.getResponseCode();
         InputStream inputStream;
         if (isStatusCodeOK(responseCode)) {
@@ -160,17 +158,16 @@ public class RequestTask extends AsyncTask<Void, Long, Void> {
         } else {
             inputStream = connection.getErrorStream();
         }
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String inputLine;
+        StringBuilder sb = new StringBuilder();
 
-        int nRead;
-        byte[] data = new byte[1024];
-        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
-            buffer.write(data, 0, nRead);
+        while ((inputLine = reader.readLine()) != null) {
+            sb.append(inputLine);
         }
 
-        buffer.flush();
-        return buffer.toByteArray();
-
+        reader.close();
+        return sb.toString();
     }
 
     private boolean isStatusCodeOK(int responseCode) {
