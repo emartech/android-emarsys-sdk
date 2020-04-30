@@ -40,13 +40,13 @@ class RemoteConfigResponseMapperTest {
                 """
                    {
                         "serviceUrls":{
-                                "eventService":"https://testEventService.url",
-                                "clientService":"https://testClientService.url",
-                                "predictService":"https://testPredictService.url",
-                                "mobileEngageV2Service":"https://testMobileEngageV2Service.url",
-                                "deepLinkService":"https://testDeepLinkService.url",
-                                "inboxService":"https://testinboxService.url",
-                                "messageInboxService":"https://testMessageInboxService.url"
+                                "eventService":"https://testEventService.emarsys.net",
+                                "clientService":"https://testClientService.emarsys.net",
+                                "predictService":"https://testPredictService.emarsys.net",
+                                "mobileEngageV2Service":"https://testMobileEngageV2Service.emarsys.net",
+                                "deepLinkService":"https://testDeepLinkService.emarsys.net",
+                                "inboxService":"https://testinboxService.emarsys.net",
+                                "messageInboxService":"https://testMessageInboxService.emarsys.net"
                         },
                         "logLevel": "ERROR",
                         "luckyLogger": {
@@ -58,13 +58,13 @@ class RemoteConfigResponseMapperTest {
         )
 
         val expected = RemoteConfig(
-                "https://testEventService.url",
-                "https://testClientService.url",
-                "https://testPredictService.url",
-                "https://testMobileEngageV2Service.url",
-                "https://testDeepLinkService.url",
-                "https://testinboxService.url",
-                "https://testMessageInboxService.url",
+                "https://testEventService.emarsys.net",
+                "https://testClientService.emarsys.net",
+                "https://testPredictService.emarsys.net",
+                "https://testMobileEngageV2Service.emarsys.net",
+                "https://testDeepLinkService.emarsys.net",
+                "https://testinboxService.emarsys.net",
+                "https://testMessageInboxService.emarsys.net",
                 LogLevel.INFO)
 
         val result = remoteConfigResponseMapper.map(mockResponseModel)
@@ -122,14 +122,14 @@ class RemoteConfigResponseMapperTest {
                 """
                    {
                         "serviceUrls":{
-                                "inboxService":"https://testinboxService.url"
+                                "inboxService":"https://testinboxService.emarsys.net"
                         }
                    }
                """.trimIndent()
         )
 
         val expected = RemoteConfig(
-                inboxServiceUrl = "https://testinboxService.url")
+                inboxServiceUrl = "https://testinboxService.emarsys.net")
 
         val result = remoteConfigResponseMapper.map(mockResponseModel)
 
@@ -159,13 +159,44 @@ class RemoteConfigResponseMapperTest {
                 """
                    {x
                         "serviceUrls":{
-                                "inboxService":"https://testinboxService.url", 
+                                "inboxService":"https://testinboxService.emarsys.net", 
                         }
                    }
                """.trimIndent()
         )
 
         val expected = RemoteConfig()
+
+        val result = remoteConfigResponseMapper.map(mockResponseModel)
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun test_withHijackedUrl() {
+        whenever(mockRandomProvider.provideDouble(1.0)).thenReturn(0.2)
+        whenever(mockResponseModel.body).thenReturn(
+                """
+                   {
+                        "serviceUrls":{
+                                "eventService":"https://test-event.emarsys.com",
+                                "clientService":"https://testClientService.url",
+                                "predictService":"https://test-predict.emarsys.net/v1"
+                        },
+                        "logLevel": "ERROR",
+                        "luckyLogger": {
+                               "logLevel": "INFO",
+                               "threshold": 0.2
+                           }
+                   }
+               """.trimIndent()
+        )
+
+        val expected = RemoteConfig(
+                eventServiceUrl = "https://test-event.emarsys.com",
+                clientServiceUrl = null,
+                predictServiceUrl = "https://test-predict.emarsys.net/v1",
+                logLevel = LogLevel.INFO)
 
         val result = remoteConfigResponseMapper.map(mockResponseModel)
 

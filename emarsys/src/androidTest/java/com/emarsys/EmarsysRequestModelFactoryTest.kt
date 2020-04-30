@@ -63,7 +63,7 @@ class EmarsysRequestModelFactoryTest {
     fun testCreateRemoteConfigRequest() {
         val expected = RequestModel.Builder(mockMobileEngageRequestContext.timestampProvider, mockMobileEngageRequestContext.uuidProvider)
                 .method(RequestMethod.GET)
-                .url("https://mobile-sdk-config.eservice.emarsys.net/$APPLICATION_CODE")
+                .url("https://mobile-sdk-config.gservice.emarsys.net/$APPLICATION_CODE")
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(mockMobileEngageRequestContext))
                 .build()
 
@@ -76,7 +76,7 @@ class EmarsysRequestModelFactoryTest {
     fun testCreateRemoteConfigSignatureRequest() {
         val expected = RequestModel.Builder(mockMobileEngageRequestContext.timestampProvider, mockMobileEngageRequestContext.uuidProvider)
                 .method(RequestMethod.GET)
-                .url("https://mobile-sdk-config.eservice.emarsys.net/signature/$APPLICATION_CODE")
+                .url("https://mobile-sdk-config.gservice.emarsys.net/signature/$APPLICATION_CODE")
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(mockMobileEngageRequestContext))
                 .build()
 

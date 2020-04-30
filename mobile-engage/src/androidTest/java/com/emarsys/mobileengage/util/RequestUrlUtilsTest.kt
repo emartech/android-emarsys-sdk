@@ -20,7 +20,7 @@ class RequestUrlUtilsTest {
         const val EVENT_BASE = "$EVENT_HOST/v3/apps/%s/client/events"
         const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/v3"
         const val INBOX_BASE = "$INBOX_HOST/apps/%s/inbox"
-        const val REMOTE_CONFIG_HOST = "https://mobile-sdk-config.eservice.emarsys.net"
+        const val REMOTE_CONFIG_HOST = "https://mobile-sdk-config.gservice.emarsys.net"
     }
 
     private lateinit var mockRequestContext: MobileEngageRequestContext

@@ -10,6 +10,7 @@ import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
 import org.json.JSONException
 import org.json.JSONObject
+import java.net.URL
 import java.util.*
 
 @Mockable
@@ -22,13 +23,13 @@ class RemoteConfigResponseMapper(private val randomProvider: RandomProvider) : M
                 if (jsonResponse.has("serviceUrls")) {
                     val serviceUrls = jsonResponse.getJSONObject("serviceUrls")
                     remoteConfig = remoteConfig.copy(
-                            eventServiceUrl = serviceUrls.optString("eventService", null),
-                            clientServiceUrl = serviceUrls.optString("clientService", null),
-                            deepLinkServiceUrl = serviceUrls.optString("deepLinkService", null),
-                            inboxServiceUrl = serviceUrls.optString("inboxService", null),
-                            messageInboxServiceUrl = serviceUrls.optString("messageInboxService", null),
-                            mobileEngageV2ServiceUrl = serviceUrls.optString("mobileEngageV2Service", null),
-                            predictServiceUrl = serviceUrls.optString("predictService", null))
+                            eventServiceUrl = validateUrl(serviceUrls.optString("eventService", null)),
+                            clientServiceUrl = validateUrl(serviceUrls.optString("clientService", null)),
+                            deepLinkServiceUrl = validateUrl(serviceUrls.optString("deepLinkService", null)),
+                            inboxServiceUrl = validateUrl(serviceUrls.optString("inboxService", null)),
+                            messageInboxServiceUrl = validateUrl(serviceUrls.optString("messageInboxService", null)),
+                            mobileEngageV2ServiceUrl = validateUrl(serviceUrls.optString("mobileEngageV2Service", null)),
+                            predictServiceUrl = validateUrl(serviceUrls.optString("predictService", null)))
                 }
                 remoteConfig = remoteConfig.copy(logLevel = calculateLogLevel(jsonResponse))
             } catch (jsonException: JSONException) {
@@ -36,6 +37,17 @@ class RemoteConfigResponseMapper(private val randomProvider: RandomProvider) : M
             }
         }
         return remoteConfig
+    }
+
+    private fun validateUrl(url: String?): String? {
+        var validatedUrl: String? = null
+        if (url != null) {
+            val domain = URL(url).host
+            if (domain.endsWith(".emarsys.net") || domain.endsWith(".emarsys.com")) {
+                validatedUrl = url.toString()
+            }
+        }
+        return validatedUrl
     }
 
     private fun calculateLogLevel(jsonResponse: JSONObject): LogLevel? {
