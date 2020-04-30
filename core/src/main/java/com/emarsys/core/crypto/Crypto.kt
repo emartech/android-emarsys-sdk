@@ -2,7 +2,9 @@ package com.emarsys.core.crypto
 
 import android.util.Base64
 import com.emarsys.core.Mockable
-import com.google.android.gms.common.util.Hex
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.CrashLog
+import java.lang.Exception
 import java.security.PublicKey
 import java.security.Signature
 
@@ -16,9 +18,14 @@ class Crypto(private val publicKey: PublicKey) {
             messageBytes: ByteArray,
             signatureBytes: String
     ): Boolean {
-        val sig = Signature.getInstance(ALGORITHM)
-        sig.initVerify(publicKey)
-        sig.update(messageBytes)
-        return sig.verify(Base64.decode(signatureBytes, Base64.DEFAULT))
+        return try {
+            val sig = Signature.getInstance(ALGORITHM)
+            sig.initVerify(publicKey)
+            sig.update(messageBytes)
+            sig.verify(Base64.decode(signatureBytes, Base64.DEFAULT))
+        } catch (exception: Exception) {
+            Logger.error(CrashLog(exception))
+            false
+        }
     }
 }

@@ -167,7 +167,6 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                         } else {
                             resetRemoteConfig()
                             completionListener?.onCompleted(Exception("Verify failed"))
-
                         }
                     }
                     it.errorCause?.let { throwable ->
