@@ -20,6 +20,7 @@ import com.emarsys.config.ConfigInternal;
 import com.emarsys.config.ConfigProxy;
 import com.emarsys.config.DefaultConfigInternal;
 import com.emarsys.config.EmarsysConfig;
+import com.emarsys.config.FetchRemoteConfigAction;
 import com.emarsys.config.RemoteConfigResponseMapper;
 import com.emarsys.core.DefaultCoreCompletionHandler;
 import com.emarsys.core.Mapper;
@@ -798,7 +799,8 @@ public class DefaultEmarsysDependencyContainer implements EmarsysDependencyConta
         };
 
         ActivityLifecycleAction[] initializeActions = new ActivityLifecycleAction[]{
-                new FetchGeofencesAction(getGeofenceInternal())
+                new FetchGeofencesAction(getGeofenceInternal()),
+                new FetchRemoteConfigAction(configInternal)
         };
 
         activityLifecycleWatchdog = new ActivityLifecycleWatchdog(
