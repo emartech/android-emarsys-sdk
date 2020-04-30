@@ -32,6 +32,9 @@ class GeofenceProxy(private val geofenceInternal: GeofenceInternal, private val 
     }
 
     override fun disable() {
+        runnerProxy.logException {
+            geofenceInternal.disable()
+        }
     }
 
     override fun setEventHandler(eventHandler: EventHandler) {

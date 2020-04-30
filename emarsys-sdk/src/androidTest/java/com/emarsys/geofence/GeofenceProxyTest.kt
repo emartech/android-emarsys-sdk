@@ -51,6 +51,14 @@ class GeofenceProxyTest {
     }
 
     @Test
+    fun testDisableDelegatesToGeofenceInternalMethod() {
+        geofenceProxy.disable()
+
+        verify(spyRunnerProxy).logException(any())
+        verify(mockGeofenceInternal).disable()
+    }
+
+    @Test
     fun testSetEventHandler() {
         val eventHandler: EventHandler = mock()
 

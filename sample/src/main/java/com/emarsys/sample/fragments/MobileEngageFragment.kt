@@ -2,7 +2,6 @@ package com.emarsys.sample.fragments
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -14,7 +13,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.emarsys.Emarsys
-import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.sample.R
 import com.emarsys.sample.extensions.copyToClipboard
 import com.emarsys.sample.extensions.showSnackBar
@@ -144,9 +142,8 @@ class MobileEngageFragment : Fragment() {
         }
 
         buttonDisableGeofence.setOnClickListener {
-            Emarsys.geofence.enable {
-                view.showSnackBar("Geofence has been Disabled!")
-            }
+            Emarsys.geofence.disable()
+            view.showSnackBar("Geofence has been Disabled!")
         }
     }
 
