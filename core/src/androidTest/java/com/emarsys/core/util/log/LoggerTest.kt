@@ -21,6 +21,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
+import java.util.concurrent.CountDownLatch
 
 
 class LoggerTest {
@@ -157,6 +158,8 @@ class LoggerTest {
 
     @Test
     fun testPersistLog_shouldNotPersist_whenLoggingOurLog() {
+        val latch = CountDownLatch(1)
+
         loggerInstance.persistLog(
                 LogLevel.INFO,
                 logEntryMock("log_request",
@@ -166,21 +169,41 @@ class LoggerTest {
                                 "key3" to true
                         )
                 )
-        )
+        ) { latch.countDown() }
+        latch.await()
 
         verify(shardRepositoryMock, timeout(100).times(0)).add(any())
     }
 
     @Test
     fun testPersistLog_shouldNotPersist_whenLogLevelIsBelowStoredLogLevel() {
+        val latch = CountDownLatch(1)
+
         whenever(mockLogLevelStorage.get()).thenReturn("INFO")
 
         loggerInstance.persistLog(
                 LogLevel.TRACE,
                 logEntryMock()
-        )
+        ) { latch.countDown() }
+        latch.await()
 
         verify(shardRepositoryMock, times(0)).add(any())
+    }
+
+    @Test
+    fun testPersistLog_shouldPersist_whenAppStartEvent() {
+        val latch = CountDownLatch(1)
+        whenever(mockLogLevelStorage.get()).thenReturn("ERROR")
+
+        loggerInstance.persistLog(
+                LogLevel.INFO,
+                mock {
+                    on { data }.doReturn(mapOf())
+                    on { topic }.doReturn("app:start")
+                }
+        ) { latch.countDown() }
+        latch.await()
+        verify(shardRepositoryMock, times(1)).add(any())
     }
 
     private fun logEntryMock(testTopic: String = "", testData: Map<String, Any?> = mapOf()) =

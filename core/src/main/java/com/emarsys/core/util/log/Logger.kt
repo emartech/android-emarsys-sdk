@@ -50,15 +50,18 @@ class Logger(private val coreSdkHandler: Handler,
         }
     }
 
-    fun persistLog(logLevel: LogLevel, logEntry: LogEntry) {
-        if (isNotLogLog(logEntry) && shouldLogBasedOnRemoteConfig(logLevel)) {
+    fun persistLog(logLevel: LogLevel, logEntry: LogEntry, onCompleted: (() -> Unit)? = null) {
+        if (isAppStartLog(logEntry) || (isNotLogLog(logEntry) && shouldLogBasedOnRemoteConfig(logLevel))) {
             coreSdkHandler.post {
                 val shard = ShardModel.Builder(timestampProvider, uuidProvider)
                         .type(logEntry.topic)
                         .payloadEntries(logEntry.dataWithLogLevel(logLevel))
                         .build()
                 shardRepository.add(shard)
+                onCompleted?.invoke()
             }
+        } else {
+            onCompleted?.invoke()
         }
     }
 
@@ -69,4 +72,6 @@ class Logger(private val coreSdkHandler: Handler,
     }
 
     private fun isNotLogLog(logEntry: LogEntry) = logEntry.data["url"] != LOG_URL
+
+    private fun isAppStartLog(logEntry: LogEntry) = logEntry.topic == "app:start"
 }

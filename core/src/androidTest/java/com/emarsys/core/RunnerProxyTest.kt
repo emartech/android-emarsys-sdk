@@ -70,6 +70,6 @@ class RunnerProxyTest {
         } catch (exception: RuntimeException) {
 
         }
-        verify(mockLogger).persistLog(eq(LogLevel.ERROR), any())
+        verify(mockLogger).persistLog(eq(LogLevel.ERROR), any(), eq(null))
     }
 }
