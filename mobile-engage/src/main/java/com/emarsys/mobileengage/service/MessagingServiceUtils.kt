@@ -162,7 +162,7 @@ object MessagingServiceUtils {
     fun getTitle(remoteMessageData: Map<String, String?>, context: Context): String? {
         var title = remoteMessageData["title"]
         if (title == null || title.isEmpty()) {
-            title = getDefaultTitle(remoteMessageData, context)
+            title = getDefaultTitle(context)
         }
         return title
     }
@@ -207,22 +207,13 @@ object MessagingServiceUtils {
         return preloadedRemoteMessageData
     }
 
-    private fun getDefaultTitle(remoteMessageData: Map<String, String?>, context: Context): String {
-        var title = ""
+    private fun getDefaultTitle(context: Context): String? {
+        var title: String? = null
         if (AndroidVersionUtils.isBelowMarshmallow()) {
             val applicationInfo = context.applicationInfo
             val stringId = applicationInfo.labelRes
 
             title = if (stringId == 0) applicationInfo.nonLocalizedLabel.toString() else context.getString(stringId)
-
-            try {
-                val u = remoteMessageData["u"]
-                if (u != null) {
-                    val customData = JSONObject(u)
-                    title = customData.getString("ems_default_title")
-                }
-            } catch (ignored: JSONException) {
-            }
         }
         return title
     }

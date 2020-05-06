@@ -242,7 +242,7 @@ class MessagingServiceUtilsTest {
                 deviceInfo,
                 metaDataReader,
                 mockFileDownloader)
-        val expectedTitle = expectedBasedOnApiLevel(applicationName, "")
+        val expectedTitle = expectedBasedOnApiLevel(applicationName, null)
 
         result.extras.getString(NotificationCompat.EXTRA_TITLE) shouldBe expectedTitle
         result.extras.getString(NotificationCompat.EXTRA_TITLE_BIG) shouldBe expectedTitle
@@ -256,7 +256,7 @@ class MessagingServiceUtilsTest {
     fun createNotification_withBigTextStyle_withoutTitle_withBody_withDefaultTitle() {
         val input: MutableMap<String, String> = HashMap()
         input["body"] = BODY
-        input["u"] = "{\"test_field\":\"\",\"ems_default_title\":\"$DEFAULT_TITLE\",\"image\":\"https:\\/\\/media.giphy.com\\/media\\/ktvFa67wmjDEI\\/giphy.gif\",\"deep_link\":\"lifestylelabels.com\\/mobile\\/product\\/3245678\",\"sid\":\"sid_here\"}"
+        input["u"] = "{\"test_field\":\"\",\"image\":\"https:\\/\\/media.giphy.com\\/media\\/ktvFa67wmjDEI\\/giphy.gif\",\"deep_link\":\"lifestylelabels.com\\/mobile\\/product\\/3245678\",\"sid\":\"sid_here\"}"
         input["channel_id"] = CHANNEL_ID
         val result = MessagingServiceUtils.createNotification(
                 0,
@@ -265,10 +265,7 @@ class MessagingServiceUtilsTest {
                 deviceInfo,
                 metaDataReader,
                 mockFileDownloader)
-        val expectedTitle = expectedBasedOnApiLevel(DEFAULT_TITLE, "")
 
-        result.extras.getString(NotificationCompat.EXTRA_TITLE) shouldBe expectedTitle
-        result.extras.getString(NotificationCompat.EXTRA_TITLE_BIG) shouldBe expectedTitle
         result.extras.getString(NotificationCompat.EXTRA_TEXT) shouldBe BODY
         result.extras.getString(NotificationCompat.EXTRA_BIG_TEXT) shouldBe BODY
         result.extras.getString(NotificationCompat.EXTRA_SUMMARY_TEXT) shouldBe null
@@ -531,7 +528,7 @@ class MessagingServiceUtilsTest {
         input["key1"] = "value1"
         input["key2"] = "value2"
         val expectedBefore23 = applicationName
-        val expectedFrom23 = ""
+        val expectedFrom23 = null
         val expected = expectedBasedOnApiLevel(expectedBefore23, expectedFrom23)
         MessagingServiceUtils.getTitle(input, context) shouldBe expected
     }
@@ -543,20 +540,8 @@ class MessagingServiceUtilsTest {
         input["key2"] = "value2"
         input["title"] = ""
         val expectedBefore23 = applicationName
-        val expectedFrom23 = ""
+        val expectedFrom23 = null
         val expected = expectedBasedOnApiLevel(expectedBefore23, expectedFrom23)
-        MessagingServiceUtils.getTitle(input, context) shouldBe expected
-    }
-
-    @Test
-    fun testGetTitle_shouldReturnDefaultTitle_whenDefaultTitleSet() {
-        val input: MutableMap<String, String> = HashMap()
-        input["key1"] = "value1"
-        input["key2"] = "value2"
-        input["u"] = "{\"test_field\":\"\",\"ems_default_title\":\"$DEFAULT_TITLE\",\"image\":\"https:\\/\\/media.giphy.com\\/media\\/ktvFa67wmjDEI\\/giphy.gif\",\"deep_link\":\"lifestylelabels.com\\/mobile\\/product\\/3245678\",\"sid\":\"sid_here\"}"
-        val expectedFrom23 = ""
-        val expected = expectedBasedOnApiLevel(DEFAULT_TITLE, expectedFrom23)
-
         MessagingServiceUtils.getTitle(input, context) shouldBe expected
     }
 
@@ -745,7 +730,7 @@ class MessagingServiceUtilsTest {
         return payload
     }
 
-    private fun expectedBasedOnApiLevel(before23: String, fromApi23: String): String {
+    private fun expectedBasedOnApiLevel(before23: String?, fromApi23: String?): String? {
         return if (Build.VERSION.SDK_INT < 23) {
             before23
         } else {
