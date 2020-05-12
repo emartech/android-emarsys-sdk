@@ -269,7 +269,7 @@ class MobileEngageIntegrationTest {
         val intent = Intent().apply {
             putExtra("payload", Bundle().apply {
                 putString("key1", "value1")
-                putString("u", """{"sid": "dd8_zXfDdndBNEQi"}""")
+                putString("u", """{"sid": "1cf3f_JhIPRzBvNtQF"}""")
             })
         }
 
