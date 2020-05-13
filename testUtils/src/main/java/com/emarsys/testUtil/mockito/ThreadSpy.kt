@@ -13,12 +13,18 @@ class ThreadSpy<T> @JvmOverloads constructor(private val result: T? = null) : An
     private val latch: CountDownLatch = CountDownLatch(1)
 
     private var thread: Thread? = null
-    get() {
-        latch.await()
-        return field
-    }
+        get() {
+            latch.await()
+            return field
+        }
 
     override fun answer(invocation: InvocationOnMock): T? {
+        thread = Thread.currentThread()
+        latch.countDown()
+        return result
+    }
+
+    fun call(): T? {
         thread = Thread.currentThread()
         latch.countDown()
         return result
