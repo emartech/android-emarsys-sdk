@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.Intent
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.core.RunnerProxy
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
+import com.emarsys.core.api.proxyApi
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
@@ -20,7 +20,6 @@ import com.emarsys.core.di.Container.getDependency
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.core.util.Assert
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarsysDependencyInjection
 import com.emarsys.feature.InnerFeature.MOBILE_ENGAGE
@@ -71,41 +70,34 @@ object Emarsys {
     val predict: PredictApi
         get() = EmarsysDependencyInjection.predict()
 
-    private val runnerProxy: RunnerProxy
-        get() = getDependency()
-
     @JvmStatic
     fun setup(emarsysConfig: EmarsysConfig) {
-        Assert.notNull(emarsysConfig, "Config must not be null!")
-
         for (feature in emarsysConfig.experimentalFeatures) {
             FeatureRegistry.enableFeature(feature)
         }
 
-        DependencyInjection.setup(DefaultEmarsysDependencyContainer(emarsysConfig, Runnable {
+        DependencyInjection.setup(DefaultEmarsysDependencyContainer(emarsysConfig) {
+            initializeInAppInternal(emarsysConfig)
 
-        }))
+            registerWatchDogs(emarsysConfig)
 
-        initializeInAppInternal(emarsysConfig)
+            registerDatabaseTriggers()
 
-        registerWatchDogs(emarsysConfig)
-
-        registerDatabaseTriggers()
-
-        initializeContact()
+            initializeContact()
+        })
     }
 
     @JvmStatic
     fun setContact(contactId: String) {
-        runnerProxy.logException {
-            Assert.notNull(contactId, "ContactId must not be null!")
-
-            if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
-                EmarsysDependencyInjection.mobileEngageInternal().setContact(contactId, null)
-            }
-            if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-                EmarsysDependencyInjection.predictInternal().setContact(contactId)
-            }
+        if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
+            EmarsysDependencyInjection.mobileEngageInternal()
+                    .proxyApi(getDependency("coreSdkHandler"))
+                    .setContact(contactId, null)
+        }
+        if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
+            EmarsysDependencyInjection.predictInternal()
+                    .proxyApi(getDependency("coreSdkHandler"))
+                    .setContact(contactId)
         }
     }
 
@@ -119,28 +111,29 @@ object Emarsys {
     fun setContact(
             contactId: String,
             completionListener: CompletionListener) {
-        runnerProxy.logException {
-            Assert.notNull(contactId, "ContactId must not be null!")
-            Assert.notNull(completionListener, "CompletionListener must not be null!")
-
-            if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
-                EmarsysDependencyInjection.mobileEngageInternal().setContact(contactId, completionListener)
-            }
-            if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-                EmarsysDependencyInjection.predictInternal().setContact(contactId)
-            }
+        if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
+            EmarsysDependencyInjection.mobileEngageInternal()
+                    .proxyApi(getDependency("coreSdkHandler"))
+                    .setContact(contactId, completionListener)
+        }
+        if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
+            EmarsysDependencyInjection.predictInternal()
+                    .proxyApi(getDependency("coreSdkHandler"))
+                    .setContact(contactId)
         }
     }
 
     @JvmStatic
     fun clearContact() {
-        runnerProxy.logException {
-            if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
-                EmarsysDependencyInjection.mobileEngageInternal().clearContact(null)
-            }
-            if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-                EmarsysDependencyInjection.predictInternal().clearContact()
-            }
+        if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
+            EmarsysDependencyInjection.mobileEngageInternal()
+                    .proxyApi(getDependency("coreSdkHandler"))
+                    .clearContact(null)
+        }
+        if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
+            EmarsysDependencyInjection.predictInternal()
+                    .proxyApi(getDependency("coreSdkHandler"))
+                    .clearContact()
         }
     }
 
@@ -151,27 +144,24 @@ object Emarsys {
 
     @JvmStatic
     fun clearContact(completionListener: CompletionListener) {
-        runnerProxy.logException {
-            Assert.notNull(completionListener, "CompletionListener must not be null!")
-
-            if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
-                EmarsysDependencyInjection.mobileEngageInternal().clearContact(completionListener)
-            }
-            if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-                EmarsysDependencyInjection.predictInternal().clearContact()
-            }
+        if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
+            EmarsysDependencyInjection.mobileEngageInternal()
+                    .proxyApi(getDependency("coreSdkHandler"))
+                    .clearContact(completionListener)
+        }
+        if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
+            EmarsysDependencyInjection.predictInternal()
+                    .proxyApi(getDependency("coreSdkHandler"))
+                    .clearContact()
         }
     }
 
     @JvmStatic
     fun trackDeepLink(activity: Activity,
                       intent: Intent) {
-        runnerProxy.logException {
-            Assert.notNull(activity, "Activity must not be null!")
-            Assert.notNull(intent, "Intent must not be null!")
-
-            EmarsysDependencyInjection.deepLinkInternal().trackDeepLinkOpen(activity, intent, null)
-        }
+        EmarsysDependencyInjection.deepLinkInternal()
+                .proxyApi(getDependency("coreSdkHandler"))
+                .trackDeepLinkOpen(activity, intent, null)
     }
 
     @JvmStatic
@@ -183,24 +173,18 @@ object Emarsys {
     fun trackDeepLink(activity: Activity,
                       intent: Intent,
                       completionListener: CompletionListener) {
-        runnerProxy.logException {
-            Assert.notNull(activity, "Activity must not be null!")
-            Assert.notNull(intent, "Intent must not be null!")
-            Assert.notNull(completionListener, "CompletionListener must not be null!")
-
-            EmarsysDependencyInjection.deepLinkInternal().trackDeepLinkOpen(activity, intent, completionListener)
-        }
+        EmarsysDependencyInjection.deepLinkInternal()
+                .proxyApi(getDependency("coreSdkHandler"))
+                .trackDeepLinkOpen(activity, intent, completionListener)
     }
 
     @JvmStatic
     fun trackCustomEvent(
             eventName: String,
             eventAttributes: Map<String, String>?) {
-        runnerProxy.logException {
-            Assert.notNull(eventName, "EventName must not be null!")
-
-            EmarsysDependencyInjection.eventServiceInternal().trackCustomEvent(eventName, eventAttributes, null)
-        }
+        EmarsysDependencyInjection.eventServiceInternal()
+                .proxyApi(getDependency("coreSdkHandler"))
+                .trackCustomEvent(eventName, eventAttributes, null)
     }
 
     @JvmStatic
@@ -215,12 +199,9 @@ object Emarsys {
             eventName: String,
             eventAttributes: Map<String, String>?,
             completionListener: CompletionListener) {
-        runnerProxy.logException {
-            Assert.notNull(eventName, "EventName must not be null!")
-            Assert.notNull(completionListener, "CompletionListener must not be null!")
-
-            EmarsysDependencyInjection.eventServiceInternal().trackCustomEvent(eventName, eventAttributes, completionListener)
-        }
+        EmarsysDependencyInjection.eventServiceInternal()
+                .proxyApi(getDependency("coreSdkHandler"))
+                .trackCustomEvent(eventName, eventAttributes, completionListener)
     }
 
     @Deprecated(message = "Use config property instead, will be removed in 3.0.0", replaceWith = ReplaceWith("Emarsys.config"))
@@ -536,9 +517,13 @@ object Emarsys {
 
         if (contactToken == null && contactFieldValue == null) {
             if (clientState == null || deviceInfoPayload != null && deviceInfoPayload != deviceInfo.deviceInfoPayload) {
-                EmarsysDependencyInjection.clientServiceInternal().trackDeviceInfo()
+                EmarsysDependencyInjection.clientServiceInternal()
+                        .proxyApi(getDependency("coreSdkHandler"))
+                        .trackDeviceInfo()
             }
-            EmarsysDependencyInjection.mobileEngageInternal().setContact(null, null)
+            EmarsysDependencyInjection.mobileEngageInternal()
+                    .proxyApi(getDependency("coreSdkHandler"))
+                    .setContact(null, null)
         }
     }
 }

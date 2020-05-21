@@ -100,9 +100,9 @@ class InappNotificationIntegrationTest {
                 eq(null))).thenAnswer { completionListenerLatch.countDown() }
 
         val setupLatch = CountDownLatch(1)
-        DependencyInjection.setup(DefaultEmarsysDependencyContainer(baseConfig, Runnable {
+        DependencyInjection.setup(DefaultEmarsysDependencyContainer(baseConfig) {
             setupLatch.countDown()
-        }))
+        })
 
         setupLatch.await()
 

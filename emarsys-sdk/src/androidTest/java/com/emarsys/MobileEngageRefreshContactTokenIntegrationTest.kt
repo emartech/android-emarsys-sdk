@@ -90,7 +90,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
         FeatureTestUtils.resetFeatures()
 
         val setupLatch = CountDownLatch(1)
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig, Runnable {
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig, {
             setupLatch.countDown()
         }) {
             override fun getDeviceInfo(): DeviceInfo {

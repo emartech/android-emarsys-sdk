@@ -5,7 +5,6 @@ import com.emarsys.config.ConfigApi
 import com.emarsys.config.ConfigInternal
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.DefaultCoreCompletionHandler
-import com.emarsys.core.RunnerProxy
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.database.CoreSQLiteDatabase
@@ -93,7 +92,6 @@ class FakeDependencyContainer(
         requestContext: MobileEngageRequestContext = mock(),
         inAppPresenter: InAppPresenter = mock(),
         predictShardTrigger: Runnable = mock(),
-        runnerProxy: RunnerProxy = RunnerProxy(),
         logger: Logger = mock(),
         deviceInfoPayloadStorage: StringStorage = mock(),
         contactFieldValueStorage: StringStorage = mock(),
@@ -159,7 +157,6 @@ class FakeDependencyContainer(
         addDependency(timestampProvider)
         addDependency(uuidProvider)
         addDependency(completionHandler)
-        addDependency(runnerProxy)
         addDependency(logger)
         addDependency(responseHandlersProcessor)
         addDependency(restClient)
@@ -255,8 +252,6 @@ class FakeDependencyContainer(
     override fun getUuidProvider(): UUIDProvider = Container.getDependency()
 
     override fun getLogShardTrigger(): Runnable = Container.getDependency("logShardTrigger")
-
-    override fun getRunnerProxy(): RunnerProxy = Container.getDependency()
 
     override fun getLogger(): Logger = Container.getDependency()
 

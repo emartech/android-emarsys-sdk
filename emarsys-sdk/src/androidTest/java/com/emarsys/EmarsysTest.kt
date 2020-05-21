@@ -9,7 +9,6 @@ import com.emarsys.Emarsys.Config.applicationCode
 import com.emarsys.Emarsys.Config.changeApplicationCode
 import com.emarsys.Emarsys.Config.changeMerchantId
 import com.emarsys.Emarsys.Config.contactFieldId
-import com.emarsys.Emarsys.InApp.isPaused
 import com.emarsys.Emarsys.InApp.pause
 import com.emarsys.Emarsys.InApp.resume
 import com.emarsys.Emarsys.InApp.setEventHandler
@@ -44,6 +43,7 @@ import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerType
@@ -100,6 +100,7 @@ import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import java.util.*
+import java.util.concurrent.CountDownLatch
 import kotlin.collections.ArrayList
 
 class EmarsysTest {
@@ -176,92 +177,102 @@ class EmarsysTest {
     private lateinit var deviceInfo: DeviceInfo
 
     @Before
-    fun init() {
-        application = spy(getTargetContext().applicationContext as Application)
-        completionListener = mock()
-        mockResultListener = mock()
-        activityLifecycleWatchdog = mock()
-        currentActivityWatchdog = mock()
-        mockCoreSQLiteDatabase = mock()
-        mockMobileEngageInternal = mock()
-        mockDeepLinkInternal = mock()
-        mockEventServiceInternal = mock()
-        mockClientServiceInternal = mock()
-        mockPredictInternal = mock()
-        mockPredictShardTrigger = mock()
-        mockLogShardTrigger = mock()
-        mockLanguageProvider = mock()
-        mockVersionProvider = mock()
-        inappEventHandler = mock()
-        oldInappEventHandler = mock()
-        mockDeviceInfoPayloadStorage = mock()
-        mockContactFieldValueStorage = mock()
-        mockContactTokenStorage = mock()
-        mockClientStateStorage = mock()
-        mockNotificationManagerHelper = mock()
-        configWithInAppEventHandler = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).inAppEventHandler { eventName, payload -> oldInappEventHandler.handleEvent(eventName, payload) }.build()
-        baseConfig = createConfig().build()
-        mobileEngageConfig = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).contactFieldId(CONTACT_FIELD_ID).build()
-        predictConfig = createConfig().predictMerchantId(MERCHANT_ID).build()
-        mockRequestContext = mock()
-        mockHardwareIdProvider = mock()
-        mockInbox = mock()
-        mockInApp = mock()
-        mockLoggingInApp = mock()
-        mockPush = mock()
-        mockPredict = mock()
-        mockLoggingPredict = mock()
-        mockConfig = mock()
-        mockMessageInbox = mock()
-        mockLogic = mock()
-        mockRecommendationFilter = mock()
-        whenever(mockNotificationManagerHelper.channelSettings).thenReturn(listOf(ChannelSettings(channelId = "channelId")))
-        whenever(mockNotificationManagerHelper.importance).thenReturn(-1000)
-        whenever(mockNotificationManagerHelper.areNotificationsEnabled()).thenReturn(false)
-        whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn("hwid")
-        whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn("language")
-        whenever(mockVersionProvider.provideSdkVersion()).thenReturn("version")
-        deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mockVersionProvider,
-                mockLanguageProvider, mockNotificationManagerHelper, true)
-        whenever(mockRequestContext.applicationCode).thenReturn(APPLICATION_CODE)
-        whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
-        whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
-        whenever(mockContactTokenStorage.get()).thenReturn("contactToken")
+    fun setUp() {
+        try {
+            application = spy(getTargetContext().applicationContext as Application)
+            completionListener = mock()
+            mockResultListener = mock()
+            activityLifecycleWatchdog = mock()
+            currentActivityWatchdog = mock()
+            mockCoreSQLiteDatabase = mock()
+            mockMobileEngageInternal = mock()
+            mockDeepLinkInternal = mock()
+            mockEventServiceInternal = mock()
+            mockClientServiceInternal = mock()
+            mockPredictInternal = mock()
+            mockPredictShardTrigger = mock()
+            mockLogShardTrigger = mock()
+            mockLanguageProvider = mock()
+            mockVersionProvider = mock()
+            inappEventHandler = mock()
+            oldInappEventHandler = mock()
+            mockDeviceInfoPayloadStorage = mock()
+            mockContactFieldValueStorage = mock()
+            mockContactTokenStorage = mock()
+            mockClientStateStorage = mock()
+            mockNotificationManagerHelper = mock()
 
-        whenever(mockDeviceInfoPayloadStorage.get()).thenReturn("deviceInfo.deviceInfoPayload")
+            configWithInAppEventHandler = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).inAppEventHandler { eventName, payload -> oldInappEventHandler.handleEvent(eventName, payload) }.build()
 
-        DependencyInjection.setup(FakeDependencyContainer(
-                activityLifecycleWatchdog = activityLifecycleWatchdog,
-                currentActivityWatchdog = currentActivityWatchdog,
-                coreSQLiteDatabase = mockCoreSQLiteDatabase,
-                deviceInfo = deviceInfo,
-                logShardTrigger = mockLogShardTrigger,
-                mobileEngageInternal = mockMobileEngageInternal,
-                loggingMobileEngageInternal = mockMobileEngageInternal,
-                deepLinkInternal = mockDeepLinkInternal,
-                loggingDeepLinkInternal = mockDeepLinkInternal,
-                eventServiceInternal = mockEventServiceInternal,
-                loggingEventServiceInternal = mockEventServiceInternal,
-                clientServiceInternal = mockClientServiceInternal,
-                loggingClientServiceInternal = mockClientServiceInternal,
-                predictInternal = mockPredictInternal,
-                loggingPredictInternal = mockPredictInternal,
-                requestContext = mockRequestContext,
-                predictShardTrigger = mockPredictShardTrigger,
-                deviceInfoPayloadStorage = mockDeviceInfoPayloadStorage,
-                contactFieldValueStorage = mockContactFieldValueStorage,
-                contactTokenStorage = mockContactTokenStorage,
-                clientStateStorage = mockClientStateStorage,
-                inbox = mockInbox,
-                inApp = mockInApp,
-                loggingInApp = mockLoggingInApp,
-                push = mockPush,
-                predict = mockPredict,
-                loggingPredict = mockLoggingPredict,
-                config = mockConfig,
-                responseHandlersProcessor = ResponseHandlersProcessor(ArrayList())
-        ))
-        resetFeatures()
+            baseConfig = createConfig().build()
+            mobileEngageConfig = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).contactFieldId(CONTACT_FIELD_ID).build()
+            predictConfig = createConfig().predictMerchantId(MERCHANT_ID).build()
+            mockRequestContext = mock()
+            mockHardwareIdProvider = mock()
+            mockInbox = mock()
+            mockInApp = mock()
+            mockLoggingInApp = mock()
+            mockPush = mock()
+            mockPredict = mock()
+            mockLoggingPredict = mock()
+            mockConfig = mock()
+            mockMessageInbox = mock()
+            mockLogic = mock()
+            mockRecommendationFilter = mock()
+            whenever(mockNotificationManagerHelper.channelSettings).thenReturn(listOf(ChannelSettings(channelId = "channelId")))
+            whenever(mockNotificationManagerHelper.importance).thenReturn(-1000)
+            whenever(mockNotificationManagerHelper.areNotificationsEnabled()).thenReturn(false)
+            whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn("hwid")
+            whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn("language")
+            whenever(mockVersionProvider.provideSdkVersion()).thenReturn("version")
+
+            deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mockVersionProvider,
+                    mockLanguageProvider, mockNotificationManagerHelper, true)
+
+            whenever(mockRequestContext.applicationCode).thenReturn(APPLICATION_CODE)
+            whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
+            whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
+            whenever(mockContactTokenStorage.get()).thenReturn("contactToken")
+
+            whenever(mockDeviceInfoPayloadStorage.get()).thenReturn("deviceInfo.deviceInfoPayload")
+
+            DependencyInjection.setup(FakeDependencyContainer(
+                    coreSdkHandler = CoreSdkHandlerProvider().provideHandler(),
+                    activityLifecycleWatchdog = activityLifecycleWatchdog,
+                    currentActivityWatchdog = currentActivityWatchdog,
+                    coreSQLiteDatabase = mockCoreSQLiteDatabase,
+                    deviceInfo = deviceInfo,
+                    logShardTrigger = mockLogShardTrigger,
+                    mobileEngageInternal = mockMobileEngageInternal,
+                    loggingMobileEngageInternal = mockMobileEngageInternal,
+                    deepLinkInternal = mockDeepLinkInternal,
+                    loggingDeepLinkInternal = mockDeepLinkInternal,
+                    eventServiceInternal = mockEventServiceInternal,
+                    loggingEventServiceInternal = mockEventServiceInternal,
+                    clientServiceInternal = mockClientServiceInternal,
+                    loggingClientServiceInternal = mockClientServiceInternal,
+                    predictInternal = mockPredictInternal,
+                    loggingPredictInternal = mockPredictInternal,
+                    requestContext = mockRequestContext,
+                    predictShardTrigger = mockPredictShardTrigger,
+                    deviceInfoPayloadStorage = mockDeviceInfoPayloadStorage,
+                    contactFieldValueStorage = mockContactFieldValueStorage,
+                    contactTokenStorage = mockContactTokenStorage,
+                    clientStateStorage = mockClientStateStorage,
+                    inbox = mockInbox,
+                    inApp = mockInApp,
+                    loggingInApp = mockLoggingInApp,
+                    push = mockPush,
+                    predict = mockPredict,
+                    loggingPredict = mockLoggingPredict,
+                    config = mockConfig,
+                    responseHandlersProcessor = ResponseHandlersProcessor(ArrayList())
+            ))
+            resetFeatures()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
     }
 
     @After
@@ -310,6 +321,7 @@ class EmarsysTest {
     fun testSetup_initializesRequestManager_withRequestModelRepositoryProxy() {
         DependencyInjection.tearDown()
         setup(mobileEngageConfig)
+        waitForTask()
         val requestManager: RequestManager? = getInstanceField(
                 getDependency<MobileEngageInternal>("defaultInstance"),
                 "requestManager")
@@ -323,6 +335,7 @@ class EmarsysTest {
     fun testSetup_initializesCoreCompletionHandler_withNoFlippers() {
         DependencyInjection.tearDown()
         setup(mobileEngageConfig)
+        waitForTask()
         val responseHandlersProcessor = getDependency<ResponseHandlersProcessor>()
 
         Assert.assertNotNull(responseHandlersProcessor)
@@ -339,12 +352,14 @@ class EmarsysTest {
     @Test
     fun testSetup_registersPredictTrigger_whenPredictIsEnabled() {
         setup(predictConfig)
+        waitForTask()
         verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockPredictShardTrigger)
     }
 
     @Test
     fun testSetup_doNotRegistersPredictTrigger_whenPredictIsDisabled() {
         setup(mobileEngageConfig)
+        waitForTask()
         val argumentCaptor = ArgumentCaptor.forClass(Runnable::class.java)
         verify(mockCoreSQLiteDatabase, times(1)).registerTrigger(ArgumentMatchers.any(String::class.java), ArgumentMatchers.any(TriggerType::class.java), ArgumentMatchers.any(TriggerEvent::class.java), argumentCaptor.capture())
         Assert.assertEquals(mockLogShardTrigger, argumentCaptor.value)
@@ -354,12 +369,14 @@ class EmarsysTest {
     @Test
     fun testSetup_registersLogTrigger() {
         setup(mobileEngageConfig)
+        waitForTask()
         verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockLogShardTrigger)
     }
 
     @Test
     fun testSetup_registers_activityLifecycleWatchdog() {
         setup(mobileEngageConfig)
+        waitForTask()
         val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
         verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
         getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java) shouldNotBe null
@@ -371,6 +388,7 @@ class EmarsysTest {
         DependencyInjection.tearDown()
         val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
         setup(mobileEngageConfig)
+        waitForTask()
         verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
         val actions = getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java)?.applicationStartActions?.toList()
         Assert.assertEquals(1, numberOfElementsIn(actions!!, InAppStartAction::class.java).toLong())
@@ -381,6 +399,7 @@ class EmarsysTest {
         DependencyInjection.tearDown()
         val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
         setup(mobileEngageConfig)
+        waitForTask()
         verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
         val actions = getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java)?.activityCreatedActions?.toList()
         Assert.assertEquals(1, numberOfElementsIn(actions!!, DeepLinkAction::class.java).toLong())
@@ -389,18 +408,22 @@ class EmarsysTest {
     @Test
     fun testSetup_registers_currentActivityWatchDog() {
         setup(mobileEngageConfig)
+        waitForTask()
         verify(application).registerActivityLifecycleCallbacks(currentActivityWatchdog)
     }
 
     @Test
     fun testSetup_setsInAppEventHandler_whenProvidedInConfig() {
         setup(configWithInAppEventHandler)
+        waitForTask()
         verify(mockInApp).setEventHandler(any())
     }
 
     @Test
     fun testSetup_doesNotSetInAppEventHandler_whenMissingFromConfig() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         verifyZeroInteractions(mockInApp)
     }
 
@@ -409,7 +432,11 @@ class EmarsysTest {
         whenever(mockClientStateStorage.get()).thenReturn(null)
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         whenever(mockContactTokenStorage.get()).thenReturn(null)
+
         setup(mobileEngageConfig)
+
+        waitForTask()
+
         verify(mockClientServiceInternal).trackDeviceInfo()
     }
 
@@ -423,6 +450,8 @@ class EmarsysTest {
         whenever(mockDeviceInfoPayloadStorage.get()).thenReturn(expectedDeviceInfo)
 
         setup(mobileEngageConfig)
+        waitForTask()
+
         verify(mockClientServiceInternal, never()).trackDeviceInfo()
     }
 
@@ -432,6 +461,8 @@ class EmarsysTest {
         whenever(mockContactFieldValueStorage.get()).thenReturn("asdf")
         whenever(mockContactTokenStorage.get()).thenReturn("asdf")
         setup(mobileEngageConfig)
+        waitForTask()
+
         verify(mockClientServiceInternal, never()).trackDeviceInfo()
     }
 
@@ -440,6 +471,7 @@ class EmarsysTest {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         whenever(mockContactTokenStorage.get()).thenReturn(null)
         setup(mobileEngageConfig)
+        waitForTask()
         verify(mockMobileEngageInternal).setContact(null, null)
     }
 
@@ -448,6 +480,7 @@ class EmarsysTest {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         whenever(mockContactTokenStorage.get()).thenReturn(null)
         setup(mobileEngageConfig)
+        waitForTask()
         val inOrder = inOrder(mockMobileEngageInternal, mockClientServiceInternal)
         inOrder.verify(mockClientServiceInternal).trackDeviceInfo()
         inOrder.verify(mockMobileEngageInternal).setContact(null, null)
@@ -457,6 +490,8 @@ class EmarsysTest {
     @Test
     fun testSetup_doNotSendAnonymousContact_whenContactFieldValueIsPresent() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         verify(mockMobileEngageInternal, never()).setContact(null, null)
     }
 
@@ -464,13 +499,19 @@ class EmarsysTest {
     fun testSetup_doNotSendAnonymousContact_whenContactTokenIsPresent() {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         setup(mobileEngageConfig)
+        waitForTask()
+
         verify(mockMobileEngageInternal, never()).setContact(null, null)
     }
 
     @Test
     fun testSetContactWithCompletionListener_delegatesToPredictInternal_whenPredictEnabled() {
         setup(predictConfig)
+        waitForTask()
+
         setContact(CONTACT_ID, completionListener)
+        waitForTask()
+
         verifyZeroInteractions(mockMobileEngageInternal)
         verify(mockPredictInternal).setContact(CONTACT_ID)
     }
@@ -478,7 +519,11 @@ class EmarsysTest {
     @Test
     fun testSetContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageEnabled() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         setContact(CONTACT_ID, completionListener)
+        waitForTask()
+
         verifyZeroInteractions(mockPredictInternal)
         verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener)
     }
@@ -486,21 +531,33 @@ class EmarsysTest {
     @Test
     fun testSetContactWithCompletionListener_doNotDelegatesToPredictInternal_whenPredictDisabled() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         setContact(CONTACT_ID, completionListener)
+        waitForTask()
+
         verifyZeroInteractions(mockPredictInternal)
     }
 
     @Test
     fun testSetContactWithCompletionListener_doNotDelegatesToMobileEngageInternal_whenMobileEngageDisabled() {
         setup(predictConfig)
+        waitForTask()
+
         setContact(CONTACT_ID, completionListener)
+        waitForTask()
+
         verifyZeroInteractions(mockMobileEngageInternal)
     }
 
     @Test
     fun testSetContactWithCompletionListener_delegatesToInternals_whenBothFeaturesEnabled() {
         setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
+        waitForTask()
+
         setContact(CONTACT_ID, completionListener)
+        waitForTask()
+
         verify(mockPredictInternal).setContact(CONTACT_ID)
         verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener)
     }
@@ -508,7 +565,11 @@ class EmarsysTest {
     @Test
     fun testSetContactWithCompletionListener_delegatesToMobileEngageOnly_whenBothFeaturesDisabled() {
         setup(baseConfig)
+        waitForTask()
+
         setContact(CONTACT_ID, completionListener)
+        waitForTask()
+
         verifyZeroInteractions(mockPredictInternal)
         verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener)
     }
@@ -516,20 +577,30 @@ class EmarsysTest {
     @Test
     fun testSetContact_delegatesToMobileEngageInternal_whenMobileEngageIsEnabled() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         setContact(CONTACT_ID)
+        waitForTask()
+
         verify(mockMobileEngageInternal).setContact(CONTACT_ID, null)
     }
 
     @Test
     fun testSetContact_delegatesToInternal_whenPredictIsEnabled() {
         setup(predictConfig)
+        waitForTask()
+
         setContact(CONTACT_ID)
+        waitForTask()
+
         verify(mockPredictInternal).setContact(CONTACT_ID)
     }
 
     @Test
     fun testSetContact_doNotDelegatesToMobileEngageInternal_whenMobileEngageIsDisabled() {
         setup(predictConfig)
+        waitForTask()
+
         setContact(CONTACT_ID)
         verifyZeroInteractions(mockMobileEngageInternal)
     }
@@ -537,14 +608,22 @@ class EmarsysTest {
     @Test
     fun testSetContact_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         setContact(CONTACT_ID)
+        waitForTask()
+
         verifyZeroInteractions(mockPredictInternal)
     }
 
     @Test
     fun testSetContact_delegatesToInternals_whenBothFeaturesAreEnabled() {
         setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
+        waitForTask()
+
         setContact(CONTACT_ID)
+        waitForTask()
+
         verify(mockPredictInternal).setContact(CONTACT_ID)
         verify(mockMobileEngageInternal).setContact(CONTACT_ID, null)
     }
@@ -552,7 +631,11 @@ class EmarsysTest {
     @Test
     fun testSetContact_delegatesToMobileEngageInternalOnly_whenBothFeaturesAreDisabled() {
         setup(baseConfig)
+        waitForTask()
+
         setContact(CONTACT_ID)
+        waitForTask()
+
         verifyZeroInteractions(mockPredictInternal)
         verify(mockMobileEngageInternal).setContact(CONTACT_ID, null)
     }
@@ -560,7 +643,11 @@ class EmarsysTest {
     @Test
     fun testClearContactWithCompletionListener_delegatesToPredictInternal_whenPredictIsEnabled() {
         setup(predictConfig)
+        waitForTask()
+
         clearContact(completionListener)
+        waitForTask()
+
         verifyZeroInteractions(mockMobileEngageInternal)
         verify(mockPredictInternal).clearContact()
     }
@@ -568,7 +655,11 @@ class EmarsysTest {
     @Test
     fun testClearContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageIsEnabled() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         clearContact(completionListener)
+        waitForTask()
+
         verifyZeroInteractions(mockPredictInternal)
         verify(mockMobileEngageInternal).clearContact(completionListener)
     }
@@ -576,21 +667,33 @@ class EmarsysTest {
     @Test
     fun testClearContactWithCompletionListener_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         clearContact(completionListener)
+        waitForTask()
+
         verifyZeroInteractions(mockPredictInternal)
     }
 
     @Test
     fun testClearContactWithCompletionListener_doNotDelegatesToMobileEngageInternal_whenMobileEngageIsDisabled() {
         setup(predictConfig)
+        waitForTask()
+
         clearContact(completionListener)
+        waitForTask()
+
         verifyZeroInteractions(mockMobileEngageInternal)
     }
 
     @Test
     fun testClearContactWithCompletionListener_delegatesToInternals_whenBothEnabled() {
         setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
+        waitForTask()
+
         clearContact(completionListener)
+        waitForTask()
+
         verify(mockPredictInternal).clearContact()
         verify(mockMobileEngageInternal).clearContact(completionListener)
     }
@@ -598,7 +701,11 @@ class EmarsysTest {
     @Test
     fun testClearContactWithCompletionListener_delegatesToMobileEngageInternalOnly_whenBothDisabled() {
         setup(baseConfig)
+        waitForTask()
+
         clearContact(completionListener)
+        waitForTask()
+
         verifyZeroInteractions(mockPredictInternal)
         verify(mockMobileEngageInternal).clearContact(completionListener)
     }
@@ -606,7 +713,11 @@ class EmarsysTest {
     @Test
     fun testClearContact_delegatesToMobileEngageInternal_whenMobileEngageIsEnabled() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         clearContact()
+        waitForTask()
+
         verifyZeroInteractions(mockPredictInternal)
         verify(mockMobileEngageInternal).clearContact(null)
     }
@@ -614,21 +725,33 @@ class EmarsysTest {
     @Test
     fun testClearContact_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         clearContact()
+        waitForTask()
+
         verifyZeroInteractions(mockPredictInternal)
     }
 
     @Test
     fun testClearContact_doNotDelegatesToMobileEngageInternal_whenMobileEngageIsDisabled() {
         setup(predictConfig)
+        waitForTask()
+
         clearContact()
+        waitForTask()
+
         verifyZeroInteractions(mockMobileEngageInternal)
     }
 
     @Test
     fun testClearContact_delegatesToPredictInternal_whenPredictIsEnabled() {
         setup(predictConfig)
+        waitForTask()
+
         clearContact()
+        waitForTask()
+
         verifyZeroInteractions(mockMobileEngageInternal)
         verify(mockPredictInternal).clearContact()
     }
@@ -636,7 +759,11 @@ class EmarsysTest {
     @Test
     fun testClearContact_delegatesToInternals_whenBothFeaturesAreEnabled() {
         setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
+        waitForTask()
+
         clearContact()
+        waitForTask()
+
         verify(mockPredictInternal).clearContact()
         verify(mockMobileEngageInternal).clearContact(null)
     }
@@ -644,7 +771,11 @@ class EmarsysTest {
     @Test
     fun testClearContact_shouldCallMobileEngageOnly_whenBothFeaturesAreDisabled() {
         setup(baseConfig)
+        waitForTask()
+
         clearContact()
+        waitForTask()
+
         verifyZeroInteractions(mockPredictInternal)
         verify(mockMobileEngageInternal).clearContact(null)
     }
@@ -654,6 +785,7 @@ class EmarsysTest {
         val mockActivity: Activity = mock()
         val mockIntent: Intent = mock()
         trackDeepLink(mockActivity, mockIntent)
+        waitForTask()
         verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, mockIntent, null)
     }
 
@@ -662,6 +794,8 @@ class EmarsysTest {
         val mockActivity: Activity = mock()
         val mockIntent: Intent = mock()
         trackDeepLink(mockActivity, mockIntent, completionListener)
+        waitForTask()
+
         verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, mockIntent, completionListener)
     }
 
@@ -670,6 +804,8 @@ class EmarsysTest {
         val eventName = "eventName"
         val eventAttributes = HashMap<String, String>()
         trackCustomEvent(eventName, eventAttributes)
+        waitForTask()
+
         verify(mockEventServiceInternal).trackCustomEvent(eventName, eventAttributes, null)
     }
 
@@ -678,12 +814,16 @@ class EmarsysTest {
         val eventName = "eventName"
         val eventAttributes = HashMap<String, String>()
         trackCustomEvent(eventName, eventAttributes, completionListener)
+        waitForTask()
+
         verify(mockEventServiceInternal).trackCustomEvent(eventName, eventAttributes, completionListener)
     }
 
     @Test
     fun testConfig_changeApplicationCode_delegatesTo_configInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID)
         verify(mockConfig).changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID, null)
     }
@@ -691,6 +831,8 @@ class EmarsysTest {
     @Test
     fun testConfig_changeApplicationCode_withCompletionListener_delegatesTo_configInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
         verify(mockConfig).changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
     }
@@ -698,6 +840,8 @@ class EmarsysTest {
     @Test
     fun testConfig_getApplicationCode_delegatesTo_configInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         whenever(mockConfig.applicationCode).thenReturn(APPLICATION_CODE)
         val applicationCode = applicationCode
         verify(mockConfig).applicationCode
@@ -707,13 +851,18 @@ class EmarsysTest {
     @Test
     fun testConfig_changeMerchantId_delegatesTo_configInstance() {
         setup(predictConfig)
+        waitForTask()
+
         changeMerchantId(MERCHANT_ID)
+
         verify(mockConfig).changeMerchantId(MERCHANT_ID)
     }
 
     @Test
     fun testConfig_getContactFieldId_delegatesTo_configInstance() {
         setup(baseConfig)
+        waitForTask()
+
         whenever(mockConfig.contactFieldId).thenReturn(CONTACT_FIELD_ID)
         val contactFieldId = contactFieldId
         verify(mockConfig).contactFieldId
@@ -723,6 +872,8 @@ class EmarsysTest {
     @Test
     fun testPush_trackMessageOpen_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         val mockIntent: Intent = mock()
         trackMessageOpen(mockIntent)
         verify(mockPush).trackMessageOpen(mockIntent)
@@ -731,6 +882,8 @@ class EmarsysTest {
     @Test
     fun testPush_trackMessageOpen_withCompletionListener_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         val mockIntent: Intent = mock()
         val mockCompletionListener: CompletionListener = mock()
         trackMessageOpen(mockIntent, mockCompletionListener)
@@ -740,6 +893,8 @@ class EmarsysTest {
     @Test
     fun testPush_setPushToken_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         setPushToken("pushToken")
         verify(mockPush).setPushToken("pushToken")
     }
@@ -747,6 +902,8 @@ class EmarsysTest {
     @Test
     fun testPush_setPushToken_withCompletionListener_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         val mockCompletionListener: CompletionListener = mock()
         setPushToken("pushToken", mockCompletionListener)
         verify(mockPush).setPushToken("pushToken", mockCompletionListener)
@@ -755,6 +912,8 @@ class EmarsysTest {
     @Test
     fun testPush_clearPushToken_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         clearPushToken()
         verify(mockPush).clearPushToken()
     }
@@ -762,22 +921,28 @@ class EmarsysTest {
     @Test
     fun testPush_clearPushToken_withCompletionListener_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         val mockCompletionListener: CompletionListener = mock()
         clearPushToken(mockCompletionListener)
         verify(mockPush).clearPushToken(mockCompletionListener)
     }
 
     @Test
-    fun testPush_setNotificationEventhandler_delegatesTo_pushInstance() {
+    fun testPush_setNotificationEventHandler_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         val mockEventHandler: EventHandler = mock()
         setNotificationEventHandler(mockEventHandler)
         verify(mockPush).setNotificationEventHandler(mockEventHandler)
     }
 
     @Test
-    fun testPush_setSilentMessageEventhandler_delegatesTo_pushInstance() {
+    fun testPush_setSilentMessageEventHandler_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         val mockEventHandler: EventHandler = mock()
         setSilentMesssageEventHandler(mockEventHandler)
         verify(mockPush).setSilentMessageEventHandler(mockEventHandler)
@@ -786,6 +951,8 @@ class EmarsysTest {
     @Test
     fun testPredict_trackCart_delegatesTo_predictInstance() {
         setup(predictConfig)
+        waitForTask()
+
         val cartItems: List<CartItem> = ArrayList()
         trackCart(cartItems)
         verify(mockPredict).trackCart(cartItems)
@@ -794,6 +961,8 @@ class EmarsysTest {
     @Test
     fun testPredict_trackPurchase_delegatesTo_predictInstance() {
         setup(predictConfig)
+        waitForTask()
+
         val cartItems: List<CartItem> = ArrayList()
         trackPurchase("orderId", cartItems)
         verify(mockPredict).trackPurchase("orderId", cartItems)
@@ -802,6 +971,8 @@ class EmarsysTest {
     @Test
     fun testPredict_trackItemView_delegatesTo_predictInstance() {
         setup(predictConfig)
+        waitForTask()
+
         trackItemView("itemId")
         verify(mockPredict).trackItemView("itemId")
     }
@@ -809,6 +980,8 @@ class EmarsysTest {
     @Test
     fun testPredict_trackCategoryView_delegatesTo_predictInstance() {
         setup(predictConfig)
+        waitForTask()
+
         trackCategoryView("categoryPath")
         verify(mockPredict).trackCategoryView("categoryPath")
     }
@@ -816,6 +989,8 @@ class EmarsysTest {
     @Test
     fun testPredict_trackSearchTerm_delegatesTo_predictInstance() {
         setup(predictConfig)
+        waitForTask()
+
         trackSearchTerm("searchTerm")
         verify(mockPredict).trackSearchTerm("searchTerm")
     }
@@ -823,6 +998,8 @@ class EmarsysTest {
     @Test
     fun testPredict_trackTag_delegatesTo_predictInstance() {
         setup(predictConfig)
+        waitForTask()
+
         trackTag("testTag", HashMap())
         verify(mockPredict).trackTag("testTag", HashMap())
     }
@@ -830,6 +1007,8 @@ class EmarsysTest {
     @Test
     fun testPredict_recommendProducts_delegatesTo_predictInstance() {
         setup(predictConfig)
+        waitForTask()
+
         recommendProducts(mockLogic, mockResultListener)
         verify(mockPredict).recommendProducts(mockLogic, mockResultListener)
     }
@@ -837,6 +1016,8 @@ class EmarsysTest {
     @Test
     fun testPredict_recommendProductsWithLimit_delegatesTo_predictInstance() {
         setup(predictConfig)
+        waitForTask()
+
         recommendProducts(mockLogic, 5, mockResultListener)
         verify(mockPredict).recommendProducts(mockLogic, 5, mockResultListener)
     }
@@ -844,6 +1025,8 @@ class EmarsysTest {
     @Test
     fun testPredict_recommendProductsWithFilters_delegatesTo_predictInstance() {
         setup(predictConfig)
+        waitForTask()
+
         recommendProducts(mockLogic, listOf(mockRecommendationFilter), mockResultListener)
         verify(mockPredict).recommendProducts(mockLogic, listOf(mockRecommendationFilter), mockResultListener)
     }
@@ -851,6 +1034,8 @@ class EmarsysTest {
     @Test
     fun testPredict_recommendProductsWithLimitAndFilters_delegatesTo_predictInstance() {
         setup(predictConfig)
+        waitForTask()
+
         recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, mockResultListener)
         verify(mockPredict).recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, mockResultListener)
     }
@@ -858,6 +1043,8 @@ class EmarsysTest {
     @Test
     fun testPredict_trackRecommendationClick_delegatesTo_predictInstance() {
         setup(predictConfig)
+        waitForTask()
+
         val product = Product.Builder("itemId", "title", "https://emarsys.com", "RELATED", "AAAA").build()
         trackRecommendationClick(product)
         verify(mockPredict).trackRecommendationClick(product)
@@ -866,6 +1053,8 @@ class EmarsysTest {
     @Test
     fun testInApp_pause_delegatesTo_inAppInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         pause()
         verify(mockInApp).pause()
     }
@@ -873,6 +1062,8 @@ class EmarsysTest {
     @Test
     fun testInApp_resume_delegatesTo_inAppInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         resume()
         verify(mockInApp).resume()
     }
@@ -880,13 +1071,16 @@ class EmarsysTest {
     @Test
     fun testInApp_isPaused_delegatesTo_inAppInstance() {
         setup(mobileEngageConfig)
-        isPaused
+        waitForTask()
+        Emarsys.InApp.isPaused
         verify(mockInApp).isPaused
     }
 
     @Test
     fun testInApp_setEventHandler_delegatesTo_inAppInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         val mockEventHandler: EventHandler = mock()
         setEventHandler(mockEventHandler)
         verify(mockInApp).setEventHandler(mockEventHandler)
@@ -895,6 +1089,8 @@ class EmarsysTest {
     @Test
     fun testInbox_fetchNotification_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         val mockResultListener: ResultListener<Try<NotificationInboxStatus>> = mock()
         fetchNotifications(mockResultListener)
         verify(mockInbox).fetchNotifications(mockResultListener)
@@ -903,6 +1099,8 @@ class EmarsysTest {
     @Test
     fun testInbox_trackNotificationOpen_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         val mockNotification: Notification = mock()
         trackNotificationOpen(mockNotification)
         verify(mockInbox).trackNotificationOpen(mockNotification)
@@ -911,6 +1109,8 @@ class EmarsysTest {
     @Test
     fun testInbox_trackNotificationOpen_withCompletionListener_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         val mockNotification: Notification = mock()
         val mockCompletionListener: CompletionListener = mock()
         trackNotificationOpen(mockNotification, mockCompletionListener)
@@ -920,6 +1120,8 @@ class EmarsysTest {
     @Test
     fun testInbox_resetBadgeCount_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         resetBadgeCount()
         verify(mockInbox).resetBadgeCount()
     }
@@ -927,6 +1129,8 @@ class EmarsysTest {
     @Test
     fun testInbox_resetBadgeCount_withCompletionListener_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         val mockCompletionListener: CompletionListener = mock()
         resetBadgeCount(mockCompletionListener)
         verify(mockInbox).resetBadgeCount(mockCompletionListener)
@@ -935,8 +1139,10 @@ class EmarsysTest {
     @Test
     fun testMobileEngageApiInstances_shouldAlwaysGetInstanceFromDI() {
         setup(predictConfig)
+        waitForTask()
+
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
-        isPaused
+        Emarsys.InApp.isPaused
         verify(mockInApp).isPaused
         verifyZeroInteractions(mockLoggingInApp)
     }
@@ -944,6 +1150,8 @@ class EmarsysTest {
     @Test
     fun testPredictApiInstances_shouldAlwaysGetInstanceFromDI() {
         setup(mobileEngageConfig)
+        waitForTask()
+
         FeatureRegistry.enableFeature(InnerFeature.PREDICT)
         trackItemView("testItemId")
         verify(mockPredict).trackItemView("testItemId")
@@ -955,5 +1163,13 @@ class EmarsysTest {
                 .application(application)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .enableExperimentalFeatures(*experimentalFeatures)
+    }
+
+    private fun waitForTask() {
+        val latch = CountDownLatch(1)
+        getDependency<Handler>("coreSdkHandler").post {
+            latch.countDown()
+        }
+        latch.await()
     }
 }

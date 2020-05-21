@@ -3,7 +3,6 @@ package com.emarsys.mobileengage.fake
 import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.DefaultCoreCompletionHandler
-import com.emarsys.core.RunnerProxy
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.database.CoreSQLiteDatabase
@@ -79,7 +78,6 @@ class FakeMobileEngageDependencyContainer(
         completionHandler: DefaultCoreCompletionHandler = mock(),
         requestContext: MobileEngageRequestContext = mock(),
         inAppPresenter: InAppPresenter = mock(),
-        runnerProxy: RunnerProxy = RunnerProxy(),
         logger: Logger = mock(),
         deviceInfoPayloadStorage: StringStorage = mock(),
         contactFieldValueStorage: StringStorage = mock(),
@@ -129,7 +127,6 @@ class FakeMobileEngageDependencyContainer(
         addDependency(timestampProvider)
         addDependency(uuidProvider)
         addDependency(completionHandler)
-        addDependency(runnerProxy)
         addDependency(logger)
         addDependency(responseHandlersProcessor)
         addDependency(restClient)
@@ -205,8 +202,6 @@ class FakeMobileEngageDependencyContainer(
     override fun getUuidProvider(): UUIDProvider = getDependency()
 
     override fun getLogShardTrigger(): Runnable = getDependency("logShardTrigger")
-
-    override fun getRunnerProxy(): RunnerProxy = getDependency()
 
     override fun getLogger(): Logger = getDependency()
 

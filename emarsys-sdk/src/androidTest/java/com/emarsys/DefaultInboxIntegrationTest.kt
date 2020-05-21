@@ -104,7 +104,7 @@ class DefaultInboxIntegrationTest {
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
 
         val setupLatch = CountDownLatch(1)
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig, Runnable {
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig, {
             setupLatch.countDown()
         }) {
             override fun getDeviceInfo(): DeviceInfo {

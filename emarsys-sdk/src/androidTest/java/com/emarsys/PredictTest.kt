@@ -1,6 +1,5 @@
 package com.emarsys
 
-import com.emarsys.core.RunnerProxy
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.di.DependencyInjection
@@ -24,7 +23,6 @@ import java.util.*
 
 class PredictTest {
     private lateinit var mockPredictInternal: PredictInternal
-    private lateinit var runnerProxy: RunnerProxy
     private lateinit var predict: Predict
     private lateinit var mockResultListener: ResultListener<Try<List<Product>>>
     private lateinit var mockLogic: Logic
@@ -42,7 +40,6 @@ class PredictTest {
 
         DependencyInjection.setup(dependencyContainer)
 
-        runnerProxy = RunnerProxy()
         predict = Predict()
         mockResultListener = mock()
         mockLogic = mock()

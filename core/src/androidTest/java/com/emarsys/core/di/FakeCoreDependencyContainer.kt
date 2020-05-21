@@ -2,7 +2,6 @@ package com.emarsys.core.di
 
 import android.os.Handler
 import com.emarsys.core.DefaultCoreCompletionHandler
-import com.emarsys.core.RunnerProxy
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.database.CoreSQLiteDatabase
@@ -32,7 +31,6 @@ open class FakeCoreDependencyContainer(coreSdkHandler: Handler = mock(),
                                        timestampProvider: TimestampProvider = mock(),
                                        uuidProvider: UUIDProvider = mock(),
                                        completionHandler: DefaultCoreCompletionHandler = mock(),
-                                       runnerProxy: RunnerProxy = RunnerProxy(),
                                        logger: Logger = mock(),
                                        responseHandlersProcessor: ResponseHandlersProcessor = mock(),
                                        restClient: RestClient = mock(),
@@ -51,7 +49,6 @@ open class FakeCoreDependencyContainer(coreSdkHandler: Handler = mock(),
         Container.addDependency(timestampProvider)
         Container.addDependency(uuidProvider)
         Container.addDependency(completionHandler)
-        Container.addDependency(runnerProxy)
         Container.addDependency(logger)
         Container.addDependency(responseHandlersProcessor)
         Container.addDependency(restClient)
@@ -77,8 +74,6 @@ open class FakeCoreDependencyContainer(coreSdkHandler: Handler = mock(),
     override fun getUuidProvider(): UUIDProvider = Container.getDependency()
 
     override fun getLogShardTrigger(): Runnable = Container.getDependency("logShardTrigger")
-
-    override fun getRunnerProxy(): RunnerProxy = Container.getDependency()
 
     override fun getLogger(): Logger = Container.getDependency()
 

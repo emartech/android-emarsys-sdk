@@ -1,7 +1,6 @@
 package com.emarsys.core.di
 
 import android.os.Handler
-import com.emarsys.core.RunnerProxy
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.database.CoreSQLiteDatabase
@@ -36,8 +35,6 @@ interface DependencyContainer {
     fun getUuidProvider(): UUIDProvider
 
     fun getLogShardTrigger(): Runnable
-
-    fun getRunnerProxy(): RunnerProxy
 
     fun getLogger(): Logger
 
