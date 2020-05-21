@@ -10,7 +10,7 @@ import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.fake.FakeRestClient
@@ -38,7 +38,7 @@ class DefaultMessageInboxInternalTest {
     private lateinit var mockMessageInboxResponseMapper: MessageInboxResponseMapper
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var mockRequestModel: RequestModel
-    private lateinit var mockContactFieldValueStorage: Storage<String>
+    private lateinit var mockContactFieldValueStorage: StringStorage
     private lateinit var handler: Handler
     private lateinit var messageInboxInternal: DefaultMessageInboxInternal
     private lateinit var latch: CountDownLatch

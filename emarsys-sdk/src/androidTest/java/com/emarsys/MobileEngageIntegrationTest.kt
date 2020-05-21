@@ -6,24 +6,29 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
+import com.emarsys.core.activity.ActivityLifecycleWatchdog
+import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
+import com.emarsys.core.di.Container.getDependency
 import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarsysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
-import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.push.PushTokenProvider
+import com.emarsys.mobileengage.storage.MobileEngageStorageKey
+import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
@@ -69,10 +74,8 @@ class MobileEngageIntegrationTest {
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var responseModel: ResponseModel
     private lateinit var completionHandler: DefaultCoreCompletionHandler
-    private lateinit var clientStateStorage: Storage<String>
-    private lateinit var contactTokenStorage: Storage<String>
-    private lateinit var refreshTokenStorage: Storage<String>
-    private lateinit var deviceInfoPayloadStorage: Storage<String>
+    private lateinit var clientStateStorage: Storage<String?>
+    private lateinit var contactTokenStorage: Storage<String?>
 
     private var errorCause: Throwable? = null
 
@@ -116,34 +119,37 @@ class MobileEngageIntegrationTest {
             whenever(providePushToken()).thenReturn("integration_test_push_token")
         }
 
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
-            override fun getClientServiceProvider(): ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java).apply {
-                whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_CLIENT_HOST)
+        val setupLatch = CountDownLatch(1)
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig, Runnable {
+            setupLatch.countDown()
+        }) {
+            override fun getCoreCompletionHandler(): DefaultCoreCompletionHandler {
+                return completionHandler
             }
 
-            override fun getEventServiceProvider(): ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java).apply {
-                whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_EVENT_HOST)
+            override fun getPushTokenProvider(): PushTokenProvider {
+                return mockPushTokenProvider
             }
 
-            override fun getPushTokenProvider() = mockPushTokenProvider
-
-            override fun getCoreCompletionHandler() = completionHandler
-
-            override fun getDeviceInfo() = DeviceInfo(
-                    application,
-                    mock(HardwareIdProvider::class.java).apply {
-                        whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
-                    },
-                    mock(VersionProvider::class.java).apply {
-                        whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
-                    },
-                    mock(LanguageProvider::class.java).apply {
-                        whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
-                    },
-                    mock(NotificationManagerHelper::class.java),
-                    true
-            )
+            override fun getDeviceInfo(): DeviceInfo {
+                return DeviceInfo(
+                        application,
+                        mock(HardwareIdProvider::class.java).apply {
+                            whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
+                        },
+                        mock(VersionProvider::class.java).apply {
+                            whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
+                        },
+                        mock(LanguageProvider::class.java).apply {
+                            whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
+                        },
+                        mock(NotificationManagerHelper::class.java),
+                        true
+                )
+            }
         })
+
+        setupLatch.await()
 
         errorCause = null
 
@@ -153,23 +159,25 @@ class MobileEngageIntegrationTest {
 
         Emarsys.setup(baseConfig)
 
-        clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.clientStateStorage
-        contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.contactTokenStorage
-        refreshTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.refreshTokenStorage
-        deviceInfoPayloadStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().deviceInfoPayloadStorage
+        clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().clientStateStorage
+        contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().contactTokenStorage
+
+        clientStateStorage = getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key)
+        contactTokenStorage = getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key)
 
         clientStateStorage.remove()
         contactTokenStorage.remove()
-        refreshTokenStorage.remove()
-        deviceInfoPayloadStorage.remove()
 
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.set(null)
-        DependencyInjection.getContainer<MobileEngageDependencyContainer>().pushTokenStorage.remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.DEVICE_INFO_HASH.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.REFRESH_TOKEN.key).remove()
+
+        getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
 
 
         IntegrationTestUtils.doLogin()
@@ -183,23 +191,22 @@ class MobileEngageIntegrationTest {
         try {
             FeatureTestUtils.resetFeatures()
 
-            with(DependencyInjection.getContainer<EmarsysDependencyContainer>()) {
-                application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
-                application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
-                coreSdkHandler.looper.quit()
-            }
+            getDependency<Handler>("coreSdkHandler").looper.quit()
+            application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
+            application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
+
+            getDependency<StringStorage>(MobileEngageStorageKey.DEVICE_INFO_HASH.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.REFRESH_TOKEN.key).remove()
 
             clientStateStorage.remove()
             contactTokenStorage.remove()
-            refreshTokenStorage.remove()
-            deviceInfoPayloadStorage.remove()
 
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().getClientServiceStorage().set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().getEventServiceStorage().set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().getDeepLinkServiceStorage().set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().getMobileEngageV2ServiceStorage().set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().getInboxServiceStorage().set(null)
+            DependencyInjection.getContainer<EmarsysDependencyContainer>().getPredictServiceStorage().set(null)
 
             DependencyInjection.tearDown()
         } catch (e: Exception) {
@@ -244,7 +251,7 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackInternalCustomEvent_V3_noAttributes() {
-        val eventServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().eventServiceInternal
+        val eventServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().getEventServiceInternal()
 
         eventServiceInternal.trackInternalCustomEvent(
                 "integrationTestInternalCustomEvent",
@@ -255,7 +262,7 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackInternalCustomEvent_V3_withAttributes() {
-        val eventServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().eventServiceInternal
+        val eventServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().getEventServiceInternal()
 
         eventServiceInternal.trackInternalCustomEvent(
                 "integrationTestInternalCustomEvent",
@@ -273,7 +280,7 @@ class MobileEngageIntegrationTest {
             })
         }
 
-        Emarsys.Push.trackMessageOpen(
+        Emarsys.push.trackMessageOpen(
                 intent,
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
@@ -291,7 +298,7 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testRemovePushToken() {
-        Emarsys.Push.clearPushToken(
+        Emarsys.push.clearPushToken(
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
     }
@@ -314,7 +321,7 @@ class MobileEngageIntegrationTest {
         clientStateStorage.remove()
         contactTokenStorage.remove()
 
-        val clientServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().clientServiceInternal
+        val clientServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().getClientServiceInternal()
 
         clientServiceInternal.trackDeviceInfo().also(this::eventuallyAssertCompletionHandlerSuccess)
     }

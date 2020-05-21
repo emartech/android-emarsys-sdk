@@ -12,6 +12,7 @@ public class DependencyInjection {
 
     public static void tearDown() {
         container = null;
+        Container.getDependencies().clear();
     }
 
     public static <T extends DependencyContainer> T getContainer() {

@@ -1,18 +1,27 @@
 package com.emarsys
 
 import android.app.Application
+import android.os.Handler
 import androidx.test.rule.ActivityTestRule
-import com.emarsys.config.DefaultConfigInternal
+import com.emarsys.config.ConfigInternal
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.core.activity.ActivityLifecycleWatchdog
+import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
+import com.emarsys.core.di.Container.getDependency
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarsysDependencyContainer
+import com.emarsys.mobileengage.endpoint.Endpoint
+import com.emarsys.mobileengage.storage.MobileEngageStorageKey
+import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
@@ -66,6 +75,7 @@ class RemoteConfigIntegrationTest {
     @Before
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
+        DependencyInjection.tearDown()
 
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
@@ -75,35 +85,41 @@ class RemoteConfigIntegrationTest {
 
         FeatureTestUtils.resetFeatures()
 
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
-            override fun getDeviceInfo() = DeviceInfo(
-                    application,
-                    Mockito.mock(HardwareIdProvider::class.java).apply {
-                        whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
-                    },
-                    Mockito.mock(VersionProvider::class.java).apply {
-                        whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
-                    },
-                    LanguageProvider(),
-                    Mockito.mock(NotificationManagerHelper::class.java),
-                    true
-            )
+        val setupLatch = CountDownLatch(1)
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig, Runnable {
+            setupLatch.countDown()
+        }) {
+            override fun getDeviceInfo(): DeviceInfo {
+                return DeviceInfo(
+                        application,
+                        Mockito.mock(HardwareIdProvider::class.java).apply {
+                            whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
+                        },
+                        Mockito.mock(VersionProvider::class.java).apply {
+                            whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
+                        },
+                        LanguageProvider(),
+                        Mockito.mock(NotificationManagerHelper::class.java),
+                        true
+                )
+            }
         })
 
-        errorCause = null
+        setupLatch.await()
 
+        errorCause = null
 
         ConnectionTestUtils.checkConnection(application)
 
         Emarsys.setup(baseConfig)
 
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.remove()
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.remove()
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.remove()
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.remove()
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.remove()
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.remove()
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().messageInboxServiceStorage.remove()
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().getClientServiceStorage().remove()
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().getEventServiceStorage().remove()
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().getDeepLinkServiceStorage().remove()
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().getMobileEngageV2ServiceStorage().remove()
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().getInboxServiceStorage().remove()
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().getPredictServiceStorage().remove()
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().getMessageInboxServiceStorage().remove()
 
         latch = CountDownLatch(1)
     }
@@ -113,19 +129,17 @@ class RemoteConfigIntegrationTest {
         try {
             FeatureTestUtils.resetFeatures()
 
-            with(DependencyInjection.getContainer<EmarsysDependencyContainer>()) {
-                application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
-                application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
-                coreSdkHandler.looper.quit()
-            }
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.remove()
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.remove()
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.remove()
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.remove()
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.remove()
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.remove()
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().messageInboxServiceStorage.remove()
+            getDependency<Handler>("coreSdkHandler").looper.quit()
+            application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
+            application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
 
+            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
             DependencyInjection.tearDown()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -135,12 +149,12 @@ class RemoteConfigIntegrationTest {
 
     @Test
     fun testRemoteConfig() {
-        (DependencyInjection.getContainer<EmarsysDependencyContainer>().configInternal as DefaultConfigInternal).refreshRemoteConfig(CompletionListener { latch.countDown() })
+        getDependency<ConfigInternal>().refreshRemoteConfig(CompletionListener { latch.countDown() })
 
         latch.await()
 
-        val clientServiceEndpointHost = DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceProvider.provideEndpointHost()
-        val eventServiceEndpointHost = DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceProvider.provideEndpointHost()
+        val clientServiceEndpointHost = getDependency<ServiceEndpointProvider>(Endpoint.ME_V3_CLIENT_HOST).provideEndpointHost()
+        val eventServiceEndpointHost = getDependency<ServiceEndpointProvider>(Endpoint.ME_V3_EVENT_HOST).provideEndpointHost()
         clientServiceEndpointHost shouldBe "https://integration.me-client.eservice.emarsys.net"
         eventServiceEndpointHost shouldBe "https://integration.mobile-events.eservice.emarsys.net"
     }

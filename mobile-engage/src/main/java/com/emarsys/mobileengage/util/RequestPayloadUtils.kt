@@ -118,8 +118,8 @@ object RequestPayloadUtils {
     }
 
     @JvmStatic
-    fun createRefreshContactTokenPayload(requestContext: MobileEngageRequestContext): Map<String, Any> {
-        return mutableMapOf<String, Any>(
+    fun createRefreshContactTokenPayload(requestContext: MobileEngageRequestContext): Map<String, Any?> {
+        return mutableMapOf<String, Any?>(
                 "refreshToken" to requestContext.refreshTokenStorage.get()
         )
     }

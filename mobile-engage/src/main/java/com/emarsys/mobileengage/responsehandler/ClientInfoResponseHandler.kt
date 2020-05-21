@@ -9,7 +9,7 @@ import com.emarsys.mobileengage.endpoint.Endpoint
 
 @Mockable
 class ClientInfoResponseHandler(private val deviceInfo: DeviceInfo,
-                                private val deviceInfoPayloadStorage: Storage<String>) : AbstractResponseHandler() {
+                                private val deviceInfoPayloadStorage: Storage<String?>) : AbstractResponseHandler() {
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
         val url = responseModel.requestModel.url.toString()

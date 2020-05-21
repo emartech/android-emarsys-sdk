@@ -22,7 +22,7 @@ object IntegrationTestUtils {
     fun doSetPushToken(pushToken: String = "integration_test_push_token") {
         val latch = CountDownLatch(1)
         var errorCause: Throwable? = null
-        Emarsys.Push.setPushToken(pushToken) {
+        Emarsys.push.setPushToken(pushToken) {
             errorCause = it
             latch.countDown()
         }
@@ -33,7 +33,7 @@ object IntegrationTestUtils {
     fun doLogin(contactFieldValue: String = "test@test.com", pushToken: String = "integration_test_push_token") {
         val latchForPushToken = CountDownLatch(2)
         var errorCause: Throwable? = null
-        Emarsys.Push.setPushToken(pushToken) { throwable ->
+        Emarsys.push.setPushToken(pushToken) { throwable ->
             errorCause = throwable
             latchForPushToken.countDown()
             Emarsys.setContact(contactFieldValue) {

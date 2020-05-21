@@ -7,31 +7,22 @@ import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
-import com.emarsys.mobileengage.DefaultMobileEngageInternal
-import com.emarsys.mobileengage.LoggingMobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.client.ClientServiceInternal
-import com.emarsys.mobileengage.client.DefaultClientServiceInternal
-import com.emarsys.mobileengage.client.LoggingClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
-import com.emarsys.mobileengage.deeplink.DefaultDeepLinkInternal
-import com.emarsys.mobileengage.deeplink.LoggingDeepLinkInternal
-import com.emarsys.mobileengage.event.DefaultEventServiceInternal
 import com.emarsys.mobileengage.event.EventServiceInternal
-import com.emarsys.mobileengage.event.LoggingEventServiceInternal
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictInternal
 import com.emarsys.push.PushApi
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.TimeoutUtils
+import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
-
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.mock
 
 class EmarsysDependencyInjectionTest {
 
@@ -65,39 +56,38 @@ class EmarsysDependencyInjectionTest {
     private lateinit var mockPredict: PredictApi
     private lateinit var mockLoggingPredict: PredictApi
 
-
     @Before
     fun setUp() {
-        mockMobileEngageInternal = mock(DefaultMobileEngageInternal::class.java)
-        mockLoggingMobileEngageInternal = mock(LoggingMobileEngageInternal::class.java)
+        mockMobileEngageInternal = mock()
+        mockLoggingMobileEngageInternal = mock()
 
-        mockInbox = mock(InboxApi::class.java)
-        mockLoggingInbox = mock(InboxApi::class.java)
-        mockMessageInbox = mock(MessageInboxApi::class.java)
-        mockLoggingMessageInbox = mock(MessageInboxApi::class.java)
+        mockInbox = mock()
+        mockLoggingInbox = mock()
+        mockMessageInbox = mock()
+        mockLoggingMessageInbox = mock()
 
-        mockInApp = mock(InAppApi::class.java)
-        mockLoggingInApp = mock(InAppApi::class.java)
+        mockInApp = mock()
+        mockLoggingInApp = mock()
 
-        mockDeepLinkInternal = mock(DefaultDeepLinkInternal::class.java)
-        mockLoggingDeepLinkInternal = mock(LoggingDeepLinkInternal::class.java)
+        mockDeepLinkInternal = mock()
+        mockLoggingDeepLinkInternal = mock()
 
-        mockClientServiceInternal = mock(DefaultClientServiceInternal::class.java)
-        mockLoggingClientServiceInternal = mock(LoggingClientServiceInternal::class.java)
+        mockClientServiceInternal = mock()
+        mockLoggingClientServiceInternal = mock()
 
-        mockEventServiceInternal = mock(DefaultEventServiceInternal::class.java)
-        mockLoggingEventServiceInternal = mock(LoggingEventServiceInternal::class.java)
+        mockEventServiceInternal = mock()
+        mockLoggingEventServiceInternal = mock()
 
-        mockPush = mock(PushApi::class.java)
-        mockLoggingPush = mock(PushApi::class.java)
+        mockPush = mock()
+        mockLoggingPush = mock()
 
-        mockPredict = mock(PredictApi::class.java)
-        mockLoggingPredict = mock(PredictApi::class.java)
+        mockPredict = mock()
+        mockLoggingPredict = mock()
 
-        mockPredictInternal = mock(PredictInternal::class.java)
-        mockLoggingPredictInternal = mock(PredictInternal::class.java)
-        mockGeofence = mock(GeofenceApi::class.java)
-        mockLoggingGeofence = mock(GeofenceApi::class.java)
+        mockPredictInternal = mock()
+        mockLoggingPredictInternal = mock()
+        mockGeofence = mock()
+        mockLoggingGeofence = mock()
 
         DependencyInjection.setup(FakeDependencyContainer(
                 mobileEngageInternal = mockMobileEngageInternal,

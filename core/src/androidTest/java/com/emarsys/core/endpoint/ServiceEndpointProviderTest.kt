@@ -1,6 +1,6 @@
 package com.emarsys.core.endpoint
 
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -21,12 +21,12 @@ class ServiceEndpointProviderTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var serviceEndpointProvider: ServiceEndpointProvider
-    private lateinit var mockServiceUrlStorage: Storage<String>
+    private lateinit var mockServiceUrlStorage: StringStorage
 
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        mockServiceUrlStorage = Mockito.mock(Storage::class.java) as Storage<String>
+        mockServiceUrlStorage = Mockito.mock(StringStorage::class.java)
         serviceEndpointProvider = ServiceEndpointProvider(mockServiceUrlStorage, DEFAULT_ENDPOINT)
     }
 

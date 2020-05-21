@@ -1,25 +1,26 @@
 package com.emarsys.config
 
-import com.emarsys.core.Callable
-import com.emarsys.core.RunnerProxy
+import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.di.Container.getDependency
 
-class ConfigProxy(private val runnerProxy: RunnerProxy, private val configInternal: ConfigInternal) : ConfigApi {
+@Mockable
+class Config() : ConfigApi {
     override val contactFieldId: Int
-        get() = runnerProxy.logException(Callable { configInternal.contactFieldId })
+        get() = getDependency<ConfigInternal>().contactFieldId
 
     override val applicationCode: String?
-        get() = runnerProxy.logException(Callable<String> { configInternal.applicationCode })
+        get() = getDependency<ConfigInternal>().applicationCode
 
     override val merchantId: String?
-        get() = runnerProxy.logException(Callable<String> { configInternal.merchantId })
+        get() = getDependency<ConfigInternal>().merchantId
     override val hardwareId: String
-        get() = runnerProxy.logException(Callable<String> { configInternal.hardwareId })
+        get() = getDependency<ConfigInternal>().hardwareId
     override val language: String
-        get() = runnerProxy.logException(Callable<String> { configInternal.language })
+        get() = getDependency<ConfigInternal>().language
     override val notificationSettings: NotificationSettings
-        get() = runnerProxy.logException(Callable<NotificationSettings> { configInternal.notificationSettings })
+        get() = getDependency<ConfigInternal>().notificationSettings
 
     override fun changeApplicationCode(applicationCode: String?) {
         changeApplicationCode(applicationCode, contactFieldId)
@@ -38,7 +39,8 @@ class ConfigProxy(private val runnerProxy: RunnerProxy, private val configIntern
     }
 
     override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: CompletionListener?) {
-        runnerProxy.logException { configInternal.changeApplicationCode(applicationCode, contactFieldId, completionListener) }
+        getDependency<ConfigInternal>()
+                .changeApplicationCode(applicationCode, contactFieldId, completionListener)
     }
 
     override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: (throwable: Throwable?) -> Unit) {
@@ -46,6 +48,7 @@ class ConfigProxy(private val runnerProxy: RunnerProxy, private val configIntern
     }
 
     override fun changeMerchantId(merchantId: String?) {
-        runnerProxy.logException { configInternal.changeMerchantId(merchantId) }
+        getDependency<ConfigInternal>()
+                .changeMerchantId(merchantId)
     }
 }

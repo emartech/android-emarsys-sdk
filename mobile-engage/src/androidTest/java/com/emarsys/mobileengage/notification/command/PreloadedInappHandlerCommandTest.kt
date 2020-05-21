@@ -9,15 +9,12 @@ import androidx.test.filters.SdkSuppress
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
-import com.emarsys.mobileengage.iam.InAppPresenter
-import com.emarsys.mobileengage.iam.PushToInAppAction
+import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.json.JSONObject
@@ -59,13 +56,14 @@ class PreloadedInappHandlerCommandTest {
             on { readFileIntoString(any()) } doReturn "html"
             on { readURLIntoString(any()) } doReturn "html"
         }
-        mockDependencyContainer = mock {
-            on { activityLifecycleWatchdog } doReturn mockActivityLifecycleWatchdog
-            on { inAppPresenter } doReturn mock()
-            on { timestampProvider } doReturn mock()
-            on { coreSdkHandler } doReturn mockCoreSdkHandler
-            on { fileDownloader } doReturn mockFileDownloader
-        }
+
+        mockDependencyContainer = FakeMobileEngageDependencyContainer(
+                activityLifecycleWatchdog = mockActivityLifecycleWatchdog,
+                coreSdkHandler = mockCoreSdkHandler,
+                fileDownloader = mockFileDownloader
+        )
+
+        DependencyInjection.setup(mockDependencyContainer)
 
     }
 
@@ -74,16 +72,6 @@ class PreloadedInappHandlerCommandTest {
         application.unregisterActivityLifecycleCallbacks(mockActivityLifecycleWatchdog)
         mockCoreSdkHandler.looper.quitSafely()
         DependencyInjection.tearDown()
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testHandlePreloadedInAppMessage_intentMustNotBeNull() {
-        PreloadedInappHandlerCommand(null, mockDependencyContainer)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testHandlePreloadedInAppMessage_dependencyContainerMustNotBeNull() {
-        PreloadedInappHandlerCommand(Intent(), null)
     }
 
     @Test
@@ -104,7 +92,7 @@ class PreloadedInappHandlerCommandTest {
             putExtra("payload", payload)
         }
 
-        PreloadedInappHandlerCommand(intent, mockDependencyContainer).run()
+        PreloadedInappHandlerCommand(intent).run()
 
         waitForEventLoopToFinish(mockCoreSdkHandler)
 
@@ -131,7 +119,7 @@ class PreloadedInappHandlerCommandTest {
             putExtra("payload", payload)
         }
 
-        PreloadedInappHandlerCommand(intent, mockDependencyContainer).run()
+        PreloadedInappHandlerCommand(intent).run()
 
         waitForEventLoopToFinish(mockCoreSdkHandler)
 
@@ -154,7 +142,7 @@ class PreloadedInappHandlerCommandTest {
             putExtra("payload", payload)
         }
 
-        PreloadedInappHandlerCommand(intent, mockDependencyContainer).run()
+        PreloadedInappHandlerCommand(intent).run()
 
         waitForEventLoopToFinish(mockCoreSdkHandler)
 
@@ -181,7 +169,7 @@ class PreloadedInappHandlerCommandTest {
 
         File(fileUrl).exists() shouldBe true
 
-        PreloadedInappHandlerCommand(intent, mockDependencyContainer).run()
+        PreloadedInappHandlerCommand(intent).run()
 
         waitForEventLoopToFinish(mockCoreSdkHandler)
 
@@ -200,7 +188,7 @@ class PreloadedInappHandlerCommandTest {
             putExtra("payload", payload)
         }
 
-        PreloadedInappHandlerCommand(intent, mockDependencyContainer).run()
+        PreloadedInappHandlerCommand(intent).run()
 
         waitForEventLoopToFinish(mockCoreSdkHandler)
 

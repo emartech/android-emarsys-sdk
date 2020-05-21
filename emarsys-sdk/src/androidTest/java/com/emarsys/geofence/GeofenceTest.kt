@@ -1,34 +1,48 @@
 package com.emarsys.geofence
 
-import com.emarsys.core.RunnerProxy
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.di.DependencyInjection
+import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.geofence.GeofenceInternal
+import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
+import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 
-class GeofenceProxyTest {
+class GeofenceTest {
 
     private lateinit var geofenceProxy: GeofenceApi
     private lateinit var mockGeofenceInternal: GeofenceInternal
-    private lateinit var spyRunnerProxy: RunnerProxy
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {
         mockGeofenceInternal = mock()
-        spyRunnerProxy = spy()
-        geofenceProxy = GeofenceProxy(mockGeofenceInternal, spyRunnerProxy)
+        val dependencyContainer = FakeDependencyContainer(geofenceInternal = mockGeofenceInternal)
+
+        DependencyInjection.setup(dependencyContainer)
+
+        geofenceProxy = Geofence()
+    }
+
+    @After
+    fun tearDown() {
+        DependencyInjection.tearDown()
     }
 
     @Test
     fun testEnableDelegatesToGeofenceInternalMethod_throughRunnerProxy() {
         geofenceProxy.enable()
 
-        verify(spyRunnerProxy).logException(any())
         verify(mockGeofenceInternal).enable(null)
     }
 
@@ -37,7 +51,6 @@ class GeofenceProxyTest {
         val mockCompletionListener: CompletionListener = mock()
         geofenceProxy.enable(mockCompletionListener)
 
-        verify(spyRunnerProxy).logException(any())
         verify(mockGeofenceInternal).enable(mockCompletionListener)
     }
 
@@ -46,7 +59,6 @@ class GeofenceProxyTest {
         val mockCompletionListener: (Throwable?) -> Unit = mock()
         geofenceProxy.enable(mockCompletionListener)
 
-        verify(spyRunnerProxy).logException(any())
         verify(mockGeofenceInternal).enable(any())
     }
 
@@ -54,7 +66,6 @@ class GeofenceProxyTest {
     fun testDisableDelegatesToGeofenceInternalMethod() {
         geofenceProxy.disable()
 
-        verify(spyRunnerProxy).logException(any())
         verify(mockGeofenceInternal).disable()
     }
 

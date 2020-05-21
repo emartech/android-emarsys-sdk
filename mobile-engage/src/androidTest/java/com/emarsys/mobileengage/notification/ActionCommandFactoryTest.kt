@@ -1,20 +1,22 @@
 package com.emarsys.mobileengage.notification
 
 import android.content.Context
+import com.emarsys.core.di.DependencyInjection
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
+import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.notification.command.AppEventCommand
 import com.emarsys.mobileengage.notification.command.CustomEventCommand
 import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONArray
 import org.json.JSONObject
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -40,10 +42,19 @@ class ActionCommandFactoryTest {
         mockNotificationEventHandlerProvider = mock()
         mockDependencyContainer = mock()
 
-        whenever(mockDependencyContainer.eventServiceInternal).thenReturn(mockEventServiceInternal)
-        whenever(mockDependencyContainer.notificationEventHandlerProvider).thenReturn(mockNotificationEventHandlerProvider)
+        mockDependencyContainer = FakeMobileEngageDependencyContainer(
+                eventServiceInternal = mockEventServiceInternal,
+                notificationEventHandlerProvider = mockNotificationEventHandlerProvider
+        )
+
+        DependencyInjection.setup(mockDependencyContainer)
 
         factory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationEventHandlerProvider)
+    }
+
+    @After
+    fun tearDown() {
+        DependencyInjection.tearDown()
     }
 
     @Test

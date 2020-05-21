@@ -5,14 +5,14 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.util.RequestModelUtils
 import org.json.JSONException
 import org.json.JSONObject
 
 @Mockable
 class MobileEngageTokenResponseHandler(private val tokenKey: String,
-                                       private val tokenStorage: Storage<String>,
+                                       private val tokenStorage: StringStorage,
                                        private val clientServiceProvider: ServiceEndpointProvider,
                                        private val eventServiceProvider: ServiceEndpointProvider,
                                        private val messageInboxServiceProvider: ServiceEndpointProvider) : AbstractResponseHandler() {

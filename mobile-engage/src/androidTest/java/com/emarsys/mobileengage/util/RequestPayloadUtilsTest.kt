@@ -6,7 +6,7 @@ import com.emarsys.core.api.notification.ChannelSettings
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.IamConversionUtils
@@ -48,8 +48,8 @@ class RequestPayloadUtilsTest {
     private lateinit var mockDeviceInfo: DeviceInfo
     private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockTimestampProvider: TimestampProvider
-    private lateinit var mockRefreshTokenStorage: Storage<String>
-    private lateinit var mockContactFieldValueStorage: Storage<String>
+    private lateinit var mockRefreshTokenStorage: StringStorage
+    private lateinit var mockContactFieldValueStorage: StringStorage
     private lateinit var mockNotificationSettings: NotificationSettings
     private lateinit var mockChannelSettings: List<ChannelSettings>
 
@@ -91,10 +91,10 @@ class RequestPayloadUtilsTest {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
 
-        mockRefreshTokenStorage = (mock(Storage::class.java) as Storage<String>).apply {
+        mockRefreshTokenStorage = (mock(StringStorage::class.java)).apply {
             whenever(get()).thenReturn(REFRESH_TOKEN)
         }
-        mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
+        mockContactFieldValueStorage = mock(StringStorage::class.java)
 
         mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
             whenever(applicationCode).thenReturn(APPLICATION_CODE)

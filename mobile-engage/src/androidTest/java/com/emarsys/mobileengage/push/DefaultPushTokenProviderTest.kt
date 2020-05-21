@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.push
 
 import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -20,7 +21,7 @@ class DefaultPushTokenProviderTest {
 
     @Test
     fun testProvidePushToken() {
-        val mockPushTokenStorage: Storage<String?> = (mock(Storage::class.java) as Storage<String?>).apply {
+        val mockPushTokenStorage: Storage<String?> = (mock(StringStorage::class.java)).apply {
             whenever(get()).thenReturn(PUSH_TOKEN)
         }
 

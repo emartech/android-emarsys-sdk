@@ -5,12 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.util.JsonUtils
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
+import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.notification.command.*
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.service.IntentUtils
@@ -24,6 +26,7 @@ import io.kotlintest.shouldNotBe
 import io.kotlintest.tables.row
 import org.json.JSONArray
 import org.json.JSONObject
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -66,30 +69,23 @@ class NotificationCommandFactoryTest {
         mockCurrentActivityProvider = mock(CurrentActivityProvider::class.java).apply {
             whenever(get()).thenReturn(null)
         }
-        mockDependencyContainer = mock(MobileEngageDependencyContainer::class.java).apply {
-            whenever(eventServiceInternal).thenReturn(mockEventServiceInternal)
-            whenever(pushInternal).thenReturn(mockPushInternal)
-            whenever(notificationEventHandlerProvider).thenReturn(mockNotificationEventHandlerProvider)
-            whenever(notificationActionCommandFactory).thenReturn(mockActionCommandFactory)
-            whenever(currentActivityProvider).thenReturn(mockCurrentActivityProvider)
-        }
 
-        factory = NotificationCommandFactory(context, mockDependencyContainer)
+        mockDependencyContainer = FakeMobileEngageDependencyContainer(
+                eventServiceInternal = mockEventServiceInternal,
+                pushInternal = mockPushInternal,
+                notificationEventHandlerProvider = mockNotificationEventHandlerProvider,
+                actionCommandFactory = mockActionCommandFactory,
+                currentActivityProvider = mockCurrentActivityProvider
+        )
+
+        DependencyInjection.setup(mockDependencyContainer)
+
+        factory = NotificationCommandFactory(context)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_context_mustNotBeNull() {
-        NotificationCommandFactory(null, mockDependencyContainer)
-    }
-
-    @Test(expected = java.lang.IllegalArgumentException::class)
-    fun testConstructor_dependencyContainer_mustNotBeNull() {
-        NotificationCommandFactory(context, null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_internalsFromContainer_mustNotBeNull() {
-        NotificationCommandFactory(context, mock(MobileEngageDependencyContainer::class.java))
+    @After
+    fun tearDown() {
+        DependencyInjection.tearDown()
     }
 
     @Test
@@ -504,8 +500,9 @@ class NotificationCommandFactoryTest {
     fun testCreateNotificationCommand_launchCommandShouldBeThirdCommand() {
         val intent = createOpenExternalLinkIntent()
         val compositeCommands = factory.createNotificationCommand(intent) as CompositeCommand
+        val result = compositeCommands.commands
 
-        compositeCommands.commands[3]::class.java shouldBe LaunchApplicationCommand::class.java
+        result[3]::class.java shouldBe LaunchApplicationCommand::class.java
     }
 
     @Test
@@ -514,8 +511,9 @@ class NotificationCommandFactoryTest {
         whenever(mockCurrentActivityProvider.get()).thenReturn(mockActivity)
         val intent = createOpenExternalLinkIntent()
         val compositeCommands = factory.createNotificationCommand(intent) as CompositeCommand
+        val result = compositeCommands.commands
 
-        compositeCommands.commands.forEach { it::class.java shouldNotBe LaunchApplicationCommand::class.java }
+        result.forEach { it::class.java shouldNotBe LaunchApplicationCommand::class.java }
     }
 
     @Suppress("UNCHECKED_CAST")

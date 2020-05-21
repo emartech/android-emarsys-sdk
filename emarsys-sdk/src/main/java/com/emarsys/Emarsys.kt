@@ -6,17 +6,22 @@ import android.content.Intent
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.RunnerProxy
+import com.emarsys.core.activity.ActivityLifecycleWatchdog
+import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
+import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerType
+import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.di.Container.getDependency
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.Assert
 import com.emarsys.di.DefaultEmarsysDependencyContainer
-import com.emarsys.di.EmarsysDependencyContainer
 import com.emarsys.di.EmarsysDependencyInjection
 import com.emarsys.feature.InnerFeature.MOBILE_ENGAGE
 import com.emarsys.feature.InnerFeature.PREDICT
@@ -27,6 +32,7 @@ import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
+import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.Logic
@@ -43,7 +49,7 @@ object Emarsys {
 
     @JvmStatic
     val config: ConfigApi
-        get() = container.config
+        get() = getDependency()
 
     @JvmStatic
     val push: PushApi
@@ -65,11 +71,8 @@ object Emarsys {
     val predict: PredictApi
         get() = EmarsysDependencyInjection.predict()
 
-    private val container: EmarsysDependencyContainer
-        get() = DependencyInjection.getContainer()
-
     private val runnerProxy: RunnerProxy
-        get() = container.runnerProxy
+        get() = getDependency()
 
     @JvmStatic
     fun setup(emarsysConfig: EmarsysConfig) {
@@ -79,7 +82,9 @@ object Emarsys {
             FeatureRegistry.enableFeature(feature)
         }
 
-        DependencyInjection.setup(DefaultEmarsysDependencyContainer(emarsysConfig))
+        DependencyInjection.setup(DefaultEmarsysDependencyContainer(emarsysConfig, Runnable {
+
+        }))
 
         initializeInAppInternal(emarsysConfig)
 
@@ -500,32 +505,34 @@ object Emarsys {
     }
 
     private fun registerWatchDogs(config: EmarsysConfig) {
-        config.application.registerActivityLifecycleCallbacks(container.activityLifecycleWatchdog)
-        config.application.registerActivityLifecycleCallbacks(container.currentActivityWatchdog)
+        config.application.registerActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
+        config.application.registerActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
     }
 
     private fun registerDatabaseTriggers() {
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-            container.coreSQLiteDatabase.registerTrigger(
-                    DatabaseContract.SHARD_TABLE_NAME,
-                    TriggerType.AFTER,
-                    TriggerEvent.INSERT,
-                    container.predictShardTrigger)
+            getDependency<CoreSQLiteDatabase>()
+                    .registerTrigger(
+                            DatabaseContract.SHARD_TABLE_NAME,
+                            TriggerType.AFTER,
+                            TriggerEvent.INSERT,
+                            getDependency<Runnable>("predictShardTrigger"))
         }
 
-        container.coreSQLiteDatabase.registerTrigger(
-                DatabaseContract.SHARD_TABLE_NAME,
-                TriggerType.AFTER,
-                TriggerEvent.INSERT,
-                container.logShardTrigger)
+        getDependency<CoreSQLiteDatabase>()
+                .registerTrigger(
+                        DatabaseContract.SHARD_TABLE_NAME,
+                        TriggerType.AFTER,
+                        TriggerEvent.INSERT,
+                        getDependency<Runnable>("logShardTrigger"))
     }
 
     private fun initializeContact() {
-        val deviceInfoPayload = container.deviceInfoPayloadStorage.get()
-        val contactToken = container.contactTokenStorage.get()
-        val contactFieldValue = container.contactFieldValueStorage.get()
-        val clientState = container.clientStateStorage.get()
-        val deviceInfo = container.deviceInfo
+        val deviceInfoPayload = getDependency<StringStorage>(MobileEngageStorageKey.DEVICE_INFO_HASH.key).get()
+        val contactToken = getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key).get()
+        val contactFieldValue = getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).get()
+        val clientState = getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key).get()
+        val deviceInfo = getDependency<DeviceInfo>()
 
         if (contactToken == null && contactFieldValue == null) {
             if (clientState == null || deviceInfoPayload != null && deviceInfoPayload != deviceInfo.deviceInfoPayload) {

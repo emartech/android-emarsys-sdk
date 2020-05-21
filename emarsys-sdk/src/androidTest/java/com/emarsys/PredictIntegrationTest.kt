@@ -3,13 +3,17 @@ package com.emarsys
 import android.app.Application
 import android.app.NotificationManager
 import android.content.Context
+import android.os.Handler
 import androidx.core.app.NotificationManagerCompat
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
+import com.emarsys.core.activity.ActivityLifecycleWatchdog
+import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
+import com.emarsys.core.di.Container.getDependency
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.notification.NotificationManagerProxy
@@ -17,12 +21,14 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
-import com.emarsys.di.EmarsysDependencyContainer
+import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.api.model.RecommendationLogic
+import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
@@ -71,10 +77,7 @@ class PredictIntegrationTest {
     private lateinit var completionHandler: DefaultCoreCompletionHandler
     private lateinit var responseModelMatches: (ResponseModel) -> Boolean
     private var errorCause: Throwable? = null
-    private lateinit var clientStateStorage: Storage<String>
-    private lateinit var contactTokenStorage: Storage<String>
-    private lateinit var refreshTokenStorage: Storage<String>
-    private lateinit var deviceInfoPayloadStorage: Storage<String>
+    private lateinit var clientStateStorage: Storage<String?>
     lateinit var triedRecommendedProducts: Try<List<Product>>
 
     private val application: Application
@@ -136,63 +139,70 @@ class PredictIntegrationTest {
                 latch.countDown()
             }
         }
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
-            override fun getCoreCompletionHandler() = completionHandler
 
-            override fun getDeviceInfo() = DeviceInfo(
-                    application,
-                    mock(HardwareIdProvider::class.java).apply {
-                        whenever(provideHardwareId()).thenReturn("predict_integration_hwid")
-                    },
-                    mock(VersionProvider::class.java).apply {
-                        whenever(provideSdkVersion()).thenReturn("0.0.0-predict_integration_version")
-                    },
-                    mock(LanguageProvider::class.java).apply {
-                        whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
-                    },
-                    NotificationManagerHelper(NotificationManagerProxy(application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager, NotificationManagerCompat.from(application))),
-                    true
-            )
+        val setupLatch = CountDownLatch(1)
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig, Runnable {
+            setupLatch.countDown()
+        }) {
+            override fun getDeviceInfo(): DeviceInfo {
+                return DeviceInfo(
+                        application,
+                        mock(HardwareIdProvider::class.java).apply {
+                            whenever(provideHardwareId()).thenReturn("predict_integration_hwid")
+                        },
+                        mock(VersionProvider::class.java).apply {
+                            whenever(provideSdkVersion()).thenReturn("0.0.0-predict_integration_version")
+                        },
+                        mock(LanguageProvider::class.java).apply {
+                            whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
+                        },
+                        NotificationManagerHelper(NotificationManagerProxy(application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager, NotificationManagerCompat.from(application))),
+                        true
+                )
+            }
+
+            override fun getCoreCompletionHandler(): DefaultCoreCompletionHandler {
+                return completionHandler
+            }
         })
 
-        clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.clientStateStorage
-        contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.contactTokenStorage
-        refreshTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().requestContext.refreshTokenStorage
-        deviceInfoPayloadStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().deviceInfoPayloadStorage
+        setupLatch.await()
+
+        clientStateStorage = getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key)
         clientStateStorage.remove()
-        contactTokenStorage.remove()
-        refreshTokenStorage.remove()
-        deviceInfoPayloadStorage.remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
 
         Emarsys.setup(baseConfig)
 
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.set(null)
+        getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
     }
 
     @After
     fun tearDown() {
         try {
-            with(DependencyInjection.getContainer<EmarsysDependencyContainer>()) {
-                application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
-                application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
-                coreSdkHandler.looper.quit()
-            }
+            getDependency<Handler>("coreSdkHandler").looper.quit()
+            application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
+            application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
 
-            clientStateStorage.remove()
-            contactTokenStorage.remove()
-            refreshTokenStorage.remove()
-            deviceInfoPayloadStorage.remove()
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.set(null)
+            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
             DependencyInjection.tearDown()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -212,7 +222,7 @@ class PredictIntegrationTest {
             it.baseUrl.contains(CartItemUtils.cartItemsToQueryParam(cartItems))
         }
 
-        Emarsys.Predict.trackCart(cartItems)
+        Emarsys.predict.trackCart(cartItems)
 
         eventuallyAssertSuccess()
     }
@@ -232,7 +242,7 @@ class PredictIntegrationTest {
             it.baseUrl.contains(orderId)
         }
 
-        Emarsys.Predict.trackPurchase(orderId, cartItems)
+        Emarsys.predict.trackPurchase(orderId, cartItems)
 
         eventuallyAssertSuccess()
     }
@@ -244,7 +254,7 @@ class PredictIntegrationTest {
             it.baseUrl.contains(itemId)
         }
 
-        Emarsys.Predict.trackItemView(itemId)
+        Emarsys.predict.trackItemView(itemId)
 
         eventuallyAssertSuccess()
     }
@@ -256,7 +266,7 @@ class PredictIntegrationTest {
             it.baseUrl.contains(product.productId)
         }
 
-        Emarsys.Predict.trackRecommendationClick(product)
+        Emarsys.predict.trackRecommendationClick(product)
 
         eventuallyAssertSuccess()
     }
@@ -268,7 +278,7 @@ class PredictIntegrationTest {
             it.baseUrl.contains(categoryId)
         }
 
-        Emarsys.Predict.trackCategoryView(categoryId)
+        Emarsys.predict.trackCategoryView(categoryId)
 
         eventuallyAssertSuccess()
     }
@@ -280,7 +290,7 @@ class PredictIntegrationTest {
             it.baseUrl.contains(searchTerm)
         }
 
-        Emarsys.Predict.trackSearchTerm(searchTerm)
+        Emarsys.predict.trackSearchTerm(searchTerm)
 
         eventuallyAssertSuccess()
     }
@@ -292,14 +302,14 @@ class PredictIntegrationTest {
             it.baseUrl.contains(tag)
         }
 
-        Emarsys.Predict.trackTag(tag, mapOf("testKey" to "testValue"))
+        Emarsys.predict.trackTag(tag, mapOf("testKey" to "testValue"))
 
         eventuallyAssertSuccess()
     }
 
     @Test
     fun testRecommendProducts() {
-        Emarsys.Predict.recommendProducts(RecommendationLogic.search("polo shirt"),
+        Emarsys.predict.recommendProducts(RecommendationLogic.search("polo shirt"),
                 listOf(RecommendationFilter.exclude("price").isValue("")),
                 3,
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
@@ -313,7 +323,7 @@ class PredictIntegrationTest {
 
     @Test
     fun testRecommendProducts_withSearch() {
-        Emarsys.Predict.recommendProducts(RecommendationLogic.search("polo shirt"),
+        Emarsys.predict.recommendProducts(RecommendationLogic.search("polo shirt"),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -324,7 +334,7 @@ class PredictIntegrationTest {
         testTrackSearchTerm()
         latch = CountDownLatch(1)
 
-        Emarsys.Predict.recommendProducts(RecommendationLogic.search(),
+        Emarsys.predict.recommendProducts(RecommendationLogic.search(),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -337,7 +347,7 @@ class PredictIntegrationTest {
                 PredictCartItem("2200", 2.2, 20.0),
                 PredictCartItem("2509", 3.3, 30.0)
         )
-        Emarsys.Predict.recommendProducts(RecommendationLogic.cart(cartItems),
+        Emarsys.predict.recommendProducts(RecommendationLogic.cart(cartItems),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -348,7 +358,7 @@ class PredictIntegrationTest {
         testTrackCart()
         latch = CountDownLatch(1)
 
-        Emarsys.Predict.recommendProducts(RecommendationLogic.cart(),
+        Emarsys.predict.recommendProducts(RecommendationLogic.cart(),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -356,7 +366,7 @@ class PredictIntegrationTest {
 
     @Test
     fun testRecommendProducts_withRelated() {
-        Emarsys.Predict.recommendProducts(RecommendationLogic.related("2200"),
+        Emarsys.predict.recommendProducts(RecommendationLogic.related("2200"),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -367,7 +377,7 @@ class PredictIntegrationTest {
         testTrackItemView()
         latch = CountDownLatch(1)
 
-        Emarsys.Predict.recommendProducts(RecommendationLogic.related(),
+        Emarsys.predict.recommendProducts(RecommendationLogic.related(),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -375,7 +385,7 @@ class PredictIntegrationTest {
 
     @Test
     fun testRecommendProducts_withoutRelated() {
-        Emarsys.Predict.recommendProducts(RecommendationLogic.related(),
+        Emarsys.predict.recommendProducts(RecommendationLogic.related(),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
             triedRecommendedProducts.errorCause shouldBe null
             triedRecommendedProducts.result shouldNotBe null
@@ -385,7 +395,7 @@ class PredictIntegrationTest {
 
     @Test
     fun testRecommendProducts_withCategory() {
-        Emarsys.Predict.recommendProducts(RecommendationLogic.category("MEN>Shirts"),
+        Emarsys.predict.recommendProducts(RecommendationLogic.category("MEN>Shirts"),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -396,7 +406,7 @@ class PredictIntegrationTest {
         testTrackCategoryView()
         latch = CountDownLatch(1)
 
-        Emarsys.Predict.recommendProducts(RecommendationLogic.category(),
+        Emarsys.predict.recommendProducts(RecommendationLogic.category(),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -404,7 +414,7 @@ class PredictIntegrationTest {
 
     @Test
     fun testRecommendProducts_withAlsoBought() {
-        Emarsys.Predict.recommendProducts(RecommendationLogic.alsoBought("2200"),
+        Emarsys.predict.recommendProducts(RecommendationLogic.alsoBought("2200"),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -415,7 +425,7 @@ class PredictIntegrationTest {
         testTrackItemView()
         latch = CountDownLatch(1)
 
-        Emarsys.Predict.recommendProducts(RecommendationLogic.alsoBought(),
+        Emarsys.predict.recommendProducts(RecommendationLogic.alsoBought(),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -426,7 +436,7 @@ class PredictIntegrationTest {
         testTrackCategoryView()
         latch = CountDownLatch(1)
 
-        Emarsys.Predict.recommendProducts(RecommendationLogic.popular(),
+        Emarsys.predict.recommendProducts(RecommendationLogic.popular(),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -437,7 +447,7 @@ class PredictIntegrationTest {
         testTrackItemView()
         latch = CountDownLatch(1)
 
-        Emarsys.Predict.recommendProducts(RecommendationLogic.personal(),
+        Emarsys.predict.recommendProducts(RecommendationLogic.personal(),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -448,7 +458,7 @@ class PredictIntegrationTest {
         testTrackItemView()
         latch = CountDownLatch(1)
 
-        Emarsys.Predict.recommendProducts(RecommendationLogic.personal(listOf("1", "2", "3")),
+        Emarsys.predict.recommendProducts(RecommendationLogic.personal(listOf("1", "2", "3")),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -459,7 +469,7 @@ class PredictIntegrationTest {
         testTrackItemView()
         latch = CountDownLatch(1)
 
-        Emarsys.Predict.recommendProducts(RecommendationLogic.home(),
+        Emarsys.predict.recommendProducts(RecommendationLogic.home(),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -470,7 +480,7 @@ class PredictIntegrationTest {
         testTrackItemView()
         latch = CountDownLatch(1)
 
-        Emarsys.Predict.recommendProducts(RecommendationLogic.home(listOf("1", "2", "3")),
+        Emarsys.predict.recommendProducts(RecommendationLogic.home(listOf("1", "2", "3")),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
 
         eventuallyAssertForTriedRecommendedProducts()
@@ -500,10 +510,10 @@ class PredictIntegrationTest {
 
     @Test
     fun testConfig_changeMerchantId() {
-        val originalMerchantId = Emarsys.Config.merchantId
-        Emarsys.Config.changeMerchantId(OTHER_MERCHANT_ID)
-        originalMerchantId shouldNotBe Emarsys.Config.applicationCode
-        Emarsys.Config.merchantId shouldBe OTHER_MERCHANT_ID
+        val originalMerchantId = Emarsys.config.merchantId
+        Emarsys.config.changeMerchantId(OTHER_MERCHANT_ID)
+        originalMerchantId shouldNotBe Emarsys.config.applicationCode
+        Emarsys.config.merchantId shouldBe OTHER_MERCHANT_ID
     }
 
     private fun eventuallyAssertSuccess() {

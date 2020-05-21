@@ -1,5 +1,6 @@
 package com.emarsys.di
 
+import com.emarsys.core.di.Container.getDependency
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.feature.InnerFeature
@@ -20,99 +21,99 @@ object EmarsysDependencyInjection : DependencyInjection() {
     @JvmStatic
     fun mobileEngageInternal(): MobileEngageInternal {
         return if (isMobileEngageEnabled()) {
-            container().mobileEngageInternal
+            getDependency("defaultInstance")
         } else {
-            container().loggingMobileEngageInternal
+            getDependency("loggingInstance")
         }
     }
 
     @JvmStatic
     fun predictInternal(): PredictInternal {
         return if (isPredictEnabled()) {
-            container().predictInternal
+            getDependency("defaultInstance")
         } else {
-            container().loggingPredictInternal
+            getDependency("loggingInstance")
         }
     }
 
     @JvmStatic
     fun inbox(): InboxApi {
         return if (isMobileEngageEnabled()) {
-            container().inbox
+            getDependency("defaultInstance")
         } else {
-            container().loggingInbox
+            getDependency("loggingInstance")
         }
     }
 
     @JvmStatic
     fun inApp(): InAppApi {
         return if (isMobileEngageEnabled()) {
-            container().inApp
+            getDependency("defaultInstance")
         } else {
-            container().loggingInApp
+            getDependency("loggingInstance")
         }
     }
 
     @JvmStatic
     fun deepLinkInternal(): DeepLinkInternal {
         return if (isMobileEngageEnabled()) {
-            container().deepLinkInternal
+            getDependency("defaultInstance")
         } else {
-            container().loggingDeepLinkInternal
+            getDependency("loggingInstance")
         }
     }
 
     @JvmStatic
     fun clientServiceInternal(): ClientServiceInternal {
         return if (isMobileEngageEnabled()) {
-            container().clientServiceInternal
+            getDependency("defaultInstance")
         } else {
-            container().loggingClientServiceInternal
+            getDependency("loggingInstance")
         }
     }
 
     @JvmStatic
     fun eventServiceInternal(): EventServiceInternal {
         return if (isMobileEngageEnabled()) {
-            container().eventServiceInternal
+            getDependency("defaultInstance")
         } else {
-            container().loggingEventServiceInternal
+            getDependency("loggingInstance")
         }
     }
 
     @JvmStatic
     fun push(): PushApi {
         return if (isMobileEngageEnabled()) {
-            container().push
+            getDependency("defaultInstance")
         } else {
-            container().loggingPush
+            getDependency("loggingInstance")
         }
     }
 
     @JvmStatic
     fun predict(): PredictApi {
         return if (isPredictEnabled()) {
-            container().predict
+            getDependency("defaultInstance")
         } else {
-            container().loggingPredict
+            getDependency("loggingInstance")
         }
     }
 
     @JvmStatic
     fun messageInbox(): MessageInboxApi {
         return if (isMobileEngageEnabled()) {
-            container().messageInbox
+            getDependency("defaultInstance")
         } else {
-            container().loggingMessageInbox
+            getDependency("loggingInstance")
         }
     }
 
     @JvmStatic
     fun geofence(): GeofenceApi {
         return if (isMobileEngageEnabled()) {
-            container().geofence
+            getDependency("defaultInstance")
         } else {
-            container().loggingGeofence
+            getDependency("loggingInstance")
         }
     }
 
@@ -122,10 +123,5 @@ object EmarsysDependencyInjection : DependencyInjection() {
 
     private fun isPredictEnabled(): Boolean {
         return FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT)
-    }
-
-    private fun container(): EmarsysDependencyContainer {
-        checkNotNull(container) { "DependencyInjection must be setup before accessing container!" }
-        return container as EmarsysDependencyContainer
     }
 }

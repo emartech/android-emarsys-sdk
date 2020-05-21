@@ -7,7 +7,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
@@ -40,9 +40,9 @@ class MobileEngageHeaderMapperTest {
     private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockUuidProvider: UUIDProvider
-    private lateinit var mockClientStateStorage: Storage<String>
-    private lateinit var mockContactTokenStorage: Storage<String>
-    private lateinit var mockRefreshTokenStorage: Storage<String>
+    private lateinit var mockClientStateStorage: StringStorage
+    private lateinit var mockContactTokenStorage: StringStorage
+    private lateinit var mockRefreshTokenStorage: StringStorage
     private lateinit var mockDeviceInfo: DeviceInfo
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
@@ -67,15 +67,15 @@ class MobileEngageHeaderMapperTest {
             whenever(provideEndpointHost()).thenReturn(INBOX_HOST)
         }
 
-        mockClientStateStorage = (mock(Storage::class.java) as Storage<String>).apply {
+        mockClientStateStorage = (mock(StringStorage::class.java)).apply {
             whenever(get()).thenReturn(CLIENT_STATE)
         }
 
-        mockContactTokenStorage = (mock(Storage::class.java) as Storage<String>).apply {
+        mockContactTokenStorage = (mock(StringStorage::class.java)).apply {
             whenever(get()).thenReturn(CONTACT_TOKEN)
         }
 
-        mockRefreshTokenStorage = (mock(Storage::class.java) as Storage<String>).apply {
+        mockRefreshTokenStorage = (mock(StringStorage::class.java)).apply {
             whenever(get()).thenReturn(REFRESH_TOKEN)
         }
 

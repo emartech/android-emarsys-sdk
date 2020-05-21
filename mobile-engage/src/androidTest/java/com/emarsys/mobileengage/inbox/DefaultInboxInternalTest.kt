@@ -22,7 +22,7 @@ import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.worker.Worker
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.api.inbox.Notification
@@ -77,7 +77,7 @@ class DefaultInboxInternalTest {
     private lateinit var mockLanguageProvider: LanguageProvider
     private lateinit var mockHardwareIdProvider: HardwareIdProvider
     private lateinit var mockVersionProvider: VersionProvider
-    private lateinit var mockContactFieldValueStorage: Storage<String>
+    private lateinit var mockContactFieldValueStorage: StringStorage
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var notificationList: List<Notification>
 
@@ -110,7 +110,7 @@ class DefaultInboxInternalTest {
 
         mockTimestampProvider = mock(TimestampProvider::class.java)
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
-        mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
+        mockContactFieldValueStorage = mock(StringStorage::class.java)
 
         whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
         mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
@@ -123,11 +123,11 @@ class DefaultInboxInternalTest {
                 deviceInfo,
                 mockTimestampProvider,
                 mockUuidProvider,
-                mock(Storage::class.java) as Storage<String>,
-                mock(Storage::class.java) as Storage<String>,
-                mock(Storage::class.java) as Storage<String>,
+                mock(StringStorage::class.java),
+                mock(StringStorage::class.java),
+                mock(StringStorage::class.java),
                 mockContactFieldValueStorage,
-                mock(Storage::class.java) as Storage<String>
+                mock(StringStorage::class.java)
         )
 
         defaultHeaders = RequestHeaderUtils.createDefaultHeaders(requestContext)

@@ -1,10 +1,7 @@
 package com.emarsys.core.api
 
 import android.os.Handler
-import android.util.Log
-import com.emarsys.core.Mockable
 import java.lang.reflect.InvocationHandler
-import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import java.util.concurrent.CountDownLatch

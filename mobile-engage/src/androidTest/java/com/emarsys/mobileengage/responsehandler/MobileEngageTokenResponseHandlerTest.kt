@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.responsehandler
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -26,7 +26,7 @@ class MobileEngageTokenResponseHandlerTest {
     private lateinit var token: String
     private lateinit var tokenKey: String
     private lateinit var tokenResponseHandler: MobileEngageTokenResponseHandler
-    private lateinit var mockStorage: Storage<String>
+    private lateinit var mockStorage: StringStorage
     private lateinit var requestModelMock: RequestModel
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
@@ -41,7 +41,7 @@ class MobileEngageTokenResponseHandlerTest {
     fun setUp() {
         token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
         tokenKey = "refreshToken"
-        mockStorage = mock(Storage::class.java) as Storage<String>
+        mockStorage = mock(StringStorage::class.java)
 
         mockClientServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(CLIENT_HOST)

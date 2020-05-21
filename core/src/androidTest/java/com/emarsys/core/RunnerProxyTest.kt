@@ -1,7 +1,7 @@
 package com.emarsys.core
 
-import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.FakeCoreDependencyContainer
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.testUtil.TimeoutUtils
@@ -29,9 +29,7 @@ class RunnerProxyTest {
     fun setUp() {
         mockLogger = mock()
 
-        val dependencyContainer = mock<DependencyContainer>().apply {
-            whenever(logger).thenReturn(mockLogger)
-        }
+        val dependencyContainer = FakeCoreDependencyContainer(logger = mockLogger)
 
         DependencyInjection.setup(dependencyContainer)
         runnerProxy = RunnerProxy()

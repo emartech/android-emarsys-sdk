@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.request
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
 import com.emarsys.core.worker.Worker
 import com.emarsys.mobileengage.RefreshTokenInternal
@@ -21,8 +21,8 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest {
     private lateinit var mockCoreCompletionHandlerMiddleware: CoreCompletionHandlerMiddleware
     private lateinit var mockRefreshTokenInternal: RefreshTokenInternal
     private lateinit var mockRestClient: RestClient
-    private lateinit var mockContactTokenStorage: Storage<String>
-    private lateinit var mockPushTokenStorage: Storage<String>
+    private lateinit var mockContactTokenStorage: StringStorage
+    private lateinit var mockPushTokenStorage: StringStorage
     private lateinit var coreCompletionHandlerRefreshTokenProxyProvider: CoreCompletionHandlerRefreshTokenProxyProvider
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
@@ -39,8 +39,8 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest {
         mockCoreCompletionHandlerMiddleware = mock(CoreCompletionHandlerMiddleware::class.java)
         mockRefreshTokenInternal = mock(RefreshTokenInternal::class.java)
         mockRestClient = mock(RestClient::class.java)
-        mockContactTokenStorage = mock(Storage::class.java) as Storage<String>
-        mockPushTokenStorage = mock(Storage::class.java) as Storage<String>
+        mockContactTokenStorage = mock(StringStorage::class.java)
+        mockPushTokenStorage = mock(StringStorage::class.java)
         mockClientServiceProvider = mock(ServiceEndpointProvider::class.java)
         mockEventServiceProvider = mock(ServiceEndpointProvider::class.java)
         mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java)

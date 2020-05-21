@@ -12,7 +12,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.storage.Storage;
+import com.emarsys.core.storage.StringStorage;
 import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -69,11 +69,11 @@ public class DefaultDeepLinkInternalTest {
                 mockDeviceInfo,
                 timestampProvider,
                 uuidProvider,
-                mock(Storage.class),
-                mock(Storage.class),
-                mock(Storage.class),
-                mock(Storage.class),
-                mock(Storage.class)
+                mock(StringStorage.class),
+                mock(StringStorage.class),
+                mock(StringStorage.class),
+                mock(StringStorage.class),
+                mock(StringStorage.class)
         );
 
         mockDeepLinkServiceProvider = mock(ServiceEndpointProvider.class);

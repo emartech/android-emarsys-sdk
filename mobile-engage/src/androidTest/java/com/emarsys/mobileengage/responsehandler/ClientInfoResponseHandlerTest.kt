@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.responsehandler
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -28,7 +28,7 @@ class ClientInfoResponseHandlerTest {
     private lateinit var clientInfoResponseHandler: ClientInfoResponseHandler
 
     private lateinit var mockDeviceInfo: DeviceInfo
-    private lateinit var mockDeviceInfoPayloadStorage: Storage<String>
+    private lateinit var mockDeviceInfoPayloadStorage:StringStorage
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var mockRequestModel: RequestModel
 
@@ -36,7 +36,7 @@ class ClientInfoResponseHandlerTest {
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockDeviceInfo = mock(DeviceInfo::class.java)
-        mockDeviceInfoPayloadStorage = mock(Storage::class.java) as Storage<String>
+        mockDeviceInfoPayloadStorage = mock(StringStorage::class.java) as StringStorage
 
         mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL)

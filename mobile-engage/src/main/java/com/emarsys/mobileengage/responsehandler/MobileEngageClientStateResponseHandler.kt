@@ -9,7 +9,7 @@ import com.emarsys.core.util.getCaseInsensitive
 import com.emarsys.mobileengage.util.RequestModelUtils
 
 @Mockable
-class MobileEngageClientStateResponseHandler(private val clientStateStorage: Storage<String>,
+class MobileEngageClientStateResponseHandler(private val clientStateStorage: Storage<String?>,
                                              private val clientServiceProvider: ServiceEndpointProvider,
                                              private val eventServiceProvider: ServiceEndpointProvider,
                                              private val messageInboxServiceProvider: ServiceEndpointProvider) : AbstractResponseHandler() {

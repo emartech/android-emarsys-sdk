@@ -3,7 +3,7 @@ package com.emarsys.mobileengage.responsehandler
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -25,7 +25,7 @@ class MobileEngageClientStateResponseHandlerTest {
         const val INBOX_HOST = "https://mobile-events.eservice.emarsys.net/v3"
     }
 
-    private lateinit var mockStorage: Storage<String>
+    private lateinit var mockStorage: StringStorage
     private lateinit var requestModelMock: RequestModel
     private lateinit var clientStateResponseHandler: MobileEngageClientStateResponseHandler
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
@@ -39,7 +39,7 @@ class MobileEngageClientStateResponseHandlerTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        mockStorage = mock(Storage::class.java) as Storage<String>
+        mockStorage = mock(StringStorage::class.java)
 
         mockClientServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(CLIENT_HOST)

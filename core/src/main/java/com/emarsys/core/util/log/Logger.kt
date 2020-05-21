@@ -4,13 +4,13 @@ import android.os.Handler
 import com.emarsys.core.Mockable
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.di.DependencyContainer
+import com.emarsys.core.di.Container.getDependency
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.endpoint.Endpoint.LOG_URL
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.log.entry.LogEntry
 import com.emarsys.core.util.log.entry.dataWithLogLevel
 
@@ -19,7 +19,7 @@ class Logger(private val coreSdkHandler: Handler,
              private val shardRepository: Repository<ShardModel, SqlSpecification>,
              private val timestampProvider: TimestampProvider,
              private val uuidProvider: UUIDProvider,
-             private val logLevelStorage: Storage<String>) {
+             private val logLevelStorage: StringStorage) {
 
     companion object {
 
@@ -31,21 +31,21 @@ class Logger(private val coreSdkHandler: Handler,
         @JvmStatic
         fun info(logEntry: LogEntry) {
             if (DependencyInjection.isSetup()) {
-                DependencyInjection.getContainer<DependencyContainer>().logger.persistLog(LogLevel.INFO, logEntry)
+                getDependency<Logger>().persistLog(LogLevel.INFO, logEntry)
             }
         }
 
         @JvmStatic
         fun error(logEntry: LogEntry) {
             if (DependencyInjection.isSetup()) {
-                DependencyInjection.getContainer<DependencyContainer>().logger.persistLog(LogLevel.ERROR, logEntry)
+                getDependency<Logger>().persistLog(LogLevel.ERROR, logEntry)
             }
         }
 
         @JvmStatic
         fun debug(logEntry: LogEntry) {
             if (DependencyInjection.isSetup()) {
-                DependencyInjection.getContainer<DependencyContainer>().logger.persistLog(LogLevel.DEBUG, logEntry)
+                getDependency<Logger>().persistLog(LogLevel.DEBUG, logEntry)
             }
         }
     }
@@ -66,7 +66,7 @@ class Logger(private val coreSdkHandler: Handler,
     }
 
     private fun shouldLogBasedOnRemoteConfig(logLevel: LogLevel): Boolean {
-        val savedLogLevel: LogLevel = if (logLevelStorage.get() == null) LogLevel.ERROR else LogLevel.valueOf(logLevelStorage.get())
+        val savedLogLevel: LogLevel = if (logLevelStorage.get() == null) LogLevel.ERROR else LogLevel.valueOf(logLevelStorage.get()!!)
 
         return logLevel.priority >= savedLogLevel.priority
     }

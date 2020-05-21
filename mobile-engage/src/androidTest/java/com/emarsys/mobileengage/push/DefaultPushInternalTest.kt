@@ -9,7 +9,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.EventHandlerProvider
@@ -55,11 +55,11 @@ class DefaultPushInternalTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockNotificationEventHandlerProvider: EventHandlerProvider
     private lateinit var mockSilentMessageEventHandlerProvider: EventHandlerProvider
-    private lateinit var mockContactFieldValueStorage: Storage<String>
-    private lateinit var mockRefreshTokenStorage: Storage<String>
-    private lateinit var mockContactTokenStorage: Storage<String>
-    private lateinit var mockClientStateStorage: Storage<String>
-    private lateinit var mockPushTokenStorage: Storage<String>
+    private lateinit var mockContactFieldValueStorage: StringStorage
+    private lateinit var mockRefreshTokenStorage: StringStorage
+    private lateinit var mockContactTokenStorage: StringStorage
+    private lateinit var mockClientStateStorage: StringStorage
+    private lateinit var mockPushTokenStorage: StringStorage
 
     private lateinit var uiHandler: Handler
 
@@ -71,11 +71,11 @@ class DefaultPushInternalTest {
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
 
-        mockContactFieldValueStorage = mock(Storage::class.java) as Storage<String>
-        mockRefreshTokenStorage = mock(Storage::class.java) as Storage<String>
-        mockContactTokenStorage = mock(Storage::class.java) as Storage<String>
-        mockClientStateStorage = mock(Storage::class.java) as Storage<String>
-        mockPushTokenStorage = mock(Storage::class.java) as Storage<String>
+        mockContactFieldValueStorage = mock(StringStorage::class.java)
+        mockRefreshTokenStorage = mock(StringStorage::class.java)
+        mockContactTokenStorage = mock(StringStorage::class.java)
+        mockClientStateStorage = mock(StringStorage::class.java)
+        mockPushTokenStorage = mock(StringStorage::class.java)
 
         mockUuidProvider = mock(UUIDProvider::class.java).apply {
             whenever(provideId()).thenReturn(REQUEST_ID)

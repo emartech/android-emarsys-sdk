@@ -3,29 +3,31 @@ package com.emarsys
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.core.activity.ActivityLifecycleWatchdog
+import com.emarsys.core.activity.CurrentActivityWatchdog
+import com.emarsys.core.di.Container
+import com.emarsys.core.di.Container.getDependency
 import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.endpoint.ServiceEndpointProvider
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.di.DefaultEmarsysDependencyContainer
-import com.emarsys.di.EmarsysDependencyContainer
-import com.emarsys.mobileengage.api.EventHandler
-import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
-import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.iam.InAppPresenter
 import com.emarsys.mobileengage.service.IntentUtils
+import com.emarsys.mobileengage.storage.MobileEngageStorageKey
+import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
-import com.emarsys.testUtil.mockito.whenever
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
+import com.nhaarman.mockitokotlin2.anyOrNull
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.*
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.isNull
-import org.mockito.Mockito.doAnswer
-import org.mockito.Mockito.mock
 import java.util.concurrent.CountDownLatch
 
 class InappNotificationIntegrationTest {
@@ -33,6 +35,7 @@ class InappNotificationIntegrationTest {
     companion object {
         private const val APP_ID = "14C19-A121F"
         private const val CONTACT_FIELD_ID = 3
+
         @BeforeClass
         @JvmStatic
         fun beforeAll() {
@@ -78,56 +81,59 @@ class InappNotificationIntegrationTest {
 
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
-                .inAppEventHandler(mock(EventHandler::class.java))
+                .inAppEventHandler(mock())
                 .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .build()
 
         FeatureTestUtils.resetFeatures()
 
-        mockInappPresenter = mock(InAppPresenter::class.java)
+        mockInappPresenter = mock()
 
-        doAnswer {
-            completionListenerLatch.countDown()
-        }.`when`(mockInappPresenter).present(any(String::class.java), isNull(), any(String::class.java), isNull(), any(Long::class.java), any(String::class.java), isNull())
+        whenever(mockInappPresenter.present(
+                anyOrNull(),
+                eq(null),
+                anyOrNull(),
+                eq(null),
+                anyOrNull(),
+                anyOrNull(),
+                eq(null))).thenAnswer { completionListenerLatch.countDown() }
 
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
-            override fun getClientServiceProvider(): ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java).apply {
-                whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_CLIENT_HOST)
-            }
+        val setupLatch = CountDownLatch(1)
+        DependencyInjection.setup(DefaultEmarsysDependencyContainer(baseConfig, Runnable {
+            setupLatch.countDown()
+        }))
 
-            override fun getEventServiceProvider(): ServiceEndpointProvider = mock(ServiceEndpointProvider::class.java).apply {
-                whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_EVENT_HOST)
-            }
-
-            override fun getInAppPresenter() = mockInappPresenter
-        })
+        setupLatch.await()
 
         ConnectionTestUtils.checkConnection(application)
 
         Emarsys.setup(baseConfig)
-
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.set(null)
-        DependencyInjection.getContainer<MobileEngageDependencyContainer>().pushTokenStorage.remove()
-
+        getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
+        getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
         IntegrationTestUtils.doLogin()
     }
 
     @After
     fun tearDown() {
         try {
+            getDependency<Handler>("coreSdkHandler").looper.quit()
+            application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
+            application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
+
             FeatureTestUtils.resetFeatures()
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().clientServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().eventServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().deepLinkServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().mobileEngageV2ServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().inboxServiceStorage.set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().predictServiceStorage.set(null)
+            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
             DependencyInjection.tearDown()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -137,6 +143,8 @@ class InappNotificationIntegrationTest {
 
     @Test
     fun testInappPresent() {
+        Container.addDependency(mockInappPresenter)
+
         val context = InstrumentationRegistry.getTargetContext().applicationContext
         val url = FileDownloader(context).download("https://www.google.com")
         val emsPayload = """{"inapp": {"campaignId": "222","url": "https://www.google.com","fileUrl": "$url"}}"""

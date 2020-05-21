@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.util
 
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.HeaderUtils
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.testUtil.TimeoutUtils
@@ -40,7 +40,7 @@ class RequestHeaderUtilsTest {
             whenever(sdkVersion).thenReturn(SDK_VERSION)
         }
 
-        val mockContactFieldValueStorage = (mock(Storage::class.java) as Storage<String>).apply {
+        val mockContactFieldValueStorage = (mock(StringStorage::class.java) as StringStorage).apply {
             whenever(get()).thenReturn(CONTACT_FIELD_VALUE)
         }
 

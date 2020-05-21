@@ -6,10 +6,11 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.FakeCoreDependencyContainer
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.log.entry.LogEntry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
@@ -43,7 +44,7 @@ class LoggerTest {
     private lateinit var dependencyContainer: DependencyContainer
     private lateinit var loggerInstance: Logger
     private lateinit var loggerMock: Logger
-    private lateinit var mockLogLevelStorage: Storage<String>
+    private lateinit var mockLogLevelStorage: StringStorage
 
     @Before
     @Suppress("UNCHECKED_CAST")
@@ -66,9 +67,7 @@ class LoggerTest {
         )
         loggerMock = mock()
 
-        dependencyContainer = mock<DependencyContainer>().apply {
-            whenever(logger).thenReturn(loggerMock)
-        }
+        dependencyContainer = FakeCoreDependencyContainer(logger = loggerMock)
 
         DependencyInjection.setup(dependencyContainer)
     }

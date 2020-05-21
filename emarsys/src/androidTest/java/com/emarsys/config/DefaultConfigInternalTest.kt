@@ -17,7 +17,7 @@ import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.fake.FakeRestClient
 import com.emarsys.fake.FakeResultListener
@@ -63,7 +63,7 @@ class DefaultConfigInternalTest {
     private lateinit var mockPushInternal: PushInternal
     private lateinit var mockPushTokenProvider: PushTokenProvider
     private lateinit var mockPredictInternal: PredictInternal
-    private lateinit var mockContactFieldValueStorage: Storage<String>
+    private lateinit var mockContactFieldValueStorage: StringStorage
     private lateinit var mockDeviceInfo: DeviceInfo
     private lateinit var latch: CountDownLatch
     private lateinit var mockRequestManager: RequestManager
@@ -71,14 +71,14 @@ class DefaultConfigInternalTest {
     private lateinit var mockConfigResponseMapper: RemoteConfigResponseMapper
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var mockRequestModel: RequestModel
-    private lateinit var mockEventServiceStorage: Storage<String>
-    private lateinit var mockClientServiceStorage: Storage<String>
-    private lateinit var mockDeeplinkServiceStorage: Storage<String>
-    private lateinit var mockInboxServiceStorage: Storage<String>
-    private lateinit var mockMobileEngageV2ServiceStorage: Storage<String>
-    private lateinit var mockPredictServiceStorage: Storage<String>
-    private lateinit var mockMessageInboxServiceStorage: Storage<String>
-    private lateinit var mockLogLevelStorage: Storage<String>
+    private lateinit var mockEventServiceStorage: StringStorage
+    private lateinit var mockClientServiceStorage: StringStorage
+    private lateinit var mockDeeplinkServiceStorage: StringStorage
+    private lateinit var mockInboxServiceStorage: StringStorage
+    private lateinit var mockMobileEngageV2ServiceStorage: StringStorage
+    private lateinit var mockPredictServiceStorage: StringStorage
+    private lateinit var mockMessageInboxServiceStorage: StringStorage
+    private lateinit var mockLogLevelStorage: StringStorage
     private lateinit var mockCrypto: Crypto
 
     @Rule

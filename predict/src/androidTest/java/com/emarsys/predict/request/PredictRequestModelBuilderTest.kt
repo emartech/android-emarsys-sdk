@@ -219,14 +219,14 @@ class PredictRequestModelBuilderTest {
 
         val returnedExList = mutableListOf<Map<String, String>>()
         for (i in 0 until returnedExJson.length()) {
-            returnedExList.add(JsonUtils.toFlatMap(returnedExJson.get(i) as JSONObject) as Map<String, String>)
+            returnedExList.add(JsonUtils.toFlatMap(returnedExJson.get(i) as JSONObject))
         }
 
         val expectedExJson = JSONArray(expectedMap["ex"])
 
         val expectedExList = mutableListOf<Map<String, String>>()
         for (i in 0 until returnedExJson.length()) {
-            expectedExList.add(JsonUtils.toFlatMap(expectedExJson.get(i) as JSONObject) as Map<String, String>)
+            expectedExList.add(JsonUtils.toFlatMap(expectedExJson.get(i) as JSONObject))
         }
 
         returnedExList shouldBe expectedExList

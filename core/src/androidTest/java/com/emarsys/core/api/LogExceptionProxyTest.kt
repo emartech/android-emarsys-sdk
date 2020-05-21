@@ -1,20 +1,20 @@
 package com.emarsys.core.api
 
-import com.emarsys.core.RunnerProxy
-import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.FakeCoreDependencyContainer
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.*
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import io.kotlintest.shouldBe
 import org.junit.After
-import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito
 
 class LogExceptionProxyTest {
     private lateinit var mockLogger: Logger
@@ -27,9 +27,7 @@ class LogExceptionProxyTest {
     fun setUp() {
         mockLogger = mock()
 
-        val dependencyContainer = mock<DependencyContainer>().apply {
-            whenever(logger).thenReturn(mockLogger)
-        }
+        val dependencyContainer = FakeCoreDependencyContainer(logger = mockLogger)
 
         DependencyInjection.setup(dependencyContainer)
     }

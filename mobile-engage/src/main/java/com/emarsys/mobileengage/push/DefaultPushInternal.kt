@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Handler
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.RequestManager
-import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
@@ -17,7 +17,7 @@ class DefaultPushInternal(private val requestManager: RequestManager,
                           private val uiHandler: Handler,
                           private val requestModelFactory: MobileEngageRequestModelFactory,
                           private val eventServiceInternal: EventServiceInternal,
-                          private val pushTokenStorage: Storage<String>,
+                          private val pushTokenStorage: StringStorage,
                           private val notificationEventHandlerProvider: EventHandlerProvider,
                           private val silentMessageEventHandlerProvider: EventHandlerProvider) : PushInternal {
 
@@ -32,7 +32,7 @@ class DefaultPushInternal(private val requestManager: RequestManager,
                 completionListener?.onCompleted(it)
             }
         } else {
-            uiHandler.post{
+            uiHandler.post {
                 completionListener?.onCompleted(null)
             }
         }
