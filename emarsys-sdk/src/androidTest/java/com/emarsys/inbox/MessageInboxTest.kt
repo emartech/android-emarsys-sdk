@@ -1,9 +1,12 @@
 package com.emarsys.inbox
 
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
@@ -35,9 +38,16 @@ class MessageInboxTest {
 
     @After
     fun tearDown() {
-        DependencyInjection.tearDown()
+        try {
+            val handler = getDependency<Handler>("coreSdkHandler")
+            val looper: Looper? = handler.looper
+            looper?.quit()
+            DependencyInjection.tearDown()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
     }
-
 
     @Test
     fun testFetchInboxMessagesDelegatesToInternalMethod_throughRunnerProxy() {

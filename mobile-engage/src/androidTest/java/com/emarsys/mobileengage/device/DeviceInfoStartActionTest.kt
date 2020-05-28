@@ -1,21 +1,27 @@
 package com.emarsys.mobileengage.device
 
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.client.ClientServiceInternal
+import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
+import com.emarsys.mobileengage.util.waitForTask
 import com.emarsys.testUtil.SharedPrefsUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.*
 
 class DeviceInfoStartActionTest {
 
-    private lateinit var deviceInfoPayloadStorage: Storage<String>
+    private lateinit var deviceInfoPayloadStorage: Storage<String?>
     private lateinit var mockClientServiceInternal: ClientServiceInternal
     private lateinit var startAction: DeviceInfoStartAction
     private lateinit var mockDeviceInfo: DeviceInfo
@@ -27,9 +33,11 @@ class DeviceInfoStartActionTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        deviceInfoPayloadStorage = mock(Storage::class.java) as Storage<String>
-        mockClientServiceInternal = mock(ClientServiceInternal::class.java)
-        mockDeviceInfo = mock(DeviceInfo::class.java)
+        deviceInfoPayloadStorage = mock()
+        mockClientServiceInternal = mock()
+        mockDeviceInfo = mock()
+
+        DependencyInjection.setup(FakeMobileEngageDependencyContainer(coreSdkHandler = CoreSdkHandlerProvider().provideHandler()))
 
         startAction = DeviceInfoStartAction(mockClientServiceInternal, deviceInfoPayloadStorage, mockDeviceInfo)
 
@@ -38,21 +46,7 @@ class DeviceInfoStartActionTest {
     @After
     fun tearDown() {
         SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences")
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_mobileEngageInternal_mustNotBeNull() {
-        DeviceInfoStartAction(null, deviceInfoPayloadStorage, mockDeviceInfo)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_deviceInfoPayloadStorage_mustNotBeNull() {
-        DeviceInfoStartAction(mockClientServiceInternal, null, mockDeviceInfo)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_deviceInfo_mustNotBeNull() {
-        DeviceInfoStartAction(mockClientServiceInternal, deviceInfoPayloadStorage, null)
+        DependencyInjection.tearDown()
     }
 
     @Test
@@ -61,6 +55,7 @@ class DeviceInfoStartActionTest {
 
         startAction.execute(null)
 
+        waitForTask()
         verify(mockClientServiceInternal).trackDeviceInfo()
     }
 
@@ -71,6 +66,7 @@ class DeviceInfoStartActionTest {
 
         startAction.execute(null)
 
+        waitForTask()
         verify(mockClientServiceInternal).trackDeviceInfo()
     }
 
@@ -82,6 +78,7 @@ class DeviceInfoStartActionTest {
 
         startAction.execute(null)
 
+        waitForTask()
         verifyZeroInteractions(mockClientServiceInternal)
     }
 

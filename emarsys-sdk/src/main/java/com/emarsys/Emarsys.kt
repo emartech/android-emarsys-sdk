@@ -8,6 +8,7 @@ import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.proxyApi
+import com.emarsys.core.api.proxyWithLogExceptions
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
@@ -16,12 +17,14 @@ import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerType
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarsysDependencyInjection
+import com.emarsys.feature.InnerFeature
 import com.emarsys.feature.InnerFeature.MOBILE_ENGAGE
 import com.emarsys.feature.InnerFeature.PREDICT
 import com.emarsys.geofence.GeofenceApi
@@ -71,12 +74,26 @@ object Emarsys {
         get() = EmarsysDependencyInjection.predict()
 
     @JvmStatic
+    val callback: (() -> Unit)? = null
+
+    @JvmStatic
     fun setup(emarsysConfig: EmarsysConfig) {
         for (feature in emarsysConfig.experimentalFeatures) {
             FeatureRegistry.enableFeature(feature)
         }
 
-        DependencyInjection.setup(DefaultEmarsysDependencyContainer(emarsysConfig) {
+        if (emarsysConfig.mobileEngageApplicationCode != null) {
+            FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+        }
+        if (emarsysConfig.predictMerchantId != null) {
+            FeatureRegistry.enableFeature(InnerFeature.PREDICT)
+        }
+
+        if (!DependencyInjection.isSetup()) {
+            DependencyInjection.setup(DefaultEmarsysDependencyContainer(emarsysConfig))
+        }
+        val container: DependencyContainer = DependencyInjection.getContainer()
+        container.getCoreSdkHandler().post {
             initializeInAppInternal(emarsysConfig)
 
             registerWatchDogs(emarsysConfig)
@@ -84,7 +101,8 @@ object Emarsys {
             registerDatabaseTriggers()
 
             initializeContact()
-        })
+            callback?.invoke()
+        }
     }
 
     @JvmStatic
@@ -518,11 +536,11 @@ object Emarsys {
         if (contactToken == null && contactFieldValue == null) {
             if (clientState == null || deviceInfoPayload != null && deviceInfoPayload != deviceInfo.deviceInfoPayload) {
                 EmarsysDependencyInjection.clientServiceInternal()
-                        .proxyApi(getDependency("coreSdkHandler"))
+                        .proxyWithLogExceptions()
                         .trackDeviceInfo()
             }
             EmarsysDependencyInjection.mobileEngageInternal()
-                    .proxyApi(getDependency("coreSdkHandler"))
+                    .proxyWithLogExceptions()
                     .setContact(null, null)
         }
     }

@@ -1,5 +1,6 @@
 package com.emarsys
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
@@ -7,15 +8,15 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
@@ -90,11 +91,6 @@ class MobileEngageIntegrationTest {
     @JvmField
     val retryRule: RetryRule = RetryUtils.retryRule
 
-
-    @Rule
-    @JvmField
-    val activityRule = ActivityTestRule(FakeActivity::class.java)
-
     @Before
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
@@ -120,9 +116,7 @@ class MobileEngageIntegrationTest {
         }
 
         val setupLatch = CountDownLatch(1)
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig, {
-            setupLatch.countDown()
-        }) {
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getCoreCompletionHandler(): DefaultCoreCompletionHandler {
                 return completionHandler
             }
@@ -148,6 +142,9 @@ class MobileEngageIntegrationTest {
                 )
             }
         })
+        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
+            setupLatch.countDown()
+        }
 
         setupLatch.await()
 
@@ -158,6 +155,8 @@ class MobileEngageIntegrationTest {
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
 
         Emarsys.setup(baseConfig)
+
+        waitForTask()
 
         clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().clientStateStorage
         contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().contactTokenStorage
@@ -305,12 +304,15 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testDeepLinkOpen() {
+        val activity = mock(Activity::class.java)
+        whenever(activity.intent).thenReturn(Intent())
+
         val intent = Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse("https://github.com/emartech/android-emarsys-sdk/wiki?ems_dl=210268110_ZVwwYrYUFR_1_100302293_1_2000000"))
 
         Emarsys.trackDeepLink(
-                activityRule.activity,
+                activity,
                 intent,
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
@@ -372,5 +374,13 @@ class MobileEngageIntegrationTest {
                 completionHandlerLatch?.countDown()
             }
         }
+    }
+
+    private fun waitForTask() {
+        val latch = CountDownLatch(1)
+        getDependency<Handler>("coreSdkHandler").post {
+            latch.countDown()
+        }
+        latch.await()
     }
 }

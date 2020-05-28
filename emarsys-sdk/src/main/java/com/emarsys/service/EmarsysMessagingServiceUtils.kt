@@ -2,7 +2,7 @@ package com.emarsys.service
 
 import android.content.Context
 import com.emarsys.core.api.proxyApi
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.Assert
 import com.emarsys.mobileengage.service.MessagingServiceUtils

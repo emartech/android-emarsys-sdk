@@ -3,10 +3,13 @@ package com.emarsys.service
 import android.app.Application
 import com.emarsys.Emarsys
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.core.activity.ActivityLifecycleWatchdog
+import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.di.FakeDependencyContainer
@@ -92,6 +95,8 @@ class EmarsysMessagingServiceTest {
 
     @After
     fun tearDown() {
+        application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
+        application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
         DependencyInjection.tearDown()
         FeatureTestUtils.resetFeatures()
     }

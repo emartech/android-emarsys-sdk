@@ -2,7 +2,7 @@ package com.emarsys.geofence
 
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.getDependency
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.geofence.GeofenceInternal
 

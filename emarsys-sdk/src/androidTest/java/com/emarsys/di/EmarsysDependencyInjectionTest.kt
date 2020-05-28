@@ -1,6 +1,9 @@
 package com.emarsys.di
 
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.feature.InnerFeature
 import com.emarsys.geofence.GeofenceApi
@@ -118,7 +121,15 @@ class EmarsysDependencyInjectionTest {
     @After
     fun tearDown() {
         FeatureTestUtils.resetFeatures()
-        DependencyInjection.tearDown()
+        try {
+            val handler = getDependency<Handler>("coreSdkHandler")
+            val looper: Looper? = handler.looper
+            looper?.quit()
+            DependencyInjection.tearDown()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
     }
 
     @Test

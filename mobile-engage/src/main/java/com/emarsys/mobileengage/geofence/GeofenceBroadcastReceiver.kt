@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.emarsys.core.Mockable
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.getDependency
 import com.emarsys.mobileengage.geofence.model.TriggerType
 import com.emarsys.mobileengage.geofence.model.TriggeringGeofence
 import com.google.android.gms.location.GeofencingEvent

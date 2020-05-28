@@ -5,7 +5,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Handler
 import androidx.core.app.NotificationManagerCompat
-import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -13,8 +12,9 @@ import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.notification.NotificationManagerProxy
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
@@ -31,7 +31,6 @@ import com.emarsys.predict.api.model.RecommendationLogic
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
-import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.RetryRule
 import com.google.firebase.FirebaseApp
@@ -91,10 +90,6 @@ class PredictIntegrationTest {
     @JvmField
     val retryRule: RetryRule = RetryUtils.retryRule
 
-    @Rule
-    @JvmField
-    val activityRule = ActivityTestRule(FakeActivity::class.java)
-
     @Before
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
@@ -141,9 +136,7 @@ class PredictIntegrationTest {
         }
 
         val setupLatch = CountDownLatch(1)
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig, {
-            setupLatch.countDown()
-        }) {
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getDeviceInfo(): DeviceInfo {
                 return DeviceInfo(
                         application,
@@ -165,6 +158,9 @@ class PredictIntegrationTest {
                 return completionHandler
             }
         })
+        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
+            setupLatch.countDown()
+        }
 
         setupLatch.await()
 

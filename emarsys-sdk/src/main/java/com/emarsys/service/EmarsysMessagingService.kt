@@ -2,7 +2,7 @@ package com.emarsys.service
 
 import com.emarsys.Emarsys
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.getDependency
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 

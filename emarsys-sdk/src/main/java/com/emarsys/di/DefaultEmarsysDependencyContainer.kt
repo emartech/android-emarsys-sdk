@@ -28,9 +28,10 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.Container
-import com.emarsys.core.di.Container.addDependency
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.DependencyContainer
+import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.addDependency
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.notification.NotificationManagerHelper
@@ -121,7 +122,7 @@ import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
 
-open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig, onCompleted: (() -> Unit)? = null) : EmarsysDependencyContainer {
+open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : EmarsysDependencyContainer {
 
     companion object {
         private const val EMARSYS_SHARED_PREFERENCES_NAME = "emarsys_shared_preferences"
@@ -129,65 +130,53 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig, onCom
         private const val PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELjWEUIBX9zlm1OI4gF1hMCBLzpaBwgs9HlmSIBAqP4MDGy4ibOOV3FVDrnAY0Q34LZTbPBlp3gRNZJ19UoSy2Q=="
     }
 
+    override val dependencies: MutableMap<String, Any?> = mutableMapOf()
+
     init {
-        initializeFeatures(emarsysConfig)
-        initializeDependencies(emarsysConfig, onCompleted)
+        initializeDependencies(emarsysConfig)
     }
 
-    private fun initializeFeatures(emarsysConfig: EmarsysConfig) {
-        if (emarsysConfig.mobileEngageApplicationCode != null) {
-            FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
-        }
-        if (emarsysConfig.predictMerchantId != null) {
-            FeatureRegistry.enableFeature(InnerFeature.PREDICT)
-        }
+    private fun setupDependencies(application: Application) {
+        initializeInAppPresenter(application)
+        initializeResponseHandlers()
+        initializeActivityLifecycleWatchdog()
     }
 
-    private fun initializeDependencies(config: EmarsysConfig, onCompleted: (() -> Unit)?) {
+    private fun initializeDependencies(config: EmarsysConfig) {
         val application = config.application
-        if (Container.dependencies.isEmpty()) {
-            val coreSdkHandler: Handler = CoreSdkHandlerProvider().provideHandler()
-            addDependency(coreSdkHandler, "coreSdkHandler")
+        val coreSdkHandler: Handler = CoreSdkHandlerProvider().provideHandler()
+        addDependency(dependencies, coreSdkHandler, "coreSdkHandler")
 
-            addDependency((InApp() as InAppApi).proxyApi(coreSdkHandler), "defaultInstance")
+        addDependency(dependencies, (InApp() as InAppApi).proxyApi(coreSdkHandler), "defaultInstance")
 
-            addDependency((InApp(true) as InAppApi).proxyApi(coreSdkHandler), "loggingInstance")
+        addDependency(dependencies, (InApp(true) as InAppApi).proxyApi(coreSdkHandler), "loggingInstance")
 
-            addDependency((Push() as PushApi).proxyApi(coreSdkHandler), "defaultInstance")
+        addDependency(dependencies, (Push() as PushApi).proxyApi(coreSdkHandler), "defaultInstance")
 
-            addDependency((Push(true) as PushApi).proxyApi(coreSdkHandler), "loggingInstance")
+        addDependency(dependencies, (Push(true) as PushApi).proxyApi(coreSdkHandler), "loggingInstance")
 
-            addDependency((Predict() as PredictApi).proxyApi(coreSdkHandler), "defaultInstance")
+        addDependency(dependencies, (Predict() as PredictApi).proxyApi(coreSdkHandler), "defaultInstance")
 
-            addDependency((Predict(true) as PredictApi).proxyApi(coreSdkHandler), "loggingInstance")
+        addDependency(dependencies, (Predict(true) as PredictApi).proxyApi(coreSdkHandler), "loggingInstance")
 
-            addDependency((Config() as ConfigApi).proxyApi(coreSdkHandler))
+        addDependency(dependencies, (Config() as ConfigApi).proxyApi(coreSdkHandler))
 
-            addDependency((Geofence() as GeofenceApi).proxyApi(coreSdkHandler), "defaultInstance")
+        addDependency(dependencies, (Geofence() as GeofenceApi).proxyApi(coreSdkHandler), "defaultInstance")
 
-            addDependency((Geofence(true) as GeofenceApi).proxyApi(coreSdkHandler), "loggingInstance")
+        addDependency(dependencies, (Geofence(true) as GeofenceApi).proxyApi(coreSdkHandler), "loggingInstance")
 
-            addDependency((Inbox() as InboxApi).proxyApi(coreSdkHandler), "defaultInstance")
+        addDependency(dependencies, (Inbox() as InboxApi).proxyApi(coreSdkHandler), "defaultInstance")
 
-            addDependency((Inbox(true) as InboxApi).proxyApi(coreSdkHandler), "loggingInstance")
+        addDependency(dependencies, (Inbox(true) as InboxApi).proxyApi(coreSdkHandler), "loggingInstance")
 
-            addDependency((MessageInbox() as MessageInboxApi).proxyApi(coreSdkHandler), "defaultInstance")
+        addDependency(dependencies, (MessageInbox() as MessageInboxApi).proxyApi(coreSdkHandler), "defaultInstance")
 
-            addDependency((MessageInbox(true) as MessageInboxApi).proxyApi(coreSdkHandler), "loggingInstance")
-            coreSdkHandler.post {
-                initializeDependenciesInBackground(application, config)
-            }
+        addDependency(dependencies, (MessageInbox(true) as MessageInboxApi).proxyApi(coreSdkHandler), "loggingInstance")
 
+        coreSdkHandler.post {
+            initializeDependenciesInBackground(application, config)
+            setupDependencies(application)
         }
-        getDependency<Handler>("coreSdkHandler")
-                .post {
-                    initializeInAppPresenter(application)
-                    initializeResponseHandlers()
-                    initializeActivityLifecycleWatchdog()
-
-                    onCompleted?.invoke()
-                }
-
     }
 
     private fun initializeDependenciesInBackground(application: Application, config: EmarsysConfig) {
@@ -195,82 +184,82 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig, onCom
         val uiHandler = Handler(Looper.getMainLooper())
 
         TimestampProvider().also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
         UUIDProvider().also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
         StringStorage(MobileEngageStorageKey.DEVICE_INFO_HASH, prefs).also {
-            addDependency(it, MobileEngageStorageKey.DEVICE_INFO_HASH.key)
+            addDependency(dependencies, it, MobileEngageStorageKey.DEVICE_INFO_HASH.key)
         }
         StringStorage(MobileEngageStorageKey.CONTACT_TOKEN, prefs).also {
-            addDependency(it, MobileEngageStorageKey.CONTACT_TOKEN.key)
+            addDependency(dependencies, it, MobileEngageStorageKey.CONTACT_TOKEN.key)
         }
         StringStorage(MobileEngageStorageKey.REFRESH_TOKEN, prefs).also {
-            addDependency(it, MobileEngageStorageKey.REFRESH_TOKEN.key)
+            addDependency(dependencies, it, MobileEngageStorageKey.REFRESH_TOKEN.key)
         }
         StringStorage(MobileEngageStorageKey.CLIENT_STATE, prefs).also {
-            addDependency(it, MobileEngageStorageKey.CLIENT_STATE.key)
+            addDependency(dependencies, it, MobileEngageStorageKey.CLIENT_STATE.key)
         }
         StringStorage(MobileEngageStorageKey.CONTACT_FIELD_VALUE, prefs).also {
-            addDependency(it, MobileEngageStorageKey.CONTACT_FIELD_VALUE.key)
+            addDependency(dependencies, it, MobileEngageStorageKey.CONTACT_FIELD_VALUE.key)
         }
         val geofenceEnabledStorage = BooleanStorage(MobileEngageStorageKey.GEOFENCE_ENABLED, prefs)
 
-        addDependency(StringStorage(MobileEngageStorageKey.PUSH_TOKEN, prefs), MobileEngageStorageKey.PUSH_TOKEN.key)
+        addDependency(dependencies, StringStorage(MobileEngageStorageKey.PUSH_TOKEN, prefs), MobileEngageStorageKey.PUSH_TOKEN.key)
         StringStorage(CoreStorageKey.LOG_LEVEL, prefs).also {
-            addDependency(it, CoreStorageKey.LOG_LEVEL.key)
+            addDependency(dependencies, it, CoreStorageKey.LOG_LEVEL.key)
         }
         DefaultPushTokenProvider(getPushTokenStorage()).also {
-            addDependency(it)
+            addDependency(dependencies, it as PushTokenProvider)
         }
         StringStorage(MobileEngageStorageKey.EVENT_SERVICE_URL, prefs).also {
-            addDependency(it, MobileEngageStorageKey.EVENT_SERVICE_URL.key)
+            addDependency(dependencies, it, MobileEngageStorageKey.EVENT_SERVICE_URL.key)
         }
         StringStorage(MobileEngageStorageKey.CLIENT_SERVICE_URL, prefs).also {
-            addDependency(it, MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
+            addDependency(dependencies, it, MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
         }
         StringStorage(MobileEngageStorageKey.INBOX_SERVICE_URL, prefs).also {
-            addDependency(it, MobileEngageStorageKey.INBOX_SERVICE_URL.key)
+            addDependency(dependencies, it, MobileEngageStorageKey.INBOX_SERVICE_URL.key)
         }
         StringStorage(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL, prefs).also {
-            addDependency(it, MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key)
+            addDependency(dependencies, it, MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key)
         }
         StringStorage(MobileEngageStorageKey.ME_V2_SERVICE_URL, prefs).also {
-            addDependency(it, MobileEngageStorageKey.ME_V2_SERVICE_URL.key)
+            addDependency(dependencies, it, MobileEngageStorageKey.ME_V2_SERVICE_URL.key)
         }
         StringStorage(MobileEngageStorageKey.DEEPLINK_SERVICE_URL, prefs).also {
-            addDependency(it, MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
+            addDependency(dependencies, it, MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
         }
         StringStorage(PredictStorageKey.PREDICT_SERVICE_URL, prefs).also {
-            addDependency(it, PredictStorageKey.PREDICT_SERVICE_URL.key)
+            addDependency(dependencies, it, PredictStorageKey.PREDICT_SERVICE_URL.key)
         }
         ServiceEndpointProvider(getEventServiceStorage(), Endpoint.ME_V3_EVENT_HOST).also {
-            addDependency(it, Endpoint.ME_V3_EVENT_HOST)
+            addDependency(dependencies, it, Endpoint.ME_V3_EVENT_HOST)
         }
         ServiceEndpointProvider(getClientServiceStorage(), Endpoint.ME_V3_CLIENT_HOST).also {
-            addDependency(it, Endpoint.ME_V3_CLIENT_HOST)
+            addDependency(dependencies, it, Endpoint.ME_V3_CLIENT_HOST)
         }
         ServiceEndpointProvider(getInboxServiceStorage(), Endpoint.INBOX_BASE).also {
-            addDependency(it, Endpoint.INBOX_BASE)
+            addDependency(dependencies, it, Endpoint.INBOX_BASE)
         }
         ServiceEndpointProvider(getMessageInboxServiceStorage(), Endpoint.ME_V3_INBOX_HOST).also {
-            addDependency(it, Endpoint.ME_V3_INBOX_HOST)
+            addDependency(dependencies, it, Endpoint.ME_V3_INBOX_HOST)
         }
         ServiceEndpointProvider(getMobileEngageV2ServiceStorage(), Endpoint.ME_BASE_V2).also {
-            addDependency(it, Endpoint.ME_BASE_V2)
+            addDependency(dependencies, it, Endpoint.ME_BASE_V2)
         }
         ServiceEndpointProvider(getDeepLinkServiceStorage(), Endpoint.DEEP_LINK).also {
-            addDependency(it, Endpoint.DEEP_LINK)
+            addDependency(dependencies, it, Endpoint.DEEP_LINK)
         }
         ServiceEndpointProvider(getPredictServiceStorage(), com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL).also {
-            addDependency(it, com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL)
+            addDependency(dependencies, it, com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL)
         }
         ResponseHandlersProcessor(ArrayList()).also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
         val hardwareIdStorage: Storage<String> = StringStorage(CoreStorageKey.HARDWARE_ID, prefs).also {
-            addDependency(it, CoreStorageKey.HARDWARE_ID.key)
+            addDependency(dependencies, it, CoreStorageKey.HARDWARE_ID.key)
         }
         val languageProvider = LanguageProvider()
         val hardwareIdProvider = HardwareIdProvider(application, hardwareIdStorage)
@@ -280,20 +269,20 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig, onCom
         val notificationManagerProxy = NotificationManagerProxy(notificationManager, notificationManagerCompat)
         val notificationSettings: NotificationSettings = NotificationManagerHelper(notificationManagerProxy)
         DeviceInfo(application, hardwareIdProvider, versionProvider, languageProvider, notificationSettings, config.isAutomaticPushTokenSendingEnabled).also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
         CurrentActivityProvider().also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
         CurrentActivityWatchdog(getCurrentActivityProvider()).also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
         val coreDbHelper = CoreDbHelper(application, HashMap())
         coreDbHelper.writableCoreDatabase.also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
-        addDependency(ButtonClickedRepository(coreDbHelper) as Repository<ButtonClicked, SqlSpecification>, "buttonClickedRepository")
-        DisplayedIamRepository(coreDbHelper).also { addDependency(it as Repository<DisplayedIam, SqlSpecification>, "displayedIamRepository") }
+        addDependency(dependencies, ButtonClickedRepository(coreDbHelper) as Repository<ButtonClicked, SqlSpecification>, "buttonClickedRepository")
+        DisplayedIamRepository(coreDbHelper).also { addDependency(dependencies, it as Repository<DisplayedIam, SqlSpecification>, "displayedIamRepository") }
         MobileEngageRequestContext(
                 config.mobileEngageApplicationCode,
                 config.contactFieldId,
@@ -305,32 +294,32 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig, onCom
                 getDependency(MobileEngageStorageKey.REFRESH_TOKEN.key),
                 getContactFieldValueStorage(),
                 getPushTokenStorage()).also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
         val inAppEventHandler = InAppEventHandlerInternal()
         val requestModelRepository = createRequestModelRepository(coreDbHelper, inAppEventHandler)
         val shardModelRepository = ShardModelRepository(coreDbHelper).also {
-            addDependency(it)
+            addDependency(dependencies, it as Repository<ShardModel, SqlSpecification>, "shardModelRepository")
         }
         RestClient(ConnectionProvider(), getTimestampProvider(), getResponseHandlersProcessor(), createRequestModelMappers()).also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
         val requestModelFactory = MobileEngageRequestModelFactory(getRequestContext(), getClientServiceProvider(), getEventServiceProvider(), getMobileEngageV2ServiceProvider(), getInboxServiceProvider(), getMessageInboxServiceProvider())
         val emarsysRequestModelFactory = EmarsysRequestModelFactory(getRequestContext())
         val contactTokenResponseHandler = MobileEngageTokenResponseHandler("contactToken", getContactTokenStorage(), getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()).also {
-            addDependency(it, "contactTokenResponseHandler")
+            addDependency(dependencies, it, "contactTokenResponseHandler")
         }
         NotificationCache().also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
         MobileEngageRefreshTokenInternal(
                 contactTokenResponseHandler,
                 getRestClient(),
                 requestModelFactory).also {
-            addDependency(it)
+            addDependency(dependencies, it as RefreshTokenInternal)
         }
         val connectionWatchDog = ConnectionWatchDog(application, getCoreSdkHandler()).also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
         val coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(
                 getCoreCompletionHandler(),
@@ -363,7 +352,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig, onCom
                 getCoreCompletionHandler(),
                 getCoreCompletionHandler())
         requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(getRequestContext()))
-        val sharedPrefsKeyStore = DefaultKeyValueStore(prefs).also { addDependency(it as KeyValueStore) }
+        val sharedPrefsKeyStore = DefaultKeyValueStore(prefs).also { addDependency(dependencies, it as KeyValueStore) }
         var notificationEventHandler: EventHandler? = null
         if (config.notificationEventHandler != null) {
             notificationEventHandler = object : EventHandler {
@@ -373,13 +362,13 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig, onCom
             }
         }
         EventHandlerProvider(notificationEventHandler).also {
-            addDependency(it, "notificationEventHandlerProvider")
+            addDependency(dependencies, it, "notificationEventHandlerProvider")
         }
         EventHandlerProvider(null).also {
-            addDependency(it, "silentMessageEventHandlerProvider")
+            addDependency(dependencies, it, "silentMessageEventHandlerProvider")
         }
         EventHandlerProvider(null).also {
-            addDependency(it, "geofenceEventHandlerProvider")
+            addDependency(dependencies, it, "geofenceEventHandlerProvider")
         }
         BatchingShardTrigger(
                 getShardRepository(),
@@ -389,7 +378,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig, onCom
                 LogShardListMerger(getTimestampProvider(), getUuidProvider(), getDeviceInfo(), config.mobileEngageApplicationCode, config.predictMerchantId),
                 requestManager,
                 BatchingShardTrigger.RequestStrategy.TRANSIENT).also {
-            addDependency(it as Runnable, "logShardTrigger")
+            addDependency(dependencies, it as Runnable, "logShardTrigger")
         }
         val predictRequestContext = PredictRequestContext(config.predictMerchantId, getDeviceInfo(), getTimestampProvider(), getUuidProvider(), sharedPrefsKeyStore)
         val headerFactory = PredictHeaderFactory(predictRequestContext)
@@ -403,74 +392,74 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig, onCom
                 PredictShardListMerger(predictRequestContext, predictRequestModelBuilderProvider),
                 requestManager,
                 BatchingShardTrigger.RequestStrategy.PERSISTENT).also {
-            addDependency(it as Runnable, "predictShardTrigger")
+            addDependency(dependencies, it as Runnable, "predictShardTrigger")
         }
         DefaultPredictInternal(predictRequestContext, requestManager, predictRequestModelBuilderProvider, predictResponseMapper).also {
-            addDependency(it as PredictInternal, "defaultInstance")
+            addDependency(dependencies, it as PredictInternal, "defaultInstance")
         }
         LoggingPredictInternal(Emarsys.Predict::class.java).also {
-            addDependency(it as PredictInternal, "loggingInstance")
+            addDependency(dependencies, it as PredictInternal, "loggingInstance")
         }
         val locationManager = application.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val geofenceFilter = GeofenceFilter(GEOFENCE_LIMIT)
         val geofencingClient = GeofencingClient(application)
         DefaultMessageInboxInternal(requestManager, getRequestContext(), requestModelFactory, uiHandler, MessageInboxResponseMapper()).also {
-            addDependency(it as MessageInboxInternal, "defaultInstance")
+            addDependency(dependencies, it as MessageInboxInternal, "defaultInstance")
         }
         DefaultMobileEngageInternal(requestManager, requestModelFactory, getRequestContext()).also {
-            addDependency(it as MobileEngageInternal, "defaultInstance")
+            addDependency(dependencies, it as MobileEngageInternal, "defaultInstance")
         }
         DefaultEventServiceInternal(requestManager, requestModelFactory).also {
-            addDependency(it as EventServiceInternal, "defaultInstance")
+            addDependency(dependencies, it as EventServiceInternal, "defaultInstance")
         }
         ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getSilentMessageEventHandlerProvider()).also {
-            addDependency(it, "silentMessageActionCommandFactory")
+            addDependency(dependencies, it, "silentMessageActionCommandFactory")
         }
         val geofenceActionCommandFactory = ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getGeofenceEventHandlerProvider())
         DefaultGeofenceInternal(requestModelFactory, requestManager, GeofenceResponseMapper(), PermissionChecker(application.applicationContext), locationManager, geofenceFilter, geofencingClient, application, geofenceActionCommandFactory, getGeofenceEventHandlerProvider(), geofenceEnabledStorage).also {
-            addDependency(it as GeofenceInternal, "defaultInstance")
+            addDependency(dependencies, it as GeofenceInternal, "defaultInstance")
         }
         DefaultClientServiceInternal(requestManager, requestModelFactory).also {
-            addDependency(it as ClientServiceInternal, "defaultInstance")
+            addDependency(dependencies, it as ClientServiceInternal, "defaultInstance")
         }
         DefaultDeepLinkInternal(requestManager, getRequestContext(), getDeepLinkServiceProvider()).also {
-            addDependency(it as DeepLinkInternal, "defaultInstance")
+            addDependency(dependencies, it as DeepLinkInternal, "defaultInstance")
         }
         DefaultPushInternal(requestManager, uiHandler, requestModelFactory, getEventServiceInternal(), getPushTokenStorage(),
                 getNotificationEventHandlerProvider(), getSilentMessageEventHandlerProvider()).also {
-            addDependency(it as PushInternal, "defaultInstance")
+            addDependency(dependencies, it as PushInternal, "defaultInstance")
         }
         DefaultInAppInternal(inAppEventHandler, getEventServiceInternal()).also {
-            addDependency(it as InAppInternal, "defaultInstance")
+            addDependency(dependencies, it as InAppInternal, "defaultInstance")
         }
         DefaultInboxInternal(requestManager, getRequestContext(), requestModelFactory).also {
-            addDependency(it as InboxInternal, "defaultInstance")
+            addDependency(dependencies, it as InboxInternal, "defaultInstance")
         }
         LoggingMobileEngageInternal(Emarsys::class.java).also {
-            addDependency(it as MobileEngageInternal, "loggingInstance")
+            addDependency(dependencies, it as MobileEngageInternal, "loggingInstance")
         }
         LoggingDeepLinkInternal(Emarsys::class.java).also {
-            addDependency(it as DeepLinkInternal, "loggingInstance")
+            addDependency(dependencies, it as DeepLinkInternal, "loggingInstance")
         }
         LoggingPushInternal(Emarsys.Push::class.java).also {
-            addDependency(it as PushInternal, "loggingInstance")
+            addDependency(dependencies, it as PushInternal, "loggingInstance")
         }
         LoggingClientServiceInternal(Emarsys::class.java).also {
-            addDependency(it as ClientServiceInternal, "loggingInstance")
+            addDependency(dependencies, it as ClientServiceInternal, "loggingInstance")
         }
         LoggingEventServiceInternal(Emarsys::class.java).also {
-            addDependency(it as EventServiceInternal, "loggingInstance")
+            addDependency(dependencies, it as EventServiceInternal, "loggingInstance")
         }
         LoggingGeofenceInternal(Emarsys::class.java).also {
-            addDependency(it as GeofenceInternal, "loggingInstance")
+            addDependency(dependencies, it as GeofenceInternal, "loggingInstance")
         }
         LoggingInAppInternal(Emarsys.InApp::class.java).also {
-            addDependency(it as InAppInternal, "loggingInstance")
+            addDependency(dependencies, it as InAppInternal, "loggingInstance")
         }
-        LoggingInboxInternal(Emarsys::class.java).also { addDependency(it as InboxInternal, "loggingInstance") }
+        LoggingInboxInternal(Emarsys::class.java).also { addDependency(dependencies, it as InboxInternal, "loggingInstance") }
 
         LoggingMessageInboxInternal(Emarsys::class.java).also {
-            addDependency(it, "loggingInstance")
+            addDependency(dependencies, it, "loggingInstance")
         }
 
         DefaultConfigInternal(
@@ -492,17 +481,17 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig, onCom
                 getMessageInboxServiceStorage(),
                 getLogLevelStorage(),
                 Crypto(createPublicKey())).also {
-            addDependency(it as ConfigInternal)
+            addDependency(dependencies, it as ConfigInternal)
         }
 
         Logger(getCoreSdkHandler(), getShardRepository(), getTimestampProvider(), getUuidProvider(), getLogLevelStorage()).also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
         FileDownloader(application.applicationContext).also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
         ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getNotificationEventHandlerProvider()).also {
-            addDependency(it, "notificationActionCommandFactory")
+            addDependency(dependencies, it, "notificationActionCommandFactory")
         }
     }
 
@@ -510,8 +499,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig, onCom
         val requestModelRepository = RequestModelRepository(coreDbHelper)
         return RequestRepositoryProxy(
                 requestModelRepository,
-                getDependency("displayedIamRepository"),
-                getDependency("buttonClickedRepository"),
+                getDependency(dependencies, "displayedIamRepository"),
+                getDependency(dependencies, "buttonClickedRepository"),
                 getTimestampProvider(),
                 getUuidProvider(),
                 inAppEventHandler,
@@ -541,7 +530,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig, onCom
                 applicationStartActions,
                 activityCreatedActions,
                 initializeActions).also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
     }
 
@@ -551,207 +540,207 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig, onCom
                 IamWebViewProvider(application),
                 getInAppInternal(),
                 IamDialogProvider(),
-                getDependency("buttonClickedRepository"),
-                getDependency("displayedIamRepository"),
+                getDependency(dependencies, "buttonClickedRepository"),
+                getDependency(dependencies, "displayedIamRepository"),
                 getTimestampProvider(),
                 getCurrentActivityProvider()).also {
-            addDependency(it)
+            addDependency(dependencies, it)
         }
     }
 
     private fun initializeResponseHandlers() {
         val responseHandlers: MutableList<AbstractResponseHandler?> = ArrayList()
-        responseHandlers.add(VisitorIdResponseHandler(getDependency(), getPredictServiceProvider()))
-        responseHandlers.add(XPResponseHandler(getDependency(), getPredictServiceProvider()))
+        responseHandlers.add(VisitorIdResponseHandler(getDependency(dependencies), getPredictServiceProvider()))
+        responseHandlers.add(XPResponseHandler(getDependency(dependencies), getPredictServiceProvider()))
         responseHandlers.add(MobileEngageTokenResponseHandler("refreshToken", getRefreshContactTokenStorage(), getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()))
         responseHandlers.add(getDependency<MobileEngageTokenResponseHandler>("contactTokenResponseHandler"))
         responseHandlers.add(MobileEngageClientStateResponseHandler(getClientStateStorage(), getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()))
         responseHandlers.add(ClientInfoResponseHandler(getDeviceInfo(), getDeviceInfoPayloadStorage()))
         responseHandlers.add(InAppMessageResponseHandler(getInAppPresenter()))
         responseHandlers.add(InAppCleanUpResponseHandler(
-                getDependency("displayedIamRepository"),
-                getDependency("buttonClickedRepository"),
+                getDependency(dependencies, "displayedIamRepository"),
+                getDependency(dependencies, "buttonClickedRepository"),
                 getEventServiceProvider()
         ))
         getResponseHandlersProcessor().addResponseHandlers(responseHandlers)
     }
 
     override fun getCoreCompletionHandler(): DefaultCoreCompletionHandler {
-        if (getDependency<DefaultCoreCompletionHandler?>() == null) {
+        if (getDependency<DefaultCoreCompletionHandler?>(dependencies) == null) {
             DefaultCoreCompletionHandler(HashMap()).also {
-                addDependency(it)
+                addDependency(dependencies, it)
             }
         }
-        return getDependency()
+        return getDependency(dependencies)
     }
 
-    override fun getInbox(): InboxApi = getDependency("defaultInstance")
+    override fun getInbox(): InboxApi = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingInbox(): InboxApi = getDependency("loggingInstance")
+    override fun getLoggingInbox(): InboxApi = getDependency(dependencies, "loggingInstance")
 
-    override fun getMessageInbox(): MessageInboxApi = getDependency("defaultInstance")
+    override fun getMessageInbox(): MessageInboxApi = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingMessageInbox(): MessageInboxApi = getDependency("loggingInstance")
+    override fun getLoggingMessageInbox(): MessageInboxApi = getDependency(dependencies, "loggingInstance")
 
-    override fun getInApp(): InAppApi = getDependency("defaultInstance")
+    override fun getInApp(): InAppApi = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingInApp(): InAppApi = getDependency("loggingInstance")
+    override fun getLoggingInApp(): InAppApi = getDependency(dependencies, "loggingInstance")
 
-    override fun getPush(): PushApi = getDependency("defaultInstance")
+    override fun getPush(): PushApi = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingPush(): PushApi = getDependency("loggingInstance")
+    override fun getLoggingPush(): PushApi = getDependency(dependencies, "loggingInstance")
 
-    override fun getPredict(): PredictApi = getDependency("defaultInstance")
+    override fun getPredict(): PredictApi = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingPredict(): PredictApi = getDependency("loggingInstance")
+    override fun getLoggingPredict(): PredictApi = getDependency(dependencies, "loggingInstance")
 
-    override fun getConfig(): ConfigApi = getDependency()
+    override fun getConfig(): ConfigApi = getDependency(dependencies)
 
-    override fun getGeofence(): GeofenceApi = getDependency("defaultInstance")
+    override fun getGeofence(): GeofenceApi = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingGeofence(): GeofenceApi = getDependency("loggingInstance")
+    override fun getLoggingGeofence(): GeofenceApi = getDependency(dependencies, "loggingInstance")
 
-    override fun getConfigInternal(): ConfigInternal = getDependency()
+    override fun getConfigInternal(): ConfigInternal = getDependency(dependencies)
 
-    override fun getMobileEngageInternal(): MobileEngageInternal = getDependency("defaultInstance")
+    override fun getMobileEngageInternal(): MobileEngageInternal = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingMobileEngageInternal(): MobileEngageInternal = getDependency("loggingInstance")
+    override fun getLoggingMobileEngageInternal(): MobileEngageInternal = getDependency(dependencies, "loggingInstance")
 
-    override fun getClientServiceInternal(): ClientServiceInternal = getDependency("defaultInstance")
+    override fun getClientServiceInternal(): ClientServiceInternal = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingClientServiceInternal(): ClientServiceInternal = getDependency("loggingInstance")
+    override fun getLoggingClientServiceInternal(): ClientServiceInternal = getDependency(dependencies, "loggingInstance")
 
-    override fun getInboxInternal(): InboxInternal = getDependency("defaultInstance")
+    override fun getInboxInternal(): InboxInternal = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingInboxInternal(): InboxInternal = getDependency("loggingInstance")
+    override fun getLoggingInboxInternal(): InboxInternal = getDependency(dependencies, "loggingInstance")
 
-    override fun getMessageInboxInternal(): MessageInboxInternal = getDependency("defaultInstance")
+    override fun getMessageInboxInternal(): MessageInboxInternal = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingMessageInboxInternal(): MessageInboxInternal = getDependency("loggingInstance")
+    override fun getLoggingMessageInboxInternal(): MessageInboxInternal = getDependency(dependencies, "loggingInstance")
 
-    override fun getInAppInternal(): InAppInternal = getDependency("defaultInstance")
+    override fun getInAppInternal(): InAppInternal = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingInAppInternal(): InAppInternal = getDependency("loggingInstance")
+    override fun getLoggingInAppInternal(): InAppInternal = getDependency(dependencies, "loggingInstance")
 
-    override fun getDeepLinkInternal(): DeepLinkInternal = getDependency("defaultInstance")
+    override fun getDeepLinkInternal(): DeepLinkInternal = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingDeepLinkInternal(): DeepLinkInternal = getDependency("loggingInstance")
+    override fun getLoggingDeepLinkInternal(): DeepLinkInternal = getDependency(dependencies, "loggingInstance")
 
-    override fun getPushInternal(): PushInternal = getDependency("defaultInstance")
+    override fun getPushInternal(): PushInternal = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingPushInternal(): PushInternal = getDependency("loggingInstance")
+    override fun getLoggingPushInternal(): PushInternal = getDependency(dependencies, "loggingInstance")
 
-    override fun getEventServiceInternal(): EventServiceInternal = getDependency("defaultInstance")
+    override fun getEventServiceInternal(): EventServiceInternal = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingEventServiceInternal(): EventServiceInternal = getDependency("loggingInstance")
+    override fun getLoggingEventServiceInternal(): EventServiceInternal = getDependency(dependencies, "loggingInstance")
 
-    override fun getRefreshTokenInternal(): RefreshTokenInternal = getDependency<MobileEngageRefreshTokenInternal>()
+    override fun getRefreshTokenInternal(): RefreshTokenInternal = getDependency(dependencies)
 
-    override fun getRequestContext(): MobileEngageRequestContext = getDependency()
+    override fun getRequestContext(): MobileEngageRequestContext = getDependency(dependencies)
 
-    override fun getInAppPresenter(): InAppPresenter = getDependency()
+    override fun getInAppPresenter(): InAppPresenter = getDependency(dependencies)
 
-    override fun getDeviceInfoPayloadStorage(): StringStorage = getDependency(MobileEngageStorageKey.DEVICE_INFO_HASH.key)
+    override fun getDeviceInfoPayloadStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.DEVICE_INFO_HASH.key)
 
-    override fun getContactFieldValueStorage(): StringStorage = getDependency(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key)
+    override fun getContactFieldValueStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.CONTACT_FIELD_VALUE.key)
 
-    override fun getContactTokenStorage(): StringStorage = getDependency(MobileEngageStorageKey.CONTACT_TOKEN.key)
+    override fun getContactTokenStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.CONTACT_TOKEN.key)
 
-    override fun getClientStateStorage(): StringStorage = getDependency(MobileEngageStorageKey.CLIENT_STATE.key)
+    override fun getClientStateStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.CLIENT_STATE.key)
 
-    override fun getPushTokenStorage(): StringStorage = getDependency(MobileEngageStorageKey.PUSH_TOKEN.key)
+    override fun getPushTokenStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.PUSH_TOKEN.key)
 
-    override fun getRefreshContactTokenStorage(): StringStorage = getDependency(MobileEngageStorageKey.REFRESH_TOKEN.key)
+    override fun getRefreshContactTokenStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.REFRESH_TOKEN.key)
 
-    override fun getLogLevelStorage(): StringStorage = getDependency(CoreStorageKey.LOG_LEVEL.key)
+    override fun getLogLevelStorage(): StringStorage = getDependency(dependencies,CoreStorageKey.LOG_LEVEL.key)
 
-    override fun getResponseHandlersProcessor(): ResponseHandlersProcessor = getDependency()
+    override fun getResponseHandlersProcessor(): ResponseHandlersProcessor = getDependency(dependencies)
 
-    override fun getNotificationCache(): NotificationCache = getDependency()
+    override fun getNotificationCache(): NotificationCache = getDependency(dependencies)
 
-    override fun getPushTokenProvider(): PushTokenProvider = getDependency<DefaultPushTokenProvider>()
+    override fun getPushTokenProvider(): PushTokenProvider = getDependency(dependencies)
 
-    override fun getClientServiceProvider(): ServiceEndpointProvider = getDependency(Endpoint.ME_V3_CLIENT_HOST)
+    override fun getClientServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.ME_V3_CLIENT_HOST)
 
-    override fun getEventServiceProvider(): ServiceEndpointProvider = getDependency(Endpoint.ME_V3_EVENT_HOST)
+    override fun getEventServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.ME_V3_EVENT_HOST)
 
-    override fun getDeepLinkServiceProvider(): ServiceEndpointProvider = getDependency(Endpoint.DEEP_LINK)
+    override fun getDeepLinkServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.DEEP_LINK)
 
-    override fun getInboxServiceProvider(): ServiceEndpointProvider = getDependency(Endpoint.INBOX_BASE)
+    override fun getInboxServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.INBOX_BASE)
 
-    override fun getMessageInboxServiceProvider(): ServiceEndpointProvider = getDependency(Endpoint.ME_V3_INBOX_HOST)
+    override fun getMessageInboxServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.ME_V3_INBOX_HOST)
 
-    override fun getMobileEngageV2ServiceProvider(): ServiceEndpointProvider = getDependency(Endpoint.ME_BASE_V2)
+    override fun getMobileEngageV2ServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.ME_BASE_V2)
 
-    override fun getClientServiceStorage(): StringStorage = getDependency(MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
+    override fun getClientServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
 
-    override fun getEventServiceStorage(): StringStorage = getDependency(MobileEngageStorageKey.EVENT_SERVICE_URL.key)
+    override fun getEventServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.EVENT_SERVICE_URL.key)
 
-    override fun getDeepLinkServiceStorage(): StringStorage = getDependency(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
+    override fun getDeepLinkServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
 
-    override fun getInboxServiceStorage(): StringStorage = getDependency(MobileEngageStorageKey.INBOX_SERVICE_URL.key)
+    override fun getInboxServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.INBOX_SERVICE_URL.key)
 
-    override fun getMessageInboxServiceStorage(): StringStorage = getDependency(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key)
+    override fun getMessageInboxServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key)
 
-    override fun getMobileEngageV2ServiceStorage(): StringStorage = getDependency(MobileEngageStorageKey.ME_V2_SERVICE_URL.key)
+    override fun getMobileEngageV2ServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.ME_V2_SERVICE_URL.key)
 
-    override fun getNotificationActionCommandFactory(): ActionCommandFactory = getDependency("notificationActionCommandFactory")
+    override fun getNotificationActionCommandFactory(): ActionCommandFactory = getDependency(dependencies, "notificationActionCommandFactory")
 
-    override fun getSilentMessageActionCommandFactory(): ActionCommandFactory = getDependency("silentMessageActionCommandFactory")
+    override fun getSilentMessageActionCommandFactory(): ActionCommandFactory = getDependency(dependencies, "silentMessageActionCommandFactory")
 
-    override fun getNotificationEventHandlerProvider(): EventHandlerProvider = getDependency("notificationEventHandlerProvider")
+    override fun getNotificationEventHandlerProvider(): EventHandlerProvider = getDependency(dependencies, "notificationEventHandlerProvider")
 
-    override fun getSilentMessageEventHandlerProvider(): EventHandlerProvider = getDependency("silentMessageEventHandlerProvider")
+    override fun getSilentMessageEventHandlerProvider(): EventHandlerProvider = getDependency(dependencies, "silentMessageEventHandlerProvider")
 
-    override fun getGeofenceEventHandlerProvider(): EventHandlerProvider = getDependency("geofenceEventHandlerProvider")
+    override fun getGeofenceEventHandlerProvider(): EventHandlerProvider = getDependency(dependencies, "geofenceEventHandlerProvider")
 
-    override fun getCurrentActivityProvider(): CurrentActivityProvider = getDependency()
+    override fun getCurrentActivityProvider(): CurrentActivityProvider = getDependency(dependencies)
 
-    override fun getGeofenceInternal(): GeofenceInternal = getDependency("defaultInstance")
+    override fun getGeofenceInternal(): GeofenceInternal = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingGeofenceInternal(): GeofenceInternal = getDependency("loggingInstance")
+    override fun getLoggingGeofenceInternal(): GeofenceInternal = getDependency(dependencies, "loggingInstance")
 
-    override fun getCoreSdkHandler(): Handler = getDependency("coreSdkHandler")
+    override fun getCoreSdkHandler(): Handler = getDependency(dependencies, "coreSdkHandler")
 
-    override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog = getDependency()
+    override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog = getDependency(dependencies)
 
-    override fun getCurrentActivityWatchdog(): CurrentActivityWatchdog = getDependency()
+    override fun getCurrentActivityWatchdog(): CurrentActivityWatchdog = getDependency(dependencies)
 
-    override fun getCoreSQLiteDatabase(): CoreSQLiteDatabase = getDependency()
+    override fun getCoreSQLiteDatabase(): CoreSQLiteDatabase = getDependency(dependencies)
 
-    override fun getDeviceInfo(): DeviceInfo = getDependency()
+    override fun getDeviceInfo(): DeviceInfo = getDependency(dependencies)
 
-    override fun getShardRepository(): Repository<ShardModel, SqlSpecification> = getDependency<ShardModelRepository>()
+    override fun getShardRepository(): Repository<ShardModel, SqlSpecification> = getDependency(dependencies, "shardModelRepository")
 
-    override fun getTimestampProvider(): TimestampProvider = getDependency()
+    override fun getTimestampProvider(): TimestampProvider = getDependency(dependencies)
 
-    override fun getUuidProvider(): UUIDProvider = getDependency()
+    override fun getUuidProvider(): UUIDProvider = getDependency(dependencies)
 
-    override fun getLogShardTrigger(): Runnable = getDependency("logShardTrigger")
+    override fun getLogShardTrigger(): Runnable = getDependency(dependencies, "logShardTrigger")
 
-    override fun getLogger(): Logger = getDependency()
+    override fun getLogger(): Logger = getDependency(dependencies)
 
-    override fun getRestClient(): RestClient = getDependency()
+    override fun getRestClient(): RestClient = getDependency(dependencies)
 
-    override fun getFileDownloader(): FileDownloader = getDependency()
+    override fun getFileDownloader(): FileDownloader = getDependency(dependencies)
 
-    override fun getPredictInternal(): PredictInternal = getDependency("defaultInstance")
+    override fun getPredictInternal(): PredictInternal = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingPredictInternal(): PredictInternal = getDependency("loggingInstance")
+    override fun getLoggingPredictInternal(): PredictInternal = getDependency(dependencies, "loggingInstance")
 
-    override fun getPredictShardTrigger(): Runnable = getDependency("predictShardTrigger")
+    override fun getPredictShardTrigger(): Runnable = getDependency(dependencies, "predictShardTrigger")
 
-    override fun getPredictServiceProvider(): ServiceEndpointProvider = getDependency(com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL)
+    override fun getPredictServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL)
 
-    override fun getPredictServiceStorage(): StringStorage = getDependency(PredictStorageKey.PREDICT_SERVICE_URL.key)
+    override fun getPredictServiceStorage(): StringStorage = getDependency(dependencies, PredictStorageKey.PREDICT_SERVICE_URL.key)
 
-    override fun getButtonClickedRepository(): Repository<ButtonClicked, SqlSpecification> = getDependency("buttonClickedRepository")
+    override fun getButtonClickedRepository(): Repository<ButtonClicked, SqlSpecification> = getDependency(dependencies, "buttonClickedRepository")
 
-    override fun getDisplayedIamRepository(): Repository<DisplayedIam, SqlSpecification> = getDependency("displayedIamRepository")
+    override fun getDisplayedIamRepository(): Repository<DisplayedIam, SqlSpecification> = getDependency(dependencies, "displayedIamRepository")
 
-    override fun getKeyValueStore(): KeyValueStore = getDependency()
+    override fun getKeyValueStore(): KeyValueStore = getDependency(dependencies)
 
-    override fun getContactTokenResponseHandler(): MobileEngageTokenResponseHandler = getDependency("contactTokenResponseHandler")
+    override fun getContactTokenResponseHandler(): MobileEngageTokenResponseHandler = getDependency(dependencies, "contactTokenResponseHandler")
 
     private fun createPublicKey(): PublicKey {
         val publicKeySpec = X509EncodedKeySpec(

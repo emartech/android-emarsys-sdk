@@ -4,7 +4,7 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.getDependency
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 

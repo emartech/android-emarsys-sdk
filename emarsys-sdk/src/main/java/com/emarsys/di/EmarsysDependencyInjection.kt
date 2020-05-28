@@ -1,7 +1,7 @@
 package com.emarsys.di
 
-import com.emarsys.core.di.Container.getDependency
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.feature.InnerFeature
 import com.emarsys.geofence.GeofenceApi

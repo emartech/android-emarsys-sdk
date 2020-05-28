@@ -8,9 +8,10 @@ import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
-import com.emarsys.core.di.Container
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.addDependency
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.di.DefaultEmarsysDependencyContainer
@@ -66,7 +67,7 @@ class InappNotificationIntegrationTest {
 
     @Rule
     @JvmField
-    val activityRule = ActivityTestRule(FakeActivity::class.java)
+    val activityRule = ActivityTestRule(FakeActivity::class.java, false, false)
 
     @Before
     fun setup() {
@@ -99,16 +100,22 @@ class InappNotificationIntegrationTest {
                 anyOrNull(),
                 eq(null))).thenAnswer { completionListenerLatch.countDown() }
 
-        val setupLatch = CountDownLatch(1)
-        DependencyInjection.setup(DefaultEmarsysDependencyContainer(baseConfig) {
-            setupLatch.countDown()
+        var setupLatch = CountDownLatch(1)
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
+            override fun getInAppPresenter(): InAppPresenter {
+                return mockInappPresenter
+            }
         })
+        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
+            setupLatch.countDown()
+        }
 
         setupLatch.await()
 
         ConnectionTestUtils.checkConnection(application)
 
         Emarsys.setup(baseConfig)
+
         getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
         getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
         getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
@@ -122,9 +129,10 @@ class InappNotificationIntegrationTest {
     @After
     fun tearDown() {
         try {
-            getDependency<Handler>("coreSdkHandler").looper.quit()
             application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
             application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
+
+            getDependency<Handler>("coreSdkHandler").looper.quit()
 
             FeatureTestUtils.resetFeatures()
             getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
@@ -143,8 +151,7 @@ class InappNotificationIntegrationTest {
 
     @Test
     fun testInappPresent() {
-        Container.addDependency(mockInappPresenter)
-
+        addDependency(DependencyInjection.getContainer<DependencyContainer>().dependencies, mockInappPresenter)
         val context = InstrumentationRegistry.getTargetContext().applicationContext
         val url = FileDownloader(context).download("https://www.google.com")
         val emsPayload = """{"inapp": {"campaignId": "222","url": "https://www.google.com","fileUrl": "$url"}}"""

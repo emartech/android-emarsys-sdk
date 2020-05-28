@@ -9,8 +9,9 @@ import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
@@ -18,6 +19,7 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal
+import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.testUtil.*
@@ -90,9 +92,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
         FeatureTestUtils.resetFeatures()
 
         val setupLatch = CountDownLatch(1)
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig, {
-            setupLatch.countDown()
-        }) {
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getDeviceInfo(): DeviceInfo {
                 return DeviceInfo(
                         application,
@@ -108,6 +108,9 @@ class MobileEngageRefreshContactTokenIntegrationTest {
                 )
             }
         })
+        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
+            setupLatch.countDown()
+        }
 
         setupLatch.await()
 
@@ -151,7 +154,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
     fun testRefreshContactToken() {
         contactTokenStorage.remove()
 
-        val refreshTokenInternal = getDependency<MobileEngageRefreshTokenInternal>()
+        val refreshTokenInternal = getDependency<RefreshTokenInternal>()
 
         refreshTokenInternal.refreshContactToken(this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
 

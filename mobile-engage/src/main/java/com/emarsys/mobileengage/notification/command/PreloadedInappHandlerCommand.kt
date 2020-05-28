@@ -4,10 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.FileDownloader
-import com.emarsys.mobileengage.iam.InAppPresenter
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.iam.PushToInAppAction
 import org.json.JSONException
 import org.json.JSONObject
@@ -51,7 +52,7 @@ class PreloadedInappHandlerCommand(private val intent: Intent) : Runnable {
     }
 
     private fun scheduleInAppDisplay(campaignId: String, html: String, sid: String?, url: String?) {
-        val pushToInAppAction = PushToInAppAction(getDependency<InAppPresenter>(), campaignId, html, sid, url,
+        val pushToInAppAction = PushToInAppAction(DependencyInjection.getContainer<MobileEngageDependencyContainer>().getInAppPresenter(), campaignId, html, sid, url,
                 getDependency<TimestampProvider>())
         getDependency<ActivityLifecycleWatchdog>().addTriggerOnActivityAction(pushToInAppAction)
     }

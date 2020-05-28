@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.emarsys.core.Mockable
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.notification.command.*

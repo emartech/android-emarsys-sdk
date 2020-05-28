@@ -1,13 +1,17 @@
 package com.emarsys
 
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.push.Push
 import com.emarsys.testUtil.TimeoutUtils
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -36,6 +40,19 @@ class PushTest {
         push = Push()
     }
 
+    @After
+    fun tearDown() {
+        try {
+            val handler = getDependency<Handler>("coreSdkHandler")
+            val looper: Looper? = handler.looper
+            looper?.quit()
+            DependencyInjection.tearDown()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
+    }
+
     @Test
     fun testPush_trackMessageOpen_delegatesTo_mobileEngageInternal() {
         val intent = Mockito.mock(Intent::class.java)
@@ -52,16 +69,16 @@ class PushTest {
 
     @Test
     fun testPush_setPushToken_delegatesTo_mobileEngageInternal() {
-        val PushToken = "PushToken"
-        push.setPushToken(PushToken)
-        Mockito.verify(mockPushInternal).setPushToken(PushToken, null)
+        val pushToken = "PushToken"
+        push.setPushToken(pushToken)
+        Mockito.verify(mockPushInternal).setPushToken(pushToken, null)
     }
 
     @Test
     fun testPush_setPushToken_completionListener_delegatesTo_mobileEngageInternal() {
-        val PushToken = "PushToken"
-        push.setPushToken(PushToken, mockCompletionListener)
-        Mockito.verify(mockPushInternal).setPushToken(PushToken, mockCompletionListener)
+        val pushToken = "PushToken"
+        push.setPushToken(pushToken, mockCompletionListener)
+        Mockito.verify(mockPushInternal).setPushToken(pushToken, mockCompletionListener)
     }
 
     @Test
@@ -84,7 +101,7 @@ class PushTest {
 
     @Test
     fun testPush_setSilentMessageEventHandler_delegatesTo_pushInternal() {
-        push.setSilentMessageEventHandler(mockEventHandler!!)
+        push.setSilentMessageEventHandler(mockEventHandler)
         Mockito.verify(mockPushInternal).setSilentMessageEventHandler(mockEventHandler)
     }
 }

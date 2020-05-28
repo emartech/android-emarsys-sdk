@@ -3,8 +3,7 @@ package com.emarsys.config
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.Container.getDependency
-
+import com.emarsys.core.di.getDependency
 @Mockable
 class Config() : ConfigApi {
     override val contactFieldId: Int

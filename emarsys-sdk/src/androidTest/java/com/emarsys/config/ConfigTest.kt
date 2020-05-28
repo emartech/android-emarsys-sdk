@@ -1,12 +1,16 @@
 package com.emarsys.config
 
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -31,6 +35,19 @@ class ConfigTest {
 
         DependencyInjection.setup(dependencyContainer)
         config = Config()
+    }
+
+    @After
+    fun tearDown() {
+        try {
+            val handler = getDependency<Handler>("coreSdkHandler")
+            val looper: Looper? = handler.looper
+            looper?.quit()
+            DependencyInjection.tearDown()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
     }
 
     @Test

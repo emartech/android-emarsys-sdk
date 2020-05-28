@@ -11,9 +11,9 @@ import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.Container.addDependency
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
@@ -70,7 +70,7 @@ class DefaultInboxIntegrationTest {
 
     private lateinit var latch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
-    private lateinit var triedNotificationInboxStatus: Try<NotificationInboxStatus>
+    lateinit var triedNotificationInboxStatus: Try<NotificationInboxStatus>
     private lateinit var triedInboxResult: Try<InboxResult>
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -85,7 +85,7 @@ class DefaultInboxIntegrationTest {
 
     @Rule
     @JvmField
-    val activityRule = ActivityTestRule(FakeActivity::class.java)
+    val activityRule = ActivityTestRule(FakeActivity::class.java, false, false)
 
     @Before
     fun setup() {
@@ -104,9 +104,19 @@ class DefaultInboxIntegrationTest {
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
 
         val setupLatch = CountDownLatch(1)
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig, {
-            setupLatch.countDown()
-        }) {
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
+            override fun getClientServiceProvider(): ServiceEndpointProvider {
+                return mock(ServiceEndpointProvider::class.java).apply {
+                    whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_CLIENT_HOST, Endpoint.ME_V3_CLIENT_HOST)
+                }
+            }
+
+            override fun getEventServiceProvider(): ServiceEndpointProvider {
+                return mock(ServiceEndpointProvider::class.java).apply {
+                    whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_EVENT_HOST, Endpoint.ME_V3_EVENT_HOST)
+                }
+            }
+
             override fun getDeviceInfo(): DeviceInfo {
                 return DeviceInfo(
                         application,
@@ -124,17 +134,11 @@ class DefaultInboxIntegrationTest {
                 )
             }
         })
+        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
+            setupLatch.countDown()
+        }
 
         setupLatch.await()
-
-        addDependency(mock(ServiceEndpointProvider::class.java).apply {
-            whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_CLIENT_HOST, Endpoint.ME_V3_CLIENT_HOST)
-        })
-
-        addDependency(mock(ServiceEndpointProvider::class.java).apply {
-            whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_EVENT_HOST)
-        }, Endpoint.ME_V3_EVENT_HOST)
-
 
         getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key).remove()
         getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).remove()
@@ -152,6 +156,8 @@ class DefaultInboxIntegrationTest {
         getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
 
         IntegrationTestUtils.doLogin()
+
+        activityRule.launchActivity(null)
     }
 
     @After

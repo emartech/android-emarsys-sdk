@@ -43,15 +43,14 @@ import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerType
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.Container.getDependency
 import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
@@ -89,6 +88,7 @@ import com.emarsys.testUtil.CollectionTestUtils.getElementByType
 import com.emarsys.testUtil.CollectionTestUtils.numberOfElementsIn
 import com.emarsys.testUtil.FeatureTestUtils.resetFeatures
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
+import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils.getInstanceField
 import com.emarsys.testUtil.TimeoutUtils
 import com.google.firebase.FirebaseApp
@@ -175,6 +175,7 @@ class EmarsysTest {
     private lateinit var predictConfig: EmarsysConfig
     private lateinit var configWithInAppEventHandler: EmarsysConfig
     private lateinit var deviceInfo: DeviceInfo
+    private lateinit var latch: CountDownLatch
 
     @Before
     fun setUp() {
@@ -230,6 +231,7 @@ class EmarsysTest {
                     mockLanguageProvider, mockNotificationManagerHelper, true)
 
             whenever(mockRequestContext.applicationCode).thenReturn(APPLICATION_CODE)
+            whenever(mockRequestContext.deviceInfo).thenReturn(deviceInfo)
             whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
             whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
             whenever(mockContactTokenStorage.get()).thenReturn("contactToken")
@@ -237,7 +239,6 @@ class EmarsysTest {
             whenever(mockDeviceInfoPayloadStorage.get()).thenReturn("deviceInfo.deviceInfoPayload")
 
             DependencyInjection.setup(FakeDependencyContainer(
-                    coreSdkHandler = CoreSdkHandlerProvider().provideHandler(),
                     activityLifecycleWatchdog = activityLifecycleWatchdog,
                     currentActivityWatchdog = currentActivityWatchdog,
                     coreSQLiteDatabase = mockCoreSQLiteDatabase,
@@ -268,6 +269,7 @@ class EmarsysTest {
                     config = mockConfig,
                     responseHandlersProcessor = ResponseHandlersProcessor(ArrayList())
             ))
+            latch = CountDownLatch(1)
             resetFeatures()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -277,51 +279,56 @@ class EmarsysTest {
 
     @After
     fun tearDown() {
-        application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
-        application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
-        try {
-            val looper: Looper? = getDependency<Handler>("coreSdkHandler").looper
-            looper?.quitSafely()
-            DependencyInjection.tearDown()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
-        }
+        stop()
     }
 
     @Test
     fun testSetup_whenMobileEngageApplicationCodeAndMerchantIdAreNull_mobileEngageAndPredict_shouldBeDisabled() {
         val config = createConfig().mobileEngageApplicationCode(null).predictMerchantId(null).build()
         setup(config)
+        waitForTask()
+
         Assert.assertEquals(false, FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE))
         Assert.assertEquals(false, FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT))
     }
 
     @Test
     fun testSetup_whenMobileEngageApplicationCodeIsNotNull_mobileEngageFeature_shouldBeEnabled() {
+
         setup(mobileEngageConfig)
+        waitForTask()
+
+
         Assert.assertTrue(FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE))
     }
 
     @Test
     fun testSetup_whenPredictMerchantIdIsNotNull_predictFeature_shouldBeEnabled() {
         setup(predictConfig)
+        waitForTask()
+
         Assert.assertTrue(FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT))
     }
 
     @Test
     fun testSetup_initializesDependencyInjectionContainer() {
-        DependencyInjection.tearDown()
+        stop()
+
         setup(baseConfig)
+        waitForTask()
+
         val container = DependencyInjection.getContainer<DependencyContainer>()
         Assert.assertEquals(DefaultEmarsysDependencyContainer::class.java, container.javaClass)
+        Assert.assertEquals(container.dependencies.isNotEmpty(), true)
     }
 
     @Test
     fun testSetup_initializesRequestManager_withRequestModelRepositoryProxy() {
-        DependencyInjection.tearDown()
+        stop()
+
         setup(mobileEngageConfig)
         waitForTask()
+
         val requestManager: RequestManager? = getInstanceField(
                 getDependency<MobileEngageInternal>("defaultInstance"),
                 "requestManager")
@@ -333,9 +340,11 @@ class EmarsysTest {
 
     @Test
     fun testSetup_initializesCoreCompletionHandler_withNoFlippers() {
-        DependencyInjection.tearDown()
+        stop()
+
         setup(mobileEngageConfig)
         waitForTask()
+
         val responseHandlersProcessor = getDependency<ResponseHandlersProcessor>()
 
         Assert.assertNotNull(responseHandlersProcessor)
@@ -351,15 +360,24 @@ class EmarsysTest {
 
     @Test
     fun testSetup_registersPredictTrigger_whenPredictIsEnabled() {
+        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
+            latch.countDown()
+        })
         setup(predictConfig)
+        latch.await()
         waitForTask()
         verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockPredictShardTrigger)
     }
 
     @Test
     fun testSetup_doNotRegistersPredictTrigger_whenPredictIsDisabled() {
+        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
+            latch.countDown()
+        })
         setup(mobileEngageConfig)
+        latch.await()
         waitForTask()
+
         val argumentCaptor = ArgumentCaptor.forClass(Runnable::class.java)
         verify(mockCoreSQLiteDatabase, times(1)).registerTrigger(ArgumentMatchers.any(String::class.java), ArgumentMatchers.any(TriggerType::class.java), ArgumentMatchers.any(TriggerEvent::class.java), argumentCaptor.capture())
         Assert.assertEquals(mockLogShardTrigger, argumentCaptor.value)
@@ -368,15 +386,25 @@ class EmarsysTest {
 
     @Test
     fun testSetup_registersLogTrigger() {
+        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
+            latch.countDown()
+        })
         setup(mobileEngageConfig)
+        latch.await()
         waitForTask()
+
         verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockLogShardTrigger)
     }
 
     @Test
     fun testSetup_registers_activityLifecycleWatchdog() {
+        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
+            latch.countDown()
+        })
         setup(mobileEngageConfig)
+        latch.await()
         waitForTask()
+
         val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
         verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
         getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java) shouldNotBe null
@@ -385,10 +413,12 @@ class EmarsysTest {
 
     @Test
     fun testSetup_registers_activityLifecycleWatchdog_withInAppStartAction() {
-        DependencyInjection.tearDown()
+        stop()
         val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
+
         setup(mobileEngageConfig)
         waitForTask()
+
         verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
         val actions = getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java)?.applicationStartActions?.toList()
         Assert.assertEquals(1, numberOfElementsIn(actions!!, InAppStartAction::class.java).toLong())
@@ -396,10 +426,12 @@ class EmarsysTest {
 
     @Test
     fun testSetup_registers_activityLifecycleWatchdog_withDeepLinkAction() {
-        DependencyInjection.tearDown()
+        stop()
         val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
+
         setup(mobileEngageConfig)
         waitForTask()
+
         verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
         val actions = getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java)?.activityCreatedActions?.toList()
         Assert.assertEquals(1, numberOfElementsIn(actions!!, DeepLinkAction::class.java).toLong())
@@ -407,21 +439,34 @@ class EmarsysTest {
 
     @Test
     fun testSetup_registers_currentActivityWatchDog() {
+        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
+            latch.countDown()
+        })
         setup(mobileEngageConfig)
+        latch.await()
         waitForTask()
+
         verify(application).registerActivityLifecycleCallbacks(currentActivityWatchdog)
     }
 
     @Test
     fun testSetup_setsInAppEventHandler_whenProvidedInConfig() {
+        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
+            latch.countDown()
+        })
         setup(configWithInAppEventHandler)
+        latch.await()
         waitForTask()
         verify(mockInApp).setEventHandler(any())
     }
 
     @Test
     fun testSetup_doesNotSetInAppEventHandler_whenMissingFromConfig() {
+        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
+            latch.countDown()
+        })
         setup(mobileEngageConfig)
+        latch.await()
         waitForTask()
 
         verifyZeroInteractions(mockInApp)
@@ -433,10 +478,15 @@ class EmarsysTest {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         whenever(mockContactTokenStorage.get()).thenReturn(null)
 
+        val latch = CountDownLatch(1)
+        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
+            latch.countDown()
+        })
+
         setup(mobileEngageConfig)
 
+        latch.await()
         waitForTask()
-
         verify(mockClientServiceInternal).trackDeviceInfo()
     }
 
@@ -449,7 +499,13 @@ class EmarsysTest {
         whenever(mockClientStateStorage.get()).thenReturn("asdfsaf")
         whenever(mockDeviceInfoPayloadStorage.get()).thenReturn(expectedDeviceInfo)
 
+        val latch = CountDownLatch(1)
+        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
+            latch.countDown()
+        })
         setup(mobileEngageConfig)
+
+        latch.await()
         waitForTask()
 
         verify(mockClientServiceInternal, never()).trackDeviceInfo()
@@ -460,8 +516,10 @@ class EmarsysTest {
         whenever(mockClientStateStorage.get()).thenReturn(null)
         whenever(mockContactFieldValueStorage.get()).thenReturn("asdf")
         whenever(mockContactTokenStorage.get()).thenReturn("asdf")
+
         setup(mobileEngageConfig)
         waitForTask()
+
 
         verify(mockClientServiceInternal, never()).trackDeviceInfo()
     }
@@ -470,8 +528,16 @@ class EmarsysTest {
     fun testSetup_sendAnonymousContact() {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         whenever(mockContactTokenStorage.get()).thenReturn(null)
+
+        val latch = CountDownLatch(1)
         setup(mobileEngageConfig)
-        waitForTask()
+        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
+            latch.countDown()
+        })
+
+        latch.await()
+
+
         verify(mockMobileEngageInternal).setContact(null, null)
     }
 
@@ -479,8 +545,13 @@ class EmarsysTest {
     fun testSetup_sendDeviceInfoAndAnonymousContact_inOrder() {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         whenever(mockContactTokenStorage.get()).thenReturn(null)
+        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
+            latch.countDown()
+        })
         setup(mobileEngageConfig)
+        latch.await()
         waitForTask()
+
         val inOrder = inOrder(mockMobileEngageInternal, mockClientServiceInternal)
         inOrder.verify(mockClientServiceInternal).trackDeviceInfo()
         inOrder.verify(mockMobileEngageInternal).setContact(null, null)
@@ -489,8 +560,10 @@ class EmarsysTest {
 
     @Test
     fun testSetup_doNotSendAnonymousContact_whenContactFieldValueIsPresent() {
+
         setup(mobileEngageConfig)
         waitForTask()
+
 
         verify(mockMobileEngageInternal, never()).setContact(null, null)
     }
@@ -498,8 +571,10 @@ class EmarsysTest {
     @Test
     fun testSetup_doNotSendAnonymousContact_whenContactTokenIsPresent() {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
+
         setup(mobileEngageConfig)
         waitForTask()
+
 
         verify(mockMobileEngageInternal, never()).setContact(null, null)
     }
@@ -518,8 +593,10 @@ class EmarsysTest {
 
     @Test
     fun testSetContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageEnabled() {
+
         setup(mobileEngageConfig)
         waitForTask()
+
 
         setContact(CONTACT_ID, completionListener)
         waitForTask()
@@ -1171,5 +1248,19 @@ class EmarsysTest {
             latch.countDown()
         }
         latch.await()
+    }
+
+    private fun stop() {
+        application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
+        application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
+        try {
+            val handler = getDependency<Handler>("coreSdkHandler")
+            val looper: Looper? = handler.looper
+            looper?.quit()
+            DependencyInjection.tearDown()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
     }
 }

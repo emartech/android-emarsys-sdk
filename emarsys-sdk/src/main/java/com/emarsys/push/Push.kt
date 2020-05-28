@@ -3,7 +3,7 @@ package com.emarsys.push
 import android.content.Intent
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.getDependency
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.push.PushInternal
 

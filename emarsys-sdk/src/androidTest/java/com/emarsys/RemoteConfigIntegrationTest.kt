@@ -10,8 +10,9 @@ import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.Container.getDependency
+import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
@@ -70,7 +71,7 @@ class RemoteConfigIntegrationTest {
 
     @Rule
     @JvmField
-    val activityRule = ActivityTestRule(FakeActivity::class.java)
+    val activityRule = ActivityTestRule(FakeActivity::class.java, false, false)
 
     @Before
     fun setup() {
@@ -86,9 +87,7 @@ class RemoteConfigIntegrationTest {
         FeatureTestUtils.resetFeatures()
 
         val setupLatch = CountDownLatch(1)
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig, {
-            setupLatch.countDown()
-        }) {
+        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getDeviceInfo(): DeviceInfo {
                 return DeviceInfo(
                         application,
@@ -104,6 +103,9 @@ class RemoteConfigIntegrationTest {
                 )
             }
         })
+        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
+            setupLatch.countDown()
+        }
 
         setupLatch.await()
 
@@ -122,6 +124,8 @@ class RemoteConfigIntegrationTest {
         DependencyInjection.getContainer<EmarsysDependencyContainer>().getMessageInboxServiceStorage().remove()
 
         latch = CountDownLatch(1)
+
+        activityRule.launchActivity(null)
     }
 
     @After

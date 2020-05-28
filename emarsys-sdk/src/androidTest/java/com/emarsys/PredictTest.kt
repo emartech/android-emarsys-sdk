@@ -1,8 +1,11 @@
 package com.emarsys
 
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.predict.Predict
 import com.emarsys.predict.PredictInternal
@@ -14,6 +17,7 @@ import com.emarsys.testUtil.RandomTestUtils.randomNumberString
 import com.emarsys.testUtil.RandomTestUtils.randomString
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.mock
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -45,6 +49,19 @@ class PredictTest {
         mockLogic = mock()
         val mockRecommendationFilter: RecommendationFilter = mock()
         mockRecommendationFilters = listOf(mockRecommendationFilter)
+    }
+
+    @After
+    fun tearDown() {
+        try {
+            val handler = getDependency<Handler>("coreSdkHandler")
+            val looper: Looper? = handler.looper
+            looper?.quit()
+            DependencyInjection.tearDown()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
     }
 
     @Test
@@ -90,7 +107,6 @@ class PredictTest {
         predict.trackSearchTerm(searchTerm)
         Mockito.verify(mockPredictInternal).trackSearchTerm(searchTerm)
     }
-
 
     @Test
     fun testPredict_trackTag_delegatesTo_predictInternal() {
