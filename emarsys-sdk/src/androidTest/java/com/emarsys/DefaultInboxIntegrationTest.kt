@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
-import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
@@ -27,7 +26,6 @@ import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
-import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
@@ -82,10 +80,6 @@ class DefaultInboxIntegrationTest {
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Rule
-    @JvmField
-    val activityRule = ActivityTestRule(FakeActivity::class.java, false, false)
 
     @Before
     fun setup() {
@@ -156,8 +150,6 @@ class DefaultInboxIntegrationTest {
         getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
 
         IntegrationTestUtils.doLogin()
-
-        activityRule.launchActivity(null)
     }
 
     @After

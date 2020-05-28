@@ -2,7 +2,6 @@ package com.emarsys
 
 import android.app.Application
 import android.os.Handler
-import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.ConfigInternal
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -24,7 +23,6 @@ import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
-import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
@@ -68,10 +66,6 @@ class RemoteConfigIntegrationTest {
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
-
-    @Rule
-    @JvmField
-    val activityRule = ActivityTestRule(FakeActivity::class.java, false, false)
 
     @Before
     fun setup() {
@@ -124,8 +118,6 @@ class RemoteConfigIntegrationTest {
         DependencyInjection.getContainer<EmarsysDependencyContainer>().getMessageInboxServiceStorage().remove()
 
         latch = CountDownLatch(1)
-
-        activityRule.launchActivity(null)
     }
 
     @After
