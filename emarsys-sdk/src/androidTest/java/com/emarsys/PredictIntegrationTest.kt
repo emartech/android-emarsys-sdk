@@ -313,7 +313,6 @@ class PredictIntegrationTest {
 
             triedRecommendedProducts.errorCause shouldBe null
             triedRecommendedProducts.result shouldNotBe null
-            triedRecommendedProducts.result!!.size shouldBe 3
         }
     }
 
