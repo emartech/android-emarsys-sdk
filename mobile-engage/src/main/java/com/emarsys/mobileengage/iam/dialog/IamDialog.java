@@ -93,19 +93,24 @@ public class IamDialog extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
+        webViewContainer.removeAllViews();
+        if (webView != null) {
+            webViewContainer.addView(webView);
 
-        webViewContainer.addView(webView);
+            getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            Window window = getDialog().getWindow();
+            WindowManager.LayoutParams windowParams = window.getAttributes();
+            windowParams.dimAmount = 0.0f;
+            window.setAttributes(windowParams);
 
-        Window window = getDialog().getWindow();
-        WindowManager.LayoutParams windowParams = window.getAttributes();
-        windowParams.dimAmount = 0.0f;
-        window.setAttributes(windowParams);
+            getDialog().getWindow()
+                    .setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+                            WindowManager.LayoutParams.MATCH_PARENT);
 
-        getDialog().getWindow()
-                .setLayout(WindowManager.LayoutParams.MATCH_PARENT,
-                        WindowManager.LayoutParams.MATCH_PARENT);
+        } else {
+            dismiss();
+        }
     }
 
     @Override
@@ -156,8 +161,10 @@ public class IamDialog extends DialogFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        webView.removeAllViews();
-        webView.destroy();
+        if (webView != null) {
+            webView.removeAllViews();
+            webView.destroy();
+        }
     }
 
     @Override

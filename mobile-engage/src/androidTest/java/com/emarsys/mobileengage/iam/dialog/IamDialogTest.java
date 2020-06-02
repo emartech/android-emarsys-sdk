@@ -17,6 +17,7 @@ import com.emarsys.core.util.log.entry.InAppLoadingTime;
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
 import com.emarsys.testUtil.InstrumentationRegistry;
+import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 import com.emarsys.testUtil.fake.FakeActivity;
 
@@ -39,6 +40,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -62,13 +64,13 @@ public class IamDialogTest {
 
     @Before
     public void init() throws InterruptedException {
-        dialog = TestIamDialog.create(
+        dialog = spy(TestIamDialog.create(
                 CAMPAIGN_ID,
                 new CountDownLatch(1),
                 new CountDownLatch(1),
                 new CountDownLatch(1),
                 new CountDownLatch(1)
-        );
+        ));
         dialog.setInAppLoadingTime(new InAppLoadingTime(1, 1));
 
         initWebViewProvider();
@@ -297,6 +299,37 @@ public class IamDialogTest {
         pauseDialog();
 
         assertEquals(150L + 3, dialog.getArguments().getLong("on_screen_time"));
+    }
+
+    @Test
+    public void testOnStart_shouldNotThrowTheSpecifiedChildAlreadyHasAParent_exception() throws InterruptedException {
+        Exception result = null;
+        try {
+            displayDialog();
+            final AppCompatActivity activity = activityRule.getActivity();
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.onStart();
+                }
+            });
+        } catch (IllegalStateException exception) {
+            result = exception;
+        }
+        assertNull(result);
+    }
+
+    @Test
+    public void testOnStart_shouldNotThrowCannotAddANullChildViewToAViewGroup_exception() throws InterruptedException {
+        ReflectionTestUtils.setStaticField(IamWebViewProvider.class, "webView", null);
+        Exception result = null;
+        try {
+            displayDialog();
+        } catch (IllegalArgumentException exception) {
+            result = exception;
+        }
+        assertNull(result);
+        verify(dialog).dismiss();
     }
 
     private void displayDialog() throws InterruptedException {
