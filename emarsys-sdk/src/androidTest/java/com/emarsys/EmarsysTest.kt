@@ -530,10 +530,10 @@ class EmarsysTest {
         whenever(mockContactTokenStorage.get()).thenReturn(null)
 
         val latch = CountDownLatch(1)
-        setup(mobileEngageConfig)
         ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
             latch.countDown()
         })
+        setup(mobileEngageConfig)
 
         latch.await()
 
