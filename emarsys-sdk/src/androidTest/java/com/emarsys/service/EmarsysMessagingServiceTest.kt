@@ -1,6 +1,7 @@
 package com.emarsys.service
 
 import android.app.Application
+import android.os.Handler
 import com.emarsys.Emarsys
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -26,6 +27,7 @@ import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.*
 import java.util.*
+import java.util.concurrent.CountDownLatch
 
 
 class EmarsysMessagingServiceTest {
@@ -71,6 +73,7 @@ class EmarsysMessagingServiceTest {
     private lateinit var fakeDependencyContainer: FakeDependencyContainer
 
     private lateinit var baseConfig: EmarsysConfig
+    val latch = CountDownLatch(1)
 
     @Before
     fun setUp() {
@@ -90,11 +93,15 @@ class EmarsysMessagingServiceTest {
 
         baseConfig = createConfig()
         FeatureTestUtils.resetFeatures()
-        DependencyInjection.tearDown()
     }
 
     @After
     fun tearDown() {
+        getDependency<Handler>("coreSdkHandler").post {
+            latch.countDown()
+        }
+        latch.await()
+        getDependency<Handler>("coreSdkHandler").looper.quit()
         application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
         application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
         DependencyInjection.tearDown()

@@ -309,13 +309,13 @@ class FakeDependencyContainer(
 
     override fun getDeepLinkInternal(): DeepLinkInternal = getDependency(dependencies, "defaultInstance")
 
-    override fun getLoggingDeepLinkInternal(): DeepLinkInternal = getDependency(dependencies,"loggingInstance")
+    override fun getLoggingDeepLinkInternal(): DeepLinkInternal = getDependency(dependencies, "loggingInstance")
 
     override fun getPushInternal(): PushInternal = getDependency(dependencies, "defaultInstance")
 
     override fun getLoggingPushInternal(): PushInternal = getDependency(dependencies, "loggingInstance")
 
-    override fun getEventServiceInternal(): EventServiceInternal = getDependency(dependencies,"defaultInstance")
+    override fun getEventServiceInternal(): EventServiceInternal = getDependency(dependencies, "defaultInstance")
 
     override fun getLoggingEventServiceInternal(): EventServiceInternal = getDependency(dependencies, "loggingInstance")
 
@@ -326,19 +326,19 @@ class FakeDependencyContainer(
 
     override fun getInAppPresenter(): InAppPresenter = getDependency(dependencies)
 
-    override fun getDeviceInfoPayloadStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.DEVICE_INFO_HASH.key)
+    override fun getDeviceInfoPayloadStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.DEVICE_INFO_HASH.key)
 
-    override fun getContactFieldValueStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.CONTACT_FIELD_VALUE.key)
+    override fun getContactFieldValueStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.CONTACT_FIELD_VALUE.key)
 
-    override fun getContactTokenStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.CONTACT_TOKEN.key)
+    override fun getContactTokenStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.CONTACT_TOKEN.key)
 
-    override fun getClientStateStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.CLIENT_STATE.key)
+    override fun getClientStateStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.CLIENT_STATE.key)
 
-    override fun getPushTokenStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.PUSH_TOKEN.key)
+    override fun getPushTokenStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.PUSH_TOKEN.key)
 
-    override fun getRefreshContactTokenStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.REFRESH_TOKEN.key)
+    override fun getRefreshContactTokenStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.REFRESH_TOKEN.key)
 
-    override fun getLogLevelStorage(): StringStorage = getDependency(dependencies,CoreStorageKey.LOG_LEVEL.key)
+    override fun getLogLevelStorage(): StringStorage = getDependency(dependencies, CoreStorageKey.LOG_LEVEL.key)
 
     override fun getResponseHandlersProcessor(): ResponseHandlersProcessor = getDependency(dependencies)
 
@@ -346,29 +346,29 @@ class FakeDependencyContainer(
 
     override fun getPushTokenProvider(): PushTokenProvider = getDependency(dependencies)
 
-    override fun getClientServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.ME_V3_CLIENT_HOST)
+    override fun getClientServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_V3_CLIENT_HOST)
 
-    override fun getEventServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.ME_V3_EVENT_HOST)
+    override fun getEventServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_V3_EVENT_HOST)
 
-    override fun getDeepLinkServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.DEEP_LINK)
+    override fun getDeepLinkServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.DEEP_LINK)
 
-    override fun getInboxServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.INBOX_BASE)
+    override fun getInboxServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.INBOX_BASE)
 
-    override fun getMessageInboxServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.ME_V3_INBOX_HOST)
+    override fun getMessageInboxServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_V3_INBOX_HOST)
 
-    override fun getMobileEngageV2ServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.ME_BASE_V2)
+    override fun getMobileEngageV2ServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_BASE_V2)
 
-    override fun getClientServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
+    override fun getClientServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
 
-    override fun getEventServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.EVENT_SERVICE_URL.key)
+    override fun getEventServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.EVENT_SERVICE_URL.key)
 
-    override fun getDeepLinkServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
+    override fun getDeepLinkServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
 
-    override fun getInboxServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.INBOX_SERVICE_URL.key)
+    override fun getInboxServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.INBOX_SERVICE_URL.key)
 
-    override fun getMessageInboxServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key)
+    override fun getMessageInboxServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key)
 
-    override fun getMobileEngageV2ServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.ME_V2_SERVICE_URL.key)
+    override fun getMobileEngageV2ServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.ME_V2_SERVICE_URL.key)
 
     override fun getNotificationActionCommandFactory(): ActionCommandFactory = getDependency(dependencies, "notificationActionCommandFactory")
 
@@ -392,15 +392,13 @@ class FakeDependencyContainer(
 
     override fun getPredictShardTrigger(): Runnable = getDependency(dependencies, "predictShardTrigger")
 
-    override fun getPredictServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL)
+    override fun getPredictServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL)
 
-    override fun getPredictServiceStorage(): StringStorage = getDependency(dependencies,PredictStorageKey.PREDICT_SERVICE_URL.key)
+    override fun getPredictServiceStorage(): StringStorage = getDependency(dependencies, PredictStorageKey.PREDICT_SERVICE_URL.key)
 
 
     override fun getButtonClickedRepository(): Repository<ButtonClicked, SqlSpecification> = getDependency(dependencies, "buttonClickedRepository")
     override fun getDisplayedIamRepository(): Repository<DisplayedIam, SqlSpecification> = getDependency(dependencies, "displayedIamRepository")
     override fun getKeyValueStore(): KeyValueStore = getDependency(dependencies)
     override fun getContactTokenResponseHandler(): MobileEngageTokenResponseHandler = getDependency(dependencies, "contactTokenResponseHandler")
-
-
 }

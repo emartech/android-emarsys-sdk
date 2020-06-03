@@ -74,7 +74,7 @@ object Emarsys {
         get() = EmarsysDependencyInjection.predict()
 
     @JvmStatic
-    val callback: (() -> Unit)? = null
+    private val callback: (() -> Unit)? = null
 
     @JvmStatic
     fun setup(emarsysConfig: EmarsysConfig) {

@@ -37,7 +37,7 @@ class LoggerTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    private lateinit var handler: Handler
+    private lateinit var coreSdkHandler: Handler
     private lateinit var shardRepositoryMock: Repository<ShardModel, SqlSpecification>
     private lateinit var timestampProviderMock: TimestampProvider
     private lateinit var uuidProviderMock: UUIDProvider
@@ -49,7 +49,7 @@ class LoggerTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun init() {
-        handler = CoreSdkHandlerProvider().provideHandler()
+        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
         shardRepositoryMock = mock()
         timestampProviderMock = mock<TimestampProvider>().apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
@@ -59,7 +59,7 @@ class LoggerTest {
         }
         mockLogLevelStorage = mock()
 
-        loggerInstance = Logger(handler,
+        loggerInstance = Logger(coreSdkHandler,
                 shardRepositoryMock,
                 timestampProviderMock,
                 uuidProviderMock,
@@ -67,14 +67,18 @@ class LoggerTest {
         )
         loggerMock = mock()
 
-        dependencyContainer = FakeCoreDependencyContainer(logger = loggerMock)
+        dependencyContainer = FakeCoreDependencyContainer(coreSdkHandler = coreSdkHandler,
+                shardRepository = shardRepositoryMock,
+                timestampProvider = timestampProviderMock,
+                uuidProvider = uuidProviderMock,
+                logger = loggerMock)
 
         DependencyInjection.setup(dependencyContainer)
     }
 
     @After
     fun tearDown() {
-        handler.looper.quit()
+        coreSdkHandler.looper.quit()
         DependencyInjection.tearDown()
     }
 
@@ -138,7 +142,9 @@ class LoggerTest {
 
         Logger.log(logEntry)
 
-        verify(loggerMock, timeout(100)).persistLog(LogLevel.INFO, logEntry)
+        waitForTask()
+
+        verify(loggerMock).persistLog(LogLevel.INFO, logEntry)
     }
 
     @Test
@@ -151,6 +157,8 @@ class LoggerTest {
         DependencyInjection.tearDown()
 
         Logger.log(logEntryMock())
+
+        waitForTask()
 
         verifyZeroInteractions(dependencyContainer)
     }
@@ -193,7 +201,6 @@ class LoggerTest {
     fun testPersistLog_shouldPersist_whenAppStartEvent() {
         val latch = CountDownLatch(1)
         whenever(mockLogLevelStorage.get()).thenReturn("ERROR")
-
         loggerInstance.persistLog(
                 LogLevel.INFO,
                 mock {
@@ -210,4 +217,12 @@ class LoggerTest {
                 on { data }.doReturn(testData)
                 on { topic }.doReturn(testTopic)
             }
+
+    private fun waitForTask() {
+        val latch = CountDownLatch(1)
+        coreSdkHandler.post {
+            latch.countDown()
+        }
+        latch.await()
+    }
 }

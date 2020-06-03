@@ -28,12 +28,9 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.DependencyContainer
-import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.addDependency
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
-import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.notification.NotificationManagerProxy
 import com.emarsys.core.permission.PermissionChecker
@@ -62,7 +59,6 @@ import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.predicate.ListSizeAtLeast
 import com.emarsys.core.worker.DefaultWorker
 import com.emarsys.core.worker.Worker
-import com.emarsys.feature.InnerFeature
 import com.emarsys.geofence.Geofence
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InApp

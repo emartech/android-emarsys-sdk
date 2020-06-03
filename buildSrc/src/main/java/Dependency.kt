@@ -9,7 +9,7 @@ object Versions {
     const val support_test_version = "1.2.0"
     const val support_library = "1.1.0"
     const val support_annotations = "1.1.0"
-    const val buildToolsVersion = "29.0.0"
+    const val buildToolsVersion = "29.0.2"
     const val multiDexVersion = "2.0.0"
     const val androidJunit4 = "1.1.1"
     const val kotlinMockito = "2.2.0"
