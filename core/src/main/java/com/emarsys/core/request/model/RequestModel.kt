@@ -8,24 +8,15 @@ import com.emarsys.core.util.Assert
 import java.io.Serializable
 import java.net.URL
 
-
-public fun RequestModel.collectRequestIds(): Array<String> {
-    return if (this is CompositeRequestModel) {
-        originalRequestIds
-    } else {
-        arrayOf(id)
-    }
-}
-
 @Mockable
 class RequestModel @JvmOverloads constructor(private val urlStr: String,
-                                                  val method: RequestMethod,
-                                                  val payload: Map<String, Any?>?,
-                                                  val headers: Map<String, String>,
-                                                  val timestamp: Long,
-                                                  val ttl: Long,
-                                                  val id: String,
-                                                  val url: URL = URL(urlStr)) : Serializable {
+                                             val method: RequestMethod,
+                                             val payload: Map<String, Any?>?,
+                                             val headers: Map<String, String>,
+                                             val timestamp: Long,
+                                             val ttl: Long,
+                                             val id: String,
+                                             val url: URL = URL(urlStr)) : Serializable {
 
     open class Builder {
         protected lateinit var url: String
@@ -126,5 +117,13 @@ class RequestModel @JvmOverloads constructor(private val urlStr: String,
         result = 31 * result + id.hashCode()
         result = 31 * result + url.hashCode()
         return result
+    }
+}
+
+fun RequestModel.collectRequestIds(): Array<String> {
+    return if (this is CompositeRequestModel) {
+        originalRequestIds
+    } else {
+        arrayOf(id)
     }
 }

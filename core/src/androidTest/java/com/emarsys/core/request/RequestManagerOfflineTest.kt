@@ -20,7 +20,7 @@ import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
-import com.emarsys.core.request.model.specification.FilterByRequestId
+import com.emarsys.core.request.model.specification.FilterByRequestIds
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.core.worker.DefaultWorker
@@ -220,7 +220,7 @@ class RequestManagerOfflineTest {
         completionHandler.onErrorCount shouldBe 0
         requestRepository.isEmpty() shouldBe false
 
-        requestRepository.remove(FilterByRequestId(lastNormal))
+        requestRepository.remove(FilterByRequestIds(arrayOf(lastNormal.id)))
 
         requestRepository.query(Everything()) should beEmpty()
     }

@@ -8,10 +8,13 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.request.factory.DefaultRunnableFactory;
 import com.emarsys.core.request.factory.RunnableFactory;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.request.model.specification.FilterByRequestId;
+import com.emarsys.core.request.model.RequestModelKt;
+import com.emarsys.core.request.model.specification.FilterByRequestIds;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.RequestModelUtils;
+
+import java.util.Arrays;
 
 public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
     CoreCompletionHandler coreCompletionHandler;
@@ -45,7 +48,8 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
         coreSDKHandler.post(runnableFactory.runnableFrom(new Runnable() {
             @Override
             public void run() {
-                requestRepository.remove(new FilterByRequestId(responseModel.getRequestModel()));
+                removeRequestModel(responseModel);
+
                 worker.unlock();
                 worker.run();
 
@@ -60,7 +64,8 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
             @Override
             public void run() {
                 if (isNonRetriableError(responseModel.getStatusCode())) {
-                    requestRepository.remove(new FilterByRequestId(responseModel.getRequestModel()));
+                    removeRequestModel(responseModel);
+
                     handleError(responseModel);
                     worker.unlock();
                     worker.run();
@@ -69,6 +74,16 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
                 }
             }
         }));
+    }
+
+    private void removeRequestModel(ResponseModel responseModel) {
+        String[] ids = RequestModelKt.collectRequestIds(responseModel.getRequestModel());
+
+        int noOfIterations = ids.length % 500 == 0 ? ids.length / 500 : ids.length / 500 + 1;
+        for (int i = 0; i < noOfIterations; i++) {
+            int noOfElements = Math.min(ids.length, (i + 1) * 500);
+            requestRepository.remove(new FilterByRequestIds(Arrays.copyOfRange(ids, i * 500, noOfElements)));
+        }
     }
 
     @Override

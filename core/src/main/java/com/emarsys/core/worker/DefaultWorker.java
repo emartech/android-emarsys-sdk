@@ -13,7 +13,7 @@ import com.emarsys.core.request.RequestExpiredException;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider;
 import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.request.model.specification.FilterByRequestId;
+import com.emarsys.core.request.model.specification.FilterByRequestIds;
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
 import com.emarsys.core.util.Assert;
 import com.emarsys.core.util.log.Logger;
@@ -110,7 +110,8 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
     }
 
     private void handleExpiration(final RequestModel expiredModel) {
-        requestRepository.remove(new FilterByRequestId(expiredModel));
+        String[] ids = {expiredModel.getId()};
+        requestRepository.remove(new FilterByRequestIds(ids));
         uiHandler.post(new Runnable() {
             @Override
             public void run() {
