@@ -3,7 +3,6 @@ package com.emarsys.di
 import android.app.Application
 import android.app.NotificationManager
 import android.content.Context
-import android.location.LocationManager
 import android.os.Handler
 import android.os.Looper
 import android.util.Base64
@@ -111,6 +110,7 @@ import com.emarsys.predict.shard.PredictShardListMerger
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.push.Push
 import com.emarsys.push.PushApi
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
 import org.json.JSONObject
 import java.security.KeyFactory
@@ -396,7 +396,6 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         LoggingPredictInternal(Emarsys.Predict::class.java).also {
             addDependency(dependencies, it as PredictInternal, "loggingInstance")
         }
-        val locationManager = application.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val geofenceFilter = GeofenceFilter(GEOFENCE_LIMIT)
         val geofencingClient = GeofencingClient(application)
         DefaultMessageInboxInternal(requestManager, getRequestContext(), requestModelFactory, uiHandler, MessageInboxResponseMapper()).also {
@@ -412,7 +411,19 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
             addDependency(dependencies, it, "silentMessageActionCommandFactory")
         }
         val geofenceActionCommandFactory = ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getGeofenceEventHandlerProvider())
-        DefaultGeofenceInternal(requestModelFactory, requestManager, GeofenceResponseMapper(), PermissionChecker(application.applicationContext), locationManager, geofenceFilter, geofencingClient, application, geofenceActionCommandFactory, getGeofenceEventHandlerProvider(), geofenceEnabledStorage).also {
+        DefaultGeofenceInternal(requestModelFactory,
+                requestManager,
+                GeofenceResponseMapper(),
+                PermissionChecker(application.applicationContext),
+                FusedLocationProviderClient(application.applicationContext),
+                geofenceFilter,
+                geofencingClient,
+                application,
+                geofenceActionCommandFactory,
+                getGeofenceEventHandlerProvider(),
+                geofenceEnabledStorage,
+                GeofencePendingIntentProvider(application.applicationContext)
+        ).also {
             addDependency(dependencies, it as GeofenceInternal, "defaultInstance")
         }
         DefaultClientServiceInternal(requestManager, requestModelFactory).also {
@@ -636,19 +647,19 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
 
     override fun getInAppPresenter(): InAppPresenter = getDependency(dependencies)
 
-    override fun getDeviceInfoPayloadStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.DEVICE_INFO_HASH.key)
+    override fun getDeviceInfoPayloadStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.DEVICE_INFO_HASH.key)
 
-    override fun getContactFieldValueStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.CONTACT_FIELD_VALUE.key)
+    override fun getContactFieldValueStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.CONTACT_FIELD_VALUE.key)
 
-    override fun getContactTokenStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.CONTACT_TOKEN.key)
+    override fun getContactTokenStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.CONTACT_TOKEN.key)
 
-    override fun getClientStateStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.CLIENT_STATE.key)
+    override fun getClientStateStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.CLIENT_STATE.key)
 
-    override fun getPushTokenStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.PUSH_TOKEN.key)
+    override fun getPushTokenStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.PUSH_TOKEN.key)
 
-    override fun getRefreshContactTokenStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.REFRESH_TOKEN.key)
+    override fun getRefreshContactTokenStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.REFRESH_TOKEN.key)
 
-    override fun getLogLevelStorage(): StringStorage = getDependency(dependencies,CoreStorageKey.LOG_LEVEL.key)
+    override fun getLogLevelStorage(): StringStorage = getDependency(dependencies, CoreStorageKey.LOG_LEVEL.key)
 
     override fun getResponseHandlersProcessor(): ResponseHandlersProcessor = getDependency(dependencies)
 
@@ -656,29 +667,29 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
 
     override fun getPushTokenProvider(): PushTokenProvider = getDependency(dependencies)
 
-    override fun getClientServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.ME_V3_CLIENT_HOST)
+    override fun getClientServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_V3_CLIENT_HOST)
 
-    override fun getEventServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.ME_V3_EVENT_HOST)
+    override fun getEventServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_V3_EVENT_HOST)
 
-    override fun getDeepLinkServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.DEEP_LINK)
+    override fun getDeepLinkServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.DEEP_LINK)
 
-    override fun getInboxServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.INBOX_BASE)
+    override fun getInboxServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.INBOX_BASE)
 
-    override fun getMessageInboxServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.ME_V3_INBOX_HOST)
+    override fun getMessageInboxServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_V3_INBOX_HOST)
 
-    override fun getMobileEngageV2ServiceProvider(): ServiceEndpointProvider = getDependency(dependencies,Endpoint.ME_BASE_V2)
+    override fun getMobileEngageV2ServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_BASE_V2)
 
-    override fun getClientServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
+    override fun getClientServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
 
-    override fun getEventServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.EVENT_SERVICE_URL.key)
+    override fun getEventServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.EVENT_SERVICE_URL.key)
 
-    override fun getDeepLinkServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
+    override fun getDeepLinkServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
 
-    override fun getInboxServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.INBOX_SERVICE_URL.key)
+    override fun getInboxServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.INBOX_SERVICE_URL.key)
 
-    override fun getMessageInboxServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key)
+    override fun getMessageInboxServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key)
 
-    override fun getMobileEngageV2ServiceStorage(): StringStorage = getDependency(dependencies,MobileEngageStorageKey.ME_V2_SERVICE_URL.key)
+    override fun getMobileEngageV2ServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.ME_V2_SERVICE_URL.key)
 
     override fun getNotificationActionCommandFactory(): ActionCommandFactory = getDependency(dependencies, "notificationActionCommandFactory")
 

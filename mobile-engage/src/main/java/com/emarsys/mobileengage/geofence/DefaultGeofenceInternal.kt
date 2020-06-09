@@ -3,12 +3,10 @@ package com.emarsys.mobileengage.geofence
 import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
-import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -39,20 +37,27 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                               private val requestManager: RequestManager,
                               private val geofenceResponseMapper: GeofenceResponseMapper,
                               private val permissionChecker: PermissionChecker,
-                              private val locationManager: LocationManager?,
+                              private val fusedLocationProviderClient: FusedLocationProviderClient,
                               private val geofenceFilter: GeofenceFilter,
                               private val geofencingClient: GeofencingClient,
                               private val context: Context,
                               private val actionCommandFactory: ActionCommandFactory,
                               private val geofenceEventHandlerProvider: EventHandlerProvider,
-                              private val geofenceEnabledStorage: Storage<Boolean>) : GeofenceInternal, LocationListener {
+                              private val geofenceEnabledStorage: Storage<Boolean>,
+                              private val geofencePendingIntentProvider: GeofencePendingIntentProvider
+) : GeofenceInternal, LocationListener {
+    private companion object {
+        const val FASTEST_INTERNAL: Long = 15_000
+        const val INTERVAL: Long = 30_000
+        const val MAX_WAIT_TIME: Long = 60_000
+    }
+
     private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver()
     private var geofenceResponse: GeofenceResponse? = null
     private lateinit var nearestGeofences: MutableList<MEGeofence>
     private var currentLocation: Location? = null
     private val geofencePendingIntent: PendingIntent by lazy {
-        val intent = Intent("com.emarsys.sdk.GEOFENCE_ACTION")
-        PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        geofencePendingIntentProvider.providePendingIntent()
     }
     private var receiverRegistered = false
 
@@ -118,11 +123,17 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION])
     private fun registerNearestGeofences(completionListener: CompletionListener?) {
-        currentLocation = locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        fusedLocationProviderClient.lastLocation?.addOnSuccessListener { currentLocation = it }
 
-        locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1F, this)
+        fusedLocationProviderClient.requestLocationUpdates(LocationRequest()
+                .setFastestInterval(FASTEST_INTERNAL)
+                .setInterval(INTERVAL)
+                .setMaxWaitTime(MAX_WAIT_TIME)
+                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+                , geofencePendingIntent)
 
         completionListener?.onCompleted(null)
+
         if (currentLocation != null && geofenceResponse != null) {
             nearestGeofences = geofenceFilter.findNearestGeofences(currentLocation!!, geofenceResponse!!).toMutableList()
             nearestGeofences.add(createRefreshAreaGeofence(nearestGeofences))

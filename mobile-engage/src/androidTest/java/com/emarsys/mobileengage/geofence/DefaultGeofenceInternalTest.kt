@@ -1,7 +1,9 @@
 package com.emarsys.mobileengage.geofence
 
 import android.Manifest
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
@@ -22,6 +24,7 @@ import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
@@ -56,7 +59,7 @@ class DefaultGeofenceInternalTest {
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var fakeRequestManager: RequestManager
-    private lateinit var mockLocationManager: LocationManager
+    private lateinit var mockFusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var mockGeofenceResponseMapper: GeofenceResponseMapper
     private lateinit var geofenceInternal: GeofenceInternal
     private lateinit var mockPermissionChecker: PermissionChecker
@@ -69,23 +72,31 @@ class DefaultGeofenceInternalTest {
     private lateinit var mockEventHandlerProvider: EventHandlerProvider
     private lateinit var geofenceInternalWithMockContext: GeofenceInternal
     private lateinit var mockEnabledStorage: Storage<Boolean>
+    private lateinit var mockPendingIntentProvider: GeofencePendingIntentProvider
 
     @Before
     fun setUp() {
-
+        context = InstrumentationRegistry.getTargetContext()
         mockFetchGeofenceRequestModel = mock()
         mockResponseModel = mock()
         mockRequestModelFactory = mock {
             on { createFetchGeofenceRequest() } doReturn mockFetchGeofenceRequestModel
         }
+        val intent = Intent("com.emarsys.sdk.GEOFENCE_ACTION")
+        val pendingIntent: PendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        mockPendingIntentProvider = mock {
+            on { providePendingIntent() } doReturn pendingIntent
+        }
+
         fakeRequestManager = spy(FakeRequestManager(FakeRequestManager.ResponseType.SUCCESS, mockResponseModel))
         mockGeofenceResponseMapper = mock()
         mockPermissionChecker = mock()
-        mockLocationManager = mock()
+        mockFusedLocationProviderClient = mock()
         mockGeofenceFilter = mock()
         mockLocation = mock()
         mockGeofencingClient = mock()
-        context = InstrumentationRegistry.getTargetContext()
+
         mockContext = mock()
         mockActionCommandFactory = mock()
         mockEventHandlerProvider = mock()
@@ -93,9 +104,9 @@ class DefaultGeofenceInternalTest {
             on { get() } doReturn true
         }
 
-        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory, mockEventHandlerProvider, mockEnabledStorage)
+        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockFusedLocationProviderClient, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory, mockEventHandlerProvider, mockEnabledStorage, mockPendingIntentProvider)
 
-        geofenceInternalWithMockContext = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockLocationManager, mockGeofenceFilter, mockGeofencingClient, mockContext, mockActionCommandFactory, mockEventHandlerProvider, mockEnabledStorage)
+        geofenceInternalWithMockContext = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockFusedLocationProviderClient, mockGeofenceFilter, mockGeofencingClient, mockContext, mockActionCommandFactory, mockEventHandlerProvider, mockEnabledStorage, mockPendingIntentProvider)
     }
 
     @Test
@@ -238,7 +249,7 @@ class DefaultGeofenceInternalTest {
             verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verify(mockLocationManager).getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        verify(mockFusedLocationProviderClient).lastLocation
     }
 
     @Test
@@ -257,7 +268,7 @@ class DefaultGeofenceInternalTest {
             verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verify(mockLocationManager).getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        verify(mockFusedLocationProviderClient).lastLocation
     }
 
     @Test
@@ -266,7 +277,7 @@ class DefaultGeofenceInternalTest {
 
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_DENIED)
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
-        whenever(mockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)).thenReturn(mockLocation)
+        whenever(mockFusedLocationProviderClient.lastLocation).thenReturn(FakeLocationTask(mockLocation))
         whenever(mockGeofenceResponseMapper.map(any())).thenReturn(geofenceResponse)
 
         var completionListenerHasBeenCalled = false
@@ -281,7 +292,7 @@ class DefaultGeofenceInternalTest {
             verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verifyZeroInteractions(mockLocationManager)
+        verifyZeroInteractions(mockFusedLocationProviderClient)
         verifyZeroInteractions(mockGeofenceFilter)
     }
 
@@ -291,7 +302,7 @@ class DefaultGeofenceInternalTest {
 
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)).thenReturn(PackageManager.PERMISSION_DENIED)
-        whenever(mockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)).thenReturn(mockLocation)
+        whenever(mockFusedLocationProviderClient.lastLocation).thenReturn(FakeLocationTask(mockLocation))
         whenever(mockGeofenceResponseMapper.map(any())).thenReturn(geofenceResponse)
 
         var completionListenerHasBeenCalled = false
@@ -306,7 +317,7 @@ class DefaultGeofenceInternalTest {
         completionListenerHasBeenCalled shouldBe true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-            verifyZeroInteractions(mockLocationManager)
+            verifyZeroInteractions(mockFusedLocationProviderClient)
             verifyZeroInteractions(mockGeofenceFilter)
         }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -318,7 +329,7 @@ class DefaultGeofenceInternalTest {
 
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_DENIED)
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)).thenReturn(PackageManager.PERMISSION_DENIED)
-        whenever(mockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)).thenReturn(mockLocation)
+        whenever(mockFusedLocationProviderClient.lastLocation).thenReturn(FakeLocationTask(mockLocation))
         whenever(mockGeofenceResponseMapper.map(any())).thenReturn(geofenceResponse)
 
         var completionListenerHasBeenCalled = false
@@ -337,31 +348,7 @@ class DefaultGeofenceInternalTest {
             verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verifyZeroInteractions(mockLocationManager)
-        verifyZeroInteractions(mockGeofenceFilter)
-    }
-
-    @Test
-    fun testEnable_whenLocationManagerIsNull() {
-        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, null, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory, mockEventHandlerProvider, mockEnabledStorage)
-        val geofenceResponse = GeofenceResponse(listOf(), 0.0)
-
-        whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
-        whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
-        whenever(mockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)).thenReturn(mockLocation)
-        whenever(mockGeofenceResponseMapper.map(any())).thenReturn(geofenceResponse)
-
-        var completionListenerHasBeenCalled = false
-        geofenceInternal.enable(CompletionListener {
-            completionListenerHasBeenCalled = true
-        })
-
-        completionListenerHasBeenCalled shouldBe true
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-            verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-        }
-        verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verifyZeroInteractions(mockLocationManager)
+        verifyZeroInteractions(mockFusedLocationProviderClient)
         verifyZeroInteractions(mockGeofenceFilter)
     }
 
@@ -382,7 +369,7 @@ class DefaultGeofenceInternalTest {
 
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
-        whenever(mockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)).thenReturn(currentLocation)
+        whenever(mockFusedLocationProviderClient.lastLocation).thenReturn(FakeLocationTask(currentLocation))
 
         spyGeofenceInternal.enable(null)
         argumentCaptor<List<MEGeofence>>().apply {
@@ -500,7 +487,8 @@ class DefaultGeofenceInternalTest {
         ReflectionTestUtils.setInstanceField(spyGeofenceInternal, "geofenceResponse", geofenceResponse)
         whenever(mockAction.run()).thenAnswer { latch.countDown() }
         whenever(mockActionCommandFactory.createActionCommand(appEventAction)).thenReturn(mockAction)
-        whenever(mockLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)).thenReturn(currentLocation)
+
+        whenever(mockFusedLocationProviderClient.lastLocation).thenReturn(FakeLocationTask(currentLocation))
         whenever(mockGeofenceFilter.findNearestGeofences(currentLocation, geofenceResponse)).thenReturn(nearestGeofences2)
 
         spyGeofenceInternal.onGeofenceTriggered(listOf(TriggeringGeofence("geofenceId1", TriggerType.ENTER), TriggeringGeofence("refreshArea", TriggerType.EXIT)))
