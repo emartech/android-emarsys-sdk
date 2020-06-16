@@ -486,6 +486,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getMobileEngageV2ServiceStorage(),
                 getPredictServiceStorage(),
                 getMessageInboxServiceStorage(),
+                getPushTokenStorage(),
                 getLogLevelStorage(),
                 Crypto(createPublicKey())).also {
             addDependency(dependencies, it as ConfigInternal)

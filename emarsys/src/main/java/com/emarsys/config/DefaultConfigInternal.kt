@@ -39,6 +39,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val mobileEngageV2ServiceStorage: StringStorage,
                             private val predictServiceStorage: StringStorage,
                             private val messageInboxServiceStorage: StringStorage,
+                            private val pushTokenStorage: StringStorage,
                             private val logLevelStorage: StringStorage,
                             private val crypto: Crypto) : ConfigInternal {
 
@@ -118,6 +119,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     private fun updatePushToken(completionListener: CompletionListener?, onSuccess: () -> Unit) {
         val pushToken = pushTokenProvider.providePushToken()
         if (pushToken != null) {
+            pushTokenStorage.remove()
             pushInternal.setPushToken(pushToken) {
                 if (it == null) {
                     onSuccess()
