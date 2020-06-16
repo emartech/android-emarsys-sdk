@@ -26,7 +26,7 @@ class NotificationCommandFactory(private val context: Context) {
         val commands = createMandatoryCommands(intent, bundle)
         if (action == null || action.optString("type") != "Dismiss") {
             if (getDependency<CurrentActivityProvider>().get() == null) {
-                commands.add(LaunchApplicationCommand(intent, context))
+                commands.add(LaunchApplicationCommand(intent, context, LaunchActivityCommandLifecycleCallbacksFactory()))
             }
         }
         val inappCommand = handleInapp(intent, bundle)
