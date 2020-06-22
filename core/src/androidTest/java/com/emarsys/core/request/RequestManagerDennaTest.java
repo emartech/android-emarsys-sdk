@@ -116,8 +116,8 @@ public class RequestManagerDennaTest {
                 mock(Registry.class),
                 fakeCompletionHandler);
         headers = new HashMap<>();
-        headers.put("accept", "application/json");
-        headers.put("content", "application/x-www-form-urlencoded");
+        headers.put("Accept", "application/json");
+        headers.put("Content", "application/x-www-form-urlencoded");
         headers.put("Header1", "value1");
         headers.put("Header2", "value2");
     }
