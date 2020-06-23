@@ -113,6 +113,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
 
     override fun disable() {
         context.unregisterReceiver(geofenceBroadcastReceiver)
+        fusedLocationProviderClient.removeLocationUpdates(geofencePendingIntent)
         geofenceEnabledStorage.set(false)
         receiverRegistered = false
     }

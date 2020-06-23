@@ -154,6 +154,7 @@ class DefaultGeofenceInternalTest {
         geofenceInternalWithMockContext.disable()
 
         verify(mockContext).unregisterReceiver(any<GeofenceBroadcastReceiver>())
+        verify(mockFusedLocationProviderClient).removeLocationUpdates(mockPendingIntentProvider.providePendingIntent())
     }
 
     @Test
