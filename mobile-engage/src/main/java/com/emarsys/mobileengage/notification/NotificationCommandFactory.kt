@@ -23,6 +23,7 @@ class NotificationCommandFactory(private val context: Context) {
         val actionId = intent.action
         val bundle = intent.getBundleExtra("payload")
         val action = getAction(bundle, actionId)
+
         val commands = createMandatoryCommands(intent, bundle)
         if (action == null || action.optString("type") != "Dismiss") {
             if (getDependency<CurrentActivityProvider>().get() == null) {

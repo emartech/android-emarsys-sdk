@@ -98,9 +98,11 @@ class InappNotificationIntegrationTest {
                 eq(null),
                 anyOrNull(),
                 anyOrNull(),
-                eq(null))).thenAnswer { completionListenerLatch.countDown() }
+                eq(null))).thenAnswer {
+            completionListenerLatch.countDown()
+        }
 
-        var setupLatch = CountDownLatch(1)
+        val setupLatch = CountDownLatch(1)
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getInAppPresenter(): InAppPresenter {
                 return mockInappPresenter
