@@ -32,7 +32,7 @@ public class TrackActionClickCommand implements Runnable {
         payload.put("origin", "button");
         payload.put("sid", sid);
 
-        eventServiceInternal.trackInternalCustomEvent("push:click", payload, null);
+        eventServiceInternal.trackInternalCustomEventAsync("push:click", payload, null);
     }
 
 }

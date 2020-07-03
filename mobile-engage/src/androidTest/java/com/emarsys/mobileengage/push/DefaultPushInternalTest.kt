@@ -239,7 +239,7 @@ class DefaultPushInternalTest {
 
         pushInternal.trackMessageOpen(createTestIntent(), mockCompletionListener)
 
-        verify(mockEventServiceInternal).trackInternalCustomEvent(MESSAGE_OPEN_EVENT_NAME, attributes, mockCompletionListener)
+        verify(mockEventServiceInternal).trackInternalCustomEventAsync(MESSAGE_OPEN_EVENT_NAME, attributes, mockCompletionListener)
     }
 
     @Test
@@ -249,7 +249,7 @@ class DefaultPushInternalTest {
 
         pushInternal.trackMessageOpen(createTestIntent(), null)
 
-        verify(mockEventServiceInternal).trackInternalCustomEvent(MESSAGE_OPEN_EVENT_NAME, attributes, null)
+        verify(mockEventServiceInternal).trackInternalCustomEventAsync(MESSAGE_OPEN_EVENT_NAME, attributes, null)
     }
 
     @Test

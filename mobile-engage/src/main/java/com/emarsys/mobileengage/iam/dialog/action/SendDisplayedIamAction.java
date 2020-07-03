@@ -38,7 +38,7 @@ public class SendDisplayedIamAction implements OnDialogShownAction {
                 }
 
                 String eventName = "inapp:viewed";
-                inAppInternal.trackInternalCustomEvent(eventName, attributes, null);
+                inAppInternal.trackInternalCustomEventAsync(eventName, attributes, null);
             }
         });
     }

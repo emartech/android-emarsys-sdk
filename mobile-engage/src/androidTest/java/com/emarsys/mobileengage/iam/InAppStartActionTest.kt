@@ -49,7 +49,7 @@ class InAppStartActionTest {
         startAction.execute(null)
         waitForTask()
 
-        verify(mockEventServiceInternal).trackInternalCustomEvent("app:start", null, null)
+        verify(mockEventServiceInternal).trackInternalCustomEventAsync("app:start", null, null)
     }
 
     @Test

@@ -10,7 +10,17 @@ public interface EventServiceInternal {
             Map<String, String> eventAttributes,
             CompletionListener completionListener);
 
+    void trackCustomEventAsync(
+            String eventName,
+            Map<String, String> eventAttributes,
+            CompletionListener completionListener);
+
     String trackInternalCustomEvent(
+            String eventName,
+            Map<String, String> eventAttributes,
+            CompletionListener completionListener);
+
+    void trackInternalCustomEventAsync(
             String eventName,
             Map<String, String> eventAttributes,
             CompletionListener completionListener);

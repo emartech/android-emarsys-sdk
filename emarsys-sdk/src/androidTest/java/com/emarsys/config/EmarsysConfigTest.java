@@ -189,7 +189,8 @@ public class EmarsysConfigTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testBuilder_from_shouldNotAcceptNull() {
+    public void
+    testBuilder_from_shouldNotAcceptNull() {
         new EmarsysConfig.Builder().from(null);
     }
 

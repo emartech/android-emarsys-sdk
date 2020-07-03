@@ -6,6 +6,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.spy
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -64,6 +65,16 @@ class DefaultEventServiceInternalTest {
     }
 
     @Test
+    fun testTrackCustomEventAsync_shouldDelegateToTrackCustomEvent() {
+        val eventServiceInternal = spy(this.eventServiceInternal)
+        val completionListener = CompletionListener { }
+
+        eventServiceInternal.trackCustomEventAsync(EVENT_NAME, EVENT_ATTRIBUTES, completionListener)
+
+        verify(eventServiceInternal).trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, completionListener)
+    }
+
+    @Test
     fun testTrackCustomEvent() {
         eventServiceInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
 
@@ -87,6 +98,16 @@ class DefaultEventServiceInternalTest {
         eventServiceInternal.trackInternalCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
 
         verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+    }
+
+    @Test
+    fun testTrackInternalCustomEventAsync_shouldDelegateToTrackCustomEvent() {
+        val eventServiceInternal = spy(this.eventServiceInternal)
+        val completionListener = CompletionListener { }
+
+        eventServiceInternal.trackInternalCustomEventAsync(EVENT_NAME, EVENT_ATTRIBUTES, completionListener)
+
+        verify(eventServiceInternal).trackInternalCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, completionListener)
     }
 
     @Test

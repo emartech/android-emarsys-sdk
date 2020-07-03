@@ -202,7 +202,7 @@ object Emarsys {
             eventAttributes: Map<String, String>?) {
         EmarsysDependencyInjection.eventServiceInternal()
                 .proxyApi(getDependency("coreSdkHandler"))
-                .trackCustomEvent(eventName, eventAttributes, null)
+                .trackCustomEventAsync(eventName, eventAttributes, null)
     }
 
     @JvmStatic
@@ -219,7 +219,7 @@ object Emarsys {
             completionListener: CompletionListener) {
         EmarsysDependencyInjection.eventServiceInternal()
                 .proxyApi(getDependency("coreSdkHandler"))
-                .trackCustomEvent(eventName, eventAttributes, completionListener)
+                .trackCustomEventAsync(eventName, eventAttributes, completionListener)
     }
 
     @Deprecated(message = "Use config property instead, will be removed in 3.0.0", replaceWith = ReplaceWith("Emarsys.config"))

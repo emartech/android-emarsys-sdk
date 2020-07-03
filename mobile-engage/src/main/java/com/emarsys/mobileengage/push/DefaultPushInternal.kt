@@ -69,7 +69,7 @@ class DefaultPushInternal(private val requestManager: RequestManager,
         val attributes = HashMap<String, String>()
         attributes["sid"] = messageId
         attributes["origin"] = "main"
-        eventServiceInternal.trackInternalCustomEvent("push:click", attributes, completionListener)
+        eventServiceInternal.trackInternalCustomEventAsync("push:click", attributes, completionListener)
     }
 
     override fun setNotificationEventHandler(notificationEventHandler: EventHandler) {

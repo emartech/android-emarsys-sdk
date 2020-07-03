@@ -21,7 +21,7 @@ public class CustomEventCommand implements Runnable {
 
     @Override
     public void run() {
-        eventServiceInternal.trackCustomEvent(eventName, eventAttributes, null);
+        eventServiceInternal.trackCustomEventAsync(eventName, eventAttributes, null);
     }
 
     public String getEventName() {

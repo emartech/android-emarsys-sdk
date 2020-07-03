@@ -31,6 +31,11 @@ public class DefaultEventServiceInternal implements EventServiceInternal {
     }
 
     @Override
+    public void trackCustomEventAsync(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
+        trackCustomEvent(eventName, eventAttributes, completionListener);
+    }
+
+    @Override
     public String trackInternalCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
         Assert.notNull(eventName, "EventName must not be null!");
 
@@ -39,5 +44,10 @@ public class DefaultEventServiceInternal implements EventServiceInternal {
         requestManager.submit(requestModel, completionListener);
 
         return requestModel.getId();
+    }
+
+    @Override
+    public void trackInternalCustomEventAsync(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
+        trackInternalCustomEvent(eventName, eventAttributes, completionListener);
     }
 }

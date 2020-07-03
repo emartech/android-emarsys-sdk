@@ -81,7 +81,7 @@ public class SendDisplayedIamActionTest {
         attributes.put("sid", SID);
         attributes.put("url", URL);
 
-        verify(inAppInternal, Mockito.timeout(500)).trackInternalCustomEvent(
+        verify(inAppInternal, Mockito.timeout(500)).trackInternalCustomEventAsync(
                 eventName,
                 attributes,
                 null);
@@ -95,14 +95,14 @@ public class SendDisplayedIamActionTest {
         Map<String, String> attributes = new HashMap<>();
         attributes.put("campaignId", CAMPAIGN_ID);
 
-        verify(inAppInternal, Mockito.timeout(500)).trackInternalCustomEvent(eventName, attributes, null);
+        verify(inAppInternal, Mockito.timeout(500)).trackInternalCustomEventAsync(eventName, attributes, null);
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testExecute_callsRequestManager_onCoreSdkThread() {
         ThreadSpy threadSpy = new ThreadSpy();
-        doAnswer(threadSpy).when(inAppInternal).trackInternalCustomEvent(
+        doAnswer(threadSpy).when(inAppInternal).trackInternalCustomEventAsync(
                 any(String.class),
                 any(Map.class),
                 (CompletionListener) isNull());

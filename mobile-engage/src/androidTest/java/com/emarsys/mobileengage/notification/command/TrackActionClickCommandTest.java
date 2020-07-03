@@ -45,7 +45,7 @@ public class TrackActionClickCommandTest {
         payload.put("button_id", buttonId);
         payload.put("origin", "button");
         payload.put("sid", sid);
-        verify(internalMock).trackInternalCustomEvent("push:click", payload, null);
+        verify(internalMock).trackInternalCustomEventAsync("push:click", payload, null);
     }
 
 }

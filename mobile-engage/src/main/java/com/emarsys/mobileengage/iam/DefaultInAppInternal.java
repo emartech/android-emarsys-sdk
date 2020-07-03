@@ -49,9 +49,19 @@ public class DefaultInAppInternal implements InAppInternal {
     }
 
     @Override
+    public void trackCustomEventAsync(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
+        trackCustomEvent(eventName, eventAttributes, completionListener);
+    }
+
+    @Override
     public String trackInternalCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
         Assert.notNull(eventName, "EventName must not be null!");
 
         return eventServiceInternal.trackInternalCustomEvent(eventName, eventAttributes, completionListener);
+    }
+
+    @Override
+    public void trackInternalCustomEventAsync(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
+        trackInternalCustomEvent(eventName, eventAttributes, completionListener);
     }
 }

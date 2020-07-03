@@ -16,7 +16,7 @@ class InAppStartAction(private val eventServiceInternal: EventServiceInternal, p
         val coreSdkHandler = getDependency<Handler>("coreSdkHandler")
         coreSdkHandler.post {
             if (contactTokenStorage.get() != null) {
-                eventServiceInternal.proxyApi(coreSdkHandler).trackInternalCustomEvent("app:start", null, null)
+                eventServiceInternal.proxyApi(coreSdkHandler).trackInternalCustomEventAsync("app:start", null, null)
             }
             info(AppEventLog("app:start", null))
         }

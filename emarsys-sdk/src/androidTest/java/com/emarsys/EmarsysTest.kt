@@ -883,7 +883,7 @@ class EmarsysTest {
         trackCustomEvent(eventName, eventAttributes)
         waitForTask()
 
-        verify(mockEventServiceInternal).trackCustomEvent(eventName, eventAttributes, null)
+        verify(mockEventServiceInternal).trackCustomEventAsync(eventName, eventAttributes, null)
     }
 
     @Test
@@ -893,7 +893,7 @@ class EmarsysTest {
         trackCustomEvent(eventName, eventAttributes, completionListener)
         waitForTask()
 
-        verify(mockEventServiceInternal).trackCustomEvent(eventName, eventAttributes, completionListener)
+        verify(mockEventServiceInternal).trackCustomEventAsync(eventName, eventAttributes, completionListener)
     }
 
     @Test

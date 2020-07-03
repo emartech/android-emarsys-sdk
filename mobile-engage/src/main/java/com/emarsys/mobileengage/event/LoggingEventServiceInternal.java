@@ -41,4 +41,28 @@ public class LoggingEventServiceInternal implements EventServiceInternal {
         Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
         return null;
     }
+
+    @Override
+    public void trackCustomEventAsync(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("event_name", eventName);
+        parameters.put("event_attributes", eventAttributes);
+        parameters.put("completion_listener", completionListener != null);
+
+        String callerMethodName = SystemUtils.getCallerMethodName();
+
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
+    }
+
+    @Override
+    public void trackInternalCustomEventAsync(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("event_name", eventName);
+        parameters.put("event_attributes", eventAttributes);
+        parameters.put("completion_listener", completionListener != null);
+
+        String callerMethodName = SystemUtils.getCallerMethodName();
+
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
+    }
 }
