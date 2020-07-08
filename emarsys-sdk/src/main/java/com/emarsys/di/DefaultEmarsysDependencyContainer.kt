@@ -523,22 +523,22 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
     }
 
     private fun initializeActivityLifecycleWatchdog() {
-        val applicationStartActions = arrayOf(
-                DeviceInfoStartAction(getClientServiceInternal(), getDeviceInfoPayloadStorage(), getDeviceInfo()),
-                InAppStartAction(getEventServiceInternal(), getContactTokenStorage())
+        val applicationStartActions = arrayOf<ActivityLifecycleAction>(
+                DeviceInfoStartAction(getClientServiceInternal(), getDeviceInfoPayloadStorage(), getDeviceInfo())
         )
         val activityCreatedActions = arrayOf<ActivityLifecycleAction>(
                 DeepLinkAction(getDeepLinkInternal())
         )
-        val initializeActions = arrayOf<ActivityLifecycleAction?>(
+        val initializationActions = arrayOf<ActivityLifecycleAction?>(
                 FetchGeofencesAction(getGeofenceInternal()),
-                FetchRemoteConfigAction(getConfigInternal())
+                FetchRemoteConfigAction(getConfigInternal()),
+                InAppStartAction(getEventServiceInternal(), getContactTokenStorage())
         )
 
         ActivityLifecycleWatchdog(
                 applicationStartActions,
                 activityCreatedActions,
-                initializeActions).also {
+                initializationActions).also {
             addDependency(dependencies, it)
         }
     }

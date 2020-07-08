@@ -420,7 +420,7 @@ class EmarsysTest {
         waitForTask()
 
         verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
-        val actions = getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java)?.applicationStartActions?.toList()
+        val actions = getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java)?.initializationActions?.toList()
         Assert.assertEquals(1, numberOfElementsIn(actions!!, InAppStartAction::class.java).toLong())
     }
 
