@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.client;
 
+import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory;
@@ -14,9 +15,9 @@ public class DefaultClientServiceInternal implements ClientServiceInternal {
     }
 
     @Override
-    public void trackDeviceInfo() {
+    public void trackDeviceInfo(CompletionListener completionListener) {
         RequestModel requestModel = requestModelFactory.createTrackDeviceInfoRequest();
 
-        requestManager.submit(requestModel, null);
+        requestManager.submit(requestModel, completionListener);
     }
 }

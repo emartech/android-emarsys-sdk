@@ -18,6 +18,8 @@ import com.emarsys.core.storage.StringStorage
 import com.emarsys.feature.InnerFeature
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
+import com.emarsys.mobileengage.client.ClientServiceInternal
+import com.emarsys.mobileengage.client.DefaultClientServiceInternal
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.predict.request.PredictRequestContext
@@ -41,7 +43,8 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val messageInboxServiceStorage: StringStorage,
                             private val pushTokenStorage: StringStorage,
                             private val logLevelStorage: StringStorage,
-                            private val crypto: Crypto) : ConfigInternal {
+                            private val crypto: Crypto,
+                            private val clientServiceInternal: ClientServiceInternal) : ConfigInternal {
 
     override val applicationCode: String?
         get() = mobileEngageRequestContext.applicationCode
@@ -103,7 +106,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
             FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
             mobileEngageRequestContext.applicationCode = applicationCode
             mobileEngageRequestContext.contactFieldId = newContactFieldId
-            updatePushToken(completionListener) {
+            collectClientState(completionListener) {
                 if (!contactFieldIdHasChanged) {
                     setPreviouslyLoggedInContact(originalContactFieldValue, completionListener)
                 } else {
@@ -116,19 +119,21 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         }
     }
 
-    private fun updatePushToken(completionListener: CompletionListener?, onSuccess: () -> Unit) {
-        val pushToken = pushTokenProvider.providePushToken()
-        if (pushToken != null) {
-            pushTokenStorage.remove()
-            pushInternal.setPushToken(pushToken) {
-                if (it == null) {
-                    onSuccess()
-                } else {
-                    handleError(it, completionListener)
+    private fun collectClientState(completionListener: CompletionListener?, onSuccess: () -> Unit) {
+        clientServiceInternal.trackDeviceInfo {
+            val pushToken = pushTokenProvider.providePushToken()
+            if (pushToken != null) {
+                pushTokenStorage.remove()
+                pushInternal.setPushToken(pushToken) {
+                    if (it == null) {
+                        onSuccess()
+                    } else {
+                        handleError(it, completionListener)
+                    }
                 }
+            } else {
+                onSuccess()
             }
-        } else {
-            onSuccess()
         }
     }
 

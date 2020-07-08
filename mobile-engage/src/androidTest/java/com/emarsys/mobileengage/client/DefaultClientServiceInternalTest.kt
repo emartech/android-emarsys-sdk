@@ -37,7 +37,7 @@ class DefaultClientServiceInternalTest {
 
     @Test
     fun testTrackDeviceInfo() {
-        clientServiceInternal.trackDeviceInfo()
+        clientServiceInternal.trackDeviceInfo(null)
 
         verify(mockRequestManager).submit(mockRequestModel, null)
     }

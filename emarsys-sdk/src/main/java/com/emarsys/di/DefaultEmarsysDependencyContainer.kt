@@ -488,7 +488,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getMessageInboxServiceStorage(),
                 getPushTokenStorage(),
                 getLogLevelStorage(),
-                Crypto(createPublicKey())).also {
+                Crypto(createPublicKey()),
+                getClientServiceInternal()).also {
             addDependency(dependencies, it as ConfigInternal)
         }
 

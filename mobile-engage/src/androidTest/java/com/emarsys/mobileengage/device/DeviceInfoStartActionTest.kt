@@ -56,7 +56,7 @@ class DeviceInfoStartActionTest {
         startAction.execute(null)
 
         waitForTask()
-        verify(mockClientServiceInternal).trackDeviceInfo()
+        verify(mockClientServiceInternal).trackDeviceInfo(null)
     }
 
     @Test
@@ -67,7 +67,7 @@ class DeviceInfoStartActionTest {
         startAction.execute(null)
 
         waitForTask()
-        verify(mockClientServiceInternal).trackDeviceInfo()
+        verify(mockClientServiceInternal).trackDeviceInfo(null)
     }
 
     @Test

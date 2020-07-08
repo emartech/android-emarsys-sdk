@@ -537,7 +537,7 @@ object Emarsys {
             if (clientState == null || deviceInfoPayload != null && deviceInfoPayload != deviceInfo.deviceInfoPayload) {
                 EmarsysDependencyInjection.clientServiceInternal()
                         .proxyWithLogExceptions()
-                        .trackDeviceInfo()
+                        .trackDeviceInfo(null)
             }
             EmarsysDependencyInjection.mobileEngageInternal()
                     .proxyWithLogExceptions()

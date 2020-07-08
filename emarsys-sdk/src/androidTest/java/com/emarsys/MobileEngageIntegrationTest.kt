@@ -188,30 +188,36 @@ class MobileEngageIntegrationTest {
     @After
     fun tearDown() {
         try {
-            FeatureTestUtils.resetFeatures()
-
-            getDependency<Handler>("coreSdkHandler").looper.quit()
-            application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
-            application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
-
-            getDependency<StringStorage>(MobileEngageStorageKey.DEVICE_INFO_HASH.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.REFRESH_TOKEN.key).remove()
-
-            clientStateStorage.remove()
-            contactTokenStorage.remove()
-
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().getClientServiceStorage().set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().getEventServiceStorage().set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().getDeepLinkServiceStorage().set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().getMobileEngageV2ServiceStorage().set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().getInboxServiceStorage().set(null)
-            DependencyInjection.getContainer<EmarsysDependencyContainer>().getPredictServiceStorage().set(null)
-
-            DependencyInjection.tearDown()
+            doTearDown()
         } catch (e: Exception) {
             e.printStackTrace()
             throw e
         }
+    }
+
+    private fun doTearDown() {
+        FeatureTestUtils.resetFeatures()
+
+        getDependency<Handler>("coreSdkHandler").looper.quit()
+        application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
+        application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
+
+        getDependency<StringStorage>(MobileEngageStorageKey.DEVICE_INFO_HASH.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.REFRESH_TOKEN.key).remove()
+        getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
+
+        clientStateStorage.remove()
+        contactTokenStorage.remove()
+        DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().pushTokenStorage.remove()
+
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().getClientServiceStorage().set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().getEventServiceStorage().set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().getDeepLinkServiceStorage().set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().getMobileEngageV2ServiceStorage().set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().getInboxServiceStorage().set(null)
+        DependencyInjection.getContainer<EmarsysDependencyContainer>().getPredictServiceStorage().set(null)
+
+        DependencyInjection.tearDown()
     }
 
     @Test
@@ -325,7 +331,7 @@ class MobileEngageIntegrationTest {
 
         val clientServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().getClientServiceInternal()
 
-        clientServiceInternal.trackDeviceInfo().also(this::eventuallyAssertCompletionHandlerSuccess)
+        clientServiceInternal.trackDeviceInfo(null).also(this::eventuallyAssertCompletionHandlerSuccess)
     }
 
     @Test
@@ -334,6 +340,28 @@ class MobileEngageIntegrationTest {
         Emarsys.config.changeApplicationCode(OTHER_APP_ID, this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
         originalApplicationCode shouldNotBe Emarsys.config.applicationCode
         Emarsys.config.applicationCode shouldBe OTHER_APP_ID
+    }
+
+    @Test
+    fun testConfig_changeApplicationCode_nilToSomething() {
+        doTearDown()
+
+        val config = EmarsysConfig.Builder()
+                .application(application)
+                .contactFieldId(CONTACT_FIELD_ID)
+                .build()
+        Emarsys.setup(config)
+
+        var returnedThrowable: Throwable? = Throwable("testErrorCause")
+
+        val latch = CountDownLatch(1)
+        Emarsys.config.changeApplicationCode(APP_ID) {
+            returnedThrowable = it
+            latch.countDown()
+        }
+        latch.await()
+
+        returnedThrowable shouldBe null
     }
 
     private fun eventuallyStoreResult(errorCause: Throwable?) {

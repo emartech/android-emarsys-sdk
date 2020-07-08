@@ -24,6 +24,7 @@ import com.emarsys.fake.FakeResultListener
 import com.emarsys.feature.InnerFeature
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
+import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.predict.PredictInternal
@@ -81,6 +82,7 @@ class DefaultConfigInternalTest {
     private lateinit var mockPushTokenStorage: StringStorage
     private lateinit var mockLogLevelStorage: StringStorage
     private lateinit var mockCrypto: Crypto
+    private lateinit var mockClientServiceInternal: ClientServiceInternal
 
     @Rule
     @JvmField
@@ -153,6 +155,12 @@ class DefaultConfigInternalTest {
         mockPushTokenStorage = mock()
         mockLogLevelStorage = mock()
         mockCrypto = mock()
+        mockClientServiceInternal = mock {
+            on { trackDeviceInfo(any()) } doAnswer { invocation ->
+                (invocation.getArgument(0) as CompletionListener?)?.onCompleted(null)
+            }
+        }
+
         configInternal = spy(DefaultConfigInternal(mockMobileEngageRequestContext,
                 mockMobileEngageInternal,
                 mockPushInternal,
@@ -171,9 +179,9 @@ class DefaultConfigInternalTest {
                 mockMessageInboxServiceStorage,
                 mockPushTokenStorage,
                 mockLogLevelStorage,
-                mockCrypto))
+                mockCrypto,
+                mockClientServiceInternal))
     }
-
 
     @After
     fun tearDown() {
@@ -272,7 +280,8 @@ class DefaultConfigInternalTest {
                 mockMessageInboxServiceStorage,
                 mockPushTokenStorage,
                 mockLogLevelStorage,
-                mockCrypto)
+                mockCrypto,
+                mockClientServiceInternal)
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {
             latch.countDown()
@@ -323,7 +332,8 @@ class DefaultConfigInternalTest {
                 mockMessageInboxServiceStorage,
                 mockPushTokenStorage,
                 mockLogLevelStorage,
-                mockCrypto)
+                mockCrypto,
+                mockClientServiceInternal)
 
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
             latch.countDown()
@@ -370,7 +380,8 @@ class DefaultConfigInternalTest {
                 mockMessageInboxServiceStorage,
                 mockPushTokenStorage,
                 mockLogLevelStorage,
-                mockCrypto)
+                mockCrypto,
+                mockClientServiceInternal)
 
         val completionListener = CompletionListener {
             latch.countDown()
@@ -422,7 +433,8 @@ class DefaultConfigInternalTest {
                 mockMessageInboxServiceStorage,
                 mockPushTokenStorage,
                 mockLogLevelStorage,
-                mockCrypto)
+                mockCrypto,
+                mockClientServiceInternal)
 
         val completionListener = CompletionListener {
             latch.countDown()
@@ -592,7 +604,8 @@ class DefaultConfigInternalTest {
                 mockMessageInboxServiceStorage,
                 mockPushTokenStorage,
                 mockLogLevelStorage,
-                mockCrypto)
+                mockCrypto,
+                mockClientServiceInternal)
 
         whenever(mockMobileEngageRequestContext.contactFieldId).thenReturn(1)
         val latch = CountDownLatch(1)
@@ -716,7 +729,8 @@ class DefaultConfigInternalTest {
                 mockMessageInboxServiceStorage,
                 mockPushTokenStorage,
                 mockLogLevelStorage,
-                mockCrypto)
+                mockCrypto,
+                mockClientServiceInternal)
 
         configInternal.fetchRemoteConfig(resultListener)
 
@@ -747,7 +761,8 @@ class DefaultConfigInternalTest {
                 mockMessageInboxServiceStorage,
                 mockPushTokenStorage,
                 mockLogLevelStorage,
-                mockCrypto)
+                mockCrypto,
+                mockClientServiceInternal)
 
         val resultListener = FakeResultListener<ResponseModel>(latch, FakeResultListener.Mode.MAIN_THREAD)
         (configInternal as DefaultConfigInternal).fetchRemoteConfig(resultListener)
@@ -780,7 +795,8 @@ class DefaultConfigInternalTest {
                 mockMessageInboxServiceStorage,
                 mockPushTokenStorage,
                 mockLogLevelStorage,
-                mockCrypto)
+                mockCrypto,
+                mockClientServiceInternal)
 
         val resultListener = FakeResultListener<ResponseModel>(latch, FakeResultListener.Mode.MAIN_THREAD)
 
@@ -815,7 +831,8 @@ class DefaultConfigInternalTest {
                 mockMessageInboxServiceStorage,
                 mockPushTokenStorage,
                 mockLogLevelStorage,
-                mockCrypto)
+                mockCrypto,
+                mockClientServiceInternal)
 
         configInternal.fetchRemoteConfigSignature(resultListener)
 
@@ -846,7 +863,8 @@ class DefaultConfigInternalTest {
                 mockMessageInboxServiceStorage,
                 mockPushTokenStorage,
                 mockLogLevelStorage,
-                mockCrypto)
+                mockCrypto,
+                mockClientServiceInternal)
 
         val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
         (configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(resultListener)
@@ -879,7 +897,8 @@ class DefaultConfigInternalTest {
                 mockMessageInboxServiceStorage,
                 mockPushTokenStorage,
                 mockLogLevelStorage,
-                mockCrypto)
+                mockCrypto,
+                mockClientServiceInternal)
 
         val resultListener = FakeResultListener<String>(latch, FakeResultListener.Mode.MAIN_THREAD)
 

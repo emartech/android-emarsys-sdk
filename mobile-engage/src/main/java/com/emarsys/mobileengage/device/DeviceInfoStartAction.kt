@@ -15,7 +15,7 @@ class DeviceInfoStartAction(private val clientInternal: ClientServiceInternal, p
         val coreSdkHandler = getDependency<Handler>("coreSdkHandler")
         coreSdkHandler.post {
             if (deviceInfoPayloadStorage.get() == null || deviceInfoPayloadStorage.get() != deviceInfo.deviceInfoPayload) {
-                clientInternal.proxyApi(coreSdkHandler).trackDeviceInfo()
+                clientInternal.proxyApi(coreSdkHandler).trackDeviceInfo(null)
             }
         }
     }

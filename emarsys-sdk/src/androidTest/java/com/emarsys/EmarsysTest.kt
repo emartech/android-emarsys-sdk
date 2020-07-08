@@ -487,7 +487,7 @@ class EmarsysTest {
 
         latch.await()
         waitForTask()
-        verify(mockClientServiceInternal).trackDeviceInfo()
+        verify(mockClientServiceInternal).trackDeviceInfo(null)
     }
 
     @Test
@@ -508,7 +508,7 @@ class EmarsysTest {
         latch.await()
         waitForTask()
 
-        verify(mockClientServiceInternal, never()).trackDeviceInfo()
+        verify(mockClientServiceInternal, never()).trackDeviceInfo(null)
     }
 
     @Test
@@ -521,7 +521,7 @@ class EmarsysTest {
         waitForTask()
 
 
-        verify(mockClientServiceInternal, never()).trackDeviceInfo()
+        verify(mockClientServiceInternal, never()).trackDeviceInfo(null)
     }
 
     @Test
@@ -553,7 +553,7 @@ class EmarsysTest {
         waitForTask()
 
         val inOrder = inOrder(mockMobileEngageInternal, mockClientServiceInternal)
-        inOrder.verify(mockClientServiceInternal).trackDeviceInfo()
+        inOrder.verify(mockClientServiceInternal).trackDeviceInfo(null)
         inOrder.verify(mockMobileEngageInternal).setContact(null, null)
         inOrder.verifyNoMoreInteractions()
     }
