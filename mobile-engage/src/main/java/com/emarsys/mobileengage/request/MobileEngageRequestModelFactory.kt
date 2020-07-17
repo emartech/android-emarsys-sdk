@@ -7,6 +7,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.util.RequestHeaderUtils
+import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createCustomEventPayload
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createInternalCustomEventPayload
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createRefreshContactTokenPayload
@@ -134,6 +135,15 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
                 .method(RequestMethod.GET)
                 .url("${clientServiceProvider.provideEndpointHost()}${Endpoint.geofencesBase(requestContext.applicationCode)}")
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
+                .build()
+    }
+
+    fun createFetchInlineInAppMessagesRequest(viewId: String): RequestModel {
+        return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
+                .method(RequestMethod.POST)
+                .payload(RequestPayloadUtils.createInlineInAppPayload(viewId))
+                .url("${eventServiceProvider.provideEndpointHost()}${Endpoint.inlineInAppBase(requestContext.applicationCode)}")
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext) + RequestHeaderUtils.createDefaultHeaders(requestContext))
                 .build()
     }
 }

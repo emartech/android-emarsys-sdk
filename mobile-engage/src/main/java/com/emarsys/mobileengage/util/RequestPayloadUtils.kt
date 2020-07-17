@@ -132,6 +132,11 @@ object RequestPayloadUtils {
         payload["sid"] = sid
         return payload
     }
+
+    @JvmStatic
+    fun createInlineInAppPayload(viewId: String): Map<String, Any?> {
+        return mapOf("viewIds" to listOf(viewId), "clicks" to listOf())
+    }
 }
 
 internal enum class EventType {

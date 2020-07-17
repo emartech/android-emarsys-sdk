@@ -301,6 +301,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
             addDependency(dependencies, it)
         }
         val requestModelFactory = MobileEngageRequestModelFactory(getRequestContext(), getClientServiceProvider(), getEventServiceProvider(), getMobileEngageV2ServiceProvider(), getInboxServiceProvider(), getMessageInboxServiceProvider())
+                .also { addDependency(dependencies, it) }
         val emarsysRequestModelFactory = EmarsysRequestModelFactory(getRequestContext())
         val contactTokenResponseHandler = MobileEngageTokenResponseHandler("contactToken", getContactTokenStorage(), getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()).also {
             addDependency(dependencies, it, "contactTokenResponseHandler")
@@ -346,7 +347,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 worker,
                 getRestClient(),
                 getCoreCompletionHandler(),
-                getCoreCompletionHandler())
+                getCoreCompletionHandler()).also { addDependency(dependencies, it) }
+
         requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(getRequestContext()))
         val sharedPrefsKeyStore = DefaultKeyValueStore(prefs).also { addDependency(dependencies, it as KeyValueStore) }
         var notificationEventHandler: EventHandler? = null

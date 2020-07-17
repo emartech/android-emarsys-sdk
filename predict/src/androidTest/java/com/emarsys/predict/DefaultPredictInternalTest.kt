@@ -1,7 +1,6 @@
 package com.emarsys.predict
 
 import android.os.Handler
-import android.webkit.CookieSyncManager.createInstance
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
 import com.emarsys.core.api.result.CompletionListener

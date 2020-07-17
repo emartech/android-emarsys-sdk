@@ -28,4 +28,8 @@ public class Endpoint {
     public static String geofencesBase(String applicationCode) {
         return "/v3/apps/" + applicationCode + "/geo-fences";
     }
+
+    public static String inlineInAppBase(String applicationCode) {
+        return "/v3/apps/" + applicationCode + "/inline-messages";
+    }
 }

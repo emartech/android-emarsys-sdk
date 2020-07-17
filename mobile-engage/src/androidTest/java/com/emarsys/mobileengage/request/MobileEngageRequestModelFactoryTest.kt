@@ -321,4 +321,19 @@ class MobileEngageRequestModelFactoryTest {
 
         result shouldBe expected
     }
+
+    @Test
+    fun testCreateFetchInlineInAppMessagesRequest() {
+        val viewId = "testViewId"
+        val expected = RequestModel.Builder(mockRequestContext.timestampProvider, mockRequestContext.uuidProvider)
+                .method(RequestMethod.POST)
+                .payload(RequestPayloadUtils.createInlineInAppPayload(viewId))
+                .url("https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/inline-messages")
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + RequestHeaderUtils.createDefaultHeaders(mockRequestContext))
+                .build()
+
+        val result = requestFactory.createFetchInlineInAppMessagesRequest(viewId)
+
+        result shouldBe expected
+    }
 }

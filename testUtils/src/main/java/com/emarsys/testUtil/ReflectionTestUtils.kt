@@ -1,6 +1,7 @@
 package com.emarsys.testUtil
 
 import java.lang.reflect.Field
+import java.lang.reflect.Method
 
 object ReflectionTestUtils {
 
@@ -49,6 +50,15 @@ object ReflectionTestUtils {
         val method = type.getDeclaredMethod(methodName, *parameterTypes)
         method.isAccessible = true
         method.invoke(null, *parameters)
+    }
+
+    @JvmStatic
+    fun <T> invokeInstanceMethod(instance: Any, methodName: String, vararg params: Pair<Class<*>, *>): T {
+        val types = params.map { it.first }.toTypedArray()
+        val method: Method = instance.javaClass.getDeclaredMethod(methodName, *types)
+        method.isAccessible = true
+
+        return (method.invoke(instance, *params.map { it.second }.toTypedArray()) as T)
     }
 
     private fun searchForField(type: Class<*>, fieldName: String): Field = try {

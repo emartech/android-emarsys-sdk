@@ -18,6 +18,7 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.shard.ShardModel
@@ -49,6 +50,7 @@ import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.predict.PredictApi
@@ -142,7 +144,9 @@ class FakeDependencyContainer(
         buttonClickedRepository: Repository<ButtonClicked, SqlSpecification> = mock(),
         displayedIamRepository: Repository<DisplayedIam, SqlSpecification> = mock(),
         keyValueStore: KeyValueStore = mock(),
-        contactTokenResponseHandler: MobileEngageTokenResponseHandler = mock()
+        contactTokenResponseHandler: MobileEngageTokenResponseHandler = mock(),
+        requestManager: RequestManager = mock(),
+        requestModelFactory: MobileEngageRequestModelFactory = mock()
 ) : EmarsysDependencyContainer {
     override val dependencies: MutableMap<String, Any?> = mutableMapOf()
 
@@ -233,6 +237,8 @@ class FakeDependencyContainer(
         addDependency(dependencies, displayedIamRepository, "displayedIamRepository")
         addDependency(dependencies, keyValueStore)
         addDependency(dependencies, contactTokenResponseHandler, "contactTokenResponseHandler")
+        addDependency(dependencies, requestManager)
+        addDependency(dependencies, requestModelFactory)
     }
 
     override fun getCoreSdkHandler(): Handler = getDependency(dependencies, "coreSdkHandler")

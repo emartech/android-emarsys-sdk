@@ -395,6 +395,20 @@ class RequestPayloadUtilsTest {
 
         resultPayload shouldBe expectedPayload
     }
+
+    @Test
+    fun testCreateInlineInAppPayload() {
+        val viewId = "testViewId"
+        val expectedPayload = mapOf(
+                "viewIds" to listOf(viewId),
+                "clicks" to listOf()
+        )
+
+        val resultPayload = RequestPayloadUtils.createInlineInAppPayload(viewId)
+
+        resultPayload shouldBe expectedPayload
+    }
+
     @Test
     fun testEnum_eventType() {
         EventType.CUSTOM.eventType() shouldBe "custom"
