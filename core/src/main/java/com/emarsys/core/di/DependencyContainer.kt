@@ -54,15 +54,21 @@ inline fun <reified T> generateDependencyName(key: String = ""): String {
 }
 
 inline fun <reified T> getDependency(key: String = ""): T {
-    return DependencyInjection.getContainer<DependencyContainer>().dependencies[generateDependencyName<T>(key)] as T
+    synchronized(DependencyContainer::class.java) {
+        return DependencyInjection.getContainer<DependencyContainer>().dependencies[generateDependencyName<T>(key)] as T
+    }
 }
 
 inline fun <reified T> getDependency(container: Map<String, Any?>, key: String = ""): T {
-    return container[generateDependencyName<T>(key)] as T
+    synchronized(DependencyContainer::class.java) {
+        return container[generateDependencyName<T>(key)] as T
+    }
 }
 
 inline fun <reified T> addDependency(container: MutableMap<String, Any?>, dependency: T, key: String = "") {
-    if (container[generateDependencyName<T>(key)] == null) {
-        container[generateDependencyName<T>(key)] = dependency
+    synchronized(DependencyContainer::class.java) {
+        if (container[generateDependencyName<T>(key)] == null) {
+            container[generateDependencyName<T>(key)] = dependency
+        }
     }
 }
