@@ -19,7 +19,6 @@ import com.emarsys.feature.InnerFeature
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.client.ClientServiceInternal
-import com.emarsys.mobileengage.client.DefaultClientServiceInternal
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.predict.request.PredictRequestContext
@@ -41,7 +40,6 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val mobileEngageV2ServiceStorage: StringStorage,
                             private val predictServiceStorage: StringStorage,
                             private val messageInboxServiceStorage: StringStorage,
-                            private val pushTokenStorage: StringStorage,
                             private val logLevelStorage: StringStorage,
                             private val crypto: Crypto,
                             private val clientServiceInternal: ClientServiceInternal) : ConfigInternal {
@@ -65,9 +63,11 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         get() = deviceInfo.notificationSettings
 
     private var originalContactFieldId: Int = 0
+    private var originalPushToken: String? = null
 
     override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: CompletionListener?) {
         originalContactFieldId = mobileEngageRequestContext.contactFieldId
+        originalPushToken = pushTokenProvider.providePushToken()
         val contactFieldIdHasChanged = contactFieldId != originalContactFieldId
 
         val originalContactFieldValue = mobileEngageRequestContext.contactFieldValueStorage.get()
@@ -92,9 +92,15 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     }
 
     private fun clearCurrentContact(completionListener: CompletionListener?, onSuccess: () -> Unit) {
-        mobileEngageInternal.clearContact {
+        mobileEngageInternal.clearContact { it ->
             if (it == null) {
-                onSuccess()
+                pushInternal.clearPushToken { throwable ->
+                    if (throwable == null) {
+                        onSuccess()
+                    } else {
+                        handleError(throwable, completionListener)
+                    }
+                }
             } else {
                 handleError(it, completionListener)
             }
@@ -121,10 +127,8 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
 
     private fun collectClientState(completionListener: CompletionListener?, onSuccess: () -> Unit) {
         clientServiceInternal.trackDeviceInfo {
-            val pushToken = pushTokenProvider.providePushToken()
-            if (pushToken != null) {
-                pushTokenStorage.remove()
-                pushInternal.setPushToken(pushToken) {
+            if (originalPushToken != null) {
+                pushInternal.setPushToken(originalPushToken) {
                     if (it == null) {
                         onSuccess()
                     } else {

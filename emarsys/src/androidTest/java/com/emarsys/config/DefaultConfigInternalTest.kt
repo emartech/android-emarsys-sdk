@@ -30,6 +30,7 @@ import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.testUtil.FeatureTestUtils
+import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
@@ -79,7 +80,6 @@ class DefaultConfigInternalTest {
     private lateinit var mockMobileEngageV2ServiceStorage: StringStorage
     private lateinit var mockPredictServiceStorage: StringStorage
     private lateinit var mockMessageInboxServiceStorage: StringStorage
-    private lateinit var mockPushTokenStorage: StringStorage
     private lateinit var mockLogLevelStorage: StringStorage
     private lateinit var mockCrypto: Crypto
     private lateinit var mockClientServiceInternal: ClientServiceInternal
@@ -98,7 +98,6 @@ class DefaultConfigInternalTest {
         mockPushTokenProvider = mock {
             on { providePushToken() } doReturn PUSH_TOKEN
         }
-
 
         mockContactFieldValueStorage = mock()
 
@@ -127,6 +126,9 @@ class DefaultConfigInternalTest {
             on { setPushToken(any(), any()) } doAnswer { invocation ->
                 (invocation.getArgument(1) as CompletionListener?)?.onCompleted(null)
             }
+            on { clearPushToken(any()) } doAnswer { invocation ->
+                (invocation.getArgument(0) as CompletionListener).onCompleted(null)
+            }
         }
 
         mockRequestModel = mock()
@@ -152,7 +154,6 @@ class DefaultConfigInternalTest {
         mockMobileEngageV2ServiceStorage = mock()
         mockPredictServiceStorage = mock()
         mockMessageInboxServiceStorage = mock()
-        mockPushTokenStorage = mock()
         mockLogLevelStorage = mock()
         mockCrypto = mock()
         mockClientServiceInternal = mock {
@@ -177,7 +178,6 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockPushTokenStorage,
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal))
@@ -210,6 +210,21 @@ class DefaultConfigInternalTest {
     }
 
     @Test
+    fun testChangeApplicationCode_shouldSavePushTokenToInternal() {
+
+        val latch = CountDownLatch(1)
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
+            latch.countDown()
+        })
+
+        latch.await()
+
+        val result = ReflectionTestUtils.getInstanceField<String>(configInternal, "originalPushToken")
+
+        result shouldBe PUSH_TOKEN
+    }
+
+    @Test
     fun testChangeApplicationCode_shouldCallClearContact() {
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener { })
 
@@ -225,20 +240,6 @@ class DefaultConfigInternalTest {
     }
 
     @Test
-    fun testChangeApplicationCode_shouldCallSetPushToken() {
-        val latch = CountDownLatch(1)
-        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
-            latch.countDown()
-        })
-        latch.await()
-
-        verify(mockMobileEngageInternal).clearContact(any())
-        verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
-        verify(mockPushTokenStorage).remove()
-        verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
-    }
-
-    @Test
     fun testChangeApplicationCode_shouldChangeApplicationCodeAfterClearContact() {
         val latch = CountDownLatch(1)
 
@@ -246,10 +247,10 @@ class DefaultConfigInternalTest {
             latch.countDown()
         })
         latch.await()
-        val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockPushTokenStorage, mockMobileEngageRequestContext)
+        val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
         inOrder.verify(mockMobileEngageInternal).clearContact(any())
+        inOrder.verify(mockPushInternal).clearPushToken(any())
         inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
-        inOrder.verify(mockPushTokenStorage).remove()
         inOrder.verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         inOrder.verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
     }
@@ -278,7 +279,6 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockPushTokenStorage,
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal)
@@ -292,7 +292,6 @@ class DefaultConfigInternalTest {
         verify(mockMobileEngageRequestContext).applicationCode
         verify(mockMobileEngageRequestContext).contactFieldValueStorage
         verify(mockMobileEngageRequestContext).contactFieldId
-        verifyZeroInteractions(mockPushTokenStorage)
         verifyZeroInteractions(mockPushInternal)
         verifyNoMoreInteractions(mockMobileEngageInternal)
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
@@ -330,7 +329,6 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockPushTokenStorage,
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal)
@@ -344,7 +342,6 @@ class DefaultConfigInternalTest {
         verify(mockMobileEngageRequestContext).contactFieldValueStorage
         verify(mockMobileEngageRequestContext).applicationCode
         verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
-        verify(mockPushTokenStorage).remove()
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
 
@@ -360,6 +357,11 @@ class DefaultConfigInternalTest {
                 setPushToken(any(), any())
             } doAnswer { invocation ->
                 (invocation.getArgument(1) as CompletionListener).onCompleted(Throwable())
+            }
+            on {
+                clearPushToken(any())
+            } doAnswer { invocation ->
+                (invocation.getArgument(0) as CompletionListener).onCompleted(null)
             }
         }
         configInternal = DefaultConfigInternal(mockMobileEngageRequestContext,
@@ -378,7 +380,6 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockPushTokenStorage,
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal)
@@ -391,7 +392,6 @@ class DefaultConfigInternalTest {
         latch.await()
 
         verify(mockMobileEngageInternal).clearContact(any())
-        verify(mockPushTokenStorage).remove()
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         verifyNoMoreInteractions(mockMobileEngageInternal)
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
@@ -431,7 +431,6 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockPushTokenStorage,
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal)
@@ -445,7 +444,6 @@ class DefaultConfigInternalTest {
         latch.await()
 
         verify(mockMobileEngageInternal).clearContact(any())
-        verify(mockPushTokenStorage).remove()
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
 
@@ -457,10 +455,9 @@ class DefaultConfigInternalTest {
     fun testChangeApplicationCode_shouldWorkWithoutCompletionListener() {
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, null)
 
-        val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockPushTokenStorage, mockMobileEngageRequestContext)
+        val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
         inOrder.verify(mockMobileEngageInternal, timeout(50)).clearContact(any())
         inOrder.verify(mockMobileEngageRequestContext, timeout(50)).applicationCode = OTHER_APPLICATION_CODE
-        inOrder.verify(mockPushTokenStorage).remove()
         inOrder.verify(mockPushInternal, timeout(50)).setPushToken(eq(PUSH_TOKEN), any())
         inOrder.verify(mockMobileEngageInternal, timeout(50)).setContact(eq(CONTACT_FIELD_VALUE), any())
     }
@@ -490,6 +487,24 @@ class DefaultConfigInternalTest {
     }
 
     @Test
+    fun testChangeApplicationCode_whenClearPushToken_returnsWithError_callHandleError() {
+        whenever(mockPushInternal.clearPushToken(any())).thenAnswer { invocation ->
+            (invocation.getArgument(0) as CompletionListener).onCompleted(Throwable())
+        }
+        val latch = CountDownLatch(1)
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
+        latch.await()
+
+        verify(mockMobileEngageRequestContext).contactFieldId
+        verify(mockMobileEngageInternal).clearContact(any())
+        verify(mockMobileEngageRequestContext).applicationCode = null
+        verify(mockMobileEngageRequestContext).contactFieldId = CONTACT_FIELD_ID
+    }
+
+    @Test
     fun testChangeApplicationCode_shouldOnlyLogout_whenApplicationCodeIsNull() {
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {
@@ -498,12 +513,12 @@ class DefaultConfigInternalTest {
         configInternal.changeApplicationCode(null, CONTACT_FIELD_ID, completionListener)
         latch.await()
         verify(mockMobileEngageInternal).clearContact(any())
+        verify(mockPushInternal).clearPushToken(any())
         verify(mockMobileEngageRequestContext).contactFieldId
         verify(mockMobileEngageRequestContext).contactFieldValueStorage
         verify(mockMobileEngageRequestContext).applicationCode
         verifyNoMoreInteractions(mockMobileEngageRequestContext)
-        verifyZeroInteractions(mockPushTokenStorage)
-        verifyZeroInteractions(mockPushInternal)
+        verifyNoMoreInteractions(mockPushInternal)
         verifyNoMoreInteractions(mockMobileEngageInternal)
     }
 
@@ -516,11 +531,12 @@ class DefaultConfigInternalTest {
             latch.countDown()
         })
         latch.await()
-        val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
+        val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext, mockClientServiceInternal)
         inOrder.verify(mockMobileEngageInternal).clearContact(any())
+        inOrder.verify(mockPushInternal).clearPushToken(any())
         inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
-        verifyZeroInteractions(mockPushTokenStorage)
-        verifyZeroInteractions(mockPushInternal)
+        inOrder.verify(mockClientServiceInternal).trackDeviceInfo(any())
+        verifyNoMoreInteractions(mockPushInternal)
         inOrder.verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
     }
 
@@ -535,12 +551,10 @@ class DefaultConfigInternalTest {
     fun testChangeApplicationCode_shouldRefreshRemoteConfig_whenChangeWasSuccessful() {
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener { })
 
-        val inOrder = inOrder(configInternal, mockMobileEngageInternal, mockPushInternal, mockPushTokenStorage, mockMobileEngageRequestContext)
+        val inOrder = inOrder(configInternal, mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext)
         inOrder.verify(configInternal).resetRemoteConfig()
-
         inOrder.verify(mockMobileEngageInternal).clearContact(any())
         inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
-        inOrder.verify(mockPushTokenStorage).remove()
         inOrder.verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         inOrder.verify(mockMobileEngageInternal).setContact(eq(CONTACT_FIELD_VALUE), any())
 
@@ -569,7 +583,6 @@ class DefaultConfigInternalTest {
         verify(mockMobileEngageRequestContext).contactFieldValueStorage
         verify(mockMobileEngageRequestContext).applicationCode
         verify(mockMobileEngageRequestContext).contactFieldId
-        verify(mockPushTokenStorage).remove()
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         verify(mockMobileEngageRequestContext).contactFieldId = CONTACT_FIELD_ID
@@ -584,6 +597,11 @@ class DefaultConfigInternalTest {
                 setPushToken(any(), any())
             } doAnswer { invocation ->
                 (invocation.getArgument(1) as CompletionListener).onCompleted(Throwable())
+            }
+            on {
+                clearPushToken(any())
+            } doAnswer { invocation ->
+                (invocation.getArgument(0) as CompletionListener).onCompleted(null)
             }
         }
         configInternal = DefaultConfigInternal(mockMobileEngageRequestContext,
@@ -602,7 +620,6 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockPushTokenStorage,
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal)
@@ -619,7 +636,6 @@ class DefaultConfigInternalTest {
         verify(mockMobileEngageInternal).clearContact(any())
         verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         verify(mockMobileEngageRequestContext).contactFieldId = CONTACT_FIELD_ID
-        verify(mockPushTokenStorage).remove()
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
         verify(mockMobileEngageRequestContext).contactFieldId = 1
     }
@@ -727,7 +743,6 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockPushTokenStorage,
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal)
@@ -759,7 +774,6 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockPushTokenStorage,
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal)
@@ -793,7 +807,6 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockPushTokenStorage,
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal)
@@ -829,7 +842,6 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockPushTokenStorage,
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal)
@@ -861,7 +873,6 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockPushTokenStorage,
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal)
@@ -895,7 +906,6 @@ class DefaultConfigInternalTest {
                 mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
-                mockPushTokenStorage,
                 mockLogLevelStorage,
                 mockCrypto,
                 mockClientServiceInternal)
