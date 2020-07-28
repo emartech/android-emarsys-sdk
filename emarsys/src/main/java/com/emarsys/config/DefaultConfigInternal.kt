@@ -68,56 +68,51 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: CompletionListener?) {
         originalContactFieldId = mobileEngageRequestContext.contactFieldId
         originalPushToken = pushTokenProvider.providePushToken()
-        val contactFieldIdHasChanged = contactFieldId != originalContactFieldId
 
-        val originalContactFieldValue = mobileEngageRequestContext.contactFieldValueStorage.get()
-        resetRemoteConfig()
-        val completionListenerWrapper = wrapCompletionListenerWithRefreshRemoteConfig(completionListener)
         if (mobileEngageRequestContext.applicationCode == null) {
-            changeApplicationCode(applicationCode, originalContactFieldValue, contactFieldIdHasChanged, contactFieldId, completionListenerWrapper)
+            handleApplicationCodeChange(applicationCode, contactFieldId, completionListener)
         } else {
-            clearCurrentContact(completionListenerWrapper) {
-                changeApplicationCode(applicationCode, originalContactFieldValue, contactFieldIdHasChanged, contactFieldId, completionListenerWrapper)
+            clearUpPushTokenAndContact(completionListener) {
+                handleApplicationCodeChange(applicationCode, contactFieldId, completionListener)
             }
         }
     }
 
-    private fun wrapCompletionListenerWithRefreshRemoteConfig(completionListener: CompletionListener?): CompletionListener {
-        return CompletionListener {
-            completionListener?.onCompleted(it)
-            if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
-                refreshRemoteConfig(null)
+    private fun clearUpPushTokenAndContact(completionListener: CompletionListener?, onSuccess: () -> Unit) {
+        clearPushToken(completionListener) {
+            clearContact(completionListener) {
+                onSuccess()
             }
         }
     }
 
-    private fun clearCurrentContact(completionListener: CompletionListener?, onSuccess: () -> Unit) {
-        mobileEngageInternal.clearContact { it ->
-            if (it == null) {
-                pushInternal.clearPushToken { throwable ->
-                    if (throwable == null) {
-                        onSuccess()
-                    } else {
-                        handleError(throwable, completionListener)
-                    }
-                }
+    private fun clearContact(completionListener: CompletionListener?, onSuccess: () -> Unit) {
+        mobileEngageInternal.clearContact { throwable ->
+            if (throwable == null) {
+                onSuccess()
             } else {
-                handleError(it, completionListener)
+                handleError(throwable, completionListener)
             }
         }
     }
 
-    private fun changeApplicationCode(applicationCode: String?, originalContactFieldValue: String?, contactFieldIdHasChanged: Boolean, newContactFieldId: Int, completionListener: CompletionListener?) {
+    private fun clearPushToken(completionListener: CompletionListener?, onSuccess: () -> Unit) {
+        pushInternal.clearPushToken { throwable ->
+            if (throwable == null) {
+                onSuccess()
+            } else {
+                handleError(throwable, completionListener)
+            }
+        }
+    }
+
+    private fun handleApplicationCodeChange(applicationCode: String?, newContactFieldId: Int, completionListener: CompletionListener?) {
         if (applicationCode != null) {
             FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
             mobileEngageRequestContext.applicationCode = applicationCode
             mobileEngageRequestContext.contactFieldId = newContactFieldId
             collectClientState(completionListener) {
-                if (!contactFieldIdHasChanged) {
-                    setPreviouslyLoggedInContact(originalContactFieldValue, completionListener)
-                } else {
-                    completionListener?.onCompleted(null)
-                }
+                completionListener?.onCompleted(null)
             }
         } else {
             FeatureRegistry.disableFeature(InnerFeature.MOBILE_ENGAGE)
@@ -137,16 +132,6 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                 }
             } else {
                 onSuccess()
-            }
-        }
-    }
-
-    private fun setPreviouslyLoggedInContact(originalContactFieldValue: String?, completionListener: CompletionListener?) {
-        mobileEngageInternal.setContact(originalContactFieldValue) {
-            if (it != null) {
-                handleError(it, completionListener)
-            } else {
-                completionListener?.onCompleted(it)
             }
         }
     }
