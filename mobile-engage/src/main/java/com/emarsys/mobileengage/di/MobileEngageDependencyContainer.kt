@@ -24,8 +24,10 @@ import com.emarsys.mobileengage.inbox.InboxInternal
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
+import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
+import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 
 interface MobileEngageDependencyContainer : DependencyContainer {
@@ -100,6 +102,10 @@ interface MobileEngageDependencyContainer : DependencyContainer {
     fun getMessageInboxServiceProvider(): ServiceEndpointProvider
 
     fun getMobileEngageV2ServiceProvider(): ServiceEndpointProvider
+
+    fun getNotificationInformationListenerProvider(): NotificationInformationListenerProvider
+
+    fun getSilentNotificationInformationListenerProvider(): SilentNotificationInformationListenerProvider
 
     fun getClientServiceStorage(): Storage<String?>
 

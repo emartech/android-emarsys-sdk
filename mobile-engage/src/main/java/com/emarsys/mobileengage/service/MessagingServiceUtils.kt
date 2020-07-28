@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.resource.MetaDataReader
 import com.emarsys.core.util.AndroidVersionUtils
@@ -21,9 +22,12 @@ import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.ImageUtils.loadOptimizedBitmap
 import com.emarsys.core.validate.JsonObjectValidator
 import com.emarsys.mobileengage.R
+import com.emarsys.mobileengage.api.push.NotificationInformation
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.inbox.InboxParseUtils
 import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
+import com.emarsys.mobileengage.notification.command.SilentNotificationInformationCommand
 import com.google.firebase.messaging.RemoteMessage
 import org.json.JSONException
 import org.json.JSONObject
@@ -75,7 +79,11 @@ object MessagingServiceUtils {
     fun createSilentPushCommands(actionCommandFactory: ActionCommandFactory, remoteMessageData: Map<String, String?>): List<Runnable?> {
         val actionsJsonArray = JSONObject(remoteMessageData["ems"]).optJSONArray("actions")
         val actions: MutableList<Runnable?> = mutableListOf()
-
+        val campaignId = JSONObject(remoteMessageData["ems"]).optString("multichannelId")
+        if (campaignId.isNotEmpty()) {
+            val silentNotificationInformationListenerProvider = DependencyInjection.getContainer<MobileEngageDependencyContainer>().getSilentNotificationInformationListenerProvider()
+            actions.add(SilentNotificationInformationCommand(silentNotificationInformationListenerProvider, NotificationInformation(campaignId)))
+        }
         if (actionsJsonArray != null) {
             for (i in 0 until actionsJsonArray.length()) {
                 val action = actionsJsonArray.optJSONObject(i)

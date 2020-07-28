@@ -6,6 +6,7 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.mobileengage.api.push.NotificationInformationListener
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
@@ -19,7 +20,9 @@ class DefaultPushInternal(private val requestManager: RequestManager,
                           private val eventServiceInternal: EventServiceInternal,
                           private val pushTokenStorage: StringStorage,
                           private val notificationEventHandlerProvider: EventHandlerProvider,
-                          private val silentMessageEventHandlerProvider: EventHandlerProvider) : PushInternal {
+                          private val silentMessageEventHandlerProvider: EventHandlerProvider,
+                          private val notificationInformationListenerProvider: NotificationInformationListenerProvider,
+                          private val silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider) : PushInternal {
 
     override fun setPushToken(pushToken: String, completionListener: CompletionListener?) {
         if (pushTokenStorage.get() != pushToken) {
@@ -36,6 +39,14 @@ class DefaultPushInternal(private val requestManager: RequestManager,
                 completionListener?.onCompleted(null)
             }
         }
+    }
+
+    override fun setNotificationInformationListener(notificationInformationListener: NotificationInformationListener) {
+        notificationInformationListenerProvider.notificationInformationListener = notificationInformationListener
+    }
+
+    override fun setSilentNotificationInformationListener(silentNotificationInformationListener: NotificationInformationListener) {
+        silentNotificationInformationListenerProvider.silentNotificationInformationListener = silentNotificationInformationListener
     }
 
     override fun clearPushToken(completionListener: CompletionListener?) {

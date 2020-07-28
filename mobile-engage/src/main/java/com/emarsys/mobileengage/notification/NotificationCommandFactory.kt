@@ -6,8 +6,10 @@ import android.os.Bundle
 import com.emarsys.core.Mockable
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.provider.activity.CurrentActivityProvider
+import com.emarsys.mobileengage.api.push.NotificationInformation
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.notification.command.*
+import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
 import org.json.JSONException
 import org.json.JSONObject
@@ -18,6 +20,7 @@ class NotificationCommandFactory(private val context: Context) {
     private val eventServiceInternal by lazy { getDependency<EventServiceInternal>("defaultInstance") }
     private val pushInternal by lazy { getDependency<PushInternal>("defaultInstance") }
     private val actionCommandFactory by lazy { getDependency<ActionCommandFactory>("notificationActionCommandFactory") }
+    private val notificationInformationListenerProvider by lazy { getDependency<NotificationInformationListenerProvider>("notificationInformationListenerProvider") }
 
     fun createNotificationCommand(intent: Intent): Runnable {
         val actionId = intent.action
@@ -34,6 +37,8 @@ class NotificationCommandFactory(private val context: Context) {
         if (inappCommand != null) {
             commands.add(inappCommand)
         }
+        val notificationInformationCommand = handlePushInformation(bundle)
+        commands.add(notificationInformationCommand)
         val trackingCommand = handleTracking(intent, actionId, bundle, action)
         commands.add(trackingCommand)
         val actionCommand = handleAction(action)
@@ -41,6 +46,20 @@ class NotificationCommandFactory(private val context: Context) {
             commands.add(actionCommand)
         }
         return CompositeCommand(commands.filterNotNull())
+    }
+
+    private fun handlePushInformation(payload: Bundle?): NotificationInformationCommand? {
+        if (payload != null) {
+            val ems = payload.getString("ems")
+            if (ems != null) {
+                val emsJson = JSONObject(ems)
+                val campaignId = emsJson.optString("multichannelId")
+                if (campaignId.isNotEmpty()) {
+                    return NotificationInformationCommand(notificationInformationListenerProvider, NotificationInformation(emsJson.getString("multichannelId")))
+                }
+            }
+        }
+        return null
     }
 
     private fun createMandatoryCommands(intent: Intent, bundle: Bundle?): MutableList<Runnable?> {

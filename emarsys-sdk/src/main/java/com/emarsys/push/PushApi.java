@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.mobileengage.api.event.EventHandler;
+import com.emarsys.mobileengage.api.push.NotificationInformationListener;
 
 public interface PushApi {
     /**
@@ -32,9 +33,13 @@ public interface PushApi {
 
     void clearPushToken();
 
-    void clearPushToken(final CompletionListener completionListener);
+    void clearPushToken(@NonNull final CompletionListener completionListener);
 
-    void setNotificationEventHandler(EventHandler notificationEventHandler);
+    void setNotificationEventHandler(@NonNull EventHandler notificationEventHandler);
 
-    void setSilentMessageEventHandler(EventHandler silentMesssageEventHandler);
+    void setSilentMessageEventHandler(@NonNull EventHandler silentMessageEventHandler);
+
+    void setNotificationInformationListener(@NonNull NotificationInformationListener notificationInformationListener);
+
+    void setSilentNotificationInformationListener(@NonNull NotificationInformationListener silentNotificationInformationListener);
 }

@@ -297,11 +297,12 @@ class NotificationCommandFactoryTest {
 
         command as CompositeCommand
 
-        command.commands.size shouldBe 4
+        command.commands.size shouldBe 5
         contains<DismissNotificationCommand>(command) shouldBe true
         contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackActionClickCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
+        contains<NotificationInformationCommand>(command) shouldBe true
 
     }
 
@@ -516,6 +517,27 @@ class NotificationCommandFactoryTest {
         result.forEach { it::class.java shouldNotBe LaunchApplicationCommand::class.java }
     }
 
+    @Test
+    fun testCreateNotificationCommand_shouldCreateNotificationInformationCommand() {
+
+        val intent = createIntent(JSONObject(mapOf("multichannelId" to "campaignId")))
+
+        val command = extractCommandFromComposite<NotificationInformationCommand>(intent)
+
+        command.notificationInformation.campaignId shouldBe "campaignId"
+    }
+
+    @Test
+    fun testCreateNotificationCommand_shouldNotCreateNotificationInformationCommand_whenMultichannelId_isMissing() {
+        val intent = createIntent(JSONObject())
+
+        val command = (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<NotificationInformationCommand>().let { list ->
+            list.firstOrNull().takeIf { list.size == 1 }
+        }
+
+        command shouldBe null
+    }
+
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : Runnable> extractCommandFromComposite(intent: Intent) =
             (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<T>().let { list ->
@@ -593,6 +615,7 @@ class NotificationCommandFactoryTest {
     private fun createDismissIntent(hasSid: Boolean = true): Intent {
         val actionId = "uniqueActionId"
         val json = JSONObject()
+                .put("multichannelId", "campaignId")
                 .put("actions", JSONArray()
                         .put(JSONObject()
                                 .put("type", "Dismiss")
@@ -634,7 +657,6 @@ class NotificationCommandFactoryTest {
         val intent = Intent()
 
         intent.action = actionId
-
         val bundle = Bundle()
         bundle.putString("customKey", "customValue")
         bundle.putString("title", "testTitle")

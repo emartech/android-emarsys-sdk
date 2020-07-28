@@ -28,7 +28,6 @@ import java.util.concurrent.CountDownLatch
 
 class NotificationActionUtilsTest {
     private lateinit var context: Context
-    private val fakeMobileEngageDependencyContainer = FakeMobileEngageDependencyContainer(CoreSdkHandlerProvider().provideHandler())
 
     @Rule
     @JvmField
@@ -36,8 +35,8 @@ class NotificationActionUtilsTest {
 
     @Before
     fun init() {
-        context = getTargetContext().applicationContext
-        DependencyInjection.setup(fakeMobileEngageDependencyContainer)
+            context = getTargetContext().applicationContext
+            DependencyInjection.setup(FakeMobileEngageDependencyContainer(CoreSdkHandlerProvider().provideHandler()))
     }
 
     @After

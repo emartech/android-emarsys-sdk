@@ -45,8 +45,6 @@ interface DependencyContainer {
     fun getKeyValueStore(): KeyValueStore
 
     val dependencies: MutableMap<String, Any?>
-
-
 }
 
 inline fun <reified T> generateDependencyName(key: String = ""): String {

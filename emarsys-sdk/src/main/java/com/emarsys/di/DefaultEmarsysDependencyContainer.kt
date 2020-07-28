@@ -368,6 +368,12 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         EventHandlerProvider(null).also {
             addDependency(dependencies, it, "geofenceEventHandlerProvider")
         }
+        NotificationInformationListenerProvider(null).also {
+            addDependency(dependencies, it, "notificationInformationListenerProvider")
+        }
+        SilentNotificationInformationListenerProvider(null).also {
+            addDependency(dependencies, it, "silentNotificationInformationListenerProvider")
+        }
         BatchingShardTrigger(
                 getShardRepository(),
                 ListSizeAtLeast(10),
@@ -435,7 +441,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
             addDependency(dependencies, it as DeepLinkInternal, "defaultInstance")
         }
         DefaultPushInternal(requestManager, uiHandler, requestModelFactory, getEventServiceInternal(), getPushTokenStorage(),
-                getNotificationEventHandlerProvider(), getSilentMessageEventHandlerProvider()).also {
+                getNotificationEventHandlerProvider(), getSilentMessageEventHandlerProvider(), getNotificationInformationListenerProvider(), getSilentNotificationInformationListenerProvider()).also {
             addDependency(dependencies, it as PushInternal, "defaultInstance")
         }
         DefaultInAppInternal(inAppEventHandler, getEventServiceInternal()).also {
@@ -681,6 +687,10 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
     override fun getMessageInboxServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_V3_INBOX_HOST)
 
     override fun getMobileEngageV2ServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_BASE_V2)
+
+    override fun getNotificationInformationListenerProvider(): NotificationInformationListenerProvider = getDependency(dependencies, "notificationInformationListenerProvider")
+
+    override fun getSilentNotificationInformationListenerProvider(): SilentNotificationInformationListenerProvider = getDependency(dependencies, "silentNotificationInformationListenerProvider")
 
     override fun getClientServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
 

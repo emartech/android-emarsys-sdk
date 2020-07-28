@@ -4,6 +4,7 @@ import android.content.Intent;
 
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.mobileengage.api.event.EventHandler;
+import com.emarsys.mobileengage.api.push.NotificationInformationListener;
 
 public interface PushInternal {
     void setPushToken(String pushToken, CompletionListener completionListener);
@@ -16,4 +17,7 @@ public interface PushInternal {
 
     void setSilentMessageEventHandler(EventHandler silentMessageEventHandler);
 
+    void setNotificationInformationListener(NotificationInformationListener notificationInformationListener);
+
+    void setSilentNotificationInformationListener(NotificationInformationListener silentNotificationInformationListener);
 }

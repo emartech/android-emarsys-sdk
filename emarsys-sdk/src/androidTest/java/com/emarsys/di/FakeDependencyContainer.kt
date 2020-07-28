@@ -48,8 +48,10 @@ import com.emarsys.mobileengage.inbox.InboxInternal
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
+import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
+import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
@@ -146,7 +148,9 @@ class FakeDependencyContainer(
         keyValueStore: KeyValueStore = mock(),
         contactTokenResponseHandler: MobileEngageTokenResponseHandler = mock(),
         requestManager: RequestManager = mock(),
-        requestModelFactory: MobileEngageRequestModelFactory = mock()
+        requestModelFactory: MobileEngageRequestModelFactory = mock(),
+        notificationInformationListenerProvider: NotificationInformationListenerProvider = mock(),
+        silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider = mock()
 ) : EmarsysDependencyContainer {
     override val dependencies: MutableMap<String, Any?> = mutableMapOf()
 
@@ -239,6 +243,8 @@ class FakeDependencyContainer(
         addDependency(dependencies, contactTokenResponseHandler, "contactTokenResponseHandler")
         addDependency(dependencies, requestManager)
         addDependency(dependencies, requestModelFactory)
+        addDependency(dependencies, notificationInformationListenerProvider, "notificationInformationListenerProvider")
+        addDependency(dependencies, silentNotificationInformationListenerProvider, "silentNotificationInformationListenerProvider")
     }
 
     override fun getCoreSdkHandler(): Handler = getDependency(dependencies, "coreSdkHandler")
@@ -364,6 +370,10 @@ class FakeDependencyContainer(
 
     override fun getMobileEngageV2ServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_BASE_V2)
 
+    override fun getNotificationInformationListenerProvider(): NotificationInformationListenerProvider = getDependency(dependencies, "notificationInformationListenerProvider")
+
+    override fun getSilentNotificationInformationListenerProvider(): SilentNotificationInformationListenerProvider = getDependency(dependencies, "silentNotificationInformationListenerProvider")
+
     override fun getClientServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
 
     override fun getEventServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.EVENT_SERVICE_URL.key)
@@ -402,9 +412,11 @@ class FakeDependencyContainer(
 
     override fun getPredictServiceStorage(): StringStorage = getDependency(dependencies, PredictStorageKey.PREDICT_SERVICE_URL.key)
 
-
     override fun getButtonClickedRepository(): Repository<ButtonClicked, SqlSpecification> = getDependency(dependencies, "buttonClickedRepository")
+
     override fun getDisplayedIamRepository(): Repository<DisplayedIam, SqlSpecification> = getDependency(dependencies, "displayedIamRepository")
+
     override fun getKeyValueStore(): KeyValueStore = getDependency(dependencies)
+
     override fun getContactTokenResponseHandler(): MobileEngageTokenResponseHandler = getDependency(dependencies, "contactTokenResponseHandler")
 }

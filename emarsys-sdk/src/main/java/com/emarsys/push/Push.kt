@@ -5,6 +5,7 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.getDependency
 import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.mobileengage.api.push.NotificationInformationListener
 import com.emarsys.mobileengage.push.PushInternal
 
 @Mockable
@@ -34,6 +35,16 @@ class Push(private val loggingInstance: Boolean = false) : PushApi {
                 .setPushToken(pushToken, completionListener)
     }
 
+    override fun setNotificationInformationListener(notificationInformationListener: NotificationInformationListener) {
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PushInternal>("defaultInstance"))
+                .setNotificationInformationListener(notificationInformationListener)
+    }
+
+    override fun setSilentNotificationInformationListener(silentNotificationInformationListener: NotificationInformationListener) {
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PushInternal>("defaultInstance"))
+                .setSilentNotificationInformationListener(silentNotificationInformationListener)
+    }
+
     override fun clearPushToken() {
         (if (loggingInstance) getDependency("loggingInstance") else getDependency<PushInternal>("defaultInstance"))
                 .clearPushToken(null)
@@ -49,8 +60,8 @@ class Push(private val loggingInstance: Boolean = false) : PushApi {
                 .setNotificationEventHandler(notificationEventHandler)
     }
 
-    override fun setSilentMessageEventHandler(silentMesssageEventHandler: EventHandler) {
+    override fun setSilentMessageEventHandler(silentMessageEventHandler: EventHandler) {
         (if (loggingInstance) getDependency("loggingInstance") else getDependency<PushInternal>("defaultInstance"))
-                .setSilentMessageEventHandler(silentMesssageEventHandler)
+                .setSilentMessageEventHandler(silentMessageEventHandler)
     }
 }

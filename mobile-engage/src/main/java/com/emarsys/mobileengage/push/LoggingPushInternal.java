@@ -7,6 +7,7 @@ import com.emarsys.core.util.SystemUtils;
 import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.log.entry.MethodNotAllowed;
 import com.emarsys.mobileengage.api.event.EventHandler;
+import com.emarsys.mobileengage.api.push.NotificationInformationListener;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,5 +69,23 @@ public class LoggingPushInternal implements PushInternal {
         String callerMethodName = SystemUtils.getCallerMethodName();
         Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
 
+    }
+
+    @Override
+    public void setNotificationInformationListener(NotificationInformationListener notificationInformationListener) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("notification_information_listener", notificationInformationListener != null);
+
+        String callerMethodName = SystemUtils.getCallerMethodName();
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
+    }
+
+    @Override
+    public void setSilentNotificationInformationListener(NotificationInformationListener silentNotificationInformationListener) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("silent_notification_information_listener", silentNotificationInformationListener != null);
+
+        String callerMethodName = SystemUtils.getCallerMethodName();
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
     }
 }

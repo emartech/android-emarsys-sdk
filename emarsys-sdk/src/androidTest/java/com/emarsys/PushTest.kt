@@ -8,9 +8,11 @@ import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.mobileengage.api.push.NotificationInformationListener
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.push.Push
 import com.emarsys.testUtil.TimeoutUtils
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -22,6 +24,7 @@ class PushTest {
     private lateinit var mockPushInternal: PushInternal
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var mockEventHandler: EventHandler
+    private lateinit var mockNotificationInformationListener: NotificationInformationListener
     private lateinit var push: Push
 
     @Rule
@@ -30,9 +33,10 @@ class PushTest {
 
     @Before
     fun setUp() {
-        mockPushInternal = Mockito.mock(PushInternal::class.java)
-        mockCompletionListener = Mockito.mock(CompletionListener::class.java)
-        mockEventHandler = Mockito.mock(EventHandler::class.java)
+        mockPushInternal = mock()
+        mockCompletionListener = mock()
+        mockEventHandler = mock()
+        mockNotificationInformationListener = mock()
         val dependencyContainer = FakeDependencyContainer(pushInternal = mockPushInternal)
 
         DependencyInjection.setup(dependencyContainer)
@@ -103,5 +107,17 @@ class PushTest {
     fun testPush_setSilentMessageEventHandler_delegatesTo_pushInternal() {
         push.setSilentMessageEventHandler(mockEventHandler)
         Mockito.verify(mockPushInternal).setSilentMessageEventHandler(mockEventHandler)
+    }
+
+    @Test
+    fun testPush_setNotificationInformationListener_delegatesTo_pushInternal() {
+        push.setNotificationInformationListener(mockNotificationInformationListener)
+        Mockito.verify(mockPushInternal).setNotificationInformationListener(mockNotificationInformationListener)
+    }
+
+    @Test
+    fun testPush_setSilentNotificationInformationListener_delegatesTo_pushInternal() {
+        push.setSilentNotificationInformationListener(mockNotificationInformationListener)
+        Mockito.verify(mockPushInternal).setSilentNotificationInformationListener(mockNotificationInformationListener)
     }
 }

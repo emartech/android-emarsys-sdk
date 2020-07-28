@@ -13,15 +13,20 @@ import com.emarsys.core.api.notification.ChannelSettings
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
+import com.emarsys.core.di.DependencyContainer
+import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.resource.MetaDataReader
 import com.emarsys.core.util.FileDownloader
+import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.inbox.InboxParseUtils
 import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.notification.command.AppEventCommand
+import com.emarsys.mobileengage.notification.command.SilentNotificationInformationCommand
+import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils.instantiate
 import com.emarsys.testUtil.RetryUtils.retryRule
@@ -36,6 +41,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONArray
 import org.json.JSONObject
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -65,6 +71,7 @@ class MessagingServiceUtilsTest {
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockFileDownloader: FileDownloader
     private lateinit var mockActionCommandFactory: ActionCommandFactory
+    private lateinit var mockSilentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider
 
     @Rule
     @JvmField
@@ -97,6 +104,7 @@ class MessagingServiceUtilsTest {
             }
         }
         mockActionCommandFactory = mock()
+        mockSilentNotificationInformationListenerProvider = mock()
 
         whenever(mockNotificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
@@ -113,6 +121,15 @@ class MessagingServiceUtilsTest {
         mockNotificationCache = mock()
         mockTimestampProvider = mock()
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(1L)
+
+        DependencyInjection.setup(FakeMobileEngageDependencyContainer(
+                silentNotificationInformationListenerProvider = mockSilentNotificationInformationListenerProvider))
+    }
+
+    @After
+    fun tearDown() {
+        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().looper.quit()
+        DependencyInjection.tearDown()
     }
 
     @Test
@@ -665,7 +682,51 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
+    fun testCreateSilentPushCommands_shouldCreateSilentNotificationCommand_whenMessageIsSilentAndContainsCampaignId() {
+        val message = mapOf(
+                "ems_msg" to "value",
+                "ems" to JSONObject(mapOf(
+                        "multichannelId" to "testCampaignId",
+                        "silent" to true
+                )).toString()
+        )
+
+        MessagingServiceUtils.createSilentPushCommands(mockActionCommandFactory, message).size shouldBe 1
+        MessagingServiceUtils.createSilentPushCommands(mockActionCommandFactory, message)[0] is SilentNotificationInformationCommand
+    }
+
+    @Test
     fun testCreateSilentPushCommands_shouldReturnListOfCommands_whenActionIsDefined() {
+        val expectedCommand1 = AppEventCommand(context, mock(), "MEAppEvent", null)
+        val expectedCommand2 = AppEventCommand(context, mock(), "MEAppEvent", JSONObject(mapOf("key" to "value")))
+        whenever(mockActionCommandFactory.createActionCommand(any())).thenReturn(expectedCommand1).thenReturn(expectedCommand2)
+        val message = mapOf(
+                "ems_msg" to "value",
+                "ems" to JSONObject(mapOf(
+                        "silent" to true,
+                        "actions" to JSONArray(listOf(
+                                JSONObject(mapOf(
+                                        "type" to "MEAppEvent",
+                                        "name" to "nameOfTheAppEvent"
+                                )),
+                                JSONObject(mapOf(
+                                        "type" to "MEAppEvent",
+                                        "name" to "nameOfTheAppEvent",
+                                        "payload" to JSONObject(mapOf(
+                                                "key" to "value"
+                                        ))
+                                ))
+                        ))
+                )).toString()
+        )
+
+        MessagingServiceUtils.createSilentPushCommands(mockActionCommandFactory, message) shouldBe listOf(
+                expectedCommand1,
+                expectedCommand2)
+    }
+
+    @Test
+    fun testCreateSilentPushCommands_shouldReturnListOfCommands_whenListenerIsRegistered() {
         val expectedCommand1 = AppEventCommand(context, mock(), "MEAppEvent", null)
         val expectedCommand2 = AppEventCommand(context, mock(), "MEAppEvent", JSONObject(mapOf("key" to "value")))
         whenever(mockActionCommandFactory.createActionCommand(any())).thenReturn(expectedCommand1).thenReturn(expectedCommand2)

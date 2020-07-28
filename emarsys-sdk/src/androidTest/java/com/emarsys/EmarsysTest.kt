@@ -260,14 +260,14 @@ class EmarsysTest {
                     contactFieldValueStorage = mockContactFieldValueStorage,
                     contactTokenStorage = mockContactTokenStorage,
                     clientStateStorage = mockClientStateStorage,
+                    responseHandlersProcessor = ResponseHandlersProcessor(ArrayList()),
                     inbox = mockInbox,
                     inApp = mockInApp,
                     loggingInApp = mockLoggingInApp,
                     push = mockPush,
                     predict = mockPredict,
                     loggingPredict = mockLoggingPredict,
-                    config = mockConfig,
-                    responseHandlersProcessor = ResponseHandlersProcessor(ArrayList())
+                    config = mockConfig
             ))
             latch = CountDownLatch(1)
             resetFeatures()

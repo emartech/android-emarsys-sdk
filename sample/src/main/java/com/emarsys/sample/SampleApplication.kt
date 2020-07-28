@@ -9,12 +9,13 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.emarsys.Emarsys
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.mobileengage.api.push.NotificationInformation
+import com.emarsys.mobileengage.api.push.NotificationInformationListener
 import org.json.JSONObject
 
 
-open class SampleApplication : Application(), EventHandler {
+open class SampleApplication : Application(), EventHandler, NotificationInformationListener {
     override fun onCreate() {
         super.onCreate()
         val config = EmarsysConfig.Builder()
@@ -30,6 +31,8 @@ open class SampleApplication : Application(), EventHandler {
         Emarsys.inApp.setEventHandler(this)
         Emarsys.push.setNotificationEventHandler(this)
         Emarsys.push.setSilentMessageEventHandler(this)
+        Emarsys.push.setNotificationInformationListener(this)
+        Emarsys.push.setSilentNotificationInformationListener(this)
         Emarsys.geofence.setEventHandler(this)
     }
 
@@ -50,5 +53,9 @@ open class SampleApplication : Application(), EventHandler {
 
     override fun handleEvent(context: Context, eventName: String, payload: JSONObject?) {
         Toast.makeText(this, eventName + " - " + payload.toString(), Toast.LENGTH_LONG).show()
+    }
+
+    override fun onNotificationInformationReceived(notificationInformation: NotificationInformation) {
+        Toast.makeText(this, "campaignId: " + notificationInformation.campaignId, Toast.LENGTH_LONG).show()
     }
 }

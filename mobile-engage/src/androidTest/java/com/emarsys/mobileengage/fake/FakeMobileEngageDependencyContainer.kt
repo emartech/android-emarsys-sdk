@@ -5,6 +5,7 @@ import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
@@ -42,14 +43,16 @@ import com.emarsys.mobileengage.inbox.InboxInternal
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
+import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
+import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.nhaarman.mockitokotlin2.mock
 
 class FakeMobileEngageDependencyContainer(
-        coreSdkHandler: Handler = mock(),
+        coreSdkHandler: Handler = CoreSdkHandlerProvider().provideHandler(),
         activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(),
         currentActivityWatchdog: CurrentActivityWatchdog = mock(),
         coreSQLiteDatabase: CoreSQLiteDatabase = mock(),
@@ -114,7 +117,9 @@ class FakeMobileEngageDependencyContainer(
         buttonClickedRepository: Repository<ButtonClicked, SqlSpecification> = mock(),
         displayedIamRepository: Repository<DisplayedIam, SqlSpecification> = mock(),
         keyValueStore: KeyValueStore = mock(),
-        contactTokenResponseHandler: MobileEngageTokenResponseHandler = mock()
+        contactTokenResponseHandler: MobileEngageTokenResponseHandler = mock(),
+        notificationInformationListenerProvider: NotificationInformationListenerProvider = mock(),
+        silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider = mock()
 ) : MobileEngageDependencyContainer {
     override val dependencies: MutableMap<String, Any?> = mutableMapOf()
 
@@ -185,6 +190,8 @@ class FakeMobileEngageDependencyContainer(
         addDependency(dependencies, displayedIamRepository, "displayedIamRepository")
         addDependency(dependencies, keyValueStore)
         addDependency(dependencies, contactTokenResponseHandler, "contactTokenResponseHandler")
+        addDependency(dependencies, notificationInformationListenerProvider, "notificationInformationListenerProvider")
+        addDependency(dependencies, silentNotificationInformationListenerProvider, "silentNotificationInformationListenerProvider")
     }
 
     override fun getCoreSdkHandler(): Handler = getDependency(dependencies, "coreSdkHandler")
@@ -282,6 +289,10 @@ class FakeMobileEngageDependencyContainer(
     override fun getMessageInboxServiceProvider(): ServiceEndpointProvider = getDependency(Endpoint.ME_V3_INBOX_HOST)
 
     override fun getMobileEngageV2ServiceProvider(): ServiceEndpointProvider = getDependency(Endpoint.ME_BASE_V2)
+
+    override fun getNotificationInformationListenerProvider(): NotificationInformationListenerProvider = getDependency("notificationInformationListenerProvider")
+
+    override fun getSilentNotificationInformationListenerProvider(): SilentNotificationInformationListenerProvider = getDependency("silentNotificationInformationListenerProvider")
 
     override fun getClientServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
 
