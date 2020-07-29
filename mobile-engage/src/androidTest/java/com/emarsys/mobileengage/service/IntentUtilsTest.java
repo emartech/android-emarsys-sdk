@@ -39,19 +39,6 @@ public class IntentUtilsTest {
     @Before
     public void init() {
         context = InstrumentationRegistry.getTargetContext();
-
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testCreateLaunchIntent_remoteIntentMustNotBeNull() {
-        IntentUtils.createLaunchIntent(null, context);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testCreateLaunchIntent_contextMustNotBeNull() {
-        Intent intent = new Intent();
-        intent.putExtra("key", "value");
-        IntentUtils.createLaunchIntent(intent, null);
     }
 
     @Test
@@ -107,16 +94,6 @@ public class IntentUtilsTest {
         Assert.assertNull(result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testCreateNotificationHandlerServiceIntent_remoteMessageDataMustNotBeNull() {
-        IntentUtils.createNotificationHandlerServiceIntent(context, null, 0, "action");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testCreateNotificationHandlerServiceIntent_contextMustNotBeNull() {
-        IntentUtils.createNotificationHandlerServiceIntent(null, new HashMap<String, String>(), 0, "action");
-    }
-
     @Test
     public void createNotificationHandlerServiceIntent() {
         int notificationId = 987;
@@ -138,15 +115,4 @@ public class IntentUtilsTest {
         Intent resultIntent = IntentUtils.createNotificationHandlerServiceIntent(context, new HashMap<String, String>(), 0, null);
         assertEquals(null, resultIntent.getAction());
     }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testCreateNotificationHandlerServicePendingIntent_remoteMessageDataMustNotBeNull() {
-        IntentUtils.createNotificationHandlerServicePendingIntent(context, null, 0, "action");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testCreateNotificationHandlerServicePendingIntent_contextMustNotBeNull() {
-        IntentUtils.createNotificationHandlerServicePendingIntent(null, new HashMap<String, String>(), 0, "action");
-    }
-
 }

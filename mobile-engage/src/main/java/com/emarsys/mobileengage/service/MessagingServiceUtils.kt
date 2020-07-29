@@ -31,7 +31,6 @@ import com.emarsys.mobileengage.notification.command.SilentNotificationInformati
 import com.google.firebase.messaging.RemoteMessage
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
 
 @Mockable
 object MessagingServiceUtils {
@@ -203,7 +202,11 @@ object MessagingServiceUtils {
     }
 
     fun createPreloadedRemoteMessageData(remoteMessageData: Map<String, String?>, inAppDescriptor: String?): Map<String, String?> {
-        val preloadedRemoteMessageData = HashMap(remoteMessageData)
+        val preloadedRemoteMessageData = mutableMapOf<String, String?>()
+        val keys = remoteMessageData.keys
+        for (key in keys) {
+            preloadedRemoteMessageData[key] = remoteMessageData[key]
+        }
         if (inAppDescriptor != null && AndroidVersionUtils.isKitKatOrAbove()) {
             try {
                 val ems = JSONObject(preloadedRemoteMessageData["ems"])

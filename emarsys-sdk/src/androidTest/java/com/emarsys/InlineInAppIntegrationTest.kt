@@ -26,10 +26,7 @@ import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.RetryRule
 import io.kotlintest.shouldNotBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
@@ -181,6 +178,7 @@ class InlineInAppIntegrationTest {
     }
 
     @Test
+    @Ignore
     fun testFetchInlineInAppMessage() {
         val latch = CountDownLatch(1)
         val inlineInAppView = InlineInAppView("main-screen-banner")
