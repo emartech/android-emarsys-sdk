@@ -118,14 +118,14 @@ class MobileEngageFragment : Fragment() {
             }
         }
 
-        buttonGetPushToken.setOnClickListener {
+        buttonSetPushToken.setOnClickListener {
             FirebaseApp.initializeApp(view.context)
             FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
                 run {
                     val pushToken = task.result?.token
+                    Emarsys.push.setPushToken(pushToken.toString())
 
                     pushToken?.copyToClipboard(view.context)
-
                     view.showSnackBar("Push Token copied: $pushToken")
                 }
             }

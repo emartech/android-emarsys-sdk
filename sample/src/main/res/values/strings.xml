@@ -18,7 +18,7 @@
     <string name="track_message_open">Track Message Open</string>
     <string name="track_custom_event">Track Custom Event</string>
     <string name="event_name">eventName</string>
-    <string name="get_push_token_button_label">Get Push Token</string>
+    <string name="get_push_token_button_label">Set Push Token</string>
     <string name="do_not_disturb">Do not disturb</string>
     <string name="get_push_token_title">Get Push Token</string>
     <string name="event_attributes_hint">eventAttributes</string>

@@ -295,12 +295,12 @@
                         android:layout_marginBottom="16dp"
                         android:text="@string/get_push_token_title"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                        app:layout_constraintBottom_toTopOf="@+id/buttonGetPushToken"
+                        app:layout_constraintBottom_toTopOf="@+id/buttonSetPushToken"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/buttonGetPushToken"
+                        android:id="@+id/buttonSetPushToken"
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
