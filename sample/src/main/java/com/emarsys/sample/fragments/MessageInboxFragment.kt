@@ -11,11 +11,14 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.emarsys.Emarsys
 import com.emarsys.sample.R
+import com.emarsys.sample.TagChangeListener
 import com.emarsys.sample.adapters.MessageInboxAdapter
 import com.emarsys.sample.extensions.showSnackBar
-import kotlinx.android.synthetic.main.fragment_inbox.*
+import kotlinx.android.synthetic.main.fragment_inbox.inboxView
+import kotlinx.android.synthetic.main.fragment_inbox.swipeRefreshLayout
+import kotlinx.android.synthetic.main.fragment_message_inbox.*
 
-class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
+class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, TagChangeListener {
 
     private companion object {
         val TAG: String = MessageInboxFragment::class.java.simpleName
@@ -23,24 +26,24 @@ class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_inbox, container, false)
+        return inflater.inflate(R.layout.fragment_message_inbox, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        notificationRecycleView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        notificationRecycleView.adapter = MessageInboxAdapter()
+        messageInboxRecycleView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        messageInboxRecycleView.adapter = MessageInboxAdapter(this)
 
         loadMessages()
 
         swipeRefreshLayout.setOnRefreshListener {
             onRefresh()
+            refreshHint.visibility=View.GONE
         }
     }
 
     override fun onRefresh() {
         swipeRefreshLayout.isRefreshing = true
-
         loadMessages()
     }
 
@@ -52,7 +55,7 @@ class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                     Log.i(TAG, "Messages: ${notification.title}")
                 }
 
-                (notificationRecycleView.adapter as MessageInboxAdapter).addItems(notificationStatus.messages)
+                (messageInboxRecycleView.adapter as MessageInboxAdapter).addItems(notificationStatus.messages)
             }
 
             it.errorCause?.let { cause ->
@@ -60,5 +63,21 @@ class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
             }
         }
         swipeRefreshLayout.isRefreshing = false
+    }
+
+    override fun addTagClicked(messageId: String) {
+        val tag = tagEditText.text.toString()
+        if (tag.isNotEmpty()) {
+            Emarsys.messageInbox.addTag(tag, messageId)
+            loadMessages()
+        }
+    }
+
+    override fun removeTagClicked(messageId: String) {
+        val tag = tagEditText.text.toString()
+        if (tag.isNotEmpty()) {
+            Emarsys.messageInbox.removeTag(tag, messageId)
+            loadMessages()
+        }
     }
 }

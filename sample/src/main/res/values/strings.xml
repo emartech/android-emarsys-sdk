@@ -56,5 +56,6 @@
     <string name="change_merchant_id_hint">an other Merchant ID</string>
     <string name="change_merchant_id_button">change</string>
     <string name="change_contact_field_id_hint">an other contactFieldId (optional)</string>
+    <string name="inbox_message_image_description">Inbox message image</string>
 
 </resources>

@@ -6,10 +6,6 @@
         android:icon="@drawable/mobile_engage_logo_icon"
         android:title="@string/menu_title_mobile_engage" />
     <item
-        android:id="@+id/destinationInboxFragment"
-        android:icon="@drawable/inbox_mailbox_icon"
-        android:title="@string/menu_title_inbox" />
-    <item
         android:id="@+id/destinationMessageInboxFragment"
         android:icon="@drawable/inbox_mailbox_icon"
         android:title="@string/menu_title_message_inbox" />
@@ -21,5 +17,9 @@
         android:id="@+id/destinationConfigFragment"
         android:icon="@drawable/ic_settings"
         android:title="@string/menu_title_config" />
+    <item
+        android:id="@+id/destinationInboxFragment"
+        android:icon="@drawable/inbox_mailbox_icon"
+        android:title="@string/menu_title_inbox" />
 
 </menu>
