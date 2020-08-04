@@ -5,8 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import coil.api.load
 import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.sample.R
 import com.emarsys.sample.TagChangeListener
@@ -26,7 +26,7 @@ class MessageInboxAdapter(private val tagChangeListener: TagChangeListener) : Re
     override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) {
         holder.title.text = notifications[position].title
         holder.body.text = notifications[position].body
-        holder.image.load(notifications[position].imageUrl)
+        holder.image.setImageDrawable(ContextCompat.getDrawable(holder.image.context, R.drawable.placeholder))
 
         holder.addButton.setOnClickListener {
             tagChangeListener.addTagClicked(notifications[position].id)

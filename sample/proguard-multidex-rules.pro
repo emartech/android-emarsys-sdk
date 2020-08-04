@@ -5,4 +5,3 @@
 -keep public class com.emarsys.** { *; }
 -keep public class com.google.** { *; }
 -keep public class android.** { *; }
--keep class coil.api.** { *; }
