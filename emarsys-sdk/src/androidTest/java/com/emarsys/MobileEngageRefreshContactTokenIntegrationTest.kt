@@ -18,7 +18,6 @@ import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
-import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal
 import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
@@ -26,7 +25,6 @@ import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.RetryRule
 import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.*
@@ -43,15 +41,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
         @BeforeClass
         @JvmStatic
         fun beforeAll() {
-            val options: FirebaseOptions = FirebaseOptions.Builder()
-                    .setApplicationId("com.emarsys.sdk")
-                    .build()
-
-            try {
-                FirebaseApp.initializeApp(InstrumentationRegistry.getTargetContext(), options)
-            } catch (ignored: java.lang.Exception) {
-
-            }
+            IntegrationTestUtils.initializeFirebase()
         }
 
         @AfterClass

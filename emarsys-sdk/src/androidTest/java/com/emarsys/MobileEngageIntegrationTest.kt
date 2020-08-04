@@ -31,11 +31,9 @@ import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
-import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.RetryRule
 import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
 import io.kotlintest.matchers.numerics.shouldBeInRange
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -55,11 +53,7 @@ class MobileEngageIntegrationTest {
         @BeforeClass
         @JvmStatic
         fun beforeAll() {
-            val options: FirebaseOptions = FirebaseOptions.Builder()
-                    .setApplicationId("com.emarsys.sdk")
-                    .build()
-
-            FirebaseApp.initializeApp(InstrumentationRegistry.getTargetContext(), options)
+            IntegrationTestUtils.initializeFirebase()
         }
 
         @AfterClass

@@ -112,6 +112,7 @@ import com.emarsys.push.Push
 import com.emarsys.push.PushApi
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
+import com.google.firebase.iid.FirebaseInstanceId
 import org.json.JSONObject
 import java.security.KeyFactory
 import java.security.PublicKey
@@ -258,7 +259,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
             addDependency(dependencies, it, CoreStorageKey.HARDWARE_ID.key)
         }
         val languageProvider = LanguageProvider()
-        val hardwareIdProvider = HardwareIdProvider(application, hardwareIdStorage)
+        val fii = FirebaseInstanceId.getInstance()
+        val hardwareIdProvider = HardwareIdProvider(application, fii, hardwareIdStorage)
         val versionProvider = VersionProvider()
         val notificationManager = application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationManagerCompat = NotificationManagerCompat.from(application)

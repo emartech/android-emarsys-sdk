@@ -1,5 +1,6 @@
 dependencies {
     api Libs.firebase_core, { exclude group: 'androidx' }
+    api Libs.firebase_messaging, { exclude group: 'androidx' }
     api Libs.support_annotations
     api Libs.support_appcompat
     api Libs.kotlin

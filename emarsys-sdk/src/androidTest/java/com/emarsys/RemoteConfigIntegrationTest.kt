@@ -25,7 +25,6 @@ import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
 import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
 import io.kotlintest.shouldBe
 import org.junit.*
 import org.junit.rules.TestRule
@@ -41,11 +40,7 @@ class RemoteConfigIntegrationTest {
         @BeforeClass
         @JvmStatic
         fun beforeAll() {
-            val options: FirebaseOptions = FirebaseOptions.Builder()
-                    .setApplicationId("com.emarsys.sdk")
-                    .build()
-
-            FirebaseApp.initializeApp(InstrumentationRegistry.getTargetContext(), options)
+            IntegrationTestUtils.initializeFirebase()
         }
 
         @AfterClass

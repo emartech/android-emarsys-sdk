@@ -1,10 +1,24 @@
 package com.emarsys.testUtil
 
 import com.emarsys.Emarsys
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 import io.kotlintest.shouldBe
 import java.util.concurrent.CountDownLatch
 
 object IntegrationTestUtils {
+
+    @JvmStatic
+    fun initializeFirebase() {
+        val options: FirebaseOptions = FirebaseOptions.Builder()
+                .setApplicationId("com.emarsys.sdk")
+                .setProjectId("ems-mobile-engage-android-app")
+                .setApiKey("AIzaSyC-SZ___dEWHfqsQL5viIQ_Z5WDw3NHBC4")
+                .setApplicationId("1:1014228643013:android:dee9098abac0567e")
+                .build()
+
+        FirebaseApp.initializeApp(InstrumentationRegistry.getTargetContext(), options)
+    }
 
     @JvmStatic
     fun doAppLogin(contactFieldValue: String = "test@test.com") {

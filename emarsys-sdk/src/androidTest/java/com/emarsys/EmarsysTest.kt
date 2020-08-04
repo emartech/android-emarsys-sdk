@@ -88,11 +88,11 @@ import com.emarsys.testUtil.CollectionTestUtils.getElementByType
 import com.emarsys.testUtil.CollectionTestUtils.numberOfElementsIn
 import com.emarsys.testUtil.FeatureTestUtils.resetFeatures
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
+import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils.getInstanceField
 import com.emarsys.testUtil.TimeoutUtils
 import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
 import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldNotBe
 import org.junit.*
@@ -114,15 +114,7 @@ class EmarsysTest {
         @BeforeClass
         @JvmStatic
         fun beforeAll() {
-            val options: FirebaseOptions = FirebaseOptions.Builder()
-                    .setApplicationId("com.emarsys.sdk")
-                    .build()
-
-            try {
-                FirebaseApp.initializeApp(getTargetContext(), options)
-            } catch (ignored: java.lang.Exception) {
-
-            }
+            IntegrationTestUtils.initializeFirebase()
         }
 
         @AfterClass

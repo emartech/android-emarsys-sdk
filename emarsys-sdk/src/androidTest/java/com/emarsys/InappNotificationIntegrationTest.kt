@@ -22,7 +22,6 @@ import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -40,11 +39,7 @@ class InappNotificationIntegrationTest {
         @BeforeClass
         @JvmStatic
         fun beforeAll() {
-            val options: FirebaseOptions = FirebaseOptions.Builder()
-                    .setApplicationId("com.emarsys.sdk")
-                    .build()
-
-            FirebaseApp.initializeApp(InstrumentationRegistry.getTargetContext(), options)
+            IntegrationTestUtils.initializeFirebase()
         }
 
         @AfterClass
