@@ -56,57 +56,12 @@ class CoreCompletionHandlerMiddlewareProviderTest {
         }
         mockWorker = mock(Worker::class.java)
 
-        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(mockCoreCompletionHandler, mockRequestRepository, mockUiHandler, mockCoreSdkHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestRepository_mustNotBeNull() {
-        CoreCompletionHandlerMiddlewareProvider(
-                mockCoreCompletionHandler,
-                null,
-                mockUiHandler,
-                mockCoreSdkHandler
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_uiHandler_mustNotBeNull() {
-        CoreCompletionHandlerMiddlewareProvider(
-                mockCoreCompletionHandler,
-                mockRequestRepository,
-                null,
-                mockCoreSdkHandler
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_coreSdkHandler_mustNotBeNull() {
-        CoreCompletionHandlerMiddlewareProvider(
-                mockCoreCompletionHandler,
-                mockRequestRepository,
-                mockUiHandler,
-                null
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_coreCompletionHandler_mustNotBeNull() {
-        CoreCompletionHandlerMiddlewareProvider(
-                null,
-                mockRequestRepository,
-                mockUiHandler,
-                mockCoreSdkHandler
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateCompletionHandler_worker_mustNotBeNull() {
-        coreCompletionHandlerMiddlewareProvider.provideProxy(null)
+        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(mockRequestRepository, mockUiHandler, mockCoreSdkHandler)
     }
 
     @Test
-    fun testCreateCompletionHandler_shouldReturnWithMiddleware_withDefaultCompletionHandler_whenWorkerIsPresent() {
-        val result = coreCompletionHandlerMiddlewareProvider.provideProxy(mockWorker)
+    fun testCreateCompletionHandler_shouldReturnWithMiddleware_whenWorkerIsPresent() {
+        val result = coreCompletionHandlerMiddlewareProvider.provideProxy(mockWorker, mockCoreCompletionHandler)
 
         result should beInstanceOf(CoreCompletionHandlerMiddleware::class)
 

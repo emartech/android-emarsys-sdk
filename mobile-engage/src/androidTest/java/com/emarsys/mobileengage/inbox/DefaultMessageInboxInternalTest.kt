@@ -2,12 +2,14 @@ package com.emarsys.mobileengage.inbox
 
 import android.os.Handler
 import android.os.Looper
+import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
+import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
@@ -212,6 +214,14 @@ class DefaultMessageInboxInternalTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
+        val mockProvider: CompletionHandlerProxyProvider = mock {
+            on { provideProxy(isNull(), any()) } doAnswer {
+                it.arguments[1] as CoreCompletionHandler
+            }
+            on { provideProxy(any(), any()) } doAnswer {
+                it.arguments[1] as CoreCompletionHandler
+            }
+        }
         return RequestManager(
                 mock(),
                 mock(),
@@ -219,7 +229,8 @@ class DefaultMessageInboxInternalTest {
                 mock(),
                 restClient,
                 mock(),
-                mock()
+                mock(),
+                mockProvider
         )
     }
 }

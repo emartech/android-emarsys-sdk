@@ -17,6 +17,7 @@ import com.emarsys.core.fake.FakeCompletionHandler;
 import com.emarsys.core.fake.FakeRunnableFactory;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.request.factory.CompletionHandlerProxyProvider;
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
@@ -52,8 +53,10 @@ import static com.emarsys.testUtil.TestUrls.DENNA_ECHO;
 import static com.emarsys.testUtil.TestUrls.customResponse;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -62,7 +65,7 @@ public class RequestManagerTest {
     private RequestManager manager;
     private RequestModel requestModel;
     private ShardModel shardModel;
-    private FakeCompletionHandler handler;
+    private FakeCompletionHandler fakeCompletionHandler;
     private CoreCompletionHandler mockDefaultHandler;
     private CountDownLatch completionHandlerLatch;
     private CountDownLatch runnableFactoryLatch;
@@ -79,6 +82,8 @@ public class RequestManagerTest {
     private Registry<RequestModel, CompletionListener> callbackRegistry;
     private CoreCompletionHandlerMiddlewareProvider coreCompletionHandlerMiddlewareProvider;
     private Mapper<RequestModel, RequestModel> mockRequestModelMapper;
+    private CompletionHandlerProxyProvider mockCompletionHandlerProxyProvider;
+
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
@@ -120,12 +125,14 @@ public class RequestManagerTest {
         callbackRegistry = mock(Registry.class);
 
         completionHandlerLatch = new CountDownLatch(1);
-        handler = new FakeCompletionHandler(completionHandlerLatch);
+        fakeCompletionHandler = new FakeCompletionHandler(completionHandlerLatch);
         mockDefaultHandler = mock(CoreCompletionHandler.class);
         RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), requestModelMappers);
         restClientMock = mock(RestClient.class);
-        coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(handler, requestRepository, uiHandler, coreSdkHandler);
-        worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, handler, restClient, coreCompletionHandlerMiddlewareProvider);
+        coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(requestRepository, uiHandler, coreSdkHandler);
+        worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, fakeCompletionHandler, restClient, coreCompletionHandlerMiddlewareProvider);
+        mockCompletionHandlerProxyProvider = mock(CompletionHandlerProxyProvider.class);
+        when(mockCompletionHandlerProxyProvider.provideProxy((Worker) isNull(), any(CoreCompletionHandler.class))).thenReturn(mockDefaultHandler);
         manager = new RequestManager(
                 coreSdkHandler,
                 requestRepository,
@@ -133,7 +140,8 @@ public class RequestManagerTest {
                 worker,
                 restClientMock,
                 callbackRegistry,
-                mockDefaultHandler);
+                mockDefaultHandler,
+                mockCompletionHandlerProxyProvider);
 
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
@@ -165,37 +173,42 @@ public class RequestManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_coreSdkHandlerShouldNotBeNull() {
-        new RequestManager(null, requestRepository, shardRepository, worker, restClientMock, callbackRegistry, mockDefaultHandler);
+        new RequestManager(null, requestRepository, shardRepository, worker, restClientMock, callbackRegistry, mockDefaultHandler, mockCompletionHandlerProxyProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestRepositoryShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, null, shardRepository, worker, restClientMock, callbackRegistry, mockDefaultHandler);
+        new RequestManager(coreSdkHandler, null, shardRepository, worker, restClientMock, callbackRegistry, mockDefaultHandler, mockCompletionHandlerProxyProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_shardRepositoryShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, null, worker, restClientMock, callbackRegistry, mockDefaultHandler);
+        new RequestManager(coreSdkHandler, requestRepository, null, worker, restClientMock, callbackRegistry, mockDefaultHandler, mockCompletionHandlerProxyProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_workerShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, shardRepository, null, restClientMock, callbackRegistry, mockDefaultHandler);
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, null, restClientMock, callbackRegistry, mockDefaultHandler, mockCompletionHandlerProxyProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_restClientShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, null, callbackRegistry, mockDefaultHandler);
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, null, callbackRegistry, mockDefaultHandler, mockCompletionHandlerProxyProvider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_registryShouldNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClientMock, null, mockDefaultHandler);
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClientMock, null, mockDefaultHandler,mockCompletionHandlerProxyProvider );
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_defaultCompletionHandler_mustNotBeNull() {
-        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClientMock, callbackRegistry, null);
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClientMock, callbackRegistry, null, mockCompletionHandlerProxyProvider);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_coreCompletionHandlerProxyProvider_mustNotBeNull() {
+        new RequestManager(coreSdkHandler, requestRepository, shardRepository, worker, restClientMock, callbackRegistry, mockDefaultHandler, null);
     }
 
     @Test
@@ -328,9 +341,9 @@ public class RequestManagerTest {
         manager.submit(requestModel, null);
 
         completionHandlerLatch.await();
-        assertEquals(requestModel.getId(), handler.getSuccessId());
-        assertEquals(1, handler.getOnSuccessCount());
-        assertEquals(0, handler.getOnErrorCount());
+        assertEquals(requestModel.getId(), fakeCompletionHandler.getSuccessId());
+        assertEquals(1, fakeCompletionHandler.getOnSuccessCount());
+        assertEquals(0, fakeCompletionHandler.getOnErrorCount());
     }
 
     @Test
@@ -353,7 +366,7 @@ public class RequestManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSubmitNow_requestModel_mustNotBeNull() {
-        manager.submitNow(null, handler);
+        manager.submitNow(null, fakeCompletionHandler);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -362,10 +375,26 @@ public class RequestManagerTest {
     }
 
     @Test
-    public void testSubmitNow_shouldCallRestClientsExecuteWithGivenParameters() {
-        manager.submitNow(requestModel, handler);
+    public void testSubmitNow_withoutCompletionHandler_shouldCallProxyProviderForCompletionHandler() {
+        manager.submitNow(requestModel);
 
-        verify(restClientMock).execute(requestModel, handler);
+        verify(mockCompletionHandlerProxyProvider, times(2)).provideProxy(null, mockDefaultHandler);
+        verify(restClientMock).execute(requestModel, mockDefaultHandler);
+    }
+
+    @Test
+    public void testSubmitNow_shouldCallProxyProviderForCompletionHandler() {
+        manager.submitNow(requestModel, fakeCompletionHandler);
+
+        verify(mockCompletionHandlerProxyProvider).provideProxy(null, fakeCompletionHandler);
+        verify(restClientMock).execute(requestModel, mockDefaultHandler);
+    }
+
+    @Test
+    public void testSubmitNow_shouldCallRestClientsExecuteWithGivenParameters() {
+        manager.submitNow(requestModel, fakeCompletionHandler);
+
+        verify(restClientMock).execute(requestModel, mockDefaultHandler);
     }
 
     @Test
@@ -391,10 +420,10 @@ public class RequestManagerTest {
 
         completionHandlerLatch.await();
 
-        assertEquals(requestModel.getId(), handler.getErrorId());
-        assertEquals(0, handler.getOnSuccessCount());
-        assertEquals(1, handler.getOnErrorCount());
-        assertEquals(405, handler.getFailureResponseModel().getStatusCode());
+        assertEquals(requestModel.getId(), fakeCompletionHandler.getErrorId());
+        assertEquals(0, fakeCompletionHandler.getOnSuccessCount());
+        assertEquals(1, fakeCompletionHandler.getOnErrorCount());
+        assertEquals(405, fakeCompletionHandler.getFailureResponseModel().getStatusCode());
     }
 
     @Test
@@ -413,10 +442,10 @@ public class RequestManagerTest {
 
         completionHandlerLatch.await();
 
-        assertEquals(requestModel.getId(), handler.getErrorId());
-        assertEquals(0, handler.getOnSuccessCount());
-        assertEquals(1, handler.getOnErrorCount());
-        assertEquals(((Exception) new UnknownHostException()).getClass(), handler.getException().getClass());
+        assertEquals(requestModel.getId(), fakeCompletionHandler.getErrorId());
+        assertEquals(0, fakeCompletionHandler.getOnSuccessCount());
+        assertEquals(1, fakeCompletionHandler.getOnErrorCount());
+        assertEquals(((Exception) new UnknownHostException()).getClass(), fakeCompletionHandler.getException().getClass());
     }
 
     @Test(expected = IllegalArgumentException.class)

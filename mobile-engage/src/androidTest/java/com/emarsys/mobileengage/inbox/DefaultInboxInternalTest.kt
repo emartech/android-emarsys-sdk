@@ -19,6 +19,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
+import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
@@ -38,6 +39,7 @@ import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.SharedPrefsUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.doAnswer
 import io.kotlintest.shouldBe
 import org.json.JSONObject
 import org.junit.*
@@ -784,6 +786,14 @@ class DefaultInboxInternalTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
+        val mockProvider: CompletionHandlerProxyProvider = com.nhaarman.mockitokotlin2.mock {
+            on { provideProxy(com.nhaarman.mockitokotlin2.isNull(), com.nhaarman.mockitokotlin2.any()) } doAnswer {
+                it.arguments[1] as CoreCompletionHandler
+            }
+            on { provideProxy(com.nhaarman.mockitokotlin2.any(), com.nhaarman.mockitokotlin2.any()) } doAnswer {
+                it.arguments[1] as CoreCompletionHandler
+            }
+        }
         return RequestManager(
                 mock(Handler::class.java),
                 mock(Repository::class.java) as Repository<RequestModel, SqlSpecification>,
@@ -791,7 +801,8 @@ class DefaultInboxInternalTest {
                 mock(Worker::class.java),
                 restClient,
                 mock(Registry::class.java) as Registry<RequestModel, CompletionListener>,
-                mock(CoreCompletionHandler::class.java)
+                mock(CoreCompletionHandler::class.java),
+                mockProvider
         )
     }
 

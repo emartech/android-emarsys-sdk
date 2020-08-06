@@ -2,6 +2,7 @@ package com.emarsys.config
 
 import com.emarsys.EmarsysRequestModelFactory
 import com.emarsys.config.model.RemoteConfig
+import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
@@ -14,6 +15,7 @@ import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
+import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
@@ -951,6 +953,15 @@ class DefaultConfigInternalTest {
 
     @Suppress("UNCHECKED_CAST")
     fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
+        val mockProvider: CompletionHandlerProxyProvider = mock {
+            on { provideProxy(isNull(), any()) } doAnswer {
+                it.arguments[1] as CoreCompletionHandler
+            }
+            on { provideProxy(any(), any()) } doAnswer {
+                it.arguments[1] as CoreCompletionHandler
+            }
+        }
+
         return RequestManager(
                 mock(),
                 mock() as Repository<RequestModel, SqlSpecification>,
@@ -958,7 +969,8 @@ class DefaultConfigInternalTest {
                 mock(),
                 restClient,
                 mock() as Registry<RequestModel, CompletionListener>,
-                mock()
+                mock(),
+                mockProvider
         )
     }
 }

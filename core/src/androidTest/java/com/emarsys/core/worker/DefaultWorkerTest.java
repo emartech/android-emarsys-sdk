@@ -82,7 +82,7 @@ public class DefaultWorkerTest {
 
         worker = new DefaultWorker(requestRepository, watchDogMock, uiHandler, mockCoreCompletionHandler, restClient, mockProxyProvider);
 
-        when(mockProxyProvider.provideProxy(any(Worker.class))).thenReturn(mock(CoreCompletionHandler.class));
+        when(mockProxyProvider.provideProxy(any(Worker.class), any(CoreCompletionHandler.class))).thenReturn(mock(CoreCompletionHandler.class));
 
         now = System.currentTimeMillis();
 

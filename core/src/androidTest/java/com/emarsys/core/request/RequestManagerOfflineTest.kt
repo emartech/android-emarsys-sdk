@@ -16,6 +16,7 @@ import com.emarsys.core.fake.FakeConnectionWatchDog
 import com.emarsys.core.fake.FakeRestClient
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
@@ -71,7 +72,7 @@ class RequestManagerOfflineTest {
     private lateinit var uiHandler: Handler
     private lateinit var worker: Worker
     private lateinit var coreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
-
+    private lateinit var mockProxyProvider: CompletionHandlerProxyProvider
 
     @Before
     fun setup() {
@@ -242,7 +243,9 @@ class RequestManagerOfflineTest {
         provider = CoreSdkHandlerProvider()
         coreSdkHandler = provider.provideHandler()
 
-        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(completionHandler, requestRepository, uiHandler, coreSdkHandler)
+        mockProxyProvider = mock(CompletionHandlerProxyProvider::class.java)
+
+        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(requestRepository, uiHandler, coreSdkHandler)
         worker = DefaultWorker(requestRepository, watchDog, uiHandler, completionHandler, fakeRestClient, coreCompletionHandlerMiddlewareProvider)
 
         manager = RequestManager(
@@ -252,7 +255,9 @@ class RequestManagerOfflineTest {
                 worker,
                 fakeRestClient,
                 mock(Registry::class.java) as Registry<RequestModel, CompletionListener>,
-                completionHandler)
+                completionHandler,
+                mockProxyProvider
+        )
 
         coreSdkHandler.post {
             requestModels.forEach(requestRepository::add)

@@ -321,7 +321,6 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
             addDependency(dependencies, it)
         }
         val coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(
-                getCoreCompletionHandler(),
                 requestModelRepository,
                 uiHandler,
                 getCoreSdkHandler()
@@ -334,7 +333,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getPushTokenStorage(),
                 getClientServiceProvider(),
                 getEventServiceProvider(),
-                getMessageInboxServiceProvider())
+                getMessageInboxServiceProvider(),
+                getCoreCompletionHandler())
         val worker: Worker = DefaultWorker(
                 requestModelRepository,
                 connectionWatchDog,
@@ -349,7 +349,9 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 worker,
                 getRestClient(),
                 getCoreCompletionHandler(),
-                getCoreCompletionHandler()).also { addDependency(dependencies, it) }
+                getCoreCompletionHandler(),
+                coreCompletionHandlerRefreshTokenProxyProvider
+        ).also { addDependency(dependencies, it) }
 
         requestManager.setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(getRequestContext()))
         val sharedPrefsKeyStore = DefaultKeyValueStore(prefs).also { addDependency(dependencies, it as KeyValueStore) }

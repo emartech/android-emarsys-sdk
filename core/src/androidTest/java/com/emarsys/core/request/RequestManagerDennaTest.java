@@ -16,6 +16,7 @@ import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.fake.FakeCompletionHandler;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
+import com.emarsys.core.request.factory.CompletionHandlerProxyProvider;
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
@@ -103,7 +104,7 @@ public class RequestManagerDennaTest {
         latch = new CountDownLatch(1);
         fakeCompletionHandler = new FakeCompletionHandler(latch);
         RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), requestModelMappers);
-        coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(fakeCompletionHandler, requestRepository, uiHandler, coreSdkHandler);
+        coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(requestRepository, uiHandler, coreSdkHandler);
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, fakeCompletionHandler, restClient, coreCompletionHandlerMiddlewareProvider);
         timestampProvider = new TimestampProvider();
         uuidProvider = new UUIDProvider();
@@ -114,7 +115,8 @@ public class RequestManagerDennaTest {
                 worker,
                 restClient,
                 mock(Registry.class),
-                fakeCompletionHandler);
+                fakeCompletionHandler,
+                mock(CompletionHandlerProxyProvider.class));
         headers = new HashMap<>();
         headers.put("Accept", "application/json");
         headers.put("Content", "application/x-www-form-urlencoded");

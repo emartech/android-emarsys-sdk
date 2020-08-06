@@ -72,7 +72,7 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
             if (model != null) {
                 restClient.execute(
                         model,
-                        proxyProvider.provideProxy(this));
+                        proxyProvider.provideProxy(this, coreCompletionHandler));
             } else {
                 unlock();
             }

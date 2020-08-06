@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.request
 
+import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
@@ -27,6 +28,8 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest {
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
     private lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
+    private lateinit var mockCoreCompletionHandler: CoreCompletionHandler
+    private lateinit var mockDefaultCoreCompletionHandler: CoreCompletionHandler
 
     @Rule
     @JvmField
@@ -44,63 +47,43 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest {
         mockClientServiceProvider = mock(ServiceEndpointProvider::class.java)
         mockEventServiceProvider = mock(ServiceEndpointProvider::class.java)
         mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java)
+        mockCoreCompletionHandler = mock(CoreCompletionHandler::class.java)
+        mockDefaultCoreCompletionHandler = mock(CoreCompletionHandler::class.java)
 
-        coreCompletionHandlerRefreshTokenProxyProvider = CoreCompletionHandlerRefreshTokenProxyProvider(mockCoreCompletionHandlerMiddlewareProvider, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_coreCompletionHandlerMiddlewareProvider_mustNotBeNull() {
-        CoreCompletionHandlerRefreshTokenProxyProvider(null, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_refreshTokenInternal_mustNotBeNull() {
-        CoreCompletionHandlerRefreshTokenProxyProvider(mockCoreCompletionHandlerMiddlewareProvider, null, mockRestClient, mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_restClient_mustNotBeNull() {
-        CoreCompletionHandlerRefreshTokenProxyProvider(mockCoreCompletionHandlerMiddlewareProvider, mockRefreshTokenInternal, null, mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_contactTokenStorage_mustNotBeNull() {
-        CoreCompletionHandlerRefreshTokenProxyProvider(mockCoreCompletionHandlerMiddlewareProvider, mockRefreshTokenInternal, mockRestClient, null, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_pushTokenStorage_mustNotBeNull() {
-        CoreCompletionHandlerRefreshTokenProxyProvider(mockCoreCompletionHandlerMiddlewareProvider, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage, null, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_clientServiceProvider_mustNotBeNull() {
-        CoreCompletionHandlerRefreshTokenProxyProvider(mockCoreCompletionHandlerMiddlewareProvider, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage, mockPushTokenStorage, null, mockEventServiceProvider, mockMessageInboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_eventServiceProvider_mustNotBeNull() {
-        CoreCompletionHandlerRefreshTokenProxyProvider(mockCoreCompletionHandlerMiddlewareProvider, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, null, mockMessageInboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_messageInboxServiceProvider_mustNotBeNull() {
-        CoreCompletionHandlerRefreshTokenProxyProvider(mockCoreCompletionHandlerMiddlewareProvider, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testProvideCoreCompletionHandlerRefreshTokenProxy_worker_mustNotBeNull() {
-        coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(null)
+        coreCompletionHandlerRefreshTokenProxyProvider = CoreCompletionHandlerRefreshTokenProxyProvider(mockCoreCompletionHandlerMiddlewareProvider, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider, mockDefaultCoreCompletionHandler)
     }
 
     @Test
     fun testProvideCoreCompletionHandlerRefreshTokenProxy() {
         val mockWorker = mock(Worker::class.java)
-        whenever(mockCoreCompletionHandlerMiddlewareProvider.provideProxy(mockWorker)).thenReturn(mockCoreCompletionHandlerMiddleware)
+        whenever(mockCoreCompletionHandlerMiddlewareProvider.provideProxy(mockWorker, mockCoreCompletionHandler)).thenReturn(mockCoreCompletionHandlerMiddleware)
         val expectedProxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandlerMiddleware, mockRefreshTokenInternal, mockRestClient,
                 mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
 
-        val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(mockWorker)
+        val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(mockWorker, mockCoreCompletionHandler)
+
+        result shouldBe expectedProxy
+    }
+
+    @Test
+    fun testProvideCoreCompletionHandlerRefreshTokenProxy_whenNoHandlerIsAvailable() {
+        whenever(mockCoreCompletionHandlerMiddlewareProvider.provideProxy(null, null)).thenReturn(mockDefaultCoreCompletionHandler)
+        val expectedProxy = CoreCompletionHandlerRefreshTokenProxy(mockDefaultCoreCompletionHandler, mockRefreshTokenInternal, mockRestClient,
+                mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+
+        val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(null,null)
+
+        result shouldBe expectedProxy
+    }
+
+    @Test
+    fun testProvideCoreCompletionHandlerRefreshTokenProxy_whenNoWorkerIsAvailable() {
+
+        whenever(mockCoreCompletionHandlerMiddlewareProvider.provideProxy(null, mockCoreCompletionHandler)).thenReturn(mockCoreCompletionHandler)
+        val expectedProxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, mockRefreshTokenInternal, mockRestClient,
+                mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+
+        val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(null, mockCoreCompletionHandler)
 
         result shouldBe expectedProxy
     }
