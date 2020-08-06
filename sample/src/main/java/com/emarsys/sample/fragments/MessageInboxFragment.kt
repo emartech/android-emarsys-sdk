@@ -1,8 +1,6 @@
 package com.emarsys.sample.fragments
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -34,10 +32,7 @@ class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, T
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         messageInboxRecycleView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        val handlerThread = HandlerThread("imageDownloadThread")
-        handlerThread.start()
-        val handler = Handler(handlerThread.looper)
-        messageInboxRecycleView.adapter = MessageInboxAdapter(this, handler)
+        messageInboxRecycleView.adapter = MessageInboxAdapter(this)
 
         loadMessages()
 
