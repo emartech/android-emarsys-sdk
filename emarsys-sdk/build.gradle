@@ -13,9 +13,13 @@ dependencies {
 
 android {
     defaultConfig {
-        Properties properties = new Properties()
-        properties.load(project.rootProject.file('localConfig.properties').newDataInputStream())
-        def api_key = properties.getProperty("googleServicesApiKey")
+        def api_key = null
+        def localConfigPropertiesFile = rootProject.file('localConfig.properties')
+        def localConfigProperties = new Properties()
+        if (localConfigPropertiesFile.exists()) {
+            localConfigProperties.load(new FileInputStream(localConfigPropertiesFile))
+            api_key = properties.getProperty("googleServicesApiKey")
+        }
 
         buildConfigField "String", "GOOGLE_SERVICES_API_KEY", "\"${System.env.GOOGLE_SERVICES_API_KEY ?: api_key}\""
     }
