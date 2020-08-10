@@ -5,3 +5,4 @@ libs
 *.iml
 local.properties
 localConfig.properties
+sample/google-services.json
