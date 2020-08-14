@@ -58,6 +58,10 @@ import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.predicate.ListSizeAtLeast
 import com.emarsys.core.worker.DefaultWorker
 import com.emarsys.core.worker.Worker
+import com.emarsys.deeplink.DeepLink
+import com.emarsys.deeplink.DeepLinkApi
+import com.emarsys.eventservice.EventService
+import com.emarsys.eventservice.EventServiceApi
 import com.emarsys.geofence.Geofence
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InApp
@@ -143,6 +147,18 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         val application = config.application
         val coreSdkHandler: Handler = CoreSdkHandlerProvider().provideHandler()
         addDependency(dependencies, coreSdkHandler, "coreSdkHandler")
+
+        addDependency(dependencies, (MobileEngage() as MobileEngageApi).proxyApi(coreSdkHandler), "defaultInstance")
+
+        addDependency(dependencies, (MobileEngage(true) as MobileEngageApi).proxyApi(coreSdkHandler), "loggingInstance")
+
+        addDependency(dependencies, (DeepLink() as DeepLinkApi).proxyApi(coreSdkHandler), "defaultInstance")
+
+        addDependency(dependencies, (DeepLink(true) as DeepLinkApi).proxyApi(coreSdkHandler), "loggingInstance")
+
+        addDependency(dependencies, (EventService() as EventServiceApi).proxyApi(coreSdkHandler), "defaultInstance")
+
+        addDependency(dependencies, (EventService(true) as EventServiceApi).proxyApi(coreSdkHandler), "loggingInstance")
 
         addDependency(dependencies, (InApp() as InAppApi).proxyApi(coreSdkHandler), "defaultInstance")
 

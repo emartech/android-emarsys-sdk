@@ -5,15 +5,15 @@ import android.os.Looper
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.deeplink.DeepLinkApi
+import com.emarsys.eventservice.EventServiceApi
 import com.emarsys.feature.InnerFeature
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
-import com.emarsys.mobileengage.MobileEngageInternal
+import com.emarsys.mobileengage.MobileEngageApi
 import com.emarsys.mobileengage.client.ClientServiceInternal
-import com.emarsys.mobileengage.deeplink.DeepLinkInternal
-import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictInternal
 import com.emarsys.push.PushApi
@@ -33,8 +33,8 @@ class EmarsysDependencyInjectionTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    private lateinit var mockMobileEngageInternal: MobileEngageInternal
-    private lateinit var mockLoggingMobileEngageInternal: MobileEngageInternal
+    private lateinit var mockMobileEngageApi: MobileEngageApi
+    private lateinit var mockLoggingMobileEngageApi: MobileEngageApi
     private lateinit var mockPredictInternal: PredictInternal
     private lateinit var mockLoggingPredictInternal: PredictInternal
 
@@ -45,13 +45,13 @@ class EmarsysDependencyInjectionTest {
 
     private lateinit var mockInApp: InAppApi
     private lateinit var mockLoggingInApp: InAppApi
-    private lateinit var mockDeepLinkInternal: DeepLinkInternal
-    private lateinit var mockLoggingDeepLinkInternal: DeepLinkInternal
+    private lateinit var mockDeepLinkApi: DeepLinkApi
+    private lateinit var mockLoggingDeepLinkApi: DeepLinkApi
 
     private lateinit var mockClientServiceInternal: ClientServiceInternal
     private lateinit var mockLoggingClientServiceInternal: ClientServiceInternal
-    private lateinit var mockEventServiceInternal: EventServiceInternal
-    private lateinit var mockLoggingEventServiceInternal: EventServiceInternal
+    private lateinit var mockEventServiceApi: EventServiceApi
+    private lateinit var mockLoggingEventServiceApi: EventServiceApi
     private lateinit var mockPush: PushApi
     private lateinit var mockLoggingPush: PushApi
     private lateinit var mockGeofence: GeofenceApi
@@ -63,8 +63,8 @@ class EmarsysDependencyInjectionTest {
     fun setUp() {
         DependencyInjection.tearDown()
 
-        mockMobileEngageInternal = mock()
-        mockLoggingMobileEngageInternal = mock()
+        mockMobileEngageApi = mock()
+        mockLoggingMobileEngageApi = mock()
 
         mockInbox = mock()
         mockLoggingInbox = mock()
@@ -74,14 +74,14 @@ class EmarsysDependencyInjectionTest {
         mockInApp = mock()
         mockLoggingInApp = mock()
 
-        mockDeepLinkInternal = mock()
-        mockLoggingDeepLinkInternal = mock()
+        mockDeepLinkApi = mock()
+        mockLoggingDeepLinkApi = mock()
 
         mockClientServiceInternal = mock()
         mockLoggingClientServiceInternal = mock()
 
-        mockEventServiceInternal = mock()
-        mockLoggingEventServiceInternal = mock()
+        mockEventServiceApi = mock()
+        mockLoggingEventServiceApi = mock()
 
         mockPush = mock()
         mockLoggingPush = mock()
@@ -95,12 +95,12 @@ class EmarsysDependencyInjectionTest {
         mockLoggingGeofence = mock()
 
         DependencyInjection.setup(FakeDependencyContainer(
-                mobileEngageInternal = mockMobileEngageInternal,
-                loggingMobileEngageInternal = mockLoggingMobileEngageInternal,
-                deepLinkInternal = mockDeepLinkInternal,
-                loggingDeepLinkInternal = mockLoggingDeepLinkInternal,
-                eventServiceInternal = mockEventServiceInternal,
-                loggingEventServiceInternal = mockLoggingEventServiceInternal,
+                mobileEngageApi = mockMobileEngageApi,
+                loggingMobileEngageApi = mockLoggingMobileEngageApi,
+                deepLinkApi = mockDeepLinkApi,
+                loggingDeepLinkApi = mockLoggingDeepLinkApi,
+                eventServiceApi = mockEventServiceApi,
+                loggingEventServiceApi = mockLoggingEventServiceApi,
                 clientServiceInternal = mockClientServiceInternal,
                 loggingClientServiceInternal = mockLoggingClientServiceInternal,
                 predictInternal = mockPredictInternal,
@@ -138,15 +138,15 @@ class EmarsysDependencyInjectionTest {
     fun testMobileEngageInternal_shouldReturnDefaultInstance() {
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
 
-        val result = EmarsysDependencyInjection.mobileEngageInternal()
-        result shouldBeSameInstanceAs mockMobileEngageInternal
+        val result = EmarsysDependencyInjection.mobileEngageApi()
+        result shouldBeSameInstanceAs mockMobileEngageApi
     }
 
     @Test
     fun testMobileEngageInternal_shouldReturnLoggingInstance_whenMEIsDisabled() {
-        val result = EmarsysDependencyInjection.mobileEngageInternal()
+        val result = EmarsysDependencyInjection.mobileEngageApi()
 
-        result shouldBeSameInstanceAs mockLoggingMobileEngageInternal
+        result shouldBeSameInstanceAs mockLoggingMobileEngageApi
     }
 
     @Test
@@ -198,15 +198,15 @@ class EmarsysDependencyInjectionTest {
     fun testDeepLinkInternal_shouldReturnDefaultInstance() {
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
 
-        val result = EmarsysDependencyInjection.deepLinkInternal()
-        result shouldBeSameInstanceAs mockDeepLinkInternal
+        val result = EmarsysDependencyInjection.deepLinkApi()
+        result shouldBeSameInstanceAs mockDeepLinkApi
     }
 
     @Test
     fun testDeepLinkInternal_shouldReturnLoggingInstance_whenMEIsDisabled() {
-        val result = EmarsysDependencyInjection.deepLinkInternal()
+        val result = EmarsysDependencyInjection.deepLinkApi()
 
-        result shouldBeSameInstanceAs mockLoggingDeepLinkInternal
+        result shouldBeSameInstanceAs mockLoggingDeepLinkApi
     }
 
     @Test
@@ -228,15 +228,15 @@ class EmarsysDependencyInjectionTest {
     fun testEventServiceInternal_shouldReturnDefaultInstance() {
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
 
-        val result = EmarsysDependencyInjection.eventServiceInternal()
-        result shouldBeSameInstanceAs mockEventServiceInternal
+        val result = EmarsysDependencyInjection.eventServiceApi()
+        result shouldBeSameInstanceAs mockEventServiceApi
     }
 
     @Test
     fun testEventServiceInternal_shouldReturnLoggingInstance_whenMEIsDisabled() {
-        val result = EmarsysDependencyInjection.eventServiceInternal()
+        val result = EmarsysDependencyInjection.eventServiceApi()
 
-        result shouldBeSameInstanceAs mockLoggingEventServiceInternal
+        result shouldBeSameInstanceAs mockLoggingEventServiceApi
     }
 
     @Test

@@ -3,10 +3,7 @@ package com.emarsys
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Handler
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
@@ -92,7 +89,6 @@ class DefaultInboxIntegrationTest {
 
         sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
 
-        val setupLatch = CountDownLatch(1)
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getClientServiceProvider(): ServiceEndpointProvider {
                 return mock(ServiceEndpointProvider::class.java).apply {
@@ -123,37 +119,15 @@ class DefaultInboxIntegrationTest {
                 )
             }
         })
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-            setupLatch.countDown()
-        }
-
-        setupLatch.await()
-
-        getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
 
         Emarsys.setup(baseConfig)
 
-        getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
+        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
 
-        IntegrationTestUtils.doLogin()
-    }
-
-    @After
-    fun tearDown() {
-        try {
-            FeatureTestUtils.resetFeatures()
-            getDependency<Handler>("coreSdkHandler").looper.quit()
-            application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
-            application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
+            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
 
             getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
             getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
@@ -162,11 +136,14 @@ class DefaultInboxIntegrationTest {
             getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
             getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
             getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
-            DependencyInjection.tearDown()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
         }
+
+        IntegrationTestUtils.doLogin()
+    }
+
+    @After
+    fun tearDown() {
+        IntegrationTestUtils.tearDownEmarsys(application)
     }
 
     @Test

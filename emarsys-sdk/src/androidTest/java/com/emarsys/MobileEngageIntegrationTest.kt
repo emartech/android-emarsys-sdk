@@ -10,11 +10,8 @@ import android.os.Bundle
 import android.os.Handler
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
-import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.notification.NotificationManagerHelper
@@ -24,7 +21,6 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
-import com.emarsys.di.EmarsysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.push.PushTokenProvider
@@ -109,7 +105,6 @@ class MobileEngageIntegrationTest {
             whenever(providePushToken()).thenReturn("integration_test_push_token")
         }
 
-        val setupLatch = CountDownLatch(1)
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getCoreCompletionHandler(): DefaultCoreCompletionHandler {
                 return completionHandler
@@ -136,11 +131,6 @@ class MobileEngageIntegrationTest {
                 )
             }
         })
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-            setupLatch.countDown()
-        }
-
-        setupLatch.await()
 
         errorCause = null
 
@@ -150,28 +140,27 @@ class MobileEngageIntegrationTest {
 
         Emarsys.setup(baseConfig)
 
-        waitForTask()
+        getDependency<Handler>("coreSdkHandler").post {
+            clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().clientStateStorage
+            contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().contactTokenStorage
 
-        clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().clientStateStorage
-        contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().contactTokenStorage
+            clientStateStorage = getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key)
+            contactTokenStorage = getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key)
 
-        clientStateStorage = getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key)
-        contactTokenStorage = getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key)
+            clientStateStorage.remove()
+            contactTokenStorage.remove()
 
-        clientStateStorage.remove()
-        contactTokenStorage.remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.DEVICE_INFO_HASH.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.REFRESH_TOKEN.key).remove()
 
-        getDependency<StringStorage>(MobileEngageStorageKey.DEVICE_INFO_HASH.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.REFRESH_TOKEN.key).remove()
-
-        getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
-
+            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
+        }
 
         IntegrationTestUtils.doLogin()
 
@@ -190,28 +179,7 @@ class MobileEngageIntegrationTest {
     }
 
     private fun doTearDown() {
-        FeatureTestUtils.resetFeatures()
-
-        getDependency<Handler>("coreSdkHandler").looper.quit()
-        application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
-        application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
-
-        getDependency<StringStorage>(MobileEngageStorageKey.DEVICE_INFO_HASH.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.REFRESH_TOKEN.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
-
-        clientStateStorage.remove()
-        contactTokenStorage.remove()
-        DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().pushTokenStorage.remove()
-
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().getClientServiceStorage().set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().getEventServiceStorage().set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().getDeepLinkServiceStorage().set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().getMobileEngageV2ServiceStorage().set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().getInboxServiceStorage().set(null)
-        DependencyInjection.getContainer<EmarsysDependencyContainer>().getPredictServiceStorage().set(null)
-
-        DependencyInjection.tearDown()
+        IntegrationTestUtils.tearDownEmarsys(application)
     }
 
     @Test

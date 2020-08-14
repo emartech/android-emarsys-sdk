@@ -3,12 +3,9 @@ package com.emarsys
 import android.app.Application
 import android.app.NotificationManager
 import android.content.Context
-import android.os.Handler
 import androidx.core.app.NotificationManagerCompat
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
-import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
@@ -130,7 +127,6 @@ class PredictIntegrationTest {
             }
         }
 
-        val setupLatch = CountDownLatch(1)
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getDeviceInfo(): DeviceInfo {
                 return DeviceInfo(
@@ -153,40 +149,18 @@ class PredictIntegrationTest {
                 return completionHandler
             }
         })
+
         DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-            setupLatch.countDown()
-        }
-
-        setupLatch.await()
-
-        clientStateStorage = getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key)
-        clientStateStorage.remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
-
-        Emarsys.setup(baseConfig)
-
-        getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
-    }
-
-    @After
-    fun tearDown() {
-        try {
-            getDependency<Handler>("coreSdkHandler").looper.quit()
-            application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
-            application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
-
-            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key).remove()
+            clientStateStorage = getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key)
+            clientStateStorage.remove()
             getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).remove()
             getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key).remove()
             getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
+        }
+
+        Emarsys.setup(baseConfig)
+
+        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
             getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
             getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
             getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
@@ -194,11 +168,12 @@ class PredictIntegrationTest {
             getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
             getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
             getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
-            DependencyInjection.tearDown()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
         }
+    }
+
+    @After
+    fun tearDown() {
+        IntegrationTestUtils.tearDownEmarsys(application)
     }
 
     @Test
@@ -492,7 +467,11 @@ class PredictIntegrationTest {
 
     @Test
     fun testMultipleInvocationsWithSetContact() {
-        clientStateStorage.set("predict-integration-test")
+        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
+            clientStateStorage = getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key)
+            clientStateStorage.set("predict-integration-test")
+        }
+
 
         Emarsys.setContact("test@test.com")
         testMultipleInvocations()

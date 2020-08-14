@@ -3,10 +3,7 @@ package com.emarsys
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Handler
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyContainer
@@ -81,7 +78,6 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
         FeatureTestUtils.resetFeatures()
 
-        val setupLatch = CountDownLatch(1)
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getDeviceInfo(): DeviceInfo {
                 return DeviceInfo(
@@ -98,11 +94,6 @@ class MobileEngageRefreshContactTokenIntegrationTest {
                 )
             }
         })
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-            setupLatch.countDown()
-        }
-
-        setupLatch.await()
 
         errorCause = null
 
@@ -112,10 +103,11 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
         Emarsys.setup(baseConfig)
 
-        contactTokenStorage = getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key)
-        contactTokenStorage.remove()
-
-        getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
+        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
+            contactTokenStorage = getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key)
+            contactTokenStorage.remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
+        }
 
         IntegrationTestUtils.doLogin()
 
@@ -124,20 +116,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
     @After
     fun tearDown() {
-        try {
-            FeatureTestUtils.resetFeatures()
-
-            getDependency<Handler>("coreSdkHandler").looper.quit()
-            application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
-            application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
-
-            contactTokenStorage.remove()
-
-            DependencyInjection.tearDown()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
-        }
+        IntegrationTestUtils.tearDownEmarsys(application)
     }
 
     @Test

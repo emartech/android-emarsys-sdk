@@ -3,15 +3,15 @@ package com.emarsys.di
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.deeplink.DeepLinkApi
+import com.emarsys.eventservice.EventServiceApi
 import com.emarsys.feature.InnerFeature
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
-import com.emarsys.mobileengage.MobileEngageInternal
+import com.emarsys.mobileengage.MobileEngageApi
 import com.emarsys.mobileengage.client.ClientServiceInternal
-import com.emarsys.mobileengage.deeplink.DeepLinkInternal
-import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictInternal
 import com.emarsys.push.PushApi
@@ -19,7 +19,7 @@ import com.emarsys.push.PushApi
 object EmarsysDependencyInjection : DependencyInjection() {
 
     @JvmStatic
-    fun mobileEngageInternal(): MobileEngageInternal {
+    fun mobileEngageApi(): MobileEngageApi {
         return if (isMobileEngageEnabled()) {
             getDependency("defaultInstance")
         } else {
@@ -55,7 +55,7 @@ object EmarsysDependencyInjection : DependencyInjection() {
     }
 
     @JvmStatic
-    fun deepLinkInternal(): DeepLinkInternal {
+    fun deepLinkApi(): DeepLinkApi {
         return if (isMobileEngageEnabled()) {
             getDependency("defaultInstance")
         } else {
@@ -73,7 +73,7 @@ object EmarsysDependencyInjection : DependencyInjection() {
     }
 
     @JvmStatic
-    fun eventServiceInternal(): EventServiceInternal {
+    fun eventServiceApi(): EventServiceApi {
         return if (isMobileEngageEnabled()) {
             getDependency("defaultInstance")
         } else {

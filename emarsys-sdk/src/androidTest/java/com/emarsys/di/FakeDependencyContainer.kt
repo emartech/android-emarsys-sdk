@@ -27,10 +27,13 @@ import com.emarsys.core.storage.KeyValueStore
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
+import com.emarsys.deeplink.DeepLinkApi
+import com.emarsys.eventservice.EventServiceApi
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
+import com.emarsys.mobileengage.MobileEngageApi
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.RefreshTokenInternal
@@ -82,8 +85,12 @@ class FakeDependencyContainer(
         inAppInternal: InAppInternal = mock(),
         loggingInAppInternal: InAppInternal = mock(),
         deepLinkInternal: DeepLinkInternal = mock(),
+        deepLinkApi: DeepLinkApi = mock(),
+        loggingDeepLinkApi: DeepLinkApi = mock(),
         loggingDeepLinkInternal: DeepLinkInternal = mock(),
         eventServiceInternal: EventServiceInternal = mock(),
+        eventServiceApi: EventServiceApi = mock(),
+        loggingEventServiceApi: EventServiceApi = mock(),
         loggingEventServiceInternal: EventServiceInternal = mock(),
         clientServiceInternal: ClientServiceInternal = mock(),
         loggingClientServiceInternal: ClientServiceInternal = mock(),
@@ -115,6 +122,8 @@ class FakeDependencyContainer(
         predict: PredictApi = mock(),
         loggingPredict: PredictApi = mock(),
         config: ConfigApi = mock(),
+        mobileEngageApi: MobileEngageApi = mock(),
+        loggingMobileEngageApi: MobileEngageApi = mock(),
         geofence: GeofenceApi = mock(),
         loggingGeofence: GeofenceApi = mock(),
         pushTokenProvider: PushTokenProvider = mock(),
@@ -174,6 +183,8 @@ class FakeDependencyContainer(
         addDependency(dependencies, logShardTrigger, "logShardTrigger")
         addDependency(dependencies, mobileEngageInternal, "defaultInstance")
         addDependency(dependencies, loggingMobileEngageInternal, "loggingInstance")
+        addDependency(dependencies, mobileEngageApi, "defaultInstance")
+        addDependency(dependencies, loggingMobileEngageApi, "loggingInstance")
         addDependency(dependencies, pushInternal, "defaultInstance")
         addDependency(dependencies, loggingPushInternal, "loggingInstance")
         addDependency(dependencies, inboxInternal, "defaultInstance")
@@ -184,7 +195,11 @@ class FakeDependencyContainer(
         addDependency(dependencies, loggingInAppInternal, "loggingInstance")
         addDependency(dependencies, deepLinkInternal, "defaultInstance")
         addDependency(dependencies, loggingDeepLinkInternal, "loggingInstance")
+        addDependency(dependencies, deepLinkApi, "defaultInstance")
+        addDependency(dependencies, loggingDeepLinkApi, "loggingInstance")
         addDependency(dependencies, eventServiceInternal, "defaultInstance")
+        addDependency(dependencies, eventServiceApi, "defaultInstance")
+        addDependency(dependencies, loggingEventServiceApi, "loggingInstance")
         addDependency(dependencies, loggingEventServiceInternal, "loggingInstance")
         addDependency(dependencies, clientServiceInternal, "defaultInstance")
         addDependency(dependencies, loggingClientServiceInternal, "loggingInstance")
@@ -299,6 +314,7 @@ class FakeDependencyContainer(
     override fun getLoggingGeofence(): GeofenceApi = getDependency(dependencies, "loggingInstance")
 
     override fun getConfigInternal(): ConfigInternal = getDependency(dependencies)
+
     override fun getMobileEngageInternal(): MobileEngageInternal = getDependency(dependencies, "defaultInstance")
 
     override fun getLoggingMobileEngageInternal(): MobileEngageInternal = getDependency(dependencies, "loggingInstance")

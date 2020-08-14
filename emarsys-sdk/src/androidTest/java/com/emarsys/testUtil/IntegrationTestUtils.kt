@@ -1,7 +1,16 @@
 package com.emarsys.testUtil
 
+import android.app.Application
+import android.os.Handler
 import com.emarsys.BuildConfig
 import com.emarsys.Emarsys
+import com.emarsys.core.activity.ActivityLifecycleWatchdog
+import com.emarsys.core.activity.CurrentActivityWatchdog
+import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
+import com.emarsys.core.storage.StringStorage
+import com.emarsys.mobileengage.storage.MobileEngageStorageKey
+import com.emarsys.predict.storage.PredictStorageKey
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import io.kotlintest.shouldBe
@@ -34,5 +43,34 @@ object IntegrationTestUtils {
         }
         latchForPushToken.await()
         errorCause shouldBe null
+    }
+
+    fun tearDownEmarsys(application: Application? = null) {
+        FeatureTestUtils.resetFeatures()
+
+        getDependency<Handler>("coreSdkHandler").post {
+            if (application != null) {
+                application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
+                application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
+            }
+
+            getDependency<StringStorage>(MobileEngageStorageKey.DEVICE_INFO_HASH.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.REFRESH_TOKEN.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
+
+            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
+            getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
+        }
+        getDependency<Handler>("coreSdkHandler").looper.quitSafely()
+
+        DependencyInjection.tearDown()
     }
 }

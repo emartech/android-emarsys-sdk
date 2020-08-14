@@ -3,11 +3,8 @@ package com.emarsys
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.addDependency
@@ -97,41 +94,16 @@ class InappNotificationIntegrationTest {
             completionListenerLatch.countDown()
         }
 
-        val setupLatch = CountDownLatch(1)
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getInAppPresenter(): InAppPresenter {
                 return mockInappPresenter
             }
         })
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-            setupLatch.countDown()
-        }
-
-        setupLatch.await()
-
         ConnectionTestUtils.checkConnection(application)
 
         Emarsys.setup(baseConfig)
 
-        getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
-        getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
-        IntegrationTestUtils.doLogin()
-    }
-
-    @After
-    fun tearDown() {
-        try {
-            application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
-            application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
-
-            getDependency<Handler>("coreSdkHandler").looper.quit()
-
-            FeatureTestUtils.resetFeatures()
+        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
             getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
             getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
             getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
@@ -139,11 +111,14 @@ class InappNotificationIntegrationTest {
             getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
             getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
             getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
-            DependencyInjection.tearDown()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
         }
+
+        IntegrationTestUtils.doLogin()
+    }
+
+    @After
+    fun tearDown() {
+        IntegrationTestUtils.tearDownEmarsys(application)
     }
 
     @Test

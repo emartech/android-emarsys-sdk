@@ -57,12 +57,15 @@ import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.storage.StringStorage
+import com.emarsys.deeplink.DeepLinkApi
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.eventservice.EventServiceApi
 import com.emarsys.feature.InnerFeature
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
+import com.emarsys.mobileengage.MobileEngageApi
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.api.event.EventHandler
@@ -89,7 +92,6 @@ import com.emarsys.testUtil.CollectionTestUtils.numberOfElementsIn
 import com.emarsys.testUtil.FeatureTestUtils.resetFeatures
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils.getInstanceField
 import com.emarsys.testUtil.TimeoutUtils
 import com.google.firebase.FirebaseApp
@@ -134,7 +136,11 @@ class EmarsysTest {
     private lateinit var mockLogShardTrigger: Runnable
     private lateinit var mockMobileEngageInternal: MobileEngageInternal
     private lateinit var mockDeepLinkInternal: DeepLinkInternal
+    private lateinit var mockDeepLinkApi: DeepLinkApi
+    private lateinit var mockLoggingDeepLinkApi: DeepLinkApi
     private lateinit var mockEventServiceInternal: EventServiceInternal
+    private lateinit var mockEventServiceApi: EventServiceApi
+    private lateinit var mockLoggingEventServiceApi: EventServiceApi
     private lateinit var mockClientServiceInternal: ClientServiceInternal
     private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockPredictInternal: PredictInternal
@@ -148,6 +154,8 @@ class EmarsysTest {
     private lateinit var mockLoggingInApp: InAppApi
     private lateinit var mockPush: PushApi
     private lateinit var mockPredict: PredictApi
+    private lateinit var mockMobileEngageApi: MobileEngageApi
+    private lateinit var mockLoggingMobileEngageApi: MobileEngageApi
     private lateinit var mockLoggingPredict: PredictApi
     private lateinit var mockConfig: ConfigApi
     private lateinit var mockMessageInbox: MessageInboxApi
@@ -180,7 +188,11 @@ class EmarsysTest {
             mockCoreSQLiteDatabase = mock()
             mockMobileEngageInternal = mock()
             mockDeepLinkInternal = mock()
+            mockDeepLinkApi = mock()
+            mockLoggingDeepLinkApi = mock()
             mockEventServiceInternal = mock()
+            mockEventServiceApi = mock()
+            mockLoggingEventServiceApi = mock()
             mockClientServiceInternal = mock()
             mockPredictInternal = mock()
             mockPredictShardTrigger = mock()
@@ -202,6 +214,8 @@ class EmarsysTest {
             predictConfig = createConfig().predictMerchantId(MERCHANT_ID).build()
             mockRequestContext = mock()
             mockHardwareIdProvider = mock()
+            mockMobileEngageApi = mock()
+            mockLoggingMobileEngageApi = mock()
             mockInbox = mock()
             mockInApp = mock()
             mockLoggingInApp = mock()
@@ -253,13 +267,19 @@ class EmarsysTest {
                     contactTokenStorage = mockContactTokenStorage,
                     clientStateStorage = mockClientStateStorage,
                     responseHandlersProcessor = ResponseHandlersProcessor(ArrayList()),
+                    mobileEngageApi = mockMobileEngageApi,
+                    loggingMobileEngageApi = mockLoggingMobileEngageApi,
                     inbox = mockInbox,
                     inApp = mockInApp,
                     loggingInApp = mockLoggingInApp,
                     push = mockPush,
                     predict = mockPredict,
                     loggingPredict = mockLoggingPredict,
-                    config = mockConfig
+                    config = mockConfig,
+                    eventServiceApi = mockEventServiceApi,
+                    loggingEventServiceApi = mockLoggingEventServiceApi,
+                    deepLinkApi = mockDeepLinkApi,
+                    loggingDeepLinkApi = mockLoggingDeepLinkApi
             ))
             latch = CountDownLatch(1)
             resetFeatures()
@@ -278,7 +298,8 @@ class EmarsysTest {
     fun testSetup_whenMobileEngageApplicationCodeAndMerchantIdAreNull_mobileEngageAndPredict_shouldBeDisabled() {
         val config = createConfig().mobileEngageApplicationCode(null).predictMerchantId(null).build()
         setup(config)
-        waitForTask()
+
+        runBlockingOnCoreSdkThread()
 
         Assert.assertEquals(false, FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE))
         Assert.assertEquals(false, FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT))
@@ -286,10 +307,7 @@ class EmarsysTest {
 
     @Test
     fun testSetup_whenMobileEngageApplicationCodeIsNotNull_mobileEngageFeature_shouldBeEnabled() {
-
         setup(mobileEngageConfig)
-        waitForTask()
-
 
         Assert.assertTrue(FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE))
     }
@@ -297,7 +315,6 @@ class EmarsysTest {
     @Test
     fun testSetup_whenPredictMerchantIdIsNotNull_predictFeature_shouldBeEnabled() {
         setup(predictConfig)
-        waitForTask()
 
         Assert.assertTrue(FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT))
     }
@@ -307,7 +324,6 @@ class EmarsysTest {
         stop()
 
         setup(baseConfig)
-        waitForTask()
 
         val container = DependencyInjection.getContainer<DependencyContainer>()
         Assert.assertEquals(DefaultEmarsysDependencyContainer::class.java, container.javaClass)
@@ -319,14 +335,16 @@ class EmarsysTest {
         stop()
 
         setup(mobileEngageConfig)
-        waitForTask()
 
-        val requestManager: RequestManager? = getInstanceField(
-                getDependency<MobileEngageInternal>("defaultInstance"),
-                "requestManager")
-        val repository = getInstanceField<Any>(
-                requestManager!!,
-                "requestRepository")
+        var repository: Any? = null
+        runBlockingOnCoreSdkThread {
+            val requestManager: RequestManager? = getInstanceField(
+                    getDependency<MobileEngageInternal>("defaultInstance"),
+                    "requestManager")
+            repository = getInstanceField<Any>(
+                    requestManager!!,
+                    "requestRepository")
+        }
         Assert.assertEquals(RequestRepositoryProxy::class.java, repository?.javaClass)
     }
 
@@ -335,72 +353,62 @@ class EmarsysTest {
         stop()
 
         setup(mobileEngageConfig)
-        waitForTask()
 
-        val responseHandlersProcessor = getDependency<ResponseHandlersProcessor>()
+        runBlockingOnCoreSdkThread {
+            val responseHandlersProcessor = getDependency<ResponseHandlersProcessor>()
 
-        Assert.assertNotNull(responseHandlersProcessor)
-        Assert.assertEquals(8, responseHandlersProcessor.responseHandlers.size.toLong())
-        Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, VisitorIdResponseHandler::class.java).toLong())
-        Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, XPResponseHandler::class.java).toLong())
-        Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, InAppMessageResponseHandler::class.java).toLong())
-        Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, InAppCleanUpResponseHandler::class.java).toLong())
-        Assert.assertEquals(2, numberOfElementsIn(responseHandlersProcessor.responseHandlers, MobileEngageTokenResponseHandler::class.java).toLong())
-        Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, MobileEngageClientStateResponseHandler::class.java).toLong())
-        Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, ClientInfoResponseHandler::class.java).toLong())
+            Assert.assertNotNull(responseHandlersProcessor)
+            Assert.assertEquals(8, responseHandlersProcessor.responseHandlers.size.toLong())
+            Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, VisitorIdResponseHandler::class.java).toLong())
+            Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, XPResponseHandler::class.java).toLong())
+            Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, InAppMessageResponseHandler::class.java).toLong())
+            Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, InAppCleanUpResponseHandler::class.java).toLong())
+            Assert.assertEquals(2, numberOfElementsIn(responseHandlersProcessor.responseHandlers, MobileEngageTokenResponseHandler::class.java).toLong())
+            Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, MobileEngageClientStateResponseHandler::class.java).toLong())
+            Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, ClientInfoResponseHandler::class.java).toLong())
+        }
     }
 
     @Test
     fun testSetup_registersPredictTrigger_whenPredictIsEnabled() {
-        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
-            latch.countDown()
-        })
         setup(predictConfig)
-        latch.await()
-        waitForTask()
-        verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockPredictShardTrigger)
+
+        runBlockingOnCoreSdkThread {
+            verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockPredictShardTrigger)
+        }
     }
 
     @Test
     fun testSetup_doNotRegistersPredictTrigger_whenPredictIsDisabled() {
-        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
-            latch.countDown()
-        })
         setup(mobileEngageConfig)
-        latch.await()
-        waitForTask()
 
-        val argumentCaptor = ArgumentCaptor.forClass(Runnable::class.java)
-        verify(mockCoreSQLiteDatabase, times(1)).registerTrigger(ArgumentMatchers.any(String::class.java), ArgumentMatchers.any(TriggerType::class.java), ArgumentMatchers.any(TriggerEvent::class.java), argumentCaptor.capture())
-        Assert.assertEquals(mockLogShardTrigger, argumentCaptor.value)
-        verifyNoMoreInteractions(mockCoreSQLiteDatabase)
+        runBlockingOnCoreSdkThread {
+            val argumentCaptor = ArgumentCaptor.forClass(Runnable::class.java)
+            verify(mockCoreSQLiteDatabase, times(1)).registerTrigger(ArgumentMatchers.any(String::class.java), ArgumentMatchers.any(TriggerType::class.java), ArgumentMatchers.any(TriggerEvent::class.java), argumentCaptor.capture())
+            Assert.assertEquals(mockLogShardTrigger, argumentCaptor.value)
+            verifyNoMoreInteractions(mockCoreSQLiteDatabase)
+        }
     }
 
     @Test
     fun testSetup_registersLogTrigger() {
-        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
-            latch.countDown()
-        })
         setup(mobileEngageConfig)
-        latch.await()
-        waitForTask()
 
-        verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockLogShardTrigger)
+        runBlockingOnCoreSdkThread {
+            verify(mockCoreSQLiteDatabase).registerTrigger("shard", TriggerType.AFTER, TriggerEvent.INSERT, mockLogShardTrigger)
+        }
     }
 
     @Test
     fun testSetup_registers_activityLifecycleWatchdog() {
-        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
-            latch.countDown()
-        })
         setup(mobileEngageConfig)
-        latch.await()
-        waitForTask()
 
-        val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
-        verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
-        getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java) shouldNotBe null
-        getElementByType(captor.allValues, CurrentActivityWatchdog::class.java) shouldNotBe null
+        runBlockingOnCoreSdkThread {
+            val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
+            verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
+            getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java) shouldNotBe null
+            getElementByType(captor.allValues, CurrentActivityWatchdog::class.java) shouldNotBe null
+        }
     }
 
     @Test
@@ -409,11 +417,12 @@ class EmarsysTest {
         val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
 
         setup(mobileEngageConfig)
-        waitForTask()
 
-        verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
-        val actions = getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java)?.initializationActions?.toList()
-        Assert.assertEquals(1, numberOfElementsIn(actions!!, InAppStartAction::class.java).toLong())
+        runBlockingOnCoreSdkThread {
+            verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
+            val actions = getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java)?.initializationActions?.toList()
+            Assert.assertEquals(1, numberOfElementsIn(actions!!, InAppStartAction::class.java).toLong())
+        }
     }
 
     @Test
@@ -422,46 +431,39 @@ class EmarsysTest {
         val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
 
         setup(mobileEngageConfig)
-        waitForTask()
 
-        verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
-        val actions = getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java)?.activityCreatedActions?.toList()
-        Assert.assertEquals(1, numberOfElementsIn(actions!!, DeepLinkAction::class.java).toLong())
+        runBlockingOnCoreSdkThread {
+            verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
+            val actions = getElementByType(captor.allValues, ActivityLifecycleWatchdog::class.java)?.activityCreatedActions?.toList()
+            Assert.assertEquals(1, numberOfElementsIn(actions!!, DeepLinkAction::class.java).toLong())
+        }
     }
 
     @Test
     fun testSetup_registers_currentActivityWatchDog() {
-        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
-            latch.countDown()
-        })
         setup(mobileEngageConfig)
-        latch.await()
-        waitForTask()
 
-        verify(application).registerActivityLifecycleCallbacks(currentActivityWatchdog)
+        runBlockingOnCoreSdkThread {
+            verify(application).registerActivityLifecycleCallbacks(currentActivityWatchdog)
+        }
     }
 
     @Test
     fun testSetup_setsInAppEventHandler_whenProvidedInConfig() {
-        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
-            latch.countDown()
-        })
         setup(configWithInAppEventHandler)
-        latch.await()
-        waitForTask()
-        verify(mockInApp).setEventHandler(any())
+
+        runBlockingOnCoreSdkThread {
+            verify(mockInApp).setEventHandler(any())
+        }
     }
 
     @Test
     fun testSetup_doesNotSetInAppEventHandler_whenMissingFromConfig() {
-        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
-            latch.countDown()
-        })
         setup(mobileEngageConfig)
-        latch.await()
-        waitForTask()
 
-        verifyZeroInteractions(mockInApp)
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockInApp)
+        }
     }
 
     @Test
@@ -470,16 +472,11 @@ class EmarsysTest {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         whenever(mockContactTokenStorage.get()).thenReturn(null)
 
-        val latch = CountDownLatch(1)
-        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
-            latch.countDown()
-        })
-
         setup(mobileEngageConfig)
 
-        latch.await()
-        waitForTask()
-        verify(mockClientServiceInternal).trackDeviceInfo(null)
+        runBlockingOnCoreSdkThread {
+            verify(mockClientServiceInternal).trackDeviceInfo(null)
+        }
     }
 
     @Test
@@ -491,14 +488,7 @@ class EmarsysTest {
         whenever(mockClientStateStorage.get()).thenReturn("asdfsaf")
         whenever(mockDeviceInfoPayloadStorage.get()).thenReturn(expectedDeviceInfo)
 
-        val latch = CountDownLatch(1)
-        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
-            latch.countDown()
-        })
         setup(mobileEngageConfig)
-
-        latch.await()
-        waitForTask()
 
         verify(mockClientServiceInternal, never()).trackDeviceInfo(null)
     }
@@ -510,8 +500,6 @@ class EmarsysTest {
         whenever(mockContactTokenStorage.get()).thenReturn("asdf")
 
         setup(mobileEngageConfig)
-        waitForTask()
-
 
         verify(mockClientServiceInternal, never()).trackDeviceInfo(null)
     }
@@ -521,43 +509,33 @@ class EmarsysTest {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         whenever(mockContactTokenStorage.get()).thenReturn(null)
 
-        val latch = CountDownLatch(1)
-        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
-            latch.countDown()
-        })
         setup(mobileEngageConfig)
 
-        latch.await()
-
-
-        verify(mockMobileEngageInternal).setContact(null, null)
+        runBlockingOnCoreSdkThread {
+            verify(mockMobileEngageApi).setContact(null, null)
+        }
     }
 
     @Test
     fun testSetup_sendDeviceInfoAndAnonymousContact_inOrder() {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         whenever(mockContactTokenStorage.get()).thenReturn(null)
-        ReflectionTestUtils.setStaticField(Emarsys::class.java, "callback", {
-            latch.countDown()
-        })
-        setup(mobileEngageConfig)
-        latch.await()
-        waitForTask()
 
-        val inOrder = inOrder(mockMobileEngageInternal, mockClientServiceInternal)
-        inOrder.verify(mockClientServiceInternal).trackDeviceInfo(null)
-        inOrder.verify(mockMobileEngageInternal).setContact(null, null)
-        inOrder.verifyNoMoreInteractions()
+        setup(mobileEngageConfig)
+
+        runBlockingOnCoreSdkThread {
+            val inOrder = inOrder(mockMobileEngageApi, mockClientServiceInternal)
+            inOrder.verify(mockClientServiceInternal).trackDeviceInfo(null)
+            inOrder.verify(mockMobileEngageApi).setContact(null, null)
+            inOrder.verifyNoMoreInteractions()
+        }
     }
 
     @Test
     fun testSetup_doNotSendAnonymousContact_whenContactFieldValueIsPresent() {
-
         setup(mobileEngageConfig)
-        waitForTask()
 
-
-        verify(mockMobileEngageInternal, never()).setContact(null, null)
+        verify(mockMobileEngageApi, never()).setContact(null, null)
     }
 
     @Test
@@ -565,333 +543,369 @@ class EmarsysTest {
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
 
         setup(mobileEngageConfig)
-        waitForTask()
 
-
-        verify(mockMobileEngageInternal, never()).setContact(null, null)
+        verify(mockMobileEngageApi, never()).setContact(null, null)
     }
 
     @Test
     fun testSetContactWithCompletionListener_delegatesToPredictInternal_whenPredictEnabled() {
         setup(predictConfig)
-        waitForTask()
 
         setContact(CONTACT_ID, completionListener)
-        waitForTask()
+        runBlockingOnCoreSdkThread()
 
-        verifyZeroInteractions(mockMobileEngageInternal)
-        verify(mockPredictInternal).setContact(CONTACT_ID)
+        runBlockingOnCoreSdkThread {
+            verify(mockPredictInternal).setContact(CONTACT_ID)
+            verifyZeroInteractions(mockMobileEngageApi)
+        }
     }
 
     @Test
     fun testSetContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageEnabled() {
-
         setup(mobileEngageConfig)
-        waitForTask()
-
 
         setContact(CONTACT_ID, completionListener)
-        waitForTask()
 
-        verifyZeroInteractions(mockPredictInternal)
-        verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener)
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockPredictInternal)
+            verify(mockMobileEngageApi).setContact(CONTACT_ID, completionListener)
+        }
     }
 
     @Test
     fun testSetContactWithCompletionListener_doNotDelegatesToPredictInternal_whenPredictDisabled() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         setContact(CONTACT_ID, completionListener)
-        waitForTask()
 
-        verifyZeroInteractions(mockPredictInternal)
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockPredictInternal)
+        }
     }
 
     @Test
-    fun testSetContactWithCompletionListener_doNotDelegatesToMobileEngageInternal_whenMobileEngageDisabled() {
+    fun testSetContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageDisabled() {
         setup(predictConfig)
-        waitForTask()
 
         setContact(CONTACT_ID, completionListener)
-        waitForTask()
 
-        verifyZeroInteractions(mockMobileEngageInternal)
+        verifyZeroInteractions(mockMobileEngageApi)
     }
 
     @Test
     fun testSetContactWithCompletionListener_delegatesToInternals_whenBothFeaturesEnabled() {
         setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
-        waitForTask()
 
         setContact(CONTACT_ID, completionListener)
-        waitForTask()
 
-        verify(mockPredictInternal).setContact(CONTACT_ID)
-        verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener)
+        runBlockingOnCoreSdkThread {
+            verify(mockPredictInternal).setContact(CONTACT_ID)
+            verify(mockMobileEngageApi).setContact(CONTACT_ID, completionListener)
+        }
     }
 
     @Test
-    fun testSetContactWithCompletionListener_delegatesToMobileEngageOnly_whenBothFeaturesDisabled() {
+    fun testSetContactWithCompletionListener_delegatesToLoggingMobileEngageOnly_whenBothFeaturesDisabled() {
         setup(baseConfig)
-        waitForTask()
 
         setContact(CONTACT_ID, completionListener)
-        waitForTask()
 
-        verifyZeroInteractions(mockPredictInternal)
-        verify(mockMobileEngageInternal).setContact(CONTACT_ID, completionListener)
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockPredictInternal)
+            verify(mockLoggingMobileEngageApi).setContact(CONTACT_ID, completionListener)
+        }
     }
 
     @Test
-    fun testSetContact_delegatesToMobileEngageInternal_whenMobileEngageIsEnabled() {
+    fun testSetContact_delegatesToMobileEngageApi_whenMobileEngageIsEnabled() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         setContact(CONTACT_ID)
-        waitForTask()
-
-        verify(mockMobileEngageInternal).setContact(CONTACT_ID, null)
+        runBlockingOnCoreSdkThread {
+            verify(mockMobileEngageApi).setContact(CONTACT_ID, null)
+        }
     }
 
     @Test
     fun testSetContact_delegatesToInternal_whenPredictIsEnabled() {
         setup(predictConfig)
-        waitForTask()
 
         setContact(CONTACT_ID)
-        waitForTask()
+        runBlockingOnCoreSdkThread()
 
-        verify(mockPredictInternal).setContact(CONTACT_ID)
+        runBlockingOnCoreSdkThread {
+            verify(mockPredictInternal).setContact(CONTACT_ID)
+        }
     }
 
     @Test
-    fun testSetContact_doNotDelegatesToMobileEngageInternal_whenMobileEngageIsDisabled() {
+    fun testSetContact_doNotDelegatesToMobileEngageApi_whenMobileEngageIsDisabled() {
         setup(predictConfig)
-        waitForTask()
 
         setContact(CONTACT_ID)
-        verifyZeroInteractions(mockMobileEngageInternal)
+        verifyZeroInteractions(mockMobileEngageApi)
     }
 
     @Test
     fun testSetContact_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         setContact(CONTACT_ID)
-        waitForTask()
-
-        verifyZeroInteractions(mockPredictInternal)
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockPredictInternal)
+        }
     }
 
     @Test
     fun testSetContact_delegatesToInternals_whenBothFeaturesAreEnabled() {
         setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
-        waitForTask()
-
         setContact(CONTACT_ID)
-        waitForTask()
+        runBlockingOnCoreSdkThread()
 
-        verify(mockPredictInternal).setContact(CONTACT_ID)
-        verify(mockMobileEngageInternal).setContact(CONTACT_ID, null)
+        runBlockingOnCoreSdkThread {
+            verify(mockPredictInternal).setContact(CONTACT_ID)
+            verify(mockMobileEngageApi).setContact(CONTACT_ID, null)
+        }
     }
 
     @Test
-    fun testSetContact_delegatesToMobileEngageInternalOnly_whenBothFeaturesAreDisabled() {
+    fun testSetContact_delegatesToLoggingMobileEngageApiOnly_whenBothFeaturesAreDisabled() {
         setup(baseConfig)
-        waitForTask()
 
         setContact(CONTACT_ID)
-        waitForTask()
+        runBlockingOnCoreSdkThread()
 
-        verifyZeroInteractions(mockPredictInternal)
-        verify(mockMobileEngageInternal).setContact(CONTACT_ID, null)
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockPredictInternal)
+        }
+
+        verify(mockLoggingMobileEngageApi).setContact(CONTACT_ID, null)
     }
 
     @Test
     fun testClearContactWithCompletionListener_delegatesToPredictInternal_whenPredictIsEnabled() {
         setup(predictConfig)
-        waitForTask()
 
         clearContact(completionListener)
-        waitForTask()
+        runBlockingOnCoreSdkThread()
 
-        verifyZeroInteractions(mockMobileEngageInternal)
-        verify(mockPredictInternal).clearContact()
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockMobileEngageApi)
+            verify(mockPredictInternal).clearContact()
+        }
     }
 
     @Test
-    fun testClearContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageIsEnabled() {
+    fun testClearContactWithCompletionListener_delegatesToMobileApi_whenMobileEngageIsEnabled() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         clearContact(completionListener)
-        waitForTask()
 
-        verifyZeroInteractions(mockPredictInternal)
-        verify(mockMobileEngageInternal).clearContact(completionListener)
+        runBlockingOnCoreSdkThread {
+            verify(mockMobileEngageApi).clearContact(completionListener)
+            verifyZeroInteractions(mockPredictInternal)
+        }
     }
 
     @Test
     fun testClearContactWithCompletionListener_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         clearContact(completionListener)
-        waitForTask()
-
-        verifyZeroInteractions(mockPredictInternal)
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockPredictInternal)
+        }
     }
 
     @Test
-    fun testClearContactWithCompletionListener_doNotDelegatesToMobileEngageInternal_whenMobileEngageIsDisabled() {
+    fun testClearContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageIsDisabled() {
         setup(predictConfig)
-        waitForTask()
 
         clearContact(completionListener)
-        waitForTask()
 
-        verifyZeroInteractions(mockMobileEngageInternal)
+        verifyZeroInteractions(mockMobileEngageApi)
     }
 
     @Test
     fun testClearContactWithCompletionListener_delegatesToInternals_whenBothEnabled() {
         setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
-        waitForTask()
 
         clearContact(completionListener)
-        waitForTask()
 
-        verify(mockPredictInternal).clearContact()
-        verify(mockMobileEngageInternal).clearContact(completionListener)
+        runBlockingOnCoreSdkThread {
+            verify(mockPredictInternal).clearContact()
+        }
+
+        verify(mockMobileEngageApi).clearContact(completionListener)
     }
 
     @Test
-    fun testClearContactWithCompletionListener_delegatesToMobileEngageInternalOnly_whenBothDisabled() {
+    fun testClearContactWithCompletionListener_delegatesToLoggingMobileEngageApiOnly_whenBothDisabled() {
         setup(baseConfig)
-        waitForTask()
 
         clearContact(completionListener)
-        waitForTask()
-
-        verifyZeroInteractions(mockPredictInternal)
-        verify(mockMobileEngageInternal).clearContact(completionListener)
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockPredictInternal)
+        }
+        verify(mockLoggingMobileEngageApi).clearContact(completionListener)
     }
 
     @Test
-    fun testClearContact_delegatesToMobileEngageInternal_whenMobileEngageIsEnabled() {
+    fun testClearContact_delegatesToMobileEngageApi_whenMobileEngageIsEnabled() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         clearContact()
-        waitForTask()
 
-        verifyZeroInteractions(mockPredictInternal)
-        verify(mockMobileEngageInternal).clearContact(null)
+        runBlockingOnCoreSdkThread {
+            verify(mockMobileEngageApi).clearContact(null)
+            verifyZeroInteractions(mockPredictInternal)
+        }
     }
 
     @Test
     fun testClearContact_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         clearContact()
-        waitForTask()
 
-        verifyZeroInteractions(mockPredictInternal)
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockPredictInternal)
+        }
     }
 
     @Test
-    fun testClearContact_doNotDelegatesToMobileEngageInternal_whenMobileEngageIsDisabled() {
+    fun testClearContact_doNotDelegatesToMobileEngageApi_whenMobileEngageIsDisabled() {
         setup(predictConfig)
-        waitForTask()
 
         clearContact()
-        waitForTask()
 
-        verifyZeroInteractions(mockMobileEngageInternal)
+        verifyZeroInteractions(mockMobileEngageApi)
     }
 
     @Test
     fun testClearContact_delegatesToPredictInternal_whenPredictIsEnabled() {
         setup(predictConfig)
-        waitForTask()
 
         clearContact()
-        waitForTask()
+        runBlockingOnCoreSdkThread()
 
-        verifyZeroInteractions(mockMobileEngageInternal)
-        verify(mockPredictInternal).clearContact()
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockMobileEngageApi)
+            verify(mockPredictInternal).clearContact()
+        }
     }
 
     @Test
     fun testClearContact_delegatesToInternals_whenBothFeaturesAreEnabled() {
         setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
-        waitForTask()
 
         clearContact()
-        waitForTask()
+        runBlockingOnCoreSdkThread()
 
-        verify(mockPredictInternal).clearContact()
-        verify(mockMobileEngageInternal).clearContact(null)
+        runBlockingOnCoreSdkThread {
+            verify(mockPredictInternal).clearContact()
+        }
+
+        verify(mockMobileEngageApi).clearContact(null)
     }
 
     @Test
-    fun testClearContact_shouldCallMobileEngageOnly_whenBothFeaturesAreDisabled() {
+    fun testClearContact_shouldCallLoggingMobileEngageApiOnly_whenBothFeaturesAreDisabled() {
         setup(baseConfig)
-        waitForTask()
 
         clearContact()
-        waitForTask()
+        runBlockingOnCoreSdkThread()
 
-        verifyZeroInteractions(mockPredictInternal)
-        verify(mockMobileEngageInternal).clearContact(null)
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockPredictInternal)
+        }
+
+        verify(mockLoggingMobileEngageApi).clearContact(null)
     }
 
     @Test
-    fun testTrackDeepLink_delegatesTo_deepLinkInternal() {
+    fun testTrackDeepLink_delegatesTo_deepLinkApi() {
+        setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).build())
         val mockActivity: Activity = mock()
         val mockIntent: Intent = mock()
         trackDeepLink(mockActivity, mockIntent)
-        waitForTask()
-        verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, mockIntent, null)
+
+        runBlockingOnCoreSdkThread {
+            verify(mockDeepLinkApi).trackDeepLinkOpen(mockActivity, mockIntent, null)
+        }
     }
 
     @Test
-    fun testTrackDeepLinkWithCompletionListener_delegatesTo_deepLinkInternal() {
+    fun testTrackDeepLink_delegatesTo_loggingDeepLinkApi_whenMobileEngageIsNotEnabled() {
+        val mockActivity: Activity = mock()
+        val mockIntent: Intent = mock()
+        trackDeepLink(mockActivity, mockIntent)
+
+        runBlockingOnCoreSdkThread {
+            verify(mockLoggingDeepLinkApi).trackDeepLinkOpen(mockActivity, mockIntent, null)
+        }
+    }
+
+    @Test
+    fun testTrackDeepLinkWithCompletionListener_delegatesTo_deepLinkApi() {
+        setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).build())
         val mockActivity: Activity = mock()
         val mockIntent: Intent = mock()
         trackDeepLink(mockActivity, mockIntent, completionListener)
-        waitForTask()
 
-        verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, mockIntent, completionListener)
+        runBlockingOnCoreSdkThread {
+            verify(mockDeepLinkApi).trackDeepLinkOpen(mockActivity, mockIntent, completionListener)
+        }
     }
 
     @Test
-    fun testTrackCustomEvent_delegatesTo_mobileEngageInternal() {
+    fun testTrackCustomEvent_delegatesTo_eventServiceApi() {
+        setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).build())
         val eventName = "eventName"
         val eventAttributes = HashMap<String, String>()
         trackCustomEvent(eventName, eventAttributes)
-        waitForTask()
+        runBlockingOnCoreSdkThread {
+            verify(mockEventServiceApi).trackCustomEventAsync(eventName, eventAttributes, null)
+        }
 
-        verify(mockEventServiceInternal).trackCustomEventAsync(eventName, eventAttributes, null)
     }
 
     @Test
-    fun testTrackCustomEventWithCompletionListener_delegatesTo_mobileEngageInternal() {
+    fun testTrackCustomEvent_delegatesTo_loggingEventServiceApi_whenMobileEngageIsNotEnabled() {
+        val eventName = "eventName"
+        val eventAttributes = HashMap<String, String>()
+        trackCustomEvent(eventName, eventAttributes)
+
+        runBlockingOnCoreSdkThread {
+            verify(mockLoggingEventServiceApi).trackCustomEventAsync(eventName, eventAttributes, null)
+        }
+    }
+
+    @Test
+    fun testTrackCustomEventWithCompletionListener_delegatesTo_eventServiceApi() {
+        setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).build())
         val eventName = "eventName"
         val eventAttributes = HashMap<String, String>()
         trackCustomEvent(eventName, eventAttributes, completionListener)
-        waitForTask()
 
-        verify(mockEventServiceInternal).trackCustomEventAsync(eventName, eventAttributes, completionListener)
+        runBlockingOnCoreSdkThread {
+            verify(mockEventServiceApi).trackCustomEventAsync(eventName, eventAttributes, completionListener)
+        }
+    }
+
+    @Test
+    fun testTrackCustomEventWithCompletionListener_delegatesTo_loggingEventServiceApi() {
+        val eventName = "eventName"
+        val eventAttributes = HashMap<String, String>()
+        trackCustomEvent(eventName, eventAttributes, completionListener)
+        runBlockingOnCoreSdkThread()
+
+        verify(mockLoggingEventServiceApi).trackCustomEventAsync(eventName, eventAttributes, completionListener)
     }
 
     @Test
     fun testConfig_changeApplicationCode_delegatesTo_configInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID)
         verify(mockConfig).changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID, null)
@@ -900,7 +914,6 @@ class EmarsysTest {
     @Test
     fun testConfig_changeApplicationCode_withCompletionListener_delegatesTo_configInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
         verify(mockConfig).changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
@@ -909,7 +922,6 @@ class EmarsysTest {
     @Test
     fun testConfig_getApplicationCode_delegatesTo_configInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         whenever(mockConfig.applicationCode).thenReturn(APPLICATION_CODE)
         val applicationCode = applicationCode
@@ -920,7 +932,6 @@ class EmarsysTest {
     @Test
     fun testConfig_changeMerchantId_delegatesTo_configInstance() {
         setup(predictConfig)
-        waitForTask()
 
         changeMerchantId(MERCHANT_ID)
 
@@ -930,7 +941,6 @@ class EmarsysTest {
     @Test
     fun testConfig_getContactFieldId_delegatesTo_configInstance() {
         setup(baseConfig)
-        waitForTask()
 
         whenever(mockConfig.contactFieldId).thenReturn(CONTACT_FIELD_ID)
         val contactFieldId = contactFieldId
@@ -941,7 +951,6 @@ class EmarsysTest {
     @Test
     fun testPush_trackMessageOpen_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         val mockIntent: Intent = mock()
         trackMessageOpen(mockIntent)
@@ -951,7 +960,6 @@ class EmarsysTest {
     @Test
     fun testPush_trackMessageOpen_withCompletionListener_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         val mockIntent: Intent = mock()
         val mockCompletionListener: CompletionListener = mock()
@@ -962,7 +970,6 @@ class EmarsysTest {
     @Test
     fun testPush_setPushToken_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         setPushToken("pushToken")
         verify(mockPush).setPushToken("pushToken")
@@ -971,7 +978,6 @@ class EmarsysTest {
     @Test
     fun testPush_setPushToken_withCompletionListener_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         val mockCompletionListener: CompletionListener = mock()
         setPushToken("pushToken", mockCompletionListener)
@@ -981,7 +987,6 @@ class EmarsysTest {
     @Test
     fun testPush_clearPushToken_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         clearPushToken()
         verify(mockPush).clearPushToken()
@@ -990,7 +995,6 @@ class EmarsysTest {
     @Test
     fun testPush_clearPushToken_withCompletionListener_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         val mockCompletionListener: CompletionListener = mock()
         clearPushToken(mockCompletionListener)
@@ -1000,7 +1004,6 @@ class EmarsysTest {
     @Test
     fun testPush_setNotificationEventHandler_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         val mockEventHandler: EventHandler = mock()
         setNotificationEventHandler(mockEventHandler)
@@ -1010,7 +1013,6 @@ class EmarsysTest {
     @Test
     fun testPush_setSilentMessageEventHandler_delegatesTo_pushInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         val mockEventHandler: EventHandler = mock()
         setSilentMesssageEventHandler(mockEventHandler)
@@ -1020,7 +1022,6 @@ class EmarsysTest {
     @Test
     fun testPredict_trackCart_delegatesTo_predictInstance() {
         setup(predictConfig)
-        waitForTask()
 
         val cartItems: List<CartItem> = ArrayList()
         trackCart(cartItems)
@@ -1030,7 +1031,6 @@ class EmarsysTest {
     @Test
     fun testPredict_trackPurchase_delegatesTo_predictInstance() {
         setup(predictConfig)
-        waitForTask()
 
         val cartItems: List<CartItem> = ArrayList()
         trackPurchase("orderId", cartItems)
@@ -1040,7 +1040,6 @@ class EmarsysTest {
     @Test
     fun testPredict_trackItemView_delegatesTo_predictInstance() {
         setup(predictConfig)
-        waitForTask()
 
         trackItemView("itemId")
         verify(mockPredict).trackItemView("itemId")
@@ -1049,7 +1048,6 @@ class EmarsysTest {
     @Test
     fun testPredict_trackCategoryView_delegatesTo_predictInstance() {
         setup(predictConfig)
-        waitForTask()
 
         trackCategoryView("categoryPath")
         verify(mockPredict).trackCategoryView("categoryPath")
@@ -1058,7 +1056,6 @@ class EmarsysTest {
     @Test
     fun testPredict_trackSearchTerm_delegatesTo_predictInstance() {
         setup(predictConfig)
-        waitForTask()
 
         trackSearchTerm("searchTerm")
         verify(mockPredict).trackSearchTerm("searchTerm")
@@ -1067,7 +1064,6 @@ class EmarsysTest {
     @Test
     fun testPredict_trackTag_delegatesTo_predictInstance() {
         setup(predictConfig)
-        waitForTask()
 
         trackTag("testTag", HashMap())
         verify(mockPredict).trackTag("testTag", HashMap())
@@ -1076,7 +1072,6 @@ class EmarsysTest {
     @Test
     fun testPredict_recommendProducts_delegatesTo_predictInstance() {
         setup(predictConfig)
-        waitForTask()
 
         recommendProducts(mockLogic, mockResultListener)
         verify(mockPredict).recommendProducts(mockLogic, mockResultListener)
@@ -1085,7 +1080,6 @@ class EmarsysTest {
     @Test
     fun testPredict_recommendProductsWithLimit_delegatesTo_predictInstance() {
         setup(predictConfig)
-        waitForTask()
 
         recommendProducts(mockLogic, 5, mockResultListener)
         verify(mockPredict).recommendProducts(mockLogic, 5, mockResultListener)
@@ -1094,7 +1088,6 @@ class EmarsysTest {
     @Test
     fun testPredict_recommendProductsWithFilters_delegatesTo_predictInstance() {
         setup(predictConfig)
-        waitForTask()
 
         recommendProducts(mockLogic, listOf(mockRecommendationFilter), mockResultListener)
         verify(mockPredict).recommendProducts(mockLogic, listOf(mockRecommendationFilter), mockResultListener)
@@ -1103,7 +1096,6 @@ class EmarsysTest {
     @Test
     fun testPredict_recommendProductsWithLimitAndFilters_delegatesTo_predictInstance() {
         setup(predictConfig)
-        waitForTask()
 
         recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, mockResultListener)
         verify(mockPredict).recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, mockResultListener)
@@ -1112,7 +1104,6 @@ class EmarsysTest {
     @Test
     fun testPredict_trackRecommendationClick_delegatesTo_predictInstance() {
         setup(predictConfig)
-        waitForTask()
 
         val product = Product.Builder("itemId", "title", "https://emarsys.com", "RELATED", "AAAA").build()
         trackRecommendationClick(product)
@@ -1122,7 +1113,6 @@ class EmarsysTest {
     @Test
     fun testInApp_pause_delegatesTo_inAppInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         pause()
         verify(mockInApp).pause()
@@ -1131,7 +1121,6 @@ class EmarsysTest {
     @Test
     fun testInApp_resume_delegatesTo_inAppInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         resume()
         verify(mockInApp).resume()
@@ -1140,7 +1129,7 @@ class EmarsysTest {
     @Test
     fun testInApp_isPaused_delegatesTo_inAppInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
+
         Emarsys.InApp.isPaused
         verify(mockInApp).isPaused
     }
@@ -1148,7 +1137,6 @@ class EmarsysTest {
     @Test
     fun testInApp_setEventHandler_delegatesTo_inAppInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         val mockEventHandler: EventHandler = mock()
         setEventHandler(mockEventHandler)
@@ -1158,7 +1146,6 @@ class EmarsysTest {
     @Test
     fun testInbox_fetchNotification_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         val mockResultListener: ResultListener<Try<NotificationInboxStatus>> = mock()
         fetchNotifications(mockResultListener)
@@ -1168,7 +1155,6 @@ class EmarsysTest {
     @Test
     fun testInbox_trackNotificationOpen_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         val mockNotification: Notification = mock()
         trackNotificationOpen(mockNotification)
@@ -1178,7 +1164,6 @@ class EmarsysTest {
     @Test
     fun testInbox_trackNotificationOpen_withCompletionListener_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         val mockNotification: Notification = mock()
         val mockCompletionListener: CompletionListener = mock()
@@ -1189,7 +1174,6 @@ class EmarsysTest {
     @Test
     fun testInbox_resetBadgeCount_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         resetBadgeCount()
         verify(mockInbox).resetBadgeCount()
@@ -1198,7 +1182,6 @@ class EmarsysTest {
     @Test
     fun testInbox_resetBadgeCount_withCompletionListener_delegatesTo_inboxInstance() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         val mockCompletionListener: CompletionListener = mock()
         resetBadgeCount(mockCompletionListener)
@@ -1208,7 +1191,6 @@ class EmarsysTest {
     @Test
     fun testMobileEngageApiInstances_shouldAlwaysGetInstanceFromDI() {
         setup(predictConfig)
-        waitForTask()
 
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
         Emarsys.InApp.isPaused
@@ -1219,7 +1201,6 @@ class EmarsysTest {
     @Test
     fun testPredictApiInstances_shouldAlwaysGetInstanceFromDI() {
         setup(mobileEngageConfig)
-        waitForTask()
 
         FeatureRegistry.enableFeature(InnerFeature.PREDICT)
         trackItemView("testItemId")
@@ -1234,12 +1215,22 @@ class EmarsysTest {
                 .enableExperimentalFeatures(*experimentalFeatures)
     }
 
-    private fun waitForTask() {
+    private fun runBlockingOnCoreSdkThread(callback: (() -> Unit)? = null) {
         val latch = CountDownLatch(1)
-        getDependency<Handler>("coreSdkHandler").post {
+        var exception: Exception? = null
+        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
+            try {
+                callback?.invoke()
+            } catch (e: Exception) {
+                exception = e
+            }
             latch.countDown()
         }
         latch.await()
+        if (exception != null) {
+            throw exception as Exception
+        }
+
     }
 
     private fun stop() {
