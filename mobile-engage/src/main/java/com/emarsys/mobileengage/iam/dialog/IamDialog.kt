@@ -13,6 +13,7 @@ import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
+import com.emarsys.core.Mockable
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.log.Logger.Companion.info
@@ -24,8 +25,9 @@ import com.emarsys.mobileengage.R
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
 
+@Mockable
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-open class IamDialog : DialogFragment() {
+class IamDialog : DialogFragment() {
 
     companion object {
         const val TAG = "MOBILE_ENGAGE_IAM_DIALOG_TAG"
@@ -58,7 +60,7 @@ open class IamDialog : DialogFragment() {
     private var dismissed = false
     val timestampProvider: TimestampProvider by lazy { getDependency<TimestampProvider>() }
 
-    fun setActions(actions: List<OnDialogShownAction>) {
+    fun setActions(actions: List<OnDialogShownAction>?) {
         this.actions = actions
     }
 
