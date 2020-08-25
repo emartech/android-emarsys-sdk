@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.service
 import android.R
 import android.app.Notification
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
@@ -33,10 +34,7 @@ import com.emarsys.testUtil.RetryUtils.retryRule
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.copyInputStreamToFile
 import com.google.firebase.messaging.RemoteMessage
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONArray
@@ -753,6 +751,65 @@ class MessagingServiceUtilsTest {
         MessagingServiceUtils.createSilentPushCommands(mockActionCommandFactory, message) shouldBe listOf(
                 expectedCommand1,
                 expectedCommand2)
+    }
+
+    @Test
+    fun testStyleNotification_whenStyleIsMessage() {
+        assertWithStyle<NotificationCompat.MessagingStyle>("MESSAGE")
+    }
+
+    @Test
+    fun testStyleNotification_whenStyleIsBigText() {
+        assertWithStyle<NotificationCompat.BigTextStyle>("BIG_TEXT")
+    }
+
+    @Test
+    fun testStyleNotification_whenStyleIsThumbnail() {
+        val mockBuilder: NotificationCompat.Builder = mock(){
+            on { setLargeIcon(any()) } doReturn it
+            on { setContentTitle(any()) } doReturn it
+        }
+        val title = "testTitle"
+        val body = "testBody"
+        val image = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
+        val icon = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
+        MessagingServiceUtils.styleNotification(mockBuilder, title, body, "THUMBNAIL", image, icon)
+
+        verify(mockBuilder, times(0)).setStyle(any())
+    }
+
+    @Test
+    fun testStyleNotification_whenStyleIsBigPicture() {
+        assertWithStyle<NotificationCompat.BigPictureStyle>("BIG_PICTURE")
+    }
+
+    @Test
+    fun testStyleNotification_whenStyleIsInvalid_imageIsSet_shouldBeBigPictureStyle() {
+        assertWithStyle<NotificationCompat.BigPictureStyle>("INVALID_STYLE")
+    }
+
+    @Test
+    fun testStyleNotification_whenStyleIsInvalid_imageIsNotSet_shouldBeBigTextStyle() {
+        val mockBuilder: NotificationCompat.Builder = mock()
+
+        val title = "testTitle"
+        val body = "testBody"
+        MessagingServiceUtils.styleNotification(mockBuilder, title, body, "INVALID_STYLE", null, null)
+
+        verify(mockBuilder).setStyle(any<NotificationCompat.BigTextStyle>())
+    }
+
+    private inline fun <reified T : NotificationCompat.Style> assertWithStyle(style: String) {
+        val mockBuilder: NotificationCompat.Builder = mock(){
+            on { setLargeIcon(any()) } doReturn it
+        }
+        val title = "testTitle"
+        val body = "testBody"
+        val image = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
+        val icon = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
+        MessagingServiceUtils.styleNotification(mockBuilder, title, body, style, image, icon)
+
+        verify(mockBuilder).setStyle(any<T>())
     }
 
     private fun createRemoteMessage(): RemoteMessage {

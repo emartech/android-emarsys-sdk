@@ -10,7 +10,9 @@ import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.app.Person
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.IconCompat
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
@@ -115,7 +117,9 @@ object MessagingServiceUtils {
         val smallIconResourceId = metaDataReader.getInt(context, METADATA_SMALL_NOTIFICATION_ICON_KEY, DEFAULT_SMALL_NOTIFICATION_ICON)
         val colorResourceId = metaDataReader.getInt(context, METADATA_NOTIFICATION_COLOR)
         val image = loadOptimizedBitmap(fileDownloader, remoteMessageData["image_url"], deviceInfo)
+        val iconImage = loadOptimizedBitmap(fileDownloader, remoteMessageData["icon_url"], deviceInfo)
         var title = getTitle(remoteMessageData, context)
+        val style = JSONObject(remoteMessageData["ems"] ?: "{}").optString("style")
         var body = remoteMessageData["body"]
         var channelId = remoteMessageData["channel_id"]
         if (AndroidVersionUtils.isOreoOrAbove() && deviceInfo.isDebugMode && !isValidChannel(deviceInfo.notificationSettings, channelId)) {
@@ -139,7 +143,7 @@ object MessagingServiceUtils {
         if (colorResourceId != 0) {
             builder.color = ContextCompat.getColor(context, colorResourceId)
         }
-        styleNotification(builder, title, body, image)
+        styleNotification(builder, title, body, style, image, iconImage)
         return builder.build()
     }
 
@@ -151,18 +155,57 @@ object MessagingServiceUtils {
         return notificationChannel.id
     }
 
-    private fun styleNotification(builder: NotificationCompat.Builder, title: String?, body: String?, bitmap: Bitmap?) {
-        if (bitmap != null) {
-            builder.setLargeIcon(bitmap)
-                    .setStyle(NotificationCompat.BigPictureStyle()
+    fun styleNotification(builder: NotificationCompat.Builder, title: String?, body: String?, style: String?, bitmap: Bitmap?, icon : Bitmap?) {
+        var internalStyle = style
+        if (internalStyle != null) {
+            val styleToApply = when (internalStyle) {
+                "MESSAGE" -> {
+                    val user = Person.Builder()
+                            .setName("title")
+                            .setIcon(IconCompat.createWithAdaptiveBitmap(bitmap)).build()
+                    NotificationCompat.MessagingStyle(user)
+                            .addMessage(body, System.currentTimeMillis(), user)
+                            .setGroupConversation(false)
+                }
+                "THUMBNAIL" -> {
+                    builder.setLargeIcon(bitmap)
+                            .setContentTitle(title)
+                            .setContentText(body)
+                    null
+                }
+                "BIG_PICTURE" -> {
+                    builder.setLargeIcon(icon)
+                    NotificationCompat.BigPictureStyle()
                             .bigPicture(bitmap)
-                            .bigLargeIcon(null)
                             .setBigContentTitle(title)
-                            .setSummaryText(body))
-        } else {
-            builder.setStyle(NotificationCompat.BigTextStyle()
-                    .bigText(body)
-                    .setBigContentTitle(title))
+                            .setSummaryText(body)
+                }
+                "BIG_TEXT" -> {
+                    NotificationCompat.BigTextStyle()
+                            .bigText(body)
+                            .setBigContentTitle(title)
+                }
+                else -> {
+                    internalStyle = null
+                    null
+                }
+            }
+            if (styleToApply != null)
+                builder.setStyle(styleToApply)
+        }
+        if (internalStyle == null){
+            if (bitmap != null) {
+                builder.setLargeIcon(bitmap)
+                        .setStyle(NotificationCompat.BigPictureStyle()
+                                .bigPicture(bitmap)
+                                .bigLargeIcon(null)
+                                .setBigContentTitle(title)
+                                .setSummaryText(body))
+            } else {
+                builder.setStyle(NotificationCompat.BigTextStyle()
+                        .bigText(body)
+                        .setBigContentTitle(title))
+            }
         }
     }
 
