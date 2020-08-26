@@ -17,9 +17,10 @@ import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.mobileengage.iam.InAppInternal
-import com.emarsys.mobileengage.iam.InAppPresenter
+import com.emarsys.mobileengage.iam.OverlayInAppPresenter
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
+import com.emarsys.mobileengage.iam.webview.WebViewProvider
 import com.emarsys.mobileengage.inbox.InboxInternal
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.mobileengage.inbox.model.NotificationCache
@@ -69,7 +70,7 @@ interface MobileEngageDependencyContainer : DependencyContainer {
 
     fun getRequestContext(): MobileEngageRequestContext
 
-    fun getInAppPresenter(): InAppPresenter
+    fun getOverlayInAppPresenter(): OverlayInAppPresenter
 
     fun getDeviceInfoPayloadStorage(): Storage<String?>
 
@@ -140,4 +141,6 @@ interface MobileEngageDependencyContainer : DependencyContainer {
     fun getDisplayedIamRepository(): Repository<DisplayedIam, SqlSpecification>
 
     fun getContactTokenResponseHandler(): MobileEngageTokenResponseHandler
+
+    fun getWebViewProvider(): WebViewProvider
 }

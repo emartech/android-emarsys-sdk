@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.fake
 
 import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -16,6 +17,7 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.shard.ShardModel
@@ -36,9 +38,10 @@ import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.mobileengage.iam.InAppInternal
-import com.emarsys.mobileengage.iam.InAppPresenter
+import com.emarsys.mobileengage.iam.OverlayInAppPresenter
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
+import com.emarsys.mobileengage.iam.webview.WebViewProvider
 import com.emarsys.mobileengage.inbox.InboxInternal
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.mobileengage.inbox.model.NotificationCache
@@ -47,12 +50,14 @@ import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.nhaarman.mockitokotlin2.mock
 
 class FakeMobileEngageDependencyContainer(
         coreSdkHandler: Handler = CoreSdkHandlerProvider().provideHandler(),
+        uiHandler: Handler = Handler(Looper.getMainLooper()),
         activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(),
         currentActivityWatchdog: CurrentActivityWatchdog = mock(),
         coreSQLiteDatabase: CoreSQLiteDatabase = mock(),
@@ -80,7 +85,7 @@ class FakeMobileEngageDependencyContainer(
         refreshTokenInternal: RefreshTokenInternal = mock(),
         completionHandler: DefaultCoreCompletionHandler = mock(),
         requestContext: MobileEngageRequestContext = mock(),
-        inAppPresenter: InAppPresenter = mock(),
+        overlayInAppPresenter: OverlayInAppPresenter = mock(),
         logger: Logger = mock(),
         deviceInfoPayloadStorage: StringStorage = mock(),
         contactFieldValueStorage: StringStorage = mock(),
@@ -118,13 +123,17 @@ class FakeMobileEngageDependencyContainer(
         displayedIamRepository: Repository<DisplayedIam, SqlSpecification> = mock(),
         keyValueStore: KeyValueStore = mock(),
         contactTokenResponseHandler: MobileEngageTokenResponseHandler = mock(),
+        requestManager: RequestManager = mock(),
+        requestModelFactory: MobileEngageRequestModelFactory = mock(),
         notificationInformationListenerProvider: NotificationInformationListenerProvider = mock(),
-        silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider = mock()
+        silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider = mock(),
+        webViewProvider: WebViewProvider = mock()
 ) : MobileEngageDependencyContainer {
     override val dependencies: MutableMap<String, Any?> = mutableMapOf()
 
     init {
         addDependency(dependencies, coreSdkHandler, "coreSdkHandler")
+        addDependency(dependencies, uiHandler, "uiHandler")
         addDependency(dependencies, activityLifecycleWatchdog)
         addDependency(dependencies, currentActivityWatchdog)
         addDependency(dependencies, coreSQLiteDatabase)
@@ -158,7 +167,7 @@ class FakeMobileEngageDependencyContainer(
         addDependency(dependencies, loggingClientServiceInternal, "loggingInstance")
         addDependency(dependencies, refreshTokenInternal)
         addDependency(dependencies, requestContext)
-        addDependency(dependencies, inAppPresenter)
+        addDependency(dependencies, overlayInAppPresenter)
         addDependency(dependencies, deviceInfoPayloadStorage, MobileEngageStorageKey.DEVICE_INFO_HASH.key)
         addDependency(dependencies, contactFieldValueStorage, MobileEngageStorageKey.CONTACT_FIELD_VALUE.key)
         addDependency(dependencies, contactTokenStorage, MobileEngageStorageKey.CONTACT_TOKEN.key)
@@ -190,11 +199,16 @@ class FakeMobileEngageDependencyContainer(
         addDependency(dependencies, displayedIamRepository, "displayedIamRepository")
         addDependency(dependencies, keyValueStore)
         addDependency(dependencies, contactTokenResponseHandler, "contactTokenResponseHandler")
+        addDependency(dependencies, requestManager)
+        addDependency(dependencies, requestModelFactory)
         addDependency(dependencies, notificationInformationListenerProvider, "notificationInformationListenerProvider")
         addDependency(dependencies, silentNotificationInformationListenerProvider, "silentNotificationInformationListenerProvider")
+        addDependency(dependencies, webViewProvider)
     }
 
     override fun getCoreSdkHandler(): Handler = getDependency(dependencies, "coreSdkHandler")
+
+    override fun getUiHandler(): Handler = getDependency(dependencies, "uiHandler")
 
     override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog = getDependency(dependencies)
 
@@ -256,7 +270,7 @@ class FakeMobileEngageDependencyContainer(
 
     override fun getRequestContext(): MobileEngageRequestContext = getDependency(dependencies)
 
-    override fun getInAppPresenter(): InAppPresenter = getDependency(dependencies)
+    override fun getOverlayInAppPresenter(): OverlayInAppPresenter = getDependency(dependencies)
 
     override fun getDeviceInfoPayloadStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.DEVICE_INFO_HASH.key)
 
@@ -329,4 +343,6 @@ class FakeMobileEngageDependencyContainer(
     override fun getKeyValueStore(): KeyValueStore = getDependency(dependencies)
 
     override fun getContactTokenResponseHandler(): MobileEngageTokenResponseHandler = getDependency(dependencies, "contactTokenResponseHandler")
+
+    override fun getWebViewProvider(): WebViewProvider = getDependency(dependencies)
 }

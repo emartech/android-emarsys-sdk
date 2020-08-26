@@ -22,6 +22,7 @@ import com.emarsys.core.util.log.Logger
 import com.nhaarman.mockitokotlin2.mock
 
 class FakeCoreDependencyContainer(coreSdkHandler: Handler = mock(),
+                                  uiHandler: Handler = mock(),
                                   activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(),
                                   currentActivityWatchdog: CurrentActivityWatchdog = mock(),
                                   coreSQLiteDatabase: CoreSQLiteDatabase = mock(),
@@ -42,6 +43,7 @@ class FakeCoreDependencyContainer(coreSdkHandler: Handler = mock(),
 
     init {
         addDependency(dependencies, coreSdkHandler, "coreSdkHandler")
+        addDependency(dependencies, uiHandler, "uiHandler")
         addDependency(dependencies, activityLifecycleWatchdog)
         addDependency(dependencies, currentActivityWatchdog)
         addDependency(dependencies, coreSQLiteDatabase)
@@ -61,6 +63,8 @@ class FakeCoreDependencyContainer(coreSdkHandler: Handler = mock(),
     }
 
     override fun getCoreSdkHandler(): Handler = getDependency(dependencies, "coreSdkHandler")
+
+    override fun getUiHandler(): Handler = getDependency(dependencies, "uiHandler")
 
     override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog = getDependency(dependencies)
 

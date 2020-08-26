@@ -24,16 +24,16 @@ class PushToInAppActionTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_campaignId_mustNotBeNull() {
-        PushToInAppAction(mock(InAppPresenter::class.java), null, "", "","", mockTimestampProvider)
+        PushToInAppAction(mock(OverlayInAppPresenter::class.java), null, "", "","", mockTimestampProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_html_mustNotBeNull() {
-        PushToInAppAction(mock(InAppPresenter::class.java), "", null, "","", mockTimestampProvider)
+        PushToInAppAction(mock(OverlayInAppPresenter::class.java), "", null, "","", mockTimestampProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_timestampProvider_mustNotBeNull() {
-        PushToInAppAction(mock(InAppPresenter::class.java), "", "", "","", null)
+        PushToInAppAction(mock(OverlayInAppPresenter::class.java), "", "", "","", null)
     }
 }

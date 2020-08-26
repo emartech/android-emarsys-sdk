@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
+import androidx.test.platform.app.InstrumentationRegistry
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
@@ -26,11 +27,13 @@ import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.RetryRule
 import io.kotlintest.shouldNotBe
+import org.json.JSONObject
 import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import java.util.concurrent.CountDownLatch
+import com.emarsys.testUtil.InstrumentationRegistry as InstrumentationRegistry1
 
 class InlineInAppIntegrationTest {
     private companion object {
@@ -39,12 +42,13 @@ class InlineInAppIntegrationTest {
     }
 
     private val application: Application
-        get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
+        get() = InstrumentationRegistry1.getTargetContext().applicationContext as Application
 
     private lateinit var baseConfig: EmarsysConfig
     private lateinit var sharedPreferences: SharedPreferences
     private var completionHandlerLatch: CountDownLatch? = null
     private lateinit var completionListenerLatch: CountDownLatch
+    private lateinit var context: Context
 
     private var errorCause: Throwable? = null
 
@@ -108,6 +112,7 @@ class InlineInAppIntegrationTest {
 
         setupLatch.await()
 
+        context = InstrumentationRegistry.getInstrumentation().targetContext
         errorCause = null
 
         ConnectionTestUtils.checkConnection(application)
@@ -183,7 +188,7 @@ class InlineInAppIntegrationTest {
         val latch = CountDownLatch(1)
         val inlineInAppView = InlineInAppView("main-screen-banner")
 
-        inlineInAppView.fetchInlineInAppMessage()
+        ReflectionTestUtils.invokeInstanceMethod<JSONObject>(InlineInAppView("testViewId"), "fetchInlineInAppMessage")
         Emarsys.setContact("test-contact") {
             latch.countDown()
         }

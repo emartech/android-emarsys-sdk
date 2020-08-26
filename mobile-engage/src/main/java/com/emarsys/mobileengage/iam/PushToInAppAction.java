@@ -9,19 +9,19 @@ import com.emarsys.core.util.Assert;
 public class PushToInAppAction implements ActivityLifecycleAction {
 
     private final TimestampProvider timestampProvider;
-    private final InAppPresenter inAppPresenter;
+    private final OverlayInAppPresenter overlayInAppPresenter;
     private final String campaignId;
     private final String html;
     private final String sid;
     private final String url;
 
-    public PushToInAppAction(InAppPresenter inAppPresenter, String campaignId, String html, String sid, String url, TimestampProvider timestampProvider) {
-        Assert.notNull(inAppPresenter, "InAppPresenter must not be null!");
+    public PushToInAppAction(OverlayInAppPresenter overlayInAppPresenter, String campaignId, String html, String sid, String url, TimestampProvider timestampProvider) {
+        Assert.notNull(overlayInAppPresenter, "InAppPresenter must not be null!");
         Assert.notNull(campaignId, "CampaignId must not be null!");
         Assert.notNull(html, "Html must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");
 
-        this.inAppPresenter = inAppPresenter;
+        this.overlayInAppPresenter = overlayInAppPresenter;
         this.campaignId = campaignId;
         this.html = html;
         this.sid = sid;
@@ -31,6 +31,6 @@ public class PushToInAppAction implements ActivityLifecycleAction {
 
     @Override
     public void execute(Activity activity) {
-        inAppPresenter.present(campaignId, sid, url, null, timestampProvider.provideTimestamp(), html, null);
+        overlayInAppPresenter.present(campaignId, sid, url, null, timestampProvider.provideTimestamp(), html, null);
     }
 }

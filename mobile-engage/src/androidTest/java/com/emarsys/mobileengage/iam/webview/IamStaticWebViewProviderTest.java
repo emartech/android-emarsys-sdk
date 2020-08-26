@@ -7,12 +7,9 @@ import android.webkit.WebView;
 
 import androidx.test.filters.SdkSuppress;
 
-import com.emarsys.core.provider.Gettable;
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener;
-import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge;
-import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -33,13 +30,9 @@ class TestJSInterface extends IamJsBridge {
     @SuppressWarnings("unchecked")
     public TestJSInterface() {
         super(
-                mock(InAppInternal.class),
-                mock(ButtonClickedRepository.class),
-                    "123",
-                "testSid",
-                "https://wwww.emarsys.com",
                 mock(Handler.class),
-                mock(Gettable.class));
+                mock(Handler.class)
+        );
     }
 
     @JavascriptInterface
@@ -48,7 +41,7 @@ class TestJSInterface extends IamJsBridge {
 }
 
 @SdkSuppress(minSdkVersion = KITKAT)
-public class IamWebViewProviderTest {
+public class IamStaticWebViewProviderTest {
     static {
         mock(IamDialog.class);
         mock(Handler.class);
@@ -56,7 +49,7 @@ public class IamWebViewProviderTest {
 
     private static final String BASIC_HTML = "<html><head></head><body>webview content</body></html>";
 
-    private IamWebViewProvider provider;
+    private IamStaticWebViewProvider provider;
     private MessageLoadedListener listener;
     private Handler handler;
     private CountDownLatch latch;
@@ -80,9 +73,9 @@ public class IamWebViewProviderTest {
 
     @Before
     public void init() {
-        IamWebViewProvider.webView = null;
+        IamStaticWebViewProvider.webView = null;
 
-        provider = new IamWebViewProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
+        provider = new IamStaticWebViewProvider(InstrumentationRegistry.getTargetContext().getApplicationContext());
         listener = mock(MessageLoadedListener.class);
 
         handler = new Handler(Looper.getMainLooper());
@@ -92,7 +85,7 @@ public class IamWebViewProviderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_context_mustNotBeNull() {
-        new IamWebViewProvider(null);
+        new IamStaticWebViewProvider(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -131,13 +124,13 @@ public class IamWebViewProviderTest {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                IamWebViewProvider.webView = new WebView(InstrumentationRegistry.getTargetContext());
+                IamStaticWebViewProvider.webView = new WebView(InstrumentationRegistry.getTargetContext());
                 latch.countDown();
             }
         });
 
         latch.await();
 
-        assertEquals(IamWebViewProvider.webView, provider.provideWebView());
+        assertEquals(IamStaticWebViewProvider.webView, provider.provideWebView());
     }
 }

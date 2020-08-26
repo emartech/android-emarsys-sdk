@@ -18,7 +18,7 @@ import com.emarsys.core.util.log.entry.InAppLoadingTime
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.iam.dialog.IamDialog.Companion.create
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
-import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils.setStaticField
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
@@ -282,7 +282,7 @@ class IamDialogTest {
         try {
             initWebViewProvider()
             Handler(Looper.getMainLooper()).post {
-                val webView = IamWebViewProvider(getTargetContext()).provideWebView()
+                val webView = IamStaticWebViewProvider(getTargetContext()).provideWebView()
                 LinearLayout(getTargetContext()).addView(webView)
             }
             displayDialog()
@@ -296,7 +296,7 @@ class IamDialogTest {
 
     @Test
     fun testOnStart_shouldNotThrowCannotAddANullChildViewToAViewGroup_exception() {
-        setStaticField(IamWebViewProvider::class.java, "webView", null)
+        setStaticField(IamStaticWebViewProvider::class.java, "webView", null)
         var result: Exception? = null
         try {
             displayDialog()
@@ -344,7 +344,7 @@ class IamDialogTest {
 
     @Throws(Exception::class)
     private fun setWebViewInProvider(webView: WebView?) {
-        val webViewField = IamWebViewProvider::class.java.getDeclaredField("webView")
+        val webViewField = IamStaticWebViewProvider::class.java.getDeclaredField("webView")
         webViewField.isAccessible = true
         webViewField[null] = webView
     }

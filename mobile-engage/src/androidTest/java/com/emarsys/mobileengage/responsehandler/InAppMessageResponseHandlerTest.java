@@ -11,16 +11,17 @@ import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.mobileengage.iam.InAppInternal;
-import com.emarsys.mobileengage.iam.InAppPresenter;
+import com.emarsys.mobileengage.iam.OverlayInAppPresenter;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider;
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction;
 import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction;
 import com.emarsys.mobileengage.iam.dialog.action.SendDisplayedIamAction;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge;
+import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
-import com.emarsys.mobileengage.iam.webview.IamWebViewProvider;
+import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider;
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener;
 import com.emarsys.testUtil.CollectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -51,9 +52,11 @@ public class InAppMessageResponseHandlerTest {
     }
 
     private InAppMessageResponseHandler handler;
-    private InAppPresenter presenter;
-    private IamWebViewProvider webViewProvider;
+    private OverlayInAppPresenter presenter;
+    private IamStaticWebViewProvider webViewProvider;
     private IamDialog dialog;
+    private IamJsBridgeFactory mockJsBridgeFactory;
+    private IamJsBridge mockJsBridge;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -61,13 +64,18 @@ public class InAppMessageResponseHandlerTest {
     @Before
     @SuppressWarnings("unchecked")
     public void init() {
-        webViewProvider = mock(IamWebViewProvider.class);
+        webViewProvider = mock(IamStaticWebViewProvider.class);
+        mockJsBridgeFactory = mock(IamJsBridgeFactory.class);
+        mockJsBridge = mock(IamJsBridge.class);
+
+        when(mockJsBridgeFactory.createJsBridge()).thenReturn(mockJsBridge);
 
         dialog = mock(IamDialog.class);
         IamDialogProvider dialogProvider = mock(IamDialogProvider.class);
         when(dialogProvider.provideDialog(any(String.class), (String) isNull(), (String) isNull(), any(String.class))).thenReturn(dialog);
 
-        presenter = new InAppPresenter(
+        presenter = new OverlayInAppPresenter(
+                mock(Handler.class),
                 mock(Handler.class),
                 webViewProvider,
                 mock(InAppInternal.class),
@@ -75,7 +83,8 @@ public class InAppMessageResponseHandlerTest {
                 mock(ButtonClickedRepository.class),
                 mock(DisplayedIamRepository.class),
                 mock(TimestampProvider.class),
-                mock(Gettable.class));
+                mock(Gettable.class),
+                mockJsBridgeFactory);
 
         handler = new InAppMessageResponseHandler(
                 presenter

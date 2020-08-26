@@ -49,7 +49,7 @@ class PreloadedInappHandlerCommand(private val intent: Intent) : Runnable {
     }
 
     private fun scheduleInAppDisplay(campaignId: String, html: String, sid: String?, url: String?) {
-        val pushToInAppAction = PushToInAppAction(DependencyInjection.getContainer<MobileEngageDependencyContainer>().getInAppPresenter(), campaignId, html, sid, url,
+        val pushToInAppAction = PushToInAppAction(DependencyInjection.getContainer<MobileEngageDependencyContainer>().getOverlayInAppPresenter(), campaignId, html, sid, url,
                 getDependency<TimestampProvider>())
         val watchdog = getDependency<ActivityLifecycleWatchdog>()
         val activityProvider = getDependency<CurrentActivityProvider>()

@@ -12,7 +12,7 @@ import com.emarsys.core.di.getDependency
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.di.DefaultEmarsysDependencyContainer
-import com.emarsys.mobileengage.iam.InAppPresenter
+import com.emarsys.mobileengage.iam.OverlayInAppPresenter
 import com.emarsys.mobileengage.service.IntentUtils
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.predict.storage.PredictStorageKey
@@ -48,7 +48,7 @@ class InappNotificationIntegrationTest {
 
     private lateinit var completionListenerLatch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
-    private lateinit var mockInappPresenter: InAppPresenter
+    private lateinit var mockInappPresenterOverlay: OverlayInAppPresenter
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
@@ -81,9 +81,9 @@ class InappNotificationIntegrationTest {
 
         FeatureTestUtils.resetFeatures()
 
-        mockInappPresenter = mock()
+        mockInappPresenterOverlay = mock()
 
-        whenever(mockInappPresenter.present(
+        whenever(mockInappPresenterOverlay.present(
                 anyOrNull(),
                 eq(null),
                 anyOrNull(),
@@ -95,8 +95,8 @@ class InappNotificationIntegrationTest {
         }
 
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
-            override fun getInAppPresenter(): InAppPresenter {
-                return mockInappPresenter
+            override fun getOverlayInAppPresenter(): OverlayInAppPresenter {
+                return mockInappPresenterOverlay
             }
         })
         ConnectionTestUtils.checkConnection(application)
@@ -123,7 +123,7 @@ class InappNotificationIntegrationTest {
 
     @Test
     fun testInappPresent() {
-        addDependency(DependencyInjection.getContainer<DependencyContainer>().dependencies, mockInappPresenter)
+        addDependency(DependencyInjection.getContainer<DependencyContainer>().dependencies, mockInappPresenterOverlay)
         val context = InstrumentationRegistry.getTargetContext().applicationContext
         val url = FileDownloader(context).download("https://www.google.com")
         val emsPayload = """{"inapp": {"campaignId": "222","url": "https://www.google.com","fileUrl": "$url"}}"""

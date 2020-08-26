@@ -7,19 +7,19 @@ import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
 import com.emarsys.core.util.AndroidVersionUtils;
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.iam.InAppPresenter;
+import com.emarsys.mobileengage.iam.OverlayInAppPresenter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class InAppMessageResponseHandler extends AbstractResponseHandler {
 
-    private InAppPresenter inAppPresenter;
+    private OverlayInAppPresenter overlayInAppPresenter;
 
-    public InAppMessageResponseHandler(InAppPresenter inAppPresenter) {
-        Assert.notNull(inAppPresenter, "InAppPresenter must not be null!");
+    public InAppMessageResponseHandler(OverlayInAppPresenter overlayInAppPresenter) {
+        Assert.notNull(overlayInAppPresenter, "InAppPresenter must not be null!");
 
-        this.inAppPresenter = inAppPresenter;
+        this.overlayInAppPresenter = overlayInAppPresenter;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class InAppMessageResponseHandler extends AbstractResponseHandler {
             String html = message.getString("html");
             final String campaignId = message.getString("campaignId");
             final String requestId = responseModel.getRequestModel().getId();
-            inAppPresenter.present(campaignId, null, null, requestId, responseModel.getTimestamp(), html, null);
+            overlayInAppPresenter.present(campaignId, null, null, requestId, responseModel.getTimestamp(), html, null);
         } catch (JSONException ignored) {
         }
     }

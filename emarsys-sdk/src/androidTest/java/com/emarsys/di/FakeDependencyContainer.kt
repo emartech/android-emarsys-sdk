@@ -1,6 +1,7 @@
 package com.emarsys.di
 
 import android.os.Handler
+import android.os.Looper
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.ConfigInternal
 import com.emarsys.core.CoreCompletionHandler
@@ -44,9 +45,10 @@ import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.mobileengage.iam.InAppInternal
-import com.emarsys.mobileengage.iam.InAppPresenter
+import com.emarsys.mobileengage.iam.OverlayInAppPresenter
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
+import com.emarsys.mobileengage.iam.webview.WebViewProvider
 import com.emarsys.mobileengage.inbox.InboxInternal
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.mobileengage.inbox.model.NotificationCache
@@ -66,6 +68,7 @@ import com.nhaarman.mockitokotlin2.mock
 
 class FakeDependencyContainer(
         coreSdkHandler: Handler = CoreSdkHandlerProvider().provideHandler(),
+        uiHandler: Handler = Handler(Looper.getMainLooper()),
         activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(),
         currentActivityWatchdog: CurrentActivityWatchdog = mock(),
         coreSQLiteDatabase: CoreSQLiteDatabase = mock(),
@@ -99,7 +102,7 @@ class FakeDependencyContainer(
         refreshTokenInternal: RefreshTokenInternal = mock(),
         completionHandler: DefaultCoreCompletionHandler = mock(),
         requestContext: MobileEngageRequestContext = mock(),
-        inAppPresenter: InAppPresenter = mock(),
+        overlayInAppPresenter: OverlayInAppPresenter = mock(),
         predictShardTrigger: Runnable = mock(),
         logger: Logger = mock(),
         deviceInfoPayloadStorage: StringStorage = mock(),
@@ -159,12 +162,14 @@ class FakeDependencyContainer(
         requestManager: RequestManager = mock(),
         requestModelFactory: MobileEngageRequestModelFactory = mock(),
         notificationInformationListenerProvider: NotificationInformationListenerProvider = mock(),
-        silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider = mock()
+        silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider = mock(),
+        webViewProvider: WebViewProvider = mock()
 ) : EmarsysDependencyContainer {
     override val dependencies: MutableMap<String, Any?> = mutableMapOf()
 
     init {
         addDependency(dependencies, coreSdkHandler, "coreSdkHandler")
+        addDependency(dependencies, uiHandler, "uiHandler")
         addDependency(dependencies, activityLifecycleWatchdog)
         addDependency(dependencies, currentActivityWatchdog)
         addDependency(dependencies, coreSQLiteDatabase)
@@ -207,7 +212,7 @@ class FakeDependencyContainer(
         addDependency(dependencies, loggingPredictInternal, "loggingInstance")
         addDependency(dependencies, refreshTokenInternal)
         addDependency(dependencies, requestContext)
-        addDependency(dependencies, inAppPresenter)
+        addDependency(dependencies, overlayInAppPresenter)
         addDependency(dependencies, predictShardTrigger, "predictShardTrigger")
         addDependency(dependencies, deviceInfoPayloadStorage, MobileEngageStorageKey.DEVICE_INFO_HASH.key)
         addDependency(dependencies, contactFieldValueStorage, MobileEngageStorageKey.CONTACT_FIELD_VALUE.key)
@@ -260,9 +265,12 @@ class FakeDependencyContainer(
         addDependency(dependencies, requestModelFactory)
         addDependency(dependencies, notificationInformationListenerProvider, "notificationInformationListenerProvider")
         addDependency(dependencies, silentNotificationInformationListenerProvider, "silentNotificationInformationListenerProvider")
+        addDependency(dependencies, webViewProvider)
     }
 
     override fun getCoreSdkHandler(): Handler = getDependency(dependencies, "coreSdkHandler")
+
+    override fun getUiHandler(): Handler = getDependency(dependencies, "uiHandler")
 
     override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog = getDependency(dependencies)
 
@@ -285,7 +293,6 @@ class FakeDependencyContainer(
     override fun getFileDownloader(): FileDownloader = getDependency(dependencies)
 
     override fun getShardRepository(): Repository<ShardModel, SqlSpecification> = getDependency(dependencies, "shardModelRepository")
-
 
     override fun getInbox(): InboxApi = getDependency(dependencies, "defaultInstance")
 
@@ -348,11 +355,12 @@ class FakeDependencyContainer(
     override fun getLoggingEventServiceInternal(): EventServiceInternal = getDependency(dependencies, "loggingInstance")
 
     override fun getRefreshTokenInternal(): RefreshTokenInternal = getDependency(dependencies)
+
     override fun getCoreCompletionHandler(): CoreCompletionHandler = getDependency(dependencies)
 
     override fun getRequestContext(): MobileEngageRequestContext = getDependency(dependencies)
 
-    override fun getInAppPresenter(): InAppPresenter = getDependency(dependencies)
+    override fun getOverlayInAppPresenter(): OverlayInAppPresenter = getDependency(dependencies)
 
     override fun getDeviceInfoPayloadStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.DEVICE_INFO_HASH.key)
 
@@ -435,4 +443,6 @@ class FakeDependencyContainer(
     override fun getKeyValueStore(): KeyValueStore = getDependency(dependencies)
 
     override fun getContactTokenResponseHandler(): MobileEngageTokenResponseHandler = getDependency(dependencies, "contactTokenResponseHandler")
+
+    override fun getWebViewProvider(): WebViewProvider = getDependency(dependencies)
 }

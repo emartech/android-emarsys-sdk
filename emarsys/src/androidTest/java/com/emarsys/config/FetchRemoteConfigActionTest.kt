@@ -1,6 +1,7 @@
 package com.emarsys.config
 
 import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
@@ -26,7 +27,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.verify
-import java.util.concurrent.CountDownLatch
 
 class FetchRemoteConfigActionTest {
 
@@ -44,6 +44,10 @@ class FetchRemoteConfigActionTest {
         DependencyInjection.setup(object : DependencyContainer {
             override fun getCoreSdkHandler(): Handler {
                 return CoreSdkHandlerProvider().provideHandler()
+            }
+
+            override fun getUiHandler(): Handler {
+                return Handler(Looper.getMainLooper())
             }
 
             override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog {

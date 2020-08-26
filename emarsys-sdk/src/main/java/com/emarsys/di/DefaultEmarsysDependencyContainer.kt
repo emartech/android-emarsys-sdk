@@ -88,12 +88,14 @@ import com.emarsys.mobileengage.event.LoggingEventServiceInternal
 import com.emarsys.mobileengage.geofence.*
 import com.emarsys.mobileengage.iam.*
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
+import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy
-import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
+import com.emarsys.mobileengage.iam.webview.WebViewProvider
 import com.emarsys.mobileengage.inbox.*
 import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
@@ -147,6 +149,10 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         val application = config.application
         val coreSdkHandler: Handler = CoreSdkHandlerProvider().provideHandler()
         addDependency(dependencies, coreSdkHandler, "coreSdkHandler")
+
+        Handler(Looper.getMainLooper()).also {
+            addDependency(dependencies, it, "uiHandler")
+        }
 
         addDependency(dependencies, (MobileEngage() as MobileEngageApi).proxyApi(coreSdkHandler), "defaultInstance")
 
@@ -529,6 +535,9 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getNotificationEventHandlerProvider()).also {
             addDependency(dependencies, it, "notificationActionCommandFactory")
         }
+        WebViewProvider(application.applicationContext).also {
+            addDependency(dependencies, it)
+        }
     }
 
     private fun createRequestModelRepository(coreDbHelper: CoreDbHelper, inAppEventHandler: InAppEventHandlerInternal): Repository<RequestModel, SqlSpecification> {
@@ -571,15 +580,21 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
     }
 
     private fun initializeInAppPresenter(application: Application) {
-        InAppPresenter(
+        OverlayInAppPresenter(
                 getCoreSdkHandler(),
-                IamWebViewProvider(application),
+                getUiHandler(),
+                IamStaticWebViewProvider(application),
                 getInAppInternal(),
                 IamDialogProvider(),
                 getDependency(dependencies, "buttonClickedRepository"),
                 getDependency(dependencies, "displayedIamRepository"),
                 getTimestampProvider(),
-                getCurrentActivityProvider()).also {
+                getCurrentActivityProvider(),
+                IamJsBridgeFactory(
+                        getCoreSdkHandler(),
+                        getUiHandler()
+                )
+        ).also {
             addDependency(dependencies, it)
         }
     }
@@ -592,7 +607,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         responseHandlers.add(getDependency<MobileEngageTokenResponseHandler>("contactTokenResponseHandler"))
         responseHandlers.add(MobileEngageClientStateResponseHandler(getClientStateStorage(), getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()))
         responseHandlers.add(ClientInfoResponseHandler(getDeviceInfo(), getDeviceInfoPayloadStorage()))
-        responseHandlers.add(InAppMessageResponseHandler(getInAppPresenter()))
+        responseHandlers.add(InAppMessageResponseHandler(getOverlayInAppPresenter()))
         responseHandlers.add(InAppCleanUpResponseHandler(
                 getDependency(dependencies, "displayedIamRepository"),
                 getDependency(dependencies, "buttonClickedRepository"),
@@ -674,7 +689,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
 
     override fun getRequestContext(): MobileEngageRequestContext = getDependency(dependencies)
 
-    override fun getInAppPresenter(): InAppPresenter = getDependency(dependencies)
+    override fun getOverlayInAppPresenter(): OverlayInAppPresenter = getDependency(dependencies)
 
     override fun getDeviceInfoPayloadStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.DEVICE_INFO_HASH.key)
 
@@ -742,6 +757,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
 
     override fun getCoreSdkHandler(): Handler = getDependency(dependencies, "coreSdkHandler")
 
+    override fun getUiHandler(): Handler = getDependency(dependencies, "uiHandler")
+
     override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog = getDependency(dependencies)
 
     override fun getCurrentActivityWatchdog(): CurrentActivityWatchdog = getDependency(dependencies)
@@ -781,6 +798,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
     override fun getKeyValueStore(): KeyValueStore = getDependency(dependencies)
 
     override fun getContactTokenResponseHandler(): MobileEngageTokenResponseHandler = getDependency(dependencies, "contactTokenResponseHandler")
+
+    override fun getWebViewProvider(): WebViewProvider = getDependency(dependencies)
 
     private fun createPublicKey(): PublicKey {
         val publicKeySpec = X509EncodedKeySpec(

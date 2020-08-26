@@ -23,7 +23,7 @@ import com.emarsys.core.util.log.entry.InAppLog
 import com.emarsys.core.util.log.entry.OnScreenTime
 import com.emarsys.mobileengage.R
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
-import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 
 @Mockable
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -74,7 +74,7 @@ class IamDialog : DialogFragment() {
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val v = inflater.inflate(R.layout.mobile_engage_in_app_message, container, false)
-        webView = IamWebViewProvider(activity!!.applicationContext).provideWebView()
+        webView = IamStaticWebViewProvider(activity!!.applicationContext).provideWebView()
         webViewContainer = v.findViewById(R.id.mobileEngageInAppMessageContainer)
         return v
     }
