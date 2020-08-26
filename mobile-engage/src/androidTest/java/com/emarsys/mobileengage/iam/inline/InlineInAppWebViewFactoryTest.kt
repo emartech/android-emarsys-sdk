@@ -1,10 +1,12 @@
 package com.emarsys.mobileengage.iam.inline
 
 import android.graphics.Color
+import android.os.Build.VERSION_CODES.O
 import android.os.Handler
 import android.os.Looper
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.emarsys.core.Mockable
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener
@@ -125,6 +127,7 @@ class InlineInAppWebViewFactoryTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = O)
     fun testCreateShouldSetIamWebClient() {
         val webView = inlineWebViewFactory.create(mockMessageLoadedListener)
         var result: MessageLoadedListener? = null
