@@ -66,9 +66,7 @@ class OverlayInAppPresenter(
                 val fragmentManager = currentActivity.supportFragmentManager
                 val fragment = fragmentManager.findFragmentByTag(IamDialog.TAG)
                 if (fragment == null) {
-                    uiHandler.post {
-                        iamDialog.show(fragmentManager, IamDialog.TAG)
-                    }
+                    iamDialog.show(fragmentManager, IamDialog.TAG)
                 }
             }
             messageLoadedListener?.onMessageLoaded()

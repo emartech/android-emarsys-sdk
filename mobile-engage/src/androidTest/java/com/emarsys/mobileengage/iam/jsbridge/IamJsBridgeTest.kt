@@ -62,8 +62,8 @@ class IamJsBridgeTest {
         var closed = false
         val latch = CountDownLatch(1)
         jsBridge.onCloseListener = {
-            latch.countDown()
             closed = true
+            latch.countDown()
         }
 
         jsBridge.close("")
