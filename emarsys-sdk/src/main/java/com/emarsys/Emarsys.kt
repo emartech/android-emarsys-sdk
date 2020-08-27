@@ -97,7 +97,9 @@ object Emarsys {
 
             registerDatabaseTriggers()
 
-            initializeContact()
+            if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)) {
+                initializeMobileEngageContact()
+            }
         }
     }
 
@@ -526,7 +528,7 @@ object Emarsys {
                         getDependency<Runnable>("logShardTrigger"))
     }
 
-    private fun initializeContact() {
+    private fun initializeMobileEngageContact() {
         val deviceInfoPayload = getDependency<StringStorage>(MobileEngageStorageKey.DEVICE_INFO_HASH.key).get()
         val contactToken = getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key).get()
         val contactFieldValue = getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).get()

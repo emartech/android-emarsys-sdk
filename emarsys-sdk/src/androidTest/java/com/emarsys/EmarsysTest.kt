@@ -548,6 +548,20 @@ class EmarsysTest {
     }
 
     @Test
+    fun testSetup_shouldNotCallTrackDeviceInfoAndSetContact_whenMobileEngageFeatureIsDisabled() {
+        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
+        whenever(mockContactTokenStorage.get()).thenReturn(null)
+        whenever(mockClientStateStorage.get()).thenReturn(null)
+
+        setup(baseConfig)
+
+        runBlockingOnCoreSdkThread {
+            verify(mockMobileEngageApi, never()).setContact(null, null)
+            verify(mockClientServiceInternal, never()).trackDeviceInfo(null)
+        }
+    }
+
+    @Test
     fun testSetContactWithCompletionListener_delegatesToPredictInternal_whenPredictEnabled() {
         setup(predictConfig)
 
