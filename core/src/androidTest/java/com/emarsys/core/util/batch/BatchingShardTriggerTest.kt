@@ -1,6 +1,7 @@
 package com.emarsys.core.util.batch
 
 import com.emarsys.core.Mapper
+import com.emarsys.core.connection.ConnectionWatchDog
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.request.RequestManager
@@ -12,73 +13,40 @@ import com.emarsys.core.util.batch.BatchingShardTrigger.RequestStrategy.TRANSIEN
 import com.emarsys.core.util.predicate.Predicate
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
-import org.mockito.Mockito.*
 
 class BatchingShardTriggerTest {
 
-    private lateinit var repository: Repository<ShardModel, SqlSpecification>
-    private lateinit var predicate: Predicate<List<ShardModel>>
-    private lateinit var querySpecification: SqlSpecification
-    private lateinit var chunker: Mapper<List<ShardModel>, List<List<ShardModel>>>
-    private lateinit var merger: Mapper<List<ShardModel>, RequestModel>
-    private lateinit var manager: RequestManager
+    private lateinit var mockRepository: Repository<ShardModel, SqlSpecification>
+    private lateinit var mockPredicate: Predicate<List<ShardModel>>
+    private lateinit var mockQuerySpecification: SqlSpecification
+    private lateinit var mockChunker: Mapper<List<ShardModel>, List<List<ShardModel>>>
+    private lateinit var mockMerger: Mapper<List<ShardModel>, RequestModel>
+    private lateinit var mockRequestManager: RequestManager
+    private lateinit var mockConnectionWatchDog: ConnectionWatchDog
 
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
-    @Suppress("UNCHECKED_CAST")
-    fun init() {
-        repository = mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>
-        predicate = (mock(Predicate::class.java) as Predicate<List<ShardModel>>).apply {
-            whenever(this.evaluate(ArgumentMatchers.anyList())).thenReturn(true)
+    fun setUp() {
+        mockRepository = mock()
+        mockPredicate = mock {
+            on { evaluate(any()) } doReturn true
         }
-        querySpecification = mock(SqlSpecification::class.java)
-        chunker = mock(Mapper::class.java) as Mapper<List<ShardModel>, List<List<ShardModel>>>
-        merger = mock(Mapper::class.java) as Mapper<List<ShardModel>, RequestModel>
-        manager = mock(RequestManager::class.java)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_repository_mustNotBeNull() {
-        BatchingShardTrigger(null, predicate, querySpecification, chunker, merger, manager, PERSISTENT)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_predicate_mustNotBeNull() {
-        BatchingShardTrigger(repository, null, querySpecification, chunker, merger, manager, PERSISTENT)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_specification_mustNotBeNull() {
-        BatchingShardTrigger(repository, predicate, null, chunker, merger, manager, PERSISTENT)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_chunker_mustNotBeNull() {
-        BatchingShardTrigger(repository, predicate, querySpecification, null, merger, manager, PERSISTENT)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_merger_mustNotBeNull() {
-        BatchingShardTrigger(repository, predicate, querySpecification, chunker, null, manager, PERSISTENT)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_manager_mustNotBeNull() {
-        BatchingShardTrigger(repository, predicate, querySpecification, chunker, merger, null, PERSISTENT)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestStrategy_mustNotBeNull() {
-        BatchingShardTrigger(repository, predicate, querySpecification, chunker, merger, manager, null)
+        mockQuerySpecification = mock()
+        mockChunker = mock()
+        mockMerger = mock()
+        mockRequestManager = mock()
+        mockConnectionWatchDog = mock {
+            on { isConnected } doReturn true
+        }
     }
 
     @Test
@@ -87,11 +55,11 @@ class BatchingShardTriggerTest {
 
         persistentTrigger().run()
 
-        Mockito.inOrder(manager).run {
-            verify(manager).submit(requestModel1, null)
-            verify(manager).submit(requestModel2, null)
-            verify(manager).submit(requestModel3, null)
-            verifyNoMoreInteractions(manager)
+        inOrder(mockRequestManager).run {
+            verify(mockRequestManager).submit(requestModel1, null)
+            verify(mockRequestManager).submit(requestModel2, null)
+            verify(mockRequestManager).submit(requestModel3, null)
+            verifyNoMoreInteractions()
         }
     }
 
@@ -101,11 +69,11 @@ class BatchingShardTriggerTest {
 
         transientTrigger().run()
 
-        Mockito.inOrder(manager).run {
-            verify(manager).submitNow(requestModel1)
-            verify(manager).submitNow(requestModel2)
-            verify(manager).submitNow(requestModel3)
-            verifyNoMoreInteractions(manager)
+        inOrder(mockRequestManager).run {
+            verify(mockRequestManager).submitNow(requestModel1)
+            verify(mockRequestManager).submitNow(requestModel2)
+            verify(mockRequestManager).submitNow(requestModel3)
+            verifyNoMoreInteractions()
         }
     }
 
@@ -117,53 +85,61 @@ class BatchingShardTriggerTest {
 
         persistentTrigger().run()
 
-        Mockito.inOrder(manager, repository).run {
-            this.verify(repository).query(querySpecification)
-            this.verify(manager, Mockito.timeout(50)).submit(requestModel1, null)
-            this.verify(repository).remove(FilterByShardIds(listOf(shard1)))
-            this.verify(manager, Mockito.timeout(50)).submit(requestModel2, null)
-            this.verify(repository).remove(FilterByShardIds(listOf(shard2)))
-            this.verify(manager, Mockito.timeout(50)).submit(requestModel3, null)
-            this.verify(repository).remove(FilterByShardIds(listOf(shard3)))
+        inOrder(mockRequestManager, mockRepository).run {
+            this.verify(mockRepository).query(mockQuerySpecification)
+            this.verify(mockRequestManager, Mockito.timeout(50)).submit(requestModel1, null)
+            this.verify(mockRepository).remove(FilterByShardIds(listOf(shard1)))
+            this.verify(mockRequestManager, Mockito.timeout(50)).submit(requestModel2, null)
+            this.verify(mockRepository).remove(FilterByShardIds(listOf(shard2)))
+            this.verify(mockRequestManager, Mockito.timeout(50)).submit(requestModel3, null)
+            this.verify(mockRepository).remove(FilterByShardIds(listOf(shard3)))
             this.verifyNoMoreInteractions()
         }
-
     }
 
     @Test
     fun testRun_doesNothing_whenPredicateReturns_false() {
-        whenever(predicate.evaluate(ArgumentMatchers.anyList())).thenReturn(false)
+        whenever(mockPredicate.evaluate(any())).thenReturn(false)
 
         anyTrigger().run()
 
-        verify(repository).query(querySpecification)
-        verifyNoMoreInteractions(repository)
-        verifyZeroInteractions(chunker)
-        verifyZeroInteractions(merger)
-        verifyZeroInteractions(manager)
+        verify(mockRepository).query(mockQuerySpecification)
+        verifyNoMoreInteractions(mockRepository)
+        verifyZeroInteractions(mockChunker)
+        verifyZeroInteractions(mockMerger)
+        verifyZeroInteractions(mockRequestManager)
+    }
+
+    @Test
+    fun testRun_shouldNotInvokeQuery_whenOffline() {
+        whenever(mockConnectionWatchDog.isConnected).thenReturn(false)
+
+        anyTrigger().run()
+
+        verifyZeroInteractions(mockRepository)
     }
 
     private fun setupMocks(): MockObjects {
-        val shard1 = mock(ShardModel::class.java)
-        val shard2 = mock(ShardModel::class.java)
-        val shard3 = mock(ShardModel::class.java)
+        val shard1 = mock<ShardModel>()
+        val shard2 = mock<ShardModel>()
+        val shard3 = mock<ShardModel>()
 
         val shards = listOf(shard1, shard2, shard3)
 
-        val requestModel1 = mock(RequestModel::class.java)
-        val requestModel2 = mock(RequestModel::class.java)
-        val requestModel3 = mock(RequestModel::class.java)
+        val requestModel1 = mock<RequestModel>()
+        val requestModel2 = mock<RequestModel>()
+        val requestModel3 = mock<RequestModel>()
 
         val requestModels = listOf(requestModel1, requestModel2, requestModel3)
 
         val chunkedShards = shards.map { listOf(it) }
 
-        whenever(repository.query(querySpecification)).thenReturn(shards)
+        whenever(mockRepository.query(mockQuerySpecification)).thenReturn(shards)
 
-        whenever(chunker.map(shards)).thenReturn(chunkedShards)
+        whenever(mockChunker.map(shards)).thenReturn(chunkedShards)
 
         chunkedShards.forEachIndexed { i, chunkedShardList ->
-            whenever(merger.map(chunkedShardList)).thenReturn(requestModels[i])
+            whenever(mockMerger.map(chunkedShardList)).thenReturn(requestModels[i])
         }
 
         return MockObjects(shards, requestModels)
@@ -178,12 +154,14 @@ class BatchingShardTriggerTest {
     private fun anyTrigger() = persistentTrigger()
 
     private fun trigger(requestStrategy: BatchingShardTrigger.RequestStrategy) = BatchingShardTrigger(
-            repository,
-            predicate,
-            querySpecification,
-            chunker,
-            merger,
-            manager,
-            requestStrategy)
+            mockRepository,
+            mockPredicate,
+            mockQuerySpecification,
+            mockChunker,
+            mockMerger,
+            mockRequestManager,
+            requestStrategy,
+            mockConnectionWatchDog
+    )
 
 }

@@ -408,7 +408,9 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 ListChunker(10),
                 LogShardListMerger(getTimestampProvider(), getUuidProvider(), getDeviceInfo(), config.mobileEngageApplicationCode, config.predictMerchantId),
                 requestManager,
-                BatchingShardTrigger.RequestStrategy.TRANSIENT).also {
+                BatchingShardTrigger.RequestStrategy.TRANSIENT,
+                connectionWatchDog
+        ).also {
             addDependency(dependencies, it as Runnable, "logShardTrigger")
         }
         val predictRequestContext = PredictRequestContext(config.predictMerchantId, getDeviceInfo(), getTimestampProvider(), getUuidProvider(), sharedPrefsKeyStore)
@@ -422,7 +424,9 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 ListChunker(1),
                 PredictShardListMerger(predictRequestContext, predictRequestModelBuilderProvider),
                 requestManager,
-                BatchingShardTrigger.RequestStrategy.PERSISTENT).also {
+                BatchingShardTrigger.RequestStrategy.PERSISTENT,
+                connectionWatchDog
+        ).also {
             addDependency(dependencies, it as Runnable, "predictShardTrigger")
         }
         DefaultPredictInternal(predictRequestContext, requestManager, predictRequestModelBuilderProvider, predictResponseMapper).also {
