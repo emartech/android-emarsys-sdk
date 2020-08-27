@@ -12,6 +12,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
+import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
@@ -55,35 +56,33 @@ inline fun <reified T> generateDependencyName(key: String = ""): String {
 }
 
 inline fun <reified T> getDependency(key: String = ""): T {
-    synchronized(DependencyContainer::class.java) {
-        return try {
-            DependencyInjection.getContainer<DependencyContainer>().dependencies[generateDependencyName<T>(key)] as T
-        } catch (e: TypeCastException) {
-            val exception = Exception("${generateDependencyName<T>(key)} has not been found in DependencyContainer", e.cause).apply {
-                stackTrace = e.stackTrace
-            }
-            Logger.error(CrashLog(exception))
-            throw exception
+    return try {
+        DependencyInjection.getContainer<DependencyContainer>().dependencies[generateDependencyName<T>(key)] as T
+    } catch (e: TypeCastException) {
+        val exception = Exception("${generateDependencyName<T>(key)} has not been found in DependencyContainer", e.cause).apply {
+            stackTrace = e.stackTrace
         }
+        Logger.error(CrashLog(exception))
+        throw exception
     }
 }
 
 inline fun <reified T> getDependency(container: Map<String, Any?>, key: String = ""): T {
-    synchronized(DependencyContainer::class.java) {
-        return try {
-            container[generateDependencyName<T>(key)] as T
-        } catch (e: TypeCastException) {
-            val exception = Exception("${generateDependencyName<T>(key)} has not been found in DependencyContainer", e.cause).apply {
-                stackTrace = e.stackTrace
-            }
-            Logger.error(CrashLog(exception))
-            throw exception
+    return try {
+        container[generateDependencyName<T>(key)] as T
+    } catch (e: TypeCastException) {
+        val exception = Exception("${generateDependencyName<T>(key)} has not been found in DependencyContainer", e.cause).apply {
+            stackTrace = e.stackTrace
         }
+        Logger.error(CrashLog(exception))
+        throw exception
     }
 }
 
 inline fun <reified T> addDependency(container: MutableMap<String, Any?>, dependency: T, key: String = "") {
-    synchronized(DependencyContainer::class.java) {
+    if (AndroidVersionUtils.isNougatOrAbove()) {
+        container.putIfAbsent(generateDependencyName<T>(key), dependency)
+    } else {
         if (container[generateDependencyName<T>(key)] == null) {
             container[generateDependencyName<T>(key)] = dependency
         }

@@ -124,6 +124,7 @@ import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : EmarsysDependencyContainer {
 
@@ -133,7 +134,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         private const val PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELjWEUIBX9zlm1OI4gF1hMCBLzpaBwgs9HlmSIBAqP4MDGy4ibOOV3FVDrnAY0Q34LZTbPBlp3gRNZJ19UoSy2Q=="
     }
 
-    override val dependencies: MutableMap<String, Any?> = mutableMapOf()
+    override val dependencies: MutableMap<String, Any?> = ConcurrentHashMap()
 
     init {
         initializeDependencies(emarsysConfig)
