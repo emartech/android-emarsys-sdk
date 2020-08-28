@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Handler
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
+import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
@@ -21,6 +22,7 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
+import com.emarsys.inapp.ui.InlineInAppView
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.push.PushTokenProvider
@@ -364,13 +366,5 @@ class MobileEngageIntegrationTest {
                 completionHandlerLatch?.countDown()
             }
         }
-    }
-
-    private fun waitForTask() {
-        val latch = CountDownLatch(1)
-        getDependency<Handler>("coreSdkHandler").post {
-            latch.countDown()
-        }
-        latch.await()
     }
 }

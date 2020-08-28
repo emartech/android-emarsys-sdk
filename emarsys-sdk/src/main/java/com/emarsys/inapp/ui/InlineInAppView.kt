@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.LinearLayout
+import androidx.appcompat.widget.TintTypedArray.obtainStyledAttributes
+import com.emarsys.R
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
@@ -52,20 +54,23 @@ class InlineInAppView : LinearLayout {
 
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        commonConstructor()
+        commonConstructor(attrs)
     }
 
     constructor(context: Context) : super(context) {
         commonConstructor()
     }
 
-    private fun commonConstructor() {
+    private fun commonConstructor(attrs: AttributeSet? = null) {
         visibility = GONE
-
+        val intArray = IntArray(1).apply { this[0] = R.attr.view_id }
+        val attributes = context.obtainStyledAttributes(attrs, intArray)
+        viewId = attributes.getString(0)
         val webViewFactory: InlineInAppWebViewFactory = getDependency()
         val jsBridgeFactory: IamJsBridgeFactory = getDependency()
         webView = webViewFactory.create(MessageLoadedListener {
             visibility = View.VISIBLE
+            onCompletionListener?.onCompleted(null)
         })
 
         jsBridge = jsBridgeFactory.createJsBridge()
@@ -77,11 +82,15 @@ class InlineInAppView : LinearLayout {
             width = ViewGroup.LayoutParams.MATCH_PARENT
             height = ViewGroup.LayoutParams.MATCH_PARENT
         }
+
+        if (viewId != null) {
+            loadInApp(viewId!!)
+        }
+
+        attributes.recycle()
     }
 
     fun loadInApp(viewId: String) {
-
-
         this.viewId = viewId
         fetchInlineInAppMessage(viewId) {
             getDependency<Handler>("uiHandler").post {
@@ -103,24 +112,20 @@ class InlineInAppView : LinearLayout {
                 jsBridge.onButtonClickedListener = onButtonClickedTriggered(messageResponseModel?.optString("campaignId"))
 
                 callback(html)
-                onCompletionListener?.onCompleted(null)
-
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
-                callback(null)
                 onCompletionListener?.onCompleted(ResponseErrorException(responseModel.statusCode, responseModel.message, responseModel.body))
             }
 
             override fun onError(id: String, cause: Exception) {
-                callback(null)
                 onCompletionListener?.onCompleted(cause)
             }
         })
     }
 
     private fun filterMessagesById(responseModel: ResponseModel): JSONObject? {
-        val inlineMessages: JSONArray? = JSONObject(responseModel.body).optJSONArray("inlineMessages")
+        val inlineMessages: JSONArray? = responseModel.parsedBody?.optJSONArray("inlineMessages")
         if (inlineMessages != null) {
             for (i in 0 until inlineMessages.length()) {
                 if (inlineMessages.getJSONObject(i).optString("viewId").toLowerCase(Locale.ENGLISH) == viewId?.toLowerCase(Locale.ENGLISH)) {

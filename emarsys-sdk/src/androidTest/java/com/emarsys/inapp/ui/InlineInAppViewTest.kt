@@ -22,6 +22,7 @@ import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
 import com.emarsys.mobileengage.iam.jsbridge.*
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.ReflectionTestUtils
@@ -54,12 +55,20 @@ class InlineInAppViewTest {
 
     @Before
     fun setUp() {
+        var onMessageLoadedListener: MessageLoadedListener? = null
         context = InstrumentationRegistry.getTargetContext()
         webView = mock {
             on { layoutParams } doReturn ViewGroup.LayoutParams(10, 10)
+            on { loadDataWithBaseURL(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull()) } doAnswer {
+                onMessageLoadedListener?.onMessageLoaded()
+            }
         }
-        mockInlineInAppWebViewFactory = mock { on { create(any()) } doReturn webView }
-
+        mockInlineInAppWebViewFactory = mock {
+            on { create(any()) } doAnswer {
+                onMessageLoadedListener = it.arguments[0] as MessageLoadedListener
+                webView
+            }
+        }
         mockJsBridge = mock()
         mockIamJsBridgeFactory = mock { on { createJsBridge() } doReturn mockJsBridge }
         mockRequestModel = mock {
@@ -98,10 +107,10 @@ class InlineInAppViewTest {
 
     @Test
     fun testFilterMessagesById() {
-        val expectedBody = """{"inlineMessages":[
+        val expectedBody = JSONObject("""{"inlineMessages":[
                                 |{"campaignId":"765","html":"<html>Hello World</html>","viewId":"$VIEW_ID"},
-                                |{"campaignId":"7625","html":"<html>Hello World2</html>","viewId":"${VIEW_ID}2"}],"oldCampaigns":[]}""".trimMargin()
-        whenever(mockResponseModel.body).thenReturn(expectedBody)
+                                |{"campaignId":"7625","html":"<html>Hello World2</html>","viewId":"${VIEW_ID}2"}],"oldCampaigns":[]}""".trimMargin())
+        whenever(mockResponseModel.parsedBody).thenReturn(expectedBody)
 
         val latch = CountDownLatch(1)
         val inlineInAppView = InlineInAppView(context)
@@ -115,10 +124,10 @@ class InlineInAppViewTest {
 
     @Test
     fun testFilterMessagesById_whenViewId_isMissing() {
-        val expectedBody = """{"inlineMessages":[
+        val expectedBody = JSONObject("""{"inlineMessages":[
                                 |{"campaignId":"765","html":"<html>Hello World</html>"},
-                                |{"campaignId":"7625","html":"<html>Hello World2</html>"}],"oldCampaigns":[]}""".trimMargin()
-        whenever(mockResponseModel.body).thenReturn(expectedBody)
+                                |{"campaignId":"7625","html":"<html>Hello World2</html>"}],"oldCampaigns":[]}""".trimMargin())
+        whenever(mockResponseModel.parsedBody).thenReturn(expectedBody)
 
         val latch = CountDownLatch(1)
         val inlineInAppView = InlineInAppView(context)
@@ -132,8 +141,23 @@ class InlineInAppViewTest {
 
     @Test
     fun testFilterMessagesById_whenInlineMessages_isMissing() {
-        val expectedBody = """{}""".trimMargin()
-        whenever(mockResponseModel.body).thenReturn(expectedBody)
+        val expectedBody = JSONObject("""{}""".trimMargin())
+        whenever(mockResponseModel.parsedBody).thenReturn(expectedBody)
+
+        val latch = CountDownLatch(1)
+        val inlineInAppView = InlineInAppView(context)
+        inlineInAppView.onCompletionListener = CompletionListener { latch.countDown() }
+        inlineInAppView.loadInApp(VIEW_ID)
+
+        latch.await()
+
+        verify(webView).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
+    }
+
+    @Test
+    fun testFilterMessagesById_whenBodyIsEmpty() {
+        val expectedBody: JSONObject? = null
+        whenever(mockResponseModel.parsedBody).thenReturn(expectedBody)
 
         val latch = CountDownLatch(1)
         val inlineInAppView = InlineInAppView(context)
@@ -169,7 +193,7 @@ class InlineInAppViewTest {
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
 
-        verify(webView).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
+        verify(webView, never()).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
     }
 
     @Test
@@ -187,7 +211,7 @@ class InlineInAppViewTest {
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
 
-        verify(webView).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
+        verify(webView, never()).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
     }
 
     @Test

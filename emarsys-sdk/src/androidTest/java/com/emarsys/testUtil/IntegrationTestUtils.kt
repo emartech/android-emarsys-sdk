@@ -2,6 +2,7 @@ package com.emarsys.testUtil
 
 import android.app.Application
 import android.os.Handler
+import android.os.Looper
 import com.emarsys.BuildConfig
 import com.emarsys.Emarsys
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -72,5 +73,17 @@ object IntegrationTestUtils {
         getDependency<Handler>("coreSdkHandler").looper.quitSafely()
 
         DependencyInjection.tearDown()
+    }
+
+
+    fun <T> runOnUiThread(lambda: () -> T): T {
+        var result: T? = null
+        val latch = CountDownLatch(1)
+        Handler(Looper.getMainLooper()).post {
+            result = lambda.invoke()
+            latch.countDown()
+        }
+        latch.await()
+        return result!!
     }
 }
