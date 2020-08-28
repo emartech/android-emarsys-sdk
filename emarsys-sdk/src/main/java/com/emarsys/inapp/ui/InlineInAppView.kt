@@ -10,14 +10,20 @@ import android.widget.LinearLayout
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.database.repository.Repository
+import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.getDependency
+import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.feature.InnerFeature
+import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
 import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
+import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import org.json.JSONArray
@@ -66,8 +72,6 @@ class InlineInAppView : LinearLayout {
         jsBridge.webView = webView
         webView.addJavascriptInterface(jsBridge, "Android")
 
-
-
         addView(webView)
         with(webView.layoutParams) {
             width = ViewGroup.LayoutParams.MATCH_PARENT
@@ -93,7 +97,11 @@ class InlineInAppView : LinearLayout {
 
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
-                val html = filterMessagesById(responseModel)?.getString("html")
+                val messageResponseModel = filterMessagesById(responseModel)
+                val html = messageResponseModel?.getString("html")
+
+                jsBridge.onButtonClickedListener = onButtonClickedTriggered(messageResponseModel?.optString("campaignId"))
+
                 callback(html)
                 onCompletionListener?.onCompleted(null)
 
@@ -121,5 +129,25 @@ class InlineInAppView : LinearLayout {
             }
         }
         return null
+    }
+
+    private fun onButtonClickedTriggered(campaignId: String?): ((property: String?, json: JSONObject) -> Unit) {
+        return { property, _ ->
+            val buttonClickedRepository = getDependency<Repository<ButtonClicked, SqlSpecification>>("buttonClickedRepository")
+            buttonClickedRepository.add(ButtonClicked(campaignId, property, System.currentTimeMillis()))
+            val eventName = "inapp:click"
+            val attributes: MutableMap<String, String?> = HashMap()
+            attributes["campaignId"] = campaignId
+            attributes["buttonId"] = property
+
+            val instanceType = if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
+                "defaultInstance"
+            } else {
+                "loggingInstance"
+            }
+
+            val inAppInternal: InAppInternal = getDependency(instanceType)
+            inAppInternal.trackInternalCustomEvent(eventName, attributes, null)
+        }
     }
 }
