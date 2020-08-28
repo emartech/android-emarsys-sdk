@@ -9,9 +9,7 @@ import android.webkit.WebView
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.emarsys.core.Mockable
-import com.emarsys.mobileengage.fake.FakeMessageLoadedListener
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
-import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
 import com.emarsys.testUtil.ReflectionTestUtils
@@ -41,8 +39,6 @@ class InlineInAppWebViewFactoryTest {
 
     private lateinit var mockWebView: WebView
     private lateinit var mockWebViewProvider: WebViewProvider
-    private lateinit var mockJsBridge: IamJsBridge
-    private lateinit var mockJsBridgeFactory: IamJsBridgeFactory
     private lateinit var inlineWebViewFactory: InlineInAppWebViewFactory
     private lateinit var mockMessageLoadedListener: MessageLoadedListener
 
@@ -60,11 +56,8 @@ class InlineInAppWebViewFactoryTest {
         mockWebViewProvider = mock {
             on { provideWebView() }.doReturn(mockWebView)
         }
-        mockJsBridge = mock()
-        mockJsBridgeFactory = mock {
-            on { createJsBridge() }.doReturn(mockJsBridge)
-        }
-        inlineWebViewFactory = InlineInAppWebViewFactory(mockWebViewProvider, mockJsBridgeFactory)
+
+        inlineWebViewFactory = InlineInAppWebViewFactory(mockWebViewProvider)
         mockMessageLoadedListener = mock()
     }
 
@@ -75,61 +68,23 @@ class InlineInAppWebViewFactoryTest {
 
     @Test
     fun testCreateShouldReturnWebView() {
-        inlineWebViewFactory = InlineInAppWebViewFactory(mockWebViewProvider, mockJsBridgeFactory)
-
-        val response = inlineWebViewFactory.create(mockMessageLoadedListener)
+        inlineWebViewFactory = InlineInAppWebViewFactory(mockWebViewProvider)
+        val response = runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
 
         response shouldBe mockWebView
     }
 
     @Test
-    fun testCreateShouldSetJavascriptInterface() {
-        inlineWebViewFactory.create(mockMessageLoadedListener)
-
-        verify(mockWebView).addJavascriptInterface(mockJsBridge, "Android")
-    }
-
-    @Test
-    fun testCreateShouldAddWebViewToJsBridge() {
-        val webView = inlineWebViewFactory.create(mockMessageLoadedListener)
-        verify(mockJsBridge).webView = webView
-    }
-
-    @Test
     fun testCreateShouldSetBackgroundTransparent() {
-        inlineWebViewFactory.create(mockMessageLoadedListener)
+        runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
 
         verify(mockWebView).setBackgroundColor(Color.TRANSPARENT)
     }
 
     @Test
-    fun testLoadMessageAsync_shouldInvokeJsBridge_whenPageIsLoaded() {
-        val latch = CountDownLatch(1)
-        val jsInterface: TestJSInterface = mock()
-
-        whenever(mockJsBridgeFactory.createJsBridge()).thenReturn(jsInterface)
-
-        val webView = inlineWebViewFactory.create(FakeMessageLoadedListener(latch))
-
-        Handler(Looper.getMainLooper()).post {
-            webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
-        }
-
-        latch.await()
-        verify(jsInterface).onPageLoaded("{success:true}")
-    }
-
-    @Test
-    fun testLoadMessageAsync_shouldEventuallySetWebViewOnJSBridge() {
-        val result = inlineWebViewFactory.create(mock())
-
-        verify(mockJsBridge).webView = result
-    }
-
-    @Test
     @SdkSuppress(minSdkVersion = O)
     fun testCreateShouldSetIamWebClient() {
-        val webView = inlineWebViewFactory.create(mockMessageLoadedListener)
+        val webView = runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
         var result: MessageLoadedListener? = null
         val latch = CountDownLatch(1)
         Handler(Looper.getMainLooper()).post {
@@ -150,5 +105,16 @@ class InlineInAppWebViewFactoryTest {
         @JavascriptInterface
         fun onPageLoaded(json: String?) {
         }
+    }
+
+    private fun <T> runOnUiThread(lambda: () -> T): T {
+        var result: T? = null
+        val latch = CountDownLatch(1)
+        Handler(Looper.getMainLooper()).post {
+            result = lambda.invoke()
+            latch.countDown()
+        }
+        latch.await()
+        return result!!
     }
 }

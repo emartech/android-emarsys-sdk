@@ -27,7 +27,6 @@ import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.RetryRule
 import io.kotlintest.shouldNotBe
-import org.json.JSONObject
 import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
@@ -186,9 +185,9 @@ class InlineInAppIntegrationTest {
     @Ignore
     fun testFetchInlineInAppMessage() {
         val latch = CountDownLatch(1)
-        val inlineInAppView = InlineInAppView("main-screen-banner")
+        val inlineInAppView = InlineInAppView(context)
+        inlineInAppView.loadInApp("ia")
 
-        ReflectionTestUtils.invokeInstanceMethod<JSONObject>(InlineInAppView("testViewId"), "fetchInlineInAppMessage")
         Emarsys.setContact("test-contact") {
             latch.countDown()
         }

@@ -46,6 +46,8 @@ import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.OverlayInAppPresenter
+import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
+import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
@@ -163,7 +165,9 @@ class FakeDependencyContainer(
         requestModelFactory: MobileEngageRequestModelFactory = mock(),
         notificationInformationListenerProvider: NotificationInformationListenerProvider = mock(),
         silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider = mock(),
-        webViewProvider: WebViewProvider = mock()
+        webViewProvider: WebViewProvider = mock(),
+        inlineInAppWebViewFactory: InlineInAppWebViewFactory = mock(),
+        iamJsBridgeFactory: IamJsBridgeFactory = mock()
 ) : EmarsysDependencyContainer {
     override val dependencies: MutableMap<String, Any?> = mutableMapOf()
 
@@ -266,6 +270,8 @@ class FakeDependencyContainer(
         addDependency(dependencies, notificationInformationListenerProvider, "notificationInformationListenerProvider")
         addDependency(dependencies, silentNotificationInformationListenerProvider, "silentNotificationInformationListenerProvider")
         addDependency(dependencies, webViewProvider)
+        addDependency(dependencies, inlineInAppWebViewFactory)
+        addDependency(dependencies, iamJsBridgeFactory)
     }
 
     override fun getCoreSdkHandler(): Handler = getDependency(dependencies, "coreSdkHandler")
@@ -445,4 +451,8 @@ class FakeDependencyContainer(
     override fun getContactTokenResponseHandler(): MobileEngageTokenResponseHandler = getDependency(dependencies, "contactTokenResponseHandler")
 
     override fun getWebViewProvider(): WebViewProvider = getDependency(dependencies)
+
+    override fun getInlineInAppWebViewFactory(): InlineInAppWebViewFactory = getDependency(dependencies)
+
+    override fun getIamJsBridgeFactory(): IamJsBridgeFactory = getDependency(dependencies)
 }

@@ -1,19 +1,75 @@
 package com.emarsys.inapp.ui
 
+import android.content.Context
+import android.view.ViewGroup
+import android.webkit.WebView
+import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.api.ResponseErrorException
+import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.request.RequestManager
+import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.fake.FakeRestClient
+import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
+import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import com.emarsys.testUtil.ReflectionTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
 import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
-import org.json.JSONObject
+import io.kotlintest.shouldNotBe
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
+import java.util.concurrent.CountDownLatch
 
 class InlineInAppViewTest {
+    private companion object {
+        const val VIEW_ID = "testViewId"
+    }
+
+    private lateinit var context: Context
+    private lateinit var mockInlineInAppWebViewFactory: InlineInAppWebViewFactory
+    private lateinit var mockIamJsBridgeFactory: IamJsBridgeFactory
+    private lateinit var mockRequestModel: RequestModel
+    private lateinit var mockResponseModel: ResponseModel
+    private lateinit var mockRequestManager: RequestManager
+    private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
+    private lateinit var webView: WebView
+    private lateinit var mockProvider: CompletionHandlerProxyProvider
+
+    @Before
+    fun setUp() {
+        context = InstrumentationRegistry.getTargetContext()
+        webView = mock {
+            on { layoutParams } doReturn ViewGroup.LayoutParams(10, 10)
+        }
+        mockInlineInAppWebViewFactory = mock { on { create(any()) } doReturn webView }
+        mockIamJsBridgeFactory = mock { on { createJsBridge() } doReturn mock() }
+        mockRequestModel = mock {
+            on { id } doReturn "requestId"
+        }
+        mockResponseModel = mock {
+            on { requestModel } doReturn mockRequestModel
+        }
+        mockProvider = mock {
+            on { provideProxy(isNull(), any()) } doAnswer {
+                it.arguments[1] as CoreCompletionHandler
+            }
+            on { provideProxy(any(), any()) } doAnswer {
+                it.arguments[1] as CoreCompletionHandler
+            }
+        }
+        mockRequestManager = spy(RequestManager(CoreSdkHandlerProvider().provideHandler(), mock(), mock(), mock(), FakeRestClient(mockResponseModel, FakeRestClient.Mode.SUCCESS), mock(), mock(), mockProvider))
+        mockRequestModelFactory = mock {
+            on { createFetchInlineInAppMessagesRequest("testViewId") }.doReturn(mockRequestModel)
+        }
+
+        DependencyInjection.setup(FakeDependencyContainer(inlineInAppWebViewFactory = mockInlineInAppWebViewFactory, iamJsBridgeFactory = mockIamJsBridgeFactory, requestManager = mockRequestManager, requestModelFactory = mockRequestModelFactory))
+    }
 
     @After
     fun tearDown() {
@@ -21,35 +77,20 @@ class InlineInAppViewTest {
     }
 
     @Test
-    fun testFetchInlineInAppMessage() {
-        val mockRequestModel: RequestModel = mock()
-        val mockRequestManager: RequestManager = mock()
-        val mockRequestModelFactory: MobileEngageRequestModelFactory = mock {
-            on { createFetchInlineInAppMessagesRequest("testViewId") }.doReturn(mockRequestModel)
-        }
-
-        DependencyInjection.setup(FakeDependencyContainer(requestManager = mockRequestManager, requestModelFactory = mockRequestModelFactory))
-
-        InlineInAppView("testViewId").fetchInlineInAppMessage()
-
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
-    }
-
-    @Test
     fun testFilterMessagesById() {
         val expectedBody = """{"inlineMessages":[
-                                |{"campaignId":"765","html":"<html>Hello World</html>","viewId":"main-screen-banner"},
-                                |{"campaignId":"7625","html":"<html>Hello World2</html>","viewId":"main-screen-banner2"}],"oldCampaigns":[]}""".trimMargin()
-        val mockResponseModel: ResponseModel = mock {
-            on { body }.doReturn(expectedBody)
-        }
+                                |{"campaignId":"765","html":"<html>Hello World</html>","viewId":"$VIEW_ID"},
+                                |{"campaignId":"7625","html":"<html>Hello World2</html>","viewId":"${VIEW_ID}2"}],"oldCampaigns":[]}""".trimMargin()
+        whenever(mockResponseModel.body).thenReturn(expectedBody)
 
-        val inlineInAppView = InlineInAppView("main-screen-banner")
-        val result = ReflectionTestUtils.invokeInstanceMethod<JSONObject>(inlineInAppView, "filterMessagesById", ResponseModel::class.java to mockResponseModel)
+        val latch = CountDownLatch(1)
+        val inlineInAppView = InlineInAppView(context)
+        inlineInAppView.onCompletionListener = CompletionListener { latch.countDown() }
+        inlineInAppView.loadInApp(VIEW_ID)
+        latch.await()
+        val expectedHtml = "<html>Hello World</html>"
 
-        val html = result.getString("html")
-
-        html shouldBe "<html>Hello World</html>"
+        verify(webView).loadDataWithBaseURL(null, expectedHtml, "text/html; charset=utf-8", "UTF-8", null)
     }
 
     @Test
@@ -57,26 +98,75 @@ class InlineInAppViewTest {
         val expectedBody = """{"inlineMessages":[
                                 |{"campaignId":"765","html":"<html>Hello World</html>"},
                                 |{"campaignId":"7625","html":"<html>Hello World2</html>"}],"oldCampaigns":[]}""".trimMargin()
-        val mockResponseModel: ResponseModel = mock {
-            on { body }.doReturn(expectedBody)
-        }
+        whenever(mockResponseModel.body).thenReturn(expectedBody)
 
-        val inlineInAppView = InlineInAppView("main-screen-banner")
-        val result = ReflectionTestUtils.invokeInstanceMethod<JSONObject>(inlineInAppView, "filterMessagesById", ResponseModel::class.java to mockResponseModel)
+        val latch = CountDownLatch(1)
+        val inlineInAppView = InlineInAppView(context)
+        inlineInAppView.onCompletionListener = CompletionListener { latch.countDown() }
+        inlineInAppView.loadInApp(VIEW_ID)
 
-        result shouldBe null
+        latch.await()
+
+        verify(webView).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
     }
 
     @Test
     fun testFilterMessagesById_whenInlineMessages_isMissing() {
         val expectedBody = """{}""".trimMargin()
-        val mockResponseModel: ResponseModel = mock {
-            on { body }.doReturn(expectedBody)
+        whenever(mockResponseModel.body).thenReturn(expectedBody)
+
+        val latch = CountDownLatch(1)
+        val inlineInAppView = InlineInAppView(context)
+        inlineInAppView.onCompletionListener = CompletionListener { latch.countDown() }
+        inlineInAppView.loadInApp(VIEW_ID)
+
+        latch.await()
+
+        verify(webView).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
+    }
+
+    @Test
+    fun testLoadInApp_whenResponseError() {
+        DependencyInjection.tearDown()
+        val expectedBody = """errorBody""".trimMargin()
+        val expectedStatusCode = 500
+        val expectedMessage = "Error message"
+        whenever(mockResponseModel.body).thenReturn(expectedBody)
+        whenever(mockResponseModel.message).thenReturn(expectedMessage)
+        whenever(mockResponseModel.statusCode).thenReturn(expectedStatusCode)
+        mockRequestManager = spy(RequestManager(CoreSdkHandlerProvider().provideHandler(), mock(), mock(), mock(), FakeRestClient(mockResponseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL), mock(), mock(), mockProvider))
+        DependencyInjection.setup(FakeDependencyContainer(inlineInAppWebViewFactory = mockInlineInAppWebViewFactory, iamJsBridgeFactory = mockIamJsBridgeFactory, requestManager = mockRequestManager, requestModelFactory = mockRequestModelFactory))
+        val inlineInAppView = InlineInAppView(context)
+
+        val latch = CountDownLatch(1)
+        inlineInAppView.onCompletionListener = CompletionListener { error ->
+            error shouldNotBe null
+            (error as ResponseErrorException).body shouldBe expectedBody
+            error.statusCode shouldBe expectedStatusCode
+            error.statusMessage shouldBe expectedMessage
+            latch.countDown()
         }
+        inlineInAppView.loadInApp(VIEW_ID)
+        latch.await()
 
-        val inlineInAppView = InlineInAppView("main-screen-banner")
-        val result = ReflectionTestUtils.invokeInstanceMethod<JSONObject>(inlineInAppView, "filterMessagesById", ResponseModel::class.java to mockResponseModel)
+        verify(webView).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
+    }
 
-        result shouldBe null
+    @Test
+    fun testLoadInApp_whenException() {
+        DependencyInjection.tearDown()
+        val expectedException = Exception("Error happened")
+        mockRequestManager = spy(RequestManager(CoreSdkHandlerProvider().provideHandler(), mock(), mock(), mock(), FakeRestClient(expectedException), mock(), mock(), mockProvider))
+        DependencyInjection.setup(FakeDependencyContainer(inlineInAppWebViewFactory = mockInlineInAppWebViewFactory, iamJsBridgeFactory = mockIamJsBridgeFactory, requestManager = mockRequestManager, requestModelFactory = mockRequestModelFactory))
+        val inlineInAppView = InlineInAppView(context)
+        val latch = CountDownLatch(1)
+        inlineInAppView.onCompletionListener = CompletionListener { error ->
+            error shouldBe expectedException
+            latch.countDown()
+        }
+        inlineInAppView.loadInApp(VIEW_ID)
+        latch.await()
+
+        verify(webView).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
     }
 }

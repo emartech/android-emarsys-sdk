@@ -18,6 +18,8 @@ import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.OverlayInAppPresenter
+import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
+import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
@@ -143,4 +145,8 @@ interface MobileEngageDependencyContainer : DependencyContainer {
     fun getContactTokenResponseHandler(): MobileEngageTokenResponseHandler
 
     fun getWebViewProvider(): WebViewProvider
+
+    fun getInlineInAppWebViewFactory(): InlineInAppWebViewFactory
+
+    fun getIamJsBridgeFactory(): IamJsBridgeFactory
 }

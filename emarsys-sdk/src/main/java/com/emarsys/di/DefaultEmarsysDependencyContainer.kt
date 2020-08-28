@@ -88,6 +88,7 @@ import com.emarsys.mobileengage.event.LoggingEventServiceInternal
 import com.emarsys.mobileengage.geofence.*
 import com.emarsys.mobileengage.iam.*
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
+import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
@@ -540,7 +541,13 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getNotificationEventHandlerProvider()).also {
             addDependency(dependencies, it, "notificationActionCommandFactory")
         }
-        WebViewProvider(application.applicationContext).also {
+        val webViewProvider = WebViewProvider(application.applicationContext).also {
+            addDependency(dependencies, it)
+        }
+        IamJsBridgeFactory(getCoreSdkHandler(), getUiHandler()).also {
+            addDependency(dependencies, it)
+        }
+        InlineInAppWebViewFactory(webViewProvider).also {
             addDependency(dependencies, it)
         }
     }
@@ -585,6 +592,12 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
     }
 
     private fun initializeInAppPresenter(application: Application) {
+        IamJsBridgeFactory(
+                getCoreSdkHandler(),
+                getUiHandler()
+        ).also {
+            addDependency(dependencies, it)
+        }
         OverlayInAppPresenter(
                 getCoreSdkHandler(),
                 getUiHandler(),
@@ -595,10 +608,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getDependency(dependencies, "displayedIamRepository"),
                 getTimestampProvider(),
                 getCurrentActivityProvider(),
-                IamJsBridgeFactory(
-                        getCoreSdkHandler(),
-                        getUiHandler()
-                )
+                getIamJsBridgeFactory()
+
         ).also {
             addDependency(dependencies, it)
         }
@@ -805,6 +816,10 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
     override fun getContactTokenResponseHandler(): MobileEngageTokenResponseHandler = getDependency(dependencies, "contactTokenResponseHandler")
 
     override fun getWebViewProvider(): WebViewProvider = getDependency(dependencies)
+
+    override fun getInlineInAppWebViewFactory(): InlineInAppWebViewFactory = getDependency(dependencies)
+
+    override fun getIamJsBridgeFactory(): IamJsBridgeFactory = getDependency(dependencies)
 
     private fun createPublicKey(): PublicKey {
         val publicKeySpec = X509EncodedKeySpec(
