@@ -15,7 +15,10 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.fake.FakeRestClient
 import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
+import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
+import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
+import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.nhaarman.mockitokotlin2.*
@@ -40,6 +43,7 @@ class InlineInAppViewTest {
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var webView: WebView
     private lateinit var mockProvider: CompletionHandlerProxyProvider
+    private lateinit var mockJsBridge : IamJsBridge
 
     @Before
     fun setUp() {
@@ -48,7 +52,9 @@ class InlineInAppViewTest {
             on { layoutParams } doReturn ViewGroup.LayoutParams(10, 10)
         }
         mockInlineInAppWebViewFactory = mock { on { create(any()) } doReturn webView }
-        mockIamJsBridgeFactory = mock { on { createJsBridge() } doReturn mock() }
+
+        mockJsBridge = mock()
+        mockIamJsBridgeFactory = mock { on { createJsBridge() } doReturn mockJsBridge }
         mockRequestModel = mock {
             on { id } doReturn "requestId"
         }
@@ -168,5 +174,25 @@ class InlineInAppViewTest {
         latch.await()
 
         verify(webView).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
+    }
+
+    @Test
+    fun testSetOnCloseEvent_shouldSetOnCloseListenerOnJSBridge() {
+        val inlineInAppView = InlineInAppView(context)
+        val mockOnCloseListener : OnCloseListener = mock()
+
+        inlineInAppView.onCloseListener = mockOnCloseListener
+
+        verify(mockJsBridge).onCloseListener = mockOnCloseListener
+    }
+
+    @Test
+    fun testSetAppEvent_shouldSetOnAppEventListenerOnJSBridge() {
+        val inlineInAppView = InlineInAppView(context)
+        val mockAppEventListener : OnAppEventListener = mock()
+
+        inlineInAppView.onAppEventListener = mockAppEventListener
+
+        verify(mockJsBridge).onAppEventListener = mockAppEventListener
     }
 }

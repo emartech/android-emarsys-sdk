@@ -16,6 +16,7 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
+import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
 import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
@@ -34,6 +35,13 @@ class InlineInAppView : LinearLayout {
             jsBridge.onCloseListener = value
             field = value
         }
+
+    var onAppEventListener: OnAppEventListener? = null
+        set(value) {
+            jsBridge.onAppEventListener = value
+            field = value
+        }
+
     var onCompletionListener: CompletionListener? = null
 
 
