@@ -2,6 +2,7 @@
     <string name="app_name">Sample App</string>
     <string name="menu_title_mobile_engage">Mobile engage</string>
     <string name="menu_title_inbox">Inbox</string>
+    <string name="menu_title_inline_in_app">Inline In-App</string>
     <string name="menu_title_message_inbox">Message Inbox</string>
     <string name="menu_title_predict">Predict</string>
     <string name="menu_title_config">Config</string>
@@ -47,6 +48,10 @@
 
     <!-- Inbox String Resources -->
     <string name="pull_down_to_refresh">Pull down to refresh</string>
+
+    <!-- Inbox String Resources -->
+    <string name="inline_in_app_view_id">viewId</string>
+    <string name="button_show">show</string>
 
     <!-- Config String Resources -->
     <string name="current_application_code">ApplicationCode: <b>%1$s</b> ContactFieldId: <b>%2$d</b></string>

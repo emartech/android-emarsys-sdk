@@ -31,4 +31,9 @@
         android:name="com.emarsys.sample.fragments.ConfigFragment"
         android:label="Config"
         tools:layout="@layout/fragment_config" />
+    <fragment
+        android:id="@+id/destinationInlineInAppFragment"
+        android:name="com.emarsys.sample.fragments.InlineInAppFragment"
+        android:label="Inline InApp"
+        tools:layout="@layout/fragment_inline_in_app" />
 </navigation>
