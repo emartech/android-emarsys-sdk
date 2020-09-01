@@ -161,7 +161,7 @@ object MessagingServiceUtils {
             val styleToApply = when (internalStyle) {
                 "MESSAGE" -> {
                     val user = Person.Builder()
-                            .setName("title")
+                            .setName(title)
                             .setIcon(IconCompat.createWithAdaptiveBitmap(bitmap)).build()
                     NotificationCompat.MessagingStyle(user)
                             .addMessage(body, System.currentTimeMillis(), user)
