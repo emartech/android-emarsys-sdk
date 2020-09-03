@@ -544,7 +544,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         val webViewProvider = WebViewProvider(application.applicationContext).also {
             addDependency(dependencies, it)
         }
-        IamJsBridgeFactory(getCoreSdkHandler(), getUiHandler()).also {
+        IamJsBridgeFactory(getUiHandler()).also {
             addDependency(dependencies, it)
         }
         InlineInAppWebViewFactory(webViewProvider).also {
@@ -593,7 +593,6 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
 
     private fun initializeInAppPresenter(application: Application) {
         IamJsBridgeFactory(
-                getCoreSdkHandler(),
                 getUiHandler()
         ).also {
             addDependency(dependencies, it)

@@ -100,6 +100,7 @@ class InlineInAppWebViewFactoryTest {
     @Mockable
     class TestJSInterface : IamJsBridge(
             mock(),
+            mock(),
             mock()
     ) {
         @JavascriptInterface

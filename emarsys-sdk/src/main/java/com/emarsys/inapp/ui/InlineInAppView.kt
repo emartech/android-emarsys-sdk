@@ -2,12 +2,12 @@ package com.emarsys.inapp.ui
 
 import android.content.Context
 import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.LinearLayout
-import androidx.appcompat.widget.TintTypedArray.obtainStyledAttributes
 import com.emarsys.R
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
@@ -16,15 +16,17 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.feature.InnerFeature
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
-import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
+import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
 import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
+import com.emarsys.mobileengage.iam.model.InAppMessage
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
@@ -37,19 +39,9 @@ class InlineInAppView : LinearLayout {
 
     private lateinit var webView: WebView
     private var viewId: String? = null
-    private lateinit var jsBridge: IamJsBridge
+
     var onCloseListener: OnCloseListener? = null
-        set(value) {
-            jsBridge.onCloseListener = value
-            field = value
-        }
-
     var onAppEventListener: OnAppEventListener? = null
-        set(value) {
-            jsBridge.onAppEventListener = value
-            field = value
-        }
-
     var onCompletionListener: CompletionListener? = null
 
 
@@ -67,15 +59,10 @@ class InlineInAppView : LinearLayout {
         val attributes = context.obtainStyledAttributes(attrs, intArray)
         viewId = attributes.getString(0)
         val webViewFactory: InlineInAppWebViewFactory = getDependency()
-        val jsBridgeFactory: IamJsBridgeFactory = getDependency()
         webView = webViewFactory.create(MessageLoadedListener {
             visibility = View.VISIBLE
             onCompletionListener?.onCompleted(null)
         })
-
-        jsBridge = jsBridgeFactory.createJsBridge()
-        jsBridge.webView = webView
-        webView.addJavascriptInterface(jsBridge, "Android")
 
         addView(webView)
         with(webView.layoutParams) {
@@ -107,11 +94,14 @@ class InlineInAppView : LinearLayout {
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
                 val messageResponseModel = filterMessagesById(responseModel)
-                val html = messageResponseModel?.getString("html")
+                if (messageResponseModel != null) {
+                    val html = messageResponseModel.getString("html")
 
-                jsBridge.onButtonClickedListener = onButtonClickedTriggered(messageResponseModel?.optString("campaignId"))
-
-                callback(html)
+                    createJSBridge(messageResponseModel)
+                    callback(html)
+                } else {
+                    callback(null)
+                }
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
@@ -136,23 +126,25 @@ class InlineInAppView : LinearLayout {
         return null
     }
 
-    private fun onButtonClickedTriggered(campaignId: String?): ((property: String?, json: JSONObject) -> Unit) {
-        return { property, _ ->
-            val buttonClickedRepository = getDependency<Repository<ButtonClicked, SqlSpecification>>("buttonClickedRepository")
-            buttonClickedRepository.add(ButtonClicked(campaignId, property, System.currentTimeMillis()))
-            val eventName = "inapp:click"
-            val attributes: MutableMap<String, String?> = HashMap()
-            attributes["campaignId"] = campaignId
-            attributes["buttonId"] = property
+    private fun createJSBridge(messageResponseModel: JSONObject?) {
+        val campaignId = messageResponseModel?.optString("campaignId")
 
-            val instanceType = if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
-                "defaultInstance"
-            } else {
-                "loggingInstance"
-            }
-
-            val inAppInternal: InAppInternal = getDependency(instanceType)
-            inAppInternal.trackInternalCustomEvent(eventName, attributes, null)
+        val instanceType = if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
+            "defaultInstance"
+        } else {
+            "loggingInstance"
         }
+        val inAppInternal: InAppInternal = getDependency(instanceType)
+        val timestampProvider: TimestampProvider = getDependency()
+
+        val buttonClickedRepository = getDependency<Repository<ButtonClicked, SqlSpecification>>("buttonClickedRepository")
+
+        val jsCommandFactory = JSCommandFactory(getDependency(), Handler(Looper.getMainLooper()), getDependency("coreSdkHandler"), inAppInternal,
+                buttonClickedRepository, onCloseListener, onAppEventListener, timestampProvider)
+        val jsBridgeFactory: IamJsBridgeFactory = getDependency()
+
+        val jsBridge = jsBridgeFactory.createJsBridge(jsCommandFactory, InAppMessage(campaignId!!, null, null))
+        webView.addJavascriptInterface(jsBridge, "Android")
+        jsBridge.webView = webView
     }
 }

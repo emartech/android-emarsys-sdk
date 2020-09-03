@@ -10,6 +10,8 @@ import androidx.test.filters.SdkSuppress;
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge;
+import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory;
+import com.emarsys.mobileengage.iam.model.InAppMessage;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
@@ -31,7 +33,8 @@ class TestJSInterface extends IamJsBridge {
     public TestJSInterface() {
         super(
                 mock(Handler.class),
-                mock(Handler.class)
+                mock(JSCommandFactory.class),
+                mock(InAppMessage.class)
         );
     }
 

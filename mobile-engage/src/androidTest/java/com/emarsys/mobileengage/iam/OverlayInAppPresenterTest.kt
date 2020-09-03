@@ -1,8 +1,6 @@
 package com.emarsys.mobileengage.iam
 
 import android.app.Activity
-import android.content.Intent
-import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
@@ -13,13 +11,15 @@ import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.provider.Gettable
+import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
-import com.emarsys.mobileengage.iam.jsbridge.*
+import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
+import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
+import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
@@ -29,24 +29,16 @@ import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.whenever
-import com.nhaarman.mockitokotlin2.*
-import io.kotlintest.matchers.numerics.shouldBeGreaterThanOrEqual
-import io.kotlintest.matchers.numerics.shouldBeLessThanOrEqual
-import io.kotlintest.shouldBe
-import org.json.JSONException
+import com.nhaarman.mockitokotlin2.anyOrNull
+import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentCaptor
-import org.mockito.Mockito.any
-import org.mockito.Mockito.anyInt
-import org.mockito.Mockito.isNull
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.timeout
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.*
 import java.util.concurrent.CountDownLatch
 
 class OverlayInAppPresenterTest {
@@ -76,10 +68,11 @@ class OverlayInAppPresenterTest {
     private lateinit var mockDisplayedIamRepository: Repository<DisplayedIam, SqlSpecification>
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockMobileEngageInternal: MobileEngageInternal
-    private lateinit var mockActivityProvider: Gettable<Activity>
+    private lateinit var mockActivityProvider: CurrentActivityProvider
     private lateinit var overlayPresenter: OverlayInAppPresenter
     private lateinit var mockIamJsBridgeFactory: IamJsBridgeFactory
     private lateinit var mockJsBridge: IamJsBridge
+    private lateinit var mockJSCommandFactory: JSCommandFactory
 
     @Before
     fun setUp() {
@@ -92,8 +85,9 @@ class OverlayInAppPresenterTest {
         mockMobileEngageInternal = mock()
         mockActivityProvider = mock()
         mockJsBridge = mock()
+        mockJSCommandFactory = mock()
         mockIamJsBridgeFactory = mock {
-            on { createJsBridge() } doReturn mockJsBridge
+            on { createJsBridge(anyOrNull(), anyOrNull()) } doReturn mockJsBridge
         }
 
         val coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
@@ -114,11 +108,11 @@ class OverlayInAppPresenterTest {
 
     @Test
     fun testPresent_shouldShowDialog_whenAppCompatActivity_isUsed() {
-        val fragmentMock = mock(Fragment::class.java)
-        val activityMock = mock(AppCompatActivity::class.java)
+        val fragmentMock: Fragment = mock()
+        val activityMock: AppCompatActivity = mock()
 
-        val iamDialog = mock(IamDialog::class.java)
-        val fragmentManager = mock(FragmentManager::class.java)
+        val iamDialog: IamDialog = mock()
+        val fragmentManager: FragmentManager = mock()
 
         whenever(activityMock.supportFragmentManager).thenReturn(fragmentManager)
         whenever(fragmentManager.findFragmentById(anyInt())).thenReturn(fragmentMock)
@@ -146,8 +140,8 @@ class OverlayInAppPresenterTest {
 
     @Test
     fun testPresent_shouldNotShowDialog_whenActivity_isUsed() {
-        val iamDialog = mock(IamDialog::class.java)
-        val activity = mock(Activity::class.java)
+        val iamDialog: IamDialog = mock()
+        val activity: Activity = mock()
 
         whenever(mockActivityProvider.get()).thenReturn(activity)
         whenever(mockIamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
@@ -173,7 +167,7 @@ class OverlayInAppPresenterTest {
 
     @Test
     fun testPresent_shouldNotShowDialog_whenActivity_isNull() {
-        val iamDialog = mock(IamDialog::class.java)
+        val iamDialog: IamDialog = mock()
 
         whenever(mockActivityProvider.get()).thenReturn(null)
         whenever(mockIamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
@@ -199,10 +193,10 @@ class OverlayInAppPresenterTest {
 
     @Test
     fun testPresent_shouldNotShowDialog_whenAnotherDialog_isAlreadyShown() {
-        val iamDialog = mock(IamDialog::class.java)
-        val activity = mock(AppCompatActivity::class.java)
-        val fragmentManager = mock(FragmentManager::class.java)
-        val fragment = mock(Fragment::class.java)
+        val iamDialog: IamDialog = mock()
+        val activity: AppCompatActivity = mock()
+        val fragmentManager: FragmentManager = mock()
+        val fragment: Fragment = mock()
 
         whenever(mockIamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
         whenever(mockActivityProvider.get()).thenReturn(activity)
@@ -229,18 +223,6 @@ class OverlayInAppPresenterTest {
     }
 
     @Test
-    fun testPresent_shouldSet_JsBridgeOnCloseListener() {
-        val iamJsBridge: IamJsBridge = mock()
-        whenever(mockIamJsBridgeFactory.createJsBridge()).thenReturn(iamJsBridge)
-        val iamDialog = mock(IamDialog::class.java)
-        whenever(mockIamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
-
-        overlayPresenter.present("1", SID, URL, "requestId", 0L, "<html><body><p>Hello</p></body></html>", null)
-
-        verify(iamJsBridge).onCloseListener = any<OnCloseListener>()
-    }
-
-    @Test
     fun testOnClose_shouldCallDismissOnFragment() {
         val fragment: DialogFragment = mock()
         val supportManager: FragmentManager = mock()
@@ -252,107 +234,6 @@ class OverlayInAppPresenterTest {
         overlayPresenter.onCloseTriggered().invoke()
 
         verify(fragment).dismiss()
-    }
-
-    @Test
-    fun testPresent_shouldSet_JsBridgeOnButtonClickedListener() {
-        val iamJsBridge: IamJsBridge = mock()
-        whenever(mockIamJsBridgeFactory.createJsBridge()).thenReturn(iamJsBridge)
-        val iamDialog = mock(IamDialog::class.java)
-        whenever(mockIamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
-
-        overlayPresenter.present("1", SID, URL, "requestId", 0L, "<html><body><p>Hello</p></body></html>", null)
-
-        verify(iamJsBridge).onButtonClickedListener = any<OnButtonClickedListener>()
-    }
-
-    @Test
-    fun testButtonClicked_shouldStoreButtonClick_inRepository() {
-        val buttonClickedArgumentCaptor = ArgumentCaptor.forClass(ButtonClicked::class.java)
-        val id = "12346789"
-        val buttonId = "987654321"
-        val json = JSONObject().put("id", id).put("buttonId", buttonId)
-        val before = System.currentTimeMillis()
-
-        overlayPresenter.onButtonClickedTriggered(CAMPAIGN_ID, SID, URL).invoke(buttonId, json)
-
-        verify(mockButtonClickedRepository, timeout(1000)).add(capture<ButtonClicked>(buttonClickedArgumentCaptor))
-        val buttonClicked = buttonClickedArgumentCaptor.value
-        val after = System.currentTimeMillis()
-        buttonClicked.campaignId shouldBe CAMPAIGN_ID
-        buttonClicked.buttonId shouldBe buttonId
-        buttonClicked.timestamp shouldBeGreaterThanOrEqual before
-        buttonClicked.timestamp shouldBeLessThanOrEqual after
-    }
-
-    @Test
-    fun testButtonClicked_shouldSendInternalEvent_throughInAppInternal_withSidAndUrl() {
-        val id = "12346789"
-        val buttonId = "987654321"
-        val json = JSONObject().put("id", id).put("buttonId", buttonId)
-        val attributes: MutableMap<String, String> = HashMap()
-        attributes["campaignId"] = CAMPAIGN_ID
-        attributes["buttonId"] = buttonId
-        attributes["sid"] = SID
-        attributes["url"] = URL
-
-        overlayPresenter.onButtonClickedTriggered(CAMPAIGN_ID, SID, URL).invoke(buttonId, json)
-        verify(mockInAppInternal, timeout(1000)).trackInternalCustomEvent("inapp:click", attributes, null)
-    }
-
-    @Test
-    fun testButtonClicked_shouldSendInternalEvent_throughInAppInternal_whenSidAndUrlIsNull() {
-        val id = "12346789"
-        val buttonId = "987654321"
-        val json = JSONObject().put("id", id).put("buttonId", buttonId)
-        val attributes: MutableMap<String, String> = HashMap()
-        attributes["campaignId"] = CAMPAIGN_ID
-        attributes["buttonId"] = buttonId
-
-        overlayPresenter.onButtonClickedTriggered(CAMPAIGN_ID, null, null).invoke(buttonId, json)
-        verify(mockInAppInternal, timeout(1000)).trackInternalCustomEvent("inapp:click", attributes, null)
-    }
-
-    @Test
-    fun testPresent_shouldSet_JsBridgeOnMEEventListener() {
-        val iamJsBridge: IamJsBridge = mock()
-        whenever(mockIamJsBridgeFactory.createJsBridge()).thenReturn(iamJsBridge)
-        val iamDialog = mock(IamDialog::class.java)
-        whenever(mockIamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
-
-        overlayPresenter.present("1", SID, URL, "requestId", 0L, "<html><body><p>Hello</p></body></html>", null)
-
-        verify(iamJsBridge).onMEEventListener = any<OnMEEventListener>()
-    }
-
-    @Test
-    fun testPresent_shouldSet_JsBridgeExternalUrlEventListener() {
-        val iamJsBridge: IamJsBridge = mock()
-        whenever(mockIamJsBridgeFactory.createJsBridge()).thenReturn(iamJsBridge)
-        val iamDialog = mock(IamDialog::class.java)
-        whenever(mockIamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
-
-        overlayPresenter.present("1", SID, URL, "requestId", 0L, "<html><body><p>Hello</p></body></html>", null)
-
-        verify(iamJsBridge).onOpenExternalUrlListener = any<OnOpenExternalUrlListener>()
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testOpenExternalLink_shouldStartActivity_withViewIntent() {
-        val activity = mock<Activity>()
-        whenever(activity.packageManager).thenReturn(activityRule.activity.packageManager)
-        whenever(mockActivityProvider.get()).thenReturn(activity)
-        val id = "12346789"
-        val url = "https://emarsys.com"
-        val json = JSONObject().put("id", id).put("url", url)
-
-        overlayPresenter.onExternalUrlTriggered().invoke(url, json)
-        val captor = ArgumentCaptor.forClass(Intent::class.java)
-        verify(activity, timeout(1000)).startActivity(capture<Intent>(captor))
-        val intent = captor.value
-        Intent.ACTION_VIEW shouldBe intent.action
-        Uri.parse(url) shouldBe intent.data
     }
 
     @Test
@@ -395,50 +276,5 @@ class OverlayInAppPresenterTest {
         overlayPresenter.onAppEventTriggered().invoke("eventName", json)
 
         threadSpy.verifyCalledOnMainThread()
-    }
-
-    @Test
-    fun testTriggerMeEvent_shouldCallMobileEngageInternal_withAttributes() {
-        val eventAttributes: MutableMap<String, String> = HashMap()
-        eventAttributes["payloadKey1"] = "value1"
-        eventAttributes["payloadKey2"] = "value2"
-        val json = JSONObject()
-                .put("name", "eventName")
-                .put("id", "123456789")
-                .put("payload",
-                        JSONObject()
-                                .put("payloadKey1", "value1")
-                                .put("payloadKey2", "value2"))
-
-        overlayPresenter.onMEEventTriggered().invoke("eventName", json)
-
-        verify(mockInAppInternal, timeout(1000)).trackCustomEventAsync("eventName", eventAttributes, null)
-    }
-
-    @Test
-    @Throws(JSONException::class)
-    fun testTriggerMeEvent_shouldCallMobileEngageInternal_withoutAttributes() {
-        val json = JSONObject()
-                .put("name", "eventName")
-                .put("id", "123456789")
-
-        overlayPresenter.onMEEventTriggered().invoke("eventName", json)
-
-        verify(mockInAppInternal, timeout(1000)).trackCustomEventAsync("eventName", null, null)
-    }
-
-    @Test
-    fun testTriggerMeEvent_shouldCallMobileEngageInternal_onCoreSDKThread() {
-        val threadSpy: ThreadSpy<*> = ThreadSpy<Any?>()
-        whenever(mockInAppInternal.trackCustomEventAsync(any(), anyOrNull(), isNull())).doAnswer(threadSpy)
-        val id = "12346789"
-        val eventName = "eventName"
-        val json = JSONObject()
-                .put("id", id)
-                .put("name", eventName)
-
-        overlayPresenter.onMEEventTriggered().invoke("eventName", json)
-
-        threadSpy.verifyCalledOnCoreSdkThread()
     }
 }

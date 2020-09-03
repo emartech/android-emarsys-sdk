@@ -5,7 +5,7 @@ import android.os.Handler;
 
 import androidx.test.filters.SdkSuppress;
 
-import com.emarsys.core.provider.Gettable;
+import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.RequestModel;
@@ -19,6 +19,8 @@ import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction;
 import com.emarsys.mobileengage.iam.dialog.action.SendDisplayedIamAction;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory;
+import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory;
+import com.emarsys.mobileengage.iam.model.InAppMessage;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider;
@@ -68,7 +70,7 @@ public class InAppMessageResponseHandlerTest {
         mockJsBridgeFactory = mock(IamJsBridgeFactory.class);
         mockJsBridge = mock(IamJsBridge.class);
 
-        when(mockJsBridgeFactory.createJsBridge()).thenReturn(mockJsBridge);
+        when(mockJsBridgeFactory.createJsBridge(any(JSCommandFactory.class),any(InAppMessage.class))).thenReturn(mockJsBridge);
 
         dialog = mock(IamDialog.class);
         IamDialogProvider dialogProvider = mock(IamDialogProvider.class);
@@ -83,7 +85,7 @@ public class InAppMessageResponseHandlerTest {
                 mock(ButtonClickedRepository.class),
                 mock(DisplayedIamRepository.class),
                 mock(TimestampProvider.class),
-                mock(Gettable.class),
+                mock(CurrentActivityProvider.class),
                 mockJsBridgeFactory);
 
         handler = new InAppMessageResponseHandler(
