@@ -11,6 +11,7 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
+import java.util.*
 
 class DefaultMessageInboxInternal(private val requestManager: RequestManager,
                                   private val mobileEngageRequestContext: MobileEngageRequestContext,
@@ -31,7 +32,7 @@ class DefaultMessageInboxInternal(private val requestManager: RequestManager,
     override fun addTag(tag: String, messageId: String, completionListener: CompletionListener?) {
         val eventAttributes = mapOf(
                 "messageId" to messageId,
-                "tag" to tag
+                "tag" to tag.toLowerCase(Locale.ENGLISH)
         )
         val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest("inbox:tag:add", eventAttributes)
 
@@ -41,7 +42,7 @@ class DefaultMessageInboxInternal(private val requestManager: RequestManager,
     override fun removeTag(tag: String, messageId: String, completionListener: CompletionListener?) {
         val eventAttributes = mapOf(
                 "messageId" to messageId,
-                "tag" to tag
+                "tag" to tag.toLowerCase(Locale.ENGLISH)
         )
         val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest("inbox:tag:remove", eventAttributes)
 

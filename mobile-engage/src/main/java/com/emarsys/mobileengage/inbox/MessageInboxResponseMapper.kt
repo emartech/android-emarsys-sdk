@@ -4,8 +4,8 @@ import com.emarsys.core.Mapper
 import com.emarsys.core.Mockable
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.JsonUtils
-import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.mobileengage.api.inbox.InboxResult
+import com.emarsys.mobileengage.api.inbox.Message
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -35,12 +35,14 @@ class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
 
         return Message(
                 inboxMessageResponse.getString("id"),
+                inboxMessageResponse.getString("campaignId"),
+                if(inboxMessageResponse.isNull("collapseId")) null else inboxMessageResponse.getString("collapseId"),
                 inboxMessageResponse.getString("title"),
                 inboxMessageResponse.getString("body"),
                 if (inboxMessageResponse.isNull("imageUrl")) null else inboxMessageResponse.getString("imageUrl"),
                 inboxMessageResponse.getLong("receivedAt"),
                 inboxMessageResponse.getLong("updatedAt"),
-                if (inboxMessageResponse.isNull("ttl")) null else inboxMessageResponse.getInt("ttl"),
+                if (inboxMessageResponse.isNull("expiresAt")) null else inboxMessageResponse.getLong("expiresAt"),
                 if (inboxMessageResponse.isNull("tags")) null else tags,
                 if (inboxMessageResponse.isNull("properties")) null else JsonUtils.toFlatMap(inboxMessageResponse.getJSONObject("properties"))
         )
