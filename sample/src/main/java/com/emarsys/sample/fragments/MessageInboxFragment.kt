@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.emarsys.Emarsys
+import com.emarsys.inbox.InboxTag
+import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.sample.R
 import com.emarsys.sample.TagChangeListener
 import com.emarsys.sample.adapters.MessageInboxAdapter
@@ -38,7 +40,7 @@ class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, T
 
         swipeRefreshLayout.setOnRefreshListener {
             onRefresh()
-            refreshHint.visibility=View.GONE
+            refreshHint.visibility = View.GONE
         }
     }
 
@@ -54,7 +56,7 @@ class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, T
                 notificationStatus.messages.forEach { notification ->
                     Log.i(TAG, "Messages: ${notification.title}")
                 }
-
+                markAsSeen(notificationStatus.messages)
                 (messageInboxRecycleView.adapter as MessageInboxAdapter).addItems(notificationStatus.messages)
             }
 
@@ -63,6 +65,14 @@ class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, T
             }
         }
         swipeRefreshLayout.isRefreshing = false
+    }
+
+    private fun markAsSeen(messages: List<Message>) {
+        messages.forEach {
+            if (it.tags.isNullOrEmpty()) {
+                Emarsys.messageInbox.addTag(InboxTag.SEEN, it.id)
+            }
+        }
     }
 
     override fun addTagClicked(messageId: String) {

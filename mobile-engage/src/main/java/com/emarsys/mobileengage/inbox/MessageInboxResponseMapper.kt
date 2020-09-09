@@ -36,7 +36,7 @@ class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
         return Message(
                 inboxMessageResponse.getString("id"),
                 inboxMessageResponse.getString("campaignId"),
-                if(inboxMessageResponse.isNull("collapseId")) null else inboxMessageResponse.getString("collapseId"),
+                if (inboxMessageResponse.isNull("collapseId")) null else inboxMessageResponse.getString("collapseId"),
                 inboxMessageResponse.getString("title"),
                 inboxMessageResponse.getString("body"),
                 if (inboxMessageResponse.isNull("imageUrl")) null else inboxMessageResponse.getString("imageUrl"),
