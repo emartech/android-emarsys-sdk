@@ -54,6 +54,15 @@ class Logger(private val coreSdkHandler: Handler,
                 }
             }
         }
+
+        @JvmStatic
+        fun metric(logEntry: LogEntry) {
+            if (DependencyInjection.isSetup()) {
+                getDependency<Handler>("coreSdkHandler").post {
+                    getDependency<Logger>().persistLog(LogLevel.METRIC, logEntry)
+                }
+            }
+        }
     }
 
     fun persistLog(logLevel: LogLevel, logEntry: LogEntry, onCompleted: (() -> Unit)? = null) {

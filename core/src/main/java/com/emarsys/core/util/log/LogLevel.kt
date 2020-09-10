@@ -5,5 +5,6 @@ enum class LogLevel(val priority: Int) {
     DEBUG(2),
     INFO(3),
     WARN(4),
-    ERROR(5)
+    ERROR(5),
+    METRIC(6)
 }

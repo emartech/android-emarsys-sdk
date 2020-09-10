@@ -16,7 +16,7 @@ import androidx.fragment.app.DialogFragment
 import com.emarsys.core.Mockable
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.provider.timestamp.TimestampProvider
-import com.emarsys.core.util.log.Logger.Companion.info
+import com.emarsys.core.util.log.Logger.Companion.metric
 import com.emarsys.core.util.log.entry.AppEventLog
 import com.emarsys.core.util.log.entry.InAppLoadingTime
 import com.emarsys.core.util.log.entry.InAppLog
@@ -173,7 +173,7 @@ class IamDialog : DialogFragment() {
         updateOnScreenTime()
         val args = arguments
         if (args != null) {
-            info(InAppLog(
+            metric(InAppLog(
                     args.getParcelable(LOADING_TIME)!!,
                     OnScreenTime(
                             args.getLong(ON_SCREEN_TIME),
