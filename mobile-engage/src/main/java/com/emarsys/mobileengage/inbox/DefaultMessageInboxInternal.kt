@@ -20,13 +20,7 @@ class DefaultMessageInboxInternal(private val requestManager: RequestManager,
                                   private val messageInboxResponseMapper: MessageInboxResponseMapper) : MessageInboxInternal {
 
     override fun fetchMessages(resultListener: ResultListener<Try<InboxResult>>) {
-        if (mobileEngageRequestContext.contactFieldValueStorage.get() != null) {
-            handleFetchRequest(resultListener)
-        } else {
-            handler.post {
-                resultListener.onResult(Try.failure(NotificationInboxException("setContact must be called before calling fetchInboxMessages!")))
-            }
-        }
+        handleFetchRequest(resultListener)
     }
 
     override fun addTag(tag: String, messageId: String, completionListener: CompletionListener?) {
