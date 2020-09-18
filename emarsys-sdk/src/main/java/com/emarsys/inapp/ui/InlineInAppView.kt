@@ -67,7 +67,7 @@ class InlineInAppView : LinearLayout {
         addView(webView)
         with(webView.layoutParams) {
             width = ViewGroup.LayoutParams.MATCH_PARENT
-            height = ViewGroup.LayoutParams.MATCH_PARENT
+            height = ViewGroup.LayoutParams.WRAP_CONTENT
         }
 
         if (viewId != null) {
