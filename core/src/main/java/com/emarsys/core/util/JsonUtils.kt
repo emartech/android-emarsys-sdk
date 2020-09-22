@@ -54,15 +54,11 @@ object JsonUtils {
 
         val result = JSONObject()
         for (jsonObject in jsonObjects) {
-            if (jsonObject != null) {
-                val iterator = jsonObject.keys()
-                while (iterator.hasNext()) {
-                    val key = iterator.next()
-                    try {
-                        result.put(key, jsonObject[key])
-                    } catch (e: JSONException) {
-                        e.printStackTrace()
-                    }
+            jsonObject?.keys()?.asSequence()?.forEach {
+                try {
+                    result.put(it, jsonObject[it])
+                } catch (e: JSONException) {
+                    e.printStackTrace()
                 }
             }
         }

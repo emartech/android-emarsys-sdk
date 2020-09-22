@@ -518,7 +518,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getDeviceInfo(),
                 requestManager,
                 emarsysRequestModelFactory,
-                RemoteConfigResponseMapper(RandomProvider()),
+                RemoteConfigResponseMapper(RandomProvider(), hardwareIdProvider),
                 getClientServiceStorage(),
                 getEventServiceStorage(),
                 getDeepLinkServiceStorage(),

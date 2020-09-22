@@ -1,11 +1,14 @@
 package com.emarsys.config
 
 import com.emarsys.config.model.RemoteConfig
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.random.RandomProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
@@ -18,6 +21,7 @@ class RemoteConfigResponseMapperTest {
 
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var mockRandomProvider: RandomProvider
+    private lateinit var mockHardwareIdProvider: HardwareIdProvider
     private lateinit var remoteConfigResponseMapper: RemoteConfigResponseMapper
 
 
@@ -29,32 +33,18 @@ class RemoteConfigResponseMapperTest {
     fun setup() {
         mockResponseModel = mock(ResponseModel::class.java)
         mockRandomProvider = mock(RandomProvider::class.java)
+        mockHardwareIdProvider = mock {
+            on { provideHardwareId() } doReturn "testHardwareId"
+        }
 
-        remoteConfigResponseMapper = RemoteConfigResponseMapper(mockRandomProvider)
+        remoteConfigResponseMapper = RemoteConfigResponseMapper(mockRandomProvider, mockHardwareIdProvider)
     }
 
     @Test
     fun testMap_mapsResponseModel_to_RemoteConfig() {
         whenever(mockRandomProvider.provideDouble(1.0)).thenReturn(0.2)
         whenever(mockResponseModel.body).thenReturn(
-                """
-                   {
-                        "serviceUrls":{
-                                "eventService":"https://testEventService.emarsys.net",
-                                "clientService":"https://testClientService.emarsys.net",
-                                "predictService":"https://testPredictService.emarsys.net",
-                                "mobileEngageV2Service":"https://testMobileEngageV2Service.emarsys.net",
-                                "deepLinkService":"https://testDeepLinkService.emarsys.net",
-                                "inboxService":"https://testinboxService.emarsys.net",
-                                "messageInboxService":"https://testMessageInboxService.emarsys.net"
-                        },
-                        "logLevel": "ERROR",
-                        "luckyLogger": {
-                               "logLevel": "INFO",
-                               "threshold": 0.2
-                           }
-                   }
-               """.trimIndent()
+                fullRemoteConfigJson.trimIndent()
         )
 
         val expected = RemoteConfig(
@@ -66,6 +56,27 @@ class RemoteConfigResponseMapperTest {
                 "https://testinboxService.emarsys.net",
                 "https://testMessageInboxService.emarsys.net",
                 LogLevel.INFO)
+
+        val result = remoteConfigResponseMapper.map(mockResponseModel)
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testMap_mapsResponseModel_to_RemoteConfig_withHwIdOverride() {
+        whenever(mockRandomProvider.provideDouble(1.0)).thenReturn(0.6)
+        whenever(mockResponseModel.body).thenReturn(fullRemoteConfigJson.trimIndent())
+        whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn("hardwareId1")
+
+        val expected = RemoteConfig(
+                "https://mobile-events-2.eservice.emarsys.net",
+                "https://testClientService.emarsys.net",
+                "https://testPredictService.emarsys.net",
+                "https://testMobileEngageV2Service.emarsys.net",
+                "https://testDeepLinkService.emarsys.net",
+                "https://testinboxService.emarsys.net",
+                "https://testMessageInboxService.emarsys.net",
+                LogLevel.TRACE)
 
         val result = remoteConfigResponseMapper.map(mockResponseModel)
 
@@ -201,5 +212,45 @@ class RemoteConfigResponseMapperTest {
         val result = remoteConfigResponseMapper.map(mockResponseModel)
 
         result shouldBe expected
+    }
+
+    companion object {
+        const val fullRemoteConfigJson = """
+                   {
+                      "serviceUrls": {
+                        "eventService": "https://testEventService.emarsys.net",
+                        "clientService": "https://testClientService.emarsys.net",
+                        "predictService": "https://testPredictService.emarsys.net",
+                        "mobileEngageV2Service": "https://testMobileEngageV2Service.emarsys.net",
+                        "deepLinkService": "https://testDeepLinkService.emarsys.net",
+                        "inboxService": "https://testinboxService.emarsys.net",
+                        "messageInboxService": "https://testMessageInboxService.emarsys.net"
+                      },
+                      "logLevel": "ERROR",
+                      "luckyLogger": {
+                        "logLevel": "INFO",
+                        "threshold": 0.2
+                      },
+                      "overrides": {
+                        "hardwareId1": {
+                          "serviceUrls": {
+                            "eventService": "https://mobile-events-2.eservice.emarsys.net"
+                          },
+                          "logLevel": "TRACE",
+                          "luckyLogger": {
+                            "logLevel": "WARN",
+                            "threshold": 0.3
+                          }
+                        },
+                        "hardwareId2": {
+                          "serviceUrls": {
+                            "eventService": "https://mobile-events-2.eservice.emarsys.net",
+                            "clientService": "https://me-client.eservice.emarsys.net "
+                          },
+                          "logLevel": "DEBUG"
+                        }
+                      }
+                    }
+               """
     }
 }
