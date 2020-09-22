@@ -91,21 +91,6 @@ class DefaultMessageInboxInternalTest {
     }
 
     @Test
-    fun testFetchInboxMessages_shouldOnlyCallRequestManager_whenUserIsLoggedIn() {
-        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
-        val fakeResultListener = FakeResultListener<InboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
-
-        messageInboxInternal.fetchMessages(fakeResultListener)
-
-        fakeResultListener.latch.await()
-
-        verifyZeroInteractions(mockRequestModelFactory)
-        verifyZeroInteractions(mockRequestManager)
-        fakeResultListener.errorCause.javaClass shouldBe NotificationInboxException::class.java
-        fakeResultListener.errorCount shouldBe 1
-    }
-
-    @Test
     fun testFetchInboxMessages_resultListener_onSuccess() {
         val mockResponse: ResponseModel = mock {
             on { requestModel } doReturn mockRequestModel
