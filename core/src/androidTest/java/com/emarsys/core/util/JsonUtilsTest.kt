@@ -4,6 +4,7 @@ import com.emarsys.core.util.JsonUtils.fromList
 import com.emarsys.core.util.JsonUtils.fromMap
 import com.emarsys.core.util.JsonUtils.merge
 import com.emarsys.core.util.JsonUtils.toFlatMap
+import com.emarsys.core.util.JsonUtils.toFlatMapIncludingNulls
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
 import org.json.JSONArray
@@ -292,7 +293,54 @@ class JsonUtilsTest {
     }
 
     @Test
-    fun testToFloatMap_withEmptyJsonObject() {
+    fun testToFlatMapIncludingNulls_withEmptyJsonObject() {
+        val result = toFlatMapIncludingNulls(JSONObject())
+        val expected: Map<String, String?> = mapOf()
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testToFlatMapIncludingNulls_withJsonObjectOfStringAndNullValues() {
+        val input = JSONObject()
+                .put("key1", "value1")
+                .put("key2", "null")
+                .put("key3", "value3")
+        val result = toFlatMapIncludingNulls(input)
+        val expected: MutableMap<String, String?> = mutableMapOf()
+        expected["key1"] = "value1"
+        expected["key2"] = null
+        expected["key3"] = "value3"
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testToFlatMapIncludingNulls_withJsonObjectOfMixedValues() {
+        val input = JSONObject()
+                .put("key1", "value1")
+                .put("key2", 3.14)
+                .put("key3", false)
+                .put("keyWithNull", "null")
+                .put("key4", JSONObject()
+                        .put("nestedKey1", "nestedValue1")
+                        .put("nestedKey2", 900)
+                        .put("nestedKey3", "null")
+                )
+        val result = toFlatMapIncludingNulls(input)
+        val expected: Map<String, String?> = mapOf(
+                "key1" to "value1",
+                "key2" to "3.14",
+                "key3" to "false",
+                "keyWithNull" to null,
+                "key4" to """{"nestedKey1":"nestedValue1","nestedKey2":900,"nestedKey3":"null"}"""
+        )
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testToFlatMap_withEmptyJsonObject() {
         val result = toFlatMap(JSONObject())
         val expected: Map<String, String> = HashMap()
         Assert.assertEquals(expected, result)
@@ -300,7 +348,7 @@ class JsonUtilsTest {
 
     @Test
     @Throws(JSONException::class)
-    fun testToFloatMap_withJsonObjectOfStringValues() {
+    fun testToFlatMap_withJsonObjectOfStringValues() {
         val input = JSONObject()
                 .put("key1", "value1")
                 .put("key2", "value2")
@@ -316,7 +364,7 @@ class JsonUtilsTest {
 
     @Test
     @Throws(JSONException::class)
-    fun testToFloatMap_withJsonObjectOfStringValuesAndNull() {
+    fun testToFlatMap_withJsonObjectOfStringValuesAndNull() {
         val input = JSONObject()
                 .put("key1", "value1")
                 .put("key2", "value2")
@@ -335,7 +383,7 @@ class JsonUtilsTest {
 
     @Test
     @Throws(JSONException::class)
-    fun testToFloatMap_withJsonObjectOfMixedValues() {
+    fun testToFlatMap_withJsonObjectOfMixedValues() {
         val input = JSONObject()
                 .put("key1", "value1")
                 .put("key2", 3.14)

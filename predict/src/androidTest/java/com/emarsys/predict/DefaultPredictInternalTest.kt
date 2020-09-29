@@ -46,7 +46,7 @@ class DefaultPredictInternalTest {
         const val TIMESTAMP = 100000L
         const val ID1 = "id1"
         const val ID2 = "id2"
-        val PRODUCT: Product = Product.Builder(ID1, "title", "https://emarsys.com", "RELATED", "AAAA").build()
+        val PRODUCT: Product = Product(ID1, "title", "https://emarsys.com", "RELATED", "AAAA")
         const val FIELD = "Field"
         const val COMPARISON = "Comparison"
         const val TYPE = "INCLUDE_OR_EXCLUDE"
@@ -467,7 +467,7 @@ class DefaultPredictInternalTest {
 
     @Test
     fun testRecommendProducts_shouldCallRequestManager_success_shouldBeCalledOnMainThread() {
-        val expectedResult = listOf(mock(Product::class.java))
+        val expectedResult = listOf(PRODUCT)
         whenever(mockPredictResponseMapper.map(mockResponseModel)).thenReturn(expectedResult)
 
         predictInternal = DefaultPredictInternal(

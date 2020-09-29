@@ -153,7 +153,7 @@ class PredictTest {
 
     @Test
     fun testPredict_trackRecommendationClick_delegatesTo_predictInternal() {
-        val product = Product.Builder(randomString(), randomString(), "https://emarsys.com", randomString(), randomNumberString()).build()
+        val product = Product(randomString(), randomString(), "https://emarsys.com", randomString(), randomNumberString())
         predict.trackRecommendationClick(product)
         Mockito.verify(mockPredictInternal).trackRecommendationClick(product)
     }

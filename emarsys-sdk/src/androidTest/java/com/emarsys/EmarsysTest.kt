@@ -1119,7 +1119,7 @@ class EmarsysTest {
     fun testPredict_trackRecommendationClick_delegatesTo_predictInstance() {
         setup(predictConfig)
 
-        val product = Product.Builder("itemId", "title", "https://emarsys.com", "RELATED", "AAAA").build()
+        val product = Product("itemId", "title", "https://emarsys.com", "RELATED", "AAAA")
         trackRecommendationClick(product)
         verify(mockPredict).trackRecommendationClick(product)
     }

@@ -14,8 +14,8 @@ import org.mockito.Mockito
 
 class PredictResponseMapperTest {
 
+    private lateinit var predictResponseMapper: PredictResponseMapper
     private lateinit var mockResponseModel: ResponseModel
-
     private lateinit var expectedResult: List<Product>
 
     @Rule
@@ -23,73 +23,14 @@ class PredictResponseMapperTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
-    fun init() {
+    fun setUp() {
+        predictResponseMapper = PredictResponseMapper()
         mockResponseModel = Mockito.mock(ResponseModel::class.java)
-    }
-
-    private fun getExpectedResult(feature: String, msrp: Float?, available: Boolean?, price: Float?): List<Product> {
-        val productBuilder = Product.Builder(
-                "2119",
-                "LSL Men Polo Shirt SE16",
-                "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
-                feature,
-                "AAAA")
-                .categoryPath("MEN>Shirts")
-                .available(available)
-        if (msrp != null) {
-            productBuilder.msrp(msrp)
-        }
-        if (price != null) {
-            productBuilder.price(price)
-        }
-        if (available != null) {
-            productBuilder.available(available)
-        }
-        productBuilder
-                .imageUrl("http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg")
-                .zoomImageUrl("http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg")
-                .productDescription("product Description")
-                .album("album")
-                .actor("actor")
-                .artist("artist")
-                .author("author")
-                .brand("brand")
-                .year(2000)
-                .customFields(hashMapOf(
-                        "msrp_gpb" to "83.2",
-                        "price_gpb" to "83.2",
-                        "msrp_aed" to "100",
-                        "price_aed" to "100",
-                        "msrp_cad" to "100",
-                        "price_cad" to "100",
-                        "msrp_mxn" to "2057.44",
-                        "price_mxn" to "2057.44",
-                        "msrp_pln" to "100",
-                        "price_pln" to "100",
-                        "msrp_rub" to "100",
-                        "price_rub" to "100",
-                        "msrp_sek" to "100",
-                        "price_sek" to "100",
-                        "msrp_try" to "339.95",
-                        "price_try" to "339.95",
-                        "msrp_usd" to "100",
-                        "price_usd" to "100"
-                ))
-        return listOf(
-                productBuilder.build(),
-                Product.Builder(
-                        "2120",
-                        "LSL Men Polo Shirt SE16",
-                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
-                        feature,
-                        "AAAA")
-                        .build())
     }
 
     @Test
     fun testMap_withSearch_shouldPreserveOrder() {
         whenever(mockResponseModel.body).thenReturn(getBodyFor("SEARCH"))
-        val predictResponseMapper = PredictResponseMapper()
         val result = predictResponseMapper.map(mockResponseModel)
         expectedResult = getExpectedResult("SEARCH", 100F, true, 100F)
         result shouldContainAll expectedResult
@@ -102,7 +43,6 @@ class PredictResponseMapperTest {
     @Test
     fun testMap_shouldNotCrash_whenParsedValuesAreNull() {
         whenever(mockResponseModel.body).thenReturn(getBodyFor("SEARCH", "null", "null", "null"))
-        val predictResponseMapper = PredictResponseMapper()
         val expectedResult = getExpectedResult("SEARCH", null, null, null)[0]
 
         val result = predictResponseMapper.map(mockResponseModel)[0]
@@ -113,7 +53,6 @@ class PredictResponseMapperTest {
     @Test
     fun testMap_withCart_shouldPreserveOrder() {
         whenever(mockResponseModel.body).thenReturn(getBodyFor("CART"))
-        val predictResponseMapper = PredictResponseMapper()
         val result = predictResponseMapper.map(mockResponseModel)
         expectedResult = getExpectedResult("CART", 100F, true, 100F)
 
@@ -127,7 +66,6 @@ class PredictResponseMapperTest {
     @Test
     fun testMap_withRelated_shouldPreserveOrder() {
         whenever(mockResponseModel.body).thenReturn(getBodyFor("RELATED"))
-        val predictResponseMapper = PredictResponseMapper()
         val result = predictResponseMapper.map(mockResponseModel)
         expectedResult = getExpectedResult("RELATED", 100F, true, 100F)
 
@@ -141,7 +79,6 @@ class PredictResponseMapperTest {
     @Test
     fun testMap_withResponseWithoutProducts() {
         whenever(mockResponseModel.body).thenReturn(getEmptyBodyFor("SEARCH"))
-        val predictResponseMapper = PredictResponseMapper()
         val result = predictResponseMapper.map(mockResponseModel)
 
         expectedResult = emptyList()
@@ -149,7 +86,68 @@ class PredictResponseMapperTest {
         result shouldBe expectedResult
     }
 
-    private fun getBodyFor(feature: String, msrp: String = "100", available: String = "true", price: String = "100.0"): String {
+    @Test
+    fun testMap_shouldNotBreakWhenFloatPropertyIsNull() {
+        whenever(mockResponseModel.body).thenReturn(getBodyFor(feature = "SEARCH", msrp = null))
+        val result = predictResponseMapper.map(mockResponseModel)
+
+        expectedResult = getExpectedResult("SEARCH", null, true, 100.0F)
+
+        result shouldBe expectedResult
+    }
+
+    private fun getExpectedResult(feature: String, msrp: Float?, available: Boolean?, price: Float?): List<Product> {
+        val product1 = Product(
+                productId = "2119",
+                title = "LSL Men Polo Shirt SE16",
+                linkUrl = "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
+                feature = feature,
+                cohort = "AAAA",
+                categoryPath = "MEN>Shirts",
+                available = available,
+                msrp = msrp,
+                price = price,
+                imageUrlString = "http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg",
+                zoomImageUrlString = "http://lifestylelabels.com/pub/media/catalog/product/m/p/mp001.jpg",
+                productDescription = "product Description",
+                album = "album",
+                actor = "actor",
+                artist = "artist",
+                author = "author",
+                brand = "brand",
+                year = 2000,
+                customFields = mapOf(
+                        "msrp_gpb" to "83.2",
+                        "price_gpb" to "83.2",
+                        "msrp_aed" to "100",
+                        "price_aed" to "100",
+                        "msrp_cad" to "100",
+                        "price_cad" to "100",
+                        "msrp_mxn" to "2057.44",
+                        "price_mxn" to "2057.44",
+                        "msrp_pln" to "100",
+                        "price_pln" to null,
+                        "msrp_rub" to "100",
+                        "price_rub" to "100",
+                        "msrp_sek" to "100",
+                        "price_sek" to "100",
+                        "msrp_try" to "339.95",
+                        "price_try" to "339.95",
+                        "msrp_usd" to "100",
+                        "price_usd" to "100"
+                ))
+        return listOf(
+                product1,
+                Product(
+                        "2120",
+                        "LSL Men Polo Shirt SE16",
+                        "http://lifestylelabels.com/lsl-men-polo-shirt-se16.html",
+                        feature,
+                        "AAAA")
+        )
+    }
+
+    private fun getBodyFor(feature: String, msrp: String? = "100", available: String = "true", price: String = "100.0"): String {
         return """{
            "cohort":"AAAA",
            "visitor":"16BCC0D2745E6B36",
@@ -183,7 +181,7 @@ class PredictResponseMapperTest {
                  "msrp_mxn":"2057.44",
                  "price_mxn":"2057.44",
                  "msrp_pln":"100",
-                 "price_pln":"100",
+                 "price_pln":"null",
                  "msrp_rub":"100",
                  "price_rub":"100",
                  "msrp_sek":"100",

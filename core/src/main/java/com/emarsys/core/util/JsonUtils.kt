@@ -3,7 +3,6 @@ package com.emarsys.core.util
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
 
 object JsonUtils {
     @JvmStatic
@@ -67,19 +66,24 @@ object JsonUtils {
 
     @JvmStatic
     fun toFlatMap(jsonObject: JSONObject): Map<String, String> {
-        val result: MutableMap<String, String> = HashMap()
-        val iterator = jsonObject.keys()
-        while (iterator.hasNext()) {
+        return jsonObject.keys().asSequence().associateBy({ key -> key }) { key ->
             try {
-                val key = iterator.next()
-                val value = jsonObject.getString(key).convertNullStringValueToNull()
-                if (value != null) {
-                    result[key] = value
-                }
+                jsonObject.getString(key).convertNullStringValueToNull()
             } catch (ignore: JSONException) {
+                null
+            }
+        }.mapNotNull { it.value?.let { value -> it.key to value } }.toMap()
+    }
+
+    @JvmStatic
+    fun toFlatMapIncludingNulls(jsonObject: JSONObject): Map<String, String?> {
+        return jsonObject.keys().asSequence().associateBy({ key -> key }) { key ->
+            try {
+                jsonObject.getString(key).convertNullStringValueToNull()
+            } catch (ignore: JSONException) {
+                null
             }
         }
-        return result
     }
 
     private fun validateArgument(jsonObjects: Array<JSONObject?>) {
