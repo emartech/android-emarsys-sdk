@@ -35,8 +35,18 @@ modules.each {
         }
 
         bintray {
-            user = project.devConfig.bintrayUser || System.env.BINTRAY_USER
-            key = project.devConfig.bintrayApiKey || System.env.BINTRAY_API_KEY
+            def bintrayUser = null
+            def bintrayApiKey = null
+            def localConfigPropertiesFile = rootProject.file('localConfig.properties')
+            def localConfigProperties = new Properties()
+            if (localConfigPropertiesFile.exists()) {
+                localConfigProperties.load(new FileInputStream(localConfigPropertiesFile))
+                bintrayUser = localConfigProperties.getProperty("bintrayUser")
+                bintrayApiKey = localConfigProperties.getProperty("bintrayApiKey")
+            }
+
+            user = bintrayUser || System.env.BINTRAY_USER
+            key = bintrayApiKey || System.env.BINTRAY_API_KEY
             publications = ["$project.name"]
             publish = true
             override = true

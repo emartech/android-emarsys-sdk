@@ -21,6 +21,8 @@ android {
             api_key = localConfigProperties.getProperty("googleServicesApiKey")
         }
 
-        buildConfigField "String", "GOOGLE_SERVICES_API_KEY", "\"${System.env.GOOGLE_SERVICES_API_KEY ?: api_key}\""
+        if (!System.env.EXCLUDE_GOOGLE_SERVICES_API_KEY) {
+            buildConfigField "String", "GOOGLE_SERVICES_API_KEY", "\"${System.env.GOOGLE_SERVICES_API_KEY ?: api_key}\""
+        }
     }
 }
