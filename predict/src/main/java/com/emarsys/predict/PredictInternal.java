@@ -27,7 +27,7 @@ public interface PredictInternal {
 
     void trackTag(String tag, Map<String, String> attributes);
 
-    void recommendProducts(Logic recommendationLogic, Integer limit, List<RecommendationFilter> recommendationFilters, ResultListener<Try<List<Product>>> resultListener);
+    void recommendProducts(Logic recommendationLogic, Integer limit, List<RecommendationFilter> recommendationFilters, String availabilityZone, ResultListener<Try<List<Product>>> resultListener);
 
     String trackRecommendationClick(Product product);
 }

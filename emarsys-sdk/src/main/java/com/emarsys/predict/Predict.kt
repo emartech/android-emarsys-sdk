@@ -48,20 +48,20 @@ class Predict(private val loggingInstance: Boolean = false) : PredictApi {
 
     override fun recommendProducts(recommendationLogic: Logic, resultListener: ResultListener<Try<List<Product>>>) {
         (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
-                .recommendProducts(recommendationLogic, null, null, resultListener)
+                .recommendProducts(recommendationLogic, null, null, null, resultListener)
     }
 
     override fun recommendProducts(recommendationLogic: Logic, limit: Int, resultListener: ResultListener<Try<List<Product>>>) {
         Assert.positiveInt(limit, "Limit must be greater than zero!")
         (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
-                .recommendProducts(recommendationLogic, limit, null, resultListener)
+                .recommendProducts(recommendationLogic, limit, null, null, resultListener)
     }
 
     override fun recommendProducts(recommendationLogic: Logic,
                                    recommendationFilters: List<RecommendationFilter>,
                                    resultListener: ResultListener<Try<List<Product>>>) {
         (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
-                .recommendProducts(recommendationLogic, null, recommendationFilters, resultListener)
+                .recommendProducts(recommendationLogic, null, recommendationFilters, null, resultListener)
     }
 
     override fun recommendProducts(recommendationLogic: Logic,
@@ -70,7 +70,7 @@ class Predict(private val loggingInstance: Boolean = false) : PredictApi {
                                    resultListener: ResultListener<Try<List<Product>>>) {
         Assert.positiveInt(limit, "Limit must be greater than zero!")
         (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
-                .recommendProducts(recommendationLogic, limit, recommendationFilters, resultListener)
+                .recommendProducts(recommendationLogic, limit, recommendationFilters, null, resultListener)
     }
 
     override fun trackRecommendationClick(product: Product) {

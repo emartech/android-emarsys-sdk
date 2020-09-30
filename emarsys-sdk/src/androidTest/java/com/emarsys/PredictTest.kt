@@ -122,14 +122,14 @@ class PredictTest {
     @Test
     fun testPredict_recommendProductWithLimit_delegatesTo_predictInternal() {
         predict.recommendProducts(mockLogic, 5, mockResultListener)
-        Mockito.verify(mockPredictInternal).recommendProducts(mockLogic, 5, null, mockResultListener)
+        Mockito.verify(mockPredictInternal).recommendProducts(mockLogic, 5, null, null, mockResultListener)
     }
 
 
     @Test
     fun testPredict_recommendProductsWithFilters_delegatesTo_predictInternal() {
         predict.recommendProducts(mockLogic, mockRecommendationFilters, mockResultListener)
-        Mockito.verify(mockPredictInternal).recommendProducts(mockLogic, null, mockRecommendationFilters, mockResultListener)
+        Mockito.verify(mockPredictInternal).recommendProducts(mockLogic, null, mockRecommendationFilters, null, mockResultListener)
     }
 
 
@@ -142,13 +142,13 @@ class PredictTest {
     @Test
     fun testPredict_recommendProductsWithFiltersAndLimit_delegatesTo_predictInternal() {
         predict.recommendProducts(mockLogic, mockRecommendationFilters, 123, mockResultListener)
-        Mockito.verify(mockPredictInternal).recommendProducts(mockLogic, 123, mockRecommendationFilters, mockResultListener)
+        Mockito.verify(mockPredictInternal).recommendProducts(mockLogic, 123, mockRecommendationFilters, null, mockResultListener)
     }
 
     @Test
     fun testPredict_recommendProducts_delegatesTo_predictInternal() {
         predict.recommendProducts(mockLogic, mockResultListener)
-        Mockito.verify(mockPredictInternal).recommendProducts(mockLogic, null, null, mockResultListener)
+        Mockito.verify(mockPredictInternal).recommendProducts(mockLogic, null, null, null, mockResultListener)
     }
 
     @Test

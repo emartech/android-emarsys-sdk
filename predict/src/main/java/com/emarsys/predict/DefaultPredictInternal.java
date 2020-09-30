@@ -173,13 +173,14 @@ public class DefaultPredictInternal implements PredictInternal {
     }
 
     @Override
-    public void recommendProducts(final Logic recommendationLogic, final Integer limit, final List<RecommendationFilter> recommendationFilters, final ResultListener<Try<List<Product>>> resultListener) {
+    public void recommendProducts(final Logic recommendationLogic, final Integer limit, final List<RecommendationFilter> recommendationFilters, String availabilityZone, final ResultListener<Try<List<Product>>> resultListener) {
         Assert.notNull(recommendationLogic, "RecommendationLogic must not be null!");
         Assert.notNull(resultListener, "ResultListener must not be null!");
 
         RequestModel requestModel = requestModelBuilderProvider.providePredictRequestModelBuilder()
                 .withLogic(recommendationLogic, lastTrackedContainer)
                 .withLimit(limit)
+                .withAvailabilityZone(availabilityZone)
                 .withFilters(recommendationFilters)
                 .build();
 

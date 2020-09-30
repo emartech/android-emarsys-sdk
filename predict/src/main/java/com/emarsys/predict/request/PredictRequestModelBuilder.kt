@@ -27,6 +27,7 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
     private var logic: Logic? = null
     private var lastTrackedItemContainer: LastTrackedItemContainer? = null
     private var limit: Int? = null
+    private var availabilityZone: String? = null
     private var filters: List<RecommendationFilter>? = null
     private val uriBuilder: Uri.Builder = Uri.parse(predictServiceEndpointProvider.provideEndpointHost())
             .buildUpon()
@@ -46,6 +47,11 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
     fun withLimit(limit: Int?): PredictRequestModelBuilder {
         require(!(limit != null && limit < 1)) { "Limit must be greater than zero or Null!" }
         this.limit = limit
+        return this
+    }
+
+    fun withAvailabilityZone(availabilityZone: String?): PredictRequestModelBuilder {
+        this.availabilityZone = availabilityZone
         return this
     }
 
@@ -84,7 +90,9 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
         if (contactId != null) {
             uriBuilder.appendQueryParameter("ci", contactId)
         }
-
+        if (availabilityZone != null) {
+            uriBuilder.appendQueryParameter("az", availabilityZone)
+        }
         val url: String = if (RecommendationLogic.PERSONAL == logic.logicName
                 || RecommendationLogic.HOME == logic.logicName) {
             createUrlWithVariants(logic)
