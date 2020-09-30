@@ -28,6 +28,8 @@ class ConfigFragment : Fragment() {
                 Emarsys.config.changeApplicationCode(newApplicationCode.text.toString()) { throwable ->
                     onAppCodeChange(throwable, view)
                 }
+            } else if (newApplicationCode.text.isNullOrEmpty()) {
+                view.showSnackBar("ApplicationCode needed!")
             } else {
                 Emarsys.config.changeApplicationCode(newApplicationCode.text.toString(), newContactFieldId.text.toString().toInt()) { throwable ->
                     onAppCodeChange(throwable, view)
@@ -42,6 +44,13 @@ class ConfigFragment : Fragment() {
             view.showSnackBar("MerchantId has been changed!")
         }
 
+        hardwareIdField.text = Emarsys.config.hardwareId
+        languageCodeField.text = Emarsys.config.language
+        pushSettingsField.text = """
+            NotificationsEnabled: ${Emarsys.config.notificationSettings.areNotificationsEnabled()}
+            Importance: ${Emarsys.config.notificationSettings.importance}
+            ChannelSettings: ${Emarsys.config.notificationSettings.channelSettings.toString()}
+        """.trimIndent()
     }
 
     private fun onAppCodeChange(throwable: Throwable?, view: View) {
