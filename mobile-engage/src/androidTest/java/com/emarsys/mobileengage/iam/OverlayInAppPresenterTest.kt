@@ -277,4 +277,21 @@ class OverlayInAppPresenterTest {
 
         threadSpy.verifyCalledOnMainThread()
     }
+
+    @Test
+    fun testTriggerAppEvent_inAppMessageHandler_shouldNotBeCalledWhenActivityIsNull() {
+        val mockEventHandler: EventHandler = mock()
+        whenever(mockActivityProvider.get()).thenReturn(null)
+        whenever(mockInAppInternal.eventHandler).thenReturn(mockEventHandler)
+
+        val id = "12346789"
+        val eventName = "eventName"
+        val json = JSONObject()
+                .put("id", id)
+                .put("name", eventName)
+
+        overlayPresenter.onAppEventTriggered().invoke("eventName", json)
+
+        verifyZeroInteractions(mockEventHandler)
+    }
 }

@@ -81,7 +81,7 @@ class OverlayInAppPresenter(
             uiHandler.post {
                 val payload = json.optJSONObject("payload")
                 val currentActivity = currentActivityProvider.get()
-                if (property != null) {
+                if (property != null && currentActivity != null) {
                     uiHandler.post {
                         inAppInternal.eventHandler?.handleEvent(currentActivity, property, payload)
                     }

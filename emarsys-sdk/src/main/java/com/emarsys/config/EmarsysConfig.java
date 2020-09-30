@@ -1,5 +1,6 @@
 package com.emarsys.config;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 
@@ -7,9 +8,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.emarsys.core.api.experimental.FlipperFeature;
+import com.emarsys.core.di.DependencyInjection;
+import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.api.NotificationEventHandler;
 import com.emarsys.mobileengage.api.event.EventHandler;
+import com.emarsys.mobileengage.di.MobileEngageDependencyContainer;
 
 import org.json.JSONObject;
 
@@ -79,7 +83,11 @@ public class EmarsysConfig {
         return new com.emarsys.mobileengage.api.EventHandler() {
             @Override
             public void handleEvent(String eventName, @Nullable JSONObject payload) {
-                inAppEventHandler.handleEvent(null, eventName, payload);
+                CurrentActivityProvider currentActivityProvider = ((MobileEngageDependencyContainer) DependencyInjection.getContainer()).getCurrentActivityProvider();
+                Activity currentActivity = currentActivityProvider.get();
+                if (currentActivity != null) {
+                    inAppEventHandler.handleEvent(currentActivity, eventName, payload);
+                }
             }
         };
     }
@@ -208,6 +216,7 @@ public class EmarsysConfig {
             this.automaticPushTokenSending = false;
             return this;
         }
+
         /**
          * @deprecated will be removed in 3.0.0, use Emarsys.inapp.setEventHandler(EventHandler) instead.
          */
