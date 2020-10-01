@@ -452,6 +452,17 @@ class PredictIntegrationTest {
     }
 
     @Test
+    fun testRecommendProducts_withAvailabilityZone() {
+        testTrackItemView()
+        latch = CountDownLatch(1)
+
+        Emarsys.predict.recommendProducts(RecommendationLogic.home(listOf("1", "2", "3")), "hu",
+                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+
+        eventuallyAssertForTriedRecommendedProducts()
+    }
+
+    @Test
     fun testMultipleInvocations() {
         testTrackCart()
         latch = CountDownLatch(1)

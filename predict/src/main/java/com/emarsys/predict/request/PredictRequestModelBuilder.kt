@@ -45,7 +45,7 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
     }
 
     fun withLimit(limit: Int?): PredictRequestModelBuilder {
-        require(!(limit != null && limit < 1)) { "Limit must be greater than zero or Null!" }
+        require(limit ?: 1 > 0) { "Limit must be greater than zero, or can be Null!" }
         this.limit = limit
         return this
     }

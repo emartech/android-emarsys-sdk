@@ -1,33 +1,21 @@
-package com.emarsys.predict;
+package com.emarsys.predict
 
-import com.emarsys.core.api.result.ResultListener;
-import com.emarsys.core.api.result.Try;
-import com.emarsys.predict.api.model.CartItem;
-import com.emarsys.predict.api.model.Logic;
-import com.emarsys.predict.api.model.Product;
-import com.emarsys.predict.api.model.RecommendationFilter;
+import com.emarsys.core.api.result.ResultListener
+import com.emarsys.core.api.result.Try
+import com.emarsys.predict.api.model.CartItem
+import com.emarsys.predict.api.model.Logic
+import com.emarsys.predict.api.model.Product
+import com.emarsys.predict.api.model.RecommendationFilter
 
-import java.util.List;
-import java.util.Map;
-
-public interface PredictInternal {
-    void setContact(String contactId);
-
-    void clearContact();
-
-    String trackCart(List<CartItem> items);
-
-    String trackPurchase(String orderId, List<CartItem> items);
-
-    String trackItemView(String itemId);
-
-    String trackCategoryView(String categoryPath);
-
-    String trackSearchTerm(String searchTerm);
-
-    void trackTag(String tag, Map<String, String> attributes);
-
-    void recommendProducts(Logic recommendationLogic, Integer limit, List<RecommendationFilter> recommendationFilters, String availabilityZone, ResultListener<Try<List<Product>>> resultListener);
-
-    String trackRecommendationClick(Product product);
+interface PredictInternal {
+    fun setContact(contactId: String)
+    fun clearContact()
+    fun trackCart(items: List<CartItem>): String
+    fun trackPurchase(orderId: String, items: List<CartItem>): String
+    fun trackItemView(itemId: String): String
+    fun trackCategoryView(categoryPath: String): String
+    fun trackSearchTerm(searchTerm: String): String
+    fun trackTag(tag: String, attributes: Map<String, String>?)
+    fun recommendProducts(recommendationLogic: Logic, limit: Int? = null, recommendationFilters: List<RecommendationFilter>? = null, availabilityZone: String? = null, resultListener: ResultListener<Try<List<Product>>>)
+    fun trackRecommendationClick(product: Product): String
 }

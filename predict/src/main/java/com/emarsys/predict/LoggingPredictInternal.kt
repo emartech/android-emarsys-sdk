@@ -1,135 +1,102 @@
-package com.emarsys.predict;
+package com.emarsys.predict
 
-import com.emarsys.core.api.result.ResultListener;
-import com.emarsys.core.api.result.Try;
-import com.emarsys.core.util.SystemUtils;
-import com.emarsys.core.util.log.Logger;
-import com.emarsys.core.util.log.entry.MethodNotAllowed;
-import com.emarsys.predict.api.model.CartItem;
-import com.emarsys.predict.api.model.Logic;
-import com.emarsys.predict.api.model.Product;
-import com.emarsys.predict.api.model.RecommendationFilter;
+import com.emarsys.core.api.result.ResultListener
+import com.emarsys.core.api.result.Try
+import com.emarsys.core.util.SystemUtils
+import com.emarsys.core.util.log.Logger.Companion.debug
+import com.emarsys.core.util.log.entry.MethodNotAllowed
+import com.emarsys.predict.api.model.CartItem
+import com.emarsys.predict.api.model.Logic
+import com.emarsys.predict.api.model.Product
+import com.emarsys.predict.api.model.RecommendationFilter
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class LoggingPredictInternal implements PredictInternal {
-
-
-    private final Class klass;
-
-    public LoggingPredictInternal(Class klass) {
-        this.klass = klass;
+class LoggingPredictInternal(private val klass: Class<*>) : PredictInternal {
+    override fun setContact(contactId: String) {
+        val parameters: Map<String, Any?> = mapOf(
+                "contact_id" to contactId
+        )
+        val callerMethodName = SystemUtils.getCallerMethodName()
+        debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    @Override
-    public void setContact(String contactId) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("contact_id", contactId);
-
-        String callerMethodName = SystemUtils.getCallerMethodName();
-
-        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
+    override fun clearContact() {
+        val callerMethodName = SystemUtils.getCallerMethodName()
+        debug(MethodNotAllowed(klass, callerMethodName, null))
     }
 
-    @Override
-    public void clearContact() {
-        String callerMethodName = SystemUtils.getCallerMethodName();
-
-        Logger.debug(new MethodNotAllowed(klass, callerMethodName, null));
+    override fun trackCart(items: List<CartItem>): String {
+        val parameters: Map<String, Any?> = mapOf(
+                "items" to items.toString()
+        )
+        val callerMethodName = SystemUtils.getCallerMethodName()
+        debug(MethodNotAllowed(klass, callerMethodName, parameters))
+        return ""
     }
 
-    @Override
-    public String trackCart(List<CartItem> items) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("items", items.toString());
-
-        String callerMethodName = SystemUtils.getCallerMethodName();
-
-        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
-        return null;
+    override fun trackPurchase(orderId: String, items: List<CartItem>): String {
+        val parameters: Map<String, Any?> = mapOf(
+                "order_id" to orderId,
+                "items" to items.toString()
+        )
+        val callerMethodName = SystemUtils.getCallerMethodName()
+        debug(MethodNotAllowed(klass, callerMethodName, parameters))
+        return ""
     }
 
-    @Override
-    public String trackPurchase(String orderId, List<CartItem> items) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("order_id", orderId);
-        parameters.put("items", items.toString());
-
-        String callerMethodName = SystemUtils.getCallerMethodName();
-
-        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
-        return null;
+    override fun trackItemView(itemId: String): String {
+        val parameters: Map<String, Any?> = mapOf(
+                "item_id" to itemId
+        )
+        val callerMethodName = SystemUtils.getCallerMethodName()
+        debug(MethodNotAllowed(klass, callerMethodName, parameters))
+        return ""
     }
 
-    @Override
-    public String trackItemView(String itemId) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("item_id", itemId);
-
-        String callerMethodName = SystemUtils.getCallerMethodName();
-
-        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
-        return null;
+    override fun trackCategoryView(categoryPath: String): String {
+        val parameters: Map<String, Any?> = mapOf(
+                "category_path" to categoryPath
+        )
+        val callerMethodName = SystemUtils.getCallerMethodName()
+        debug(MethodNotAllowed(klass, callerMethodName, parameters))
+        return ""
     }
 
-    @Override
-    public String trackCategoryView(String categoryPath) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("category_path", categoryPath);
-
-        String callerMethodName = SystemUtils.getCallerMethodName();
-
-        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
-        return null;
+    override fun trackSearchTerm(searchTerm: String): String {
+        val parameters: Map<String, Any?> = mapOf(
+                "search_term" to searchTerm
+        )
+        val callerMethodName = SystemUtils.getCallerMethodName()
+        debug(MethodNotAllowed(klass, callerMethodName, parameters))
+        return ""
     }
 
-    @Override
-    public String trackSearchTerm(String searchTerm) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("search_term", searchTerm);
-
-        String callerMethodName = SystemUtils.getCallerMethodName();
-
-        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
-        return null;
+    override fun trackTag(tag: String, attributes: Map<String, String>?) {
+        val parameters: Map<String, Any?> = mapOf(
+                "tag" to tag,
+                "attributes" to attributes.toString()
+        )
+        val callerMethodName = SystemUtils.getCallerMethodName()
+        debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    @Override
-    public void trackTag(String tag, Map<String, String> attributes) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("tag", tag);
-        parameters.put("attributes", attributes.toString());
-
-        String callerMethodName = SystemUtils.getCallerMethodName();
-
-        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
+    override fun recommendProducts(recommendationLogic: Logic, limit: Int?, recommendationFilter: List<RecommendationFilter>?, availabilityZone: String?, resultListener: ResultListener<Try<List<Product>>>) {
+        val parameters: Map<String, Any?> = mapOf(
+                "recommendation_logic" to recommendationLogic.toString(),
+                "result_listener" to true,
+                "limit" to limit,
+                "recommendation_filter" to recommendationFilter?.toTypedArray()?.contentToString(),
+                "availabilityZone" to availabilityZone
+        )
+        val callerMethodName = SystemUtils.getCallerMethodName()
+        debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    @Override
-    public void recommendProducts(Logic recommendationLogic, Integer limit, List<RecommendationFilter> recommendationFilter, String availabilityZone, ResultListener<Try<List<Product>>> resultListener) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("recommendation_logic", recommendationLogic.toString());
-        parameters.put("result_listener", resultListener != null);
-        parameters.put("limit", limit);
-        parameters.put("recommendation_filter", Arrays.toString(recommendationFilter.toArray()));
-        parameters.put("availabilityZone", availabilityZone);
-
-        String callerMethodName = SystemUtils.getCallerMethodName();
-
-        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
-    }
-
-    @Override
-    public String trackRecommendationClick(Product product) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("product", product.toString());
-
-        String callerMethodName = SystemUtils.getCallerMethodName();
-
-        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
-        return null;
+    override fun trackRecommendationClick(product: Product): String {
+        val parameters: Map<String, Any?> = mapOf(
+                "product" to product.toString()
+        )
+        val callerMethodName = SystemUtils.getCallerMethodName()
+        debug(MethodNotAllowed(klass, callerMethodName, parameters))
+        return ""
     }
 }

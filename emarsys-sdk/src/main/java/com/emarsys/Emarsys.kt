@@ -386,7 +386,7 @@ object Emarsys {
 
         @JvmStatic
         fun recommendProducts(recommendationLogic: Logic, resultListener: (result: Try<List<Product>>) -> Unit) {
-            predict.recommendProducts(recommendationLogic) { resultListener(it) }
+            predict.recommendProducts(recommendationLogic, resultListener = resultListener)
         }
 
         @JvmStatic
@@ -396,7 +396,7 @@ object Emarsys {
 
         @JvmStatic
         fun recommendProducts(recommendationLogic: Logic, limit: Int, resultListener: (result: Try<List<Product>>) -> Unit) {
-            predict.recommendProducts(recommendationLogic, limit) { resultListener(it) }
+            predict.recommendProducts(recommendationLogic, limit = limit, resultListener = resultListener)
         }
 
         @JvmStatic
@@ -406,7 +406,7 @@ object Emarsys {
 
         @JvmStatic
         fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, resultListener: (result: Try<List<Product>>) -> Unit) {
-            predict.recommendProducts(recommendationLogic, recommendationFilters, limit) { resultListener(it) }
+            predict.recommendProducts(recommendationLogic, recommendationFilters, limit, resultListener = resultListener)
         }
 
         @JvmStatic
@@ -416,7 +416,7 @@ object Emarsys {
 
         @JvmStatic
         fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, resultListener: (result: Try<List<Product>>) -> Unit) {
-            predict.recommendProducts(recommendationLogic, recommendationFilters) { resultListener(it) }
+            predict.recommendProducts(recommendationLogic, recommendationFilters, resultListener = resultListener)
         }
 
         @JvmStatic

@@ -176,6 +176,7 @@ class EmarsysTest {
     private lateinit var configWithInAppEventHandler: EmarsysConfig
     private lateinit var deviceInfo: DeviceInfo
     private lateinit var latch: CountDownLatch
+    private lateinit var predictResultListenerCallback: (Try<List<Product>>) -> Unit
 
     @Before
     fun setUp() {
@@ -226,6 +227,7 @@ class EmarsysTest {
             mockMessageInbox = mock()
             mockLogic = mock()
             mockRecommendationFilter = mock()
+            predictResultListenerCallback = mock()
             whenever(mockNotificationManagerHelper.channelSettings).thenReturn(listOf(ChannelSettings(channelId = "channelId")))
             whenever(mockNotificationManagerHelper.importance).thenReturn(-1000)
             whenever(mockNotificationManagerHelper.areNotificationsEnabled()).thenReturn(false)
@@ -1092,11 +1094,27 @@ class EmarsysTest {
     }
 
     @Test
+    fun testPredict_recommendProductsWithResultListenerCallback_delegatesTo_predictInstance() {
+        setup(predictConfig)
+
+        recommendProducts(mockLogic, predictResultListenerCallback)
+        verify(mockPredict).recommendProducts(mockLogic, predictResultListenerCallback)
+    }
+
+    @Test
     fun testPredict_recommendProductsWithLimit_delegatesTo_predictInstance() {
         setup(predictConfig)
 
         recommendProducts(mockLogic, 5, mockResultListener)
         verify(mockPredict).recommendProducts(mockLogic, 5, mockResultListener)
+    }
+
+    @Test
+    fun testPredict_recommendProductsWithLimitAndResultListenerCallback_delegatesTo_predictInstance() {
+        setup(predictConfig)
+
+        recommendProducts(mockLogic, 5, predictResultListenerCallback)
+        verify(mockPredict).recommendProducts(mockLogic, 5, predictResultListenerCallback)
     }
 
     @Test
@@ -1108,11 +1126,27 @@ class EmarsysTest {
     }
 
     @Test
+    fun testPredict_recommendProductsWithFiltersAndResultListenerCallback_delegatesTo_predictInstance() {
+        setup(predictConfig)
+
+        recommendProducts(mockLogic, listOf(mockRecommendationFilter), predictResultListenerCallback)
+        verify(mockPredict).recommendProducts(mockLogic, listOf(mockRecommendationFilter), predictResultListenerCallback)
+    }
+
+    @Test
     fun testPredict_recommendProductsWithLimitAndFilters_delegatesTo_predictInstance() {
         setup(predictConfig)
 
         recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, mockResultListener)
         verify(mockPredict).recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, mockResultListener)
+    }
+
+    @Test
+    fun testPredict_recommendProductsWithLimitAndFiltersAndResultListenerCallback_delegatesTo_predictInstance() {
+        setup(predictConfig)
+
+        recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, predictResultListenerCallback)
+        verify(mockPredict).recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, predictResultListenerCallback)
     }
 
     @Test

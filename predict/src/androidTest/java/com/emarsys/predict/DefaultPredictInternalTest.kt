@@ -30,6 +30,8 @@ import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.Assert
 import org.junit.Before
@@ -78,10 +80,11 @@ class DefaultPredictInternalTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun init() {
-
         latch = CountDownLatch(1)
 
-        mockRequestModel = mock(RequestModel::class.java)
+        mockRequestModel = mock {
+            on { id } doReturn ID1
+        }
         mockResponseModel = mock(ResponseModel::class.java)
         mockKeyValueStore = mock(KeyValueStore::class.java)
         mockRequestManager = mock(RequestManager::class.java)
@@ -130,31 +133,6 @@ class DefaultPredictInternalTest {
         ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestContext_mustNotBeNull() {
-        DefaultPredictInternal(null, mockRequestManager, mockRequestModelBuilderProvider, mockPredictResponseMapper)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestManager_shouldNotBeNull() {
-        DefaultPredictInternal(mockRequestContext, null, mockRequestModelBuilderProvider, mockPredictResponseMapper)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestModelBuilderProvider_shouldNotBeNull() {
-        DefaultPredictInternal(mockRequestContext, mockRequestManager, null, mockPredictResponseMapper)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_predictResponseMapper_shouldNotBeNull() {
-        DefaultPredictInternal(mockRequestContext, mockRequestManager, mockRequestModelBuilderProvider, null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testSetContact_contactId_mustNotBeNull() {
-        predictInternal.setContact(null)
-    }
-
     @Test
     fun testSetContact_shouldPersistsWithKeyValueStore() {
         val contactId = "contactId"
@@ -176,16 +154,6 @@ class DefaultPredictInternalTest {
         predictInternal.clearContact()
 
         verify(mockKeyValueStore).remove("predict_visitor_id")
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackCart_items_mustNotBeNull() {
-        predictInternal.trackCart(null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackCart_itemElements_mustNotBeNull() {
-        predictInternal.trackCart(listOf(null))
     }
 
     @Test
@@ -211,25 +179,6 @@ class DefaultPredictInternalTest {
         ))
 
         verify(mockRequestManager).submit(expectedShardModel)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackPurchase_orderId_mustNotBeNull() {
-        predictInternal.trackPurchase(null, listOf())
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackPurchase_items_mustNotBeNull() {
-        predictInternal.trackPurchase("orderId", null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackPurchase_itemElements_mustNotBeNull() {
-        predictInternal.trackPurchase("orderId", listOf(
-                mock(CartItem::class.java),
-                null,
-                mock(CartItem::class.java)
-        ))
     }
 
     @Test
@@ -261,11 +210,6 @@ class DefaultPredictInternalTest {
         verify(mockRequestManager).submit(expectedShardModel)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackItemView_itemId_mustNotBeNull() {
-        predictInternal.trackItemView(null)
-    }
-
     @Test
     fun testTrackItemView_returnsShardId() {
         Assert.assertEquals(ID1, predictInternal.trackItemView("itemId"))
@@ -285,11 +229,6 @@ class DefaultPredictInternalTest {
         predictInternal.trackItemView(itemId)
 
         verify(mockRequestManager).submit(expectedShardModel)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackCategoryView_categoryPath_mustNotBeNull() {
-        predictInternal.trackCategoryView(null)
     }
 
     @Test
@@ -313,11 +252,6 @@ class DefaultPredictInternalTest {
         verify(mockRequestManager).submit(expectedShardModel)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackSearchTerm_searchTerm_mustNotBeNull() {
-        predictInternal.trackSearchTerm(null)
-    }
-
     @Test
     fun testTrackSearchTerm_returnsShardId() {
         Assert.assertEquals(ID1, predictInternal.trackSearchTerm("searchTerm"))
@@ -337,11 +271,6 @@ class DefaultPredictInternalTest {
         predictInternal.trackSearchTerm(searchTerm)
 
         verify(mockRequestManager).submit(expectedShardModel)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackTag_tag_mustNotBeNull() {
-        predictInternal.trackTag(null, mapOf())
     }
 
     @Test
@@ -422,16 +351,6 @@ class DefaultPredictInternalTest {
         verify(mockLastTrackedItemContainer).lastCategoryPath = categoryPath
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testRecommendProducts_resultListener_mustNotBeNull() {
-        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, null, null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testRecommendProducts_logic_mustNotBeNull() {
-        predictInternal.recommendProducts(null, 5, mockRecommendationFilters, null, mockResultListener)
-    }
-
     @Test
     fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel_whenLimitUsed() {
         predictInternal.recommendProducts(mockLogic, 10, mockRecommendationFilters, null, mockResultListener)
@@ -468,7 +387,7 @@ class DefaultPredictInternalTest {
 
     @Test
     fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel() {
-        predictInternal.recommendProducts(mockLogic, null, null, null, mockResultListener)
+        predictInternal.recommendProducts(mockLogic, resultListener = mockResultListener)
 
         verify(mockRequestModelBuilder).withLogic(mockLogic, mockLastTrackedItemContainer)
         verify(mockRequestModelBuilder).withLimit(null)
@@ -489,7 +408,7 @@ class DefaultPredictInternalTest {
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, null, resultListener)
+        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, resultListener = resultListener)
 
         latch.await()
 
@@ -507,7 +426,7 @@ class DefaultPredictInternalTest {
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, null, resultListener)
+        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, resultListener = resultListener)
 
         latch.await()
 
@@ -525,16 +444,11 @@ class DefaultPredictInternalTest {
                 mockPredictResponseMapper
         )
         val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, null, resultListener)
+        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, resultListener = resultListener)
 
         latch.await()
 
         resultListener.errorCount shouldBe 1
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackRecommendationClick_product_mustNotBeNull() {
-        predictInternal.trackRecommendationClick(null)
     }
 
     @Test

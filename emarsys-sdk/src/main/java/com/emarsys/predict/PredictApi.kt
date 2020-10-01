@@ -1,39 +1,37 @@
-package com.emarsys.predict;
+package com.emarsys.predict
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import com.emarsys.core.api.result.ResultListener
+import com.emarsys.core.api.result.Try
+import com.emarsys.predict.api.model.CartItem
+import com.emarsys.predict.api.model.Logic
+import com.emarsys.predict.api.model.Product
+import com.emarsys.predict.api.model.RecommendationFilter
 
-import com.emarsys.core.api.result.ResultListener;
-import com.emarsys.core.api.result.Try;
-import com.emarsys.predict.api.model.CartItem;
-import com.emarsys.predict.api.model.Logic;
-import com.emarsys.predict.api.model.Product;
-import com.emarsys.predict.api.model.RecommendationFilter;
+interface PredictApi {
+    fun trackCart(items: List<CartItem>)
+    fun trackPurchase(orderId: String, items: List<CartItem>)
 
-import java.util.List;
-import java.util.Map;
+    fun trackItemView(itemId: String)
+    fun trackCategoryView(categoryPath: String)
+    fun trackSearchTerm(searchTerm: String)
+    fun trackTag(tag: String, attributes: Map<String, String>?)
+    fun recommendProducts(recommendationLogic: Logic, resultListener: ResultListener<Try<List<Product>>>)
+    fun recommendProducts(recommendationLogic: Logic, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>)
+    fun recommendProducts(recommendationLogic: Logic, limit: Int, resultListener: ResultListener<Try<List<Product>>>)
+    fun recommendProducts(recommendationLogic: Logic, limit: Int, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>)
+    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, resultListener: ResultListener<Try<List<Product>>>)
+    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>)
+    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, resultListener: ResultListener<Try<List<Product>>>)
+    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>)
 
-public interface PredictApi {
-    void trackCart(@NonNull final List<CartItem> items);
-
-    void trackPurchase(@NonNull final String orderId,
-                       @NonNull final List<CartItem> items);
-
-    void trackItemView(@NonNull final String itemId);
-
-    void trackCategoryView(@NonNull final String categoryPath);
-
-    void trackSearchTerm(@NonNull final String searchTerm);
-
-    void trackTag(@NonNull final String tag, @Nullable final Map<String, String> attributes);
-
-    void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final ResultListener<Try<List<Product>>> resultListener);
-
-    void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final Integer limit, @NonNull final ResultListener<Try<List<Product>>> resultListener);
-
-    void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull final ResultListener<Try<List<Product>>> resultListener);
-
-    void recommendProducts(@NonNull final Logic recommendationLogic, @NonNull final List<RecommendationFilter> recommendationFilters, @NonNull final Integer limit, @NonNull final ResultListener<Try<List<Product>>> resultListener);
-
-    void trackRecommendationClick(@NonNull final Product product);
+    fun recommendProducts(recommendationLogic: Logic, resultListener: (Try<List<Product>>) -> Unit)
+    fun recommendProducts(recommendationLogic: Logic, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit)
+    fun recommendProducts(recommendationLogic: Logic, limit: Int, resultListener: (Try<List<Product>>) -> Unit)
+    fun recommendProducts(recommendationLogic: Logic, limit: Int, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit)
+    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, resultListener: (Try<List<Product>>) -> Unit)
+    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit)
+    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, resultListener: (Try<List<Product>>) -> Unit)
+    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit)
+    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>? = null, limit: Int? = null, availabilityZone: String? = null, resultListener: (Try<List<Product>>) -> Unit)
+    fun trackRecommendationClick(product: Product)
 }

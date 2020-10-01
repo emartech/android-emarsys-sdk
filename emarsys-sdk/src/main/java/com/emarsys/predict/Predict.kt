@@ -59,18 +59,89 @@ class Predict(private val loggingInstance: Boolean = false) : PredictApi {
 
     override fun recommendProducts(recommendationLogic: Logic,
                                    recommendationFilters: List<RecommendationFilter>,
+                                   limit: Int,
+                                   availabilityZone: String,
                                    resultListener: ResultListener<Try<List<Product>>>) {
+        Assert.positiveInt(limit, "Limit must be greater than zero!")
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
+                .recommendProducts(recommendationLogic, limit, recommendationFilters, availabilityZone, resultListener)
+    }
+
+    override fun recommendProducts(recommendationLogic: Logic, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>) {
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
+                .recommendProducts(recommendationLogic, null, null, availabilityZone, resultListener)
+    }
+
+    override fun recommendProducts(recommendationLogic: Logic, limit: Int, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>) {
+        Assert.positiveInt(limit, "Limit must be greater than zero!")
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
+                .recommendProducts(recommendationLogic, limit, null, availabilityZone, resultListener)
+    }
+
+    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, resultListener: ResultListener<Try<List<Product>>>) {
         (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
                 .recommendProducts(recommendationLogic, null, recommendationFilters, null, resultListener)
     }
 
-    override fun recommendProducts(recommendationLogic: Logic,
-                                   recommendationFilters: List<RecommendationFilter>,
-                                   limit: Int,
-                                   resultListener: ResultListener<Try<List<Product>>>) {
+    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>) {
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
+                .recommendProducts(recommendationLogic, null, recommendationFilters, availabilityZone, resultListener)
+    }
+
+    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, resultListener: ResultListener<Try<List<Product>>>) {
         Assert.positiveInt(limit, "Limit must be greater than zero!")
         (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
                 .recommendProducts(recommendationLogic, limit, recommendationFilters, null, resultListener)
+    }
+
+    override fun recommendProducts(recommendationLogic: Logic, resultListener: (Try<List<Product>>) -> Unit) {
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
+                .recommendProducts(recommendationLogic, null, null, null, ResultListener { result -> resultListener.invoke(result) })
+    }
+
+    override fun recommendProducts(recommendationLogic: Logic, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit) {
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
+                .recommendProducts(recommendationLogic, null, null, availabilityZone, ResultListener { result -> resultListener.invoke(result) })
+    }
+
+    override fun recommendProducts(recommendationLogic: Logic, limit: Int, resultListener: (Try<List<Product>>) -> Unit) {
+        Assert.positiveInt(limit, "Limit must be greater than zero!")
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
+                .recommendProducts(recommendationLogic, limit, null, null, ResultListener { result -> resultListener.invoke(result) })
+    }
+
+    override fun recommendProducts(recommendationLogic: Logic, limit: Int, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit) {
+        Assert.positiveInt(limit, "Limit must be greater than zero!")
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
+                .recommendProducts(recommendationLogic, limit, null, availabilityZone, ResultListener { result -> resultListener.invoke(result) })
+    }
+
+    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, resultListener: (Try<List<Product>>) -> Unit) {
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
+                .recommendProducts(recommendationLogic, null, recommendationFilters, null, ResultListener { result -> resultListener.invoke(result) })
+    }
+
+    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit) {
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
+                .recommendProducts(recommendationLogic, null, recommendationFilters, availabilityZone, ResultListener { result -> resultListener.invoke(result) })
+    }
+
+    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, resultListener: (Try<List<Product>>) -> Unit) {
+        Assert.positiveInt(limit, "Limit must be greater than zero!")
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
+                .recommendProducts(recommendationLogic, limit, recommendationFilters, null, ResultListener { result -> resultListener.invoke(result) })
+    }
+
+    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit) {
+        Assert.positiveInt(limit, "Limit must be greater than zero!")
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
+                .recommendProducts(recommendationLogic, limit, recommendationFilters, availabilityZone, ResultListener { result -> resultListener.invoke(result) })
+    }
+
+    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>?, limit: Int?, availabilityZone: String?, resultListener: (Try<List<Product>>) -> Unit) {
+        Assert.positiveInt(limit, "Limit must be greater than zero!")
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<PredictInternal>("defaultInstance"))
+                .recommendProducts(recommendationLogic, limit, recommendationFilters, availabilityZone, ResultListener { result -> resultListener.invoke(result) })
     }
 
     override fun trackRecommendationClick(product: Product) {
