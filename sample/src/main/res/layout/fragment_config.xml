@@ -169,6 +169,148 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:layout_editor_absoluteX="0dp"
+                        tools:layout_editor_absoluteY="0dp">
+
+                        <TextView
+                            android:id="@+id/hardwareIdLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:text="@string/current_hardware_id"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                            android:shadowColor="@android:color/holo_green_light"
+                            android:shadowDx="3"
+                            android:shadowDy="3"
+                            android:shadowRadius="3"
+                            app:layout_constraintBottom_toTopOf="@+id/hardwareIdField"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="parent"
+                            />
+
+                        <TextView
+                            android:id="@+id/hardwareIdField"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/hardwareIdLabel"
+                            />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:layout_editor_absoluteX="0dp"
+                        tools:layout_editor_absoluteY="0dp">
+
+                        <TextView
+                            android:id="@+id/languageCodeLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:text="@string/current_language_code"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                            android:shadowColor="@android:color/holo_green_light"
+                            android:shadowDx="3"
+                            android:shadowDy="3"
+                            android:shadowRadius="3"
+                            app:layout_constraintBottom_toTopOf="@+id/languageCodeField"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="parent"
+                            />
+
+                        <TextView
+                            android:id="@+id/languageCodeField"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/languageCodeLabel"
+                            />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:layout_editor_absoluteX="0dp"
+                        tools:layout_editor_absoluteY="0dp">
+
+                        <TextView
+                            android:id="@+id/pushSettingsLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:text="@string/current_push_settings"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                            android:shadowColor="@android:color/holo_green_light"
+                            android:shadowDx="3"
+                            android:shadowDy="3"
+                            android:shadowRadius="3"
+                            app:layout_constraintBottom_toTopOf="@+id/pushSettingsField"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="parent"
+                            />
+
+                        <TextView
+                            android:id="@+id/pushSettingsField"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                            android:singleLine="false"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/pushSettingsLabel"
+                            />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
             </LinearLayout>
 
         </ScrollView>

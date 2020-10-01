@@ -580,6 +580,16 @@ class DefaultConfigInternalTest {
     }
 
     @Test
+    fun testRefreshRemoteConfig_shouldNotFetch_when_applicationCode_isNull() {
+        whenever(mockMobileEngageRequestContext.applicationCode).thenReturn(null)
+
+        (configInternal as DefaultConfigInternal).refreshRemoteConfig(null)
+
+        verifyZeroInteractions(mockEmarsysRequestModelFactory)
+        verifyZeroInteractions(mockRequestManager)
+    }
+
+    @Test
     fun testFetchRemoteConfig_shouldCallRequestManager_withCorrectRequestModel() {
         val requestModel: RequestModel = mock()
         whenever(mockEmarsysRequestModelFactory.createRemoteConfigRequest()).thenReturn(requestModel)

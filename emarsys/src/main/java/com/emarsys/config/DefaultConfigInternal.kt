@@ -153,31 +153,32 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     }
 
     override fun refreshRemoteConfig(completionListener: CompletionListener?) {
-        fetchRemoteConfigSignature(ResultListener { signatureResponse ->
-            signatureResponse.result?.let { signature ->
-                fetchRemoteConfig(ResultListener {
-                    it.result?.let { remoteConfigResponseModel ->
-                        if (crypto.verify(remoteConfigResponseModel.body.toByteArray(), signature)) {
-                            applyRemoteConfig(configResponseMapper.map(remoteConfigResponseModel))
-                            completionListener?.onCompleted(null)
-                        } else {
-                            resetRemoteConfig()
-                            completionListener?.onCompleted(Exception("Verify failed"))
+        mobileEngageRequestContext.applicationCode?.let {
+            fetchRemoteConfigSignature(ResultListener { signatureResponse ->
+                signatureResponse.result?.let { signature ->
+                    fetchRemoteConfig(ResultListener {
+                        it.result?.let { remoteConfigResponseModel ->
+                            if (crypto.verify(remoteConfigResponseModel.body.toByteArray(), signature)) {
+                                applyRemoteConfig(configResponseMapper.map(remoteConfigResponseModel))
+                                completionListener?.onCompleted(null)
+                            } else {
+                                resetRemoteConfig()
+                                completionListener?.onCompleted(Exception("Verify failed"))
+                            }
                         }
-                    }
-                    it.errorCause?.let { throwable ->
-                        resetRemoteConfig()
-                        completionListener?.onCompleted(throwable)
+                        it.errorCause?.let { throwable ->
+                            resetRemoteConfig()
+                            completionListener?.onCompleted(throwable)
 
-                    }
-                })
-            }
-            signatureResponse.errorCause?.let { throwable ->
-                resetRemoteConfig()
-                completionListener?.onCompleted(throwable)
-            }
-        })
-
+                        }
+                    })
+                }
+                signatureResponse.errorCause?.let { throwable ->
+                    resetRemoteConfig()
+                    completionListener?.onCompleted(throwable)
+                }
+            })
+        }
     }
 
     fun fetchRemoteConfigSignature(resultListener: ResultListener<Try<String>>) {
