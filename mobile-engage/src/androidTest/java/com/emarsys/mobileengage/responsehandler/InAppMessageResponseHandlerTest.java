@@ -1,9 +1,6 @@
 package com.emarsys.mobileengage.responsehandler;
 
-import android.os.Build;
 import android.os.Handler;
-
-import androidx.test.filters.SdkSuppress;
 
 import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
@@ -36,7 +33,6 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 
-import static android.os.Build.VERSION_CODES.KITKAT;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -101,43 +97,30 @@ public class InAppMessageResponseHandlerTest {
     }
 
     @Test
-    public void testShouldHandleResponse_shouldHandleOnly_kitkatAndAbove() {
-        ResponseModel validResponse = buildResponseModel("{'message': {'html':'some html'}}");
-        boolean shouldHandle = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-
-        assertEquals(shouldHandle, handler.shouldHandleResponse(validResponse));
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = KITKAT)
     public void testShouldHandleResponse_shouldReturnTrueWhenTheResponseHasHtmlAttribute() {
         ResponseModel response = buildResponseModel("{'message': {'html':'some html'}}");
         assertTrue(handler.shouldHandleResponse(response));
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = KITKAT)
     public void testShouldHandleResponse_shouldReturnFalseWhenTheResponseHasANonJsonBody() {
         ResponseModel response = buildResponseModel("Created");
         assertFalse(handler.shouldHandleResponse(response));
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = KITKAT)
     public void testShouldHandleResponse_shouldReturnFalseWhenTheResponseHasNoMessageAttribute() {
         ResponseModel response = buildResponseModel("{'not_a_message': {'html':'some html'}}");
         assertFalse(handler.shouldHandleResponse(response));
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = KITKAT)
     public void testShouldHandleResponse_shouldReturnFalseWhenTheResponseHasNoHtmlAttribute() {
         ResponseModel response = buildResponseModel("{'message': {'not_html':'some html'}}");
         assertFalse(handler.shouldHandleResponse(response));
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = KITKAT)
     public void testHandleResponse_shouldCallLoadMessageAsync_withCorrectArguments() {
         String html = "<p>hello</p>";
         String responseBody = String.format("{'message': {'html':'%s', 'campaignId': '123'} }", html);
@@ -149,8 +132,6 @@ public class InAppMessageResponseHandlerTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    @SdkSuppress(minSdkVersion = KITKAT)
     public void testHandleResponse_setsSaveDisplayIamAction_onDialog() {
         ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
 
@@ -167,8 +148,6 @@ public class InAppMessageResponseHandlerTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    @SdkSuppress(minSdkVersion = KITKAT)
     public void testHandleResponse_setsSendDisplayIamAction_onDialog() {
         ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
 

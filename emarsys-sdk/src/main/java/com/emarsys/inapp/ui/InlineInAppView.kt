@@ -79,9 +79,13 @@ class InlineInAppView : LinearLayout {
 
     fun loadInApp(viewId: String) {
         this.viewId = viewId
-        fetchInlineInAppMessage(viewId) {
-            getDependency<Handler>("uiHandler").post {
-                webView.loadDataWithBaseURL(null, it, "text/html; charset=utf-8", "UTF-8", null)
+        fetchInlineInAppMessage(viewId) { html ->
+            if (html != null) {
+                getDependency<Handler>("uiHandler").post {
+                    webView.loadDataWithBaseURL(null, html, "text/html; charset=utf-8", "UTF-8", null)
+                }
+            } else {
+                onCompletionListener?.onCompleted(IllegalArgumentException("Inline In-App HTML content must not be empty, please check your viewId!"))
             }
         }
     }

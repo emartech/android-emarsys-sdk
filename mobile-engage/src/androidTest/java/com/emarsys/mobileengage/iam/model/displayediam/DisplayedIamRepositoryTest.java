@@ -22,15 +22,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import androidx.test.filters.SdkSuppress;
-
-import static android.os.Build.VERSION_CODES.KITKAT;
 import static com.emarsys.core.database.DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID;
 import static com.emarsys.core.database.DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SdkSuppress(minSdkVersion = KITKAT)
 public class DisplayedIamRepositoryTest {
 
     static {

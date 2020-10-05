@@ -250,7 +250,7 @@ object MessagingServiceUtils {
         for (key in keys) {
             preloadedRemoteMessageData[key] = remoteMessageData[key]
         }
-        if (inAppDescriptor != null && AndroidVersionUtils.isKitKatOrAbove()) {
+        if (inAppDescriptor != null) {
             try {
                 val ems = JSONObject(preloadedRemoteMessageData["ems"])
                 ems.put("inapp", inAppDescriptor)

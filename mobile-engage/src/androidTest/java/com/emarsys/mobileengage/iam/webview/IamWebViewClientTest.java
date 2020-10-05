@@ -15,12 +15,8 @@ import org.junit.rules.TestRule;
 
 import java.util.concurrent.CountDownLatch;
 
-import androidx.test.filters.SdkSuppress;
-
-import static android.os.Build.VERSION_CODES.KITKAT;
 import static junit.framework.Assert.assertEquals;
 
-@SdkSuppress(minSdkVersion = KITKAT)
 public class IamWebViewClientTest {
 
     private CountDownLatch latch;
@@ -78,5 +74,4 @@ public class IamWebViewClientTest {
         latch.await();
         assertEquals(1, listener.invocationCount);
     }
-
 }

@@ -1,10 +1,8 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
-import android.os.Build.VERSION_CODES
 import android.os.Handler
 import android.os.Looper
 import android.webkit.WebView
-import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.iam.model.InAppMessage
@@ -18,7 +16,6 @@ import org.junit.Test
 import org.junit.rules.TestRule
 
 
-@SdkSuppress(minSdkVersion = VERSION_CODES.KITKAT)
 class IamJsBridgeTest {
 
     private val jsonObject = JSONObject(mapOf(

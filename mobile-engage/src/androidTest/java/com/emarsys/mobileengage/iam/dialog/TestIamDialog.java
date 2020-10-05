@@ -3,14 +3,9 @@ package com.emarsys.mobileengage.iam.dialog;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 
-import androidx.test.filters.SdkSuppress;
-
 import java.util.concurrent.CountDownLatch;
 
-import static android.os.Build.VERSION_CODES.KITKAT;
-
 @SuppressLint("ValidFragment")
-@SdkSuppress(minSdkVersion = KITKAT)
 public class TestIamDialog extends IamDialog {
 
     CountDownLatch resumeLatch;

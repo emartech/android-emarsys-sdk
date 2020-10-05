@@ -3,12 +3,9 @@ package com.emarsys.mobileengage.iam.webview;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.webkit.WebView;
-
-import androidx.annotation.RequiresApi;
 
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge;
@@ -24,7 +21,6 @@ public class IamStaticWebViewProvider {
         this.context = context;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void loadMessageAsync(final String html, final IamJsBridge jsBridge, final MessageLoadedListener messageLoadedListener) {
         Assert.notNull(html, "Html must not be null!");
         Assert.notNull(messageLoadedListener, "MessageLoadedListener must not be null!");
@@ -48,7 +44,6 @@ public class IamStaticWebViewProvider {
         });
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public WebView provideWebView() {
         return webView;
     }

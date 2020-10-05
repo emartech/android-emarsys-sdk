@@ -144,9 +144,5 @@ internal enum class EventType {
 }
 
 internal fun EventType.eventType(): String {
-    return if (AndroidVersionUtils.isLollipopOrAbove()) {
-        this.name.toLowerCase(Locale.forLanguageTag("en_US"))
-    } else {
-        this.name.toLowerCase(Locale("en", "US"))
-    }
+    return this.name.toLowerCase(Locale.forLanguageTag("en_US"))
 }

@@ -4,8 +4,6 @@ import android.app.Activity
 import android.app.Application.ActivityLifecycleCallbacks
 import android.os.Bundle
 import com.emarsys.core.Mockable
-import com.emarsys.core.util.Assert
-import java.util.*
 
 @Mockable
 class ActivityLifecycleWatchdog(val applicationStartActions: Array<ActivityLifecycleAction> = emptyArray(),
@@ -50,7 +48,7 @@ class ActivityLifecycleWatchdog(val applicationStartActions: Array<ActivityLifec
         }
     }
 
-    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle?) {}
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
     override fun onActivityDestroyed(activity: Activity) {}
     private fun triggerOnActivity() {
         for (i in triggerOnActivityActions.indices.reversed()) {

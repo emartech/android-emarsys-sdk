@@ -2,8 +2,6 @@ package com.emarsys.mobileengage.iam;
 
 import android.os.Handler;
 
-import androidx.test.filters.SdkSuppress;
-
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
@@ -19,14 +17,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import static android.os.Build.VERSION_CODES.KITKAT;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SdkSuppress(minSdkVersion = KITKAT)
 public class SaveDisplayedIamActionTest {
 
     private static final String CAMPAIGN_ID = "123";

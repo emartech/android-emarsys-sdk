@@ -2,10 +2,8 @@ package com.emarsys.mobileengage.notification.command
 
 import android.app.Application
 import android.content.Intent
-import android.os.Build.VERSION_CODES.KITKAT
 import android.os.Bundle
 import android.os.Handler
-import androidx.test.filters.SdkSuppress
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.di.DependencyInjection
@@ -26,7 +24,7 @@ import org.junit.rules.TestRule
 import java.io.File
 import java.util.concurrent.CountDownLatch
 
-@SdkSuppress(minSdkVersion = KITKAT)
+
 class PreloadedInappHandlerCommandTest {
     companion object {
         private const val URL = "https://www.google.com"

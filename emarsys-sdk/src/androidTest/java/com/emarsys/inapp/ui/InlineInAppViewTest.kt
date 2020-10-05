@@ -135,7 +135,7 @@ class InlineInAppViewTest {
 
         latch.await()
 
-        verify(webView).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
+        verify(webView, times(0)).loadDataWithBaseURL(any(), any(), eq("text/html; charset=utf-8"), eq("UTF-8"), isNull())
     }
 
     @Test
@@ -150,7 +150,8 @@ class InlineInAppViewTest {
 
         latch.await()
 
-        verify(webView).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
+        verify(webView, times(0)).loadDataWithBaseURL(any(), any(), eq("text/html; charset=utf-8"), eq("UTF-8"), isNull())
+
     }
 
     @Test
@@ -165,7 +166,8 @@ class InlineInAppViewTest {
 
         latch.await()
 
-        verify(webView).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
+        verify(webView, times(0)).loadDataWithBaseURL(any(), any(), eq("text/html; charset=utf-8"), eq("UTF-8"), isNull())
+
     }
 
     @Test
@@ -192,7 +194,8 @@ class InlineInAppViewTest {
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
 
-        verify(webView, never()).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
+        verify(webView, times(0)).loadDataWithBaseURL(any(), any(), eq("text/html; charset=utf-8"), eq("UTF-8"), isNull())
+
     }
 
     @Test
@@ -210,7 +213,8 @@ class InlineInAppViewTest {
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
 
-        verify(webView, never()).loadDataWithBaseURL(null, null, "text/html; charset=utf-8", "UTF-8", null)
+        verify(webView, times(0)).loadDataWithBaseURL(any(), any(), eq("text/html; charset=utf-8"), eq("UTF-8"), isNull())
+
     }
 
     @Test

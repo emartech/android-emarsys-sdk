@@ -5,8 +5,6 @@ import android.os.Looper;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
-import androidx.test.filters.SdkSuppress;
-
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener;
 import com.emarsys.mobileengage.iam.dialog.IamDialog;
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge;
@@ -22,7 +20,6 @@ import org.junit.rules.TestRule;
 
 import java.util.concurrent.CountDownLatch;
 
-import static android.os.Build.VERSION_CODES.KITKAT;
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -43,7 +40,6 @@ class TestJSInterface extends IamJsBridge {
     }
 }
 
-@SdkSuppress(minSdkVersion = KITKAT)
 public class IamStaticWebViewProviderTest {
     static {
         mock(IamDialog.class);

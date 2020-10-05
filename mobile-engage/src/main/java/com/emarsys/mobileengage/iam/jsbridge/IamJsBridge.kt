@@ -1,11 +1,9 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
-import androidx.annotation.RequiresApi
 import com.emarsys.core.Mockable
 import com.emarsys.core.util.JsonUtils.merge
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory.CommandType
@@ -14,7 +12,6 @@ import org.json.JSONException
 import org.json.JSONObject
 
 
-@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 @Mockable
 class IamJsBridge(
         private val uiHandler: Handler,

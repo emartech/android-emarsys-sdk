@@ -204,7 +204,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = VERSION_CODES.LOLLIPOP)
     fun createNotification_withBigTextStyle_withTitleAndBody() {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
@@ -225,7 +224,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = VERSION_CODES.LOLLIPOP)
     fun createNotification_withBigTextStyle_withTitle_withoutBody() {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
@@ -245,7 +243,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = VERSION_CODES.LOLLIPOP)
     fun createNotification_withBigTextStyle_withoutTitle_withBody() {
         val input: MutableMap<String, String> = HashMap()
         input["body"] = BODY
@@ -267,7 +264,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = VERSION_CODES.LOLLIPOP)
     fun createNotification_withBigTextStyle_withoutTitle_withBody_withDefaultTitle() {
         val input: MutableMap<String, String> = HashMap()
         input["body"] = BODY
@@ -287,7 +283,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = VERSION_CODES.LOLLIPOP)
     fun testCreateNotification_withBigPictureStyle_whenImageIsAvailable() {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
@@ -311,7 +306,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = VERSION_CODES.LOLLIPOP)
     fun testCreateNotification_withBigTextStyle_whenImageCannotBeLoaded() {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
@@ -334,7 +328,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = VERSION_CODES.LOLLIPOP)
     fun testCreateNotification_setsNotificationColor() {
         val colorResourceId = R.color.darker_gray
         val expectedColor = ContextCompat.getColor(context, colorResourceId)
@@ -354,7 +347,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = VERSION_CODES.LOLLIPOP)
     fun testCreateNotification_doesNotSet_notificationColor_when() {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
@@ -434,7 +426,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = VERSION_CODES.KITKAT)
     fun testCreateNotification_setsActionsIfAvailable() {
         val ems = JSONObject()
                 .put("actions", JSONArray()
@@ -470,7 +461,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = VERSION_CODES.KITKAT)
     fun testCreateNotification_action_withoutActions() {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
@@ -635,7 +625,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = VERSION_CODES.KITKAT)
     fun testCreatePreloadedRemoteMessageData_shouldPutInAppDescriptorUnderEms_whenAvailableAndInAppIsTurnedOn() {
         val inAppDescriptor = "InAppDescriptor"
         val inAppPayload = createNoInAppInPayload()

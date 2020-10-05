@@ -1,7 +1,5 @@
 package com.emarsys.mobileengage.iam
 
-import android.annotation.TargetApi
-import android.os.Build
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
@@ -40,7 +38,6 @@ class OverlayInAppPresenter(
         private val currentActivityProvider: CurrentActivityProvider,
         private val jsBridgeFactory: IamJsBridgeFactory) {
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     fun present(campaignId: String, sid: String?, url: String?, requestId: String?, startTimestamp: Long, html: String?, messageLoadedListener: MessageLoadedListener?) {
         val iamDialog = dialogProvider.provideDialog(campaignId, sid, url, requestId)
         setupDialogWithActions(iamDialog)
@@ -90,7 +87,6 @@ class OverlayInAppPresenter(
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     private fun setupDialogWithActions(iamDialog: IamDialog) {
         val saveDisplayedIamAction: OnDialogShownAction = SaveDisplayedIamAction(
                 coreSdkHandler,

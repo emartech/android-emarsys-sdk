@@ -130,8 +130,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                 .setFastestInterval(FASTEST_INTERNAL)
                 .setInterval(INTERVAL)
                 .setMaxWaitTime(MAX_WAIT_TIME)
-                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
-                , geofencePendingIntent)
+                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY), geofencePendingIntent)
 
         completionListener?.onCompleted(null)
 
@@ -157,7 +156,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         val result = floatArrayOf(1F)
         Location.distanceBetween(currentLocation!!.latitude, currentLocation!!.longitude, furthestGeofence.lat, furthestGeofence.lon, result)
         val radius = (result[0] - furthestGeofence.radius) * geofenceResponse!!.refreshRadiusRatio
-        return MEGeofence("refreshArea", currentLocation!!.latitude, currentLocation!!.longitude, radius, null, listOf<Trigger>(Trigger("refreshAreaTriggerId", TriggerType.EXIT, 0, JSONObject())))
+        return MEGeofence("refreshArea", currentLocation!!.latitude, currentLocation!!.longitude, radius, null, listOf(Trigger("refreshAreaTriggerId", TriggerType.EXIT, 0, JSONObject())))
     }
 
     override fun registerGeofences(geofences: List<MEGeofence>) {
@@ -207,15 +206,8 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         return it.triggers.mapNotNull { actionCommandFactory.createActionCommand(it.action) }
     }
 
-    override fun onLocationChanged(p0: Location?) {
-    }
-
-    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-    }
-
-    override fun onProviderEnabled(provider: String?) {
-    }
-
-    override fun onProviderDisabled(provider: String?) {
-    }
+    override fun onLocationChanged(location: Location) {}
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+    override fun onProviderEnabled(provider: String) {}
+    override fun onProviderDisabled(provider: String) {}
 }

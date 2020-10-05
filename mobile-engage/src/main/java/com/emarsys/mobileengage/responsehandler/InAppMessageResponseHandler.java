@@ -1,11 +1,7 @@
 package com.emarsys.mobileengage.responsehandler;
 
-import android.annotation.TargetApi;
-import android.os.Build;
-
 import com.emarsys.core.response.AbstractResponseHandler;
 import com.emarsys.core.response.ResponseModel;
-import com.emarsys.core.util.AndroidVersionUtils;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.iam.OverlayInAppPresenter;
 
@@ -28,7 +24,7 @@ public class InAppMessageResponseHandler extends AbstractResponseHandler {
         boolean responseBodyNotNull = responseBody != null;
         boolean shouldHandle = false;
 
-        if (AndroidVersionUtils.isKitKatOrAbove() && responseBodyNotNull) {
+        if (responseBodyNotNull) {
             try {
                 JSONObject message = responseBody.getJSONObject("message");
                 shouldHandle = message.has("html");
@@ -40,7 +36,6 @@ public class InAppMessageResponseHandler extends AbstractResponseHandler {
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public void handleResponse(final ResponseModel responseModel) {
         JSONObject responseBody = responseModel.getParsedBody();
         try {
