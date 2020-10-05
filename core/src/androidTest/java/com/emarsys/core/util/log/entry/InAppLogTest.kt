@@ -1,6 +1,11 @@
 package com.emarsys.core.util.log.entry
 
+import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.FakeCoreDependencyContainer
+import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.testUtil.TimeoutUtils
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -36,6 +41,12 @@ class InAppLogTest {
 
     @Test
     fun testData_when_requestIsNull() {
+        val mockUuidProvider: UUIDProvider = mock() {
+            on { provideId() } doReturn "test-uuid"
+        }
+        val dependencyContainer = FakeCoreDependencyContainer(uuidProvider = mockUuidProvider)
+        DependencyInjection.setup(dependencyContainer)
+
         val result = InAppLog(
                 InAppLoadingTime(startTime, endTime),
                 OnScreenTime(onScreenTime, startScreenTime, endScreenTime),
@@ -45,6 +56,7 @@ class InAppLogTest {
 
         result.data shouldBe mapOf(
                 "source" to "push",
+                "requestId" to "test-uuid",
                 "loadingTimeStart" to startTime,
                 "loadingTimeEnd" to endTime,
                 "loadingTimeDuration" to duration,
