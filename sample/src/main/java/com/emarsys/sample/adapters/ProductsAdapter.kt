@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import coil.api.load
 import com.emarsys.Emarsys
 import com.emarsys.predict.api.model.Product
 import com.emarsys.sample.R
@@ -25,11 +26,15 @@ class ProductsAdapter : RecyclerView.Adapter<ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val placeholder = R.drawable.placeholder
 
         holder.productId.text = products[position].productId
         holder.productTitle.text = products[position].title
-        holder.productImage.setImageResource(placeholder)
+
+        holder.productImage.load(products[position].imageUrl.toString()) {
+            placeholder(R.drawable.placeholder)
+            crossfade(true)
+            error(R.drawable.placeholder)
+        }
 
         holder.cardView.setOnClickListener {
             Emarsys.predict.trackRecommendationClick(products[position])
