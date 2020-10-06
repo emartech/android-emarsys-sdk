@@ -4,7 +4,7 @@ object Versions {
     const val mockito_version = "2.25.0"
     const val espresso_version = "3.3.0"
     const val firebase_core_version = "17.5.0"
-    const val firebase_messaging_version = "20.2.4"
+    const val firebase_messaging_version = "20.3.0"
     const val hamcrest_version = "2.2"
     const val support_test_version = "1.3.0"
     const val support_library = "1.2.0"
@@ -13,7 +13,7 @@ object Versions {
     const val multiDexVersion = "2.0.0"
     const val androidJunit4 = "1.1.2"
     const val kotlinMockito = "2.2.0"
-    const val location_services_version = "17.0.0"
+    const val location_services_version = "17.1.0"
 }
 
 object Libs {
