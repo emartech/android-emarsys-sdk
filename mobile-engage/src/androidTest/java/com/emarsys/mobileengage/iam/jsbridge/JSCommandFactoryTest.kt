@@ -30,6 +30,7 @@ class JSCommandFactoryTest {
         const val CAMPAIGN_ID = "campaignId"
         const val SID = "sid"
         const val URL = "url"
+        const val TEST_URL = "https://emarsys.com"
 
     }
 
@@ -131,31 +132,27 @@ class JSCommandFactoryTest {
 
     @Test
     fun testCreate_OpenExternalUrl_shouldTriggerStartActivityOnMainThread_whenActivityIsNotNullAndActivityCanBeResolved() {
-        val property = "https://index.hu"
+        val property = TEST_URL
+        val threadSpy = ThreadSpy<Any>()
 
-        whenever(mockActivity.packageManager) doReturn activityRule.activity.packageManager
+        whenever(mockActivity.startActivity(any())).doAnswer(threadSpy)
 
-        val latch1 = CountDownLatch(1)
-        val latch2 = CountDownLatch(1)
-        uiHandler.post {
-            latch1.await()
-        }
         jsCommandFactory.create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
                 .invoke(property, JSONObject())
 
         verify(mockCurrentActivityProvider).get()
-        verify(mockActivity, never()).startActivity(any())
-        latch1.countDown()
-        uiHandler.post { latch2.countDown() }
-        latch2.await()
 
         verify(mockActivity).startActivity(any())
+        threadSpy.verifyCalledOnMainThread()
     }
 
     @Test
     fun testCreate_OpenExternalUrl_shouldThrowException_whenActivityIsNotNullAndActivityCanNotBeResolved() {
-        val property = "https://index.hu"
-        whenever(mockActivity.packageManager) doReturn mock()
+        val property = TEST_URL
+
+        whenever(mockActivity.startActivity(any())).thenAnswer {
+            throw Exception()
+        }
 
         val openExternalUrlListener = jsCommandFactory.create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
 
@@ -167,7 +164,7 @@ class JSCommandFactoryTest {
 
     @Test
     fun testCreate_OpenExternalUrl_shouldThrowException_whenActivityIsNull() {
-        val property = "https://index.hu"
+        val property = TEST_URL
         whenever(mockCurrentActivityProvider.get()) doReturn null
 
         val openExternalUrlListener = jsCommandFactory.create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)

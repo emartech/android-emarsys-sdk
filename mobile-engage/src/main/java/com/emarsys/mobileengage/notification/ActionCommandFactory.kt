@@ -59,14 +59,11 @@ class ActionCommandFactory(private val context: Context,
     }
 
     private fun createOpenExternalUrlCommand(action: JSONObject): Runnable? {
-        var result: Runnable? = null
         val link = Uri.parse(action.getString("url"))
         val externalCommandIntent = Intent(Intent.ACTION_VIEW, link)
         externalCommandIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        if (externalCommandIntent.resolveActivity(context.packageManager) != null) {
-            result = OpenExternalUrlCommand(externalCommandIntent, context)
-        }
-        return result
+
+        return OpenExternalUrlCommand(externalCommandIntent, context)
     }
 
     @Throws(JSONException::class)

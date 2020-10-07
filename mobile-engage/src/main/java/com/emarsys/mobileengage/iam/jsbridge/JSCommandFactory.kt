@@ -11,6 +11,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.model.InAppMessage
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import java.util.concurrent.CountDownLatch
 
 @Mockable
 class JSCommandFactory(private val currentActivityProvider: CurrentActivityProvider,
@@ -65,14 +66,22 @@ class JSCommandFactory(private val currentActivityProvider: CurrentActivityProvi
                 @Throws(RuntimeException::class)
                 { property, _ ->
                     val activity = currentActivityProvider.get()
+                    val link = Uri.parse(property)
+                    val intent = Intent(Intent.ACTION_VIEW, link)
+                    var success = true
                     if (activity != null) {
-                        val link = Uri.parse(property)
-                        val intent = Intent(Intent.ACTION_VIEW, link)
-                        if (intent.resolveActivity(activity.packageManager) != null) {
-                            uiHandler.post {
+                        val latch = CountDownLatch(1)
+                        uiHandler.post {
+                            try {
                                 activity.startActivity(intent)
+                            } catch (exception: Exception) {
+                                success = false
+                            } finally {
+                                latch.countDown()
                             }
-                        } else {
+                        }
+                        latch.await()
+                        if (!success) {
                             throw Exception("Url cannot be handled by any application!")
                         }
                     } else {
