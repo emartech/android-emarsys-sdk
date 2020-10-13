@@ -41,7 +41,7 @@ import java.util.*
 class RemoteMessageMapperTest {
     private companion object {
         const val TITLE = "title"
-        const val DEFAULT_TITLE = "This is a default title"
+        const val DEFAULT_TITLE = "emarsys-mobile-engage-android-test"
         const val BODY = "body"
         const val CHANNEL_ID = "channelId"
         const val HARDWARE_ID = "hwid"
@@ -158,7 +158,7 @@ class RemoteMessageMapperTest {
         val notificationData = remoteMessageMapper.map(input)
 
         notificationData.body shouldBe  BODY
-        notificationData.style shouldBe  null
+        notificationData.style shouldBe  ""
         notificationData.title shouldBe  DEFAULT_TITLE
         notificationData.channelId shouldBe  CHANNEL_ID
     }

@@ -262,30 +262,6 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    fun createNotification_withBigTextStyle_withoutTitle_withBody() {
-        val notificationData = NotificationData(null, null, null, null, BODY, CHANNEL_ID, SMALL_NOTIFICATION_ICON, COLOR)
-        val input: MutableMap<String, String> = HashMap()
-        input["body"] = BODY
-        input["channel_id"] = CHANNEL_ID
-        whenever(mockRemoteMessageMapper.map(input)).thenReturn(notificationData)
-
-        val result = MessagingServiceUtils.createNotification(
-                0,
-                context,
-                input,
-                deviceInfo,
-                mockRemoteMessageMapper,
-                mockFileDownloader)
-        val expectedTitle = expectedBasedOnApiLevel(applicationName, null)
-
-        result.extras.getString(NotificationCompat.EXTRA_TITLE) shouldBe expectedTitle
-        result.extras.getString(NotificationCompat.EXTRA_TITLE_BIG) shouldBe expectedTitle
-        result.extras.getString(NotificationCompat.EXTRA_TEXT) shouldBe BODY
-        result.extras.getString(NotificationCompat.EXTRA_BIG_TEXT) shouldBe BODY
-        result.extras.getString(NotificationCompat.EXTRA_SUMMARY_TEXT) shouldBe null
-    }
-
-    @Test
     fun createNotification_withBigTextStyle_withoutTitle_withBody_withDefaultTitle() {
         val notificationData = NotificationData(null, null, null, null, BODY, CHANNEL_ID, SMALL_NOTIFICATION_ICON, COLOR)
         val input: MutableMap<String, String> = HashMap()
