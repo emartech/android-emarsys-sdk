@@ -7,22 +7,25 @@ import android.content.Context
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import com.chibatching.kotpref.Kotpref
 import com.emarsys.Emarsys
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.push.NotificationInformation
 import com.emarsys.mobileengage.api.push.NotificationInformationListener
+import com.emarsys.sample.prefs.Cache
 import org.json.JSONObject
 
 
 open class SampleApplication : Application(), EventHandler, NotificationInformationListener {
     override fun onCreate() {
         super.onCreate()
+        Kotpref.init(this)
         val config = EmarsysConfig.Builder()
                 .application(this)
-                .mobileEngageApplicationCode("EMS11-C3FD3")
-                .contactFieldId(2575)
-                .predictMerchantId("1428C8EE286EC34B")
+                .mobileEngageApplicationCode(Cache.applicationCode)
+                .contactFieldId(Cache.contactFieldId)
+                .predictMerchantId(Cache.merchantId)
                 .build()
 
         createNotificationChannels()

@@ -1,12 +1,13 @@
 <resources>
     <string name="app_name">Sample App</string>
     <string name="menu_title_mobile_engage">Mobile engage</string>
+    <string name="menu_title_mobile_engage_tracking">Tracking</string>
     <string name="menu_title_inbox">Inbox</string>
     <string name="menu_title_inline_in_app">Inline In-App</string>
     <string name="menu_title_message_inbox">Message Inbox</string>
     <string name="menu_title_predict">Predict</string>
-    <string name="menu_title_config">Config</string>
-    <string name="emarsys_app">Emarsys SDK: </string>
+    <string name="menu_title_dashboard">Dashboard</string>
+    <string name="emarsys_app">Emarsys SDK:</string>
 
     <!-- Mobile Engage String Resources -->
     <string name="login_button_label">Login</string>
@@ -19,11 +20,13 @@
     <string name="track_message_open">Track Message Open</string>
     <string name="track_custom_event">Track Custom Event</string>
     <string name="event_name">eventName</string>
-    <string name="get_push_token_button_label">Set Push Token</string>
+    <string name="track_push_token_button_label">Track Push Token</string>
+    <string name="copy_push_token_button_label">Copy Push Token</string>
     <string name="do_not_disturb">Do not disturb</string>
-    <string name="get_push_token_title">Get Push Token</string>
+    <string name="get_push_token_title">Push Token</string>
     <string name="event_attributes_hint">eventAttributes</string>
-    <string name="logged_in">Logged in as: </string>
+    <string name="logged_in">Logged in as:</string>
+    <string name="logged_in_anonymous">Anonymous</string>
     <string name="geofence_title">Geofence</string>
     <string name="button_enable_geofence">Enable</string>
     <string name="button_disable_geofence">Disable</string>
@@ -53,11 +56,15 @@
     <string name="inline_in_app_view_id">viewId</string>
     <string name="button_show">show</string>
 
-    <!-- Config String Resources -->
-    <string name="current_application_code">ApplicationCode: <b>%1$s</b> ContactFieldId: <b>%2$d</b></string>
+    <!-- Dashboard String Resources -->
+    <string name="change_setup_title">Change SDK Setup</string>
+    <string name="not_set">not set</string>
+    <string name="current_application_code">ApplicationCode: <b>%1$s</b></string>
+    <string name="current_contact_field_id">ContactFieldId: <b>%1$d</b></string>
     <string name="change_application_code_hint">an other Application Code</string>
     <string name="change_application_code_button">change</string>
     <string name="current_merchant_id">MerchantId: <b>%1$s</b></string>
+    <string name="config_information"> NotificationsEnabled: <b>%1$b</b>\nImportance: <b>%2$d</b>\nChannelSettings: <b>%3$s</b></string>
     <string name="change_merchant_id_hint">an other Merchant ID</string>
     <string name="change_merchant_id_button">change</string>
     <string name="change_contact_field_id_hint">an other contactFieldId (optional)</string>

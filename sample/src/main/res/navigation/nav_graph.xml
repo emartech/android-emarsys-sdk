@@ -3,37 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/destinationMobileEngageFragment">
+    app:startDestination="@id/destinationDashboardFragment">
 
     <fragment
         android:id="@+id/destinationMobileEngageFragment"
         android:name="com.emarsys.sample.fragments.MobileEngageFragment"
         android:label="Mobile Engage"
         tools:layout="@layout/fragment_mobile_engage" />
-
-
-    <fragment
-        android:id="@+id/destinationInboxFragment"
-        android:name="com.emarsys.sample.fragments.InboxFragment"
-        android:label="Inbox"
-        tools:layout="@layout/fragment_inbox" />
-    <fragment
-        android:id="@+id/destinationMessageInboxFragment"
-        android:name="com.emarsys.sample.fragments.MessageInboxFragment"
-        android:label="Message Inbox" />
     <fragment
         android:id="@+id/destinationPredictFragment"
         android:name="com.emarsys.sample.fragments.PredictFragment"
         android:label="Predict"
         tools:layout="@layout/fragment_predict" />
     <fragment
-        android:id="@+id/destinationConfigFragment"
-        android:name="com.emarsys.sample.fragments.ConfigFragment"
+        android:id="@+id/destinationDashboardFragment"
+        android:name="com.emarsys.sample.fragments.DashboardFragment"
         android:label="Config"
-        tools:layout="@layout/fragment_config" />
-    <fragment
-        android:id="@+id/destinationInlineInAppFragment"
-        android:name="com.emarsys.sample.fragments.InlineInAppFragment"
-        android:label="Inline InApp"
-        tools:layout="@layout/fragment_inline_in_app" />
+        tools:layout="@layout/fragment_dashboard" />
+
 </navigation>
