@@ -52,7 +52,7 @@ dependencies {
 
 ## 2. Requirements
 
-* The minimum Android version should be at least API level 19.
+* The minimum Android version should be at least API level 21.
 * Requires compileSdkVersion 28 or higher.
 * Emarsys SDK is using AndroidX.
 
