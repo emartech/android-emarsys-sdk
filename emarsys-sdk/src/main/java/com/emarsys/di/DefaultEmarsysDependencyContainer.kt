@@ -44,6 +44,7 @@ import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
+import com.emarsys.core.resource.MetaDataReader
 import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.shard.ShardModel
@@ -105,6 +106,7 @@ import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyPr
 import com.emarsys.mobileengage.request.MobileEngageHeaderMapper
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.*
+import com.emarsys.mobileengage.service.RemoteMessageMapper
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.predict.*
@@ -550,6 +552,9 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         InlineInAppWebViewFactory(webViewProvider).also {
             addDependency(dependencies, it)
         }
+        RemoteMessageMapper(MetaDataReader(), application.applicationContext, getFileDownloader(), getDeviceInfo()).also {
+            addDependency(dependencies, it)
+        }
     }
 
     private fun createRequestModelRepository(coreDbHelper: CoreDbHelper, inAppEventHandler: InAppEventHandlerInternal): Repository<RequestModel, SqlSpecification> {
@@ -819,6 +824,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
     override fun getInlineInAppWebViewFactory(): InlineInAppWebViewFactory = getDependency(dependencies)
 
     override fun getIamJsBridgeFactory(): IamJsBridgeFactory = getDependency(dependencies)
+
+    override fun getRemoteMessageMapper(): RemoteMessageMapper = getDependency(dependencies)
 
     private fun createPublicKey(): PublicKey {
         val publicKeySpec = X509EncodedKeySpec(

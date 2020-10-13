@@ -4,26 +4,20 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import androidx.core.app.Person
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.IconCompat
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.timestamp.TimestampProvider
-import com.emarsys.core.resource.MetaDataReader
 import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.core.util.FileDownloader
-import com.emarsys.core.util.ImageUtils.loadOptimizedBitmap
 import com.emarsys.core.validate.JsonObjectValidator
-import com.emarsys.mobileengage.R
 import com.emarsys.mobileengage.api.push.NotificationInformation
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.inbox.InboxParseUtils
@@ -37,9 +31,6 @@ import org.json.JSONObject
 @Mockable
 object MessagingServiceUtils {
     const val MESSAGE_FILTER = "ems_msg"
-    private const val METADATA_SMALL_NOTIFICATION_ICON_KEY = "com.emarsys.mobileengage.small_notification_icon"
-    private const val METADATA_NOTIFICATION_COLOR = "com.emarsys.mobileengage.notification_color"
-    private val DEFAULT_SMALL_NOTIFICATION_ICON = R.drawable.default_small_notification_icon
 
     @JvmStatic
     fun handleMessage(context: Context,
@@ -48,7 +39,8 @@ object MessagingServiceUtils {
                       notificationCache: NotificationCache,
                       timestampProvider: TimestampProvider?,
                       fileDownloader: FileDownloader,
-                      actionCommandFactory: ActionCommandFactory): Boolean {
+                      actionCommandFactory: ActionCommandFactory,
+                      remoteMessageMapper: RemoteMessageMapper): Boolean {
 
         var handled = false
         val remoteData = remoteMessage.data
@@ -67,7 +59,7 @@ object MessagingServiceUtils {
                         context.applicationContext,
                         remoteData,
                         deviceInfo,
-                        MetaDataReader(),
+                        remoteMessageMapper,
                         fileDownloader)
                 (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
                         .notify(notificationId, notification)
@@ -112,109 +104,71 @@ object MessagingServiceUtils {
             context: Context,
             remoteMessageData: Map<String, String>,
             deviceInfo: DeviceInfo,
-            metaDataReader: MetaDataReader,
+            remoteMessageMapper: RemoteMessageMapper,
             fileDownloader: FileDownloader): Notification {
-        val smallIconResourceId = metaDataReader.getInt(context, METADATA_SMALL_NOTIFICATION_ICON_KEY, DEFAULT_SMALL_NOTIFICATION_ICON)
-        val colorResourceId = metaDataReader.getInt(context, METADATA_NOTIFICATION_COLOR)
-        val image = loadOptimizedBitmap(fileDownloader, remoteMessageData["image_url"], deviceInfo)
-        val iconImage = loadOptimizedBitmap(fileDownloader, remoteMessageData["icon_url"], deviceInfo)
-        var title = getTitle(remoteMessageData, context)
-        val style = JSONObject(remoteMessageData["ems"] ?: "{}").optString("style")
-        var body = remoteMessageData["body"]
-        var channelId = remoteMessageData["channel_id"]
-        if (AndroidVersionUtils.isOreoOrAbove() && deviceInfo.isDebugMode && !isValidChannel(deviceInfo.notificationSettings, channelId)) {
-            body = "DEBUG - channel_id mismatch: $channelId not found!"
-            channelId = createDebugChannel(context)
-            title = "Emarsys SDK"
+        var notificationData = remoteMessageMapper.map(remoteMessageData)
+
+        notificationData = handleChannelIdMismatch(deviceInfo, notificationData, context)
+
+        return createNotificationBuilder(notificationData, context)
+                .setupBuilder(context, remoteMessageData, notificationId, fileDownloader, notificationData)
+                .styleNotification(notificationData)
+                .build()
+    }
+
+    private fun createNotificationBuilder(notificationData: NotificationData, context: Context): NotificationCompat.Builder {
+        return if (notificationData.channelId == null) {
+            NotificationCompat.Builder(context)
+        } else {
+            NotificationCompat.Builder(context, notificationData.channelId)
         }
+    }
+
+    private fun handleChannelIdMismatch(deviceInfo: DeviceInfo, notificationData: NotificationData, context: Context): NotificationData {
+        return if (AndroidVersionUtils.isOreoOrAbove() && deviceInfo.isDebugMode && !isValidChannel(deviceInfo.notificationSettings, notificationData.channelId)) {
+            notificationData.copy(
+                    body = "DEBUG - channel_id mismatch: ${notificationData.channelId} not found!",
+                    channelId = createDebugChannel(context),
+                    title = "Emarsys SDK")
+        } else {
+            notificationData
+        }
+    }
+
+    private fun NotificationCompat.Builder.setupBuilder(
+            context: Context,
+            remoteMessageData: Map<String, String>,
+            notificationId: Int,
+            fileDownloader: FileDownloader,
+            notificationData: NotificationData
+    ): NotificationCompat.Builder {
         val actions = NotificationActionUtils.createActions(context, remoteMessageData, notificationId)
         val preloadedRemoteMessageData = createPreloadedRemoteMessageData(remoteMessageData, getInAppDescriptor(fileDownloader, remoteMessageData))
         val resultPendingIntent = IntentUtils.createNotificationHandlerServicePendingIntent(context, preloadedRemoteMessageData, notificationId)
-        val builder = if (channelId == null) NotificationCompat.Builder(context) else NotificationCompat.Builder(context, channelId)
-        builder
-                .setContentTitle(title)
-                .setContentText(body)
-                .setSmallIcon(smallIconResourceId)
+
+        this
+                .setContentTitle(notificationData.title)
+                .setContentText(notificationData.body)
+                .setSmallIcon(notificationData.smallIconResourceId)
                 .setAutoCancel(false)
                 .setContentIntent(resultPendingIntent)
         for (i in actions.indices) {
-            builder.addAction(actions[i])
+            this.addAction(actions[i])
         }
-        if (colorResourceId != 0) {
-            builder.color = ContextCompat.getColor(context, colorResourceId)
+        if (notificationData.colorResourceId != 0) {
+            this.color = ContextCompat.getColor(context, notificationData.colorResourceId)
         }
-        styleNotification(builder, title, body, style, image, iconImage)
-        return builder.build()
+        return this
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun createDebugChannel(context: Context): String {
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notificationChannel = NotificationChannel("ems_debug", "Emarsys SDK Debug Messages", NotificationManager.IMPORTANCE_HIGH)
-        notificationManager.createNotificationChannel(notificationChannel)
-        return notificationChannel.id
-    }
-
-    fun styleNotification(builder: NotificationCompat.Builder, title: String?, body: String?, style: String?, bitmap: Bitmap?, icon : Bitmap?) {
-        var internalStyle = style
-        if (internalStyle != null) {
-            val styleToApply = when (internalStyle) {
-                "MESSAGE" -> {
-                    val user = Person.Builder()
-                            .setName(title)
-                            .setIcon(IconCompat.createWithAdaptiveBitmap(bitmap)).build()
-                    NotificationCompat.MessagingStyle(user)
-                            .addMessage(body, System.currentTimeMillis(), user)
-                            .setGroupConversation(false)
-                }
-                "THUMBNAIL" -> {
-                    builder.setLargeIcon(bitmap)
-                            .setContentTitle(title)
-                            .setContentText(body)
-                    null
-                }
-                "BIG_PICTURE" -> {
-                    builder.setLargeIcon(icon)
-                    NotificationCompat.BigPictureStyle()
-                            .bigPicture(bitmap)
-                            .setBigContentTitle(title)
-                            .setSummaryText(body)
-                }
-                "BIG_TEXT" -> {
-                    NotificationCompat.BigTextStyle()
-                            .bigText(body)
-                            .setBigContentTitle(title)
-                }
-                else -> {
-                    internalStyle = null
-                    null
-                }
-            }
-            if (styleToApply != null)
-                builder.setStyle(styleToApply)
+    fun NotificationCompat.Builder.styleNotification(notificationData: NotificationData): NotificationCompat.Builder {
+        return when (notificationData.style) {
+            "MESSAGE" -> MessageStyle.apply(this, notificationData)
+            "THUMBNAIL" -> ThumbnailStyle.apply(this, notificationData)
+            "BIG_PICTURE" -> BigPictureStyle.apply(this, notificationData)
+            "BIG_TEXT" -> BigTextStyle.apply(this, notificationData)
+            else -> DefaultStyle.apply(this, notificationData)
         }
-        if (internalStyle == null){
-            if (bitmap != null) {
-                builder.setLargeIcon(bitmap)
-                        .setStyle(NotificationCompat.BigPictureStyle()
-                                .bigPicture(bitmap)
-                                .bigLargeIcon(null)
-                                .setBigContentTitle(title)
-                                .setSummaryText(body))
-            } else {
-                builder.setStyle(NotificationCompat.BigTextStyle()
-                        .bigText(body)
-                        .setBigContentTitle(title))
-            }
-        }
-    }
-
-    fun getTitle(remoteMessageData: Map<String, String?>, context: Context): String? {
-        var title = remoteMessageData["title"]
-        if (title == null || title.isEmpty()) {
-            title = getDefaultTitle(context)
-        }
-        return title
     }
 
     fun getInAppDescriptor(fileDownloader: FileDownloader, remoteMessageData: Map<String, String?>?): String? {
@@ -261,22 +215,19 @@ object MessagingServiceUtils {
         return preloadedRemoteMessageData
     }
 
-    private fun getDefaultTitle(context: Context): String? {
-        var title: String? = null
-        if (AndroidVersionUtils.isBelowMarshmallow()) {
-            val applicationInfo = context.applicationInfo
-            val stringId = applicationInfo.labelRes
-
-            title = if (stringId == 0) applicationInfo.nonLocalizedLabel.toString() else context.getString(stringId)
-        }
-        return title
-    }
-
     fun cacheNotification(timestampProvider: TimestampProvider?, notificationCache: NotificationCache, remoteMessageData: Map<String, String?>) {
         notificationCache.cache(InboxParseUtils.parseNotificationFromPushMessage(timestampProvider, false, remoteMessageData))
     }
 
     private fun isValidChannel(notificationSettings: NotificationSettings, channelId: String?): Boolean {
         return notificationSettings.channelSettings.any { it.channelId == channelId }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createDebugChannel(context: Context): String {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationChannel = NotificationChannel("ems_debug", "Emarsys SDK Debug Messages", NotificationManager.IMPORTANCE_HIGH)
+        notificationManager.createNotificationChannel(notificationChannel)
+        return notificationChannel.id
     }
 }

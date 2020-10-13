@@ -2,7 +2,6 @@ package com.emarsys.service
 
 import android.content.Context
 import android.os.Handler
-import com.emarsys.core.api.proxyApi
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.Assert
@@ -31,7 +30,8 @@ object EmarsysMessagingServiceUtils {
                     getDependency(),
                     getDependency<TimestampProvider>(),
                     getDependency(),
-                    getDependency("silentMessageActionCommandFactory"))
+                    getDependency("silentMessageActionCommandFactory"),
+                    getDependency())
             latch.countDown()
         }
         latch.await()

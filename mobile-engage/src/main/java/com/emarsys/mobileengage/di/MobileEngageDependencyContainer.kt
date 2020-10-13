@@ -32,6 +32,7 @@ import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
+import com.emarsys.mobileengage.service.RemoteMessageMapper
 
 interface MobileEngageDependencyContainer : DependencyContainer {
     fun getMobileEngageInternal(): MobileEngageInternal
@@ -149,4 +150,6 @@ interface MobileEngageDependencyContainer : DependencyContainer {
     fun getInlineInAppWebViewFactory(): InlineInAppWebViewFactory
 
     fun getIamJsBridgeFactory(): IamJsBridgeFactory
+
+    fun getRemoteMessageMapper(): RemoteMessageMapper
 }

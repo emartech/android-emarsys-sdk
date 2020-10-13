@@ -54,6 +54,7 @@ import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
+import com.emarsys.mobileengage.service.RemoteMessageMapper
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.nhaarman.mockitokotlin2.mock
 
@@ -131,7 +132,8 @@ class FakeMobileEngageDependencyContainer(
         silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider = mock(),
         webViewProvider: WebViewProvider = mock(),
         inlineInAppWebViewFactory: InlineInAppWebViewFactory = mock(),
-        iamJsBridgeFactory: IamJsBridgeFactory = mock()
+        iamJsBridgeFactory: IamJsBridgeFactory = mock(),
+        remoteMessageMapper: RemoteMessageMapper = mock()
 ) : MobileEngageDependencyContainer {
     override val dependencies: MutableMap<String, Any?> = mutableMapOf()
 
@@ -210,6 +212,7 @@ class FakeMobileEngageDependencyContainer(
         addDependency(dependencies, webViewProvider)
         addDependency(dependencies, inlineInAppWebViewFactory)
         addDependency(dependencies, iamJsBridgeFactory)
+        addDependency(dependencies, remoteMessageMapper)
     }
 
     override fun getCoreSdkHandler(): Handler = getDependency(dependencies, "coreSdkHandler")
@@ -355,4 +358,6 @@ class FakeMobileEngageDependencyContainer(
     override fun getInlineInAppWebViewFactory(): InlineInAppWebViewFactory = getDependency(dependencies)
 
     override fun getIamJsBridgeFactory(): IamJsBridgeFactory = getDependency(dependencies)
+
+    override fun getRemoteMessageMapper(): RemoteMessageMapper = getDependency(dependencies)
 }

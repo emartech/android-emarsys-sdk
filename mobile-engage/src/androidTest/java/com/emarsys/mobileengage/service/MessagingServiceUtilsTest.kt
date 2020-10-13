@@ -28,6 +28,7 @@ import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.notification.command.AppEventCommand
 import com.emarsys.mobileengage.notification.command.SilentNotificationInformationCommand
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
+import com.emarsys.mobileengage.service.MessagingServiceUtils.styleNotification
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils.instantiate
 import com.emarsys.testUtil.RetryUtils.retryRule
@@ -47,29 +48,33 @@ import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
 import java.io.File
 import java.util.*
+import kotlin.collections.HashMap
 
 class MessagingServiceUtilsTest {
-    companion object {
-        private const val TITLE = "title"
-        private const val DEFAULT_TITLE = "This is a default title"
-        private const val BODY = "body"
-        private const val CHANNEL_ID = "channelId"
-        private const val HARDWARE_ID = "hwid"
-        private const val SDK_VERSION = "sdkVersion"
-        private const val LANGUAGE = "en-US"
-        private const val IMAGE_URL = "https://emarsys.com/image"
-        private const val HTML_URL = "https://hu.wikipedia.org/wiki/Mont_Blanc"
+    private companion object {
+        const val TITLE = "title"
+        const val BODY = "body"
+        const val CHANNEL_ID = "channelId"
+        const val HARDWARE_ID = "hwid"
+        const val SDK_VERSION = "sdkVersion"
+        const val LANGUAGE = "en-US"
+        const val IMAGE_URL = "https://emarsys.com/image"
+        const val HTML_URL = "https://hu.wikipedia.org/wiki/Mont_Blanc"
 
+        val IMAGE: Bitmap = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
+        val SMALL_NOTIFICATION_ICON = com.emarsys.mobileengage.R.drawable.default_small_notification_icon
+        val COLOR = com.emarsys.mobileengage.R.color.common_google_signin_btn_text_light
+        val EMPTY_NOTIFICATION_DATA: NotificationData = NotificationData(null, null, null, null, null, null, SMALL_NOTIFICATION_ICON, COLOR)
     }
 
     private lateinit var context: Context
     private lateinit var deviceInfo: DeviceInfo
-    private lateinit var metaDataReader: MetaDataReader
     private lateinit var mockNotificationCache: NotificationCache
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockFileDownloader: FileDownloader
     private lateinit var mockActionCommandFactory: ActionCommandFactory
     private lateinit var mockSilentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider
+    private lateinit var mockRemoteMessageMapper: RemoteMessageMapper
 
     @Rule
     @JvmField
@@ -115,10 +120,10 @@ class MessagingServiceUtilsTest {
                 mockLanguageProvider,
                 mockNotificationSettings,
                 true)
-        metaDataReader = mock()
         mockNotificationCache = mock()
         mockTimestampProvider = mock()
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(1L)
+        mockRemoteMessageMapper = mock()
 
         DependencyInjection.setup(FakeMobileEngageDependencyContainer(
                 silentNotificationInformationListenerProvider = mockSilentNotificationInformationListenerProvider))
@@ -132,12 +137,14 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testHandleMessage_shouldReturnFalse_ifMessageIsNotHandled() {
-        MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader, mockActionCommandFactory) shouldBe false
+        whenever(mockRemoteMessageMapper.map(any())).thenReturn(EMPTY_NOTIFICATION_DATA)
+        MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader, mockActionCommandFactory, mockRemoteMessageMapper) shouldBe false
     }
 
     @Test
     fun testHandleMessage_shouldReturnTrue_ifMessageIsHandled() {
-        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader, mockActionCommandFactory) shouldBe true
+        whenever(mockRemoteMessageMapper.map(any())).thenReturn(EMPTY_NOTIFICATION_DATA)
+        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader, mockActionCommandFactory, mockRemoteMessageMapper) shouldBe true
     }
 
     @Test
@@ -194,27 +201,35 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun createNotification_shouldNotBeNull() {
+        val notificationData = NotificationData(null, null, null, null, null, null, SMALL_NOTIFICATION_ICON, COLOR)
+
+        val input: MutableMap<String, String> = HashMap()
+        whenever(mockRemoteMessageMapper.map(input)).thenReturn(notificationData)
         MessagingServiceUtils.createNotification(
                 0,
                 context,
-                HashMap(),
+                input,
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader) shouldNotBe null
     }
 
     @Test
     fun createNotification_withBigTextStyle_withTitleAndBody() {
+        val notificationData = NotificationData(null, null, null, TITLE, BODY, CHANNEL_ID, SMALL_NOTIFICATION_ICON, COLOR)
+
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
         input["channel_id"] = CHANNEL_ID
+
+        whenever(mockRemoteMessageMapper.map(input)).thenReturn(notificationData)
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
                 input,
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader)
         result.extras.getString(NotificationCompat.EXTRA_TITLE) shouldBe TITLE
         result.extras.getString(NotificationCompat.EXTRA_TITLE_BIG) shouldBe TITLE
@@ -225,15 +240,19 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun createNotification_withBigTextStyle_withTitle_withoutBody() {
+        val notificationData = NotificationData(null, null, null, TITLE, null, CHANNEL_ID, SMALL_NOTIFICATION_ICON, COLOR)
+
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["channel_id"] = CHANNEL_ID
+        whenever(mockRemoteMessageMapper.map(input)).thenReturn(notificationData)
+
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
                 input,
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader)
         result.extras.getString(NotificationCompat.EXTRA_TITLE) shouldBe TITLE
         result.extras.getString(NotificationCompat.EXTRA_TITLE_BIG) shouldBe TITLE
@@ -244,15 +263,18 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun createNotification_withBigTextStyle_withoutTitle_withBody() {
+        val notificationData = NotificationData(null, null, null, null, BODY, CHANNEL_ID, SMALL_NOTIFICATION_ICON, COLOR)
         val input: MutableMap<String, String> = HashMap()
         input["body"] = BODY
         input["channel_id"] = CHANNEL_ID
+        whenever(mockRemoteMessageMapper.map(input)).thenReturn(notificationData)
+
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
                 input,
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader)
         val expectedTitle = expectedBasedOnApiLevel(applicationName, null)
 
@@ -265,16 +287,19 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun createNotification_withBigTextStyle_withoutTitle_withBody_withDefaultTitle() {
+        val notificationData = NotificationData(null, null, null, null, BODY, CHANNEL_ID, SMALL_NOTIFICATION_ICON, COLOR)
         val input: MutableMap<String, String> = HashMap()
         input["body"] = BODY
         input["u"] = "{\"test_field\":\"\",\"image\":\"https:\\/\\/media.giphy.com\\/media\\/ktvFa67wmjDEI\\/giphy.gif\",\"deep_link\":\"lifestylelabels.com\\/mobile\\/product\\/3245678\",\"sid\":\"sid_here\"}"
         input["channel_id"] = CHANNEL_ID
+        whenever(mockRemoteMessageMapper.map(input)).thenReturn(notificationData)
+
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
                 input,
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader)
 
         result.extras.getString(NotificationCompat.EXTRA_TEXT) shouldBe BODY
@@ -284,17 +309,15 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testCreateNotification_withBigPictureStyle_whenImageIsAvailable() {
-        val input: MutableMap<String, String> = HashMap()
-        input["title"] = TITLE
-        input["body"] = BODY
-        input["image_url"] = IMAGE_URL
-        input["channel_id"] = CHANNEL_ID
+        val notificationData = NotificationData(IMAGE, null, null, TITLE, BODY, CHANNEL_ID, SMALL_NOTIFICATION_ICON, COLOR)
+        whenever(mockRemoteMessageMapper.map(any())).thenReturn(notificationData)
+
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
-                input,
+                mapOf(),
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader)
 
         result.extras.getString(NotificationCompat.EXTRA_TITLE) shouldBe TITLE
@@ -306,18 +329,16 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    fun testCreateNotification_withBigTextStyle_whenImageCannotBeLoaded() {
-        val input: MutableMap<String, String> = HashMap()
-        input["title"] = TITLE
-        input["body"] = BODY
-        input["image_url"] = "https://fa.il/img.jpg"
-        input["channel_id"] = CHANNEL_ID
+    fun testCreateNotification_withBigTextStyle_whenImageIsNotAvailable() {
+        val notificationData = NotificationData(null, null, null, TITLE, BODY, CHANNEL_ID, SMALL_NOTIFICATION_ICON, COLOR)
+        whenever(mockRemoteMessageMapper.map(any())).thenReturn(notificationData)
+
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
-                input,
+                mapOf(),
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader)
 
         result.extras.getString(NotificationCompat.EXTRA_TITLE) shouldBe TITLE
@@ -330,8 +351,12 @@ class MessagingServiceUtilsTest {
     @Test
     fun testCreateNotification_setsNotificationColor() {
         val colorResourceId = R.color.darker_gray
+        val mockMetaDataReader: MetaDataReader = mock {
+            on { getInt(ArgumentMatchers.any(Context::class.java), ArgumentMatchers.any(String::class.java)) } doReturn colorResourceId
+        }
+        val remoteMessageMapper = RemoteMessageMapper(mockMetaDataReader, context, mock(), deviceInfo)
+
         val expectedColor = ContextCompat.getColor(context, colorResourceId)
-        whenever(metaDataReader.getInt(ArgumentMatchers.any(Context::class.java), ArgumentMatchers.any(String::class.java))).thenReturn(colorResourceId)
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
@@ -340,14 +365,19 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader,
+                remoteMessageMapper,
                 mockFileDownloader)
 
         result.color shouldBe expectedColor
     }
 
     @Test
-    fun testCreateNotification_doesNotSet_notificationColor_when() {
+    fun testCreateNotification_doesNotSet_notificationColor_whenCodeIsInvalid() {
+        val mockMetaDataReader: MetaDataReader = mock {
+            on { getInt(ArgumentMatchers.any(Context::class.java), ArgumentMatchers.any(String::class.java)) } doReturn 0
+        }
+        val remoteMessageMapper = RemoteMessageMapper(mockMetaDataReader, context, mock(), deviceInfo)
+
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
@@ -356,7 +386,7 @@ class MessagingServiceUtilsTest {
                 context,
                 input,
                 deviceInfo,
-                metaDataReader,
+                remoteMessageMapper,
                 mockFileDownloader)
 
         result.color shouldBe Notification.COLOR_DEFAULT
@@ -365,16 +395,20 @@ class MessagingServiceUtilsTest {
     @Test
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     fun testCreateNotification_withChannelId() {
+        val notificationData = NotificationData(null, null, null, TITLE, BODY, CHANNEL_ID, SMALL_NOTIFICATION_ICON, COLOR)
+
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
         input["channel_id"] = CHANNEL_ID
+        whenever(mockRemoteMessageMapper.map(input)).thenReturn(notificationData)
+
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
                 input,
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader)
 
         result.channelId shouldBe CHANNEL_ID
@@ -383,6 +417,7 @@ class MessagingServiceUtilsTest {
     @Test
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     fun testCreateNotification_withoutChannelId() {
+        val notificationData = NotificationData(null, null, null, TITLE, BODY, null, SMALL_NOTIFICATION_ICON, COLOR)
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
@@ -392,12 +427,13 @@ class MessagingServiceUtilsTest {
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(false)
+        whenever(mockRemoteMessageMapper.map(input)).thenReturn(notificationData)
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
                 input,
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader)
 
         result.channelId shouldBe null
@@ -406,6 +442,7 @@ class MessagingServiceUtilsTest {
     @Test
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     fun testCreateNotification_withoutChannelId_inDebugMode() {
+        val notificationData = NotificationData(null, null, null, TITLE, BODY, null, SMALL_NOTIFICATION_ICON, COLOR)
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
@@ -415,12 +452,13 @@ class MessagingServiceUtilsTest {
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(true)
+        whenever(mockRemoteMessageMapper.map(input)).thenReturn(notificationData)
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
                 input,
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader)
         result.channelId shouldBe "ems_debug"
     }
@@ -447,12 +485,13 @@ class MessagingServiceUtilsTest {
         input["title"] = TITLE
         input["body"] = BODY
         input["ems"] = ems.toString()
+        whenever(mockRemoteMessageMapper.map(any())).thenReturn(EMPTY_NOTIFICATION_DATA)
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
                 input,
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader)
         result.actions shouldNotBe null
         result.actions.size shouldBe 2
@@ -465,12 +504,13 @@ class MessagingServiceUtilsTest {
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
+        whenever(mockRemoteMessageMapper.map(any())).thenReturn(EMPTY_NOTIFICATION_DATA)
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
                 input,
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader)
         result.actions shouldBe null
     }
@@ -478,6 +518,7 @@ class MessagingServiceUtilsTest {
     @Test
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     fun testCreateNotification_returnDebugMessage_whenThereIsChannelIdMismatch() {
+        val notificationData = NotificationData(null, null, null, TITLE, BODY, CHANNEL_ID, SMALL_NOTIFICATION_ICON, COLOR)
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
@@ -488,18 +529,20 @@ class MessagingServiceUtilsTest {
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(true)
+        whenever(mockRemoteMessageMapper.map(any())).thenReturn(notificationData)
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
                 input,
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader)
         result.extras.getString(NotificationCompat.EXTRA_TEXT) shouldBe "DEBUG - channel_id mismatch: channelId not found!"
     }
 
     @Test
     fun testCreateNotification_returnOriginalTitle_evenIfThereIsChannelMismatch_but_weAreNotInDebugMode() {
+        val notificationData = NotificationData(null, null, null, TITLE, BODY, CHANNEL_ID, SMALL_NOTIFICATION_ICON, COLOR)
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
@@ -510,56 +553,17 @@ class MessagingServiceUtilsTest {
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(false)
+        whenever(mockRemoteMessageMapper.map(any())).thenReturn(notificationData)
         val result = MessagingServiceUtils.createNotification(
                 0,
                 context,
                 input,
                 deviceInfo,
-                metaDataReader,
+                mockRemoteMessageMapper,
                 mockFileDownloader)
         result.extras.getString(NotificationCompat.EXTRA_TEXT) shouldBe BODY
     }
 
-    @Test
-    fun testGetTitle_withTitleSet() {
-        val input: MutableMap<String, String> = HashMap()
-        input["title"] = TITLE
-        MessagingServiceUtils.getTitle(input, context) shouldBe TITLE
-    }
-
-    @Test
-    fun testGetTitle_shouldReturnAppName_whenTitleNotSet() {
-        val input: MutableMap<String, String> = HashMap()
-        input["key1"] = "value1"
-        input["key2"] = "value2"
-        val expectedBefore23 = applicationName
-        val expectedFrom23 = null
-        val expected = expectedBasedOnApiLevel(expectedBefore23, expectedFrom23)
-        MessagingServiceUtils.getTitle(input, context) shouldBe expected
-    }
-
-    @Test
-    fun testGetTitle_shouldReturnAppName_whenTitleIsEmpty() {
-        val input: MutableMap<String, String> = HashMap()
-        input["key1"] = "value1"
-        input["key2"] = "value2"
-        input["title"] = ""
-        val expectedBefore23 = applicationName
-        val expectedFrom23 = null
-        val expected = expectedBasedOnApiLevel(expectedBefore23, expectedFrom23)
-        MessagingServiceUtils.getTitle(input, context) shouldBe expected
-    }
-
-    @Test
-    fun testGetTitle_defaultTitleShouldNotOverrideTitle() {
-        val input: MutableMap<String, String> = HashMap()
-        input["key1"] = "value1"
-        input["key2"] = "value2"
-        input["title"] = TITLE
-        input["u"] = "{\"test_field\":\"\",\"ems_default_title\":\"$DEFAULT_TITLE\",\"image\":\"https:\\/\\/media.giphy.com\\/media\\/ktvFa67wmjDEI\\/giphy.gif\",\"deep_link\":\"lifestylelabels.com\\/mobile\\/product\\/3245678\",\"sid\":\"sid_here\"}"
-
-        MessagingServiceUtils.getTitle(input, context) shouldBe TITLE
-    }
 
     @Test
     fun testGetInAppDescriptor_shouldReturnNull_forNullInput() {
@@ -744,37 +748,33 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testStyleNotification_whenStyleIsMessage() {
-        assertWithStyle<NotificationCompat.MessagingStyle>("MESSAGE")
+        "MESSAGE" shouldCreateNotificationWithStyle NotificationCompat.MessagingStyle::class.java
     }
 
     @Test
     fun testStyleNotification_whenStyleIsBigText() {
-        assertWithStyle<NotificationCompat.BigTextStyle>("BIG_TEXT")
+        "BIG_TEXT" shouldCreateNotificationWithStyle NotificationCompat.BigTextStyle::class.java
     }
 
     @Test
     fun testStyleNotification_whenStyleIsThumbnail() {
-        val mockBuilder: NotificationCompat.Builder = mock(){
+        val mockBuilder: NotificationCompat.Builder = mock() {
             on { setLargeIcon(any()) } doReturn it
             on { setContentTitle(any()) } doReturn it
+            on { setContentText(any()) } doReturn it
         }
         val title = "testTitle"
         val body = "testBody"
         val image = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
         val icon = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
-        MessagingServiceUtils.styleNotification(mockBuilder, title, body, "THUMBNAIL", image, icon)
+        mockBuilder.styleNotification(NotificationData(image, icon, "THUMBNAIL", title, body, null, 123, 456))
 
         verify(mockBuilder, times(0)).setStyle(any())
     }
 
     @Test
     fun testStyleNotification_whenStyleIsBigPicture() {
-        assertWithStyle<NotificationCompat.BigPictureStyle>("BIG_PICTURE")
-    }
-
-    @Test
-    fun testStyleNotification_whenStyleIsInvalid_imageIsSet_shouldBeBigPictureStyle() {
-        assertWithStyle<NotificationCompat.BigPictureStyle>("INVALID_STYLE")
+        "BIG_PICTURE" shouldCreateNotificationWithStyle NotificationCompat.BigPictureStyle::class.java
     }
 
     @Test
@@ -783,20 +783,26 @@ class MessagingServiceUtilsTest {
 
         val title = "testTitle"
         val body = "testBody"
-        MessagingServiceUtils.styleNotification(mockBuilder, title, body, "INVALID_STYLE", null, null)
+        mockBuilder.styleNotification(NotificationData(null, null, "INVALID_STYLE", title, body, null, 222, 333))
 
         verify(mockBuilder).setStyle(any<NotificationCompat.BigTextStyle>())
     }
 
-    private inline fun <reified T : NotificationCompat.Style> assertWithStyle(style: String) {
-        val mockBuilder: NotificationCompat.Builder = mock(){
-            on { setLargeIcon(any()) } doReturn it
+    @Test
+    fun testStyleNotification_whenStyleIsInvalid_imageIsSet_shouldBeBigPictureStyle() {
+        "INVALID_STYLE" shouldCreateNotificationWithStyle NotificationCompat.BigPictureStyle::class.java
+    }
+
+    private inline infix fun <reified T : NotificationCompat.Style> String.shouldCreateNotificationWithStyle(style: Class<T>) {
+        val mockBuilder: NotificationCompat.Builder = mock {
+            on { setLargeIcon(com.nhaarman.mockitokotlin2.any()) } doReturn it
+            on { setStyle(com.nhaarman.mockitokotlin2.any()) } doReturn it
         }
         val title = "testTitle"
         val body = "testBody"
         val image = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
         val icon = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
-        MessagingServiceUtils.styleNotification(mockBuilder, title, body, style, image, icon)
+        mockBuilder.styleNotification(NotificationData(image, icon, this, title, body, null, 222, 444))
 
         verify(mockBuilder).setStyle(any<T>())
     }
