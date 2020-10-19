@@ -1,0 +1,143 @@
+core-api:
+  type: instrumentation
+  app: sample-debug-androidTest.apk
+  test: core-api-debug-androidTest.apk
+  device:
+    - model: Nexus10
+      version: 21
+      locale: 'en'
+      orientation: portrait
+    - model: Nexus6P
+      version: 26
+      locale: 'en'
+      orientation: portrait
+    - model: NexusLowRes
+      version: 30
+      locale: 'en'
+      orientation: portrait
+
+core:
+  type: instrumentation
+  app: sample-debug-androidTest.apk
+  test: core-debug-androidTest.apk
+  device:
+    - model: Nexus10
+      version: 21
+      locale: 'en'
+      orientation: portrait
+    - model: Nexus6P
+      version: 26
+      locale: 'en'
+      orientation: portrait
+    - model: NexusLowRes
+      version: 30
+      locale: 'en'
+      orientation: portrait
+
+mobile-engage-api:
+  type: instrumentation
+  app: sample-debug-androidTest.apk
+  test: mobile-engage-api-debug-androidTest.apk
+  device:
+    - model: Nexus10
+      version: 21
+      locale: 'en'
+      orientation: portrait
+    - model: Nexus6P
+      version: 26
+      locale: 'en'
+      orientation: portrait
+    - model: NexusLowRes
+      version: 30
+      locale: 'en'
+      orientation: portrait
+
+mobile-engage:
+  type: instrumentation
+  app: sample-debug-androidTest.apk
+  test: mobile-engage-debug-androidTest.apk
+  device:
+    - model: Nexus10
+      version: 21
+      locale: 'en'
+      orientation: portrait
+    - model: Nexus6P
+      version: 26
+      locale: 'en'
+      orientation: portrait
+    - model: NexusLowRes
+      version: 30
+      locale: 'en'
+      orientation: portrait
+
+predict-api:
+  type: instrumentation
+  app: sample-debug-androidTest.apk
+  test: predict-api-debug-androidTest.apk
+  device:
+    - model: Nexus10
+      version: 21
+      locale: 'en'
+      orientation: portrait
+    - model: Nexus6P
+      version: 26
+      locale: 'en'
+      orientation: portrait
+    - model: NexusLowRes
+      version: 30
+      locale: 'en'
+      orientation: portrait
+
+predict:
+  type: instrumentation
+  app: sample-debug-androidTest.apk
+  test: predict-debug-androidTest.apk
+  device:
+    - model: Nexus10
+      version: 21
+      locale: 'en'
+      orientation: portrait
+    - model: Nexus6P
+      version: 26
+      locale: 'en'
+      orientation: portrait
+    - model: NexusLowRes
+      version: 30
+      locale: 'en'
+      orientation: portrait
+
+emarsys-sdk:
+  type: instrumentation
+  app: sample-debug-androidTest.apk
+  test: emarsys-sdk-debug-androidTest.apk
+  device:
+    - model: Nexus10
+      version: 21
+      locale: 'en'
+      orientation: portrait
+    - model: Nexus6P
+      version: 26
+      locale: 'en'
+      orientation: portrait
+    - model: NexusLowRes
+      version: 30
+      locale: 'en'
+      orientation: portrait
+
+emarsys:
+  type: instrumentation
+  app: sample-debug-androidTest.apk
+  test: emarsys-debug-androidTest.apk
+  device:
+    - model: Nexus10
+      version: 21
+      locale: 'en'
+      orientation: portrait
+    - model: Nexus6P
+      version: 26
+      locale: 'en'
+      orientation: portrait
+    - model: NexusLowRes
+      version: 30
+      locale: 'en'
+      orientation: portrait
