@@ -7,7 +7,7 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.helper.DbHelper
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
+import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
@@ -27,7 +27,8 @@ class ButtonClickedRepositoryTest {
     private lateinit var buttonClicked1: ButtonClicked
 
     @Rule
-    var timeout: TestRule = timeoutRule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun init() {

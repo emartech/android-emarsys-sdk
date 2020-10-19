@@ -2,10 +2,12 @@ package com.emarsys.mobileengage.iam.model.buttonclicked
 
 import android.content.ContentValues
 import android.database.Cursor
+import com.emarsys.core.Mockable
 import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.helper.DbHelper
 import com.emarsys.core.database.repository.AbstractSqliteRepository
 
+@Mockable
 class ButtonClickedRepository(dbHelper: DbHelper) : AbstractSqliteRepository<ButtonClicked>(DatabaseContract.BUTTON_CLICKED_TABLE_NAME, dbHelper) {
     override fun contentValuesFromItem(item: ButtonClicked): ContentValues {
         val contentValues = ContentValues()
