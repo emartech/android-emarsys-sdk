@@ -2,8 +2,8 @@ name: On Commit Build
 
 on:
   workflow_dispatch:
-#  push:
-#    branches: [ master ]
+  push:
+    branches: [ master ]
 
 env:
   RELEASE_KEY_PASSWORD:  ${{ secrets.ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD }}
@@ -39,6 +39,9 @@ jobs:
           name: google-services.json
           json: ${{ secrets.GOOGLE_SERVICES_JSON }}
           dir: sample
+
+      - name: Build with Gradle
+        run: ./gradlew assembleAndroidTest -x lint
 
       - name: Create file 'FAILURE.TXT' and write 'false' into it
         run: echo 'false' > FAILURE.TXT
