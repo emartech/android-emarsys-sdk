@@ -1,3 +1,6 @@
+Last commit: ![On Commit Build](https://github.com/emartech/android-emarsys-sdk/workflows/On%20Commit%20Build/badge.svg)
+Nightly build: ![Nightly build](https://github.com/emartech/android-emarsys-sdk/workflows/Nightly%20build/badge.svg)
+
 ## Contents
 
 - [What is the Emarsys SDK?](#what-is-the-emarsys-sdk "Emarsys SDK")
