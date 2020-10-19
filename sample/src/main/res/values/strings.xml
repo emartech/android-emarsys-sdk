@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Sample App</string>
+    <string name="app_name">Emarsys SDK Samples</string>
     <string name="menu_title_mobile_engage">Mobile engage</string>
     <string name="menu_title_mobile_engage_tracking">Tracking</string>
     <string name="menu_title_inbox">Inbox</string>
