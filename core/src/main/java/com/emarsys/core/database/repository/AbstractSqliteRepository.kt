@@ -17,7 +17,7 @@ private inline fun CoreSQLiteDatabase.inTransaction(statement: CoreSQLiteDatabas
 
 abstract class AbstractSqliteRepository<T>(var tableName: String, var dbHelper: DbHelper) : Repository<T, SqlSpecification> {
     abstract fun contentValuesFromItem(item: T): ContentValues
-    abstract fun itemFromCursor(cursor: Cursor?): T
+    abstract fun itemFromCursor(cursor: Cursor): T
 
     override fun add(item: T) {
         val contentValues = contentValuesFromItem(item)

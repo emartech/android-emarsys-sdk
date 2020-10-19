@@ -33,7 +33,7 @@ class AbstractStorageTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test(expected = java.lang.IllegalArgumentException::class)
     fun testConstructor_storeMustNotBeNull() {
         object : AbstractStorage<String, SharedPreferences>(null) {
             override fun persistValue(store: SharedPreferences?, value: String?) = TODO()

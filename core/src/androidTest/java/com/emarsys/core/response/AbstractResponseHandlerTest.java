@@ -27,7 +27,7 @@ public class AbstractResponseHandlerTest {
         abstractResponseHandler = mock(AbstractResponseHandler.class, Mockito.CALLS_REAL_METHODS);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void testProcessResponse_responseShouldNotBeNull() {
         abstractResponseHandler.processResponse(null);
     }

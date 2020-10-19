@@ -43,7 +43,7 @@ class BooleanStorageTest {
         storage = BooleanStorage(storageKey, sharedPreferences)
     }
 
-    @Test(expected = IllegalStateException::class)
+    @Test(expected = NullPointerException::class)
     fun testConstructor_valueReturnedByKey_mustNotBeNull() {
         BooleanStorage(mock(StorageKey::class.java), sharedPreferences)
     }

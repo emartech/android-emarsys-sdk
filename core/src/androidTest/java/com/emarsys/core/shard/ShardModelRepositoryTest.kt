@@ -54,11 +54,6 @@ class ShardModelRepositoryTest {
         shardModel = ShardModel(SHARD_ID, TYPE, payload, TIMESTAMP, TTL)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_coreDbHelper_mustNotBeNull() {
-        ShardModelRepository(null)
-    }
-
     @Test
     fun testContentValuesFromItem() {
         val result = repository.contentValuesFromItem(shardModel)
