@@ -16,6 +16,7 @@ import com.emarsys.Emarsys
 import com.emarsys.sample.R
 import com.emarsys.sample.extensions.copyToClipboard
 import com.emarsys.sample.extensions.showSnackBar
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.FirebaseApp
 import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.fragment_mobile_engage_tracking.*
@@ -133,9 +134,11 @@ class MobileEngageFragmentTracking : Fragment() {
                         Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(context,
                         Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(context,
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                    REQUEST_LOCATION_PERMISSIONS)
+            MaterialAlertDialogBuilder(context).setTitle("Permission needed").setMessage("Emarsys SDK collects location data to enable Geofencing feature even when the app is closed or not in use.").setPositiveButton("Ok") { dialog, b ->
+                ActivityCompat.requestPermissions(context,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                        REQUEST_LOCATION_PERMISSIONS)
+            }.show()
             false
         } else {
             true
