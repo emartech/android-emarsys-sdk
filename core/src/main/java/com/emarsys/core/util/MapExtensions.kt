@@ -11,3 +11,11 @@ fun <T> Map<String?, T?>.getCaseInsensitive(key: String?): T? {
 
     return result
 }
+
+fun <K, V> Map<out K?, V?>.filterNotNull(): Map<K, V> {
+    val result = HashMap<K, V>()
+    filter { it.key != null && it.value != null }.forEach {
+        result[it.key!!] = it.value!!
+    }
+    return result
+}

@@ -242,6 +242,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         predictServiceStorage.set(remoteConfig.predictServiceUrl)
         messageInboxServiceStorage.set(remoteConfig.messageInboxServiceUrl)
         logLevelStorage.set(remoteConfig.logLevel?.name)
+        //         flipperStorage.set(remoteConfig.flippers?)
     }
 
     override fun resetRemoteConfig() {

@@ -7,9 +7,12 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.random.RandomProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.JsonUtils
+import com.emarsys.core.util.camelToUpperSnakeCase
+import com.emarsys.core.util.filterNotNull
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
+import com.emarsys.feature.InnerFeature
 import org.json.JSONException
 import org.json.JSONObject
 import java.net.URL
@@ -27,10 +30,12 @@ class RemoteConfigResponseMapper(private val randomProvider: RandomProvider,
                 extractOverrideJson(remoteConfigJson)?.let {
                     val remoteConfigServiceUrlJson = JsonUtils.merge(remoteConfigJson.optJSONObject("serviceUrls"), it.optJSONObject("serviceUrls"))
                     val remoteConfigLuckyJson = JsonUtils.merge(remoteConfigJson.optJSONObject("luckyLogger"), it.optJSONObject("luckyLogger"))
+                    val remoteConfigFeatureJson = JsonUtils.merge(remoteConfigJson.optJSONObject("features"), it.optJSONObject("features"))
 
                     remoteConfigJson = JsonUtils.merge(remoteConfigJson, it)
                     remoteConfigJson.put("serviceUrls", remoteConfigServiceUrlJson)
                     remoteConfigJson.put("luckyLogger", remoteConfigLuckyJson)
+                    remoteConfigJson.put("features", remoteConfigFeatureJson)
                 }
                 remoteConfig = mapJsonToRemoteConfig(remoteConfigJson)
             } catch (jsonException: JSONException) {
@@ -58,6 +63,7 @@ class RemoteConfigResponseMapper(private val randomProvider: RandomProvider,
                     predictServiceUrl = validateUrl(serviceUrls.optString("predictService", null)))
         }
         remoteConfig = remoteConfig.copy(logLevel = calculateLogLevel(remoteConfigJson))
+        remoteConfig = remoteConfig.copy(features = extractFeatures(remoteConfigJson))
         return remoteConfig
     }
 
@@ -97,5 +103,14 @@ class RemoteConfigResponseMapper(private val randomProvider: RandomProvider,
             "metric" -> LogLevel.METRIC
             else -> null
         }
+    }
+
+    private fun extractFeatures(remoteConfigJson: JSONObject): Map<InnerFeature, Boolean>? {
+        val featuresJson = remoteConfigJson.optJSONObject("features")
+        return featuresJson
+                ?.keys()
+                ?.asSequence()
+                ?.associateBy({ InnerFeature.safeValueOf(it.camelToUpperSnakeCase()) }) { featuresJson.getBoolean(it) }
+                ?.filterNotNull()
     }
 }

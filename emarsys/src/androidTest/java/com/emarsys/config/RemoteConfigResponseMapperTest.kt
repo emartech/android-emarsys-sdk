@@ -5,6 +5,7 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.random.RandomProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.log.LogLevel
+import com.emarsys.feature.InnerFeature
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.doReturn
@@ -55,7 +56,10 @@ class RemoteConfigResponseMapperTest {
                 "https://testDeepLinkService.emarsys.net",
                 "https://testinboxService.emarsys.net",
                 "https://testMessageInboxService.emarsys.net",
-                LogLevel.INFO)
+                LogLevel.INFO,
+                mapOf(
+                        InnerFeature.MOBILE_ENGAGE to true,
+                        InnerFeature.PREDICT to false))
 
         val result = remoteConfigResponseMapper.map(mockResponseModel)
 
@@ -76,7 +80,10 @@ class RemoteConfigResponseMapperTest {
                 "https://testDeepLinkService.emarsys.net",
                 "https://testinboxService.emarsys.net",
                 "https://testMessageInboxService.emarsys.net",
-                LogLevel.TRACE)
+                LogLevel.TRACE,
+                mapOf(
+                        InnerFeature.MOBILE_ENGAGE to false,
+                        InnerFeature.PREDICT to true))
 
         val result = remoteConfigResponseMapper.map(mockResponseModel)
 
@@ -141,6 +148,52 @@ class RemoteConfigResponseMapperTest {
 
         val expected = RemoteConfig(
                 inboxServiceUrl = "https://testinboxService.emarsys.net")
+
+        val result = remoteConfigResponseMapper.map(mockResponseModel)
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testMap_mapsResponseModel_to_RemoteConfig_withFeaturesCamelCase() {
+        whenever(mockResponseModel.body).thenReturn(
+                """
+                   {
+                        "features":{
+                            "mobileEngage":true,
+                            "predict":false,
+                            "notAValidFeature":false
+                        }
+                   }
+               """.trimIndent()
+        )
+
+        val expected = RemoteConfig(features = mapOf(
+                InnerFeature.MOBILE_ENGAGE to true,
+                InnerFeature.PREDICT to false))
+
+        val result = remoteConfigResponseMapper.map(mockResponseModel)
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testMap_mapsResponseModel_to_RemoteConfig_withFeaturesSnakeCase() {
+        whenever(mockResponseModel.body).thenReturn(
+                """
+                   {
+                        "features":{
+                            "mobile_engage":true,
+                            "predict":false,
+                            "notAValidFeature":false
+                        }
+                   }
+               """.trimIndent()
+        )
+
+        val expected = RemoteConfig(features = mapOf(
+                InnerFeature.MOBILE_ENGAGE to true,
+                InnerFeature.PREDICT to false))
 
         val result = remoteConfigResponseMapper.map(mockResponseModel)
 
@@ -231,6 +284,11 @@ class RemoteConfigResponseMapperTest {
                         "logLevel": "INFO",
                         "threshold": 0.2
                       },
+                       "features":{
+                          "mobileEngage":true,
+                          "predict":false,
+                          "experimentalFeature1":false
+                       },
                       "overrides": {
                         "hardwareId1": {
                           "serviceUrls": {
@@ -240,7 +298,12 @@ class RemoteConfigResponseMapperTest {
                           "luckyLogger": {
                             "logLevel": "WARN",
                             "threshold": 0.3
-                          }
+                          },
+                           "features":{
+                              "mobileEngage":false,
+                              "predict":true,
+                              "experimentalFeature1":false
+                           }
                         },
                         "hardwareId2": {
                           "serviceUrls": {
