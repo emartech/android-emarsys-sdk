@@ -42,7 +42,7 @@ class EmarsysMessagingServiceTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private companion object {
-        private const val APPLICATION_CODE = "56789876"
+        private const val APPLICATION_CODE = "EMS11-C3FD3"
         private const val CONTACT_FIELD_ID = 3
         private const val HARDWARE_ID = "hwid"
         private const val SDK_VERSION = "sdkVersion"
