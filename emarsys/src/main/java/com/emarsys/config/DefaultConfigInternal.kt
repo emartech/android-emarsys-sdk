@@ -242,7 +242,19 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         predictServiceStorage.set(remoteConfig.predictServiceUrl)
         messageInboxServiceStorage.set(remoteConfig.messageInboxServiceUrl)
         logLevelStorage.set(remoteConfig.logLevel?.name)
-        //         flipperStorage.set(remoteConfig.flippers?)
+        overrideFeatureFlippers(remoteConfig)
+    }
+
+    private fun overrideFeatureFlippers(remoteConfig: RemoteConfig) {
+        if (remoteConfig.features != null) {
+            InnerFeature.values().forEach {
+                if (remoteConfig.features[it] == true) {
+                    FeatureRegistry.enableFeature(it)
+                } else if (remoteConfig.features[it] == false) {
+                    FeatureRegistry.disableFeature(it)
+                }
+            }
+        }
     }
 
     override fun resetRemoteConfig() {

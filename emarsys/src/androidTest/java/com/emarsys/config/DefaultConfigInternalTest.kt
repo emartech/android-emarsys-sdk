@@ -529,6 +529,7 @@ class DefaultConfigInternalTest {
 
         configInternal.changeMerchantId(null)
 
+        verify(mockPredictRequestContext).merchantId = null
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe false
     }
 
@@ -537,22 +538,6 @@ class DefaultConfigInternalTest {
         configInternal.changeMerchantId(MERCHANT_ID)
 
         verify(mockPredictRequestContext).merchantId = MERCHANT_ID
-    }
-
-    @Test
-    fun testChangeMerchantId_shouldResetRemoteConfig() {
-        configInternal.changeMerchantId(MERCHANT_ID)
-        val inOrder = inOrder(configInternal, mockPredictRequestContext)
-        inOrder.verify(mockPredictRequestContext).merchantId = MERCHANT_ID
-    }
-
-    @Test
-    fun testChangeMerchantId_shouldNotRefreshRemoteConfig_whenPredictGotDisabled() {
-        configInternal.changeMerchantId(null)
-
-        val inOrder = inOrder(configInternal, mockPredictRequestContext)
-        inOrder.verify(mockPredictRequestContext).merchantId = null
-        inOrder.verifyNoMoreInteractions()
     }
 
     @Test
@@ -824,6 +809,9 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testApplyRemoteConfig_applyAll() {
+        FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+        FeatureRegistry.enableFeature(InnerFeature.PREDICT)
+
         val remoteConfig = RemoteConfig(
                 eventServiceUrl = EVENT_SERVICE_URL,
                 clientServiceUrl = CLIENT_SERVICE_URL,
@@ -832,7 +820,11 @@ class DefaultConfigInternalTest {
                 mobileEngageV2ServiceUrl = MOBILE_ENGAGE_V2_SERVICE_URL,
                 predictServiceUrl = PREDICT_SERVICE_URL,
                 messageInboxServiceUrl = MESSAGE_INBOX_SERVICE_URL,
-                logLevel = LogLevel.DEBUG
+                logLevel = LogLevel.DEBUG,
+                features = mapOf(
+                        InnerFeature.MOBILE_ENGAGE to false,
+                        InnerFeature.PREDICT to true
+                )
         )
 
         (configInternal as DefaultConfigInternal).applyRemoteConfig(remoteConfig)
@@ -845,6 +837,25 @@ class DefaultConfigInternalTest {
         verify(mockPredictServiceStorage).set(PREDICT_SERVICE_URL)
         verify(mockMessageInboxServiceStorage).set(MESSAGE_INBOX_SERVICE_URL)
         verify(mockLogLevelStorage).set("DEBUG")
+        FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
+        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
+    }
+
+    @Test
+    fun testApplyRemoteConfig_applyFlippers() {
+        FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+        FeatureRegistry.enableFeature(InnerFeature.PREDICT)
+
+        val remoteConfig = RemoteConfig(
+                features = mapOf(
+                        InnerFeature.MOBILE_ENGAGE to false
+                )
+        )
+
+        (configInternal as DefaultConfigInternal).applyRemoteConfig(remoteConfig)
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
+        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
     }
 
     @Test
