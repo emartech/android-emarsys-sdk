@@ -1,6 +1,4 @@
-![Last commit build](https://github.com/emartech/android-emarsys-sdk/workflows/Last%20commit%20build/badge.svg)
-
-![Nightly build](https://github.com/emartech/android-emarsys-sdk/workflows/Nightly%20build/badge.svg)
+![build](https://github.com/emartech/android-emarsys-sdk/workflows/Last%20commit%20build/badge.svg)
 
 ## Contents
 
