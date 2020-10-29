@@ -142,14 +142,18 @@ class InlineInAppViewTest {
     fun testFilterMessagesById_whenInlineMessages_isMissing() {
         val expectedBody = JSONObject("""{}""".trimMargin())
         whenever(mockResponseModel.parsedBody).thenReturn(expectedBody)
-
+        var error: Throwable? = null
         val latch = CountDownLatch(1)
         val inlineInAppView = InlineInAppView(context)
-        inlineInAppView.onCompletionListener = CompletionListener { latch.countDown() }
+        inlineInAppView.onCompletionListener = CompletionListener {
+            error = it
+            latch.countDown()
+        }
         inlineInAppView.loadInApp(VIEW_ID)
 
         latch.await()
-
+        error shouldNotBe null
+        error!!.message shouldBe "Inline In-App HTML content must not be empty, please check your viewId!"
         verify(webView, times(0)).loadDataWithBaseURL(any(), any(), eq("text/html; charset=utf-8"), eq("UTF-8"), isNull())
 
     }
