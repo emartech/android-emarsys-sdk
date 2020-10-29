@@ -18,6 +18,7 @@ class AsyncProxy<T>(private val apiObject: T,
                     private val handler: Handler) : InvocationHandler {
 
     override fun invoke(proxy: Any, method: Method, args: Array<out Any>?): Any? {
+        EmarsysIdlingResources.increment()
         var result: Any? = null
         val isVoid = method.returnType == Void.TYPE
         val latch = CountDownLatch(1)
@@ -30,6 +31,7 @@ class AsyncProxy<T>(private val apiObject: T,
             if (!isVoid) {
                 latch.countDown()
             }
+            EmarsysIdlingResources.decrement()
         }
         if (!isVoid) {
             latch.await(10, TimeUnit.SECONDS)

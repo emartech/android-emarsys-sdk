@@ -14,6 +14,7 @@ object Versions {
     const val androidJunit4 = "1.1.2"
     const val kotlinMockito = "2.2.0"
     const val location_services_version = "17.1.0"
+    const val espresso_idling_resources = "3.0.2"
 }
 
 object Libs {
@@ -21,7 +22,7 @@ object Libs {
     const val support_appcompat = "androidx.appcompat:appcompat:${Versions.support_library}"
     const val firebase_core = "com.google.firebase:firebase-core:${Versions.firebase_core_version}"
     const val firebase_messaging = "com.google.firebase:firebase-messaging:${Versions.firebase_messaging_version}"
-    const val espresso_idling_resources = "androidx.test.espresso:espresso-idling-resource:${Versions.espresso_version}"
+    const val espresso_idling_resources = "com.android.support.test.espresso:espresso-idling-resource:${Versions.espresso_idling_resources}"
     const val kotlin = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin_version}"
     const val location_services = "com.google.android.gms:play-services-location:${Versions.location_services_version}"
 }

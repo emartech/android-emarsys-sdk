@@ -4,6 +4,6 @@ dependencies {
     api Libs.support_annotations
     api Libs.support_appcompat
     api Libs.kotlin
-
+    api Libs.espresso_idling_resources
     androidTestImplementation project(':testUtils')
 }
