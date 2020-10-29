@@ -49,9 +49,8 @@ jobs:
           name: failure_file
           path: FAILURE.TXT
 
-      # TODO UNCOMMENT THIS
-      #      - name: Release with Gradle
-      #        run: ./gradlew clean build -x lint -x test release
+      - name: Release with Gradle
+        run: ./gradlew clean build -x lint -x test release
 
       - name: Create file 'FAILURE.TXT' and write 'true' into it
         if: ${{ failure() }}
@@ -134,7 +133,6 @@ jobs:
           serviceAccountJson: google-play-services.json
           packageName: com.emarsys.sample
           releaseFile: sample-release.aab
-          track: alpha
 
       - name: Create file 'FAILURE.TXT' and write 'true' into it
         if: ${{ failure() }}
