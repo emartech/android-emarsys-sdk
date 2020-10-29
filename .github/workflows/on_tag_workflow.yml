@@ -18,6 +18,8 @@ env:
   SLACK_TITLE: New SDK Release
   SLACK_USERNAME: Android pipeline
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  BINTRAY_API_KEY: %{{ BINTRAY_API_KEY }}
+  BINTRAY_USER: ${{ BINTRAY_USER }}
 
 jobs:
   Release:
