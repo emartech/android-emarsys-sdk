@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.emarsys.Emarsys
 import com.emarsys.sample.R
+import com.emarsys.sample.SampleApplication
 import com.emarsys.sample.extensions.showSnackBar
 import com.emarsys.sample.prefs.Cache
 import kotlinx.android.synthetic.main.fragment_dashboard.*
@@ -84,10 +85,12 @@ class DashboardFragment : Fragment() {
 
     private fun onApplicationCodeChanged(throwable: Throwable?, view: View) {
         if (throwable == null) {
-            Cache.applicationCode = newApplicationCode.text?.toNullableString()
+            if (Cache.applicationCode == null
+                    && newApplicationCode?.text?.toNullableString() != null) {
+                (activity?.application as SampleApplication).setupEventHandlers()
+            }
+            Cache.applicationCode = newApplicationCode?.text?.toNullableString()
             Cache.contactFieldId = Emarsys.config.contactFieldId
-            newApplicationCode.text?.clear()
-            newContactFieldId.text?.clear()
             view.showSnackBar("ApplicationCode has been changed!")
         } else {
             Cache.applicationCode = resources.getString(R.string.not_set)
@@ -99,15 +102,17 @@ class DashboardFragment : Fragment() {
     }
 
     private fun refreshConfig() {
-        currentApplicationCode.text = resources.getString(R.string.current_application_code, if (Cache.applicationCode.isNullOrEmpty()) "not set" else Cache.applicationCode)
-        currentContactFieldId.text = resources.getString(R.string.current_contact_field_id, Emarsys.config.contactFieldId)
-        currentMerchantId.text = resources.getString(R.string.current_merchant_id, if (Cache.merchantId.isNullOrEmpty()) "not set" else Cache.merchantId)
-        hardwareIdField.text = Emarsys.config.hardwareId
-        languageCodeField.text = Emarsys.config.language
-        pushSettingsField.text = resources.getString(R.string.config_information,
+        currentApplicationCode?.text = resources.getString(R.string.current_application_code, if (Cache.applicationCode.isNullOrEmpty()) "not set" else Cache.applicationCode)
+        currentContactFieldId?.text = resources.getString(R.string.current_contact_field_id, Emarsys.config.contactFieldId)
+        currentMerchantId?.text = resources.getString(R.string.current_merchant_id, if (Cache.merchantId.isNullOrEmpty()) "not set" else Cache.merchantId)
+        hardwareIdField?.text = Emarsys.config.hardwareId
+        languageCodeField?.text = Emarsys.config.language
+        pushSettingsField?.text = resources.getString(R.string.config_information,
                 Emarsys.config.notificationSettings.areNotificationsEnabled(),
                 Emarsys.config.notificationSettings.importance,
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Emarsys.config.notificationSettings.channelSettings else "[not supported on this API level]")
+        newApplicationCode?.setText(Cache.applicationCode ?: "")
+        newContactFieldId?.setText(Cache.contactFieldId.toString() ?: "")
     }
 
     private fun Editable.toNullableString(): String? {

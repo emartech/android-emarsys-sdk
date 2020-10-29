@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.chibatching.kotpref.Kotpref
@@ -18,6 +19,10 @@ import org.json.JSONObject
 
 
 open class SampleApplication : Application(), EventHandler, NotificationInformationListener {
+    companion object {
+        const val TAG = "SampleApplication"
+    }
+
     override fun onCreate() {
         super.onCreate()
         Kotpref.init(this)
@@ -31,6 +36,12 @@ open class SampleApplication : Application(), EventHandler, NotificationInformat
         createNotificationChannels()
         Emarsys.setup(config)
 
+        if (Cache.applicationCode != null) {
+            setupEventHandlers()
+        }
+    }
+
+    fun setupEventHandlers() {
         Emarsys.inApp.setEventHandler(this)
         Emarsys.push.setNotificationEventHandler(this)
         Emarsys.push.setSilentMessageEventHandler(this)
@@ -55,10 +66,12 @@ open class SampleApplication : Application(), EventHandler, NotificationInformat
     }
 
     override fun handleEvent(context: Context, eventName: String, payload: JSONObject?) {
-        Toast.makeText(this, eventName + " - " + payload.toString(), Toast.LENGTH_LONG).show()
+        if (eventName != "push:payload") {
+            Toast.makeText(this, eventName + " - " + payload.toString(), Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onNotificationInformationReceived(notificationInformation: NotificationInformation) {
-        Toast.makeText(this, "campaignId: " + notificationInformation.campaignId, Toast.LENGTH_LONG).show()
+        Log.d(TAG, "campaignId: " + notificationInformation.campaignId)
     }
 }

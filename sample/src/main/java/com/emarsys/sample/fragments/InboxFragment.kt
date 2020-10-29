@@ -53,7 +53,7 @@ class InboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener {
                     Log.i(TAG, "Notification: ${notification.title}")
                 }
 
-                (notificationRecycleView.adapter as NotificationsAdapter).addItems(notificationStatus.notifications)
+                (notificationRecycleView.adapter as NotificationsAdapter?)?.addItems(notificationStatus.notifications)
             }
 
             it.errorCause?.let { cause ->

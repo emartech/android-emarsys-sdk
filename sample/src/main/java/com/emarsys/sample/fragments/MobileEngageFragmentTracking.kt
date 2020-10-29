@@ -94,9 +94,14 @@ class MobileEngageFragmentTracking : Fragment() {
             FirebaseApp.initializeApp(view.context)
             FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
                 run {
-                    val pushToken = task.result?.token
-                    Emarsys.push.setPushToken(pushToken.toString())
-                    view.showSnackBar("Push Token tracked")
+                    task.addOnSuccessListener {
+                        val pushToken = it?.token
+                        Emarsys.push.setPushToken(pushToken.toString())
+                        view.showSnackBar("Push Token tracked")
+                    }
+                    task.addOnFailureListener {
+                        view.showSnackBar(it.printStackTrace().toString())
+                    }
                 }
             }
         }
@@ -129,7 +134,7 @@ class MobileEngageFragmentTracking : Fragment() {
     }
 
 
-    fun checkLocationPermission(context: Activity?): Boolean {
+    private fun checkLocationPermission(context: Activity?): Boolean {
         return if (context != null && ContextCompat.checkSelfPermission(context,
                         Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(context,
