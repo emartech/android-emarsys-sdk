@@ -433,6 +433,24 @@ class DefaultConfigInternalTest {
     }
 
     @Test
+    fun testChangeApplicationCode_whenClearPushToken_butPushTokenHasNotBeenSetPreviously_callOnSuccess() {
+        whenever(mockPushTokenProvider.providePushToken()).thenReturn(null)
+        whenever(mockPushInternal.clearPushToken(any())).thenAnswer { invocation ->
+            (invocation.getArgument(0) as CompletionListener).onCompleted(Throwable())
+        }
+        val latch = CountDownLatch(1)
+        var result: Throwable? = null
+
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID) {
+            result = it
+            latch.countDown()
+        }
+        latch.await()
+
+        result shouldBe null
+    }
+
+    @Test
     fun testChangeApplicationCode_shouldOnlyLogout_whenApplicationCodeIsNull() {
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {

@@ -97,12 +97,16 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     }
 
     private fun clearPushToken(completionListener: CompletionListener?, onSuccess: () -> Unit) {
-        pushInternal.clearPushToken { throwable ->
-            if (throwable == null) {
-                onSuccess()
-            } else {
-                handleError(throwable, completionListener)
+        if (originalPushToken != null) {
+            pushInternal.clearPushToken { throwable ->
+                if (throwable == null) {
+                    onSuccess()
+                } else {
+                    handleError(throwable, completionListener)
+                }
             }
+        } else {
+            onSuccess()
         }
     }
 
