@@ -478,11 +478,10 @@ class DefaultConfigInternalTest {
         })
         latch.await()
         val inOrder = inOrder(mockMobileEngageInternal, mockPushInternal, mockMobileEngageRequestContext, mockClientServiceInternal)
-        inOrder.verify(mockPushInternal).clearPushToken(any())
         inOrder.verify(mockMobileEngageInternal).clearContact(any())
         inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         inOrder.verify(mockClientServiceInternal).trackDeviceInfo(any())
-        verifyNoMoreInteractions(mockPushInternal)
+        verifyZeroInteractions(mockPushInternal)
     }
 
     @Test
