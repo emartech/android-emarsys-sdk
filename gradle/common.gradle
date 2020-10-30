@@ -20,8 +20,8 @@ modules.each {
             defaultConfig {
                 minSdkVersion Config.minApiLevel
                 targetSdkVersion Config.targetApiLevel
-                versionCode gitVersionCode
-                versionName gitVersionName
+                buildConfigField "int", "VERSION_CODE", "$gitVersionCode"
+                buildConfigField "String", "VERSION_NAME", "\"$gitVersionName\""
                 testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
             }
             buildTypes {
