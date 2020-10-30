@@ -45,8 +45,8 @@ modules.each {
                 bintrayApiKey = localConfigProperties.getProperty("bintrayApiKey")
             }
 
-            user = bintrayUser || System.env.BINTRAY_USER
-            key = bintrayApiKey || System.env.BINTRAY_API_KEY
+            user = bintrayUser == null ? System.env.BINTRAY_USER : bintrayUser
+            key = bintrayApiKey == null ? System.env.BINTRAY_API_KEY : bintrayApiKey
             publications = ["$project.name"]
             publish = true
             override = true
