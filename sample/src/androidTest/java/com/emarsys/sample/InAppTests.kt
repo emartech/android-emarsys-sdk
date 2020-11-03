@@ -61,8 +61,6 @@ class InAppTests {
 
         clickOn("Mobile engage")
         clickOn("Tracking")
-        scrollTo(R.id.buttonTrackPushToken)
-        clickOn(R.id.buttonTrackPushToken)
 
         writeTo(R.id.eventName, "emarsys-sdk-e2e-test")
         clickOn(R.id.buttonTrackCustomEvent)
@@ -91,8 +89,6 @@ class InAppTests {
 
         clickOn("Mobile engage")
         clickOn("Tracking")
-        scrollTo(R.id.buttonTrackPushToken)
-        clickOn(R.id.buttonTrackPushToken)
 
         writeTo(R.id.eventName, "emarsys-sdk-app-event-e2e-test")
         clickOn(R.id.buttonTrackCustomEvent)
@@ -117,7 +113,7 @@ class InAppTests {
 
         clickOn("Mobile engage")
         clickOn("Tracking")
-        scrollTo(R.id.buttonTrackPushToken)
+        scrollTo(R.id.geofenceTitle)
         clickOn(R.id.buttonTrackPushToken)
 
         writeTo(R.id.eventName, "emarsys-sdk-push-e2e-test")

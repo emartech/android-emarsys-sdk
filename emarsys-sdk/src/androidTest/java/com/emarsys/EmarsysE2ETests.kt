@@ -2,7 +2,6 @@ package com.emarsys
 
 import android.app.Application
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.inbox.MessageInbox
 import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
@@ -22,7 +21,7 @@ class EmarsysE2ETests {
         private const val APPLICATION_CODE = "EMS11-C3FD3"
         private const val CONTACT_FIELD_ID = 2575
         private const val CONTACT_ID = "test@test.com"
-        private const val TRIGGER_INBOX_EVENT = "emarsys-sdk-e2e-test"
+        private const val TRIGGER_INBOX_EVENT = "emarsys-sdk-e2e-inbox-test"
         private const val TEST_TAG = "test_tag"
 
         @BeforeClass
@@ -58,10 +57,10 @@ class EmarsysE2ETests {
         val timestamp = System.currentTimeMillis()
 
         trackCustomEvent(title, timestamp)
-
-        val message = fetchMessage(title, timestamp)
-
-        message shouldNotBe null
+        retry {
+            val message = fetchMessage(title, timestamp)
+            message shouldNotBe null
+        }
     }
 
     @Test
@@ -76,9 +75,10 @@ class EmarsysE2ETests {
         val timestamp = System.currentTimeMillis()
         trackCustomEvent(title, timestamp)
 
-        val message = fetchMessage(title, timestamp)
-
-        message shouldNotBe null
+        retry {
+            val message = fetchMessage(title, timestamp)
+            message shouldNotBe null
+        }
     }
 
     @Test
@@ -111,36 +111,53 @@ class EmarsysE2ETests {
         val title = "Android - test Inbox tags"
         val timestamp = System.currentTimeMillis()
         trackCustomEvent(title, timestamp)
-
-        var message = fetchMessage(title, timestamp)
-        message shouldNotBe null
-        if (message != null) {
+        var message: Message? = null
+        retry {
+            message = fetchMessage(title, timestamp)
+            message shouldNotBe null
+        }
+        val messageToTest = message
+        if (messageToTest != null) {
             val addMessageTagLatch = CountDownLatch(1)
 
-            Emarsys.messageInbox.addTag(TEST_TAG, message.id) {
+            Emarsys.messageInbox.addTag(TEST_TAG, messageToTest.id) {
                 addMessageTagLatch.countDown()
             }
             addMessageTagLatch.await()
-        }
 
-
-        message = fetchMessage(title, timestamp)
-        message shouldNotBe null
-        if (message != null) {
-            message.tags?.contains(TEST_TAG) shouldBe true
-
+            retry {
+                val updatedMessage = fetchMessage(title, timestamp)
+                updatedMessage shouldNotBe null
+                if (updatedMessage != null) {
+                    updatedMessage.tags?.contains(TEST_TAG) shouldBe true
+                }
+            }
             val removeMessageTagLatch = CountDownLatch(1)
-            Emarsys.messageInbox.removeTag(TEST_TAG, message.id) {
+            Emarsys.messageInbox.removeTag(TEST_TAG, messageToTest.id) {
                 removeMessageTagLatch.countDown()
             }
-
             removeMessageTagLatch.await()
+            retry {
+                val updatedMessage = fetchMessage(title, timestamp)
+                updatedMessage shouldNotBe null
+                updatedMessage?.tags?.contains(TEST_TAG) shouldBe false
+            }
         }
+    }
 
-
-        message = fetchMessage(title, timestamp)
-        message shouldNotBe null
-        message?.tags?.contains(TEST_TAG) shouldBe false
+    private fun retry(times: Int = 3, timeout: Long = 1000, action: () -> Unit) {
+        try {
+            action.invoke()
+        } catch (e: Exception) {
+            if (times > 0) {
+                retry(times - 1, timeout) {
+                    Thread.sleep(timeout)
+                    action.invoke()
+                }
+            } else {
+                throw e
+            }
+        }
     }
 
     private fun changeApplicationCode(appCode: String?) {
@@ -183,7 +200,7 @@ class EmarsysE2ETests {
 
     private fun fetchMessage(title: String, timestamp: Long): Message? {
         var message: Message? = null
-        Thread.sleep(3000)
+        Thread.sleep(1000)
         val fetchMessageInboxLatch = CountDownLatch(1)
 
         Emarsys.messageInbox.fetchMessages { response ->

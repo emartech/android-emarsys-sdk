@@ -54,8 +54,9 @@ class PushTests {
 
         clickOn("Mobile engage")
         clickOn("Tracking")
-        scrollTo(R.id.buttonTrackPushToken)
+        scrollTo(R.id.geofenceTitle)
         uiDevice.wait(Until.hasObject(By.text("TRACK PUSH TOKEN")), 10000)
+        clickOn(R.id.buttonTrackPushToken)
         clickOn(R.id.buttonTrackPushToken)
 
         val timestamp = System.currentTimeMillis().toString()
@@ -82,8 +83,9 @@ class PushTests {
 
         clickOn("Mobile engage")
         clickOn("Tracking")
-        scrollTo(R.id.buttonTrackPushToken)
+        scrollTo(R.id.geofenceTitle)
         uiDevice.wait(Until.hasObject(By.text("TRACK PUSH TOKEN")), 10000)
+        clickOn(R.id.buttonTrackPushToken)
         clickOn(R.id.buttonTrackPushToken)
 
         val timestamp = System.currentTimeMillis().toString()
@@ -115,8 +117,9 @@ class PushTests {
 
         clickOn("Mobile engage")
         clickOn("Tracking")
-        scrollTo(R.id.buttonTrackPushToken)
+        scrollTo(R.id.geofenceTitle)
         uiDevice.wait(Until.hasObject(By.text("TRACK PUSH TOKEN")), 10000)
+        clickOn(R.id.buttonTrackPushToken)
         clickOn(R.id.buttonTrackPushToken)
 
         val timestamp = System.currentTimeMillis().toString()
@@ -156,9 +159,11 @@ class PushTests {
 
         clickOn("Mobile engage")
         clickOn("Tracking")
-        scrollTo(R.id.buttonTrackPushToken)
+        scrollTo(R.id.geofenceTitle)
         uiDevice.wait(Until.hasObject(By.text("TRACK PUSH TOKEN")), 10000)
         clickOn(R.id.buttonTrackPushToken)
+        clickOn(R.id.buttonTrackPushToken)
+
         val latch = CountDownLatch(1)
         var text = ""
 
@@ -194,8 +199,9 @@ class PushTests {
 
         clickOn("Mobile engage")
         clickOn("Tracking")
-        scrollTo(R.id.buttonTrackPushToken)
+        scrollTo(R.id.geofenceTitle)
         uiDevice.wait(Until.hasObject(By.text("TRACK PUSH TOKEN")), 10000)
+        clickOn(R.id.buttonTrackPushToken)
         clickOn(R.id.buttonTrackPushToken)
 
         val latch = CountDownLatch(1)
