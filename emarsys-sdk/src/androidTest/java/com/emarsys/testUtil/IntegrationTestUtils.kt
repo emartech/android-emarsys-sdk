@@ -86,4 +86,19 @@ object IntegrationTestUtils {
         latch.await()
         return result!!
     }
+
+    fun retry(times: Int = 3, timeout: Long = 1000, action: () -> Unit) {
+        try {
+            action.invoke()
+        } catch (e: Throwable) {
+            if (times > 0) {
+                retry(times - 1, timeout) {
+                    Thread.sleep(timeout)
+                    action.invoke()
+                }
+            } else {
+                throw e
+            }
+        }
+    }
 }

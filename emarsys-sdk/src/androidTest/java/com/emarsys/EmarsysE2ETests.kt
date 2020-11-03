@@ -5,6 +5,7 @@ import com.emarsys.config.EmarsysConfig
 import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
+import com.emarsys.testUtil.IntegrationTestUtils.retry
 import com.google.firebase.FirebaseApp
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -141,21 +142,6 @@ class EmarsysE2ETests {
                 val updatedMessage = fetchMessage(title, timestamp)
                 updatedMessage shouldNotBe null
                 updatedMessage?.tags?.contains(TEST_TAG) shouldBe false
-            }
-        }
-    }
-
-    private fun retry(times: Int = 3, timeout: Long = 1000, action: () -> Unit) {
-        try {
-            action.invoke()
-        } catch (e: Exception) {
-            if (times > 0) {
-                retry(times - 1, timeout) {
-                    Thread.sleep(timeout)
-                    action.invoke()
-                }
-            } else {
-                throw e
             }
         }
     }
