@@ -20,6 +20,9 @@ import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.AndroidVersionUtils
+import com.emarsys.core.util.SystemUtils
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.StatusLog
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
@@ -93,6 +96,12 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         if (fineLocationPermissionGranted && backgroundLocationPermissionGranted) {
             if (!geofenceEnabledStorage.get()) {
                 geofenceEnabledStorage.set(true)
+
+                Logger.debug(StatusLog(DefaultGeofenceInternal::class.java,
+                        SystemUtils.getCallerMethodName(),
+                        mapOf("completionListener" to (completionListener != null)),
+                        mapOf("geofenceEnabled" to true)))
+
                 if (geofenceResponse == null) {
                     fetchGeofences(completionListener)
                     return
@@ -116,6 +125,10 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         fusedLocationProviderClient.removeLocationUpdates(geofencePendingIntent)
         geofenceEnabledStorage.set(false)
         receiverRegistered = false
+
+        Logger.debug(StatusLog(DefaultGeofenceInternal::class.java, SystemUtils.getCallerMethodName(), mapOf(), mapOf(
+                "geofenceEnabled" to false
+        )))
     }
 
     override fun isEnabled(): Boolean {
@@ -170,6 +183,10 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         }
         val geofenceRequest = GeofencingRequest.Builder().addGeofences(geofencesToRegister).build()
         geofencingClient.addGeofences(geofenceRequest, geofencePendingIntent)
+
+        Logger.debug(StatusLog(DefaultGeofenceInternal::class.java, SystemUtils.getCallerMethodName(), mapOf(), mapOf(
+                "registeredGeofences" to geofencesToRegister.size
+        )))
     }
 
     override fun onGeofenceTriggered(events: List<TriggeringGeofence>) {
