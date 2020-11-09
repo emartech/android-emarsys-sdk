@@ -1,8 +1,9 @@
 package com.emarsys.core.util.log.entry
 
+import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 
-class RequestLog(responseModel: ResponseModel, inDatabaseTimeEnd: Long) : LogEntry {
+class RequestLog(responseModel: ResponseModel, inDatabaseTimeEnd: Long, updatedRequestModel: RequestModel? = null) : LogEntry {
     override val topic: String
         get() = "log_request"
     override val data: Map<String, Any>
@@ -13,7 +14,7 @@ class RequestLog(responseModel: ResponseModel, inDatabaseTimeEnd: Long) : LogEnt
         val inDatabaseTimeDuration = inDatabaseTimeEnd - inDatabaseTimeStart
         val networkingTimeEnd = responseModel.timestamp
         val networkingTimeDuration = networkingTimeEnd - inDatabaseTimeEnd
-        data = mapOf(
+        data = mutableMapOf(
                 "requestId" to requestModel.id,
                 "url" to requestModel.url,
                 "statusCode" to responseModel.statusCode,
@@ -24,5 +25,9 @@ class RequestLog(responseModel: ResponseModel, inDatabaseTimeEnd: Long) : LogEnt
                 "networkingEnd" to networkingTimeEnd,
                 "networkingDuration" to networkingTimeDuration
         )
+        if (updatedRequestModel != null) {
+            data["header"] = updatedRequestModel.headers.toString()
+            data["payload"] = updatedRequestModel.payload.toString()
+        }
     }
 }

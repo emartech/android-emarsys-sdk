@@ -29,10 +29,17 @@ class Logger(private val coreSdkHandler: Handler,
         }
 
         @JvmStatic
-        fun info(logEntry: LogEntry) {
+        fun info(logEntry: LogEntry, strict: Boolean = false) {
             if (DependencyInjection.isSetup()) {
                 getDependency<Handler>("coreSdkHandler").post {
-                    getDependency<Logger>().persistLog(LogLevel.INFO, logEntry)
+                    if (strict) {
+                        if (getDependency<Logger>().logLevelStorage.get() == "info") {
+                            getDependency<Logger>().persistLog(LogLevel.INFO, logEntry)
+                        } else {
+                            getDependency<Logger>().persistLog(LogLevel.INFO, logEntry)
+
+                        }
+                    }
                 }
             }
         }
@@ -47,10 +54,16 @@ class Logger(private val coreSdkHandler: Handler,
         }
 
         @JvmStatic
-        fun debug(logEntry: LogEntry) {
+        fun debug(logEntry: LogEntry, strict: Boolean = false) {
             if (DependencyInjection.isSetup()) {
                 getDependency<Handler>("coreSdkHandler").post {
-                    getDependency<Logger>().persistLog(LogLevel.DEBUG, logEntry)
+                    if (strict) {
+                        if (getDependency<Logger>().logLevelStorage.get() == "debug") {
+                            getDependency<Logger>().persistLog(LogLevel.DEBUG, logEntry)
+                        }
+                    } else {
+                        getDependency<Logger>().persistLog(LogLevel.DEBUG, logEntry)
+                    }
                 }
             }
         }

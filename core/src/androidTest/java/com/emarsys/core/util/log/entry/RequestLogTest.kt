@@ -4,6 +4,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Test
@@ -56,6 +57,32 @@ class RequestLogTest {
                 "networkingEnd" to 6L,
                 "networkingDuration" to 3L
         )
+
+        val data = requestLog.data
+
+        data shouldBe expected
+    }
+
+    @Test
+    fun testDataWithDebugInformation() {
+        val expected = mapOf(
+                "requestId" to "testId",
+                "url" to URL("https://emarsys.com"),
+                "statusCode" to 200,
+                "inDbStart" to 1L,
+                "inDbEnd" to 3L,
+                "inDbDuration" to 2L,
+                "networkingStart" to 3L,
+                "networkingEnd" to 6L,
+                "networkingDuration" to 3L,
+                "header" to "{test=header}",
+                "payload" to "{test=payload}"
+        )
+
+        whenever(mockRequestModel.payload).thenReturn(mapOf("test" to "payload"))
+        whenever(mockRequestModel.headers).thenReturn(mapOf("test" to "header"))
+
+        requestLog = RequestLog(mockResponseModel, IN_DATABASE_TIME_END, mockRequestModel)
 
         val data = requestLog.data
 

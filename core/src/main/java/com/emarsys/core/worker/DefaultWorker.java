@@ -82,7 +82,7 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
     @Override
     public void onConnectionChanged(ConnectionState connectionState, boolean isConnected) {
         if (isConnected) {
-            Logger.debug(new OfflineQueueSize(requestRepository.query(new Everything()).size()));
+            Logger.debug(new OfflineQueueSize(requestRepository.query(new Everything()).size()), false);
             run();
         }
     }

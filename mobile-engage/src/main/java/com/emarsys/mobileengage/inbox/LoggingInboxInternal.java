@@ -27,7 +27,7 @@ public class LoggingInboxInternal implements InboxInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters), false);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class LoggingInboxInternal implements InboxInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters), false);
     }
 
     @Override
@@ -48,6 +48,6 @@ public class LoggingInboxInternal implements InboxInternal {
 
         String callerMethodName = SystemUtils.getCallerMethodName();
 
-        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters));
+        Logger.debug(new MethodNotAllowed(klass, callerMethodName, parameters), false);
     }
 }
