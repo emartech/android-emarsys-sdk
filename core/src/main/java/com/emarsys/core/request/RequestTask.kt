@@ -36,7 +36,7 @@ open class RequestTask(
     private var responseModel: ResponseModel? = null
     private var exception: Exception? = null
 
-    override fun doInBackground(vararg params: Void?): Void? {
+    public override fun doInBackground(vararg params: Void?): Void? {
         val dbEnd = timestampProvider.provideTimestamp()
         var connection: HttpsURLConnection? = null
         try {

@@ -33,12 +33,11 @@ class Logger(private val coreSdkHandler: Handler,
             if (DependencyInjection.isSetup()) {
                 getDependency<Handler>("coreSdkHandler").post {
                     if (strict) {
-                        if (getDependency<Logger>().logLevelStorage.get() == "info") {
+                        if (getDependency<Logger>().logLevelStorage.get() == "INFO") {
                             getDependency<Logger>().persistLog(LogLevel.INFO, logEntry)
-                        } else {
-                            getDependency<Logger>().persistLog(LogLevel.INFO, logEntry)
-
                         }
+                    } else {
+                        getDependency<Logger>().persistLog(LogLevel.INFO, logEntry)
                     }
                 }
             }
@@ -58,7 +57,7 @@ class Logger(private val coreSdkHandler: Handler,
             if (DependencyInjection.isSetup()) {
                 getDependency<Handler>("coreSdkHandler").post {
                     if (strict) {
-                        if (getDependency<Logger>().logLevelStorage.get() == "debug") {
+                        if (getDependency<Logger>().logLevelStorage.get() == "DEBUG") {
                             getDependency<Logger>().persistLog(LogLevel.DEBUG, logEntry)
                         }
                     } else {

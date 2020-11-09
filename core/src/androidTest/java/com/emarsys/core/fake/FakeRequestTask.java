@@ -38,7 +38,7 @@ public class FakeRequestTask extends RequestTask {
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
+    public Void doInBackground(Void... params) {
         try {
             Thread.sleep(20);
         } catch (InterruptedException e) {
