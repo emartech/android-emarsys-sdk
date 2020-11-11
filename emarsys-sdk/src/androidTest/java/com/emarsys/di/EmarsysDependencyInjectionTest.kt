@@ -14,6 +14,7 @@ import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.MobileEngageApi
 import com.emarsys.mobileengage.client.ClientServiceInternal
+import com.emarsys.oneventaction.OnEventActionApi
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictInternal
 import com.emarsys.push.PushApi
@@ -45,6 +46,8 @@ class EmarsysDependencyInjectionTest {
 
     private lateinit var mockInApp: InAppApi
     private lateinit var mockLoggingInApp: InAppApi
+    private lateinit var mockOnEventAction: OnEventActionApi
+    private lateinit var mockLoggingOnEventAction: OnEventActionApi
     private lateinit var mockDeepLinkApi: DeepLinkApi
     private lateinit var mockLoggingDeepLinkApi: DeepLinkApi
 
@@ -73,6 +76,9 @@ class EmarsysDependencyInjectionTest {
 
         mockInApp = mock()
         mockLoggingInApp = mock()
+
+        mockOnEventAction = mock()
+        mockLoggingOnEventAction = mock()
 
         mockDeepLinkApi = mock()
         mockLoggingDeepLinkApi = mock()
@@ -109,6 +115,8 @@ class EmarsysDependencyInjectionTest {
                 loggingInbox = mockLoggingInbox,
                 messageInbox = mockMessageInbox,
                 loggingMessageInbox = mockLoggingMessageInbox,
+                onEventAction = mockOnEventAction,
+                loggingOnEventAction = mockLoggingOnEventAction,
                 inApp = mockInApp,
                 loggingInApp = mockLoggingInApp,
                 push = mockPush,
@@ -192,6 +200,21 @@ class EmarsysDependencyInjectionTest {
         val result = EmarsysDependencyInjection.inApp()
 
         result shouldBeSameInstanceAs mockLoggingInApp
+    }
+
+    @Test
+    fun testOnEventAction_shouldReturnDefaultInstance() {
+        FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+
+        val result = EmarsysDependencyInjection.onEventAction()
+        result shouldBeSameInstanceAs mockOnEventAction
+    }
+
+    @Test
+    fun testOnEventAction_shouldReturnLoggingInstance_whenMEIsDisabled() {
+        val result = EmarsysDependencyInjection.onEventAction()
+
+        result shouldBeSameInstanceAs mockLoggingOnEventAction
     }
 
     @Test

@@ -35,6 +35,7 @@ import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
+import com.emarsys.oneventaction.OnEventActionApi
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.Logic
@@ -60,6 +61,10 @@ object Emarsys {
     @JvmStatic
     val inApp: InAppApi
         get() = EmarsysDependencyInjection.inApp()
+
+    @JvmStatic
+    val onEventAction: OnEventActionApi
+        get() = EmarsysDependencyInjection.onEventAction()
 
     @JvmStatic
     val inbox: InboxApi

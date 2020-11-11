@@ -63,6 +63,7 @@ import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.service.RemoteMessageMapper
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
+import com.emarsys.oneventaction.OnEventActionApi
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.storage.PredictStorageKey
@@ -121,6 +122,8 @@ class FakeDependencyContainer(
         loggingInbox: InboxApi = mock(),
         messageInbox: MessageInboxApi = mock(),
         loggingMessageInbox: MessageInboxApi = mock(),
+        onEventAction: OnEventActionApi = mock(),
+        loggingOnEventAction: OnEventActionApi = mock(),
         inApp: InAppApi = mock(),
         loggingInApp: InAppApi = mock(),
         push: PushApi = mock(),
@@ -155,6 +158,7 @@ class FakeDependencyContainer(
         notificationEventHandlerProvider: EventHandlerProvider = mock(),
         silentMessageEventHandlerProvider: EventHandlerProvider = mock(),
         geofenceEventHandlerProvider: EventHandlerProvider = mock(),
+        onEventActionEventHandlerProvider: EventHandlerProvider = mock(),
         currentActivityProvider: CurrentActivityProvider = mock(),
         geofenceInternal: GeofenceInternal = mock(),
         loggingGeofenceInternal: GeofenceInternal = mock(),
@@ -233,6 +237,8 @@ class FakeDependencyContainer(
         addDependency(dependencies, loggingMessageInbox, "loggingInstance")
         addDependency(dependencies, inApp, "defaultInstance")
         addDependency(dependencies, loggingInApp, "loggingInstance")
+        addDependency(dependencies, onEventAction, "defaultInstance")
+        addDependency(dependencies, loggingOnEventAction, "loggingInstance")
         addDependency(dependencies, push, "defaultInstance")
         addDependency(dependencies, loggingPush, "loggingInstance")
         addDependency(dependencies, predict, "defaultInstance")
@@ -261,6 +267,7 @@ class FakeDependencyContainer(
         addDependency(dependencies, notificationEventHandlerProvider, "notificationEventHandlerProvider")
         addDependency(dependencies, silentMessageEventHandlerProvider, "silentMessageEventHandlerProvider")
         addDependency(dependencies, geofenceEventHandlerProvider, "geofenceEventHandlerProvider")
+        addDependency(dependencies, onEventActionEventHandlerProvider, "onEventActionEventHandlerProvider")
         addDependency(dependencies, geofenceInternal, "defaultInstance")
         addDependency(dependencies, loggingGeofenceInternal, "loggingInstance")
         addDependency(dependencies, buttonClickedRepository, "buttonClickedRepository")
@@ -314,6 +321,10 @@ class FakeDependencyContainer(
     override fun getInApp(): InAppApi = getDependency(dependencies, "defaultInstance")
 
     override fun getLoggingInApp(): InAppApi = getDependency(dependencies, "loggingInstance")
+
+    override fun getOnEventAction(): OnEventActionApi = getDependency(dependencies, "defaultInstance")
+
+    override fun getLoggingOnEventAction(): OnEventActionApi = getDependency(dependencies, "loggingInstance")
 
     override fun getPush(): PushApi = getDependency(dependencies, "defaultInstance")
 
@@ -426,6 +437,8 @@ class FakeDependencyContainer(
     override fun getNotificationEventHandlerProvider(): EventHandlerProvider = getDependency(dependencies, "notificationEventHandlerProvider")
 
     override fun getSilentMessageEventHandlerProvider(): EventHandlerProvider = getDependency(dependencies, "silentMessageEventHandlerProvider")
+
+    override fun getOnEventActionEventHandlerProvider(): EventHandlerProvider = getDependency("onEventActionEventHandlerProvider")
 
     override fun getGeofenceEventHandlerProvider(): EventHandlerProvider = getDependency(dependencies, "geofenceEventHandlerProvider")
 

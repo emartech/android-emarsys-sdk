@@ -7,6 +7,7 @@ import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
+import com.emarsys.oneventaction.OnEventActionApi
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.di.PredictDependencyContainer
 import com.emarsys.push.PushApi
@@ -23,6 +24,10 @@ interface EmarsysDependencyContainer : MobileEngageDependencyContainer, PredictD
     fun getInApp(): InAppApi
 
     fun getLoggingInApp(): InAppApi
+
+    fun getOnEventAction(): OnEventActionApi
+
+    fun getLoggingOnEventAction(): OnEventActionApi
 
     fun getPush(): PushApi
 

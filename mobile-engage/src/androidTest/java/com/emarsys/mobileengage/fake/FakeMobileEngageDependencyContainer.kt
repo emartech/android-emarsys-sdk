@@ -337,6 +337,8 @@ class FakeMobileEngageDependencyContainer(
 
     override fun getSilentMessageEventHandlerProvider(): EventHandlerProvider = getDependency(dependencies, "silentMessageEventHandlerProvider")
 
+    override fun getOnEventActionEventHandlerProvider(): EventHandlerProvider = getDependency(dependencies, "onEventActionEventHandlerProvider")
+
     override fun getGeofenceEventHandlerProvider(): EventHandlerProvider = getDependency(dependencies, "geofenceEventHandlerProvider")
 
     override fun getCurrentActivityProvider(): CurrentActivityProvider = getDependency(dependencies)

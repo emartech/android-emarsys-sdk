@@ -12,6 +12,7 @@ import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.MobileEngageApi
 import com.emarsys.mobileengage.client.ClientServiceInternal
+import com.emarsys.oneventaction.OnEventActionApi
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictInternal
 import com.emarsys.push.PushApi
@@ -47,6 +48,15 @@ object EmarsysDependencyInjection : DependencyInjection() {
 
     @JvmStatic
     fun inApp(): InAppApi {
+        return if (isMobileEngageEnabled()) {
+            getDependency("defaultInstance")
+        } else {
+            getDependency("loggingInstance")
+        }
+    }
+
+    @JvmStatic
+    fun onEventAction(): OnEventActionApi {
         return if (isMobileEngageEnabled()) {
             getDependency("defaultInstance")
         } else {

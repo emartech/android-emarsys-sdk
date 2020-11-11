@@ -360,7 +360,7 @@ class EmarsysTest {
             val responseHandlersProcessor = getDependency<ResponseHandlersProcessor>()
 
             Assert.assertNotNull(responseHandlersProcessor)
-            Assert.assertEquals(8, responseHandlersProcessor.responseHandlers.size.toLong())
+            Assert.assertEquals(9, responseHandlersProcessor.responseHandlers.size.toLong())
             Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, VisitorIdResponseHandler::class.java).toLong())
             Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, XPResponseHandler::class.java).toLong())
             Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, InAppMessageResponseHandler::class.java).toLong())
@@ -368,6 +368,7 @@ class EmarsysTest {
             Assert.assertEquals(2, numberOfElementsIn(responseHandlersProcessor.responseHandlers, MobileEngageTokenResponseHandler::class.java).toLong())
             Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, MobileEngageClientStateResponseHandler::class.java).toLong())
             Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, ClientInfoResponseHandler::class.java).toLong())
+            Assert.assertEquals(1, numberOfElementsIn(responseHandlersProcessor.responseHandlers, OnEventActionResponseHandler::class.java).toLong())
         }
     }
 

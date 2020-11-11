@@ -131,6 +131,8 @@ interface MobileEngageDependencyContainer : DependencyContainer {
 
     fun getSilentMessageEventHandlerProvider(): EventHandlerProvider
 
+    fun getOnEventActionEventHandlerProvider() : EventHandlerProvider
+
     fun getGeofenceEventHandlerProvider(): EventHandlerProvider
 
     fun getCurrentActivityProvider(): CurrentActivityProvider

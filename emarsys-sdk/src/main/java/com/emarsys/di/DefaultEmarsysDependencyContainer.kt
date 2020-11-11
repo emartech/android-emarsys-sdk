@@ -109,6 +109,8 @@ import com.emarsys.mobileengage.responsehandler.*
 import com.emarsys.mobileengage.service.RemoteMessageMapper
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.mobileengage.util.RequestHeaderUtils
+import com.emarsys.oneventaction.OnEventAction
+import com.emarsys.oneventaction.OnEventActionApi
 import com.emarsys.predict.*
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictHeaderFactory
@@ -195,6 +197,10 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         addDependency(dependencies, (MessageInbox() as MessageInboxApi).proxyApi(coreSdkHandler), "defaultInstance")
 
         addDependency(dependencies, (MessageInbox(true) as MessageInboxApi).proxyApi(coreSdkHandler), "loggingInstance")
+
+        addDependency(dependencies, (OnEventAction() as OnEventActionApi).proxyApi(coreSdkHandler), "defaultInstance")
+
+        addDependency(dependencies, (OnEventAction() as OnEventActionApi).proxyApi(coreSdkHandler), "loggingInstance")
 
         coreSdkHandler.post {
             initializeDependenciesInBackground(application, config)
@@ -404,6 +410,9 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         SilentNotificationInformationListenerProvider(null).also {
             addDependency(dependencies, it, "silentNotificationInformationListenerProvider")
         }
+        EventHandlerProvider(null).also {
+            addDependency(dependencies, it, "onEventActionEventHandlerProvider")
+        }
         BatchingShardTrigger(
                 getShardRepository(),
                 ListSizeAtLeast(10),
@@ -448,6 +457,9 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         }
         DefaultEventServiceInternal(requestManager, requestModelFactory).also {
             addDependency(dependencies, it as EventServiceInternal, "defaultInstance")
+        }
+        ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getOnEventActionEventHandlerProvider()).also {
+            addDependency(dependencies, it, "onEventActionActionCommandFactory")
         }
         ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getSilentMessageEventHandlerProvider()).also {
             addDependency(dependencies, it, "silentMessageActionCommandFactory")
@@ -633,6 +645,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getDependency(dependencies, "buttonClickedRepository"),
                 getEventServiceProvider()
         ))
+        responseHandlers.add(OnEventActionResponseHandler(getDependency("onEventActionActionCommandFactory")))
         getResponseHandlersProcessor().addResponseHandlers(responseHandlers)
     }
 
@@ -656,6 +669,10 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
     override fun getInApp(): InAppApi = getDependency(dependencies, "defaultInstance")
 
     override fun getLoggingInApp(): InAppApi = getDependency(dependencies, "loggingInstance")
+
+    override fun getOnEventAction(): OnEventActionApi = getDependency(dependencies, "defaultInstance")
+
+    override fun getLoggingOnEventAction(): OnEventActionApi = getDependency(dependencies, "loggingInstance")
 
     override fun getPush(): PushApi = getDependency(dependencies, "defaultInstance")
 
@@ -766,6 +783,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
     override fun getNotificationEventHandlerProvider(): EventHandlerProvider = getDependency(dependencies, "notificationEventHandlerProvider")
 
     override fun getSilentMessageEventHandlerProvider(): EventHandlerProvider = getDependency(dependencies, "silentMessageEventHandlerProvider")
+
+    override fun getOnEventActionEventHandlerProvider(): EventHandlerProvider = getDependency(dependencies, "onEventActionEventHandlerProvider")
 
     override fun getGeofenceEventHandlerProvider(): EventHandlerProvider = getDependency(dependencies, "geofenceEventHandlerProvider")
 
