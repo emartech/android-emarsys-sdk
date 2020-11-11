@@ -48,6 +48,7 @@ open class SampleApplication : Application(), EventHandler, NotificationInformat
         Emarsys.push.setNotificationInformationListener(this)
         Emarsys.push.setSilentNotificationInformationListener(this)
         Emarsys.geofence.setEventHandler(this)
+        Emarsys.onEventAction.setOnEventActionEventHandler(this)
     }
 
     private fun createNotificationChannels() {
