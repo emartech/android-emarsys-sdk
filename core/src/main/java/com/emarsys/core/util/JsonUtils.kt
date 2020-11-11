@@ -5,6 +5,9 @@ import org.json.JSONException
 import org.json.JSONObject
 
 object JsonUtils {
+
+    fun JSONArray.toMutableList(): MutableList<JSONObject> = MutableList(length(), this::getJSONObject)
+
     @JvmStatic
     fun fromMap(map: Map<String, Any>): JSONObject {
         val result = JSONObject()
