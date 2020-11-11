@@ -3,23 +3,23 @@ package com.emarsys.mobileengage.iam.dialog.action;
 import android.os.Handler;
 
 import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.iam.InAppInternal;
+import com.emarsys.mobileengage.event.EventServiceInternal;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class SendDisplayedIamAction implements OnDialogShownAction {
 
-    private Handler handler;
-    private InAppInternal inAppInternal;
+    private final Handler handler;
+    private final EventServiceInternal eventServiceInternal;
 
     public SendDisplayedIamAction(
             Handler handler,
-            InAppInternal inAppInternal) {
+            EventServiceInternal eventServiceInternal) {
         Assert.notNull(handler, "Handler must not be null!");
-        Assert.notNull(inAppInternal, "InAppInternal must not be null!");
+        Assert.notNull(eventServiceInternal, "EventServiceInternal must not be null!");
         this.handler = handler;
-        this.inAppInternal = inAppInternal;
+        this.eventServiceInternal = eventServiceInternal;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class SendDisplayedIamAction implements OnDialogShownAction {
                 }
 
                 String eventName = "inapp:viewed";
-                inAppInternal.trackInternalCustomEventAsync(eventName, attributes, null);
+                eventServiceInternal.trackInternalCustomEventAsync(eventName, attributes, null);
             }
         });
     }

@@ -1,18 +1,24 @@
 package com.emarsys.mobileengage.responsehandler
 
+import android.os.Handler
+import android.os.Looper
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.database.repository.Repository
+import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.mobileengage.event.EventServiceInternal
+import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.notification.command.AppEventCommand
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.json.JSONObject
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
@@ -21,12 +27,33 @@ class OnEventActionResponseHandlerTest {
     private lateinit var responseHandler: OnEventActionResponseHandler
     private lateinit var mockActionCommandFactory: ActionCommandFactory
     private lateinit var mockAppEventCommand: AppEventCommand
+    private lateinit var mockRepository: Repository<DisplayedIam, SqlSpecification>
+    private lateinit var mockEventServiceInternal: EventServiceInternal
+    private lateinit var mockTimestampProvider: TimestampProvider
+    private lateinit var coreSdkHandler: Handler
 
     @Before
     fun setUp() {
         mockAppEventCommand = mock()
         mockActionCommandFactory = mock()
-        responseHandler = OnEventActionResponseHandler(mockActionCommandFactory)
+        mockRepository = mock()
+        mockEventServiceInternal = mock()
+        mockTimestampProvider = mock {
+            on { provideTimestamp() } doReturn 1L
+        }
+        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+        responseHandler = OnEventActionResponseHandler(mockActionCommandFactory, mockRepository, mockEventServiceInternal, mockTimestampProvider, coreSdkHandler)
+    }
+
+    @After
+    fun tearDown() {
+        try {
+            val looper: Looper? = coreSdkHandler.looper
+            looper?.quitSafely()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
     }
 
     @Test
@@ -44,16 +71,17 @@ class OnEventActionResponseHandlerTest {
 
     @Test
     fun testShouldHandlerResponse_shouldReturnFalse_whenNoOnEventActionIsInTheResponseBody() {
-        val responseModel: ResponseModel = createTestResponseModel("{}")
+        val responseModel: ResponseModel = createResponseModel("{}")
 
         responseHandler.shouldHandleResponse(responseModel) shouldBe false
     }
 
     @Test
     fun testShouldHandleResponse_shouldReturnTrue_whenResponseHasOnEventActionWithActions() {
-        val responseModel = createTestResponseModel("""
+        val responseModel = createResponseModel("""
             {
                 "onEventAction": {
+                    "campaignId": "1234",
                     "actions": []
                 }
             }
@@ -64,7 +92,7 @@ class OnEventActionResponseHandlerTest {
 
     @Test
     fun testShouldHandleResponse_shouldReturnFalse_whenResponseHasNoActions() {
-        val responseModel = createTestResponseModel("""
+        val responseModel = createResponseModel("""
             {
                 "onEventAction": {
                     "campaignId": "123"
@@ -85,15 +113,7 @@ class OnEventActionResponseHandlerTest {
                 "payload": {"key":"value", "key2":"vale"}
             }
         """.trimIndent()
-        val responseModel = createTestResponseModel("""
-            {
-                "onEventAction": {
-                    "actions": [
-                        $appEventAction            
-                    ]
-                }
-            }
-        """.trimIndent())
+        val responseModel = createTestResponseModel()
 
         responseHandler.handleResponse(responseModel)
 
@@ -105,29 +125,52 @@ class OnEventActionResponseHandlerTest {
     @Test
     fun testHandleResponse_shouldRunActionCommand() {
         whenever(mockActionCommandFactory.createActionCommand(anyNotNull())).thenReturn(mockAppEventCommand)
-        val appEventAction = """
-            {
-                "type": "MEAppEvent",
-                "name": "nameOfTheAppEvent",
-                "payload": {"key":"value", "key2":"vale"}
-            }
-        """.trimIndent()
-        val responseModel = createTestResponseModel("""
-            {
-                "onEventAction": {
-                    "actions": [
-                        $appEventAction            
-                    ]
-                }
-            }
-        """.trimIndent())
+
+        val responseModel = createTestResponseModel()
 
         responseHandler.handleResponse(responseModel)
 
         verify(mockAppEventCommand).run()
     }
 
-    private fun createTestResponseModel(body: String): ResponseModel {
+    @Test
+    fun testHandleResponse_shouldSaveDisplayedWithRepository() {
+        val captor = argumentCaptor<DisplayedIam>()
+        val iamToSave = DisplayedIam("1234", 1L)
+
+        val responseModel = createTestResponseModel()
+
+        responseHandler.handleResponse(responseModel)
+
+        verify(mockRepository, timeout(1000)).add(captor.capture())
+
+        captor.firstValue.campaignId shouldBe iamToSave.campaignId
+        captor.firstValue.timestamp shouldBe iamToSave.timestamp
+    }
+
+    @Test
+    fun testHandleResponse_shouldSendDisplayedIamThroughEventServiceInternal() {
+        val responseModel = createTestResponseModel()
+
+        responseHandler.handleResponse(responseModel)
+
+        verify(mockEventServiceInternal, timeout(1000)).trackInternalCustomEventAsync(eq("inapp:viewed"), eq(mapOf("campaignId" to "1234")), anyOrNull())
+    }
+
+    @Test
+    fun testHandleResponse_shouldNotCrashWhenNoCampaignIdIsNotPresentInResponse() {
+        val responseModel = createResponseModel("""
+            {
+                "onEventAction": {
+                    "campaignId": "123"
+                }
+            }
+        """.trimIndent())
+
+        responseHandler.handleResponse(responseModel)
+    }
+
+    private fun createResponseModel(body: String): ResponseModel {
         return ResponseModel.Builder()
                 .statusCode(200)
                 .message("OK")
@@ -138,5 +181,31 @@ class OnEventActionResponseHandlerTest {
                 .build()
     }
 
-
+    private fun createTestResponseModel(): ResponseModel {
+        return ResponseModel.Builder()
+                .statusCode(200)
+                .message("OK")
+                .body("""
+                {
+                   "onEventAction":{
+                      "campaignId":"1234",
+                      "actions":[
+                         {
+                            "type":"MEAppEvent",
+                            "name":"nameOfTheAppEvent",
+                            "payload":{
+                               "key":"value",
+                               "key2":"vale"
+                            }
+                         }
+                      ]
+                   }
+                }
+                """.trimIndent()
+                )
+                .requestModel(RequestModel.Builder(TimestampProvider(), UUIDProvider())
+                        .url("https://emarsys.com")
+                        .build())
+                .build()
+    }
 }

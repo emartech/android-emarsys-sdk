@@ -645,7 +645,12 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getDependency(dependencies, "buttonClickedRepository"),
                 getEventServiceProvider()
         ))
-        responseHandlers.add(OnEventActionResponseHandler(getDependency("onEventActionActionCommandFactory")))
+        responseHandlers.add(OnEventActionResponseHandler(
+                getDependency("onEventActionActionCommandFactory"),
+                getDependency(dependencies, "displayedIamRepository"),
+                getEventServiceInternal(),
+                getTimestampProvider(),
+                getCoreSdkHandler()))
         getResponseHandlersProcessor().addResponseHandlers(responseHandlers)
     }
 
