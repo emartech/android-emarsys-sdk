@@ -32,11 +32,11 @@ class OnEventActionTest {
     @Before
     fun setUp() {
         mockEventHandler = mock()
-        onEventAction = OnEventAction()
         mockOnEventActionEventHandlerProvider = mock()
         DependencyInjection.setup(FakeDependencyContainer(
-                notificationEventHandlerProvider = mockOnEventActionEventHandlerProvider)
+                onEventActionEventHandlerProvider = mockOnEventActionEventHandlerProvider)
         )
+        onEventAction = OnEventAction()
     }
 
     @After
