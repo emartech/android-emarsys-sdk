@@ -18,7 +18,7 @@ import com.emarsys.sample.extensions.copyToClipboard
 import com.emarsys.sample.extensions.showSnackBar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.FirebaseApp
-import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.installations.FirebaseInstallations
 import kotlinx.android.synthetic.main.fragment_mobile_engage_tracking.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -92,23 +92,22 @@ class MobileEngageFragmentTracking : Fragment() {
 
         buttonTrackPushToken.setOnClickListener {
             FirebaseApp.initializeApp(view.context)
-            FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
-                run {
-                    task.addOnSuccessListener {
-                        val pushToken = it?.token
-                        Emarsys.push.setPushToken(pushToken.toString())
-                        view.showSnackBar("Push Token tracked")
-                    }
-                    task.addOnFailureListener {
-                        view.showSnackBar(it.printStackTrace().toString())
-                    }
+            FirebaseInstallations.getInstance().getToken(false).addOnCompleteListener { task ->
+                task.addOnSuccessListener {
+                    val pushToken = it?.token
+                    Emarsys.push.setPushToken(pushToken.toString())
+                    view.showSnackBar("Push Token tracked")
+                }
+                task.addOnFailureListener {
+                    it.printStackTrace()
+                    view.showSnackBar("Something went wrong!")
                 }
             }
         }
 
         buttonCopyPushToken.setOnClickListener {
             FirebaseApp.initializeApp(view.context)
-            FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
+            FirebaseInstallations.getInstance().getToken(false).addOnCompleteListener { task ->
                 run {
                     val pushToken = task.result?.token
                     pushToken?.copyToClipboard(view.context)

@@ -25,11 +25,14 @@ class InlineInAppFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        inlineInAppFullyFromXml.onAppEventListener = { property, json ->
+            view.showSnackBar("AppEvent - $property, $json")
+        }
         inlineInAppFullyFromXml.onCloseListener = {
             inlineInAppFullyFromXml.visibility = View.GONE
         }
 
-        inlineInAppFromXmlAndCode.loadInApp("ia")
+        inlineInAppFromXmlAndCode.loadInApp("iace")
         inlineInAppFromXmlAndCode.onCompletionListener = CompletionListener {
             Log.d(TAG, "Inline in-App has been showed")
         }
