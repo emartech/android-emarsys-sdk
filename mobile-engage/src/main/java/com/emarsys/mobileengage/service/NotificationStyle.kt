@@ -13,6 +13,9 @@ object ThumbnailStyle : NotificationStyle() {
         return builder.setLargeIcon(notificationData.image)
                 .setContentTitle(notificationData.title)
                 .setContentText(notificationData.body)
+                .setStyle(NotificationCompat.BigTextStyle()
+                        .bigText(notificationData.body)
+                        .setBigContentTitle(notificationData.title))
     }
 }
 

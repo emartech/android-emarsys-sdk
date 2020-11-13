@@ -734,10 +734,11 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testStyleNotification_whenStyleIsThumbnail() {
-        val mockBuilder: NotificationCompat.Builder = mock() {
+        val mockBuilder: NotificationCompat.Builder = mock {
             on { setLargeIcon(any()) } doReturn it
             on { setContentTitle(any()) } doReturn it
             on { setContentText(any()) } doReturn it
+            on { setStyle(any()) } doReturn it
         }
         val title = "testTitle"
         val body = "testBody"
@@ -745,7 +746,7 @@ class MessagingServiceUtilsTest {
         val icon = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
         mockBuilder.styleNotification(NotificationData(image, icon, "THUMBNAIL", title, body, null, 123, 456))
 
-        verify(mockBuilder, times(0)).setStyle(any())
+        verify(mockBuilder).setStyle(any<NotificationCompat.BigTextStyle>())
     }
 
     @Test

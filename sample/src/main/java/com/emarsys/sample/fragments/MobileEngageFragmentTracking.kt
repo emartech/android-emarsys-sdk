@@ -18,7 +18,7 @@ import com.emarsys.sample.extensions.copyToClipboard
 import com.emarsys.sample.extensions.showSnackBar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.FirebaseApp
-import com.google.firebase.installations.FirebaseInstallations
+import com.google.firebase.iid.FirebaseInstanceId
 import kotlinx.android.synthetic.main.fragment_mobile_engage_tracking.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -92,7 +92,7 @@ class MobileEngageFragmentTracking : Fragment() {
 
         buttonTrackPushToken.setOnClickListener {
             FirebaseApp.initializeApp(view.context)
-            FirebaseInstallations.getInstance().getToken(false).addOnCompleteListener { task ->
+            FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
                 task.addOnSuccessListener {
                     val pushToken = it?.token
                     Emarsys.push.setPushToken(pushToken.toString())
@@ -107,12 +107,19 @@ class MobileEngageFragmentTracking : Fragment() {
 
         buttonCopyPushToken.setOnClickListener {
             FirebaseApp.initializeApp(view.context)
-            FirebaseInstallations.getInstance().getToken(false).addOnCompleteListener { task ->
+            FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
                 run {
-                    val pushToken = task.result?.token
-                    pushToken?.copyToClipboard(view.context)
-                    view.showSnackBar("Push Token copied: $pushToken")
+                    task.addOnSuccessListener {
+                        val pushToken = it?.token
+                        pushToken?.copyToClipboard(view.context)
+                        view.showSnackBar("Push Token copied: $pushToken")
+                    }
+                    task.addOnFailureListener {
+                        it.printStackTrace()
+                        view.showSnackBar("Something went wrong!")
+                    }
                 }
+
             }
         }
 
