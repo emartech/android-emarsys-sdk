@@ -21,7 +21,7 @@ import org.junit.Test
 class MessageInboxTest {
     private companion object {
         private const val TAG = "READ"
-        private const val MESSAGE_ID = "testMessageId"
+        private const val MESSAGE_ID = Integer.MAX_VALUE.toString()
     }
 
     private lateinit var inbox: MessageInboxApi

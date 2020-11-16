@@ -76,7 +76,7 @@ class EmarsysE2ETests {
         val timestamp = System.currentTimeMillis()
         trackCustomEvent(title, timestamp)
 
-        retry(times = 10) {
+        retry(times = 10, timeout = 2000) {
             val message = fetchMessage(title, timestamp)
             message shouldNotBe null
         }

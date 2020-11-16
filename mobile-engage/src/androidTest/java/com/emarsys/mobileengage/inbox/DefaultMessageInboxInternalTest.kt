@@ -31,7 +31,7 @@ class DefaultMessageInboxInternalTest {
     private companion object {
         private const val TAG = "READ"
         private const val LOWER_CASED_TAG = "read"
-        private const val MESSAGE_ID = "testMessageId"
+        private const val MESSAGE_ID = Integer.MAX_VALUE.toString()
         private const val ADD_EVENT_NAME = "inbox:tag:add"
         private const val REMOVE_EVENT_NAME = "inbox:tag:remove"
     }
