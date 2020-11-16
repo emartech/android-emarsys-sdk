@@ -44,6 +44,7 @@ class DefaultInboxIntegrationTest {
         private const val CONTACT_FIELD_ID = 3
         private const val SDK_VERSION = "2.1.0-integration"
         private const val LANGUAGE = "en-US"
+        private const val MESSAGE_ID = Integer.MAX_VALUE.toString()
 
         @BeforeClass
         @JvmStatic
@@ -188,14 +189,14 @@ class DefaultInboxIntegrationTest {
 
     @Test
     fun testAddTag() {
-        Emarsys.messageInbox.addTag("TEST_TAG", "testMessageId", eventuallyStoreResultInProperty(this::errorCause.setter)).eventuallyAssert {
+        Emarsys.messageInbox.addTag("TEST_TAG", MESSAGE_ID, eventuallyStoreResultInProperty(this::errorCause.setter)).eventuallyAssert {
             errorCause shouldBe null
         }
     }
 
     @Test
     fun testRemoveTag() {
-        Emarsys.messageInbox.removeTag("TEST_TAG", "testMessageId", eventuallyStoreResultInProperty(this::errorCause.setter)).eventuallyAssert {
+        Emarsys.messageInbox.removeTag("TEST_TAG", MESSAGE_ID, eventuallyStoreResultInProperty(this::errorCause.setter)).eventuallyAssert {
             errorCause shouldBe null
         }
     }
