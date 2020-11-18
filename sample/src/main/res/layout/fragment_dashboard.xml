@@ -54,8 +54,8 @@
                 android:id="@+id/dashboardCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -318,6 +318,16 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/forceChange"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:text="@string/force"
+                        app:layout_constraintBottom_toBottomOf="@+id/changeSetupTitle"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/changeSetupTitle" />
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/buttonSetupChange"
                         style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -405,7 +415,6 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </com.google.android.material.card.MaterialCardView>
-
 
 
         </LinearLayout>

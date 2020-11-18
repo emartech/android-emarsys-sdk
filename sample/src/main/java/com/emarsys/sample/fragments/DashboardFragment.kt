@@ -14,6 +14,7 @@ import com.emarsys.sample.SampleApplication
 import com.emarsys.sample.extensions.showSnackBar
 import com.emarsys.sample.prefs.Cache
 import kotlinx.android.synthetic.main.fragment_dashboard.*
+import kotlin.system.exitProcess
 
 class DashboardFragment : Fragment() {
 
@@ -56,7 +57,13 @@ class DashboardFragment : Fragment() {
                 }
             }
         }
+
         buttonSetupChange.setOnClickListener {
+            if (forceChange.isChecked) {
+                Cache.applicationCode = newApplicationCode.text?.toNullableString()
+                Thread.sleep(200)
+                exitProcess(0)
+            }
             when {
                 newContactFieldId.text.isNullOrEmpty() -> {
                     Emarsys.config.changeApplicationCode(newApplicationCode.text?.toNullableString()) { throwable ->

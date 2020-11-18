@@ -59,6 +59,7 @@
     <!-- Dashboard String Resources -->
     <string name="change_setup_title">Change SDK Setup</string>
     <string name="not_set">not set</string>
+    <string name="force">force</string>
     <string name="current_application_code">ApplicationCode: <b>%1$s</b></string>
     <string name="current_contact_field_id">ContactFieldId: <b>%1$d</b></string>
     <string name="change_application_code_hint">an other Application Code</string>

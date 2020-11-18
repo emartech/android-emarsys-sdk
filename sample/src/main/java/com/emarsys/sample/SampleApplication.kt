@@ -28,7 +28,7 @@ open class SampleApplication : Application(), EventHandler, NotificationInformat
         Kotpref.init(this)
         val config = EmarsysConfig.Builder()
                 .application(this)
-                .mobileEngageApplicationCode(Cache.applicationCode)
+                .mobileEngageApplicationCode(getApplicationCode())
                 .contactFieldId(Cache.contactFieldId)
                 .predictMerchantId(Cache.merchantId)
                 .build()
@@ -36,7 +36,7 @@ open class SampleApplication : Application(), EventHandler, NotificationInformat
         createNotificationChannels()
         Emarsys.setup(config)
 
-        if (Cache.applicationCode != null) {
+        if (getApplicationCode() != null) {
             setupEventHandlers()
         }
     }
@@ -74,5 +74,13 @@ open class SampleApplication : Application(), EventHandler, NotificationInformat
 
     override fun onNotificationInformationReceived(notificationInformation: NotificationInformation) {
         Log.d(TAG, "campaignId: " + notificationInformation.campaignId)
+    }
+
+    private fun getApplicationCode(): String? {
+        return if (Cache.applicationCode == "not set") {
+            null
+        } else {
+            Cache.applicationCode
+        }
     }
 }
