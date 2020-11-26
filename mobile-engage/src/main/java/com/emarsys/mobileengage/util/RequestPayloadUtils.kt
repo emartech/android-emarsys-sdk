@@ -134,8 +134,8 @@ object RequestPayloadUtils {
     }
 
     @JvmStatic
-    fun createInlineInAppPayload(viewId: String): Map<String, Any?> {
-        return mapOf("viewIds" to listOf(viewId), "clicks" to listOf())
+    fun createInlineInAppPayload(viewId: String, clicks: List<ButtonClicked>): Map<String, Any?> {
+        return mapOf("viewIds" to listOf(viewId), "clicks" to clicks)
     }
 }
 

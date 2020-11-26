@@ -1,11 +1,15 @@
 package com.emarsys.mobileengage.request
 
 import com.emarsys.core.Mockable
+import com.emarsys.core.database.repository.Repository
+import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.endpoint.Endpoint
+import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createCustomEventPayload
@@ -23,7 +27,8 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
                                       private val eventServiceProvider: ServiceEndpointProvider,
                                       private val mobileEngageV2Provider: ServiceEndpointProvider,
                                       private val inboxServiceProvider: ServiceEndpointProvider,
-                                      private val messageInboxServiceProvider: ServiceEndpointProvider) {
+                                      private val messageInboxServiceProvider: ServiceEndpointProvider,
+                                      private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>) {
 
     fun createSetPushTokenRequest(pushToken: String): RequestModel {
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
@@ -141,7 +146,7 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
     fun createFetchInlineInAppMessagesRequest(viewId: String): RequestModel {
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
                 .method(RequestMethod.POST)
-                .payload(RequestPayloadUtils.createInlineInAppPayload(viewId))
+                .payload(RequestPayloadUtils.createInlineInAppPayload(viewId, buttonClickedRepository.query(Everything())))
                 .url("${eventServiceProvider.provideEndpointHost()}${Endpoint.inlineInAppBase(requestContext.applicationCode)}")
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext) + RequestHeaderUtils.createDefaultHeaders(requestContext))
                 .build()

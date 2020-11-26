@@ -334,7 +334,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         RestClient(ConnectionProvider(), getTimestampProvider(), getResponseHandlersProcessor(), createRequestModelMappers()).also {
             addDependency(dependencies, it)
         }
-        val requestModelFactory = MobileEngageRequestModelFactory(getRequestContext(), getClientServiceProvider(), getEventServiceProvider(), getMobileEngageV2ServiceProvider(), getInboxServiceProvider(), getMessageInboxServiceProvider())
+        val requestModelFactory = MobileEngageRequestModelFactory(getRequestContext(), getClientServiceProvider(), getEventServiceProvider(), getMobileEngageV2ServiceProvider(), getInboxServiceProvider(), getMessageInboxServiceProvider(), getButtonClickedRepository())
                 .also { addDependency(dependencies, it) }
         val emarsysRequestModelFactory = EmarsysRequestModelFactory(getRequestContext())
         val contactTokenResponseHandler = MobileEngageTokenResponseHandler("contactToken", getContactTokenStorage(), getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()).also {

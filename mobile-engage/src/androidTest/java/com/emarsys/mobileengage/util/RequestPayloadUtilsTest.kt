@@ -10,6 +10,7 @@ import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.IamConversionUtils
+import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.testUtil.RandomMETestUtils
 import com.emarsys.testUtil.RandomTestUtils
 import com.emarsys.testUtil.TimeoutUtils
@@ -399,12 +400,17 @@ class RequestPayloadUtilsTest {
     @Test
     fun testCreateInlineInAppPayload() {
         val viewId = "testViewId"
+        val clicks = listOf(
+                ButtonClicked("campaignId1", "buttonId1", 1L),
+                ButtonClicked("campaignId2", "buttonId2", 2L),
+                ButtonClicked("campaignId3", "buttonId3", 3L)
+        )
         val expectedPayload = mapOf(
                 "viewIds" to listOf(viewId),
-                "clicks" to listOf()
+                "clicks" to clicks
         )
 
-        val resultPayload = RequestPayloadUtils.createInlineInAppPayload(viewId)
+        val resultPayload = RequestPayloadUtils.createInlineInAppPayload(viewId, clicks)
 
         resultPayload shouldBe expectedPayload
     }

@@ -9,10 +9,13 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
+import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.any
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
@@ -35,6 +38,10 @@ class MobileEngageRequestModelFactoryTest {
         const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/api/"
         const val INBOX_V3_HOST = "https://me-inbox.eservice.emarsys.net/v3"
+        val CLICKS = listOf(
+                ButtonClicked("campaignId1", "buttonId1", 1L),
+                ButtonClicked("campaignId2", "buttonId2", 2L),
+                ButtonClicked("campaignId3", "buttonId3", 3L))
     }
 
     lateinit var mockRequestContext: MobileEngageRequestContext
@@ -49,6 +56,7 @@ class MobileEngageRequestModelFactoryTest {
     lateinit var mockClientServiceProvider: ServiceEndpointProvider
     lateinit var mockMobileEngageV2Provider: ServiceEndpointProvider
     lateinit var mockInboxServiceProvider: ServiceEndpointProvider
+    lateinit var mockButtonClickedRepository: ButtonClickedRepository
 
     @Rule
     @JvmField
@@ -106,7 +114,11 @@ class MobileEngageRequestModelFactoryTest {
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
         }
 
-        requestFactory = MobileEngageRequestModelFactory(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, mockMobileEngageV2Provider, mockInboxServiceProvider, mockMessageInboxServiceProvider)
+        mockButtonClickedRepository = mock(ButtonClickedRepository::class.java).apply {
+            whenever(query(any())).thenReturn(CLICKS)
+        }
+
+        requestFactory = MobileEngageRequestModelFactory(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, mockMobileEngageV2Provider, mockInboxServiceProvider, mockMessageInboxServiceProvider, mockButtonClickedRepository)
     }
 
     @Test
@@ -327,7 +339,7 @@ class MobileEngageRequestModelFactoryTest {
         val viewId = "testViewId"
         val expected = RequestModel.Builder(mockRequestContext.timestampProvider, mockRequestContext.uuidProvider)
                 .method(RequestMethod.POST)
-                .payload(RequestPayloadUtils.createInlineInAppPayload(viewId))
+                .payload(RequestPayloadUtils.createInlineInAppPayload(viewId, CLICKS))
                 .url("https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/inline-messages")
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + RequestHeaderUtils.createDefaultHeaders(mockRequestContext))
                 .build()
