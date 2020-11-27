@@ -15,7 +15,7 @@ env:
   SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
   SLACK_ICON: https://icons.iconarchive.com/icons/martz90/circle/256/android-icon.png
   SLACK_TITLE: Commit status
-  SLACK_USERNAME: Android pipeline
+  SLACK_USERNAME: Emarsys SDK - Android
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
 jobs:
@@ -424,10 +424,15 @@ jobs:
     needs: [ReleaseSample]
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@master
-        env:
-          SLACK_COLOR: '#32BD32'
-          SLACK_MESSAGE: 'Build successful! :man-gesturing-ok: :bananadance:'
+        uses: megamegax/slack_action@0.1.25
+          with:
+            channel: '${{env.SLACK_CHANNEL}}'
+            message: 'Build successful! :man-gesturing-ok: :bananadance:'
+            user_name: '${{SLACK_USERNAME}}'
+            job_status: 'success'
+            user_icon: '${{env.SLACK_ICON}}'
+            actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" },{ "type": "button", "text": "Install page", "url": "http://ems-mobileteam-artifacts.s3-website-eu-west-1.amazonaws.com/index-ems.html" }]'
+
 
   SlackNotificationOnError:
     name: Send slack on error
@@ -452,8 +457,11 @@ jobs:
 
       - name: Slack Notification
         if: steps.set_output.outputs.FAILURE == 'true'
-        uses: rtCamp/action-slack-notify@master
-        env:
-          SLACK_COLOR: '#FF3C00'
-          SLACK_MESSAGE:
-            'Build failed! :man-gesturing-no: :blobcatfearful:'
+        uses: megamegax/slack_action@0.1.25
+          with:
+            channel: '${{env.SLACK_CHANNEL}}'
+            message: 'Build failed! :man-gesturing-no: :blobcatfearful:'
+            user_name: '${{SLACK_USERNAME}}'
+            job_status: 'failure'
+            user_icon: '${{env.SLACK_ICON}}'
+            actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" }]'
