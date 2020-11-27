@@ -426,7 +426,7 @@ jobs:
         uses: megamegax/slack_action@0.1.25
         with:
           channel: '${{env.SLACK_CHANNEL}}'
-          message: 'Build successful! :man-gesturing-ok: :bananadance:'
+          message: 'Nightly build successful! :man-gesturing-ok: :bananadance:'
           user_name: '${{env.SLACK_USERNAME}}'
           job_status: 'success'
           user_icon: '${{env.SLACK_ICON}}'
@@ -458,8 +458,8 @@ jobs:
         uses: megamegax/slack_action@0.1.25
         with:
           channel: '${{env.SLACK_CHANNEL}}'
-          message: 'Build failed! :man-gesturing-no: :blobcatfearful:'
+          message: 'Nightly build failed! :man-gesturing-no: :blobcatfearful:'
           user_name: '${{env.SLACK_USERNAME}}'
-          job_status: 'failure'
+          job_status: 'failed'
           user_icon: '${{env.SLACK_ICON}}'
           actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" }]'
