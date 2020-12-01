@@ -43,7 +43,7 @@ class ActivityLifecycleWatchdog(val applicationStartActions: Array<ActivityLifec
 
     override fun onActivityPaused(activity: Activity) {}
     override fun onActivityStopped(activity: Activity) {
-        if (currentActivity === activity) {
+        if (currentActivity == activity) {
             currentActivity = null
         }
     }
