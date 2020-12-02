@@ -12,7 +12,6 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -40,6 +39,8 @@ import com.emarsys.testUtil.SharedPrefsUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.doAnswer
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.json.JSONObject
 import org.junit.*
@@ -94,30 +95,30 @@ class DefaultInboxInternalTest {
 
         application = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
-        mockRequestManager = mock(RequestManager::class.java)
+        mockRequestManager = mock()
 
         notificationList = createNotificationList()
-        mockHardwareIdProvider = mock(HardwareIdProvider::class.java)
-        mockLanguageProvider = mock(LanguageProvider::class.java)
-        mockVersionProvider = mock(VersionProvider::class.java)
+        mockHardwareIdProvider = mock()
+        mockLanguageProvider = mock()
+        mockVersionProvider = mock()
 
         whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
         whenever(mockLanguageProvider.provideLanguage(any(Locale::class.java))).thenReturn(LANGUAGE)
         whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
         deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mockVersionProvider,
-                mockLanguageProvider, mock(NotificationManagerHelper::class.java), true)
+                mockLanguageProvider, mock(), true)
 
-        mockUuidProvider = mock(UUIDProvider::class.java)
+        mockUuidProvider = mock()
         whenever(mockUuidProvider.provideId()).thenReturn(REQUEST_ID)
 
-        mockTimestampProvider = mock(TimestampProvider::class.java)
+        mockTimestampProvider = mock()
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
-        mockContactFieldValueStorage = mock(StringStorage::class.java)
+        mockContactFieldValueStorage = mock()
 
         whenever(mockContactFieldValueStorage.get()).thenReturn("test@test.com")
-        mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
-            whenever(createResetBadgeCountRequest()).thenReturn(mock(RequestModel::class.java))
-            whenever(createFetchNotificationsRequest()).thenReturn(mock(RequestModel::class.java))
+        mockRequestModelFactory = mock {
+            on { createResetBadgeCountRequest() } doReturn mock()
+            on { createFetchNotificationsRequest() } doReturn mock()
         }
         requestContext = MobileEngageRequestContext(
                 APPLICATION_CODE,
@@ -125,11 +126,12 @@ class DefaultInboxInternalTest {
                 deviceInfo,
                 mockTimestampProvider,
                 mockUuidProvider,
-                mock(StringStorage::class.java),
-                mock(StringStorage::class.java),
-                mock(StringStorage::class.java),
+                mock(),
+                mock(),
+                mock(),
                 mockContactFieldValueStorage,
-                mock(StringStorage::class.java)
+                mock(),
+                mock()
         )
 
         defaultHeaders = RequestHeaderUtils.createDefaultHeaders(requestContext)

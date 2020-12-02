@@ -96,6 +96,9 @@ object RequestPayloadUtils {
         if (eventAttributes != null && eventAttributes.isNotEmpty()) {
             event["attributes"] = eventAttributes
         }
+        if (requestContext.sessionIdHolder.sessionId != null) {
+            event["sessionId"] = requestContext.sessionIdHolder.sessionId!!
+        }
         return event
     }
 

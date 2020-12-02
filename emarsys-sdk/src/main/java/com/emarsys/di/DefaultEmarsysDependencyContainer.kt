@@ -326,7 +326,9 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getContactTokenStorage(),
                 getDependency(MobileEngageStorageKey.REFRESH_TOKEN.key),
                 getContactFieldValueStorage(),
-                getPushTokenStorage()).also {
+                getPushTokenStorage(),
+                sessionIdHolder
+        ).also {
             addDependency(dependencies, it)
         }
         val inAppEventHandler = InAppEventHandlerInternal()

@@ -14,14 +14,14 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.mock
 
 class MobileEngageRequestModelFactoryTest {
 
@@ -65,57 +65,56 @@ class MobileEngageRequestModelFactoryTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
-            whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
+        mockEventServiceProvider = mock {
+            on { provideEndpointHost() } doReturn EVENT_HOST
         }
-        mockClientServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
-            whenever(provideEndpointHost()).thenReturn(CLIENT_HOST)
+        mockClientServiceProvider = mock {
+            on { provideEndpointHost() } doReturn CLIENT_HOST
         }
-        mockMobileEngageV2Provider = mock(ServiceEndpointProvider::class.java).apply {
-            whenever(provideEndpointHost()).thenReturn(MOBILE_ENGAGE_V2_HOST)
+        mockMobileEngageV2Provider = mock {
+            on { provideEndpointHost() } doReturn MOBILE_ENGAGE_V2_HOST
         }
-        mockInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
-            whenever(provideEndpointHost()).thenReturn(INBOX_HOST)
+        mockInboxServiceProvider = mock {
+            on { provideEndpointHost() } doReturn INBOX_HOST
         }
-
-        mockNotificationSettings = mock(NotificationSettings::class.java).apply {
-            whenever(channelSettings).thenReturn(listOf())
-            whenever(importance).thenReturn(0)
+        mockNotificationSettings = mock {
+            on { channelSettings } doReturn listOf()
+            on { importance } doReturn 0
         }
-        mockUuidProvider = mock(UUIDProvider::class.java).apply {
-            whenever(provideId()).thenReturn(REQUEST_ID)
+        mockUuidProvider = mock {
+            on { provideId() } doReturn REQUEST_ID
         }
-        mockTimestampProvider = mock(TimestampProvider::class.java).apply {
-            whenever(provideTimestamp()).thenReturn(TIMESTAMP)
+        mockTimestampProvider = mock {
+            on { provideTimestamp() } doReturn TIMESTAMP
         }
-        mockDeviceInfo = mock(DeviceInfo::class.java).apply {
-            whenever(hwid).thenReturn(HARDWARE_ID)
-            whenever(isDebugMode).thenReturn(true)
-            whenever(notificationSettings).thenReturn(mockNotificationSettings)
+        mockDeviceInfo = mock {
+            on { hwid } doReturn HARDWARE_ID
+            on { isDebugMode } doReturn true
+            on { notificationSettings } doReturn mockNotificationSettings
         }
-        mockRefreshTokenStorage = mock(StringStorage::class.java).apply {
-            whenever(get()).thenReturn(REFRESH_TOKEN)
+        mockRefreshTokenStorage = mock {
+            on { get() } doReturn REFRESH_TOKEN
         }
-
-        mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
-            whenever(provideEndpointHost()).thenReturn(INBOX_V3_HOST)
+        mockMessageInboxServiceProvider = mock {
+            on { provideEndpointHost() } doReturn INBOX_V3_HOST
         }
 
-        val mockContactFieldValueStorage = (mock(StringStorage::class.java)).apply {
-            whenever(get()).thenReturn(CONTACT_FIELD_VALUE)
+        val mockContactFieldValueStorage: StringStorage = mock {
+            on { get() } doReturn CONTACT_FIELD_VALUE
         }
 
-        mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
-            whenever(timestampProvider).thenReturn(mockTimestampProvider)
-            whenever(uuidProvider).thenReturn(mockUuidProvider)
-            whenever(deviceInfo).thenReturn(mockDeviceInfo)
-            whenever(applicationCode).thenReturn(APPLICATION_CODE)
-            whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
-            whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
+        mockRequestContext = mock {
+            on { timestampProvider } doReturn mockTimestampProvider
+            on { uuidProvider } doReturn mockUuidProvider
+            on { deviceInfo } doReturn mockDeviceInfo
+            on { applicationCode } doReturn APPLICATION_CODE
+            on { refreshTokenStorage } doReturn mockRefreshTokenStorage
+            on { contactFieldValueStorage } doReturn mockContactFieldValueStorage
+            on { sessionIdHolder } doReturn mock()
         }
 
-        mockButtonClickedRepository = mock(ButtonClickedRepository::class.java).apply {
-            whenever(query(any())).thenReturn(CLICKS)
+        mockButtonClickedRepository = mock {
+            on { query(any()) } doReturn CLICKS
         }
 
         requestFactory = MobileEngageRequestModelFactory(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, mockMobileEngageV2Provider, mockInboxServiceProvider, mockMessageInboxServiceProvider, mockButtonClickedRepository)

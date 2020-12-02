@@ -5,6 +5,7 @@ import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.storage.StringStorage
+import com.emarsys.mobileengage.session.SessionIdHolder
 
 @Mockable
 data class MobileEngageRequestContext(
@@ -17,4 +18,5 @@ data class MobileEngageRequestContext(
         val contactTokenStorage: StringStorage,
         val refreshTokenStorage: StringStorage,
         val contactFieldValueStorage: StringStorage,
-        val pushTokenStorage: StringStorage)
+        val pushTokenStorage: StringStorage,
+        val sessionIdHolder: SessionIdHolder)

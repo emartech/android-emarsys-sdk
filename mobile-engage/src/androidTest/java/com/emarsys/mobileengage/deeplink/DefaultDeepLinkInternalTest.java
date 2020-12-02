@@ -14,6 +14,7 @@ import com.emarsys.core.request.RequestManager;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.storage.StringStorage;
 import com.emarsys.mobileengage.MobileEngageRequestContext;
+import com.emarsys.mobileengage.session.SessionIdHolder;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Before;
@@ -63,6 +64,7 @@ public class DefaultDeepLinkInternalTest {
         when(uuidProvider.provideId()).thenReturn("REQUEST_ID");
         mockDeviceInfo = mock(DeviceInfo.class);
         when(mockDeviceInfo.getSdkVersion()).thenReturn("0.0.1");
+
         requestContext = new MobileEngageRequestContext(
                 APPLICATION_CODE,
                 1,
@@ -73,7 +75,8 @@ public class DefaultDeepLinkInternalTest {
                 mock(StringStorage.class),
                 mock(StringStorage.class),
                 mock(StringStorage.class),
-                mock(StringStorage.class)
+                mock(StringStorage.class),
+                mock(SessionIdHolder.class)
         );
 
         mockDeepLinkServiceProvider = mock(ServiceEndpointProvider.class);

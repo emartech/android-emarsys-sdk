@@ -11,6 +11,7 @@ import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.IamConversionUtils
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.testUtil.RandomMETestUtils
 import com.emarsys.testUtil.RandomTestUtils
 import com.emarsys.testUtil.TimeoutUtils
@@ -44,6 +45,7 @@ class RequestPayloadUtilsTest {
         const val IMPORTANCE = 0
         const val CHANNEL_ID_1 = "channelId1"
         const val CHANNEL_ID_2 = "channelId2"
+        const val SESSION_ID = "testSessionId"
     }
 
     private lateinit var mockDeviceInfo: DeviceInfo
@@ -53,6 +55,7 @@ class RequestPayloadUtilsTest {
     private lateinit var mockContactFieldValueStorage: StringStorage
     private lateinit var mockNotificationSettings: NotificationSettings
     private lateinit var mockChannelSettings: List<ChannelSettings>
+    private lateinit var mockSessionIdHolder: SessionIdHolder
 
     @Rule
     @JvmField
@@ -97,6 +100,10 @@ class RequestPayloadUtilsTest {
         }
         mockContactFieldValueStorage = mock(StringStorage::class.java)
 
+        mockSessionIdHolder = mock(SessionIdHolder::class.java).apply {
+            whenever(sessionId).thenReturn(SESSION_ID)
+        }
+
         mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
             whenever(applicationCode).thenReturn(APPLICATION_CODE)
             whenever(deviceInfo).thenReturn(mockDeviceInfo)
@@ -104,6 +111,7 @@ class RequestPayloadUtilsTest {
             whenever(timestampProvider).thenReturn(mockTimestampProvider)
             whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
             whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
+            whenever(sessionIdHolder).thenReturn(mockSessionIdHolder)
         }
     }
 
@@ -211,7 +219,8 @@ class RequestPayloadUtilsTest {
         val event = mapOf(
                 "type" to "custom",
                 "name" to EVENT_NAME,
-                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP)
+                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
+                "sessionId" to SESSION_ID
         )
 
         val expectedPayload = mapOf<String, Any>(
@@ -233,7 +242,8 @@ class RequestPayloadUtilsTest {
                 "type" to "custom",
                 "name" to EVENT_NAME,
                 "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
-                "attributes" to attribute
+                "attributes" to attribute,
+                "sessionId" to SESSION_ID
         )
 
         val expectedPayload = mapOf<String, Any>(
@@ -252,7 +262,8 @@ class RequestPayloadUtilsTest {
         val event = mapOf(
                 "type" to "custom",
                 "name" to EVENT_NAME,
-                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP)
+                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
+                "sessionId" to SESSION_ID
         )
 
         val expectedPayload = mapOf<String, Any>(
@@ -268,6 +279,28 @@ class RequestPayloadUtilsTest {
 
     @Test
     fun testCreateInternalCustomEventPayload_whenEventAttributesIsNull() {
+        val event = mapOf(
+                "type" to "internal",
+                "name" to EVENT_NAME,
+                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
+                "sessionId" to SESSION_ID
+        )
+
+        val expectedPayload = mapOf<String, Any>(
+                "clicks" to emptyList<Any>(),
+                "viewedMessages" to emptyList<Any>(),
+                "events" to listOf(event)
+        )
+
+        val actualPayload = RequestPayloadUtils.createInternalCustomEventPayload(EVENT_NAME, null, mockRequestContext)
+
+        actualPayload shouldBe expectedPayload
+    }
+
+    @Test
+    fun testCreateCustomEventPayload_shouldNotIncludeSessionId_whenItIsNull() {
+        whenever(mockSessionIdHolder.sessionId).thenReturn(null)
+
         val event = mapOf(
                 "type" to "internal",
                 "name" to EVENT_NAME,
@@ -293,7 +326,8 @@ class RequestPayloadUtilsTest {
                 "type" to "internal",
                 "name" to EVENT_NAME,
                 "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
-                "attributes" to attribute
+                "attributes" to attribute,
+                "sessionId" to SESSION_ID
         )
 
         val expectedPayload = mapOf<String, Any>(
@@ -312,7 +346,8 @@ class RequestPayloadUtilsTest {
         val event = mapOf(
                 "type" to "internal",
                 "name" to EVENT_NAME,
-                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP)
+                "timestamp" to TimestampUtils.formatTimestampWithUTC(TIMESTAMP),
+                "sessionId" to SESSION_ID
         )
 
         val expectedPayload = mapOf<String, Any>(
