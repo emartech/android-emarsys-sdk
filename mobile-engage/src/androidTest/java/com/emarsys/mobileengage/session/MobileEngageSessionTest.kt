@@ -18,6 +18,7 @@ class MobileEngageSessionTest {
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockUUIDProvider: UUIDProvider
     private lateinit var mockEventServiceInternal: EventServiceInternal
+    private lateinit var mockSessionIdHolder: SessionIdHolder
     private lateinit var session: MobileEngageSession
 
     @Before
@@ -29,7 +30,10 @@ class MobileEngageSessionTest {
             on { provideId() } doReturn SESSION_ID
         }
         mockEventServiceInternal = mock()
-        session = MobileEngageSession(mockTimestampProvider, mockUUIDProvider, mockEventServiceInternal)
+        mockSessionIdHolder = mock {
+            on { sessionId } doReturn SESSION_ID
+        }
+        session = MobileEngageSession(mockTimestampProvider, mockUUIDProvider, mockEventServiceInternal, mockSessionIdHolder)
     }
 
     @Test
@@ -44,7 +48,7 @@ class MobileEngageSessionTest {
     fun testStartSession_shouldSetSessionId() {
         session.startSession()
 
-        session.sessionId shouldBe SESSION_ID
+        verify(mockSessionIdHolder).sessionId = SESSION_ID
     }
 
     @Test
@@ -64,23 +68,17 @@ class MobileEngageSessionTest {
         )), anyOrNull())
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun testEndSession_shouldResetSessionIdAndSessionStart() {
+    @Test
+    fun testEndSession_shouldResetSessionId() {
         session.startSession()
         session.endSession()
 
-        session.endSession()
-
-        session.sessionId shouldBe null
-        verify(mockEventServiceInternal).trackInternalCustomEventAsync(eq("session:start"), isNull(), anyOrNull())
-
-        verify(mockEventServiceInternal, times(1)).trackInternalCustomEventAsync(eq("session:end"), eq(mapOf(
-                "duration" to "1"
-        )), anyOrNull())
+        verify(mockSessionIdHolder).sessionId = null
     }
 
     @Test
     fun testEndSession_shouldNotBeCalledWithoutStartSession() {
+        whenever(mockSessionIdHolder.sessionId).thenReturn(null)
         val exception = shouldThrow<IllegalStateException> {
             session.endSession()
         }

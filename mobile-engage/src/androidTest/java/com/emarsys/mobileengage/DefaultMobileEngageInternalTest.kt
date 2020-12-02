@@ -12,8 +12,12 @@ import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
+import com.emarsys.mobileengage.session.MobileEngageSession
+import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -53,11 +57,14 @@ class DefaultMobileEngageInternalTest {
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var mockRequestModel: RequestModel
+    private lateinit var mockRequestModelWithNullContactFieldValue: RequestModel
     private lateinit var mockContactFieldValueStorage: StringStorage
     private lateinit var mockRefreshTokenStorage: StringStorage
     private lateinit var mockContactTokenStorage: StringStorage
     private lateinit var mockClientStateStorage: StringStorage
     private lateinit var mockPushTokenStorage: StringStorage
+    private lateinit var mockSession: MobileEngageSession
+    private lateinit var mockSessionIdHolder: SessionIdHolder
 
     private lateinit var uiHandler: Handler
 
@@ -68,14 +75,16 @@ class DefaultMobileEngageInternalTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        mockEventServiceInternal = mock(EventServiceInternal::class.java)
-        mockPushInternal = mock(PushInternal::class.java)
+        mockEventServiceInternal = mock()
+        mockPushInternal = mock()
 
-        mockContactFieldValueStorage = mock(StringStorage::class.java)
-        mockRefreshTokenStorage = mock(StringStorage::class.java)
-        mockContactTokenStorage = mock(StringStorage::class.java)
-        mockClientStateStorage = mock(StringStorage::class.java)
-        mockPushTokenStorage = mock(StringStorage::class.java)
+        mockContactFieldValueStorage = mock()
+        mockRefreshTokenStorage = mock()
+        mockContactTokenStorage = mock()
+        mockClientStateStorage = mock()
+        mockPushTokenStorage = mock()
+        mockSession = mock()
+        mockSessionIdHolder = mock()
 
         mockUuidProvider = mock(UUIDProvider::class.java).apply {
             whenever(provideId()).thenReturn(REQUEST_ID)
@@ -109,8 +118,10 @@ class DefaultMobileEngageInternalTest {
         }
 
         mockRequestModel = mock(RequestModel::class.java)
+        mockRequestModelWithNullContactFieldValue = mock(RequestModel::class.java)
 
         mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
+            whenever(createSetContactRequest(null)).thenReturn(mockRequestModelWithNullContactFieldValue)
             whenever(createSetContactRequest(CONTACT_FIELD_VALUE)).thenReturn(mockRequestModel)
             whenever(createSetPushTokenRequest(PUSH_TOKEN)).thenReturn(mockRequestModel)
             whenever(createCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
@@ -123,22 +134,7 @@ class DefaultMobileEngageInternalTest {
 
         mockCompletionListener = mock(CompletionListener::class.java)
 
-        mobileEngageInternal = DefaultMobileEngageInternal(mockRequestManager, mockRequestModelFactory, mockRequestContext)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestManager_mustNotBeNull() {
-        DefaultMobileEngageInternal(null, mockRequestModelFactory, mockRequestContext)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestModelFactory_mustNotBeNull() {
-        DefaultMobileEngageInternal(mockRequestManager, null, mockRequestContext)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestContext_mustNotBeNull() {
-        DefaultMobileEngageInternal(mockRequestManager, mockRequestModelFactory, null)
+        mobileEngageInternal = DefaultMobileEngageInternal(mockRequestManager, mockRequestModelFactory, mockRequestContext, mockSession, mockSessionIdHolder)
     }
 
     @Test
@@ -163,17 +159,80 @@ class DefaultMobileEngageInternalTest {
     }
 
     @Test
+    fun testSetContact_shouldStartNewSession() {
+        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
+
+        verify(mockSession).startSession()
+    }
+
+    @Test
+    fun testSetContact_shouldEndRunningSessionBeforeStartingANewOne() {
+        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
+
+        whenever(mockSessionIdHolder.sessionId).thenReturn("testSessionId")
+
+        mobileEngageInternal.setContact("newContactFieldValue", null)
+
+        inOrder(mockSession).run {
+            verify(mockSession).startSession()
+            verify(mockSession).endSession()
+            verify(mockSession).startSession()
+        }
+    }
+
+    @Test
+    fun testSetContact_shouldNotCallEndSession_whenNoSessionWasStartedBefore() {
+        whenever(mockSessionIdHolder.sessionId).thenReturn(null)
+
+        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
+
+        verify(mockSession, times(0)).endSession()
+        verify(mockSession).startSession()
+    }
+
+    @Test
+    fun testSetContact_shouldStartNewSession_onlyWhenItIsDifferentFromPreviousContact() {
+        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
+
+        val mockContactFieldValueStorage: StringStorage = mock {
+            on { get() } doReturn CONTACT_FIELD_VALUE
+        }
+        whenever(mockRequestContext.contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
+
+        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
+
+        verify(mockSession, times(1)).startSession()
+    }
+
+    @Test
     fun testClearContact() {
         mobileEngageInternal = spy(mobileEngageInternal)
 
         mobileEngageInternal.clearContact(mockCompletionListener)
 
-        inOrder(mobileEngageInternal).run {
+        inOrder(mobileEngageInternal, mockRequestManager).run {
             verify(mobileEngageInternal).clearContact(mockCompletionListener)
             verify(mobileEngageInternal).resetContext()
-            verify(mobileEngageInternal).setContact(null, mockCompletionListener)
+            verify(mockRequestManager).submit(mockRequestModelWithNullContactFieldValue, mockCompletionListener)
             verifyNoMoreInteractions(mobileEngageInternal)
         }
+    }
+
+    @Test
+    fun testClearContact_shouldEndCurrentSession() {
+        whenever(mockSessionIdHolder.sessionId).thenReturn("testSessionId")
+        mobileEngageInternal.clearContact(null)
+
+        verify(mockSession).endSession()
+    }
+
+    @Test
+    fun testClearContact_shouldNotCallEndCurrentSession_whenThereWasNoSessionInProgress() {
+        whenever(mockSessionIdHolder.sessionId).thenReturn(null)
+
+        mobileEngageInternal.clearContact(null)
+
+        verify(mockSession, times(0)).endSession()
     }
 
     @Test

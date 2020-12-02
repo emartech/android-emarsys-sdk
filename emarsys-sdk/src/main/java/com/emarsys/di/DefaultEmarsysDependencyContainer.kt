@@ -107,6 +107,8 @@ import com.emarsys.mobileengage.request.MobileEngageHeaderMapper
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.*
 import com.emarsys.mobileengage.service.RemoteMessageMapper
+import com.emarsys.mobileengage.session.MobileEngageSession
+import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.oneventaction.OnEventAction
@@ -211,6 +213,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
     private fun initializeDependenciesInBackground(application: Application, config: EmarsysConfig) {
         val prefs = application.getSharedPreferences(EMARSYS_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
         val uiHandler = Handler(Looper.getMainLooper())
+        val sessionIdHolder = SessionIdHolder(null)
 
         TimestampProvider().also {
             addDependency(dependencies, it)
@@ -449,14 +452,16 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         }
         val geofenceFilter = GeofenceFilter(GEOFENCE_LIMIT)
         val geofencingClient = GeofencingClient(application)
+        DefaultEventServiceInternal(requestManager, requestModelFactory).also {
+            addDependency(dependencies, it as EventServiceInternal, "defaultInstance")
+        }
+        val mobileEngageSession = MobileEngageSession(getTimestampProvider(), getUuidProvider(), getEventServiceInternal(), sessionIdHolder)
+
         DefaultMessageInboxInternal(requestManager, getRequestContext(), requestModelFactory, uiHandler, MessageInboxResponseMapper()).also {
             addDependency(dependencies, it as MessageInboxInternal, "defaultInstance")
         }
-        DefaultMobileEngageInternal(requestManager, requestModelFactory, getRequestContext()).also {
+        DefaultMobileEngageInternal(requestManager, requestModelFactory, getRequestContext(), mobileEngageSession, sessionIdHolder).also {
             addDependency(dependencies, it as MobileEngageInternal, "defaultInstance")
-        }
-        DefaultEventServiceInternal(requestManager, requestModelFactory).also {
-            addDependency(dependencies, it as EventServiceInternal, "defaultInstance")
         }
         ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getOnEventActionEventHandlerProvider()).also {
             addDependency(dependencies, it, "onEventActionActionCommandFactory")
