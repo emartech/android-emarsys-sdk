@@ -40,6 +40,8 @@ jobs:
           name: google-services.json
           json: ${{ secrets.GOOGLE_SERVICES_JSON }}
           dir: sample
+      - name: setup RELEASE_VERSION
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Create release keystore file
         shell: bash
         run: |
