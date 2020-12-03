@@ -14,8 +14,8 @@ ext {
 
     git.fetch()
 
-    gitVersionName = git.describe()
-    gitVersionCode =  gitVersionCode = (int) ((new Date().getTime() - 1602845230) / 10000)
+    gitVersionName = System.env.RELEASE_VERSION == null ? git.describe() : System.env.RELEASE_VERSION
+    gitVersionCode = gitVersionCode = (int) ((new Date().getTime() - 1602845230) / 10000)
     gitVersionCodeTime = git.head().time
 
     if (git.describe() == null) {
