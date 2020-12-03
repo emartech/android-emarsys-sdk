@@ -40,7 +40,11 @@ jobs:
           name: google-services.json
           json: ${{ secrets.GOOGLE_SERVICES_JSON }}
           dir: sample
-
+      - name: Create release keystore file
+        shell: bash
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE }}" > mobile-team-android.jks.asc
+                    gpg -d --passphrase "${{ secrets.ANDROID_GPG_PASSWORD }}" --batch mobile-team-android.jks.asc > sample/mobile-team-android.jks
       - name: Create file 'FAILURE.TXT' and write 'false' into it
         run: echo 'false' > FAILURE.TXT
 
