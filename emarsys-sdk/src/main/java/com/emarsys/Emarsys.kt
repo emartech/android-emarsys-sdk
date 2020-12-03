@@ -3,6 +3,7 @@ package com.emarsys
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -12,6 +13,7 @@ import com.emarsys.core.api.proxyWithLogExceptions
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
+import com.emarsys.core.app.AppLifecycleObserver
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.trigger.TriggerEvent
@@ -99,13 +101,17 @@ object Emarsys {
             initializeInAppInternal(emarsysConfig)
 
             registerWatchDogs(emarsysConfig)
-
+            registerLifecycleObservers()
             registerDatabaseTriggers()
 
             if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)) {
                 initializeMobileEngageContact()
             }
         }
+    }
+
+    private fun registerLifecycleObservers() {
+        ProcessLifecycleOwner.get().lifecycle.addObserver(getDependency<AppLifecycleObserver>())
     }
 
     @JvmStatic

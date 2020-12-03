@@ -17,6 +17,7 @@ import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.proxyApi
+import com.emarsys.core.app.AppLifecycleObserver
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.connection.ConnectionWatchDog
@@ -458,7 +459,9 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
             addDependency(dependencies, it as EventServiceInternal, "defaultInstance")
         }
         val mobileEngageSession = MobileEngageSession(getTimestampProvider(), getUuidProvider(), getEventServiceInternal(), sessionIdHolder)
-
+        AppLifecycleObserver(mobileEngageSession).also {
+            addDependency(dependencies, it)
+        }
         DefaultMessageInboxInternal(requestManager, getRequestContext(), requestModelFactory, uiHandler, MessageInboxResponseMapper()).also {
             addDependency(dependencies, it as MessageInboxInternal, "defaultInstance")
         }

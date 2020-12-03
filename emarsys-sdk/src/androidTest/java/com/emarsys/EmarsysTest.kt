@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.emarsys.Emarsys.Config.applicationCode
 import com.emarsys.Emarsys.Config.changeApplicationCode
 import com.emarsys.Emarsys.Config.changeMerchantId
@@ -43,6 +44,7 @@ import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
+import com.emarsys.core.app.AppLifecycleObserver
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerType
@@ -177,6 +179,7 @@ class EmarsysTest {
     private lateinit var deviceInfo: DeviceInfo
     private lateinit var latch: CountDownLatch
     private lateinit var predictResultListenerCallback: (Try<List<Product>>) -> Unit
+    private lateinit var mockAppLifecycleObserver: AppLifecycleObserver
 
     @Before
     fun setUp() {
@@ -228,6 +231,7 @@ class EmarsysTest {
             mockLogic = mock()
             mockRecommendationFilter = mock()
             predictResultListenerCallback = mock()
+            mockAppLifecycleObserver = mock()
             whenever(mockNotificationManagerHelper.channelSettings).thenReturn(listOf(ChannelSettings(channelId = "channelId")))
             whenever(mockNotificationManagerHelper.importance).thenReturn(-1000)
             whenever(mockNotificationManagerHelper.areNotificationsEnabled()).thenReturn(false)
@@ -247,6 +251,7 @@ class EmarsysTest {
             whenever(mockDeviceInfoPayloadStorage.get()).thenReturn("deviceInfo.deviceInfoPayload")
 
             DependencyInjection.setup(FakeDependencyContainer(
+                    appLifecycleObserver = mockAppLifecycleObserver,
                     activityLifecycleWatchdog = activityLifecycleWatchdog,
                     currentActivityWatchdog = currentActivityWatchdog,
                     coreSQLiteDatabase = mockCoreSQLiteDatabase,
@@ -1285,6 +1290,7 @@ class EmarsysTest {
     private fun stop() {
         application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
         application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
+        ProcessLifecycleOwner.get().lifecycle.removeObserver(mockAppLifecycleObserver)
         try {
             val handler = getDependency<Handler>("coreSdkHandler")
             val looper: Looper? = handler.looper
