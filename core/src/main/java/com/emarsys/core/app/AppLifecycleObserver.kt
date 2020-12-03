@@ -3,8 +3,10 @@ package com.emarsys.core.app
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import com.emarsys.core.Mockable
 import com.emarsys.core.session.Session
 
+@Mockable
 class AppLifecycleObserver(private val session: Session) : LifecycleObserver {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
