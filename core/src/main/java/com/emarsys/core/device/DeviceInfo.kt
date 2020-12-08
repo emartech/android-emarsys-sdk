@@ -27,7 +27,7 @@ data class DeviceInfo(private val context: Context,
         const val UNKNOWN_VERSION_NAME = "unknown"
     }
 
-    val hwid: String = hardwareIdProvider.provideHardwareId()
+    val hardwareId: String = hardwareIdProvider.provideHardwareId()
     val platform: String = "android"
     val language: String = languageProvider.provideLanguage(Locale.getDefault())
     val timezone: String = SimpleDateFormat("Z", Locale.ENGLISH).format(Calendar.getInstance().time)
@@ -57,7 +57,7 @@ data class DeviceInfo(private val context: Context,
                         "importance" to notificationSettings.importance,
                         "areNotificationsEnabled" to notificationSettings.areNotificationsEnabled()
                 ),
-                "hwid" to hwid,
+                "hwid" to hardwareId,
                 "platform" to platform,
                 "language" to language,
                 "timezone" to timezone,

@@ -7,14 +7,14 @@ import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -37,13 +37,16 @@ class TimestampUtilsTest {
 
     @Before
     fun setup() {
-        mockHardwareIdProvider = Mockito.mock(HardwareIdProvider::class.java)
-        mockLanguageProvider = Mockito.mock(LanguageProvider::class.java)
-        mockVersionProvider = Mockito.mock(VersionProvider::class.java)
-        mockNotificationManagerHelper = Mockito.mock(NotificationManagerHelper::class.java)
-        whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
-        whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn(LANGUAGE)
-        whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
+        mockHardwareIdProvider = mock {
+            on { provideHardwareId() } doReturn HARDWARE_ID
+        }
+        mockLanguageProvider = mock {
+            on { provideLanguage(any()) } doReturn LANGUAGE
+        }
+        mockVersionProvider = mock {
+            on { provideSdkVersion() } doReturn SDK_VERSION
+        }
+        mockNotificationManagerHelper = mock()
     }
 
     @Test

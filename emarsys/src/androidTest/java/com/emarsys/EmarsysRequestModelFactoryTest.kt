@@ -8,13 +8,13 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.mock
 
 class EmarsysRequestModelFactoryTest {
 
@@ -37,23 +37,23 @@ class EmarsysRequestModelFactoryTest {
 
     @Before
     fun setUp() {
-        mockTimeStampProvider = mock(TimestampProvider::class.java).apply {
-            whenever(provideTimestamp()).thenReturn(TIMESTAMP)
+        mockTimeStampProvider = mock {
+            on { provideTimestamp() } doReturn TIMESTAMP
         }
 
-        mockUUIDProvider = mock(UUIDProvider::class.java).apply {
-            whenever(provideId()).thenReturn(REQUEST_ID)
+        mockUUIDProvider = mock {
+            on { provideId() } doReturn REQUEST_ID
         }
 
-        mockDeviceInfo = mock(DeviceInfo::class.java).apply {
-            whenever(hwid).thenReturn(HARDWARE_ID)
+        mockDeviceInfo = mock {
+            on { hardwareId } doReturn HARDWARE_ID
         }
 
-        mockMobileEngageRequestContext = mock(MobileEngageRequestContext::class.java).apply {
-            whenever(timestampProvider).thenReturn(mockTimeStampProvider)
-            whenever(uuidProvider).thenReturn(mockUUIDProvider)
-            whenever(deviceInfo).thenReturn(mockDeviceInfo)
-            whenever(applicationCode).thenReturn(APPLICATION_CODE)
+        mockMobileEngageRequestContext = mock {
+            on { timestampProvider } doReturn mockTimeStampProvider
+            on { uuidProvider } doReturn mockUUIDProvider
+            on { deviceInfo } doReturn mockDeviceInfo
+            on { applicationCode } doReturn APPLICATION_CODE
         }
 
         requestFactory = EmarsysRequestModelFactory(mockMobileEngageRequestContext)

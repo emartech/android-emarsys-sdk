@@ -510,7 +510,7 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testGetHardwareId_shouldReturnHWIDFromDeviceInfo() {
-        whenever(mockDeviceInfo.hwid).thenReturn("testHardwareId")
+        whenever(mockDeviceInfo.hardwareId).thenReturn("testHardwareId")
         val result = configInternal.hardwareId
         result shouldBe "testHardwareId"
     }

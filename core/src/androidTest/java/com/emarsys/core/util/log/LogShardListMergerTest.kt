@@ -9,6 +9,8 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.testUtil.RandomTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -39,19 +41,20 @@ class LogShardListMergerTest {
 
     @Before
     fun setUp() {
-        timestampProvider = Mockito.mock(TimestampProvider::class.java)
+        timestampProvider = mock()
         whenever(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
 
-        uuidProvider = Mockito.mock(UUIDProvider::class.java)
+        uuidProvider = mock()
         whenever(uuidProvider.provideId()).thenReturn(ID)
 
-        deviceInfo = Mockito.mock(DeviceInfo::class.java)
-        whenever(deviceInfo.platform).thenReturn("android")
-        whenever(deviceInfo.applicationVersion).thenReturn("1.0.0")
-        whenever(deviceInfo.osVersion).thenReturn("8.0")
-        whenever(deviceInfo.model).thenReturn("Pixel")
-        whenever(deviceInfo.hwid).thenReturn("hardwareId")
-        whenever(deviceInfo.sdkVersion).thenReturn("1.6.1")
+        deviceInfo = mock {
+            on { platform } doReturn "android"
+            on { applicationVersion } doReturn "1.0.0"
+            on { osVersion } doReturn "8.0"
+            on { model } doReturn "Pixel"
+            on { hardwareId } doReturn "hardwareId"
+            on { sdkVersion } doReturn "1.6.1"
+        }
 
         merger = LogShardListMerger(timestampProvider, uuidProvider, deviceInfo, APPLICATION_CODE, MERCHANT_ID)
     }

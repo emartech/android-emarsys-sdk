@@ -2,6 +2,7 @@ package com.emarsys.core.provider.hardwareid
 
 import android.content.Context
 import android.provider.Settings
+import com.emarsys.core.app.FirstAppStartContainer
 import com.emarsys.core.storage.Storage
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
@@ -49,16 +50,18 @@ class HardwareIdProviderTest {
     private lateinit var mockStorage: Storage<String>
     private lateinit var hardwareIdProvider: HardwareIdProvider
     private lateinit var mockFirebaseInstanceId: FirebaseInstanceId
+    private lateinit var mockFirstAppStartContainer: FirstAppStartContainer
 
     @Before
-    fun init() {
+    fun setUp() {
         context = InstrumentationRegistry.getTargetContext()
         mockStorage = mock()
 
         mockFirebaseInstanceId = mock {
             on { id } doReturn FIREBASE_HARDWARE_ID
         }
-        hardwareIdProvider = HardwareIdProvider(context, mockFirebaseInstanceId, mockStorage)
+        mockFirstAppStartContainer = mock()
+        hardwareIdProvider = HardwareIdProvider(context, mockFirebaseInstanceId, mockStorage, mockFirstAppStartContainer)
     }
 
     @Test
@@ -69,12 +72,14 @@ class HardwareIdProviderTest {
 
         verify(mockStorage).get()
         result shouldBe HARDWARE_ID
+        verifyZeroInteractions(mockFirstAppStartContainer)
     }
 
     @Test
     fun testProvideHardwareId_shouldGetHardwareId_fromFirebase_ifNotExists() {
         val result = hardwareIdProvider.provideHardwareId()
         result shouldBe FIREBASE_HARDWARE_ID
+        verify(mockFirstAppStartContainer).firstAppStart = true
     }
 
     @Test
@@ -91,11 +96,12 @@ class HardwareIdProviderTest {
         mockFirebaseInstanceId = mock {
             on { id } doReturn ""
         }
-        hardwareIdProvider = HardwareIdProvider(context, mockFirebaseInstanceId, mockStorage)
+        hardwareIdProvider = HardwareIdProvider(context, mockFirebaseInstanceId, mockStorage, mockFirstAppStartContainer)
 
         val result = hardwareIdProvider.provideHardwareId()
 
         verifyZeroInteractions(mockContext)
         result shouldBe expectedHardwareId
+        verify(mockFirstAppStartContainer).firstAppStart = true
     }
 }

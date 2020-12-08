@@ -13,7 +13,7 @@ public class RequestHeaderUtils {
         Assert.notNull(requestContext, "RequestContext must not be null!");
 
         Map<String, String> baseHeaders = new HashMap<>();
-        baseHeaders.put("X-Client-Id", requestContext.getDeviceInfo().getHwid());
+        baseHeaders.put("X-Client-Id", requestContext.getDeviceInfo().getHardwareId());
         return baseHeaders;
     }
 
@@ -41,7 +41,7 @@ public class RequestHeaderUtils {
 
         Map<String, String> headers = new HashMap<>();
 
-        headers.put("x-ems-me-hardware-id", requestContext.getDeviceInfo().getHwid());
+        headers.put("x-ems-me-hardware-id", requestContext.getDeviceInfo().getHardwareId());
         headers.put("x-ems-me-application-code", requestContext.getApplicationCode());
         headers.put("x-ems-me-contact-field-id", String.valueOf(requestContext.getContactFieldId()));
         headers.put("x-ems-me-contact-field-value", requestContext.getContactFieldValueStorage().get());

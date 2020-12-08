@@ -12,7 +12,7 @@ object RequestPayloadUtils {
     fun createBasePayload(requestContext: MobileEngageRequestContext): MutableMap<String, Any?> {
         val payload: MutableMap<String, Any?> = mutableMapOf(
                 "application_id" to requestContext.applicationCode,
-                "hardware_id" to requestContext.deviceInfo.hwid
+                "hardware_id" to requestContext.deviceInfo.hardwareId
         )
         if (requestContext.contactFieldValueStorage.get() != null) {
             payload["contact_field_id"] = requestContext.contactFieldId

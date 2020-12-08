@@ -18,6 +18,7 @@ import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.proxyApi
 import com.emarsys.core.app.AppLifecycleObserver
+import com.emarsys.core.app.FirstAppStartContainer
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.connection.ConnectionWatchDog
@@ -296,7 +297,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         }
         val languageProvider = LanguageProvider()
         val fii = FirebaseInstanceId.getInstance()
-        val hardwareIdProvider = HardwareIdProvider(application, fii, hardwareIdStorage)
+        val firstAppStartContainer = FirstAppStartContainer()
+        val hardwareIdProvider = HardwareIdProvider(application, fii, hardwareIdStorage, firstAppStartContainer)
         val versionProvider = VersionProvider()
         val notificationManager = application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationManagerCompat = NotificationManagerCompat.from(application)

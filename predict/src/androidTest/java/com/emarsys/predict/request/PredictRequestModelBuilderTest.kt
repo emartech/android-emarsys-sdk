@@ -80,7 +80,7 @@ class PredictRequestModelBuilderTest {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)
         }
         mockDeviceInfo = mock(DeviceInfo::class.java).apply {
-            whenever(hwid).thenReturn(HARDWARE_ID)
+            whenever(hardwareId).thenReturn(HARDWARE_ID)
         }
 
         mockRequestContext = mock(PredictRequestContext::class.java).apply {

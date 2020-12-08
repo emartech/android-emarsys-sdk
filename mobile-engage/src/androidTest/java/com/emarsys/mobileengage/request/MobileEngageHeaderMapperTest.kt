@@ -13,12 +13,13 @@ import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.mock
 
 class MobileEngageHeaderMapperTest {
 
@@ -55,49 +56,49 @@ class MobileEngageHeaderMapperTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        mockClientServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
-            whenever(provideEndpointHost()).thenReturn(CLIENT_HOST)
+        mockClientServiceProvider = mock {
+            on { provideEndpointHost() } doReturn CLIENT_HOST
         }
 
-        mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
-            whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
+        mockEventServiceProvider = mock {
+            on { provideEndpointHost() } doReturn EVENT_HOST
         }
 
-        mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
-            whenever(provideEndpointHost()).thenReturn(INBOX_HOST)
+        mockMessageInboxServiceProvider = mock {
+            on { provideEndpointHost() } doReturn INBOX_HOST
         }
 
-        mockClientStateStorage = (mock(StringStorage::class.java)).apply {
-            whenever(get()).thenReturn(CLIENT_STATE)
+        mockClientStateStorage = mock {
+            on { get() } doReturn CLIENT_STATE
         }
 
-        mockContactTokenStorage = (mock(StringStorage::class.java)).apply {
-            whenever(get()).thenReturn(CONTACT_TOKEN)
+        mockContactTokenStorage = mock {
+            on { get() } doReturn CONTACT_TOKEN
         }
 
-        mockRefreshTokenStorage = (mock(StringStorage::class.java)).apply {
-            whenever(get()).thenReturn(REFRESH_TOKEN)
+        mockRefreshTokenStorage = mock {
+            on { get() } doReturn REFRESH_TOKEN
         }
 
-        mockDeviceInfo = mock(DeviceInfo::class.java).apply {
-            whenever(hwid).thenReturn(HARDWARE_ID)
+        mockDeviceInfo = mock {
+            on { hardwareId } doReturn HARDWARE_ID
         }
 
-        mockUuidProvider = mock(UUIDProvider::class.java).apply {
-            whenever(provideId()).thenReturn(REQUEST_ID)
+        mockUuidProvider = mock {
+            on { provideId() } doReturn REQUEST_ID
         }
-        mockTimestampProvider = mock(TimestampProvider::class.java).apply {
-            whenever(provideTimestamp()).thenReturn(TIMESTAMP)
+        mockTimestampProvider = mock {
+            on { provideTimestamp() } doReturn TIMESTAMP
         }
 
-        mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
-            whenever(applicationCode).thenReturn(APPLICATION_CODE)
-            whenever(timestampProvider).thenReturn(mockTimestampProvider)
-            whenever(uuidProvider).thenReturn(mockUuidProvider)
-            whenever(deviceInfo).thenReturn(mockDeviceInfo)
-            whenever(clientStateStorage).thenReturn(mockClientStateStorage)
-            whenever(contactTokenStorage).thenReturn(mockContactTokenStorage)
-            whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
+        mockRequestContext = mock {
+            on { applicationCode } doReturn APPLICATION_CODE
+            on { timestampProvider } doReturn mockTimestampProvider
+            on { uuidProvider } doReturn mockUuidProvider
+            on { deviceInfo } doReturn mockDeviceInfo
+            on { clientStateStorage } doReturn mockClientStateStorage
+            on { contactTokenStorage } doReturn mockContactTokenStorage
+            on { refreshTokenStorage } doReturn mockRefreshTokenStorage
         }
 
         mobileEngageHeaderMapper = MobileEngageHeaderMapper(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)

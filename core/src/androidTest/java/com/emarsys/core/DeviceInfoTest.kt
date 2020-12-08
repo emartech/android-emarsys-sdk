@@ -18,6 +18,9 @@ import com.emarsys.testUtil.ApplicationTestUtils.applicationRelease
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldBe
@@ -28,7 +31,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import java.util.*
 
@@ -57,13 +59,17 @@ class DeviceInfoTest {
         tz = TimeZone.getTimeZone("Asia/Tokyo")
         TimeZone.setDefault(tz)
         context = getTargetContext().applicationContext
-        mockHardwareIdProvider = Mockito.mock(HardwareIdProvider::class.java)
-        mockLanguageProvider = Mockito.mock(LanguageProvider::class.java)
-        mockVersionProvider = Mockito.mock(VersionProvider::class.java)
-        mockNotificationManagerHelper = Mockito.mock(NotificationSettings::class.java)
-        whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
-        whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn(LANGUAGE)
-        whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
+        mockHardwareIdProvider = mock {
+            on { provideHardwareId() } doReturn HARDWARE_ID
+        }
+        mockLanguageProvider = mock {
+            on { provideLanguage(any()) } doReturn LANGUAGE
+        }
+        mockVersionProvider = mock {
+            on { provideSdkVersion() } doReturn SDK_VERSION
+        }
+        mockNotificationManagerHelper = mock()
+
         deviceInfo = DeviceInfo(context, mockHardwareIdProvider, mockVersionProvider,
                 mockLanguageProvider, mockNotificationManagerHelper, true)
     }
@@ -76,7 +82,7 @@ class DeviceInfoTest {
     @Test
     fun testConstructor_initializesFields() {
         with(deviceInfo) {
-            hwid shouldNotBe null
+            hardwareId shouldNotBe null
             platform shouldNotBe null
             language shouldNotBe null
             timezone shouldNotBe null
@@ -149,7 +155,7 @@ class DeviceInfoTest {
     @Test
     fun testHardwareId_isAcquiredFromHardwareIdProvider() {
         Mockito.verify(mockHardwareIdProvider).provideHardwareId()
-        HARDWARE_ID shouldBe deviceInfo.hwid
+        HARDWARE_ID shouldBe deviceInfo.hardwareId
     }
 
     @Test

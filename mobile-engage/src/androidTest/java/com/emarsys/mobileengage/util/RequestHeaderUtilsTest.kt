@@ -36,7 +36,7 @@ class RequestHeaderUtilsTest {
     fun setUp() {
 
         mockDeviceInfo = mock(DeviceInfo::class.java).apply {
-            whenever(hwid).thenReturn(HARDWARE_ID)
+            whenever(hardwareId).thenReturn(HARDWARE_ID)
             whenever(sdkVersion).thenReturn(SDK_VERSION)
         }
 

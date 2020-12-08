@@ -88,7 +88,7 @@ class MobileEngageRequestModelFactoryTest {
             on { provideTimestamp() } doReturn TIMESTAMP
         }
         mockDeviceInfo = mock {
-            on { hwid } doReturn HARDWARE_ID
+            on { hardwareId } doReturn HARDWARE_ID
             on { isDebugMode } doReturn true
             on { notificationSettings } doReturn mockNotificationSettings
         }

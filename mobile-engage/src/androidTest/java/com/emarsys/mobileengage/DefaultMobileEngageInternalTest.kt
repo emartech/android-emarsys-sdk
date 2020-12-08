@@ -94,7 +94,7 @@ class DefaultMobileEngageInternalTest {
         }
 
         mockDeviceInfo = mock(DeviceInfo::class.java).apply {
-            whenever(hwid).thenReturn(HARDWARE_ID)
+            whenever(hardwareId).thenReturn(HARDWARE_ID)
             whenever(platform).thenReturn(PLATFORM)
             whenever(applicationVersion).thenReturn(APPLICATION_VERSION)
             whenever(model).thenReturn(DEVICE_MODEL)

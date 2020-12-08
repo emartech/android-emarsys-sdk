@@ -15,13 +15,14 @@ import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.testUtil.RandomMETestUtils
 import com.emarsys.testUtil.RandomTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.mock
 
 class RequestPayloadUtilsTest {
     private companion object {
@@ -73,47 +74,48 @@ class RequestPayloadUtilsTest {
                         isShouldVibrate = true),
                 ChannelSettings(channelId = CHANNEL_ID_2,
                         importance = IMPORTANCE))
-        mockNotificationSettings = mock(NotificationSettings::class.java).apply {
-            whenever(areNotificationsEnabled()).thenReturn(ARE_NOTIFICATIONS_ENABLED)
-            whenever(importance).thenReturn(IMPORTANCE)
-            whenever(channelSettings).thenReturn(mockChannelSettings)
+        mockNotificationSettings = mock {
+            on { areNotificationsEnabled() } doReturn ARE_NOTIFICATIONS_ENABLED
+            on { importance } doReturn IMPORTANCE
+            on { channelSettings } doReturn mockChannelSettings
         }
 
-        mockDeviceInfo = mock(DeviceInfo::class.java).apply {
-            whenever(platform).thenReturn(PLATFORM)
-            whenever(applicationVersion).thenReturn(APPLICATION_VERSION)
-            whenever(model).thenReturn(DEVICE_MODEL)
-            whenever(osVersion).thenReturn(OS_VERSION)
-            whenever(sdkVersion).thenReturn(SDK_VERSION)
-            whenever(language).thenReturn(LANGUAGE)
-            whenever(timezone).thenReturn(TIMEZONE)
-            whenever(hwid).thenReturn(HARDWARE_ID)
-            whenever(notificationSettings).thenReturn(mockNotificationSettings)
+        mockDeviceInfo = mock {
+            on { platform } doReturn PLATFORM
+            on { applicationVersion } doReturn APPLICATION_VERSION
+            on { model } doReturn DEVICE_MODEL
+            on { osVersion } doReturn OS_VERSION
+            on { sdkVersion } doReturn SDK_VERSION
+            on { language } doReturn LANGUAGE
+            on { timezone } doReturn TIMEZONE
+            on { hardwareId } doReturn HARDWARE_ID
+            on { notificationSettings } doReturn mockNotificationSettings
         }
 
-        mockTimestampProvider = mock(TimestampProvider::class.java).apply {
-            whenever(provideTimestamp()).thenReturn(TIMESTAMP)
+        mockTimestampProvider = mock {
+            on { provideTimestamp() } doReturn TIMESTAMP
         }
 
-        mockRefreshTokenStorage = (mock(StringStorage::class.java)).apply {
-            whenever(get()).thenReturn(REFRESH_TOKEN)
+        mockRefreshTokenStorage = mock {
+            on { get() } doReturn REFRESH_TOKEN
         }
-        mockContactFieldValueStorage = mock(StringStorage::class.java)
+        mockContactFieldValueStorage = mock()
 
-        mockSessionIdHolder = mock(SessionIdHolder::class.java).apply {
-            whenever(sessionId).thenReturn(SESSION_ID)
+        mockSessionIdHolder = mock {
+            on { sessionId } doReturn SESSION_ID
         }
 
-        mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
-            whenever(applicationCode).thenReturn(APPLICATION_CODE)
-            whenever(deviceInfo).thenReturn(mockDeviceInfo)
-            whenever(contactFieldId).thenReturn(CONTACT_FIELD_ID)
-            whenever(timestampProvider).thenReturn(mockTimestampProvider)
-            whenever(refreshTokenStorage).thenReturn(mockRefreshTokenStorage)
-            whenever(contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
-            whenever(sessionIdHolder).thenReturn(mockSessionIdHolder)
+        mockRequestContext = mock {
+            on { applicationCode } doReturn APPLICATION_CODE
+            on { deviceInfo } doReturn mockDeviceInfo
+            on { contactFieldId } doReturn (CONTACT_FIELD_ID)
+            on { timestampProvider } doReturn mockTimestampProvider
+            on { refreshTokenStorage } doReturn mockRefreshTokenStorage
+            on { contactFieldValueStorage } doReturn mockContactFieldValueStorage
+            on { sessionIdHolder } doReturn mockSessionIdHolder
         }
     }
+
 
     @Test
     fun testCreateBasePayload_shouldReturnTheCorrectPayload_withoutLogin() {
