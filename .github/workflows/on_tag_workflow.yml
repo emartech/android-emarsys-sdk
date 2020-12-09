@@ -16,9 +16,9 @@ env:
   SLACK_ICON: https://icons.iconarchive.com/icons/martz90/circle/256/android-icon.png
   SLACK_TITLE: New SDK Release
   SLACK_USERNAME: Emarsys SDK - Android
-  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
   BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+  EXCLUDE_GOOGLE_SERVICES_API_KEY: true
 
 jobs:
   Release:
@@ -149,10 +149,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.RELEASE_VERSION }}
-          release_name: Release ${{ github.ref }}
+          release_name: ${{ github.ref }}
           body_path: changelog.md
           draft: false
-          prerelease: true
+          prerelease: false
 
       - name: Create file 'FAILURE.TXT' and write 'true' into it
         if: ${{ failure() }}
@@ -174,6 +174,8 @@ jobs:
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Slack Notification - CI
         uses: megamegax/slack_action@0.1.25
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_MOBILE_TEAM_CI_CHANNEL_WEBHOOK }}
         with:
           channel: '${{env.SLACK_CHANNEL}}'
           message: 'Emarsys SDK ${{env.RELEASE_VERSION}} has been released! :man-gesturing-ok: :bananadance:'
@@ -183,6 +185,8 @@ jobs:
           actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" },{ "type": "button", "text": "Install page", "url": "http://ems-mobileteam-artifacts.s3-website-eu-west-1.amazonaws.com/index-ems.html" }]'
       - name: Slack Notification - SDK Channel
         uses: megamegax/slack_action@0.1.25
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_TEAM_MOBILE_SDK_CHANNEL_WEBHOOK }}
         with:
           channel: 'team-mobile-sdk'
           message: 'Emarsys SDK ${{env.RELEASE_VERSION}} has been released! :man-gesturing-ok: :bananadance:'
@@ -192,6 +196,8 @@ jobs:
           actioíns: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" },{ "type": "button", "text": "Install page", "url": "http://ems-mobileteam-artifacts.s3-website-eu-west-1.amazonaws.com/index-ems.html" }]'
       - name: Slack Notification - Mobile Apps Channel
         uses: megamegax/slack_action@0.1.25
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_MOBILE_APPS_CHANNEL_WEBHOOK }}
         with:
           channel: 'mobile-apps'
           message: 'Emarsys SDK ${{env.RELEASE_VERSION}} has been released! :man-gesturing-ok: :bananadance:'
@@ -226,10 +232,9 @@ jobs:
       - name: prepare to revert release
         if: steps.set_output.outputs.FAILURE == 'true'
         run: chmod +x revoke.sh
-      - name: Revert release
-        if: steps.set_output.outputs.FAILURE == 'true'
-        run: sh ./revoke.sh '${{env.RELEASE_VERSION}}'
       - name: Slack Notification
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         if: steps.set_output.outputs.FAILURE == 'true'
         uses: megamegax/slack_action@0.1.25
         with:
