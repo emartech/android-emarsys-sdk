@@ -423,7 +423,7 @@ jobs:
     needs: [ReleaseSample]
     steps:
       - name: Slack Notification
-        uses: megamegax/slack_action@0.1.25
+        uses: megamegax/slack_action@0.1.27
         with:
           channel: '${{env.SLACK_CHANNEL}}'
           message: 'Nightly build successful! :man-gesturing-ok: :bananadance:'
@@ -455,7 +455,7 @@ jobs:
 
       - name: Slack Notification
         if: steps.set_output.outputs.FAILURE == 'true'
-        uses: megamegax/slack_action@0.1.25
+        uses: megamegax/slack_action@0.1.27
         with:
           channel: '${{env.SLACK_CHANNEL}}'
           message: 'Nightly build failed! :man-gesturing-no: :blobcatfearful:'
