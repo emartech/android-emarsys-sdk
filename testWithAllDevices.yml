@@ -7,11 +7,11 @@ core-api:
       version: 21
       locale: 'en'
       orientation: portrait
-    - model: Nexus 10
+    - model: Nexus10
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: SM-G920F
+    - model: zeroflte
       version: 23
       locale: 'en'
       orientation: portrait
@@ -45,11 +45,11 @@ core:
       version: 21
       locale: 'en'
       orientation: portrait
-    - model: Nexus 10
+    - model: Nexus10
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: SM-G920F
+    - model: zeroflte
       version: 23
       locale: 'en'
       orientation: portrait
@@ -83,11 +83,11 @@ mobile-engage-api:
       version: 21
       locale: 'en'
       orientation: portrait
-    - model: Nexus 10
+    - model: Nexus10
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: SM-G920F
+    - model: zeroflte
       version: 23
       locale: 'en'
       orientation: portrait
@@ -121,11 +121,11 @@ mobile-engage:
       version: 21
       locale: 'en'
       orientation: portrait
-    - model: Nexus 10
+    - model: Nexus10
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: SM-G920F
+    - model: zeroflte
       version: 23
       locale: 'en'
       orientation: portrait
@@ -159,11 +159,11 @@ predict-api:
       version: 21
       locale: 'en'
       orientation: portrait
-    - model: Nexus 10
+    - model: Nexus10
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: SM-G920F
+    - model: zeroflte
       version: 23
       locale: 'en'
       orientation: portrait
@@ -197,11 +197,11 @@ predict:
       version: 21
       locale: 'en'
       orientation: portrait
-    - model: Nexus 10
+    - model: Nexus10
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: SM-G920F
+    - model: zeroflte
       version: 23
       locale: 'en'
       orientation: portrait
@@ -235,11 +235,11 @@ emarsys-sdk:
       version: 21
       locale: 'en'
       orientation: portrait
-    - model: Nexus 10
+    - model: Nexus10
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: SM-G920F
+    - model: zeroflte
       version: 23
       locale: 'en'
       orientation: portrait
@@ -273,11 +273,11 @@ emarsys:
       version: 21
       locale: 'en'
       orientation: portrait
-    - model: Nexus 10
+    - model: Nexus10
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: SM-G920F
+    - model: zeroflte
       version: 23
       locale: 'en'
       orientation: portrait
