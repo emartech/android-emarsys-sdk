@@ -87,7 +87,7 @@ object IntegrationTestUtils {
         return result!!
     }
 
-    fun retry(times: Int = 6, timeout: Long = 1000, action: () -> Unit) {
+    fun retry(times: Int = 15, timeout: Long = 1000, action: () -> Unit) {
         try {
             action.invoke()
         } catch (e: Throwable) {

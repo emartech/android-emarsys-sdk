@@ -17,7 +17,7 @@ import java.util.concurrent.CountDownLatch
 
 class EmarsysE2ETests {
 
-    private companion object {
+    companion object {
         private const val OLD_APPLICATION_CODE = "14C19-A121F"
         private const val APPLICATION_CODE = "EMS11-C3FD3"
         private const val CONTACT_FIELD_ID = 2575
@@ -76,7 +76,7 @@ class EmarsysE2ETests {
         val timestamp = System.currentTimeMillis()
         trackCustomEvent(title, timestamp)
 
-        retry(times = 10, timeout = 2000) {
+        retry {
             val message = fetchMessage(title, timestamp)
             message shouldNotBe null
         }
