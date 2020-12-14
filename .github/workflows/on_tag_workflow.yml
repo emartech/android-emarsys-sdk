@@ -173,7 +173,7 @@ jobs:
       - name: setup RELEASE_VERSION
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Slack Notification - CI
-        uses: megamegax/slack_action@0.2.1
+        uses: megamegax/slack_action@0.2.2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_MOBILE_TEAM_CI_CHANNEL_WEBHOOK }}
         with:
@@ -184,7 +184,7 @@ jobs:
           user_icon: '${{env.SLACK_ICON}}'
           actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" },{ "type": "button", "text": "Install page", "url": "http://ems-mobileteam-artifacts.s3-website-eu-west-1.amazonaws.com/index-ems.html" }]'
       - name: Slack Notification - SDK Channel
-        uses: megamegax/slack_action@0.2.1
+        uses: megamegax/slack_action@0.2.2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_TEAM_MOBILE_SDK_CHANNEL_WEBHOOK }}
         with:
@@ -195,7 +195,7 @@ jobs:
           user_icon: '${{env.SLACK_ICON}}'
           actioíns: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" },{ "type": "button", "text": "Install page", "url": "http://ems-mobileteam-artifacts.s3-website-eu-west-1.amazonaws.com/index-ems.html" }]'
       - name: Slack Notification - Mobile Apps Channel
-        uses: megamegax/slack_action@0.2.1
+        uses: megamegax/slack_action@0.2.2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_MOBILE_APPS_CHANNEL_WEBHOOK }}
         with:
@@ -236,7 +236,7 @@ jobs:
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         if: steps.set_output.outputs.FAILURE == 'true'
-        uses: megamegax/slack_action@0.2.1
+        uses: megamegax/slack_action@0.2.2
         with:
           channel: '${{env.SLACK_CHANNEL}}'
           message: 'Build failed! :man-gesturing-no: :blobcatfearful:'
