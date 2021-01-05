@@ -459,7 +459,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
             addDependency(dependencies, it as EventServiceInternal, "defaultInstance")
         }
         val mobileEngageSession = MobileEngageSession(getTimestampProvider(), getUuidProvider(), getEventServiceInternal(), sessionIdHolder)
-        AppLifecycleObserver(mobileEngageSession).also {
+        AppLifecycleObserver(mobileEngageSession, getCoreSdkHandler()).also {
             addDependency(dependencies, it)
         }
         DefaultMessageInboxInternal(requestManager, getRequestContext(), requestModelFactory, uiHandler, MessageInboxResponseMapper()).also {
