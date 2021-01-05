@@ -10,6 +10,9 @@ import android.location.LocationManager
 import android.os.Build
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.concurrency.CoreSdkHandler
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
@@ -17,6 +20,7 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.EventHandlerProvider
+import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.fake.FakeRequestManager
 import com.emarsys.mobileengage.geofence.model.*
 import com.emarsys.mobileengage.notification.ActionCommandFactory
@@ -96,6 +100,8 @@ class DefaultGeofenceInternalTest {
         mockGeofenceFilter = mock()
         mockLocation = mock()
         mockGeofencingClient = mock()
+
+        DependencyInjection.setup(FakeMobileEngageDependencyContainer())
 
         mockContext = mock()
         mockActionCommandFactory = mock()
