@@ -234,7 +234,7 @@ jobs:
         run: chmod +x revoke.sh
       - name: Slack Notification
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_MOBILE_TEAM_CI_CHANNEL_WEBHOOK }}
         if: steps.set_output.outputs.FAILURE == 'true'
         uses: megamegax/slack_action@0.2.2
         with:
