@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CoreDbHelper extends AbstractDbHelper {
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
     public static final String DATABASE_NAME = "EmarsysCore.db";
 
     public CoreDbHelper(Context context, Map<TriggerKey, List<Runnable>> triggerMap) {
@@ -24,8 +24,8 @@ public class CoreDbHelper extends AbstractDbHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        for (int i = oldVersion; i<newVersion; ++i){
-            for (String sqlCommand:DatabaseContract.MIGRATION[i]) {
+        for (int i = oldVersion; i < newVersion; ++i) {
+            for (String sqlCommand : DatabaseContract.MIGRATION[i]) {
                 db.execSQL(sqlCommand);
             }
         }

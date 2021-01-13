@@ -9,6 +9,7 @@ public final class DatabaseContract {
     public static final String SHARD_TABLE_NAME = "shard";
     public static final String DISPLAYED_IAM_TABLE_NAME = "displayed_iam";
     public static final String BUTTON_CLICKED_TABLE_NAME = "button_clicked";
+    public static final String HARDWARE_INFORMATION_TABLE_NAME = "hardware";
 
     public static final String REQUEST_COLUMN_NAME_REQUEST_ID = "request_id";
     public static final String REQUEST_COLUMN_NAME_METHOD = "method";
@@ -30,6 +31,8 @@ public final class DatabaseContract {
     public static final String BUTTON_CLICKED_COLUMN_NAME_CAMPAIGN_ID = "campaign_id";
     public static final String BUTTON_CLICKED_COLUMN_NAME_BUTTON_ID = "button_id";
     public static final String BUTTON_CLICKED_COLUMN_NAME_TIMESTAMP = "timestamp";
+
+    public static final String HARDWARE_COLUMN_NAME_HARDWARE_ID = "hardware_id";
 
     public static final String[] UPGRADE_TO_1 = {
             "CREATE TABLE IF NOT EXISTS request (" +
@@ -78,10 +81,19 @@ public final class DatabaseContract {
             UPGRADE_TO_4_CREATE_TABLE_BUTTON_CLICKED
     };
 
+    private static final String UPGRADE_TO_5_CREATE_TABLE_SHARED_HW_ID =
+            "CREATE TABLE IF NOT EXISTS hardware (" +
+                    "hardware_id TEXT);";
+
+    public static final String[] UPGRADE_TO_5 = {
+            UPGRADE_TO_5_CREATE_TABLE_SHARED_HW_ID
+    };
+
     public static final String[][] MIGRATION = {
             UPGRADE_TO_1,
             UPGRADE_TO_2,
             UPGRADE_TO_3,
-            UPGRADE_TO_4
+            UPGRADE_TO_4,
+            UPGRADE_TO_5
     };
 }

@@ -16,7 +16,7 @@ import org.junit.rules.TestRule
 class CoreDbHelperTest {
 
     companion object {
-        const val LATEST_DB_VERSION = 4
+        const val LATEST_DB_VERSION = 5
     }
 
     @Rule
@@ -170,6 +170,22 @@ class CoreDbHelperTest {
     }
 
     @Test
+    fun testOnUpgrade_from_4_to_5() {
+        initializeDatabaseWithVersion(4)
+
+        dbHelper.onUpgrade(db, 4, 5)
+
+        val expectedColumns = setOf(
+                ColumnInfo("hardware_id", "TEXT")
+        )
+
+
+        val actualColumns = getTableColumns(db, "hardware")
+
+        actualColumns shouldBe expectedColumns
+    }
+
+    @Test
     fun testOnCreate_indices_withLatestVersion() {
         initializeDatabaseWithVersion(LATEST_DB_VERSION)
 
@@ -194,6 +210,12 @@ class CoreDbHelperTest {
         }
 
         "button_clicked".let {
+            val indexedColumns = getIndexedColumnsOnTable(db, it)
+
+            indexedColumns.size shouldBe 0
+        }
+
+        "hardware".let {
             val indexedColumns = getIndexedColumnsOnTable(db, it)
 
             indexedColumns.size shouldBe 0
