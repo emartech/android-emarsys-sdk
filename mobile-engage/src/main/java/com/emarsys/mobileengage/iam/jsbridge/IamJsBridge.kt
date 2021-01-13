@@ -52,6 +52,10 @@ class IamJsBridge(
     @JavascriptInterface
     fun openExternalLink(jsonString: String) {
         handleJsBridgeEvent(jsonString, "url") { property, json ->
+            val keepInAppOpen = json.optBoolean("keepInAppOpen", false)
+            if (!keepInAppOpen) {
+                jsCommandFactory.create(CommandType.ON_CLOSE).invoke(null, JSONObject())
+            }
             jsCommandFactory.create(CommandType.ON_OPEN_EXTERNAL_URL).invoke(property, json)
             null
         }

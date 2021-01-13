@@ -104,15 +104,49 @@ class IamJsBridgeTest {
     }
 
     @Test
-    fun testOnOpenExternalUrlEvent_shouldInvokeOnAppEventListener_createdByFactory() {
+    fun testOnOpenExternalUrlEvent_shouldCreateOnCloseAndOpenExternalUrlCommands_then_InvokeOnExternalUrlListenerAndOnCloseListener() {
         val json = JSONObject(mapOf(
                 "id" to "testId",
                 "buttonId" to "testButtonId",
                 "name" to "testName",
-                "url" to "https://www.index.hu"))
+                "url" to "https://emarsys.com",
+                "keepInAppOpen" to false))
+        jsBridge.openExternalLink(json.toString())
+
+        verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_CLOSE)
+        verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
+        verify(mockOnCloseListener).invoke(isNull(), any())
+        verify(mockOnOpenExternalUrlListener).invoke(anyOrNull(), any())
+    }
+
+    @Test
+    fun testOnOpenExternalUrlEvent_shouldCreateOnCloseCommand_whenNokeepInAppOpenIsInJson() {
+        val json = JSONObject(mapOf(
+                "id" to "testId",
+                "buttonId" to "testButtonId",
+                "name" to "testName",
+                "url" to "https://emarsys.com"))
+        jsBridge.openExternalLink(json.toString())
+
+        verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_CLOSE)
+        verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
+        verify(mockOnCloseListener).invoke(isNull(), any())
+        verify(mockOnOpenExternalUrlListener).invoke(anyOrNull(), any())
+    }
+
+    @Test
+    fun testOnOpenExternalUrlEvent_shouldNotCreateAndInvokeCloseCommand_whenkeepInAppOpenIsTrueInJson() {
+        val json = JSONObject(mapOf(
+                "id" to "testId",
+                "buttonId" to "testButtonId",
+                "name" to "testName",
+                "url" to "https://emarsys.com",
+                "keepInAppOpen" to true))
         jsBridge.openExternalLink(json.toString())
 
         verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
+        verifyNoMoreInteractions(mockJsCommandFactory)
+        verifyZeroInteractions(mockOnCloseListener)
         verify(mockOnOpenExternalUrlListener).invoke(anyOrNull(), any())
     }
 
@@ -153,12 +187,13 @@ class IamJsBridgeTest {
     @Test
     fun testOpenExternalLink_shouldInvokeCallback_onSuccess() {
         val id = "12346789"
-        val url = "https://www.index.hu"
-        val json = JSONObject().put("id", id).put("url", url)
+        val url = "https://emarsys.com"
+        val json = JSONObject().put("id", id).put("url", url).put("keepInAppOpen", false)
         jsBridge.openExternalLink(json.toString())
         val result = JSONObject()
                 .put("id", id)
                 .put("success", true)
+
         verify(mockWebView, timeout(1000)).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
     }
 
@@ -206,7 +241,7 @@ class IamJsBridgeTest {
     @Test
     fun testOpenExternalLink_shouldInvokeCallback_whenUrlIsMissing() {
         val id = "12346789"
-        val json = JSONObject().put("id", id)
+        val json = JSONObject().put("id", id).put("keepInAppOpen", false)
         jsBridge.openExternalLink(json.toString())
         val result = JSONObject()
                 .put("id", id)
