@@ -3,15 +3,13 @@ package com.emarsys.core.provider.hardwareid
 import android.content.Context
 import android.provider.Settings
 import com.emarsys.core.Mockable
-import com.emarsys.core.app.FirstAppStartContainer
 import com.emarsys.core.storage.Storage
 import com.google.firebase.iid.FirebaseInstanceId
 
 @Mockable
 class HardwareIdProvider(private val context: Context,
                          private val firebaseInstanceId: FirebaseInstanceId,
-                         private val storage: Storage<String>,
-                         private val firstAppStartContainer: FirstAppStartContainer) {
+                         private val storage: Storage<String>) {
 
     fun provideHardwareId(): String {
         return storage.get()
@@ -20,7 +18,6 @@ class HardwareIdProvider(private val context: Context,
                 } else {
                     firebaseInstanceId.id
                 }.also {
-                    firstAppStartContainer.firstAppStart = true
                     storage.set(it)
                 }
     }

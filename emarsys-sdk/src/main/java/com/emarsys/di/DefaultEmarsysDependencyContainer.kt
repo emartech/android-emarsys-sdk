@@ -18,7 +18,6 @@ import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.proxyApi
 import com.emarsys.core.app.AppLifecycleObserver
-import com.emarsys.core.app.FirstAppStartContainer
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.connection.ConnectionWatchDog
