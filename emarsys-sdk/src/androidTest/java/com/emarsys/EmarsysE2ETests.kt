@@ -58,7 +58,7 @@ class EmarsysE2ETests {
         val timestamp = System.currentTimeMillis()
 
         trackCustomEvent(title, timestamp)
-        retry(times = 10, timeout = 2000) {
+        retry {
             val message = fetchMessage(title, timestamp)
             message shouldNotBe null
         }
@@ -113,7 +113,7 @@ class EmarsysE2ETests {
         val timestamp = System.currentTimeMillis()
         trackCustomEvent(title, timestamp)
         var message: Message? = null
-        retry(times = 10) {
+        retry {
             message = fetchMessage(title, timestamp)
             message shouldNotBe null
         }
@@ -126,7 +126,7 @@ class EmarsysE2ETests {
             }
             addMessageTagLatch.await()
 
-            retry(times = 10) {
+            retry {
                 val updatedMessage = fetchMessage(title, timestamp)
                 updatedMessage shouldNotBe null
                 if (updatedMessage != null) {
@@ -138,7 +138,7 @@ class EmarsysE2ETests {
                 removeMessageTagLatch.countDown()
             }
             removeMessageTagLatch.await()
-            retry(times = 10) {
+            retry {
                 val updatedMessage = fetchMessage(title, timestamp)
                 updatedMessage shouldNotBe null
                 updatedMessage?.tags?.contains(TEST_TAG) shouldBe false
