@@ -296,8 +296,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         }
         val languageProvider = LanguageProvider()
         val fii = FirebaseInstanceId.getInstance()
-        val firstAppStartContainer = FirstAppStartContainer()
-        val hardwareIdProvider = HardwareIdProvider(application, fii, hardwareIdStorage, firstAppStartContainer)
+        val hardwareIdProvider = HardwareIdProvider(application, fii, hardwareIdStorage)
         val versionProvider = VersionProvider()
         val notificationManager = application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationManagerCompat = NotificationManagerCompat.from(application)
