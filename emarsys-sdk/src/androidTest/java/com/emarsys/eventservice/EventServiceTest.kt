@@ -7,11 +7,14 @@ import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.mobileengage.event.EventServiceInternal
+import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 
 class EventServiceTest {
     companion object {
@@ -25,6 +28,10 @@ class EventServiceTest {
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var eventServiceApi: EventServiceApi
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {

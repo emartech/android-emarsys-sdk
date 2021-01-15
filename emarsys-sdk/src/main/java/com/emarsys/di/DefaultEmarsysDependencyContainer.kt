@@ -302,7 +302,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         val notificationManagerCompat = NotificationManagerCompat.from(application)
         val notificationManagerProxy = NotificationManagerProxy(notificationManager, notificationManagerCompat)
         val notificationSettings: NotificationSettings = NotificationManagerHelper(notificationManagerProxy)
-        DeviceInfo(application, hardwareIdProvider, versionProvider, languageProvider, notificationSettings, config.isAutomaticPushTokenSendingEnabled).also {
+        DeviceInfo(application, hardwareIdProvider, versionProvider, languageProvider, notificationSettings, config.automaticPushTokenSendingEnabled).also {
             addDependency(dependencies, it)
         }
         CurrentActivityProvider().also {
@@ -397,7 +397,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         if (config.notificationEventHandler != null) {
             notificationEventHandler = object : EventHandler {
                 override fun handleEvent(context: Context, eventName: String, payload: JSONObject?) {
-                    config.notificationEventHandler.handleEvent(context, eventName, payload)
+                    config.notificationEventHandler!!.handleEvent(context, eventName, payload)
                 }
             }
         }

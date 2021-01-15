@@ -6,13 +6,12 @@ import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.IntegrationTestUtils.retry
+import com.emarsys.testUtil.TimeoutUtils
 import com.google.firebase.FirebaseApp
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
-import org.junit.After
-import org.junit.AfterClass
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.*
+import org.junit.rules.TestRule
 import java.util.concurrent.CountDownLatch
 
 class EmarsysE2ETests {
@@ -40,6 +39,11 @@ class EmarsysE2ETests {
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
+
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @After
     fun tearDown() {

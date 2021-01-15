@@ -1,221 +1,160 @@
-package com.emarsys.config;
+package com.emarsys.config
 
-import android.app.Application;
+import android.app.Application
+import com.emarsys.core.api.experimental.FlipperFeature
+import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
+import com.emarsys.testUtil.TimeoutUtils
+import com.nhaarman.mockitokotlin2.mock
+import io.kotlintest.fail
+import io.kotlintest.shouldBe
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.TestRule
 
-import com.emarsys.core.api.experimental.FlipperFeature;
-import com.emarsys.mobileengage.api.NotificationEventHandler;
-import com.emarsys.mobileengage.api.event.EventHandler;
-import com.emarsys.testUtil.InstrumentationRegistry;
-import com.emarsys.testUtil.TimeoutUtils;
+class EmarsysConfigTest {
+    companion object {
+        private const val APP_ID = "appID"
+        private const val CONTACT_FIELD_ID = 567
+        private const val MERCHANT_ID = "MERCHANT_ID"
+    }
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-
-public class EmarsysConfigTest {
-    private String APP_ID = "appID";
-    private int CONTACT_FIELD_ID = 567;
-    private String MERCHANT_ID = "MERCHANT_ID";
-    private Application application;
-    private EventHandler defaultInAppEventHandler;
-    private EventHandler defaultNotificationEventHandler;
-    private FlipperFeature[] features;
-    private boolean automaticPushTokenSending;
+    private lateinit var application: Application
+    private lateinit var defaultInAppEventHandler: EventHandler
+    private lateinit var defaultNotificationEventHandler: EventHandler
+    private lateinit var features: Array<FlipperFeature>
+    private var automaticPushTokenSending = false
 
     @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
-    public void init() {
-        automaticPushTokenSending = true;
-        application = (Application) InstrumentationRegistry.getTargetContext().getApplicationContext();
-        defaultInAppEventHandler = mock(EventHandler.class);
-        defaultNotificationEventHandler = mock(EventHandler.class);
-        features = new FlipperFeature[]{
-                mock(FlipperFeature.class),
-                mock(FlipperFeature.class)
-        };
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_applicationShouldNotBeNull() {
-        new EmarsysConfig(
-                null,
-                APP_ID,
-                CONTACT_FIELD_ID,
-                MERCHANT_ID,
-                defaultInAppEventHandler,
-                defaultNotificationEventHandler,
-                features,
-                automaticPushTokenSending);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_contactFieldIdShouldNotBeNull() {
-        new EmarsysConfig(
-                application,
-                APP_ID,
-                null,
-                MERCHANT_ID,
-                defaultInAppEventHandler,
-                defaultNotificationEventHandler,
-                features,
-                automaticPushTokenSending);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_featuresShouldNotBeNull() {
-        new EmarsysConfig(
-                application,
-                APP_ID,
-                CONTACT_FIELD_ID,
-                MERCHANT_ID,
-                defaultInAppEventHandler,
-                defaultNotificationEventHandler,
-                null,
-                automaticPushTokenSending);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_featuresList_shouldNotContainNullElements() {
-        new EmarsysConfig(
-                application,
-                APP_ID,
-                CONTACT_FIELD_ID,
-                MERCHANT_ID,
-                defaultInAppEventHandler,
-                defaultNotificationEventHandler,
-                new FlipperFeature[]{mock(FlipperFeature.class), null},
-                automaticPushTokenSending);
+    fun setUp() {
+        automaticPushTokenSending = true
+        application = getTargetContext().applicationContext as Application
+        defaultInAppEventHandler = mock()
+        defaultNotificationEventHandler = mock()
+        features = arrayOf(
+                mock(),
+                mock()
+        )
     }
 
     @Test
-    public void testBuilder_withAllArguments() {
-        EmarsysConfig expected = new EmarsysConfig(
+    fun testBuilder_withAllArguments() {
+        val expected = EmarsysConfig(
                 application,
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                features,
-                automaticPushTokenSending);
-
-        EmarsysConfig result = new EmarsysConfig.Builder()
+                listOf(*features),
+                automaticPushTokenSending,
+                null)
+        val result = EmarsysConfig.Builder()
                 .application(application)
                 .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
-                .enableExperimentalFeatures(features)
-                .inAppEventHandler(any(com.emarsys.mobileengage.api.EventHandler.class))
-                .notificationEventHandler(any(NotificationEventHandler.class))
-                .build();
+                .enableExperimentalFeatures(*features)
+                .inAppEventHandler(mock())
+                .notificationEventHandler(mock())
+                .build()
+        result.application shouldBe expected.application
+        result.contactFieldId shouldBe expected.contactFieldId
+        result.experimentalFeatures shouldBe expected.experimentalFeatures
+        result.mobileEngageApplicationCode shouldBe expected.mobileEngageApplicationCode
+        result.predictMerchantId shouldBe expected.predictMerchantId
 
-        assertEquals(expected.getApplication(), result.getApplication());
-        assertEquals(expected.getContactFieldId(), result.getContactFieldId());
-        assertEquals(expected.getExperimentalFeatures(), result.getExperimentalFeatures());
-        assertEquals(expected.getMobileEngageApplicationCode(), result.getMobileEngageApplicationCode());
-        assertEquals(expected.getPredictMerchantId(), result.getPredictMerchantId());
-        Assert.assertTrue(result.getInAppEventHandler().getClass().isInstance(expected.getInAppEventHandler()));
-        Assert.assertTrue(result.getNotificationEventHandler().getClass().isInstance(expected.getNotificationEventHandler()));
+        result.inAppEventHandler?.javaClass?.isInstance(expected.inAppEventHandler) shouldBe true
+        result.notificationEventHandler?.javaClass?.isInstance(expected.notificationEventHandler) shouldBe true
     }
 
     @Test
-    public void testBuilder_withRequiredArguments() {
-        EmarsysConfig expected = new EmarsysConfig(
+    fun testBuilder_withRequiredArguments() {
+        val expected = EmarsysConfig(
                 application,
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 null,
                 null,
-                new FlipperFeature[]{},
-                automaticPushTokenSending);
-
-        EmarsysConfig result = new EmarsysConfig.Builder()
+                emptyList(),
+                automaticPushTokenSending,
+                null)
+        val result = EmarsysConfig.Builder()
                 .application(application)
                 .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
-                .build();
+                .build()
 
-        assertEquals(expected, result);
+        result shouldBe expected
     }
 
     @Test
-    public void testBuilder_whenInAppMessagingFlipperIsOff_defaultInAppMessageHandlerIsNotRequired() {
+    fun testBuilder_whenInAppMessagingFlipperIsOff_defaultInAppMessageHandlerIsNotRequired() {
         try {
-            new EmarsysConfig.Builder()
+            EmarsysConfig.Builder()
                     .application(application)
                     .mobileEngageApplicationCode(APP_ID)
                     .contactFieldId(CONTACT_FIELD_ID)
                     .predictMerchantId(MERCHANT_ID)
-                    .build();
-        } catch (IllegalArgumentException e) {
-            fail("Should not fail with: " + e.getMessage());
+                    .build()
+        } catch (e: IllegalArgumentException) {
+            fail("Should not fail with: ${e.message}")
         }
     }
 
     @Test
-    public void testBuilder_automaticPushTokenSending_whenDisabled() {
-        EmarsysConfig config = new EmarsysConfig.Builder()
+    fun testBuilder_automaticPushTokenSending_whenDisabled() {
+        val config = EmarsysConfig.Builder()
                 .application(application)
                 .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
                 .disableAutomaticPushTokenSending()
-                .build();
-        assertFalse(config.isAutomaticPushTokenSendingEnabled());
+                .build()
+        config.automaticPushTokenSendingEnabled shouldBe false
     }
 
     @Test
-    public void testBuilder_automaticPushTokenSending_default() {
-        EmarsysConfig config = new EmarsysConfig.Builder()
+    fun testBuilder_automaticPushTokenSending_default() {
+        val config = EmarsysConfig.Builder()
                 .application(application)
                 .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .predictMerchantId(MERCHANT_ID)
-                .build();
-        assertTrue(config.isAutomaticPushTokenSendingEnabled());
-    }
+                .build()
 
-    @Test(expected = IllegalArgumentException.class)
-    public void
-    testBuilder_from_shouldNotAcceptNull() {
-        new EmarsysConfig.Builder().from(null);
+        config.automaticPushTokenSendingEnabled shouldBe true
     }
 
     @Test
-    public void testBuilder_from() {
-        EmarsysConfig expected = new EmarsysConfig(
+    fun testBuilder_from() {
+        val expected = EmarsysConfig(
                 application,
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
                 defaultInAppEventHandler,
                 defaultNotificationEventHandler,
-                features,
-                automaticPushTokenSending);
-
-        EmarsysConfig result = new EmarsysConfig.Builder()
+                listOf(*features),
+                automaticPushTokenSending,
+                null)
+        val result = EmarsysConfig.Builder()
                 .from(expected)
-                .build();
+                .build()
+        result.application shouldBe expected.application
+        result.contactFieldId shouldBe expected.contactFieldId
+        result.experimentalFeatures shouldBe expected.experimentalFeatures
+        result.mobileEngageApplicationCode shouldBe expected.mobileEngageApplicationCode
+        result.predictMerchantId shouldBe expected.predictMerchantId
 
-        assertEquals(expected.getApplication(), result.getApplication());
-        assertEquals(expected.getContactFieldId(), result.getContactFieldId());
-        assertEquals(expected.getExperimentalFeatures(), result.getExperimentalFeatures());
-        assertEquals(expected.getMobileEngageApplicationCode(), result.getMobileEngageApplicationCode());
-        assertEquals(expected.getPredictMerchantId(), result.getPredictMerchantId());
-        Assert.assertTrue(result.getInAppEventHandler().getClass().isInstance(expected.getInAppEventHandler()));
-        Assert.assertTrue(result.getNotificationEventHandler().getClass().isInstance(expected.getNotificationEventHandler()));
+        result.inAppEventHandler?.javaClass?.isInstance(expected.inAppEventHandler) shouldBe true
+        result.notificationEventHandler?.javaClass?.isInstance(expected.notificationEventHandler) shouldBe true
     }
 }
