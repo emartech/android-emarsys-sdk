@@ -30,7 +30,6 @@ import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.RetryRule
-import com.google.firebase.FirebaseApp
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -48,18 +47,6 @@ class PredictIntegrationTest {
         private const val CONTACT_FIELD_ID = 3
         private const val MERCHANT_ID = "1428C8EE286EC34B"
         private const val OTHER_MERCHANT_ID = "test_1428C8EE286EC34B"
-
-        @BeforeClass
-        @JvmStatic
-        fun beforeAll() {
-            IntegrationTestUtils.initializeFirebase()
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun afterAll() {
-            FirebaseApp.clearInstancesForTest()
-        }
     }
 
     private lateinit var latch: CountDownLatch

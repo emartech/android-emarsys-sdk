@@ -36,11 +36,10 @@ public final class DatabaseContract {
 
     public static final String HARDWARE_COLUMN_NAME_HARDWARE_ID = "hardware_id";
 
-    public static final String CONTENT_AUTHORITY = "com.emarsys";
 
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
-
-    public static final Uri HARDWARE_ID_CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(HARDWARE_INFORMATION_TABLE_NAME).appendPath(HARDWARE_COLUMN_NAME_HARDWARE_ID).build();
+    public static Uri getHardwareIdProviderUri(String authority) {
+        return Uri.parse("content://" + authority).buildUpon().appendPath(HARDWARE_INFORMATION_TABLE_NAME).appendPath(HARDWARE_COLUMN_NAME_HARDWARE_ID).build();
+    }
 
     public static final String[] UPGRADE_TO_1 = {
             "CREATE TABLE IF NOT EXISTS request (" +

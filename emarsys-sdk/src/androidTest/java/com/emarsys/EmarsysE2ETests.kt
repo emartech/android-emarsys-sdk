@@ -7,10 +7,11 @@ import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.IntegrationTestUtils.retry
 import com.emarsys.testUtil.TimeoutUtils
-import com.google.firebase.FirebaseApp
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
-import org.junit.*
+import org.junit.After
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TestRule
 import java.util.concurrent.CountDownLatch
 
@@ -23,18 +24,6 @@ class EmarsysE2ETests {
         private const val CONTACT_ID = "test@test.com"
         private const val TRIGGER_INBOX_EVENT = "emarsys-sdk-e2e-inbox-test"
         private const val TEST_TAG = "test_tag"
-
-        @BeforeClass
-        @JvmStatic
-        fun beforeAll() {
-            IntegrationTestUtils.initializeFirebase()
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun afterAll() {
-            FirebaseApp.clearInstancesForTest()
-        }
     }
 
     private val application: Application

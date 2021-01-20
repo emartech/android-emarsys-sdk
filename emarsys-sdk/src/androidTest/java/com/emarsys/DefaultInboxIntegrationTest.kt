@@ -24,11 +24,13 @@ import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
-import com.google.firebase.FirebaseApp
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONObject
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.mock
@@ -45,18 +47,6 @@ class DefaultInboxIntegrationTest {
         private const val SDK_VERSION = "2.1.0-integration"
         private const val LANGUAGE = "en-US"
         private const val MESSAGE_ID = Integer.MAX_VALUE.toString()
-
-        @BeforeClass
-        @JvmStatic
-        fun beforeAll() {
-            IntegrationTestUtils.initializeFirebase()
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun afterAll() {
-            FirebaseApp.clearInstancesForTest()
-        }
     }
 
     private lateinit var latch: CountDownLatch

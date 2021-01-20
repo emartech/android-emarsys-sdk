@@ -10,9 +10,11 @@ import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.testUtil.*
-import com.google.firebase.FirebaseApp
 import io.kotlintest.shouldBe
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TestRule
 import java.util.concurrent.CountDownLatch
 
@@ -21,18 +23,6 @@ class RemoteConfigIntegrationTest {
     private companion object {
         private const val APP_ID = "integrationTest"
         private const val CONTACT_FIELD_ID = 3
-
-        @BeforeClass
-        @JvmStatic
-        fun beforeAll() {
-            IntegrationTestUtils.initializeFirebase()
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun afterAll() {
-            FirebaseApp.clearInstancesForTest()
-        }
     }
 
     private lateinit var baseConfig: EmarsysConfig

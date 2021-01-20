@@ -8,7 +8,7 @@ import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.helper.CoreDbHelper
 
 
-class SharedHardwareIdProvider : ContentProvider() {
+class SharedHardwareIdContentProvider : ContentProvider() {
     private lateinit var coreDbHelper: CoreDbHelper
 
     override fun onCreate(): Boolean {
@@ -17,8 +17,12 @@ class SharedHardwareIdProvider : ContentProvider() {
     }
 
     override fun query(uri: Uri, projection: Array<out String>?, selection: String?, selectionArgs: Array<out String>?, sortOrder: String?): Cursor? {
-        return if (uri == DatabaseContract.HARDWARE_ID_CONTENT_URI) {
-            coreDbHelper.readableCoreDatabase.query(false, DatabaseContract.HARDWARE_INFORMATION_TABLE_NAME, arrayOf(DatabaseContract.HARDWARE_COLUMN_NAME_HARDWARE_ID), null, null, null, null, null, null)
+        return if (context != null) {
+            if (uri == DatabaseContract.getHardwareIdProviderUri(context!!.packageName)) {
+                coreDbHelper.readableCoreDatabase.query(false, DatabaseContract.HARDWARE_INFORMATION_TABLE_NAME, arrayOf(DatabaseContract.HARDWARE_COLUMN_NAME_HARDWARE_ID), null, null, null, null, null, null)
+            } else {
+                null
+            }
         } else {
             null
         }

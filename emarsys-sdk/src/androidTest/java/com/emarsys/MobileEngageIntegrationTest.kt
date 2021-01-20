@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.os.Handler
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
-import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
@@ -22,7 +21,6 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
-import com.emarsys.inapp.ui.InlineInAppView
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.push.PushTokenProvider
@@ -31,7 +29,6 @@ import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.RetryRule
-import com.google.firebase.FirebaseApp
 import io.kotlintest.matchers.numerics.shouldBeInRange
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -47,18 +44,6 @@ class MobileEngageIntegrationTest {
         private const val APP_ID = "14C19-A121F"
         private const val OTHER_APP_ID = "EMS11-C3FD3"
         private const val CONTACT_FIELD_ID = 3
-
-        @BeforeClass
-        @JvmStatic
-        fun beforeAll() {
-            IntegrationTestUtils.initializeFirebase()
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun afterAll() {
-            FirebaseApp.clearInstancesForTest()
-        }
     }
 
     private var completionHandlerLatch: CountDownLatch? = null

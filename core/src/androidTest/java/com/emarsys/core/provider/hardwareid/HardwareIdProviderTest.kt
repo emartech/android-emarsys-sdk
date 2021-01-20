@@ -1,101 +1,126 @@
 package com.emarsys.core.provider.hardwareid
 
-import android.content.Context
-import android.provider.Settings
+import android.database.Cursor
+import android.net.Uri
+import android.test.ProviderTestCase2
+import android.test.mock.MockContentProvider
+import com.emarsys.core.database.DatabaseContract
+import com.emarsys.core.database.repository.Repository
+import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.device.Hardware
+import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.storage.Storage
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
-import com.google.firebase.iid.FirebaseInstanceId
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import io.kotlintest.shouldBe
-import org.junit.*
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TestRule
 
 
-class HardwareIdProviderTest {
+class HardwareIdProviderTest : ProviderTestCase2<FakeContentProvider>(FakeContentProvider::class.java, "com.emarsys.test") {
 
     companion object {
         private const val HARDWARE_ID = "hw_value"
-        private const val FIREBASE_HARDWARE_ID = "firebase_hw_value"
-
-        @BeforeClass
-        @JvmStatic
-        fun beforeAll() {
-            val options: FirebaseOptions = FirebaseOptions.Builder()
-                    .setApplicationId("com.emarsys.sdk")
-                    .build()
-
-            FirebaseApp.initializeApp(InstrumentationRegistry.getTargetContext(), options)
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun afterAll() {
-            FirebaseApp.clearInstancesForTest()
-        }
+        internal const val SHARED_HARDWARE_ID = "shared_hw_value"
+        private val HARDWARE = Hardware(HARDWARE_ID)
     }
+
+    private lateinit var mockStorage: Storage<String?>
+    private lateinit var hardwareIdProvider: HardwareIdProvider
+    private lateinit var mockUUIDProvider: UUIDProvider
+    private lateinit var mockRepository: Repository<Hardware?, SqlSpecification>
+    private val sharedPackageNames = listOf("com.emarsys.test")
 
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    private lateinit var context: Context
-    private lateinit var mockStorage: Storage<String>
-    private lateinit var hardwareIdProvider: HardwareIdProvider
-    private lateinit var mockFirebaseInstanceId: FirebaseInstanceId
-
     @Before
-    fun setUp() {
-        context = InstrumentationRegistry.getTargetContext()
+    override fun setUp() {
+        super.setUp()
         mockStorage = mock()
-
-        mockFirebaseInstanceId = mock {
-            on { id } doReturn FIREBASE_HARDWARE_ID
+        mockUUIDProvider = mock {
+            on { provideId() } doReturn HARDWARE_ID
         }
-        hardwareIdProvider = HardwareIdProvider(context, mockFirebaseInstanceId, mockStorage)
+
+        mockRepository = mock()
+
+        hardwareIdProvider = HardwareIdProvider(this.mockContext, mockUUIDProvider, mockRepository, mockStorage, sharedPackageNames)
     }
 
-    @Test
-    fun testProvideHardwareId_shouldGetHardwareId_fromStorage_ifExists() {
-        whenever(mockStorage.get()).thenReturn(HARDWARE_ID)
-
+    fun testProvideHardwareId_shouldGetHardwareId_fromRepository_ifExists() {
+        whenever(mockRepository.query(any())).thenReturn(listOf(HARDWARE))
         val result = hardwareIdProvider.provideHardwareId()
 
-        verify(mockStorage).get()
+        verify(mockRepository).query(any())
         result shouldBe HARDWARE_ID
     }
 
     @Test
-    fun testProvideHardwareId_shouldGetHardwareId_fromFirebase_ifNotExists() {
-        val result = hardwareIdProvider.provideHardwareId()
-        result shouldBe FIREBASE_HARDWARE_ID
-    }
-
-    @Test
-    fun testProvideHardwareId_shouldStore_whenEmpty() {
-        hardwareIdProvider.provideHardwareId()
-
-        verify(mockStorage).set(FIREBASE_HARDWARE_ID)
-    }
-
-    @Test
-    fun testProvideHardwareId_shouldFallbackToLegacySolution_whenFirebaseInstanceId_isNotAvailable() {
-        val mockContext = mock<Context>()
-        val expectedHardwareId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-        mockFirebaseInstanceId = mock {
-            on { id } doReturn ""
-        }
-        hardwareIdProvider = HardwareIdProvider(context, mockFirebaseInstanceId, mockStorage)
+    fun testProvideHardwareId_shouldGetHardwareId_fromStorage_andStoreInRepository_ifNotInRepository() {
+        whenever(mockStorage.get()).thenReturn(HARDWARE_ID)
 
         val result = hardwareIdProvider.provideHardwareId()
 
-        verifyZeroInteractions(mockContext)
-        result shouldBe expectedHardwareId
+        verify(mockRepository).query(any())
+        verify(mockStorage).get()
+        verify(mockRepository).add(Hardware(HARDWARE_ID))
+        result shouldBe HARDWARE_ID
+    }
+
+    @Test
+    fun testProvideHardwareId_shouldGetHardwareId_fromContentResolver_andStoreInRepository_ifNotInRepositoryNorStorage() {
+        val result = hardwareIdProvider.provideHardwareId()
+
+        verify(mockRepository).add(Hardware(SHARED_HARDWARE_ID))
+        result shouldBe SHARED_HARDWARE_ID
+    }
+
+    @Test
+    fun testProvideHardwareId_shouldGetHardwareId_fromContentResolver_lookingInSharedPackages_andStoreInRepository_ifNotInRepositoryNorStorage() {
+        FakeContentProvider.numberOfInvocation = 0
+        hardwareIdProvider = HardwareIdProvider(this.mockContext, mockUUIDProvider, mockRepository, mockStorage, listOf("test.package", "com.emarsys.test", "com.emarsys.test"))
+
+        val result = hardwareIdProvider.provideHardwareId()
+
+        verify(mockRepository).add(Hardware(SHARED_HARDWARE_ID))
+        FakeContentProvider.numberOfInvocation shouldBe 1
+        result shouldBe SHARED_HARDWARE_ID
+    }
+
+    @Test
+    fun testProvideHardwareId_shouldGenerateHardwareId_andStoreInRepository_ifNotInRepositoryNorStorageNorContentResolver() {
+        val context = InstrumentationRegistry.getTargetContext()
+        hardwareIdProvider = HardwareIdProvider(context, mockUUIDProvider, mockRepository, mockStorage, sharedPackageNames)
+
+        val result = hardwareIdProvider.provideHardwareId()
+
+        verify(mockRepository).add(Hardware(HARDWARE_ID))
+        verify(mockUUIDProvider).provideId()
+        result shouldBe HARDWARE_ID
+    }
+}
+
+open class FakeContentProvider : MockContentProvider() {
+    companion object {
+        var numberOfInvocation = 0
+    }
+
+    private var cursor: Cursor = mock {
+        on { moveToFirst() } doReturn true
+        on { getColumnIndex(DatabaseContract.HARDWARE_COLUMN_NAME_HARDWARE_ID) } doReturn 0
+        on { getString(0) } doReturn HardwareIdProviderTest.SHARED_HARDWARE_ID
+    }
+
+    override fun query(uri: Uri, p1: Array<out String>?, p2: String?, p3: Array<out String>?, p4: String?): Cursor? {
+        numberOfInvocation++
+        return cursor
     }
 }

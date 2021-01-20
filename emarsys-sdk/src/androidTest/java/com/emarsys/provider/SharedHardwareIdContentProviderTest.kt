@@ -1,5 +1,6 @@
 package com.emarsys.provider
 
+import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.test.ProviderTestCase2
@@ -14,7 +15,7 @@ import org.junit.Before
 import org.junit.Test
 
 
-class SharedHardwareIdProviderTest : ProviderTestCase2<SharedHardwareIdProvider>(SharedHardwareIdProvider::class.java, "com.emarsys") {
+class SharedHardwareIdContentProviderTest : ProviderTestCase2<SharedHardwareIdContentProvider>(SharedHardwareIdContentProvider::class.java, "com.emarsys.test") {
 
     private companion object {
         const val HARDWARE_ID = "hardwareId"
@@ -52,9 +53,13 @@ class SharedHardwareIdProviderTest : ProviderTestCase2<SharedHardwareIdProvider>
 
     @Test
     fun testQuery_shouldReturnCursorWithHardwareId() {
+        val mockContext: Context = mock {
+            on { packageName } doReturn "com.emarsys.test"
+        }
         ReflectionTestUtils.setInstanceField(provider, "coreDbHelper", mockCoreDbHelper)
+        ReflectionTestUtils.setInstanceField(provider, "mContext", mockContext)
 
-        val cursor = provider.query(Uri.parse("content://com.emarsys/hardware/hardware_id"), null, null, null, null)
+        val cursor = provider.query(Uri.parse("content://com.emarsys.test/hardware/hardware_id"), null, null, null, null)
 
         cursor shouldNotBe null
         val result = cursor?.getString(0)
@@ -63,9 +68,13 @@ class SharedHardwareIdProviderTest : ProviderTestCase2<SharedHardwareIdProvider>
 
     @Test
     fun testQuery_shouldReturnNull_whenInvalidRequest() {
+        val mockContext: Context = mock {
+            on { packageName } doReturn "com.emarsys.test"
+        }
         ReflectionTestUtils.setInstanceField(provider, "coreDbHelper", mockCoreDbHelper)
+        ReflectionTestUtils.setInstanceField(provider, "mContext", mockContext)
 
-        val cursor = provider.query(Uri.parse("content://com.emarsys/hardware/other"), null, null, null, null)
+        val cursor = provider.query(Uri.parse("content://com.emarsys.test/hardware/other"), null, null, null, null)
         cursor shouldBe null
     }
 }

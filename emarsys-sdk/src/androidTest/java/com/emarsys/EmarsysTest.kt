@@ -91,10 +91,8 @@ import com.emarsys.testUtil.CollectionTestUtils.getElementByType
 import com.emarsys.testUtil.CollectionTestUtils.numberOfElementsIn
 import com.emarsys.testUtil.FeatureTestUtils.resetFeatures
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils.getInstanceField
 import com.emarsys.testUtil.TimeoutUtils
-import com.google.firebase.FirebaseApp
 import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldNotBe
 import org.junit.*
@@ -112,18 +110,6 @@ class EmarsysTest {
         private const val MERCHANT_ID = "merchantId"
         private const val SDK_VERSION = "sdkVersion"
         private const val CONTACT_ID = "CONTACT_ID"
-
-        @BeforeClass
-        @JvmStatic
-        fun beforeAll() {
-            IntegrationTestUtils.initializeFirebase()
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun afterAll() {
-            FirebaseApp.clearInstancesForTest()
-        }
     }
 
     @Rule
