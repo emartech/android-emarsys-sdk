@@ -20,7 +20,7 @@ data class EmarsysConfig internal constructor(val application: Application,
                                          private val inputNotificationEventHandler: com.emarsys.mobileengage.api.event.EventHandler?,
                                          val experimentalFeatures: List<FlipperFeature>,
                                          val automaticPushTokenSendingEnabled: Boolean,
-                                         val sharedPackages: List<String>?) {
+                                         val sharedPackageNames: List<String>?) {
 
     @Deprecated("will be removed in 3.0.0")
     val inAppEventHandler: com.emarsys.mobileengage.api.EventHandler?

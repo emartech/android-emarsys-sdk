@@ -27,6 +27,8 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.device.Hardware
+import com.emarsys.core.device.HardwareRepository
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.addDependency
 import com.emarsys.core.di.getDependency
@@ -126,7 +128,6 @@ import com.emarsys.push.Push
 import com.emarsys.push.PushApi
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
-import com.google.firebase.iid.FirebaseInstanceId
 import org.json.JSONObject
 import java.security.KeyFactory
 import java.security.PublicKey
@@ -291,12 +292,16 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         ResponseHandlersProcessor(ArrayList()).also {
             addDependency(dependencies, it)
         }
-        val hardwareIdStorage: Storage<String> = StringStorage(CoreStorageKey.HARDWARE_ID, prefs).also {
+        val hardwareIdStorage: Storage<String?> = StringStorage(CoreStorageKey.HARDWARE_ID, prefs).also {
             addDependency(dependencies, it, CoreStorageKey.HARDWARE_ID.key)
         }
         val languageProvider = LanguageProvider()
-        val fii = FirebaseInstanceId.getInstance()
-        val hardwareIdProvider = HardwareIdProvider(application, fii, hardwareIdStorage)
+        val coreDbHelper = CoreDbHelper(application, HashMap())
+        coreDbHelper.writableCoreDatabase.also {
+            addDependency(dependencies, it)
+        }
+        val hardwareRepository = HardwareRepository(coreDbHelper).also { addDependency(dependencies, it as Repository<Hardware?, SqlSpecification>, "hardwareRepository") }
+        val hardwareIdProvider = HardwareIdProvider(application, getUuidProvider(), hardwareRepository, hardwareIdStorage, config.sharedPackageNames)
         val versionProvider = VersionProvider()
         val notificationManager = application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationManagerCompat = NotificationManagerCompat.from(application)
@@ -309,10 +314,6 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
             addDependency(dependencies, it)
         }
         CurrentActivityWatchdog(getCurrentActivityProvider()).also {
-            addDependency(dependencies, it)
-        }
-        val coreDbHelper = CoreDbHelper(application, HashMap())
-        coreDbHelper.writableCoreDatabase.also {
             addDependency(dependencies, it)
         }
         addDependency(dependencies, ButtonClickedRepository(coreDbHelper) as Repository<ButtonClicked, SqlSpecification>, "buttonClickedRepository")
