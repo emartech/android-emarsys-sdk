@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.emarsys.sample">
+
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
@@ -53,7 +54,21 @@
             </intent-filter>
         </service>
 
+        <!--
+                    <provider
+                    android:name="com.emarsys.provider.SharedHardwareIdContentProvider"
+                    android:authorities="${applicationId}"
+                    android:enabled="true"
+                    android:exported="true"
+                    android:grantUriPermissions="true" />
+        -->
     </application>
+
+    <!--
+        <queries>
+            <package android:name="com.emarsys.otherapp" />
+        </queries>
+     -->
 
     <uses-permission android:name="android.permission.INTERNET" />
 
