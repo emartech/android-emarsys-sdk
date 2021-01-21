@@ -139,7 +139,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
 
     companion object {
         private const val EMARSYS_SHARED_PREFERENCES_NAME = "emarsys_shared_preferences"
-        private const val GEOFENCE_LIMIT = 100
+        private const val GEOFENCE_LIMIT = 99
         private const val PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELjWEUIBX9zlm1OI4gF1hMCBLzpaBwgs9HlmSIBAqP4MDGy4ibOOV3FVDrnAY0Q34LZTbPBlp3gRNZJ19UoSy2Q=="
     }
 
