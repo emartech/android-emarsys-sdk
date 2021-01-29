@@ -6,6 +6,7 @@ dependencies {
     api Libs.kotlin
     api Libs.espresso_idling_resources
     api Libs.lifecycle_extensions
+    api Libs.security_crypto
     kapt Libs.lifecycle_compiler
     androidTestImplementation project(':testUtils')
 }

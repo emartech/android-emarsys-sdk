@@ -223,7 +223,7 @@ object MessagingServiceUtils {
         return notificationSettings.channelSettings.any { it.channelId == channelId }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private fun createDebugChannel(context: Context): String {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationChannel = NotificationChannel("ems_debug", "Emarsys SDK Debug Messages", NotificationManager.IMPORTANCE_HIGH)

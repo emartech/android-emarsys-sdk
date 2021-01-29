@@ -73,7 +73,7 @@ class PredictIntegrationTest {
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
 
-        application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
+        application.getSharedPreferences("emarsys_secure_shared_preferences", Context.MODE_PRIVATE)
                 .edit()
                 .clear()
                 .commit()

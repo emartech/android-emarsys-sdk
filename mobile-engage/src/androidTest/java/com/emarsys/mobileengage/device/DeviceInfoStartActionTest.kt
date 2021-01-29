@@ -45,7 +45,7 @@ class DeviceInfoStartActionTest {
 
     @After
     fun tearDown() {
-        SharedPrefsUtils.clearSharedPrefs("emarsys_shared_preferences")
+        SharedPrefsUtils.clearSharedPrefs("emarsys_secure_shared_preferences")
         DependencyInjection.tearDown()
     }
 

@@ -78,7 +78,7 @@ class DefaultInboxIntegrationTest {
         latch = CountDownLatch(1)
         ConnectionTestUtils.checkConnection(application)
 
-        sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
+        sharedPreferences = application.getSharedPreferences("emarsys_secure_shared_preferences", Context.MODE_PRIVATE)
 
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
             override fun getClientServiceProvider(): ServiceEndpointProvider {

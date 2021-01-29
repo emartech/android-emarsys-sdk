@@ -16,6 +16,7 @@ object Versions {
     const val location_services_version = "17.1.0"
     const val espresso_idling_resources = "3.0.2"
     const val archLifecycleVersion ="2.2.0"
+    const val securityCryptoVersion = "1.1.0-alpha03"
 }
 
 object Libs {
@@ -28,6 +29,7 @@ object Libs {
     const val location_services = "com.google.android.gms:play-services-location:${Versions.location_services_version}"
     const val lifecycle_extensions = "androidx.lifecycle:lifecycle-process:${Versions.archLifecycleVersion}"
     const val lifecycle_compiler =  "android.arch.lifecycle:compiler:${Versions.archLifecycleVersion}"
+    const val security_crypto = "androidx.security:security-crypto:${Versions.securityCryptoVersion}"
 }
 
 object TestLibs {

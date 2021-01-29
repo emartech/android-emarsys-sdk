@@ -57,7 +57,7 @@ class InappNotificationIntegrationTest {
 
         DatabaseTestUtils.deleteCoreDatabase()
 
-        application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
+        application.getSharedPreferences("emarsys_secret_shared_prefs", Context.MODE_PRIVATE)
                 .edit()
                 .clear()
                 .commit()

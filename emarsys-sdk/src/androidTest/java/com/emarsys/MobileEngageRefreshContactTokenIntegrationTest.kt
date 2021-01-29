@@ -89,7 +89,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
         ConnectionTestUtils.checkConnection(application)
 
-        sharedPreferences = application.getSharedPreferences("emarsys_shared_preferences", Context.MODE_PRIVATE)
+        sharedPreferences = application.getSharedPreferences("emarsys_secure_shared_preferences", Context.MODE_PRIVATE)
 
         Emarsys.setup(baseConfig)
 
