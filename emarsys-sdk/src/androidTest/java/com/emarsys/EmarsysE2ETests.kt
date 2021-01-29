@@ -29,10 +29,9 @@ class EmarsysE2ETests {
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
-
     @Rule
     @JvmField
-    val timeout: TestRule = TimeoutUtils.timeoutRule
+    val timeout: TestRule = TimeoutUtils.longTimeoutRule
 
     @After
     fun tearDown() {
