@@ -90,6 +90,14 @@ public class DelegatingCoreSQLiteDatabase implements CoreSQLiteDatabase {
     }
 
     @Override
+    public int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
+        runTriggers(table, TriggerType.BEFORE, TriggerEvent.UPDATE);
+        int affectedRows = database.update(table, values, whereClause, whereArgs);
+        runTriggers(table, TriggerType.AFTER, TriggerEvent.UPDATE);
+        return affectedRows;
+    }
+
+    @Override
     public int delete(String table, String whereClause, String[] whereArgs) {
         runTriggers(table, TriggerType.BEFORE, TriggerEvent.DELETE);
         int rowsAffected = database.delete(table, whereClause, whereArgs);

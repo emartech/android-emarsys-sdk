@@ -176,11 +176,14 @@ class CoreDbHelperTest {
         dbHelper.onUpgrade(db, 4, 5)
 
         val expectedColumns = setOf(
-                ColumnInfo("hardware_id", "TEXT")
+                ColumnInfo("hardware_id", "TEXT"),
+                ColumnInfo("encrypted_hardware_id", "TEXT"),
+                ColumnInfo("salt", "TEXT"),
+                ColumnInfo("iv", "TEXT")
         )
 
 
-        val actualColumns = getTableColumns(db, "hardware")
+        val actualColumns = getTableColumns(db, "hardware_identification")
 
         actualColumns shouldBe expectedColumns
     }

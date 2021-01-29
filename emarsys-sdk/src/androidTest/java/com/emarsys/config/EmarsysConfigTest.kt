@@ -18,6 +18,7 @@ class EmarsysConfigTest {
         private const val APP_ID = "appID"
         private const val CONTACT_FIELD_ID = 567
         private const val MERCHANT_ID = "MERCHANT_ID"
+        private const val SHARED_SECRET = "testSecret"
     }
 
     private lateinit var application: Application
@@ -53,7 +54,8 @@ class EmarsysConfigTest {
                 defaultNotificationEventHandler,
                 listOf(*features),
                 automaticPushTokenSending,
-                null)
+                null,
+                SHARED_SECRET)
         val result = EmarsysConfig.Builder()
                 .application(application)
                 .mobileEngageApplicationCode(APP_ID)
@@ -62,12 +64,14 @@ class EmarsysConfigTest {
                 .enableExperimentalFeatures(*features)
                 .inAppEventHandler(mock())
                 .notificationEventHandler(mock())
+                .sharedSecret("testSecret")
                 .build()
         result.application shouldBe expected.application
         result.contactFieldId shouldBe expected.contactFieldId
         result.experimentalFeatures shouldBe expected.experimentalFeatures
         result.mobileEngageApplicationCode shouldBe expected.mobileEngageApplicationCode
         result.predictMerchantId shouldBe expected.predictMerchantId
+        result.sharedSecret shouldBe expected.sharedSecret
 
         result.inAppEventHandler?.javaClass?.isInstance(expected.inAppEventHandler) shouldBe true
         result.notificationEventHandler?.javaClass?.isInstance(expected.notificationEventHandler) shouldBe true
@@ -84,6 +88,7 @@ class EmarsysConfigTest {
                 null,
                 emptyList(),
                 automaticPushTokenSending,
+                null,
                 null)
         val result = EmarsysConfig.Builder()
                 .application(application)
@@ -144,7 +149,8 @@ class EmarsysConfigTest {
                 defaultNotificationEventHandler,
                 listOf(*features),
                 automaticPushTokenSending,
-                null)
+                null,
+                SHARED_SECRET)
         val result = EmarsysConfig.Builder()
                 .from(expected)
                 .build()
@@ -153,6 +159,7 @@ class EmarsysConfigTest {
         result.experimentalFeatures shouldBe expected.experimentalFeatures
         result.mobileEngageApplicationCode shouldBe expected.mobileEngageApplicationCode
         result.predictMerchantId shouldBe expected.predictMerchantId
+        result.sharedSecret shouldBe expected.sharedSecret
 
         result.inAppEventHandler?.javaClass?.isInstance(expected.inAppEventHandler) shouldBe true
         result.notificationEventHandler?.javaClass?.isInstance(expected.notificationEventHandler) shouldBe true

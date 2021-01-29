@@ -5,14 +5,16 @@ import android.database.Cursor
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.helper.DbHelper
 
-private inline fun CoreSQLiteDatabase.inTransaction(statement: CoreSQLiteDatabase.() -> Unit) {
+private inline fun <T> CoreSQLiteDatabase.inTransaction(statement: CoreSQLiteDatabase.() -> T): T {
     this.beginTransaction()
+    val result: T
     try {
-        statement(this)
+        result = statement(this)
         this.setTransactionSuccessful()
     } finally {
         this.endTransaction()
     }
+    return result
 }
 
 abstract class AbstractSqliteRepository<T>(var tableName: String, var dbHelper: DbHelper) : Repository<T, SqlSpecification> {
@@ -24,6 +26,14 @@ abstract class AbstractSqliteRepository<T>(var tableName: String, var dbHelper: 
         val database = dbHelper.writableCoreDatabase
         database.inTransaction {
             insert(tableName, null, contentValues)
+        }
+    }
+
+    override fun update(item: T, specification: SqlSpecification): Int {
+        val values = contentValuesFromItem(item)
+        val database = dbHelper.writableCoreDatabase
+        return database.inTransaction {
+            update(tableName, values, specification.selection, specification.selectionArgs)
         }
     }
 

@@ -4,10 +4,12 @@ import android.database.Cursor
 import android.net.Uri
 import android.test.ProviderTestCase2
 import android.test.mock.MockContentProvider
+import com.emarsys.core.crypto.Crypto
 import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.device.Hardware
+import com.emarsys.core.device.FilterByHardwareId
+import com.emarsys.core.device.HardwareIdentification
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.storage.Storage
 import com.emarsys.testUtil.InstrumentationRegistry
@@ -29,13 +31,17 @@ class HardwareIdProviderTest : ProviderTestCase2<FakeContentProvider>(FakeConten
     companion object {
         private const val HARDWARE_ID = "hw_value"
         internal const val SHARED_HARDWARE_ID = "shared_hw_value"
-        private val HARDWARE = Hardware(HARDWARE_ID)
+        private const val SECRET = "testSecret"
+        private val HARDWARE = HardwareIdentification(HARDWARE_ID)
+        private val ENCRYPTED_HARDWARE = HardwareIdentification(HARDWARE_ID, "encrypted_hardware_id", "testSalt", "testIv")
+        private val ENCRYPTED_SHARED_HARDWARE = HardwareIdentification(SHARED_HARDWARE_ID, "encrypted_shared_hardware_id", "testSalt", "testIv")
     }
 
+    private lateinit var mockCrypto: Crypto
     private lateinit var mockStorage: Storage<String?>
     private lateinit var hardwareIdProvider: HardwareIdProvider
     private lateinit var mockUUIDProvider: UUIDProvider
-    private lateinit var mockRepository: Repository<Hardware?, SqlSpecification>
+    private lateinit var mockRepository: Repository<HardwareIdentification?, SqlSpecification>
     private val sharedPackageNames = listOf("com.emarsys.test")
 
     @Rule
@@ -51,8 +57,20 @@ class HardwareIdProviderTest : ProviderTestCase2<FakeContentProvider>(FakeConten
         }
 
         mockRepository = mock()
+        mockCrypto = mock {
+            on { encrypt(HARDWARE_ID, SECRET) } doReturn mapOf(
+                    "encryptedValue" to "encrypted_hardware_id",
+                    "salt" to "testSalt",
+                    "iv" to "testIv"
+            )
+            on { encrypt(SHARED_HARDWARE_ID, SECRET) } doReturn mapOf(
+                    "encryptedValue" to "encrypted_shared_hardware_id",
+                    "salt" to "testSalt",
+                    "iv" to "testIv"
+            )
+        }
 
-        hardwareIdProvider = HardwareIdProvider(this.mockContext, mockUUIDProvider, mockRepository, mockStorage, sharedPackageNames)
+        hardwareIdProvider = HardwareIdProvider(this.mockContext, null, mockCrypto, mockUUIDProvider, mockRepository, mockStorage, sharedPackageNames)
     }
 
     fun testProvideHardwareId_shouldGetHardwareId_fromRepository_ifExists() {
@@ -71,7 +89,21 @@ class HardwareIdProviderTest : ProviderTestCase2<FakeContentProvider>(FakeConten
 
         verify(mockRepository).query(any())
         verify(mockStorage).get()
-        verify(mockRepository).add(Hardware(HARDWARE_ID))
+        verify(mockRepository).add(HARDWARE)
+        result shouldBe HARDWARE_ID
+    }
+
+    @Test
+    fun testProvideHardwareId_shouldGetHardwareId_fromStorage_andEncryptWithSecret_andStoreInRepository_ifNotInRepository() {
+        hardwareIdProvider = HardwareIdProvider(this.mockContext, SECRET, mockCrypto, mockUUIDProvider, mockRepository, mockStorage, sharedPackageNames)
+        whenever(mockStorage.get()).thenReturn(HARDWARE_ID)
+
+        val result = hardwareIdProvider.provideHardwareId()
+
+        verify(mockRepository).query(any())
+        verify(mockStorage).get()
+        verify(mockCrypto).encrypt(HARDWARE_ID, SECRET)
+        verify(mockRepository).add(ENCRYPTED_HARDWARE)
         result shouldBe HARDWARE_ID
     }
 
@@ -79,18 +111,31 @@ class HardwareIdProviderTest : ProviderTestCase2<FakeContentProvider>(FakeConten
     fun testProvideHardwareId_shouldGetHardwareId_fromContentResolver_andStoreInRepository_ifNotInRepositoryNorStorage() {
         val result = hardwareIdProvider.provideHardwareId()
 
-        verify(mockRepository).add(Hardware(SHARED_HARDWARE_ID))
+        verify(mockRepository).add(HardwareIdentification(SHARED_HARDWARE_ID))
         result shouldBe SHARED_HARDWARE_ID
     }
 
     @Test
     fun testProvideHardwareId_shouldGetHardwareId_fromContentResolver_lookingInSharedPackages_andStoreInRepository_ifNotInRepositoryNorStorage() {
         FakeContentProvider.numberOfInvocation = 0
-        hardwareIdProvider = HardwareIdProvider(this.mockContext, mockUUIDProvider, mockRepository, mockStorage, listOf("test.package", "com.emarsys.test", "com.emarsys.test"))
+        hardwareIdProvider = HardwareIdProvider(this.mockContext, null, mockCrypto, mockUUIDProvider, mockRepository, mockStorage, listOf("test.package", "com.emarsys.test", "com.emarsys.test"))
 
         val result = hardwareIdProvider.provideHardwareId()
 
-        verify(mockRepository).add(Hardware(SHARED_HARDWARE_ID))
+        verify(mockRepository).add(HardwareIdentification(SHARED_HARDWARE_ID))
+        FakeContentProvider.numberOfInvocation shouldBe 1
+        result shouldBe SHARED_HARDWARE_ID
+    }
+
+    @Test
+    fun testProvideHardwareId_shouldGetHardwareId_fromContentResolver_lookingInSharedPackages_andEncryptWithSecret_andStoreInRepository_ifNotInRepositoryNorStorage() {
+        FakeContentProvider.numberOfInvocation = 0
+        hardwareIdProvider = HardwareIdProvider(this.mockContext, SECRET, mockCrypto, mockUUIDProvider, mockRepository, mockStorage, listOf("test.package", "com.emarsys.test", "com.emarsys.test"))
+
+        val result = hardwareIdProvider.provideHardwareId()
+
+        verify(mockCrypto).encrypt(SHARED_HARDWARE_ID, SECRET)
+        verify(mockRepository).add(ENCRYPTED_SHARED_HARDWARE)
         FakeContentProvider.numberOfInvocation shouldBe 1
         result shouldBe SHARED_HARDWARE_ID
     }
@@ -98,12 +143,38 @@ class HardwareIdProviderTest : ProviderTestCase2<FakeContentProvider>(FakeConten
     @Test
     fun testProvideHardwareId_shouldGenerateHardwareId_andStoreInRepository_ifNotInRepositoryNorStorageNorContentResolver() {
         val context = InstrumentationRegistry.getTargetContext()
-        hardwareIdProvider = HardwareIdProvider(context, mockUUIDProvider, mockRepository, mockStorage, sharedPackageNames)
+        hardwareIdProvider = HardwareIdProvider(context, null, mockCrypto, mockUUIDProvider, mockRepository, mockStorage, sharedPackageNames)
 
         val result = hardwareIdProvider.provideHardwareId()
 
-        verify(mockRepository).add(Hardware(HARDWARE_ID))
+        verify(mockRepository).add(HARDWARE)
         verify(mockUUIDProvider).provideId()
+        result shouldBe HARDWARE_ID
+    }
+
+    @Test
+    fun testProvideHardwareId_shouldGenerateHardwareId_andEncryptWithSecret_andStoreInRepository_ifNotInRepositoryNorStorageNorContentResolver() {
+        val context = InstrumentationRegistry.getTargetContext()
+        hardwareIdProvider = HardwareIdProvider(context, SECRET, mockCrypto, mockUUIDProvider, mockRepository, mockStorage, sharedPackageNames)
+
+        val result = hardwareIdProvider.provideHardwareId()
+
+        verify(mockCrypto).encrypt(HARDWARE_ID, SECRET)
+        verify(mockRepository).add(ENCRYPTED_HARDWARE)
+        verify(mockUUIDProvider).provideId()
+        result shouldBe HARDWARE_ID
+    }
+
+    @Test
+    fun testProvideHardwareId_shouldCallCryptoEncrypt_whenThereIsASecret_butThereIsNoEncryptedHardwareId() {
+        hardwareIdProvider = HardwareIdProvider(this.mockContext, SECRET, mockCrypto, mockUUIDProvider, mockRepository, mockStorage, sharedPackageNames)
+
+        whenever(mockRepository.query(any())).thenReturn(listOf(HARDWARE))
+
+        val result = hardwareIdProvider.provideHardwareId()
+
+        verify(mockCrypto).encrypt(HARDWARE_ID, SECRET)
+        verify(mockRepository).update(ENCRYPTED_HARDWARE,FilterByHardwareId(HARDWARE_ID))
         result shouldBe HARDWARE_ID
     }
 }
@@ -115,7 +186,7 @@ open class FakeContentProvider : MockContentProvider() {
 
     private var cursor: Cursor = mock {
         on { moveToFirst() } doReturn true
-        on { getColumnIndex(DatabaseContract.HARDWARE_COLUMN_NAME_HARDWARE_ID) } doReturn 0
+        on { getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_HARDWARE_ID) } doReturn 0
         on { getString(0) } doReturn HardwareIdProviderTest.SHARED_HARDWARE_ID
     }
 

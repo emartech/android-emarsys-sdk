@@ -19,7 +19,7 @@ class SharedHardwareIdContentProvider : ContentProvider() {
     override fun query(uri: Uri, projection: Array<out String>?, selection: String?, selectionArgs: Array<out String>?, sortOrder: String?): Cursor? {
         return if (context != null) {
             if (uri == DatabaseContract.getHardwareIdProviderUri(context!!.packageName)) {
-                coreDbHelper.readableCoreDatabase.query(false, DatabaseContract.HARDWARE_INFORMATION_TABLE_NAME, arrayOf(DatabaseContract.HARDWARE_COLUMN_NAME_HARDWARE_ID), null, null, null, null, null, null)
+                coreDbHelper.readableCoreDatabase.query(false, DatabaseContract.HARDWARE_IDENTIFICATION_TABLE_NAME, arrayOf(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_HARDWARE_ID), null, null, null, null, null, null)
             } else {
                 null
             }

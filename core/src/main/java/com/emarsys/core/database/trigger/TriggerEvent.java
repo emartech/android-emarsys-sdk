@@ -1,3 +1,3 @@
 package com.emarsys.core.database.trigger;
 
-public enum TriggerEvent { INSERT, DELETE }
+public enum TriggerEvent {INSERT, DELETE, UPDATE}

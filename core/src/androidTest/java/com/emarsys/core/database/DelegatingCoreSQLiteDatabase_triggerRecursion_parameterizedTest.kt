@@ -99,6 +99,18 @@ class DelegatingCoreSQLiteDatabase_triggerRecursion_parameterizedTest {
                             TriggerEvent.DELETE,
                             Runnable {
                                 db.delete(TABLE_NAME, null, null)
+                            }),
+                    arrayOf(
+                            TriggerType.BEFORE,
+                            TriggerEvent.UPDATE,
+                            Runnable {
+                                db.update(TABLE_NAME, contentValues,null, null)
+                            }),
+                    arrayOf(
+                            TriggerType.AFTER,
+                            TriggerEvent.UPDATE,
+                            Runnable {
+                                db.update(TABLE_NAME, contentValues,null, null)
                             })
             )
         }

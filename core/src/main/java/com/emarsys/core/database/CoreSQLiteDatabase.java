@@ -28,6 +28,8 @@ public interface CoreSQLiteDatabase {
 
     long insert(String table, String nullColumnHack, ContentValues values);
 
+    int update(String table, ContentValues values, String whereClause, String[] whereArgs);
+
     int delete(String table, String whereClause, String[] whereArgs);
 
     void registerTrigger(

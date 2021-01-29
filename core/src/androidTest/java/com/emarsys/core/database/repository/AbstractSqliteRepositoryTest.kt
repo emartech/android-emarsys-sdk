@@ -4,9 +4,16 @@ import android.content.ContentValues
 import android.database.Cursor
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.DatabaseContract
-import com.emarsys.core.database.DatabaseContract.*
+import com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_HEADERS
+import com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_METHOD
+import com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_PAYLOAD
+import com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_REQUEST_ID
+import com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_TIMESTAMP
+import com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_TTL
+import com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_URL
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.helper.DbHelper
+import com.emarsys.core.device.FilterByHardwareId
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
@@ -16,6 +23,8 @@ import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
@@ -95,6 +104,25 @@ class AbstractSqliteRepositoryTest {
         verify(dbMock).insert(TABLE_NAME, null, contentValues)
         verify(dbMock).setTransactionSuccessful()
         verify(dbMock).endTransaction()
+    }
+
+    @Test
+    fun testUpdate_shouldUpdateTheDb() {
+        val contentValues = ContentValues().apply {
+            put("key", "value")
+        }
+        whenever(repository.contentValuesFromItem(anyNotNull())).thenReturn(contentValues)
+        whenever(dbMock.update(any(), any(), any(), any())).thenReturn(1)
+        val input = anyNotNull<Any>()
+
+        val result = repository.update(input, eq(FilterByHardwareId("id")))
+
+        verify(repository).contentValuesFromItem(input)
+        verify(dbMock).beginTransaction()
+        verify(dbMock).update(TABLE_NAME, contentValues, "hardware_id=?", arrayOf("id"))
+        verify(dbMock).setTransactionSuccessful()
+        verify(dbMock).endTransaction()
+        result shouldBe 1
     }
 
     @Test

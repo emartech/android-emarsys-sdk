@@ -16,6 +16,8 @@ import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.util.RequestModelUtils;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -142,4 +144,8 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         return result;
     }
 
+    @Override
+    public int update(RequestModel item, @NotNull SqlSpecification specification) {
+        throw new UnsupportedOperationException("update method is not supported in RequestRepositoryProxy");
+    }
 }

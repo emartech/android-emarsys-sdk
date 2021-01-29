@@ -32,7 +32,7 @@ class SharedHardwareIdContentProviderTest : ProviderTestCase2<SharedHardwareIdCo
             on { getString(0) } doReturn HARDWARE_ID
         }
         mockDatabase = mock {
-            on { query(false, "hardware", arrayOf("hardware_id"), null, null, null, null, null, null) } doReturn mockCursor
+            on { query(false, "hardware_identification", arrayOf("hardware_id"), null, null, null, null, null, null) } doReturn mockCursor
         }
         mockCoreDbHelper = mock {
             on { readableCoreDatabase } doReturn mockDatabase
@@ -59,7 +59,7 @@ class SharedHardwareIdContentProviderTest : ProviderTestCase2<SharedHardwareIdCo
         ReflectionTestUtils.setInstanceField(provider, "coreDbHelper", mockCoreDbHelper)
         ReflectionTestUtils.setInstanceField(provider, "mContext", mockContext)
 
-        val cursor = provider.query(Uri.parse("content://com.emarsys.test/hardware/hardware_id"), null, null, null, null)
+        val cursor = provider.query(Uri.parse("content://com.emarsys.test/hardware_identification/hardware_id"), null, null, null, null)
 
         cursor shouldNotBe null
         val result = cursor?.getString(0)

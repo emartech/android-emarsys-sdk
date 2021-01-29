@@ -3,7 +3,11 @@ package com.emarsys.core.shard
 import android.content.Context
 import android.database.Cursor
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.emarsys.core.database.DatabaseContract.*
+import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_DATA
+import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_ID
+import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TIMESTAMP
+import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TTL
+import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TYPE
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
 import com.emarsys.testUtil.DatabaseTestUtils

@@ -27,7 +27,7 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.device.Hardware
+import com.emarsys.core.device.HardwareIdentification
 import com.emarsys.core.device.HardwareRepository
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.addDependency
@@ -302,8 +302,10 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         coreDbHelper.writableCoreDatabase.also {
             addDependency(dependencies, it)
         }
-        val hardwareRepository = HardwareRepository(coreDbHelper).also { addDependency(dependencies, it as Repository<Hardware?, SqlSpecification>, "hardwareRepository") }
-        val hardwareIdProvider = HardwareIdProvider(application, getUuidProvider(), hardwareRepository, hardwareIdStorage, config.sharedPackageNames)
+        val crypto = Crypto(createPublicKey())
+
+        val hardwareRepository = HardwareRepository(coreDbHelper).also { addDependency(dependencies, it as Repository<HardwareIdentification?, SqlSpecification>, "hardwareRepository") }
+        val hardwareIdProvider = HardwareIdProvider(application, config.sharedSecret, crypto, getUuidProvider(), hardwareRepository, hardwareIdStorage, config.sharedPackageNames)
         val versionProvider = VersionProvider()
         val notificationManager = application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationManagerCompat = NotificationManagerCompat.from(application)
@@ -554,7 +556,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getPredictServiceStorage(),
                 getMessageInboxServiceStorage(),
                 getLogLevelStorage(),
-                Crypto(createPublicKey()),
+                crypto,
                 getClientServiceInternal()).also {
             addDependency(dependencies, it as ConfigInternal)
         }

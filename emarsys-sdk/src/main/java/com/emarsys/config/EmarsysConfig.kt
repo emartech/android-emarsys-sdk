@@ -11,16 +11,17 @@ import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import org.json.JSONObject
 
 data class EmarsysConfig internal constructor(val application: Application,
-                                         val mobileEngageApplicationCode: String?,
-                                         val contactFieldId: Int,
-                                         val predictMerchantId: String?,
-                                         @Deprecated("will be removed in 3.0.0")
-                                         private val inputInAppEventHandler: com.emarsys.mobileengage.api.event.EventHandler?,
-                                         @Deprecated("will be removed in 3.0.0")
-                                         private val inputNotificationEventHandler: com.emarsys.mobileengage.api.event.EventHandler?,
-                                         val experimentalFeatures: List<FlipperFeature>,
-                                         val automaticPushTokenSendingEnabled: Boolean,
-                                         val sharedPackageNames: List<String>?) {
+                                              val mobileEngageApplicationCode: String?,
+                                              val contactFieldId: Int,
+                                              val predictMerchantId: String?,
+                                              @Deprecated("will be removed in 3.0.0")
+                                              private val inputInAppEventHandler: com.emarsys.mobileengage.api.event.EventHandler?,
+                                              @Deprecated("will be removed in 3.0.0")
+                                              private val inputNotificationEventHandler: com.emarsys.mobileengage.api.event.EventHandler?,
+                                              val experimentalFeatures: List<FlipperFeature>,
+                                              val automaticPushTokenSendingEnabled: Boolean,
+                                              val sharedPackageNames: List<String>?,
+                                              val sharedSecret: String?) {
 
     @Deprecated("will be removed in 3.0.0")
     val inAppEventHandler: com.emarsys.mobileengage.api.EventHandler?
@@ -53,6 +54,7 @@ data class EmarsysConfig internal constructor(val application: Application,
         private var notificationEventHandler: com.emarsys.mobileengage.api.event.EventHandler? = null
         private var experimentalFeatures: List<FlipperFeature>? = null
         private var automaticPushTokenSending = true
+        private var sharedSecret: String? = null
         fun from(baseConfig: EmarsysConfig): Builder {
             application = baseConfig.application
             mobileEngageApplicationCode = baseConfig.mobileEngageApplicationCode
@@ -70,6 +72,7 @@ data class EmarsysConfig internal constructor(val application: Application,
             }
             experimentalFeatures = baseConfig.experimentalFeatures
             automaticPushTokenSending = baseConfig.automaticPushTokenSendingEnabled
+            sharedSecret = baseConfig.sharedSecret
             return this
         }
 
@@ -123,6 +126,11 @@ data class EmarsysConfig internal constructor(val application: Application,
             return this
         }
 
+        fun sharedSecret(sharedSecret: String?): Builder {
+            this.sharedSecret = sharedSecret
+            return this
+        }
+
         fun build(): EmarsysConfig {
             experimentalFeatures = if (experimentalFeatures == null) emptyList() else experimentalFeatures
             return EmarsysConfig(
@@ -134,7 +142,8 @@ data class EmarsysConfig internal constructor(val application: Application,
                     notificationEventHandler,
                     experimentalFeatures!!,
                     automaticPushTokenSending,
-                    null)
+                    null,
+                    sharedSecret)
         }
     }
 }
