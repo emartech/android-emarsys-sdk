@@ -4,7 +4,7 @@ import com.emarsys.core.api.experimental.FlipperFeature
 import java.util.*
 
 enum class InnerFeature : FlipperFeature {
-    MOBILE_ENGAGE, PREDICT;
+    MOBILE_ENGAGE, PREDICT, EVENT_SERVICE_V4;
 
     override fun getName(): String {
         return "inner_feature_" + name.toLowerCase(Locale.getDefault())

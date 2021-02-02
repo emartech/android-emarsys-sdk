@@ -94,6 +94,7 @@ import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils.getInstanceField
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.*
+import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.*
 import org.junit.rules.TestRule
@@ -305,6 +306,20 @@ class EmarsysTest {
         setup(predictConfig)
 
         Assert.assertTrue(FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT))
+    }
+
+    @Test
+    fun testSetup_shouldBeEnable_eventServiceV4() {
+        setup(mobileEngageConfig)
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4) shouldBe true
+    }
+
+    @Test
+    fun testSetup_eventServiceV4_shouldBeDisabled_whenMobileEngageIsDisabled() {
+        setup(baseConfig)
+
+        FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4) shouldBe false
     }
 
     @Test

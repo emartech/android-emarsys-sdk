@@ -88,7 +88,9 @@ object Emarsys {
 
         if (emarsysConfig.mobileEngageApplicationCode != null) {
             FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+            FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
         }
+
         if (emarsysConfig.predictMerchantId != null) {
             FeatureRegistry.enableFeature(InnerFeature.PREDICT)
         }

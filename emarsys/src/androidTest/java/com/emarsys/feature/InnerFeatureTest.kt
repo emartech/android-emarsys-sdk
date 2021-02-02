@@ -16,8 +16,8 @@ class InnerFeatureTest {
 
     @Test
     fun testValues_shouldReturnCorrectValues() {
-        val expectedValues = arrayOf("MOBILE_ENGAGE", "PREDICT")
-        InnerFeature.values().map{it.toString()} shouldBe expectedValues
+        val expectedValues = arrayOf("MOBILE_ENGAGE", "PREDICT", "EVENT_SERVICE_V4")
+        InnerFeature.values().map { it.toString() } shouldBe expectedValues
     }
 
     @Test
