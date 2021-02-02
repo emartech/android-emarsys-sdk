@@ -779,6 +779,7 @@ class DefaultConfigInternalTest {
     fun testApplyRemoteConfig_applyAll() {
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
         FeatureRegistry.enableFeature(InnerFeature.PREDICT)
+        FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
 
         val remoteConfig = RemoteConfig(
                 eventServiceUrl = EVENT_SERVICE_URL,
@@ -791,7 +792,8 @@ class DefaultConfigInternalTest {
                 logLevel = LogLevel.DEBUG,
                 features = mapOf(
                         InnerFeature.MOBILE_ENGAGE to false,
-                        InnerFeature.PREDICT to true
+                        InnerFeature.PREDICT to true,
+                        InnerFeature.EVENT_SERVICE_V4 to false
                 )
         )
 
@@ -807,6 +809,7 @@ class DefaultConfigInternalTest {
         verify(mockLogLevelStorage).set("DEBUG")
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe true
+        FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4) shouldBe false
     }
 
     @Test
