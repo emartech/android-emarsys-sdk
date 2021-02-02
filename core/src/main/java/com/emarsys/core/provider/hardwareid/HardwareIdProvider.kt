@@ -61,19 +61,26 @@ class HardwareIdProvider(private val context: Context,
     private fun String.toHardware() = HardwareIdentification(this)
 
     private fun getHardwareIdFromContentResolver(): String? {
-        var hardwareId: String? = null
         var index = 0
-        if (sharedPackageNames != null) {
-            while (hardwareId == null && index < sharedPackageNames.size) {
+        var sharedHardwareId: String? = null
+        var encryptedHardwareId: String? = null
+        if (sharedPackageNames != null && secret != null) {
+            while (encryptedHardwareId == null && index < sharedPackageNames.size) {
                 val cursor = context.contentResolver.query(DatabaseContract.getHardwareIdProviderUri(sharedPackageNames[index]),
-                        arrayOf(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_HARDWARE_ID), null, null, null)
+                        arrayOf(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID,
+                                DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT,
+                                DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV),
+                        null, null, null)
                 if (cursor?.moveToFirst() != null) {
-                    hardwareId = cursor.getString(cursor.getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_HARDWARE_ID))
+                    encryptedHardwareId = cursor.getString(cursor.getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID))
+                    val salt = cursor.getString(cursor.getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT))
+                    val iv = cursor.getString(cursor.getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV))
+                    sharedHardwareId = crypto.decrypt(encryptedHardwareId, secret, salt, iv)
                     cursor.close()
                 }
                 index++
             }
         }
-        return hardwareId
+        return sharedHardwareId
     }
 }

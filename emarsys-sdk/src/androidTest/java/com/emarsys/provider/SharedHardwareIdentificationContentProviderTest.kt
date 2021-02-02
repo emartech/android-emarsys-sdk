@@ -15,10 +15,12 @@ import org.junit.Before
 import org.junit.Test
 
 
-class SharedHardwareIdContentProviderTest : ProviderTestCase2<SharedHardwareIdContentProvider>(SharedHardwareIdContentProvider::class.java, "com.emarsys.test") {
+class SharedHardwareIdentificationContentProviderTest : ProviderTestCase2<SharedHardwareIdentificationContentProvider>(SharedHardwareIdentificationContentProvider::class.java, "com.emarsys.test") {
 
     private companion object {
-        const val HARDWARE_ID = "hardwareId"
+        const val ENCRYPTED_HARDWARE_ID = "encrypted_hardware_id"
+        const val SALT = "salt"
+        const val IV = "iv"
     }
 
     lateinit var mockCoreDbHelper: CoreDbHelper
@@ -29,10 +31,13 @@ class SharedHardwareIdContentProviderTest : ProviderTestCase2<SharedHardwareIdCo
     override fun setUp() {
         super.setUp()
         mockCursor = mock {
-            on { getString(0) } doReturn HARDWARE_ID
+            on { getString(0) } doReturn ENCRYPTED_HARDWARE_ID
+            on { getString(1) } doReturn SALT
+            on { getString(2) } doReturn IV
         }
         mockDatabase = mock {
-            on { query(false, "hardware_identification", arrayOf("hardware_id"), null, null, null, null, null, null) } doReturn mockCursor
+            on { query(false, "hardware_identification", arrayOf("encrypted_hardware_id", "salt", "iv"),
+                    null, null, null, null, null, null) } doReturn mockCursor
         }
         mockCoreDbHelper = mock {
             on { readableCoreDatabase } doReturn mockDatabase
@@ -52,18 +57,18 @@ class SharedHardwareIdContentProviderTest : ProviderTestCase2<SharedHardwareIdCo
     }
 
     @Test
-    fun testQuery_shouldReturnCursorWithHardwareId() {
+    fun testQuery_shouldReturnCursorWithEncryptedHardwareId_salt_iv() {
         val mockContext: Context = mock {
             on { packageName } doReturn "com.emarsys.test"
         }
         ReflectionTestUtils.setInstanceField(provider, "coreDbHelper", mockCoreDbHelper)
         ReflectionTestUtils.setInstanceField(provider, "mContext", mockContext)
 
-        val cursor = provider.query(Uri.parse("content://com.emarsys.test/hardware_identification/hardware_id"), null, null, null, null)
+        val cursor = provider.query(Uri.parse("content://com.emarsys.test/hardware_identification"),
+                null, null, null, null)
 
         cursor shouldNotBe null
-        val result = cursor?.getString(0)
-        result shouldBe HARDWARE_ID
+        cursor shouldBe mockCursor
     }
 
     @Test

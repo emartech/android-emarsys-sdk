@@ -31,7 +31,10 @@ class HardwareIdProviderTest : ProviderTestCase2<FakeContentProvider>(FakeConten
     companion object {
         private const val HARDWARE_ID = "hw_value"
         internal const val SHARED_HARDWARE_ID = "shared_hw_value"
+        internal const val ENCRYPTED_HARDWARE_ID = "encrypted_shared_hardware_id"
         private const val SECRET = "testSecret"
+        internal const val SALT = "testSalt"
+        internal const val IV = "testIv"
         private val HARDWARE = HardwareIdentification(HARDWARE_ID)
         private val ENCRYPTED_HARDWARE = HardwareIdentification(HARDWARE_ID, "encrypted_hardware_id", "testSalt", "testIv")
         private val ENCRYPTED_SHARED_HARDWARE = HardwareIdentification(SHARED_HARDWARE_ID, "encrypted_shared_hardware_id", "testSalt", "testIv")
@@ -68,6 +71,7 @@ class HardwareIdProviderTest : ProviderTestCase2<FakeContentProvider>(FakeConten
                     "salt" to "testSalt",
                     "iv" to "testIv"
             )
+            on { decrypt(ENCRYPTED_HARDWARE_ID, SECRET, SALT, IV) } doReturn SHARED_HARDWARE_ID
         }
 
         hardwareIdProvider = HardwareIdProvider(this.mockContext, null, mockCrypto, mockUUIDProvider, mockRepository, mockStorage, sharedPackageNames)
@@ -108,21 +112,14 @@ class HardwareIdProviderTest : ProviderTestCase2<FakeContentProvider>(FakeConten
     }
 
     @Test
-    fun testProvideHardwareId_shouldGetHardwareId_fromContentResolver_andStoreInRepository_ifNotInRepositoryNorStorage() {
-        val result = hardwareIdProvider.provideHardwareId()
-
-        verify(mockRepository).add(HardwareIdentification(SHARED_HARDWARE_ID))
-        result shouldBe SHARED_HARDWARE_ID
-    }
-
-    @Test
     fun testProvideHardwareId_shouldGetHardwareId_fromContentResolver_lookingInSharedPackages_andStoreInRepository_ifNotInRepositoryNorStorage() {
         FakeContentProvider.numberOfInvocation = 0
-        hardwareIdProvider = HardwareIdProvider(this.mockContext, null, mockCrypto, mockUUIDProvider, mockRepository, mockStorage, listOf("test.package", "com.emarsys.test", "com.emarsys.test"))
+        hardwareIdProvider = HardwareIdProvider(this.mockContext, SECRET, mockCrypto, mockUUIDProvider, mockRepository, mockStorage, listOf("test.package", "com.emarsys.test", "com.emarsys.test"))
 
         val result = hardwareIdProvider.provideHardwareId()
 
-        verify(mockRepository).add(HardwareIdentification(SHARED_HARDWARE_ID))
+        verify(mockCrypto).decrypt(ENCRYPTED_HARDWARE_ID, SECRET, SALT, IV)
+        verify(mockRepository).add(HardwareIdentification(SHARED_HARDWARE_ID, ENCRYPTED_HARDWARE_ID, SALT, IV))
         FakeContentProvider.numberOfInvocation shouldBe 1
         result shouldBe SHARED_HARDWARE_ID
     }
@@ -174,7 +171,7 @@ class HardwareIdProviderTest : ProviderTestCase2<FakeContentProvider>(FakeConten
         val result = hardwareIdProvider.provideHardwareId()
 
         verify(mockCrypto).encrypt(HARDWARE_ID, SECRET)
-        verify(mockRepository).update(ENCRYPTED_HARDWARE,FilterByHardwareId(HARDWARE_ID))
+        verify(mockRepository).update(ENCRYPTED_HARDWARE, FilterByHardwareId(HARDWARE_ID))
         result shouldBe HARDWARE_ID
     }
 }
@@ -186,8 +183,12 @@ open class FakeContentProvider : MockContentProvider() {
 
     private var cursor: Cursor = mock {
         on { moveToFirst() } doReturn true
-        on { getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_HARDWARE_ID) } doReturn 0
-        on { getString(0) } doReturn HardwareIdProviderTest.SHARED_HARDWARE_ID
+        on { getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID) } doReturn 0
+        on { getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT) } doReturn 1
+        on { getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV) } doReturn 2
+        on { getString(0) } doReturn HardwareIdProviderTest.ENCRYPTED_HARDWARE_ID
+        on { getString(1) } doReturn HardwareIdProviderTest.SALT
+        on { getString(2) } doReturn HardwareIdProviderTest.IV
     }
 
     override fun query(uri: Uri, p1: Array<out String>?, p2: String?, p3: Array<out String>?, p4: String?): Cursor? {

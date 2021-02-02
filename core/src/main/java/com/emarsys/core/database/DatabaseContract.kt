@@ -29,8 +29,9 @@ object DatabaseContract {
     const val HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID = "encrypted_hardware_id"
     const val HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT = "salt"
     const val HARDWARE_IDENTIFICATION_COLUMN_NAME_IV = "iv"
+
     fun getHardwareIdProviderUri(authority: String): Uri {
-        return Uri.parse("content://$authority").buildUpon().appendPath(HARDWARE_IDENTIFICATION_TABLE_NAME).appendPath(HARDWARE_IDENTIFICATION_COLUMN_NAME_HARDWARE_ID).build()
+        return Uri.parse("content://$authority").buildUpon().appendPath(HARDWARE_IDENTIFICATION_TABLE_NAME).build()
     }
 
     val UPGRADE_TO_1 = arrayOf(
