@@ -33,9 +33,9 @@ class MobileEngageRequestModelFactoryTest {
         const val PUSH_TOKEN = "kjhygtfdrtrtdtguyihoj3iurf8y7t6fqyua2gyi8fhu"
         const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
-        const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
+        const val CLIENT_HOST = "https://me-client.eservice.emarsys.net/v3"
         const val MOBILE_ENGAGE_V2_HOST = "https://push.eservice.emarsys.net/api/mobileengage/v2/"
-        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
+        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net/v3"
         const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/api/"
         const val INBOX_V3_HOST = "https://me-inbox.eservice.emarsys.net/v3"
         val CLICKS = listOf(

@@ -102,12 +102,14 @@ class FakeMobileEngageDependencyContainer(
         pushTokenProvider: PushTokenProvider = mock(),
         clientServiceProvider: ServiceEndpointProvider = mock(),
         eventServiceProvider: ServiceEndpointProvider = mock(),
+        eventServiceV4Provider: ServiceEndpointProvider = mock(),
         deepLinkServiceProvider: ServiceEndpointProvider = mock(),
         mobileEngageV2ServiceProvider: ServiceEndpointProvider = mock(),
         inboxServiceProvider: ServiceEndpointProvider = mock(),
         messageInboxServiceProvider: ServiceEndpointProvider = mock(),
         clientServiceStorage: StringStorage = mock(),
         eventServiceStorage: StringStorage = mock(),
+        eventServiceV4Storage: StringStorage = mock(),
         deepLinkServiceStorage: StringStorage = mock(),
         mobileEngageV2ServiceStorage: StringStorage = mock(),
         inboxServiceStorage: StringStorage = mock(),
@@ -184,12 +186,14 @@ class FakeMobileEngageDependencyContainer(
         addDependency(dependencies, pushTokenProvider)
         addDependency(dependencies, clientServiceProvider, Endpoint.ME_V3_CLIENT_HOST)
         addDependency(dependencies, eventServiceProvider, Endpoint.ME_V3_EVENT_HOST)
+        addDependency(dependencies, eventServiceV4Provider, Endpoint.ME_V4_EVENT_HOST)
         addDependency(dependencies, deepLinkServiceProvider, Endpoint.DEEP_LINK)
         addDependency(dependencies, mobileEngageV2ServiceProvider, Endpoint.ME_BASE_V2)
         addDependency(dependencies, inboxServiceProvider, Endpoint.INBOX_BASE)
         addDependency(dependencies, messageInboxServiceProvider, Endpoint.ME_V3_INBOX_HOST)
         addDependency(dependencies, clientServiceStorage, MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
         addDependency(dependencies, eventServiceStorage, MobileEngageStorageKey.EVENT_SERVICE_URL.key)
+        addDependency(dependencies, eventServiceV4Storage, MobileEngageStorageKey.EVENT_SERVICE_V4_URL.key)
         addDependency(dependencies, deepLinkServiceStorage, MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
         addDependency(dependencies, mobileEngageV2ServiceStorage, MobileEngageStorageKey.ME_V2_SERVICE_URL.key)
         addDependency(dependencies, inboxServiceStorage, MobileEngageStorageKey.INBOX_SERVICE_URL.key)
@@ -305,6 +309,8 @@ class FakeMobileEngageDependencyContainer(
 
     override fun getEventServiceProvider(): ServiceEndpointProvider = getDependency(Endpoint.ME_V3_EVENT_HOST)
 
+    override fun getEventServiceV4Provider(): ServiceEndpointProvider = getDependency(Endpoint.ME_V4_EVENT_HOST)
+
     override fun getDeepLinkServiceProvider(): ServiceEndpointProvider = getDependency(Endpoint.DEEP_LINK)
 
     override fun getInboxServiceProvider(): ServiceEndpointProvider = getDependency(Endpoint.INBOX_BASE)
@@ -320,6 +326,8 @@ class FakeMobileEngageDependencyContainer(
     override fun getClientServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
 
     override fun getEventServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.EVENT_SERVICE_URL.key)
+
+    override fun getEventServiceV4Storage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.EVENT_SERVICE_V4_URL.key)
 
     override fun getDeepLinkServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
 
