@@ -8,6 +8,7 @@ android {
 }
 
 dependencies {
+    implementation project(':common')
     implementation project(':core')
     implementation project(':core-api')
     implementation project(':mobile-engage-api')

@@ -2,12 +2,12 @@ package com.emarsys.di
 
 import android.os.Handler
 import android.os.Looper
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.deeplink.DeepLinkApi
 import com.emarsys.eventservice.EventServiceApi
-import com.emarsys.feature.InnerFeature
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi

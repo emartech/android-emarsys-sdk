@@ -1,4 +1,5 @@
 include ':testUtils'
+include ':common'
 include ':core-api'
 include ':core'
 include ':mobile-engage-api'

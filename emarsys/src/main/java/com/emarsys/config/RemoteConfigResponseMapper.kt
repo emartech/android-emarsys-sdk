@@ -1,5 +1,6 @@
 package com.emarsys.config
 
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.model.RemoteConfig
 import com.emarsys.core.Mapper
 import com.emarsys.core.Mockable
@@ -12,7 +13,6 @@ import com.emarsys.core.util.filterNotNull
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
-import com.emarsys.feature.InnerFeature
 import org.json.JSONException
 import org.json.JSONObject
 import java.net.URL

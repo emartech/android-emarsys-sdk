@@ -1,8 +1,6 @@
 package com.emarsys
 
 import android.app.Application
-import android.content.Context
-import android.content.SharedPreferences
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
@@ -10,7 +8,6 @@ import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
-import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
@@ -19,7 +16,6 @@ import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
-import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
@@ -53,7 +49,6 @@ class DefaultInboxIntegrationTest {
     private lateinit var baseConfig: EmarsysConfig
     lateinit var triedNotificationInboxStatus: Try<NotificationInboxStatus>
     private lateinit var triedInboxResult: Try<InboxResult>
-    private lateinit var sharedPreferences: SharedPreferences
 
     private var errorCause: Throwable? = null
 
@@ -78,20 +73,7 @@ class DefaultInboxIntegrationTest {
         latch = CountDownLatch(1)
         ConnectionTestUtils.checkConnection(application)
 
-        sharedPreferences = application.getSharedPreferences("emarsys_secure_shared_preferences", Context.MODE_PRIVATE)
-
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
-            override fun getClientServiceProvider(): ServiceEndpointProvider {
-                return mock(ServiceEndpointProvider::class.java).apply {
-                    whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_CLIENT_HOST, Endpoint.ME_V3_CLIENT_HOST)
-                }
-            }
-
-            override fun getEventServiceProvider(): ServiceEndpointProvider {
-                return mock(ServiceEndpointProvider::class.java).apply {
-                    whenever(provideEndpointHost()).thenReturn(Endpoint.ME_V3_EVENT_HOST, Endpoint.ME_V3_EVENT_HOST)
-                }
-            }
 
             override fun getDeviceInfo(): DeviceInfo {
                 return DeviceInfo(

@@ -25,6 +25,7 @@ import java.util.*
 class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRequestContext,
                                       private val clientServiceProvider: ServiceEndpointProvider,
                                       private val eventServiceProvider: ServiceEndpointProvider,
+                                      private val eventServiceV4Provider: ServiceEndpointProvider,
                                       private val mobileEngageV2Provider: ServiceEndpointProvider,
                                       private val inboxServiceProvider: ServiceEndpointProvider,
                                       private val messageInboxServiceProvider: ServiceEndpointProvider,

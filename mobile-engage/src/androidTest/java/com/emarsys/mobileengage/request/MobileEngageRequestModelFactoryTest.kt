@@ -36,6 +36,7 @@ class MobileEngageRequestModelFactoryTest {
         const val CLIENT_HOST = "https://me-client.eservice.emarsys.net/v3"
         const val MOBILE_ENGAGE_V2_HOST = "https://push.eservice.emarsys.net/api/mobileengage/v2/"
         const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net/v3"
+        const val EVENT_V4_HOST = "https://mobile-events.eservice.emarsys.net/v4"
         const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/api/"
         const val INBOX_V3_HOST = "https://me-inbox.eservice.emarsys.net/v3"
         val CLICKS = listOf(
@@ -53,6 +54,7 @@ class MobileEngageRequestModelFactoryTest {
     lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
     lateinit var requestFactory: MobileEngageRequestModelFactory
     lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    lateinit var mockEventServiceV4Provider: ServiceEndpointProvider
     lateinit var mockClientServiceProvider: ServiceEndpointProvider
     lateinit var mockMobileEngageV2Provider: ServiceEndpointProvider
     lateinit var mockInboxServiceProvider: ServiceEndpointProvider
@@ -67,6 +69,9 @@ class MobileEngageRequestModelFactoryTest {
     fun setUp() {
         mockEventServiceProvider = mock {
             on { provideEndpointHost() } doReturn EVENT_HOST
+        }
+        mockEventServiceV4Provider = mock {
+            on { provideEndpointHost() } doReturn EVENT_V4_HOST
         }
         mockClientServiceProvider = mock {
             on { provideEndpointHost() } doReturn CLIENT_HOST
@@ -117,7 +122,7 @@ class MobileEngageRequestModelFactoryTest {
             on { query(any()) } doReturn CLICKS
         }
 
-        requestFactory = MobileEngageRequestModelFactory(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, mockMobileEngageV2Provider, mockInboxServiceProvider, mockMessageInboxServiceProvider, mockButtonClickedRepository)
+        requestFactory = MobileEngageRequestModelFactory(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMobileEngageV2Provider, mockInboxServiceProvider, mockMessageInboxServiceProvider, mockButtonClickedRepository)
     }
 
     @Test
@@ -202,18 +207,18 @@ class MobileEngageRequestModelFactoryTest {
     }
 
     @Test
-    fun testCreateCustomEventRequest() {
+    fun testCreateInternalCustomEventRequest_whenEventServiceV4_isNotEnabled() {
         val expected = RequestModel(
                 "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
                 RequestMethod.POST,
-                RequestPayloadUtils.createCustomEventPayload("eventName", emptyMap(), mockRequestContext),
+                RequestPayloadUtils.createInternalCustomEventPayload("eventName", emptyMap(), mockRequestContext),
                 RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
                 TIMESTAMP,
                 Long.MAX_VALUE,
                 REQUEST_ID
         )
 
-        val result = requestFactory.createCustomEventRequest("eventName", emptyMap())
+        val result = requestFactory.createInternalCustomEventRequest("eventName", emptyMap())
 
         result shouldBe expected
     }

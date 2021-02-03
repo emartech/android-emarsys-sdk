@@ -3,6 +3,7 @@ dependencies {
     api project(':mobile-engage-api')
     api project(':predict-api')
 
+    implementation project(':common')
     implementation project(':core')
     implementation project(':mobile-engage')
     implementation project(':predict')

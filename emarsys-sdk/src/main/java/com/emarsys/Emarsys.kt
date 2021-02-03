@@ -4,6 +4,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ProcessLifecycleOwner
+import com.emarsys.common.feature.InnerFeature
+import com.emarsys.common.feature.InnerFeature.MOBILE_ENGAGE
+import com.emarsys.common.feature.InnerFeature.PREDICT
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -26,9 +29,6 @@ import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.EmarsysDependencyInjection
-import com.emarsys.feature.InnerFeature
-import com.emarsys.feature.InnerFeature.MOBILE_ENGAGE
-import com.emarsys.feature.InnerFeature.PREDICT
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi

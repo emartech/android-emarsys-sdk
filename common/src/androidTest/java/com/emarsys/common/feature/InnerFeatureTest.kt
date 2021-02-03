@@ -1,4 +1,4 @@
-package com.emarsys.feature
+package com.emarsys.common.feature
 
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.data.forall

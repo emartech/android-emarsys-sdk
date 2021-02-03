@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.LinearLayout
 import com.emarsys.R
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
@@ -19,7 +20,6 @@ import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.feature.InnerFeature
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory

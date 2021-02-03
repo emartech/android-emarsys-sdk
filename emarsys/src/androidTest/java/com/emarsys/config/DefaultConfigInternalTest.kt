@@ -1,6 +1,7 @@
 package com.emarsys.config
 
 import com.emarsys.EmarsysRequestModelFactory
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.model.RemoteConfig
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
@@ -23,7 +24,6 @@ import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.fake.FakeRestClient
 import com.emarsys.fake.FakeResultListener
-import com.emarsys.feature.InnerFeature
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.client.ClientServiceInternal

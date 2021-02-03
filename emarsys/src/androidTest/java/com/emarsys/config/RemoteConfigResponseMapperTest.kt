@@ -1,11 +1,11 @@
 package com.emarsys.config
 
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.model.RemoteConfig
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.random.RandomProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.log.LogLevel
-import com.emarsys.feature.InnerFeature
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.doReturn

@@ -1,6 +1,7 @@
 package com.emarsys.config
 
 import com.emarsys.EmarsysRequestModelFactory
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.model.RemoteConfig
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mockable
@@ -15,7 +16,6 @@ import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.feature.InnerFeature
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.client.ClientServiceInternal

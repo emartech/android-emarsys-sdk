@@ -1,7 +1,7 @@
 package com.emarsys.config.model
 
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.util.log.LogLevel
-import com.emarsys.feature.InnerFeature
 
 data class RemoteConfig(val eventServiceUrl: String? = null,
                         val clientServiceUrl: String? = null,

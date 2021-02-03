@@ -253,7 +253,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
             addDependency(dependencies, it, MobileEngageStorageKey.EVENT_SERVICE_URL.key)
         }
         StringStorage(MobileEngageStorageKey.EVENT_SERVICE_V4_URL, prefs).also {
-            addDependency(dependencies, it, MobileEngageStorageKey.EVENT_SERVICE_URL.key)
+            addDependency(dependencies, it, MobileEngageStorageKey.EVENT_SERVICE_V4_URL.key)
         }
         StringStorage(MobileEngageStorageKey.CLIENT_SERVICE_URL, prefs).also {
             addDependency(dependencies, it, MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
@@ -288,7 +288,9 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         ServiceEndpointProvider(getMobileEngageV2ServiceStorage(), Endpoint.ME_BASE_V2).also {
             addDependency(dependencies, it, Endpoint.ME_BASE_V2)
         }
-        ServiceEndpointProvider(getEventServiceV4Storage(), Endpoint.ME_V4_EVENT_HOST)
+        ServiceEndpointProvider(getEventServiceV4Storage(), Endpoint.ME_V4_EVENT_HOST).also {
+            addDependency(dependencies, it, Endpoint.ME_V4_EVENT_HOST)
+        }
         ServiceEndpointProvider(getDeepLinkServiceStorage(), Endpoint.DEEP_LINK).also {
             addDependency(dependencies, it, Endpoint.DEEP_LINK)
         }
@@ -349,7 +351,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         RestClient(ConnectionProvider(), getTimestampProvider(), getResponseHandlersProcessor(), createRequestModelMappers()).also {
             addDependency(dependencies, it)
         }
-        val requestModelFactory = MobileEngageRequestModelFactory(getRequestContext(), getClientServiceProvider(), getEventServiceProvider(), getMobileEngageV2ServiceProvider(), getInboxServiceProvider(), getMessageInboxServiceProvider(), getButtonClickedRepository())
+        val requestModelFactory = MobileEngageRequestModelFactory(getRequestContext(), getClientServiceProvider(), getEventServiceProvider(), getEventServiceV4Provider(), getMobileEngageV2ServiceProvider(), getInboxServiceProvider(), getMessageInboxServiceProvider(), getButtonClickedRepository())
                 .also { addDependency(dependencies, it) }
         val emarsysRequestModelFactory = EmarsysRequestModelFactory(getRequestContext())
         val contactTokenResponseHandler = MobileEngageTokenResponseHandler("contactToken", getContactTokenStorage(), getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()).also {
@@ -794,7 +796,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
 
     override fun getEventServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.EVENT_SERVICE_URL.key)
 
-    override fun getEventServiceV4Storage(): Storage<String?> = getDependency(dependencies, MobileEngageStorageKey.EVENT_SERVICE_V4_URL.key)
+    override fun getEventServiceV4Storage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.EVENT_SERVICE_V4_URL.key)
 
     override fun getDeepLinkServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
 

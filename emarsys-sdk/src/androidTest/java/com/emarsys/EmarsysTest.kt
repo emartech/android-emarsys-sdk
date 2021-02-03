@@ -33,6 +33,7 @@ import com.emarsys.Emarsys.setContact
 import com.emarsys.Emarsys.setup
 import com.emarsys.Emarsys.trackCustomEvent
 import com.emarsys.Emarsys.trackDeepLink
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -61,7 +62,6 @@ import com.emarsys.deeplink.DeepLinkApi
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.eventservice.EventServiceApi
-import com.emarsys.feature.InnerFeature
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
