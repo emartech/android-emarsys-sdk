@@ -1,11 +1,13 @@
 package com.emarsys.mobileengage.responsehandler
 
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.database.repository.Repository
 
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.core.endpoint.ServiceEndpointProvider
+import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
@@ -52,6 +54,8 @@ class InAppCleanUpResponseHandlerTest {
         }
 
         handler = InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository, mockEventServiceProvider, mockEventServiceV4Provider)
+
+        FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
     }
 
     @Test
@@ -104,6 +108,16 @@ class InAppCleanUpResponseHandlerTest {
         val result = handler.shouldHandleResponse(response)
 
         result shouldBe true
+    }
+
+    @Test
+    fun testShouldHandleResponse_shouldReturnFalseWhen_eventServiceV4_isEnabled() {
+        FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
+
+        val response = buildResponseModel(mockRequestModel)
+        val result = handler.shouldHandleResponse(response)
+
+        result shouldBe false
     }
 
     @Test

@@ -1,8 +1,10 @@
 package com.emarsys.mobileengage.responsehandler
 
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.endpoint.ServiceEndpointProvider
+import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
@@ -22,11 +24,13 @@ class InAppCleanUpResponseHandler(
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
         var shouldHandle = false
-        val json = responseModel.parsedBody
-        if (json != null && json.has(OLD_MESSAGES) && isCustomEventResponseModel(responseModel)) {
-            val array = json.optJSONArray(OLD_MESSAGES)
-            if (array != null) {
-                shouldHandle = array.length() > 0
+        if (!FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4)) {
+            val json = responseModel.parsedBody
+            if (json != null && json.has(OLD_MESSAGES) && isCustomEventResponseModel(responseModel)) {
+                val array = json.optJSONArray(OLD_MESSAGES)
+                if (array != null) {
+                    shouldHandle = array.length() > 0
+                }
             }
         }
         return shouldHandle
