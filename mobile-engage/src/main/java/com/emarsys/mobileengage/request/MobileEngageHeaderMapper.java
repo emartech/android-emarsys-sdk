@@ -16,17 +16,20 @@ public class MobileEngageHeaderMapper implements Mapper<RequestModel, RequestMod
     private final MobileEngageRequestContext requestContext;
     private final ServiceEndpointProvider clientServiceProvider;
     private final ServiceEndpointProvider eventServiceProvider;
+    private final ServiceEndpointProvider eventServiceV4Provider;
     private final ServiceEndpointProvider messageInboxServiceProvider;
 
-    public MobileEngageHeaderMapper(MobileEngageRequestContext requestContext, ServiceEndpointProvider clientServiceProvider, ServiceEndpointProvider eventServiceProvider, ServiceEndpointProvider messageInboxServiceProvider) {
+    public MobileEngageHeaderMapper(MobileEngageRequestContext requestContext, ServiceEndpointProvider clientServiceProvider, ServiceEndpointProvider eventServiceProvider, ServiceEndpointProvider eventServiceV4Provider, ServiceEndpointProvider messageInboxServiceProvider) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
         Assert.notNull(clientServiceProvider, "ClientServiceProvider must not be null!");
         Assert.notNull(eventServiceProvider, "EventServiceProvider must not be null!");
+        Assert.notNull(eventServiceV4Provider, "EventServiceV4Provider must not be null!");
         Assert.notNull(messageInboxServiceProvider, "MessageInboxServiceProvider must not be null!");
 
         this.requestContext = requestContext;
         this.clientServiceProvider = clientServiceProvider;
         this.eventServiceProvider = eventServiceProvider;
+        this.eventServiceV4Provider = eventServiceV4Provider;
         this.messageInboxServiceProvider = messageInboxServiceProvider;
     }
 
@@ -37,7 +40,7 @@ public class MobileEngageHeaderMapper implements Mapper<RequestModel, RequestMod
         Map<String, String> headersToInject = getHeadersToInject(requestModel);
 
         RequestModel updatedRequestModel = requestModel;
-        if (RequestModelUtils.isMobileEngageV3Request(requestModel, eventServiceProvider, clientServiceProvider,messageInboxServiceProvider)) {
+        if (RequestModelUtils.isMobileEngageRequest(requestModel, eventServiceProvider, clientServiceProvider, eventServiceV4Provider, messageInboxServiceProvider)) {
 
             Map<String, String> updatedHeaders = new HashMap<>(requestModel.getHeaders());
             updatedHeaders.putAll(headersToInject);

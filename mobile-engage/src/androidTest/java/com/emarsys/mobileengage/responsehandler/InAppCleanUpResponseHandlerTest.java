@@ -29,6 +29,7 @@ public class InAppCleanUpResponseHandlerTest {
     private Repository<DisplayedIam, SqlSpecification> mockDisplayedIamRepository;
     private Repository<ButtonClicked, SqlSpecification> mockButtonClickRepository;
     private ServiceEndpointProvider mockEventServiceProvider;
+    private ServiceEndpointProvider mockEventServiceV4Provider;
     private String EVENT_HOST = "https://mobile-events.eservice.emarsys.net";
     private String EVENT_BASE = EVENT_HOST + "/v3/apps/%s/client/events";
 
@@ -46,24 +47,31 @@ public class InAppCleanUpResponseHandlerTest {
         mockDisplayedIamRepository = mock(Repository.class);
         mockButtonClickRepository = mock(Repository.class);
         mockEventServiceProvider = mock(ServiceEndpointProvider.class);
+        mockEventServiceV4Provider = mock(ServiceEndpointProvider.class);
         when(mockEventServiceProvider.provideEndpointHost()).thenReturn(EVENT_HOST);
+        when(mockEventServiceV4Provider.provideEndpointHost()).thenReturn(EVENT_HOST);
 
-        handler = new InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository, mockEventServiceProvider);
+        handler = new InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository, mockEventServiceProvider, mockEventServiceV4Provider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_inappRepository_shouldNotBeNull() {
-        new InAppCleanUpResponseHandler(null, mockButtonClickRepository, mockEventServiceProvider);
+        new InAppCleanUpResponseHandler(null, mockButtonClickRepository, mockEventServiceProvider, mockEventServiceV4Provider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_buttonClickedRepository_shouldNotBeNull() {
-        new InAppCleanUpResponseHandler(mockDisplayedIamRepository, null, mockEventServiceProvider);
+        new InAppCleanUpResponseHandler(mockDisplayedIamRepository, null, mockEventServiceProvider, mockEventServiceV4Provider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_eventServiceProvider_shouldNotBeNull() {
-        new InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository, null);
+        new InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository, null, mockEventServiceV4Provider);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_eventServiceV4Provider_shouldNotBeNull() {
+        new InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository, mockEventServiceProvider, null);
     }
 
     @Test

@@ -21,7 +21,8 @@ class MobileEngageClientStateResponseHandlerTest {
         const val X_CLIENT_STATE_VALUE = "TG9yZW0gSXBzdW0gaXMgc2ltcGx5IGR1bW15IHRleHQgb2YgdGhlIHByaW50aW5nIGFuZCB0"
         const val APPLICATION_CODE = "applicationCode"
         const val CLIENT_HOST = "https://mobile-events.eservice.emarsys.net"
-        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
+        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net/v3"
+        const val EVENT_HOST_V4 = "https://mobile-events.eservice.emarsys.net/v4"
         const val INBOX_HOST = "https://mobile-events.eservice.emarsys.net/v3"
     }
 
@@ -30,6 +31,7 @@ class MobileEngageClientStateResponseHandlerTest {
     private lateinit var clientStateResponseHandler: MobileEngageClientStateResponseHandler
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    private lateinit var mockEventServiceV4Provider: ServiceEndpointProvider
     private lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
 
     @Rule
@@ -47,6 +49,9 @@ class MobileEngageClientStateResponseHandlerTest {
         mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
         }
+        mockEventServiceV4Provider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(EVENT_HOST_V4)
+        }
         mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(INBOX_HOST)
         }
@@ -54,7 +59,7 @@ class MobileEngageClientStateResponseHandlerTest {
         requestModelMock = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(CLIENT_HOST + Endpoint.clientBase(APPLICATION_CODE)))
         }
-        clientStateResponseHandler = MobileEngageClientStateResponseHandler(mockStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        clientStateResponseHandler = MobileEngageClientStateResponseHandler(mockStorage, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
     }
 
     @Test

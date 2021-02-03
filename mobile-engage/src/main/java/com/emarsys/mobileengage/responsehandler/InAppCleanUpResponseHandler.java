@@ -21,18 +21,21 @@ public class InAppCleanUpResponseHandler extends AbstractResponseHandler {
     private final Repository<DisplayedIam, SqlSpecification> displayedIamRepository;
     private final Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
     private final ServiceEndpointProvider eventServiceProvider;
+    private final ServiceEndpointProvider eventServiceV4Provider;
 
     public InAppCleanUpResponseHandler(
             Repository<DisplayedIam, SqlSpecification> displayedIamRepository,
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
-            ServiceEndpointProvider eventServiceProvider) {
+            ServiceEndpointProvider eventServiceProvider, ServiceEndpointProvider eventServiceV4Provider) {
         Assert.notNull(displayedIamRepository, "DisplayedIamRepository must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
         Assert.notNull(eventServiceProvider, "EventServiceProvider must not be null!");
+        Assert.notNull(eventServiceV4Provider, "EventServiceV4Provider must not be null!");
 
         this.displayedIamRepository = displayedIamRepository;
         this.buttonClickedRepository = buttonClickedRepository;
         this.eventServiceProvider = eventServiceProvider;
+        this.eventServiceV4Provider = eventServiceProvider;
     }
 
     @Override
@@ -48,7 +51,7 @@ public class InAppCleanUpResponseHandler extends AbstractResponseHandler {
     }
 
     private boolean isCustomEventResponseModel(ResponseModel responseModel) {
-        return RequestModelUtils.isCustomEvent_V3(responseModel.getRequestModel(), eventServiceProvider);
+        return RequestModelUtils.isCustomEvent(responseModel.getRequestModel(), eventServiceProvider, eventServiceV4Provider);
     }
 
     @Override

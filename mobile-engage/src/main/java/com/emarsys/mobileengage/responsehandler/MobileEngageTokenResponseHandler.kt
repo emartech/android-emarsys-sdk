@@ -15,6 +15,7 @@ class MobileEngageTokenResponseHandler(private val tokenKey: String,
                                        private val tokenStorage: StringStorage,
                                        private val clientServiceProvider: ServiceEndpointProvider,
                                        private val eventServiceProvider: ServiceEndpointProvider,
+                                       private val eventServiceV4Provider: ServiceEndpointProvider,
                                        private val messageInboxServiceProvider: ServiceEndpointProvider) : AbstractResponseHandler() {
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
@@ -34,7 +35,7 @@ class MobileEngageTokenResponseHandler(private val tokenKey: String,
     }
 
     private fun isMobileEngage(requestModel: RequestModel): Boolean {
-        return RequestModelUtils.isMobileEngageV3Request(requestModel, clientServiceProvider, eventServiceProvider, messageInboxServiceProvider)
+        return RequestModelUtils.isMobileEngageRequest(requestModel, clientServiceProvider, eventServiceProvider, eventServiceV4Provider, messageInboxServiceProvider)
     }
 
     private fun hasCorrectBody(body: JSONObject?): Boolean {

@@ -17,6 +17,7 @@ class CoreCompletionHandlerRefreshTokenProxyProvider(
         private val pushTokenStorage: StringStorage,
         private val clientServiceProvider: ServiceEndpointProvider,
         private val eventServiceProvider: ServiceEndpointProvider,
+        private val eventServiceV4Provider: ServiceEndpointProvider,
         private val messageInboxServiceProvider: ServiceEndpointProvider,
         private val defaultHandler: CoreCompletionHandler) : CompletionHandlerProxyProvider {
 
@@ -29,6 +30,6 @@ class CoreCompletionHandlerRefreshTokenProxyProvider(
             coreCompletionHandler = coreCompletionHandlerMiddlewareProvider.provideProxy(worker, coreCompletionHandler)
         }
         return CoreCompletionHandlerRefreshTokenProxy(coreCompletionHandler, refreshTokenInternal, restClient, contactTokenStorage,
-                pushTokenStorage, clientServiceProvider, eventServiceProvider, messageInboxServiceProvider)
+                pushTokenStorage, clientServiceProvider, eventServiceProvider, eventServiceV4Provider, messageInboxServiceProvider)
     }
 }

@@ -55,7 +55,8 @@ public class RequestRepositoryProxyTest {
     private static final long TIMESTAMP = 80_000L;
     private static final String REQUEST_ID = "REQUEST_ID";
     private static final String APPLICATION_CODE = "applicationCode";
-    private static final String EVENT_HOST = "https://mobile-events.eservice.emarsys.net";
+    private static final String EVENT_HOST = "https://mobile-events.eservice.emarsys.net/v3";
+    private static final String EVENT_HOST_V4 = "https://mobile-events.eservice.emarsys.net/v4";
 
     private MobileEngageRequestContext mockRequestContext;
 
@@ -73,6 +74,7 @@ public class RequestRepositoryProxyTest {
     private RequestRepositoryProxy compositeRepository;
     private UUIDProvider uuidProvider;
     private ServiceEndpointProvider mockEventServiceProvider;
+    private ServiceEndpointProvider mockEventServiceV4Provider;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -109,48 +111,58 @@ public class RequestRepositoryProxyTest {
         mockEventServiceProvider = mock(ServiceEndpointProvider.class);
         when(mockEventServiceProvider.provideEndpointHost()).thenReturn(EVENT_HOST);
 
+        mockEventServiceV4Provider = mock(ServiceEndpointProvider.class);
+        when(mockEventServiceV4Provider.provideEndpointHost()).thenReturn(EVENT_HOST_V4);
+
         compositeRepository = new RequestRepositoryProxy(
                 mockRequestModelRepository,
                 mockDisplayedIamRepository,
                 mockButtonClickedRepository,
                 timestampProvider,
                 uuidProvider,
-                inAppEventHandlerInternal, mockEventServiceProvider);
+                inAppEventHandlerInternal,
+                mockEventServiceProvider,
+                mockEventServiceV4Provider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(null, mockDisplayedIamRepository, mockButtonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider);
+        new RequestRepositoryProxy(null, mockDisplayedIamRepository, mockButtonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider, mockEventServiceV4Provider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_displayedIamRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, null, mockButtonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider);
+        new RequestRepositoryProxy(mockRequestModelRepository, null, mockButtonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider, mockEventServiceV4Provider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_buttonClickedRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, null, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, null, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider, mockEventServiceV4Provider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_timestampProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, null, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, null, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider, mockEventServiceV4Provider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_inAppInternal_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, uuidProvider, null, mockEventServiceProvider);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, uuidProvider, null, mockEventServiceProvider, mockEventServiceV4Provider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_uuidProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, null, inAppEventHandlerInternal, mockEventServiceProvider);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, null, inAppEventHandlerInternal, mockEventServiceProvider, mockEventServiceV4Provider);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_eventServiceProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, null);
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, null, mockEventServiceV4Provider);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_eventServiceV4Provider_mustNotBeNull() {
+        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider, null);
     }
 
     @Test
@@ -474,7 +486,8 @@ public class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider
+                mockEventServiceProvider,
+                mockEventServiceV4Provider
         );
     }
 

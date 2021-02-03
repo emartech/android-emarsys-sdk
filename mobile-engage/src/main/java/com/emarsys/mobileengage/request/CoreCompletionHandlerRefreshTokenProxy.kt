@@ -7,7 +7,7 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.RequestModelUtils
 import com.emarsys.mobileengage.RefreshTokenInternal
-import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageV3Request
+import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageRequest
 
 class CoreCompletionHandlerRefreshTokenProxy(private val coreCompletionHandler: CoreCompletionHandler,
                                              private val refreshTokenInternal: RefreshTokenInternal,
@@ -16,6 +16,7 @@ class CoreCompletionHandlerRefreshTokenProxy(private val coreCompletionHandler: 
                                              private val pushTokenStorage: Storage<String>,
                                              private val clientServiceProvider: ServiceEndpointProvider,
                                              private val eventServiceProvider: ServiceEndpointProvider,
+                                             private val eventServiceV4Provider: ServiceEndpointProvider,
                                              private val messageInboxServiceProvider: ServiceEndpointProvider) : CoreCompletionHandler {
 
     override fun onSuccess(id: String, responseModel: ResponseModel) {
@@ -24,8 +25,8 @@ class CoreCompletionHandlerRefreshTokenProxy(private val coreCompletionHandler: 
 
     override fun onError(originalId: String, originalResponseModel: ResponseModel) {
         if (originalResponseModel.statusCode == 401
-                && isMobileEngageV3Request(originalResponseModel.requestModel, eventServiceProvider,
-                        clientServiceProvider, messageInboxServiceProvider)) {
+                && isMobileEngageRequest(originalResponseModel.requestModel, eventServiceProvider,
+                        clientServiceProvider, eventServiceV4Provider, messageInboxServiceProvider)) {
             pushTokenStorage.remove()
             refreshTokenInternal.refreshContactToken { errorCause ->
                 if (errorCause == null) {

@@ -354,7 +354,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         val requestModelFactory = MobileEngageRequestModelFactory(getRequestContext(), getClientServiceProvider(), getEventServiceProvider(), getEventServiceV4Provider(), getMobileEngageV2ServiceProvider(), getInboxServiceProvider(), getMessageInboxServiceProvider(), getButtonClickedRepository())
                 .also { addDependency(dependencies, it) }
         val emarsysRequestModelFactory = EmarsysRequestModelFactory(getRequestContext())
-        val contactTokenResponseHandler = MobileEngageTokenResponseHandler("contactToken", getContactTokenStorage(), getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()).also {
+        val contactTokenResponseHandler = MobileEngageTokenResponseHandler("contactToken", getContactTokenStorage(), getClientServiceProvider(), getEventServiceProvider(),  getEventServiceV4Provider(), getMessageInboxServiceProvider()).also {
             addDependency(dependencies, it, "contactTokenResponseHandler")
         }
         NotificationCache().also {
@@ -382,6 +382,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getPushTokenStorage(),
                 getClientServiceProvider(),
                 getEventServiceProvider(),
+                getEventServiceV4Provider(),
                 getMessageInboxServiceProvider(),
                 getCoreCompletionHandler())
         val worker: Worker = DefaultWorker(
@@ -599,12 +600,14 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getTimestampProvider(),
                 getUuidProvider(),
                 inAppEventHandler,
-                getEventServiceProvider())
+                getEventServiceProvider(),
+                getEventServiceV4Provider()
+        )
     }
 
     private fun createRequestModelMappers(): List<Mapper<RequestModel, RequestModel>> {
         val mappers: MutableList<Mapper<RequestModel, RequestModel>> = ArrayList()
-        mappers.add(MobileEngageHeaderMapper(getRequestContext(), getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()))
+        mappers.add(MobileEngageHeaderMapper(getRequestContext(), getClientServiceProvider(), getEventServiceProvider(),  getEventServiceV4Provider(), getMessageInboxServiceProvider()))
         return mappers
     }
 
@@ -656,15 +659,16 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         val responseHandlers: MutableList<AbstractResponseHandler?> = ArrayList()
         responseHandlers.add(VisitorIdResponseHandler(getDependency(dependencies), getPredictServiceProvider()))
         responseHandlers.add(XPResponseHandler(getDependency(dependencies), getPredictServiceProvider()))
-        responseHandlers.add(MobileEngageTokenResponseHandler("refreshToken", getRefreshContactTokenStorage(), getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()))
+        responseHandlers.add(MobileEngageTokenResponseHandler("refreshToken", getRefreshContactTokenStorage(), getClientServiceProvider(), getEventServiceProvider(),  getEventServiceV4Provider(), getMessageInboxServiceProvider()))
         responseHandlers.add(getDependency<MobileEngageTokenResponseHandler>("contactTokenResponseHandler"))
-        responseHandlers.add(MobileEngageClientStateResponseHandler(getClientStateStorage(), getClientServiceProvider(), getEventServiceProvider(), getMessageInboxServiceProvider()))
+        responseHandlers.add(MobileEngageClientStateResponseHandler(getClientStateStorage(), getClientServiceProvider(), getEventServiceProvider(),  getEventServiceV4Provider(), getMessageInboxServiceProvider()))
         responseHandlers.add(ClientInfoResponseHandler(getDeviceInfo(), getDeviceInfoPayloadStorage()))
         responseHandlers.add(InAppMessageResponseHandler(getOverlayInAppPresenter()))
         responseHandlers.add(InAppCleanUpResponseHandler(
                 getDependency(dependencies, "displayedIamRepository"),
                 getDependency(dependencies, "buttonClickedRepository"),
-                getEventServiceProvider()
+                getEventServiceProvider(),
+                getEventServiceV4Provider()
         ))
         responseHandlers.add(OnEventActionResponseHandler(
                 getDependency("onEventActionActionCommandFactory"),

@@ -19,7 +19,8 @@ class MobileEngageTokenResponseHandlerTest {
     private companion object {
         const val CLIENT_HOST = "https://mobile-events.eservice.emarsys.net"
         const val CLIENT_BASE = "$CLIENT_HOST/v3/apps/%s/client"
-        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
+        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net/v3"
+        const val EVENT_HOST_V4 = "https://mobile-events.eservice.emarsys.net/v4"
         const val INBOX_HOST = "https://mobile-events.eservice.emarsys.net/v3"
     }
 
@@ -30,6 +31,7 @@ class MobileEngageTokenResponseHandlerTest {
     private lateinit var requestModelMock: RequestModel
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    private lateinit var mockEventServiceV4Provider: ServiceEndpointProvider
     private lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
 
     @Rule
@@ -49,6 +51,9 @@ class MobileEngageTokenResponseHandlerTest {
         mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
         }
+        mockEventServiceV4Provider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(EVENT_HOST_V4)
+        }
         mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(INBOX_HOST)
         }
@@ -56,7 +61,7 @@ class MobileEngageTokenResponseHandlerTest {
         requestModelMock = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(CLIENT_BASE))
         }
-        tokenResponseHandler = MobileEngageTokenResponseHandler(tokenKey, mockStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        tokenResponseHandler = MobileEngageTokenResponseHandler(tokenKey, mockStorage, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
     }
 
     @Test

@@ -31,7 +31,8 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     companion object {
         const val REQUEST_ID = "testRequestId"
         const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
-        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
+        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net/v3"
+        const val EVENT_HOST_V4 = "https://mobile-events.eservice.emarsys.net/v4"
         const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/v3"
     }
 
@@ -45,6 +46,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     private lateinit var mockPushTokenStorage: Storage<String>
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    private lateinit var mockEventServiceV4Provider: ServiceEndpointProvider
     private lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
 
     @Before
@@ -66,11 +68,22 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
         mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
         }
+        mockEventServiceV4Provider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(EVENT_HOST_V4)
+        }
         mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(INBOX_HOST)
         }
 
-        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, mockRefreshTokenInternal, mockRestClient, mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler,
+                mockRefreshTokenInternal,
+                mockRestClient,
+                mockContactTokenStorage,
+                mockPushTokenStorage,
+                mockClientServiceProvider,
+                mockEventServiceProvider,
+                mockEventServiceV4Provider,
+                mockMessageInboxServiceProvider)
     }
 
     @Test
@@ -93,7 +106,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
     @Test
     fun testOnError_shouldCall_createRefreshTokenRequest_whenStatusCodeIs401_andV3EventUrl() {
-        whenever(mockRequestModel.url).thenReturn(URL("https://mobile-events.eservice.emarsys.net"))
+        whenever(mockRequestModel.url).thenReturn(URL(EVENT_HOST_V4))
         whenever(mockResponseModel.statusCode).thenReturn(401)
 
         proxy.onError(REQUEST_ID, mockResponseModel)
@@ -103,7 +116,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
     @Test
     fun testOnError_shouldCall_clearPushTokenStorage_whenStatusCodeIs401_andV3ClientUrl() {
-        whenever(mockRequestModel.url).thenReturn(URL("https://me-client.eservice.emarsys.net"))
+        whenever(mockRequestModel.url).thenReturn(URL(CLIENT_HOST))
         whenever(mockResponseModel.statusCode).thenReturn(401)
 
         proxy.onError(REQUEST_ID, mockResponseModel)
@@ -145,8 +158,16 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
     @Test
     fun testOnError_shouldDelegateRequestModelsContactToken_whenStatusCodeIs401() {
-        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, FakeMobileEngageRefreshTokenInternal(true), mockRestClient, mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
-        val requestModel = RequestModel("https://mobile-events.eservice.emarsys.net", RequestMethod.POST, emptyMap(), mapOf("X-Contact-Token" to "testContactToken", "X-Client-State" to "testClientState"), 12345, Long.MAX_VALUE, REQUEST_ID)
+        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler,
+                FakeMobileEngageRefreshTokenInternal(true),
+                mockRestClient,
+                mockContactTokenStorage,
+                mockPushTokenStorage,
+                mockClientServiceProvider,
+                mockEventServiceProvider,
+                mockEventServiceV4Provider,
+                mockMessageInboxServiceProvider)
+        val requestModel = RequestModel(EVENT_HOST_V4, RequestMethod.POST, emptyMap(), mapOf("X-Contact-Token" to "testContactToken", "X-Client-State" to "testClientState"), 12345, Long.MAX_VALUE, REQUEST_ID)
 
         whenever(mockResponseModel.statusCode).thenReturn(401)
         whenever(mockResponseModel.requestModel).thenReturn(requestModel)
@@ -159,10 +180,18 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     @Test
     fun testOnError_shouldCall_coreCompletionHandler_withError_whenExceptionThrown() {
         whenever(mockRequestModel.id).thenReturn(REQUEST_ID)
-        whenever(mockRequestModel.url).thenReturn(URL("https://mobile-events.eservice.emarsys.net"))
+        whenever(mockRequestModel.url).thenReturn(URL(EVENT_HOST_V4))
         whenever(mockResponseModel.statusCode).thenReturn(401)
 
-        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, FakeMobileEngageRefreshTokenInternal(), mockRestClient, mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler,
+                FakeMobileEngageRefreshTokenInternal(),
+                mockRestClient,
+                mockContactTokenStorage,
+                mockPushTokenStorage,
+                mockClientServiceProvider,
+                mockEventServiceProvider,
+                mockEventServiceV4Provider,
+                mockMessageInboxServiceProvider)
 
         proxy.onError(REQUEST_ID, mockResponseModel)
 
@@ -174,14 +203,22 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
         val mockRequestModel = mock(CompositeRequestModel::class.java).apply {
             whenever(id).thenReturn("compositeRequestId")
             whenever(originalRequestIds).thenReturn(arrayOf(REQUEST_ID))
-            whenever(url).thenReturn(URL("https://mobile-events.eservice.emarsys.net"))
+            whenever(url).thenReturn(URL(EVENT_HOST_V4))
         }
 
         whenever(mockResponseModel.requestModel).thenReturn(mockRequestModel)
         whenever(mockResponseModel.statusCode).thenReturn(401)
 
 
-        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler, FakeMobileEngageRefreshTokenInternal(), mockRestClient, mockContactTokenStorage, mockPushTokenStorage, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler,
+                FakeMobileEngageRefreshTokenInternal(),
+                mockRestClient,
+                mockContactTokenStorage,
+                mockPushTokenStorage,
+                mockClientServiceProvider,
+                mockEventServiceProvider,
+                mockEventServiceV4Provider,
+                mockMessageInboxServiceProvider)
 
         proxy.onError("compositeRequestId", mockResponseModel)
 

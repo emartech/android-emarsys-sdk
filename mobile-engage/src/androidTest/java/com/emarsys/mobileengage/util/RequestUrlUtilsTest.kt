@@ -14,10 +14,12 @@ import org.mockito.Mockito.mock
 class RequestUrlUtilsTest {
     private companion object {
         const val APPLICATION_CODE = "app_code"
-        const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
-        const val CLIENT_BASE = "$CLIENT_HOST/v3/apps/%s/client"
-        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
-        const val EVENT_BASE = "$EVENT_HOST/v3/apps/%s/client/events"
+        const val CLIENT_HOST = "https://me-client.eservice.emarsys.net/v3"
+        const val CLIENT_BASE = "$CLIENT_HOST/apps/%s/client"
+        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net/v3"
+        const val EVENT_HOST_V4 = "https://mobile-events.eservice.emarsys.net/v4"
+        const val EVENT_BASE = "$EVENT_HOST/apps/%s/client/events"
+        const val EVENT_BASE_V4 = "$EVENT_HOST_V4/apps/%s/client/events"
         const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/v3"
         const val INBOX_BASE = "$INBOX_HOST/apps/%s/inbox"
         const val REMOTE_CONFIG_HOST = "https://mobile-sdk-config.gservice.emarsys.net"
@@ -26,6 +28,7 @@ class RequestUrlUtilsTest {
     private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    private lateinit var mockEventServiceV4Provider: ServiceEndpointProvider
     private lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
 
     @Rule
@@ -43,6 +46,9 @@ class RequestUrlUtilsTest {
         mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
         }
+        mockEventServiceV4Provider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(EVENT_HOST_V4)
+        }
         mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(INBOX_BASE)
         }
@@ -50,49 +56,63 @@ class RequestUrlUtilsTest {
 
     @Test
     fun testIsMobileEngageUrl_true_whenItIsMobileEngageClient() {
-        val result = RequestUrlUtils.isMobileEngageV3Url(CLIENT_BASE, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        val result = RequestUrlUtils.isMobileEngageUrl(CLIENT_BASE, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
 
         result shouldBe true
     }
 
     @Test
-    fun testIsMobileEngageUrl_true_whenItIsMobileEngageEvent() {
-        val result = RequestUrlUtils.isMobileEngageV3Url(EVENT_BASE, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+    fun testIsMobileEngageUrl_true_whenItIsMobileEngageV3Event() {
+        val result = RequestUrlUtils.isMobileEngageUrl(EVENT_BASE, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsMobileEngageUrl_true_whenItIsMobileEngageV4Event() {
+        val result = RequestUrlUtils.isMobileEngageUrl(EVENT_BASE_V4, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
 
         result shouldBe true
     }
 
     @Test
     fun testIsMobileEngageUrl_true_whenItIsMobileEngageMessageInbox() {
-        val result = RequestUrlUtils.isMobileEngageV3Url(INBOX_BASE, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        val result = RequestUrlUtils.isMobileEngageUrl(INBOX_BASE, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
 
         result shouldBe true
     }
 
     @Test
     fun testIsMobileEngageUrl_false_whenItIsNotMobileEngage() {
-        val result = RequestUrlUtils.isMobileEngageV3Url("https://not-mobile-engage.com", mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        val result = RequestUrlUtils.isMobileEngageUrl("https://not-mobile-engage.com", mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
 
         result shouldBe false
     }
 
     @Test
-    fun testIsRemoteConfig_V3_true_whenItIsRemoteConfigUrl() {
-        val result = RequestUrlUtils.isMobileEngageV3Url("$REMOTE_CONFIG_HOST/$APPLICATION_CODE", mockClientServiceProvider,mockEventServiceProvider,mockMessageInboxServiceProvider)
+    fun testIsRemoteConfig_true_whenItIsRemoteConfigUrl() {
+        val result = RequestUrlUtils.isMobileEngageUrl("$REMOTE_CONFIG_HOST/$APPLICATION_CODE", mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
 
         result shouldBe true
     }
 
     @Test
-    fun testIsCustomEvent_V3_false_whenItIsNotCustomEventV3Event() {
-        val result = RequestUrlUtils.isCustomEvent_V3(CLIENT_BASE, mockEventServiceProvider)
+    fun testIsCustomEvent_false_whenItIsNotCustomEventV3Event() {
+        val result = RequestUrlUtils.isCustomEvent(CLIENT_BASE, mockEventServiceProvider, mockEventServiceV4Provider)
 
         result shouldBe false
     }
 
     @Test
-    fun testIsCustomEvent_V3_true_whenItIsCustomEventV3Event() {
-        val result = RequestUrlUtils.isCustomEvent_V3(EVENT_BASE, mockEventServiceProvider)
+    fun testIsCustomEvent_true_whenItIsCustomEventV3Event() {
+        val result = RequestUrlUtils.isCustomEvent(EVENT_BASE, mockEventServiceProvider, mockEventServiceV4Provider)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsCustomEvent_true_whenItIsCustomEventV4Event() {
+        val result = RequestUrlUtils.isCustomEvent(EVENT_BASE_V4, mockEventServiceProvider, mockEventServiceV4Provider)
 
         result shouldBe true
     }

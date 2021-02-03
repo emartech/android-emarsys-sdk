@@ -5,19 +5,21 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider
 
 object RequestUrlUtils {
     @JvmStatic
-    fun isMobileEngageV3Url(url: String,
-                            clientServiceProvider: ServiceEndpointProvider,
-                            eventServiceProvider: ServiceEndpointProvider,
-                            messageInboxServiceProvider: ServiceEndpointProvider): Boolean {
+    fun isMobileEngageUrl(url: String,
+                          clientServiceProvider: ServiceEndpointProvider,
+                          eventServiceProvider: ServiceEndpointProvider,
+                          eventServiceV4Provider: ServiceEndpointProvider,
+                          messageInboxServiceProvider: ServiceEndpointProvider): Boolean {
         return url.startsWith(clientServiceProvider.provideEndpointHost())
                 || url.startsWith(eventServiceProvider.provideEndpointHost())
+                || url.startsWith(eventServiceV4Provider.provideEndpointHost())
                 || url.startsWith(messageInboxServiceProvider.provideEndpointHost())
                 || url.startsWith(Endpoint.REMOTE_CONFIG_URL)
     }
 
     @JvmStatic
-    fun isCustomEvent_V3(url: String, eventServiceProvider: ServiceEndpointProvider): Boolean {
-        return url.startsWith(eventServiceProvider.provideEndpointHost()) && url.endsWith("/events")
+    fun isCustomEvent(url: String, eventServiceProvider: ServiceEndpointProvider, eventServiceV4Provider: ServiceEndpointProvider): Boolean {
+        return (url.startsWith(eventServiceProvider.provideEndpointHost()) || url.startsWith(eventServiceV4Provider.provideEndpointHost())) && url.endsWith("/events")
     }
 
     @JvmStatic

@@ -32,6 +32,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private final UUIDProvider uuidProvider;
     private final InAppEventHandlerInternal inAppEventHandlerInternal;
     private final ServiceEndpointProvider eventServiceProvider;
+    private final ServiceEndpointProvider eventServiceV4Provider;
 
     public RequestRepositoryProxy(
             Repository<RequestModel, SqlSpecification> requestRepository,
@@ -39,7 +40,9 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
             Repository<ButtonClicked, SqlSpecification> buttonClickedRepository,
             TimestampProvider timestampProvider,
             UUIDProvider uuidProvider,
-            InAppEventHandlerInternal inAppEventHandlerInternal, ServiceEndpointProvider eventServiceProvider) {
+            InAppEventHandlerInternal inAppEventHandlerInternal,
+            ServiceEndpointProvider eventServiceProvider,
+            ServiceEndpointProvider eventServiceV4Provider) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(iamRepository, "IamRepository must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
@@ -47,6 +50,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         Assert.notNull(inAppEventHandlerInternal, "InAppEventHandlerInternal must not be null!");
         Assert.notNull(uuidProvider, "UuidProvider must not be null!");
         Assert.notNull(eventServiceProvider, "EventServiceProvider must not be null!");
+        Assert.notNull(eventServiceV4Provider, "EventServiceV4Provider must not be null!");
 
         this.requestRepository = requestRepository;
         this.iamRepository = iamRepository;
@@ -55,6 +59,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         this.inAppEventHandlerInternal = inAppEventHandlerInternal;
         this.uuidProvider = uuidProvider;
         this.eventServiceProvider = eventServiceProvider;
+        this.eventServiceV4Provider = eventServiceProvider;
     }
 
     @Override
@@ -95,7 +100,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private List<RequestModel> collectCustomEvents(List<RequestModel> models) {
         List<RequestModel> result = new ArrayList<>();
         for (RequestModel requestModel : models) {
-            if (RequestModelUtils.isCustomEvent_V3(requestModel, eventServiceProvider)) {
+            if (RequestModelUtils.isCustomEvent(requestModel, eventServiceProvider, eventServiceV4Provider)) {
                 result.add(requestModel);
             }
         }

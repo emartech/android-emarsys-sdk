@@ -15,10 +15,12 @@ import java.net.URL
 class RequestModelUtilsTest {
 
     private companion object {
-        const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
-        const val CLIENT_BASE = "$CLIENT_HOST/v3/apps/%s/client"
-        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
-        const val EVENT_BASE = "$EVENT_HOST/v3/apps/%s/client/events"
+        const val CLIENT_HOST = "https://me-client.eservice.emarsys.net/v3"
+        const val CLIENT_BASE = "$CLIENT_HOST/apps/%s/client"
+        const val EVENT_HOST_V4 = "https://mobile-events.eservice.emarsys.net/v4"
+        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net/v3"
+        const val EVENT_BASE = "$EVENT_HOST/apps/%s/client/events"
+        const val EVENT_BASE_V4 = "$EVENT_HOST_V4/apps/%s/client/events"
         const val INBOX_HOST = "https://mobile-events.eservice.emarsys.net/v3"
         const val INBOX_BASE = "$INBOX_HOST/apps/%s/inbox"
         const val REMOTE_CONFIG_HOST = "https://mobile-sdk-config.gservice.emarsys.net"
@@ -26,6 +28,7 @@ class RequestModelUtilsTest {
 
     private lateinit var mockClientServiceProvider: ServiceEndpointProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    private lateinit var mockEventServiceV4Provider: ServiceEndpointProvider
     private lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
     private lateinit var mockRequestModel: RequestModel
 
@@ -36,6 +39,9 @@ class RequestModelUtilsTest {
         }
         mockEventServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(EVENT_HOST)
+        }
+        mockEventServiceV4Provider = mock(ServiceEndpointProvider::class.java).apply {
+            whenever(provideEndpointHost()).thenReturn(EVENT_HOST_V4)
         }
         mockMessageInboxServiceProvider = mock(ServiceEndpointProvider::class.java).apply {
             whenever(provideEndpointHost()).thenReturn(INBOX_HOST)
@@ -53,7 +59,7 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(CLIENT_BASE))
         }
-        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
 
         result shouldBe true
     }
@@ -63,7 +69,17 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(EVENT_BASE))
         }
-        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsMobileEngageRequest_true_whenItIsMobileEngageEventV4() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL(EVENT_BASE_V4))
+        }
+        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
 
         result shouldBe true
     }
@@ -73,7 +89,7 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(INBOX_BASE))
         }
-        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
 
         result shouldBe true
     }
@@ -83,7 +99,7 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL("https://not-mobile-engage.com"))
         }
-        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
 
         result shouldBe false
     }
@@ -93,7 +109,7 @@ class RequestModelUtilsTest {
         val requestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(EVENT_BASE))
         }
-        val result = RequestModelUtils.isCustomEvent_V3(requestModel, mockEventServiceProvider)
+        val result = RequestModelUtils.isCustomEvent(requestModel, mockEventServiceProvider, mockEventServiceV4Provider)
 
         result shouldBe true
     }
@@ -103,8 +119,8 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(REMOTE_CONFIG_HOST))
         }
-        val result = RequestModelUtils.isMobileEngageV3Request(mockRequestModel,
-                mockClientServiceProvider, mockEventServiceProvider, mockMessageInboxServiceProvider)
+        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel,
+                mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
 
         result shouldBe true
     }
@@ -114,7 +130,7 @@ class RequestModelUtilsTest {
         val requestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(CLIENT_BASE))
         }
-        val result = RequestModelUtils.isCustomEvent_V3(requestModel, mockEventServiceProvider)
+        val result = RequestModelUtils.isCustomEvent(requestModel, mockEventServiceProvider, mockEventServiceV4Provider)
 
         result shouldBe false
     }

@@ -12,6 +12,7 @@ import com.emarsys.mobileengage.util.RequestModelUtils
 class MobileEngageClientStateResponseHandler(private val clientStateStorage: Storage<String?>,
                                              private val clientServiceProvider: ServiceEndpointProvider,
                                              private val eventServiceProvider: ServiceEndpointProvider,
+                                             private val eventServiceV4Provider: ServiceEndpointProvider,
                                              private val messageInboxServiceProvider: ServiceEndpointProvider) : AbstractResponseHandler() {
 
     companion object {
@@ -19,7 +20,7 @@ class MobileEngageClientStateResponseHandler(private val clientStateStorage: Sto
     }
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
-        val isMobileEngageRequest = RequestModelUtils.isMobileEngageV3Request(responseModel.requestModel, clientServiceProvider, eventServiceProvider, messageInboxServiceProvider)
+        val isMobileEngageRequest = RequestModelUtils.isMobileEngageRequest(responseModel.requestModel, clientServiceProvider, eventServiceProvider, eventServiceV4Provider, messageInboxServiceProvider)
         val hasClientState = getClientState(responseModel) != null
 
         return isMobileEngageRequest && hasClientState

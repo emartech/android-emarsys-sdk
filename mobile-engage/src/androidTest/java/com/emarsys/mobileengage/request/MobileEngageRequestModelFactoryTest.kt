@@ -1,8 +1,10 @@
 package com.emarsys.mobileengage.request
 
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.endpoint.ServiceEndpointProvider
+import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
@@ -122,6 +124,8 @@ class MobileEngageRequestModelFactoryTest {
             on { query(any()) } doReturn CLICKS
         }
 
+        FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
+
         requestFactory = MobileEngageRequestModelFactory(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMobileEngageV2Provider, mockInboxServiceProvider, mockMessageInboxServiceProvider, mockButtonClickedRepository)
     }
 
@@ -208,6 +212,7 @@ class MobileEngageRequestModelFactoryTest {
 
     @Test
     fun testCreateInternalCustomEventRequest_whenEventServiceV4_isNotEnabled() {
+        FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
         val expected = RequestModel(
                 "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
                 RequestMethod.POST,
@@ -224,9 +229,26 @@ class MobileEngageRequestModelFactoryTest {
     }
 
     @Test
+    fun testCreateCustomEventRequest_whenEventServiceV4_isEnabled() {
+        val expected = RequestModel(
+                "https://mobile-events.eservice.emarsys.net/v4/apps/$APPLICATION_CODE/client/events",
+                RequestMethod.POST,
+                RequestPayloadUtils.createInternalCustomEventPayload("eventName", emptyMap(), mockRequestContext),
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+
+        val result = requestFactory.createInternalCustomEventRequest("eventName", emptyMap())
+
+        result shouldBe expected
+    }
+
+    @Test
     fun testCreateInternalCustomEventRequest() {
         val expected = RequestModel(
-                "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
+                "https://mobile-events.eservice.emarsys.net/v4/apps/$APPLICATION_CODE/client/events",
                 RequestMethod.POST,
                 RequestPayloadUtils.createInternalCustomEventPayload("eventName", emptyMap(), mockRequestContext),
                 RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
@@ -344,7 +366,7 @@ class MobileEngageRequestModelFactoryTest {
         val expected = RequestModel.Builder(mockRequestContext.timestampProvider, mockRequestContext.uuidProvider)
                 .method(RequestMethod.POST)
                 .payload(RequestPayloadUtils.createInlineInAppPayload(viewId, CLICKS))
-                .url("https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/inline-messages")
+                .url("https://mobile-events.eservice.emarsys.net/v4/apps/$APPLICATION_CODE/inline-messages")
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + RequestHeaderUtils.createDefaultHeaders(mockRequestContext))
                 .build()
 
