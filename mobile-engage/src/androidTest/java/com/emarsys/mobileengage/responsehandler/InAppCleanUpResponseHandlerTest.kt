@@ -1,152 +1,145 @@
-package com.emarsys.mobileengage.responsehandler;
+package com.emarsys.mobileengage.responsehandler
 
-import com.emarsys.core.database.repository.Repository;
-import com.emarsys.core.database.repository.SqlSpecification;
-import com.emarsys.core.endpoint.ServiceEndpointProvider;
-import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.response.ResponseModel;
-import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
-import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
-import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId;
-import com.emarsys.testUtil.TimeoutUtils;
+import com.emarsys.core.database.repository.Repository
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
+import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import com.emarsys.core.endpoint.ServiceEndpointProvider
+import com.emarsys.core.request.model.RequestModel
+import com.emarsys.core.response.ResponseModel
+import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
+import com.emarsys.testUtil.TimeoutUtils
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
+import io.kotlintest.shouldBe
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.TestRule
+import java.net.URL
 
-import java.net.URL;
+class InAppCleanUpResponseHandlerTest {
+    companion object {
+        private const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
+        private const val EVENT_BASE = "$EVENT_HOST/v3/apps/%s/client/events"
+    }
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+    private lateinit var handler: InAppCleanUpResponseHandler
+    private lateinit var mockDisplayedIamRepository: Repository<DisplayedIam, SqlSpecification>
+    private lateinit var mockButtonClickRepository: Repository<ButtonClicked, SqlSpecification>
+    private lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    private lateinit var mockEventServiceV4Provider: ServiceEndpointProvider
+    private lateinit var mockRequestModel: RequestModel
 
-public class InAppCleanUpResponseHandlerTest {
-
-    private InAppCleanUpResponseHandler handler;
-    private Repository<DisplayedIam, SqlSpecification> mockDisplayedIamRepository;
-    private Repository<ButtonClicked, SqlSpecification> mockButtonClickRepository;
-    private ServiceEndpointProvider mockEventServiceProvider;
-    private ServiceEndpointProvider mockEventServiceV4Provider;
-    private String EVENT_HOST = "https://mobile-events.eservice.emarsys.net";
-    private String EVENT_BASE = EVENT_HOST + "/v3/apps/%s/client/events";
-
-    private RequestModel mockRequestModel;
     @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
-    @SuppressWarnings("unchecked")
-    public void init() throws Exception {
-        mockRequestModel = mock(RequestModel.class);
+    fun setUp() {
+        mockRequestModel = mock {
+            on { url } doReturn URL(EVENT_BASE)
+        }
+        mockDisplayedIamRepository = mock()
+        mockButtonClickRepository = mock()
+        mockEventServiceProvider = mock {
+            on { provideEndpointHost() } doReturn EVENT_HOST
+        }
+        mockEventServiceV4Provider = mock {
+            on { provideEndpointHost() } doReturn EVENT_HOST
+        }
 
-        when(mockRequestModel.getUrl()).thenReturn(new URL(EVENT_BASE));
-
-        mockDisplayedIamRepository = mock(Repository.class);
-        mockButtonClickRepository = mock(Repository.class);
-        mockEventServiceProvider = mock(ServiceEndpointProvider.class);
-        mockEventServiceV4Provider = mock(ServiceEndpointProvider.class);
-        when(mockEventServiceProvider.provideEndpointHost()).thenReturn(EVENT_HOST);
-        when(mockEventServiceV4Provider.provideEndpointHost()).thenReturn(EVENT_HOST);
-
-        handler = new InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository, mockEventServiceProvider, mockEventServiceV4Provider);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_inappRepository_shouldNotBeNull() {
-        new InAppCleanUpResponseHandler(null, mockButtonClickRepository, mockEventServiceProvider, mockEventServiceV4Provider);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_buttonClickedRepository_shouldNotBeNull() {
-        new InAppCleanUpResponseHandler(mockDisplayedIamRepository, null, mockEventServiceProvider, mockEventServiceV4Provider);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_eventServiceProvider_shouldNotBeNull() {
-        new InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository, null, mockEventServiceV4Provider);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_eventServiceV4Provider_shouldNotBeNull() {
-        new InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository, mockEventServiceProvider, null);
+        handler = InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository, mockEventServiceProvider, mockEventServiceV4Provider)
     }
 
     @Test
-    public void testShouldHandleResponse_shouldReturnFalse_parsedJsonIsNull() {
-        ResponseModel response = buildResponseModel("html", mockRequestModel);
-        assertFalse(handler.shouldHandleResponse(response));
+    fun testShouldHandleResponse_shouldReturnFalse_parsedJsonIsNull() {
+        val response = buildResponseModel(mockRequestModel, "html")
+        val result = handler.shouldHandleResponse(response)
+
+        result shouldBe false
     }
 
     @Test
-    public void testShouldHandleResponse_shouldReturnFalse_responseHasNotOldMessages() {
-        ResponseModel response = buildResponseModel("{}", mockRequestModel);
-        assertFalse(handler.shouldHandleResponse(response));
+    fun testShouldHandleResponse_shouldReturnFalse_responseHasNotOldMessages() {
+        val response = buildResponseModel(mockRequestModel, "{}")
+        val result = handler.shouldHandleResponse(response)
+
+        result shouldBe false
     }
 
     @Test
-    public void testShouldHandleResponse_shouldReturnTrueWhen_responseHasOldMessages() {
-        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123', '456', '78910']}", mockRequestModel);
-        assertTrue(handler.shouldHandleResponse(response));
+    fun testShouldHandleResponse_shouldReturnTrueWhen_responseHasOldMessages() {
+        val response = buildResponseModel(mockRequestModel)
+        val result = handler.shouldHandleResponse(response)
+
+        result shouldBe true
     }
 
     @Test
-    public void testShouldHandleResponse_shouldReturnFalseWhen_oldMessagesIsEmpty() {
-        ResponseModel response = buildResponseModel("{'oldCampaigns': []}", mockRequestModel);
-        assertFalse(handler.shouldHandleResponse(response));
+    fun testShouldHandleResponse_shouldReturnFalseWhen_oldMessagesIsEmpty() {
+        val response = buildResponseModel(mockRequestModel, "{'oldCampaigns': []}")
+        val result = handler.shouldHandleResponse(response)
+
+        result shouldBe false
     }
 
     @Test
-    public void testShouldHandleResponse_shouldReturnFalseWhen_UrlIsNotCustomEventUrl() throws Exception {
-        RequestModel requestModel = mock(RequestModel.class);
-        when(requestModel.getUrl()).thenReturn(new URL("https://www.emarsys.com"));
-        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123', '456', '78910']}", requestModel);
-        assertFalse(handler.shouldHandleResponse(response));
+    fun testShouldHandleResponse_shouldReturnFalseWhen_UrlIsNotCustomEventUrl() {
+        val requestModel: RequestModel = mock {
+            on { url } doReturn URL("https://www.emarsys.com")
+        }
+
+        val response = buildResponseModel(requestModel)
+        val result = handler.shouldHandleResponse(response)
+
+        result shouldBe false
     }
 
     @Test
-    public void testShouldHandleResponse_shouldReturnTrueWhen_UrlIsCustomEventUrl() {
-        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123', '456', '78910']}", mockRequestModel);
-        assertTrue(handler.shouldHandleResponse(response));
+    fun testShouldHandleResponse_shouldReturnTrueWhen_UrlIsCustomEventUrl() {
+        val response = buildResponseModel(mockRequestModel)
+        val result = handler.shouldHandleResponse(response)
+
+        result shouldBe true
     }
 
     @Test
-    public void testHandleResponse_shouldDelete_oldInApp() {
-        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123']}", mockRequestModel);
-        handler.handleResponse(response);
-        verify(mockDisplayedIamRepository).remove(new FilterByCampaignId("123"));
+    fun testHandleResponse_shouldDelete_oldInApp() {
+        val response = buildResponseModel(mockRequestModel, "{'oldCampaigns': ['123']}")
+        handler.handleResponse(response)
+        verify(mockDisplayedIamRepository).remove(FilterByCampaignId("123"))
     }
 
     @Test
-    public void testHandleResponse_shouldDelete_multiple_oldInApps() {
-        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123', '456', '78910']}", mockRequestModel);
-        handler.handleResponse(response);
-        verify(mockDisplayedIamRepository).remove(new FilterByCampaignId("123", "456", "78910"));
+    fun testHandleResponse_shouldDelete_multiple_oldInApps() {
+        val response = buildResponseModel(mockRequestModel)
+        handler.handleResponse(response)
+        verify(mockDisplayedIamRepository).remove(FilterByCampaignId("123", "456", "78910"))
     }
 
     @Test
-    public void testHandleResponse_shouldDelete_oldButtonClick() {
-        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123']}", mockRequestModel);
-        handler.handleResponse(response);
-        verify(mockButtonClickRepository).remove(new FilterByCampaignId("123"));
+    fun testHandleResponse_shouldDelete_oldButtonClick() {
+        val response = buildResponseModel(mockRequestModel, "{'oldCampaigns': ['123']}")
+        handler.handleResponse(response)
+        verify(mockButtonClickRepository).remove(FilterByCampaignId("123"))
     }
 
     @Test
-    public void testHandleResponse_shouldDelete_multiple_oldButtonClicks() {
-        ResponseModel response = buildResponseModel("{'oldCampaigns': ['123', '456', '78910']}", mockRequestModel);
-        handler.handleResponse(response);
-        verify(mockButtonClickRepository).remove(new FilterByCampaignId("123", "456", "78910"));
+    fun testHandleResponse_shouldDelete_multiple_oldButtonClicks() {
+        val response = buildResponseModel(mockRequestModel)
+        handler.handleResponse(response)
+        verify(mockButtonClickRepository).remove(FilterByCampaignId("123", "456", "78910"))
     }
 
-    private ResponseModel buildResponseModel(String responseBody, RequestModel requestModel) {
-        return new ResponseModel.Builder()
+    private fun buildResponseModel(requestModel: RequestModel, responseBody: String = "{'oldCampaigns': ['123', '456', '78910']}"): ResponseModel {
+        return ResponseModel.Builder()
                 .statusCode(200)
                 .message("OK")
                 .body(responseBody)
                 .requestModel(requestModel)
-                .build();
+                .build()
     }
-
 }
