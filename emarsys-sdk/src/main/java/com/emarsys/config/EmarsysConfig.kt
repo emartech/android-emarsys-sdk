@@ -55,6 +55,7 @@ data class EmarsysConfig internal constructor(val application: Application,
         private var experimentalFeatures: List<FlipperFeature>? = null
         private var automaticPushTokenSending = true
         private var sharedSecret: String? = null
+        private var sharedPackageNames: List<String>? = null
         fun from(baseConfig: EmarsysConfig): Builder {
             application = baseConfig.application
             mobileEngageApplicationCode = baseConfig.mobileEngageApplicationCode
@@ -73,6 +74,7 @@ data class EmarsysConfig internal constructor(val application: Application,
             experimentalFeatures = baseConfig.experimentalFeatures
             automaticPushTokenSending = baseConfig.automaticPushTokenSendingEnabled
             sharedSecret = baseConfig.sharedSecret
+            sharedPackageNames = baseConfig.sharedPackageNames
             return this
         }
 
@@ -126,8 +128,13 @@ data class EmarsysConfig internal constructor(val application: Application,
             return this
         }
 
-        fun sharedSecret(sharedSecret: String?): Builder {
+        fun sharedSecret(sharedSecret: String): Builder {
             this.sharedSecret = sharedSecret
+            return this
+        }
+
+        fun sharedPackageNames(sharedPackageNames: List<String>): Builder {
+            this.sharedPackageNames = sharedPackageNames
             return this
         }
 
@@ -142,7 +149,7 @@ data class EmarsysConfig internal constructor(val application: Application,
                     notificationEventHandler,
                     experimentalFeatures!!,
                     automaticPushTokenSending,
-                    null,
+                    sharedPackageNames,
                     sharedSecret)
         }
     }

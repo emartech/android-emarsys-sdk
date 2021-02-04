@@ -19,6 +19,7 @@ class EmarsysConfigTest {
         private const val CONTACT_FIELD_ID = 567
         private const val MERCHANT_ID = "MERCHANT_ID"
         private const val SHARED_SECRET = "testSecret"
+        private val SHARED_PACKAGE_NAMES = listOf("package1", "package2")
     }
 
     private lateinit var application: Application
@@ -54,7 +55,7 @@ class EmarsysConfigTest {
                 defaultNotificationEventHandler,
                 listOf(*features),
                 automaticPushTokenSending,
-                null,
+                SHARED_PACKAGE_NAMES,
                 SHARED_SECRET)
         val result = EmarsysConfig.Builder()
                 .application(application)
@@ -65,6 +66,7 @@ class EmarsysConfigTest {
                 .inAppEventHandler(mock())
                 .notificationEventHandler(mock())
                 .sharedSecret("testSecret")
+                .sharedPackageNames(SHARED_PACKAGE_NAMES)
                 .build()
         result.application shouldBe expected.application
         result.contactFieldId shouldBe expected.contactFieldId
@@ -72,6 +74,7 @@ class EmarsysConfigTest {
         result.mobileEngageApplicationCode shouldBe expected.mobileEngageApplicationCode
         result.predictMerchantId shouldBe expected.predictMerchantId
         result.sharedSecret shouldBe expected.sharedSecret
+        result.sharedPackageNames shouldBe expected.sharedPackageNames
 
         result.inAppEventHandler?.javaClass?.isInstance(expected.inAppEventHandler) shouldBe true
         result.notificationEventHandler?.javaClass?.isInstance(expected.notificationEventHandler) shouldBe true
@@ -149,7 +152,7 @@ class EmarsysConfigTest {
                 defaultNotificationEventHandler,
                 listOf(*features),
                 automaticPushTokenSending,
-                null,
+                SHARED_PACKAGE_NAMES,
                 SHARED_SECRET)
         val result = EmarsysConfig.Builder()
                 .from(expected)
@@ -160,6 +163,7 @@ class EmarsysConfigTest {
         result.mobileEngageApplicationCode shouldBe expected.mobileEngageApplicationCode
         result.predictMerchantId shouldBe expected.predictMerchantId
         result.sharedSecret shouldBe expected.sharedSecret
+        result.sharedPackageNames shouldBe expected.sharedPackageNames
 
         result.inAppEventHandler?.javaClass?.isInstance(expected.inAppEventHandler) shouldBe true
         result.notificationEventHandler?.javaClass?.isInstance(expected.notificationEventHandler) shouldBe true
