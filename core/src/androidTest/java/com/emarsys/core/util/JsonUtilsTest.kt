@@ -400,4 +400,49 @@ class JsonUtilsTest {
 
         result shouldBe expected
     }
+
+    @Test
+    fun testToMap() {
+        val input = JSONObject(mapOf(
+                "key" to "value",
+                "key2" to 3,
+                "key2.5" to true,
+                "key2.6" to null,
+                "key3" to JSONArray(listOf("value1", "value2", "value3")),
+                "key4" to JSONArray(listOf(1, 2, 3)),
+                "key5" to JSONArray(listOf(true, false)),
+                "key6" to JSONArray(listOf(JSONArray(listOf("value1")), JSONArray(listOf(1, 2)))),
+                "key7" to JSONArray(listOf(JSONObject(mapOf("key" to "value")))),
+                "key8" to JSONObject(),
+                "key9" to JSONObject(mapOf(
+                        "key" to 1,
+                        "key2" to "value2",
+                        "key2.5" to true,
+                        "key2.6" to null,
+                        "key3" to JSONArray(listOf("value1", "value2", "value3"))
+                )),
+        ))
+
+        val expected = mapOf(
+                "key" to "value",
+                "key2" to 3,
+                "key2.5" to true,
+                "key2.6" to null,
+                "key3" to listOf("value1", "value2", "value3"),
+                "key4" to listOf(1, 2, 3),
+                "key5" to listOf(true, false),
+                "key6" to listOf(listOf("value1"), listOf(1, 2)),
+                "key7" to listOf(mapOf("key" to "value")),
+                "key8" to mapOf<String, Any>(),
+                "key9" to mapOf(
+                        "key" to 1,
+                        "key2" to "value2",
+                        "key2.5" to true,
+                        "key2.6" to null,
+                        "key3" to listOf("value1", "value2", "value3")
+                )
+        )
+
+        JsonUtils.toMap(input) shouldBe expected
+    }
 }

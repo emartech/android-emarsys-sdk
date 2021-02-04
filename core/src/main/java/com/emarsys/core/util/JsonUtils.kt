@@ -79,6 +79,44 @@ object JsonUtils {
     }
 
     @JvmStatic
+    fun toMap(jsonObject: JSONObject): Map<String, Any> {
+        val result = mutableMapOf<String, Any>()
+        jsonObject.keys().asSequence().forEach {
+            when (val value = jsonObject.get(it)) {
+                is JSONObject -> {
+                    result[it] = toMap(value)
+                }
+                is JSONArray -> {
+                    result[it] = toList(value)
+                }
+                else -> {
+                    result[it] = value
+                }
+            }
+        }
+        return result
+    }
+
+    @JvmStatic
+    fun toList(jsonArray: JSONArray): List<Any> {
+        val result = mutableListOf<Any>()
+        for (i in 0 until jsonArray.length()) {
+            when (val value = jsonArray.get(i)) {
+                is JSONObject -> {
+                    result.add(toMap(value))
+                }
+                is JSONArray -> {
+                    result.add(toList(value))
+                }
+                else -> {
+                    result.add(value)
+                }
+            }
+        }
+        return result
+    }
+
+    @JvmStatic
     fun toFlatMapIncludingNulls(jsonObject: JSONObject): Map<String, String?> {
         return jsonObject.keys().asSequence().associateBy({ key -> key }) { key ->
             try {
