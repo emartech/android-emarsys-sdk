@@ -301,3 +301,41 @@ emarsys:
       version: 29
       locale: 'en'
       orientation: portrait
+
+common:
+  type: instrumentation
+  app: sample-debug-androidTest.apk
+  test: common-debug-androidTest.apk
+  device:
+    - model: hammerhead
+      version: 21
+      locale: 'en'
+      orientation: portrait
+    - model: Nexus10
+      version: 22
+      locale: 'en'
+      orientation: portrait
+    - model: zeroflte
+      version: 23
+      locale: 'en'
+      orientation: portrait
+    - model: griffin
+      version: 24
+      locale: 'en'
+      orientation: portrait
+    - model: cruiserlteatt
+      version: 26
+      locale: 'en'
+      orientation: portrait
+    - model: sailfish
+      version: 27
+      locale: 'en'
+      orientation: portrait
+    - model: walleye
+      version: 28
+      locale: 'en'
+      orientation: portrait
+    - model: flame
+      version: 29
+      locale: 'en'
+      orientation: portrait

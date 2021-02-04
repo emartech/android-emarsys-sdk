@@ -58,13 +58,13 @@ jobs:
           name: sample
           path: sample/build/outputs/apk/androidTest/debug/sample-debug-androidTest.apk
 
-      - name: upload emarsys-sdk test apk artifact
+      - name: upload core test apk artifact
         uses: actions/upload-artifact@v2
         with:
           name: core
           path: core/build/outputs/apk/androidTest/debug/core-debug-androidTest.apk
 
-      - name: upload emarsys-sdk test apk artifact
+      - name: upload mobile-engage test apk artifact
         uses: actions/upload-artifact@v2
         with:
           name: mobile-engage
@@ -76,7 +76,7 @@ jobs:
           name: predict
           path: predict/build/outputs/apk/androidTest/debug/predict-debug-androidTest.apk
 
-      - name: upload emarsys-sdk test apk artifact
+      - name: upload emarsys test apk artifact
         uses: actions/upload-artifact@v2
         with:
           name: emarsys
@@ -87,6 +87,12 @@ jobs:
         with:
           name: emarsys-sdk
           path: emarsys-sdk/build/outputs/apk/androidTest/debug/emarsys-sdk-debug-androidTest.apk
+
+      - name: upload common test apk artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: common
+          path: common/build/outputs/apk/androidTest/debug/common-debug-androidTest.apk
 
       - name: create testlab services json
         uses: jsdaniell/create-json@1.1.2
@@ -234,7 +240,7 @@ jobs:
         with:
           name: sample
 
-      - name: Download core tests
+      - name: Download mobile-engage tests
         uses: actions/download-artifact@v2
         with:
           name: mobile-engage
@@ -273,7 +279,7 @@ jobs:
         with:
           name: sample
 
-      - name: Download core tests
+      - name: Download predict tests
         uses: actions/download-artifact@v2
         with:
           name: predict
@@ -354,7 +360,7 @@ jobs:
         with:
           name: sample
 
-      - name: Download core tests
+      - name: Download emarsys tests
         uses: actions/download-artifact@v2
         with:
           name: emarsys
@@ -377,10 +383,49 @@ jobs:
           name: failure_file
           path: FAILURE.TXT
 
+  TestCommon:
+    name: Run emarsys tests on Firebase
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.1
+        with:
+          submodules: true
+          fetch-depth: 0 # 0 indicates all history
+      - run: git fetch --all || echo "==> Accept any result"
+
+      - name: Download sample app
+        uses: actions/download-artifact@v2
+        with:
+          name: sample
+
+      - name: Download common tests
+        uses: actions/download-artifact@v2
+        with:
+          name: common
+
+      - name: Run tests
+        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
+        with:
+          arg-spec: 'testWithAllDevices.yml:common'
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Create file 'FAILURE.TXT' and write 'true' into it
+        if: ${{ failure() }}
+        run: echo 'true' > FAILURE.TXT
+
+      - name: Upload file 'FAILURE.TXT' as an artifact
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v1
+        with:
+          name: failure_file
+          path: FAILURE.TXT
+
   ReleaseSample:
     name: Release sample app
     runs-on: ubuntu-latest
-    needs: [Build, TestCore, TestMobileEngage, TestPredict, TestEmarsysSDK, TestEmarsys, CreateReleaseBundle, GradleLint]
+    needs: [Build, TestCore, TestMobileEngage, TestPredict, TestEmarsysSDK, TestEmarsys, TestCommon, CreateReleaseBundle, GradleLint]
     steps:
       - uses: actions/checkout@v2.3.1
         with:
