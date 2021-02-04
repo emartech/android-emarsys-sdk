@@ -2,6 +2,7 @@ package com.emarsys.core.crypto
 
 import android.util.Base64
 import com.emarsys.core.Mockable
+import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
 import java.security.PublicKey
@@ -17,7 +18,19 @@ import javax.crypto.spec.SecretKeySpec
 @Mockable
 class Crypto(private val publicKey: PublicKey) {
     companion object {
-        const val ALGORITHM = "SHA256withECDSA"
+        const val REMOTE_CONFIG_CRYPTO_ALGORITHM = "SHA256withECDSA"
+        private const val CRYPTO_ALGORITHM_BELOW_26 = "AES/GCM/NoPadding"
+        private const val CRYPTO_ALGORITHM_ABOVE_26 = "AES_256/GCM/NoPadding"
+
+        fun getAlgorythm(): String {
+            return if (AndroidVersionUtils.isBelowOreo()) CRYPTO_ALGORITHM_BELOW_26 else CRYPTO_ALGORITHM_ABOVE_26
+        }
+        fun getIvSize(): Int {
+            return if (AndroidVersionUtils.isBelowOreo()) 16 else 12
+        }
+        fun getKeyLength(): Int {
+            return if (AndroidVersionUtils.isBelowOreo()) 128 else 256
+        }
     }
 
     fun verify(
@@ -25,7 +38,7 @@ class Crypto(private val publicKey: PublicKey) {
             signatureBytes: String
     ): Boolean {
         return try {
-            val sig = Signature.getInstance(ALGORITHM)
+            val sig = Signature.getInstance(REMOTE_CONFIG_CRYPTO_ALGORITHM)
             sig.initVerify(publicKey)
             sig.update(messageBytes)
             sig.verify(Base64.decode(signatureBytes, Base64.DEFAULT))
@@ -36,10 +49,10 @@ class Crypto(private val publicKey: PublicKey) {
     }
 
     fun encrypt(value: String, secret: String): Map<String, String> {
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+        val cipher = Cipher.getInstance(getAlgorythm())
         val random = SecureRandom()
 
-        val iv = ByteArray(16)
+        val iv = ByteArray(getIvSize())
         random.nextBytes(iv)
         val salt = ByteArray(16)
         random.nextBytes(salt)
@@ -57,7 +70,7 @@ class Crypto(private val publicKey: PublicKey) {
     }
 
     fun decrypt(encrypted: String, secret: String, salt: String, iv: String): String? {
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+        val cipher = Cipher.getInstance(getAlgorythm())
         val ivBytes = Base64.decode(iv.toByteArray(), Base64.DEFAULT)
         val saltBytes = Base64.decode(salt.toByteArray(), Base64.DEFAULT)
         cipher.init(Cipher.DECRYPT_MODE, generateKey(secret, saltBytes), IvParameterSpec(ivBytes))
@@ -68,7 +81,7 @@ class Crypto(private val publicKey: PublicKey) {
 
     private fun generateKey(password: String, salt: ByteArray): SecretKeySpec? {
         val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
-        val keySpec: KeySpec = PBEKeySpec(password.toCharArray(), salt, 65536, 128)
+        val keySpec: KeySpec = PBEKeySpec(password.toCharArray(), salt, 65536, getKeyLength())
         val secretKey = factory.generateSecret(keySpec)
         val encoded = secretKey.encoded
         return SecretKeySpec(encoded, "AES")

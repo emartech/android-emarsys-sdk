@@ -15,6 +15,10 @@ public class AndroidVersionUtils {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.M;
     }
 
+    public static boolean isBelowOreo() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.O;
+    }
+
     public static boolean isBelowQ() {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.Q;
     }
