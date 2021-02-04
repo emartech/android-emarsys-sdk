@@ -267,6 +267,9 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         StringStorage(MobileEngageStorageKey.ME_V2_SERVICE_URL, prefs).also {
             addDependency(dependencies, it, MobileEngageStorageKey.ME_V2_SERVICE_URL.key)
         }
+        StringStorage(MobileEngageStorageKey.DEVICE_EVENT_STATE, prefs).also {
+            addDependency(dependencies, it, MobileEngageStorageKey.DEVICE_EVENT_STATE.key)
+        }
         StringStorage(MobileEngageStorageKey.DEEPLINK_SERVICE_URL, prefs).also {
             addDependency(dependencies, it, MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
         }
@@ -601,7 +604,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getUuidProvider(),
                 inAppEventHandler,
                 getEventServiceProvider(),
-                getEventServiceV4Provider()
+                getEventServiceV4Provider(),
+                getDependency(dependencies, MobileEngageStorageKey.DEVICE_EVENT_STATE.key)
         )
     }
 
@@ -682,6 +686,11 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getEventServiceInternal(),
                 getTimestampProvider(),
                 getCoreSdkHandler()))
+        responseHandlers.add(DeviceEventStateResponseHandler(
+                getEventServiceProvider(),
+                getEventServiceV4Provider(),
+                getDependency(dependencies, "mobile_engage_device_event_state")
+        ))
         getResponseHandlersProcessor().addResponseHandlers(responseHandlers)
     }
 

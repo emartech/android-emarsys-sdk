@@ -1,11 +1,13 @@
 package com.emarsys.mobileengage.util
 
 import com.emarsys.core.util.AndroidVersionUtils
+import com.emarsys.core.util.JsonUtils
 import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.IamConversionUtils
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
+import org.json.JSONObject
 import java.util.*
 
 object RequestPayloadUtils {
@@ -107,11 +109,15 @@ object RequestPayloadUtils {
             events: List<Any>,
             displayedIams: List<DisplayedIam>,
             buttonClicks: List<ButtonClicked>,
-            doNotDisturb: Boolean): Map<String, Any> {
+            doNotDisturb: Boolean,
+            deviceEventState: String? = null): Map<String, Any> {
         val compositePayload: MutableMap<String, Any> = mutableMapOf(
                 "viewedMessages" to IamConversionUtils.displayedIamsToArray(displayedIams),
                 "clicks" to IamConversionUtils.buttonClicksToArray(buttonClicks)
         )
+        if (deviceEventState != null) {
+            compositePayload["deviceEventState"] = JsonUtils.toMap(JSONObject(deviceEventState))
+        }
 
         if (doNotDisturb) {
             compositePayload["dnd"] = true

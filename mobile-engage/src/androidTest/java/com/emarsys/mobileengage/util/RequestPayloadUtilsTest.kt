@@ -369,7 +369,8 @@ class RequestPayloadUtilsTest {
                 emptyList(),
                 emptyList(),
                 emptyList(),
-                true)
+                true
+        )
 
         (payload["dnd"] as Boolean) shouldBe true
     }
@@ -400,9 +401,35 @@ class RequestPayloadUtilsTest {
                 events,
                 displayedIams,
                 buttonClicks,
-                false)
+                false
+        )
 
         resultPayload shouldBe expectedPayload
+    }
+
+    @Test
+    fun testCreateCompositeRequestModelPayload_containsDeviceEventState_whenItsNotNull() {
+        val deviceEventState = "{'123': '456', '78910':'6543'}"
+        val events = listOf(
+                RandomTestUtils.randomMap(),
+                RandomTestUtils.randomMap(),
+                RandomTestUtils.randomMap()
+        )
+
+        val resultPayload = RequestPayloadUtils.createCompositeRequestModelPayload(
+                events,
+                listOf(),
+                listOf(),
+                false,
+                deviceEventState
+        )
+
+        val expected = mapOf(
+                "123" to "456",
+                "78910" to "6543"
+        )
+
+        resultPayload["deviceEventState"] shouldBe expected
     }
 
     @Test

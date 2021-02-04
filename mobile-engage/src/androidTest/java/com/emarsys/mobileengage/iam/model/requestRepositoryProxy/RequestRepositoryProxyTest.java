@@ -2,6 +2,7 @@ package com.emarsys.mobileengage.iam.model.requestRepositoryProxy;
 
 import android.content.Context;
 
+import com.emarsys.common.feature.InnerFeature;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.helper.DbHelper;
 import com.emarsys.core.database.repository.Repository;
@@ -9,6 +10,7 @@ import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.endpoint.ServiceEndpointProvider;
+import com.emarsys.core.feature.FeatureRegistry;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
@@ -16,6 +18,7 @@ import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
+import com.emarsys.core.storage.StringStorage;
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.MobileEngageRequestContext;
 import com.emarsys.mobileengage.iam.InAppEventHandlerInternal;
@@ -29,6 +32,7 @@ import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.RandomTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -75,6 +79,7 @@ public class RequestRepositoryProxyTest {
     private UUIDProvider uuidProvider;
     private ServiceEndpointProvider mockEventServiceProvider;
     private ServiceEndpointProvider mockEventServiceV4Provider;
+    private StringStorage mockDeviceEventStateStorage;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -114,6 +119,8 @@ public class RequestRepositoryProxyTest {
         mockEventServiceV4Provider = mock(ServiceEndpointProvider.class);
         when(mockEventServiceV4Provider.provideEndpointHost()).thenReturn(EVENT_HOST_V4);
 
+        mockDeviceEventStateStorage = mock(StringStorage.class);
+
         compositeRepository = new RequestRepositoryProxy(
                 mockRequestModelRepository,
                 mockDisplayedIamRepository,
@@ -122,47 +129,130 @@ public class RequestRepositoryProxyTest {
                 uuidProvider,
                 inAppEventHandlerInternal,
                 mockEventServiceProvider,
-                mockEventServiceV4Provider);
+                mockEventServiceV4Provider,
+                mockDeviceEventStateStorage);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_requestRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(null, mockDisplayedIamRepository, mockButtonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider, mockEventServiceV4Provider);
+        new RequestRepositoryProxy(null,
+                mockDisplayedIamRepository,
+                mockButtonClickedRepository,
+                timestampProvider,
+                uuidProvider,
+                inAppEventHandlerInternal,
+                mockEventServiceProvider,
+                mockEventServiceV4Provider,
+                mockDeviceEventStateStorage);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_displayedIamRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, null, mockButtonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider, mockEventServiceV4Provider);
+        new RequestRepositoryProxy(mockRequestModelRepository,
+                null,
+                mockButtonClickedRepository,
+                timestampProvider,
+                uuidProvider,
+                inAppEventHandlerInternal,
+                mockEventServiceProvider,
+                mockEventServiceV4Provider,
+                mockDeviceEventStateStorage);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_buttonClickedRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, null, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider, mockEventServiceV4Provider);
+        new RequestRepositoryProxy(mockRequestModelRepository,
+                mockDisplayedIamRepository,
+                null,
+                timestampProvider,
+                uuidProvider,
+                inAppEventHandlerInternal,
+                mockEventServiceProvider,
+                mockEventServiceV4Provider,
+                mockDeviceEventStateStorage);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_timestampProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, null, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider, mockEventServiceV4Provider);
+        new RequestRepositoryProxy(mockRequestModelRepository,
+                mockDisplayedIamRepository,
+                buttonClickedRepository,
+                null,
+                uuidProvider,
+                inAppEventHandlerInternal,
+                mockEventServiceProvider,
+                mockEventServiceV4Provider,
+                mockDeviceEventStateStorage);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_inAppInternal_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, uuidProvider, null, mockEventServiceProvider, mockEventServiceV4Provider);
+        new RequestRepositoryProxy(mockRequestModelRepository,
+                mockDisplayedIamRepository,
+                buttonClickedRepository,
+                timestampProvider,
+                uuidProvider,
+                null,
+                mockEventServiceProvider,
+                mockEventServiceV4Provider,
+                mockDeviceEventStateStorage);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_uuidProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, null, inAppEventHandlerInternal, mockEventServiceProvider, mockEventServiceV4Provider);
+        new RequestRepositoryProxy(mockRequestModelRepository,
+                mockDisplayedIamRepository,
+                buttonClickedRepository,
+                timestampProvider,
+                null,
+                inAppEventHandlerInternal,
+                mockEventServiceProvider,
+                mockEventServiceV4Provider,
+                mockDeviceEventStateStorage);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_eventServiceProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, null, mockEventServiceV4Provider);
+        new RequestRepositoryProxy(mockRequestModelRepository,
+                mockDisplayedIamRepository,
+                buttonClickedRepository,
+                timestampProvider,
+                uuidProvider,
+                inAppEventHandlerInternal,
+                null,
+                mockEventServiceV4Provider,
+                mockDeviceEventStateStorage);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_eventServiceV4Provider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository, mockDisplayedIamRepository, buttonClickedRepository, timestampProvider, uuidProvider, inAppEventHandlerInternal, mockEventServiceProvider, null);
+        new RequestRepositoryProxy(mockRequestModelRepository,
+                mockDisplayedIamRepository,
+                buttonClickedRepository,
+                timestampProvider,
+                uuidProvider,
+                inAppEventHandlerInternal,
+                mockEventServiceProvider,
+                null,
+                mockDeviceEventStateStorage);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_deviceEventStateStorage_mustNotBeNull() {
+        new RequestRepositoryProxy(mockRequestModelRepository,
+                mockDisplayedIamRepository,
+                buttonClickedRepository,
+                timestampProvider,
+                uuidProvider,
+                inAppEventHandlerInternal,
+                mockEventServiceProvider,
+                mockEventServiceV4Provider,
+                null);
     }
 
     @Test
@@ -230,13 +320,13 @@ public class RequestRepositoryProxyTest {
         RequestModel request2 = requestModel();
         RequestModel request3 = requestModel();
 
-        final RequestModel customEvent1 = customEvent_V3(900, "event1");
+        final RequestModel customEvent1 = customEvent(900, "event1");
 
         HashMap<String, Object> attributes = new HashMap<>();
         attributes.put("key1", "value1");
         attributes.put("key2", "value2");
-        final RequestModel customEvent2 = customEvent_V3(1000, "event2", attributes);
-        final RequestModel customEvent3 = customEvent_V3(1200, "event3");
+        final RequestModel customEvent2 = customEvent(1000, "event2", attributes);
+        final RequestModel customEvent3 = customEvent(1200, "event3");
 
         requestModelRepository.add(request1);
         requestModelRepository.add(request2);
@@ -268,7 +358,8 @@ public class RequestRepositoryProxyTest {
                 Arrays.asList(event1, event2, event3),
                 Collections.<DisplayedIam>emptyList(),
                 Collections.<ButtonClicked>emptyList(),
-                false);
+                false,
+                null);
 
         RequestModel expectedComposite = new CompositeRequestModel(
                 REQUEST_ID,
@@ -297,7 +388,7 @@ public class RequestRepositoryProxyTest {
         HashMap<String, Object> attributes = new HashMap<>();
         attributes.put("key1", "value1");
         attributes.put("key2", "value2");
-        final RequestModel customEvent1 = customEvent_V3(1000, "event1", attributes);
+        final RequestModel customEvent1 = customEvent(1000, "event1", attributes);
 
         requestModelRepository.add(customEvent1);
 
@@ -339,7 +430,8 @@ public class RequestRepositoryProxyTest {
                         new ButtonClicked("campaign1", "button2", 300),
                         new ButtonClicked("campaign2", "button1", 2000)
                 ),
-                false);
+                false,
+                null);
 
         RequestModel expectedComposite = new CompositeRequestModel(
                 REQUEST_ID,
@@ -355,7 +447,48 @@ public class RequestRepositoryProxyTest {
         List<RequestModel> expected = Collections.singletonList(expectedComposite);
 
         assertEquals(expected, compositeRepository.query(new Everything()));
+    }
 
+    @Test
+    public void testQuery_resultShouldContainDeviceEventState() {
+        FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4);
+        HashMap expected = new HashMap<String, Object>();
+        expected.put("123", "456");
+        expected.put("78910", "6543");
+
+        when(mockDeviceEventStateStorage.get()).thenReturn("{'123': '456', '78910':'6543'}");
+
+        compositeRepository = compositeRepositoryWithRealRepositories();
+
+        HashMap<String, Object> attributes = new HashMap<>();
+        attributes.put("key1", "value1");
+        attributes.put("key2", "value2");
+        final RequestModel customEvent1 = customEvent(1000, "event1", attributes);
+
+        requestModelRepository.add(customEvent1);
+
+        RequestModel result = compositeRepository.query(new Everything()).get(0);
+        assertEquals(expected, result.getPayload().get("deviceEventState"));
+    }
+
+    @Test
+    public void testQuery_resultShouldNotContainDeviceEventState_whenEventServiceV4IsNotEnabled() {
+        FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4);
+        String expected = "{'123': '456', '78910':'6543'}";
+
+        when(mockDeviceEventStateStorage.get()).thenReturn(expected);
+
+        compositeRepository = compositeRepositoryWithRealRepositories();
+
+        HashMap<String, Object> attributes = new HashMap<>();
+        attributes.put("key1", "value1");
+        attributes.put("key2", "value2");
+        final RequestModel customEvent1 = customEvent(1000, "event1", attributes);
+
+        requestModelRepository.add(customEvent1);
+
+        RequestModel result = compositeRepository.query(new Everything()).get(0);
+        assertNull(result.getPayload().get("deviceEventState"));
     }
 
     @Test
@@ -366,13 +499,13 @@ public class RequestRepositoryProxyTest {
         RequestModel request2 = requestModel();
         RequestModel request3 = requestModel();
 
-        final RequestModel customEvent1 = customEvent_V3(900, "event1");
+        final RequestModel customEvent1 = customEvent(900, "event1");
 
         HashMap<String, Object> attributes = new HashMap<>();
         attributes.put("key1", "value1");
         attributes.put("key2", "value2");
-        final RequestModel customEvent2 = customEvent_V3(1000, "event2", attributes);
-        final RequestModel customEvent3 = customEvent_V3(1200, "event3");
+        final RequestModel customEvent2 = customEvent(1000, "event2", attributes);
+        final RequestModel customEvent3 = customEvent(1200, "event3");
 
         requestModelRepository.add(request1);
         requestModelRepository.add(request2);
@@ -428,7 +561,7 @@ public class RequestRepositoryProxyTest {
                         new ButtonClicked("campaign1", "button2", 300),
                         new ButtonClicked("campaign2", "button1", 2000)
                 ),
-                false);
+                false, null);
 
         RequestModel expectedComposite = new CompositeRequestModel(
                 REQUEST_ID,
@@ -455,7 +588,7 @@ public class RequestRepositoryProxyTest {
         when(inAppEventHandlerInternal.isPaused()).thenReturn(true);
         compositeRepository = compositeRepositoryWithRealRepositories();
 
-        final RequestModel customEvent1 = customEvent_V3(900, "event1");
+        final RequestModel customEvent1 = customEvent(900, "event1");
         requestModelRepository.add(customEvent1);
 
         List<RequestModel> result = compositeRepository.query(new Everything());
@@ -469,7 +602,7 @@ public class RequestRepositoryProxyTest {
         when(inAppEventHandlerInternal.isPaused()).thenReturn(false);
         compositeRepository = compositeRepositoryWithRealRepositories();
 
-        final RequestModel customEvent1 = customEvent_V3(900, "event1");
+        final RequestModel customEvent1 = customEvent(900, "event1");
         requestModelRepository.add(customEvent1);
 
         List<RequestModel> result = compositeRepository.query(new Everything());
@@ -487,15 +620,16 @@ public class RequestRepositoryProxyTest {
                 uuidProvider,
                 inAppEventHandlerInternal,
                 mockEventServiceProvider,
-                mockEventServiceV4Provider
+                mockEventServiceV4Provider,
+                mockDeviceEventStateStorage
         );
     }
 
-    private RequestModel customEvent_V3(long timestamp, String eventName) {
-        return customEvent_V3(timestamp, eventName, null);
+    private RequestModel customEvent(long timestamp, String eventName) {
+        return customEvent(timestamp, eventName, null);
     }
 
-    private RequestModel customEvent_V3(long timestamp, final String eventName, final Map<String, Object> attributes) {
+    private RequestModel customEvent(long timestamp, final String eventName, final Map<String, Object> attributes) {
         Map<String, Object> event = new HashMap<>();
         event.put("type", "custom");
         event.put("name", eventName);

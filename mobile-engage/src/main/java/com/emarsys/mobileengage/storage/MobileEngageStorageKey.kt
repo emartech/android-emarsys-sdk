@@ -17,6 +17,7 @@ enum class MobileEngageStorageKey : StorageKey {
     DEEPLINK_SERVICE_URL,
     ME_V2_SERVICE_URL,
     GEOFENCE_ENABLED,
+    DEVICE_EVENT_STATE,
     DEVICE_INFO_HASH;
 
     override fun getKey(): String {

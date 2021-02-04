@@ -1,14 +1,17 @@
 package com.emarsys.mobileengage.iam.model.requestRepositoryProxy;
 
+import com.emarsys.common.feature.InnerFeature;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.endpoint.ServiceEndpointProvider;
+import com.emarsys.core.feature.FeatureRegistry;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.specification.FilterByUrlPattern;
+import com.emarsys.core.storage.StringStorage;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.iam.InAppEventHandlerInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
@@ -33,6 +36,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private final InAppEventHandlerInternal inAppEventHandlerInternal;
     private final ServiceEndpointProvider eventServiceProvider;
     private final ServiceEndpointProvider eventServiceV4Provider;
+    private final StringStorage deviceEventStateStorage;
 
     public RequestRepositoryProxy(
             Repository<RequestModel, SqlSpecification> requestRepository,
@@ -42,7 +46,8 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
             UUIDProvider uuidProvider,
             InAppEventHandlerInternal inAppEventHandlerInternal,
             ServiceEndpointProvider eventServiceProvider,
-            ServiceEndpointProvider eventServiceV4Provider) {
+            ServiceEndpointProvider eventServiceV4Provider,
+            StringStorage deviceEventStateStorage) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(iamRepository, "IamRepository must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
@@ -51,6 +56,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         Assert.notNull(uuidProvider, "UuidProvider must not be null!");
         Assert.notNull(eventServiceProvider, "EventServiceProvider must not be null!");
         Assert.notNull(eventServiceV4Provider, "EventServiceV4Provider must not be null!");
+        Assert.notNull(deviceEventStateStorage, "DeviceEventStateStorage must not be null!");
 
         this.requestRepository = requestRepository;
         this.iamRepository = iamRepository;
@@ -60,6 +66,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         this.uuidProvider = uuidProvider;
         this.eventServiceProvider = eventServiceProvider;
         this.eventServiceV4Provider = eventServiceProvider;
+        this.deviceEventStateStorage = deviceEventStateStorage;
     }
 
     @Override
@@ -123,6 +130,11 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private Map<String, Object> createCompositePayload(List<RequestModel> models) {
         List<Object> events = new ArrayList<>();
 
+        String deviceEventState = null;
+        if (FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4)) {
+            deviceEventState = deviceEventStateStorage.get();
+        }
+
         for (RequestModel model : models) {
             Object individualEvents = model.getPayload().get("events");
             if (individualEvents != null && individualEvents instanceof List) {
@@ -134,7 +146,8 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
                 events,
                 iamRepository.query(new Everything()),
                 buttonClickedRepository.query(new Everything()),
-                inAppEventHandlerInternal.isPaused()
+                inAppEventHandlerInternal.isPaused(),
+                deviceEventState
         );
     }
 
