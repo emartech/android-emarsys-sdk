@@ -670,6 +670,12 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getEventServiceProvider(),
                 getEventServiceV4Provider()
         ))
+        responseHandlers.add(InAppCleanUpResponseHandlerV4(
+                getDependency(dependencies, "displayedIamRepository"),
+                getDependency(dependencies, "buttonClickedRepository"),
+                getEventServiceProvider(),
+                getEventServiceV4Provider()
+        ))
         responseHandlers.add(OnEventActionResponseHandler(
                 getDependency("onEventActionActionCommandFactory"),
                 getDependency(dependencies, "displayedIamRepository"),
