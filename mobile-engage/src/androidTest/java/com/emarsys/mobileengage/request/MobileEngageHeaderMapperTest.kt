@@ -1,7 +1,10 @@
 package com.emarsys.mobileengage.request
 
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.endpoint.ServiceEndpointProvider
+import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.CompositeRequestModel
@@ -9,6 +12,7 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
+import com.emarsys.mobileengage.testUtil.DependencyTestUtils
 import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.testUtil.TimeoutUtils
@@ -16,6 +20,7 @@ import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -31,10 +36,6 @@ class MobileEngageHeaderMapperTest {
         const val REQUEST_ID = "request_id"
         const val HARDWARE_ID = "hwid"
         const val APPLICATION_CODE = "applicationCode"
-        const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
-        const val EVENT_HOST = "https://mobile-event.eservice.emarsys.net/v3"
-        const val EVENT_HOST_V4 = "https://mobile-event.eservice.emarsys.net/v4"
-        const val INBOX_HOST = "https://mobile-events.eservice.emarsys.net/v3"
     }
 
     private lateinit var mobileEngageHeaderMapper: MobileEngageHeaderMapper
@@ -46,10 +47,6 @@ class MobileEngageHeaderMapperTest {
     private lateinit var mockContactTokenStorage: StringStorage
     private lateinit var mockRefreshTokenStorage: StringStorage
     private lateinit var mockDeviceInfo: DeviceInfo
-    private lateinit var mockClientServiceProvider: ServiceEndpointProvider
-    private lateinit var mockEventServiceProvider: ServiceEndpointProvider
-    private lateinit var mockEventServiceV4Provider: ServiceEndpointProvider
-    private lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
 
     @Rule
     @JvmField
@@ -58,22 +55,6 @@ class MobileEngageHeaderMapperTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        mockClientServiceProvider = mock {
-            on { provideEndpointHost() } doReturn CLIENT_HOST
-        }
-
-        mockEventServiceProvider = mock {
-            on { provideEndpointHost() } doReturn EVENT_HOST
-        }
-
-        mockEventServiceV4Provider = mock {
-            on { provideEndpointHost() } doReturn EVENT_HOST_V4
-        }
-
-        mockMessageInboxServiceProvider = mock {
-            on { provideEndpointHost() } doReturn INBOX_HOST
-        }
-
         mockClientStateStorage = mock {
             on { get() } doReturn CLIENT_STATE
         }
@@ -107,33 +88,22 @@ class MobileEngageHeaderMapperTest {
             on { refreshTokenStorage } doReturn mockRefreshTokenStorage
         }
 
-        mobileEngageHeaderMapper = MobileEngageHeaderMapper(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
+        DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
+
+        mobileEngageHeaderMapper = MobileEngageHeaderMapper(mockRequestContext)
     }
 
+    @After
+    fun tearDown() {
+        val handler = getDependency<Handler>("coreSdkHandler")
+        val looper: Looper? = handler.looper
+        looper?.quit()
+        DependencyInjection.tearDown()
+    }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestContext_mustNotBeNull() {
-        MobileEngageHeaderMapper(null, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_clientServiceProvider_mustNotBeNull() {
-        MobileEngageHeaderMapper(mockRequestContext, null, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_eventServiceProvider_mustNotBeNull() {
-        MobileEngageHeaderMapper(mockRequestContext, mockClientServiceProvider, null, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_eventServiceV4Provider_mustNotBeNull() {
-        MobileEngageHeaderMapper(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, null, mockMessageInboxServiceProvider)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_messageInboxServiceProvider_mustNotBeNull() {
-        MobileEngageHeaderMapper(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, null)
+        MobileEngageHeaderMapper(null)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -251,7 +221,7 @@ class MobileEngageHeaderMapperTest {
 
     private fun createCustomEventCompositeRequest(extraHeaders: Map<String, String> = mapOf()) = CompositeRequestModel(
             "0",
-            "https://mobile-event.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
+            "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
             RequestMethod.POST,
             null,
             RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,

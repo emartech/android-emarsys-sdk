@@ -1,21 +1,27 @@
 package com.emarsys.mobileengage.responsehandler
 
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.database.repository.Repository
 
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
+import com.emarsys.mobileengage.testUtil.DependencyTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import io.kotlintest.shouldBe
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -31,8 +37,6 @@ class InAppCleanUpResponseHandlerTest {
     private lateinit var handler: InAppCleanUpResponseHandler
     private lateinit var mockDisplayedIamRepository: Repository<DisplayedIam, SqlSpecification>
     private lateinit var mockButtonClickRepository: Repository<ButtonClicked, SqlSpecification>
-    private lateinit var mockEventServiceProvider: ServiceEndpointProvider
-    private lateinit var mockEventServiceV4Provider: ServiceEndpointProvider
     private lateinit var mockRequestModel: RequestModel
 
     @Rule
@@ -46,16 +50,20 @@ class InAppCleanUpResponseHandlerTest {
         }
         mockDisplayedIamRepository = mock()
         mockButtonClickRepository = mock()
-        mockEventServiceProvider = mock {
-            on { provideEndpointHost() } doReturn EVENT_HOST
-        }
-        mockEventServiceV4Provider = mock {
-            on { provideEndpointHost() } doReturn EVENT_HOST
-        }
 
-        handler = InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository, mockEventServiceProvider, mockEventServiceV4Provider)
+        DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
+
+        handler = InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository)
 
         FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
+    }
+
+    @After
+    fun tearDown() {
+        val handler = getDependency<Handler>("coreSdkHandler")
+        val looper: Looper? = handler.looper
+        looper?.quit()
+        DependencyInjection.tearDown()
     }
 
     @Test

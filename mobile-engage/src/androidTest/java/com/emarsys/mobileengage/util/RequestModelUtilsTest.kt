@@ -1,10 +1,20 @@
 package com.emarsys.mobileengage.util
 
+import android.os.Handler
+import android.os.Looper
+import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestModel
+import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
+import com.emarsys.mobileengage.util.RequestModelUtils.isCustomEvent
+import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageRequest
+import com.emarsys.mobileengage.util.RequestModelUtils.isRefreshContactTokenRequest
+import com.emarsys.mobileengage.util.RequestModelUtils.isRemoteConfigRequest
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -48,6 +58,21 @@ class RequestModelUtilsTest {
         }
 
         mockRequestModel = mock(RequestModel::class.java)
+        DependencyInjection.setup(
+                FakeMobileEngageDependencyContainer(
+                        clientServiceProvider = mockClientServiceProvider,
+                        eventServiceProvider = mockEventServiceProvider,
+                        eventServiceV4Provider = mockEventServiceV4Provider,
+                        messageInboxServiceProvider = mockMessageInboxServiceProvider
+                ))
+    }
+
+    @After
+    fun tearDown() {
+        val handler = getDependency<Handler>("coreSdkHandler")
+        val looper: Looper? = handler.looper
+        looper?.quit()
+        DependencyInjection.tearDown()
     }
 
     @Rule
@@ -59,7 +84,7 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(CLIENT_BASE))
         }
-        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
+        val result = mockRequestModel.isMobileEngageRequest()
 
         result shouldBe true
     }
@@ -69,7 +94,7 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(EVENT_BASE))
         }
-        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
+        val result = mockRequestModel.isMobileEngageRequest()
 
         result shouldBe true
     }
@@ -79,7 +104,7 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(EVENT_BASE_V4))
         }
-        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
+        val result = mockRequestModel.isMobileEngageRequest()
 
         result shouldBe true
     }
@@ -89,7 +114,7 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(INBOX_BASE))
         }
-        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
+        val result = mockRequestModel.isMobileEngageRequest()
 
         result shouldBe true
     }
@@ -99,58 +124,57 @@ class RequestModelUtilsTest {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL("https://not-mobile-engage.com"))
         }
-        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
+        val result = mockRequestModel.isMobileEngageRequest()
 
         result shouldBe false
     }
 
     @Test
     fun testIsCustomEvent_V3_true_whenItIsCustomEventV3Event() {
-        val requestModel = mock(RequestModel::class.java).apply {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(EVENT_BASE))
         }
-        val result = RequestModelUtils.isCustomEvent(requestModel, mockEventServiceProvider, mockEventServiceV4Provider)
+        val result = mockRequestModel.isCustomEvent()
 
         result shouldBe true
     }
 
     @Test
-    fun testIsRemoteConfig_V3_true_whenItIsRemoteConfigUrl() {
+    fun testIsRemoteConfig_true_whenItIsRemoteConfigUrl() {
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(REMOTE_CONFIG_HOST))
         }
-        val result = RequestModelUtils.isMobileEngageRequest(mockRequestModel,
-                mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMessageInboxServiceProvider)
+        val result = mockRequestModel.isRemoteConfigRequest()
 
         result shouldBe true
     }
 
     @Test
     fun testIsCustomEvent_V3_false_whenItIsNotCustomEventV3Event() {
-        val requestModel = mock(RequestModel::class.java).apply {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL(CLIENT_BASE))
         }
-        val result = RequestModelUtils.isCustomEvent(requestModel, mockEventServiceProvider, mockEventServiceV4Provider)
+        val result = mockRequestModel.isCustomEvent()
 
         result shouldBe false
     }
 
     @Test
     fun testIsRefreshContactTokenRequest_true_whenItIsRefreshContactTokenRequest() {
-        val requestModel = mock(RequestModel::class.java).apply {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL("$CLIENT_BASE/contact-token"))
         }
-        val result = RequestModelUtils.isRefreshContactTokenRequest(requestModel, mockClientServiceProvider)
+        val result = mockRequestModel.isRefreshContactTokenRequest()
 
         result shouldBe true
     }
 
     @Test
     fun testIsRefreshContactTokenRequest_false_whenItIsNotRefreshContactTokenRequest() {
-        val requestModel = mock(RequestModel::class.java).apply {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL("$CLIENT_BASE/contact"))
         }
-        val result = RequestModelUtils.isRefreshContactTokenRequest(requestModel, mockClientServiceProvider)
+        val result = mockRequestModel.isRefreshContactTokenRequest()
 
         result shouldBe false
     }

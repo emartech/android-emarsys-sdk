@@ -10,6 +10,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.model.CompositeRequestModel;
 import com.emarsys.core.request.model.RequestModel;
+import com.emarsys.core.request.model.RequestModelKt;
 import com.emarsys.core.request.model.specification.FilterByUrlPattern;
 import com.emarsys.core.storage.StringStorage;
 import com.emarsys.core.util.Assert;
@@ -35,7 +36,6 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private final UUIDProvider uuidProvider;
     private final InAppEventHandlerInternal inAppEventHandlerInternal;
     private final ServiceEndpointProvider eventServiceProvider;
-    private final ServiceEndpointProvider eventServiceV4Provider;
     private final StringStorage deviceEventStateStorage;
 
     public RequestRepositoryProxy(
@@ -46,7 +46,6 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
             UUIDProvider uuidProvider,
             InAppEventHandlerInternal inAppEventHandlerInternal,
             ServiceEndpointProvider eventServiceProvider,
-            ServiceEndpointProvider eventServiceV4Provider,
             StringStorage deviceEventStateStorage) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(iamRepository, "IamRepository must not be null!");
@@ -55,7 +54,6 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         Assert.notNull(inAppEventHandlerInternal, "InAppEventHandlerInternal must not be null!");
         Assert.notNull(uuidProvider, "UuidProvider must not be null!");
         Assert.notNull(eventServiceProvider, "EventServiceProvider must not be null!");
-        Assert.notNull(eventServiceV4Provider, "EventServiceV4Provider must not be null!");
         Assert.notNull(deviceEventStateStorage, "DeviceEventStateStorage must not be null!");
 
         this.requestRepository = requestRepository;
@@ -65,7 +63,6 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         this.inAppEventHandlerInternal = inAppEventHandlerInternal;
         this.uuidProvider = uuidProvider;
         this.eventServiceProvider = eventServiceProvider;
-        this.eventServiceV4Provider = eventServiceProvider;
         this.deviceEventStateStorage = deviceEventStateStorage;
     }
 
@@ -107,7 +104,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private List<RequestModel> collectCustomEvents(List<RequestModel> models) {
         List<RequestModel> result = new ArrayList<>();
         for (RequestModel requestModel : models) {
-            if (RequestModelUtils.isCustomEvent(requestModel, eventServiceProvider, eventServiceV4Provider)) {
+            if (RequestModelUtils.INSTANCE.isCustomEvent(requestModel)) {
                 result.add(requestModel);
             }
         }

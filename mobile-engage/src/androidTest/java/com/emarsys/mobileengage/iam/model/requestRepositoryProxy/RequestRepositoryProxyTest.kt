@@ -1,127 +1,94 @@
-package com.emarsys.mobileengage.iam.model.requestRepositoryProxy;
+package com.emarsys.mobileengage.iam.model.requestRepositoryProxy
 
-import android.content.Context;
+import android.os.Handler
+import android.os.Looper
+import com.emarsys.common.feature.InnerFeature
+import com.emarsys.core.database.helper.CoreDbHelper
+import com.emarsys.core.database.helper.DbHelper
+import com.emarsys.core.database.repository.Repository
+import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.database.repository.specification.Everything
+import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
+import com.emarsys.core.endpoint.ServiceEndpointProvider
+import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.core.provider.timestamp.TimestampProvider
+import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.core.request.model.CompositeRequestModel
+import com.emarsys.core.request.model.RequestMethod
+import com.emarsys.core.request.model.RequestModel
+import com.emarsys.core.request.model.RequestModelRepository
+import com.emarsys.core.request.model.specification.QueryLatestRequestModel
+import com.emarsys.core.storage.StringStorage
+import com.emarsys.core.util.TimestampUtils
+import com.emarsys.mobileengage.MobileEngageRequestContext
+import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
+import com.emarsys.mobileengage.iam.InAppEventHandlerInternal
+import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
+import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
+import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
+import com.emarsys.mobileengage.util.RequestModelUtilsTest
+import com.emarsys.mobileengage.util.RequestPayloadUtils.createCompositeRequestModelPayload
+import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
+import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
+import com.emarsys.testUtil.RandomTestUtils.randomString
+import com.emarsys.testUtil.TimeoutUtils.timeoutRule
+import com.nhaarman.mockitokotlin2.*
+import io.kotlintest.shouldBe
+import junit.framework.Assert
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.TestRule
+import org.mockito.Mockito
+import java.util.*
 
-import com.emarsys.common.feature.InnerFeature;
-import com.emarsys.core.database.helper.CoreDbHelper;
-import com.emarsys.core.database.helper.DbHelper;
-import com.emarsys.core.database.repository.Repository;
-import com.emarsys.core.database.repository.SqlSpecification;
-import com.emarsys.core.database.repository.specification.Everything;
-import com.emarsys.core.database.trigger.TriggerKey;
-import com.emarsys.core.endpoint.ServiceEndpointProvider;
-import com.emarsys.core.feature.FeatureRegistry;
-import com.emarsys.core.provider.timestamp.TimestampProvider;
-import com.emarsys.core.provider.uuid.UUIDProvider;
-import com.emarsys.core.request.model.CompositeRequestModel;
-import com.emarsys.core.request.model.RequestMethod;
-import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.request.model.RequestModelRepository;
-import com.emarsys.core.request.model.specification.QueryLatestRequestModel;
-import com.emarsys.core.storage.StringStorage;
-import com.emarsys.core.util.TimestampUtils;
-import com.emarsys.mobileengage.MobileEngageRequestContext;
-import com.emarsys.mobileengage.iam.InAppEventHandlerInternal;
-import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
-import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository;
-import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
-import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository;
-import com.emarsys.mobileengage.util.RequestPayloadUtils;
-import com.emarsys.testUtil.DatabaseTestUtils;
-import com.emarsys.testUtil.InstrumentationRegistry;
-import com.emarsys.testUtil.RandomTestUtils;
-import com.emarsys.testUtil.TimeoutUtils;
+class RequestRepositoryProxyTest {
+    private lateinit var mockRequestContext: MobileEngageRequestContext
+    private lateinit var mockRequestModelRepository: Repository<RequestModel, SqlSpecification>
+    private lateinit var mockDisplayedIamRepository: Repository<DisplayedIam, SqlSpecification>
+    private lateinit var mockButtonClickedRepository: Repository<ButtonClicked, SqlSpecification>
+    private lateinit var requestModelRepository: Repository<RequestModel, SqlSpecification>
+    private lateinit var displayedIamRepository: Repository<DisplayedIam, SqlSpecification>
+    private lateinit var buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>
+    private lateinit var timestampProvider: TimestampProvider
+    private lateinit var inAppEventHandlerInternal: InAppEventHandlerInternal
+    private lateinit var compositeRepository: RequestRepositoryProxy
+    private lateinit var uuidProvider: UUIDProvider
+    private lateinit var mockEventServiceProvider: ServiceEndpointProvider
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
-public class RequestRepositoryProxyTest {
-
-    private static final long TIMESTAMP = 80_000L;
-    private static final String REQUEST_ID = "REQUEST_ID";
-    private static final String APPLICATION_CODE = "applicationCode";
-    private static final String EVENT_HOST = "https://mobile-events.eservice.emarsys.net/v3";
-    private static final String EVENT_HOST_V4 = "https://mobile-events.eservice.emarsys.net/v4";
-
-    private MobileEngageRequestContext mockRequestContext;
-
-    private Repository<RequestModel, SqlSpecification> mockRequestModelRepository;
-    private Repository<DisplayedIam, SqlSpecification> mockDisplayedIamRepository;
-    private Repository<ButtonClicked, SqlSpecification> mockButtonClickedRepository;
-
-    private Repository<RequestModel, SqlSpecification> requestModelRepository;
-    private Repository<DisplayedIam, SqlSpecification> displayedIamRepository;
-    private Repository<ButtonClicked, SqlSpecification> buttonClickedRepository;
-
-    private TimestampProvider timestampProvider;
-    private InAppEventHandlerInternal inAppEventHandlerInternal;
-
-    private RequestRepositoryProxy compositeRepository;
-    private UUIDProvider uuidProvider;
-    private ServiceEndpointProvider mockEventServiceProvider;
-    private ServiceEndpointProvider mockEventServiceV4Provider;
-    private StringStorage mockDeviceEventStateStorage;
+    private lateinit var mockDeviceEventStateStorage: StringStorage
 
     @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
+    @JvmField
+    val timeout: TestRule = timeoutRule
 
     @Before
-    @SuppressWarnings("unchecked")
-    public void init() {
-        DatabaseTestUtils.deleteCoreDatabase();
+    fun init() {
+        deleteCoreDatabase()
+        val context = getTargetContext()
+        mockRequestContext = mock()
+        mockRequestModelRepository = mock()
+        mockDisplayedIamRepository = mock()
+        mockButtonClickedRepository = mock()
+        whenever(mockRequestContext.applicationCode).thenReturn(APPLICATION_CODE)
+        val dbHelper: DbHelper = CoreDbHelper(context, HashMap())
+        requestModelRepository = RequestModelRepository(dbHelper)
+        displayedIamRepository = DisplayedIamRepository(dbHelper)
+        buttonClickedRepository = ButtonClickedRepository(dbHelper)
+        timestampProvider = mock()
+        whenever(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP)
+        uuidProvider = mock()
+        whenever(uuidProvider.provideId()).thenReturn(REQUEST_ID)
+        inAppEventHandlerInternal = mock()
+        mockDeviceEventStateStorage = mock()
 
-        Context context = InstrumentationRegistry.getTargetContext();
-
-        mockRequestContext = mock(MobileEngageRequestContext.class);
-
-        mockRequestModelRepository = mock(Repository.class);
-        mockDisplayedIamRepository = mock(Repository.class);
-        mockButtonClickedRepository = mock(Repository.class);
-
-        when(mockRequestContext.getApplicationCode()).thenReturn(APPLICATION_CODE);
-
-        DbHelper dbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
-
-        requestModelRepository = new RequestModelRepository(dbHelper);
-        displayedIamRepository = new DisplayedIamRepository(dbHelper);
-        buttonClickedRepository = new ButtonClickedRepository(dbHelper);
-
-        timestampProvider = mock(TimestampProvider.class);
-        when(timestampProvider.provideTimestamp()).thenReturn(TIMESTAMP);
-
-        uuidProvider = mock(UUIDProvider.class);
-        when(uuidProvider.provideId()).thenReturn(REQUEST_ID);
-
-        inAppEventHandlerInternal = mock(InAppEventHandlerInternal.class);
-
-        mockEventServiceProvider = mock(ServiceEndpointProvider.class);
-        when(mockEventServiceProvider.provideEndpointHost()).thenReturn(EVENT_HOST);
-
-        mockEventServiceV4Provider = mock(ServiceEndpointProvider.class);
-        when(mockEventServiceV4Provider.provideEndpointHost()).thenReturn(EVENT_HOST_V4);
-
-        mockDeviceEventStateStorage = mock(StringStorage.class);
-
-        compositeRepository = new RequestRepositoryProxy(
+        mockEventServiceProvider = mock {
+            on { provideEndpointHost() } doReturn EVENT_HOST
+        }
+        compositeRepository = RequestRepositoryProxy(
                 mockRequestModelRepository,
                 mockDisplayedIamRepository,
                 mockButtonClickedRepository,
@@ -129,490 +96,415 @@ public class RequestRepositoryProxyTest {
                 uuidProvider,
                 inAppEventHandlerInternal,
                 mockEventServiceProvider,
-                mockEventServiceV4Provider,
-                mockDeviceEventStateStorage);
+                mockDeviceEventStateStorage)
+
+        DependencyInjection.setup(
+                FakeMobileEngageDependencyContainer(
+                        clientServiceProvider = Mockito.mock(ServiceEndpointProvider::class.java).apply {
+                            whenever(provideEndpointHost()).thenReturn("dummyURL")
+                        },
+                        eventServiceProvider = mockEventServiceProvider,
+                        eventServiceV4Provider = Mockito.mock(ServiceEndpointProvider::class.java).apply {
+                            whenever(provideEndpointHost()).thenReturn("dummyURL")
+                        },
+                        messageInboxServiceProvider = Mockito.mock(ServiceEndpointProvider::class.java).apply {
+                            whenever(provideEndpointHost()).thenReturn("dummyURL")
+                        }
+                ))
     }
 
     @After
-    public void tearDown() throws Exception {
-        FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4);
+    @Throws(Exception::class)
+    fun tearDown() {
+        FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
+        val handler = getDependency<Handler>("coreSdkHandler")
+        val looper: Looper? = handler.looper
+        looper?.quit()
+        DependencyInjection.tearDown()
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_requestRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(null,
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_requestRepository_mustNotBeNull() {
+        RequestRepositoryProxy(null,
                 mockDisplayedIamRepository,
                 mockButtonClickedRepository,
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
                 mockEventServiceProvider,
-                mockEventServiceV4Provider,
-                mockDeviceEventStateStorage);
+                mockDeviceEventStateStorage)
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_displayedIamRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository,
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_displayedIamRepository_mustNotBeNull() {
+        RequestRepositoryProxy(mockRequestModelRepository,
                 null,
                 mockButtonClickedRepository,
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
                 mockEventServiceProvider,
-                mockEventServiceV4Provider,
-                mockDeviceEventStateStorage);
+                mockDeviceEventStateStorage)
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_buttonClickedRepository_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository,
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_buttonClickedRepository_mustNotBeNull() {
+        RequestRepositoryProxy(mockRequestModelRepository,
                 mockDisplayedIamRepository,
                 null,
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
                 mockEventServiceProvider,
-                mockEventServiceV4Provider,
-                mockDeviceEventStateStorage);
+                mockDeviceEventStateStorage)
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_timestampProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository,
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_timestampProvider_mustNotBeNull() {
+        RequestRepositoryProxy(mockRequestModelRepository,
                 mockDisplayedIamRepository,
                 buttonClickedRepository,
                 null,
                 uuidProvider,
                 inAppEventHandlerInternal,
                 mockEventServiceProvider,
-                mockEventServiceV4Provider,
-                mockDeviceEventStateStorage);
+                mockDeviceEventStateStorage)
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_inAppInternal_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository,
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_inAppInternal_mustNotBeNull() {
+        RequestRepositoryProxy(mockRequestModelRepository,
                 mockDisplayedIamRepository,
                 buttonClickedRepository,
                 timestampProvider,
                 uuidProvider,
                 null,
                 mockEventServiceProvider,
-                mockEventServiceV4Provider,
-                mockDeviceEventStateStorage);
+                mockDeviceEventStateStorage)
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_uuidProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository,
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_uuidProvider_mustNotBeNull() {
+        RequestRepositoryProxy(mockRequestModelRepository,
                 mockDisplayedIamRepository,
                 buttonClickedRepository,
                 timestampProvider,
                 null,
                 inAppEventHandlerInternal,
                 mockEventServiceProvider,
-                mockEventServiceV4Provider,
-                mockDeviceEventStateStorage);
+                mockDeviceEventStateStorage)
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_eventServiceProvider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository,
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_eventServiceProvider_mustNotBeNull() {
+        RequestRepositoryProxy(mockRequestModelRepository,
                 mockDisplayedIamRepository,
                 buttonClickedRepository,
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
                 null,
-                mockEventServiceV4Provider,
-                mockDeviceEventStateStorage);
+                mockDeviceEventStateStorage)
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_eventServiceV4Provider_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository,
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_deviceEventStateStorage_mustNotBeNull() {
+        RequestRepositoryProxy(mockRequestModelRepository,
                 mockDisplayedIamRepository,
                 buttonClickedRepository,
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
                 mockEventServiceProvider,
-                null,
-                mockDeviceEventStateStorage);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_deviceEventStateStorage_mustNotBeNull() {
-        new RequestRepositoryProxy(mockRequestModelRepository,
-                mockDisplayedIamRepository,
-                buttonClickedRepository,
-                timestampProvider,
-                uuidProvider,
-                inAppEventHandlerInternal,
-                mockEventServiceProvider,
-                mockEventServiceV4Provider,
-                null);
+                null)
     }
 
     @Test
-    public void testAdd_shouldDelegate_toRequestModelRepository() {
-        RequestModel requestModel = mock(RequestModel.class);
-
-        compositeRepository.add(requestModel);
-
-        verify(mockRequestModelRepository).add(requestModel);
+    fun testAdd_shouldDelegate_toRequestModelRepository() {
+        val requestModel: RequestModel = mock()
+        compositeRepository.add(requestModel)
+        verify(mockRequestModelRepository).add(requestModel)
     }
 
     @Test
-    public void testAdd_shouldNotStoreCompositeRequestModels() {
-        CompositeRequestModel requestModel = mock(CompositeRequestModel.class);
-
-        compositeRepository.add(requestModel);
-
-        verifyZeroInteractions(mockRequestModelRepository);
+    fun testAdd_shouldNotStoreCompositeRequestModels() {
+        val requestModel: CompositeRequestModel = mock()
+        compositeRepository.add(requestModel)
+        verifyZeroInteractions(mockRequestModelRepository)
     }
 
     @Test
-    public void testRemove_shouldDelegate_toRequestModelRepository() {
-        SqlSpecification spec = mock(SqlSpecification.class);
-
-        compositeRepository.remove(spec);
-
-        verify(mockRequestModelRepository).remove(spec);
+    fun testRemove_shouldDelegate_toRequestModelRepository() {
+        val spec: SqlSpecification = mock()
+        compositeRepository.remove(spec)
+        verify(mockRequestModelRepository).remove(spec)
     }
 
     @Test
-    public void testIsEmpty_whenEmpty_shouldDelegate_toRequestModelRepository() {
-        when(mockRequestModelRepository.isEmpty()).thenReturn(true);
-
-        assertTrue(compositeRepository.isEmpty());
-        verify(mockRequestModelRepository).isEmpty();
+    fun testIsEmpty_whenEmpty_shouldDelegate_toRequestModelRepository() {
+        whenever(mockRequestModelRepository.isEmpty()).thenReturn(true)
+        Assert.assertTrue(compositeRepository.isEmpty())
+        verify(mockRequestModelRepository).isEmpty()
     }
 
     @Test
-    public void testIsEmpty_whenNotEmpty_shouldDelegate_toRequestModelRepository() {
-        when(mockRequestModelRepository.isEmpty()).thenReturn(false);
-
-        assertFalse(compositeRepository.isEmpty());
-        verify(mockRequestModelRepository).isEmpty();
+    fun testIsEmpty_whenNotEmpty_shouldDelegate_toRequestModelRepository() {
+        whenever(mockRequestModelRepository.isEmpty()).thenReturn(false)
+        Assert.assertFalse(compositeRepository.isEmpty())
+        verify(mockRequestModelRepository).isEmpty()
     }
 
     @Test
-    public void testQuery_shouldReturnOriginalQuery_whenThereAreNoCustomEvents() {
-        compositeRepository = compositeRepositoryWithRealRepositories();
-
-        RequestModel firstRequestModel = requestModel();
-        requestModelRepository.add(firstRequestModel);
-        requestModelRepository.add(requestModel());
-        requestModelRepository.add(requestModel());
-
-        List<RequestModel> expected = Collections.singletonList(firstRequestModel);
-
-        assertEquals(expected, compositeRepository.query(new QueryLatestRequestModel()));
+    fun xtestQuery_shouldReturnOriginalQuery_whenThereAreNoCustomEvents() {
+        compositeRepository = compositeRepositoryWithRealRepositories()
+        val firstRequestModel = requestModel()
+        requestModelRepository.add(firstRequestModel)
+        requestModelRepository.add(requestModel())
+        requestModelRepository.add(requestModel())
+        val expected = listOf(firstRequestModel)
+        Assert.assertEquals(expected, compositeRepository.query(QueryLatestRequestModel()))
     }
 
     @Test
-    public void testQuery_resultShouldContainCompositeRequestModel_whenResultContainsCustomEvent() {
-        compositeRepository = compositeRepositoryWithRealRepositories();
-
-        RequestModel request1 = requestModel();
-        RequestModel request2 = requestModel();
-        RequestModel request3 = requestModel();
-
-        final RequestModel customEvent1 = customEvent(900, "event1");
-
-        HashMap<String, Object> attributes = new HashMap<>();
-        attributes.put("key1", "value1");
-        attributes.put("key2", "value2");
-        final RequestModel customEvent2 = customEvent(1000, "event2", attributes);
-        final RequestModel customEvent3 = customEvent(1200, "event3");
-
-        requestModelRepository.add(request1);
-        requestModelRepository.add(request2);
-        requestModelRepository.add(customEvent1);
-        requestModelRepository.add(customEvent2);
-        requestModelRepository.add(request3);
-        requestModelRepository.add(customEvent3);
-
-        Map<String, Object> event1 = new HashMap<>();
-        event1.put("type", "custom");
-        event1.put("name", "event1");
-        event1.put("timestamp", TimestampUtils.formatTimestampWithUTC(900));
-
-        Map<String, Object> event2 = new HashMap<>();
-        event2.put("type", "custom");
-        event2.put("name", "event2");
-        event2.put("timestamp", TimestampUtils.formatTimestampWithUTC(1000));
-        event2.put("attributes", new HashMap<String, String>() {{
-            put("key1", "value1");
-            put("key2", "value2");
-        }});
-
-        Map<String, Object> event3 = new HashMap<>();
-        event3.put("type", "custom");
-        event3.put("name", "event3");
-        event3.put("timestamp", TimestampUtils.formatTimestampWithUTC(1200));
-
-        Map<String, Object> payload = RequestPayloadUtils.createCompositeRequestModelPayload(
-                Arrays.asList(event1, event2, event3),
-                Collections.<DisplayedIam>emptyList(),
-                Collections.<ButtonClicked>emptyList(),
+    fun testQuery_resultShouldContainCompositeRequestModel_whenResultContainsCustomEvent() {
+        compositeRepository = compositeRepositoryWithRealRepositories()
+        val request1 = requestModel()
+        val request2 = requestModel()
+        val request3 = requestModel()
+        val customEvent1 = customEvent(900, "event1")
+        val attributes = HashMap<String, Any>()
+        attributes["key1"] = "value1"
+        attributes["key2"] = "value2"
+        val customEvent2 = customEvent(1000, "event2", attributes)
+        val customEvent3 = customEvent(1200, "event3")
+        requestModelRepository.add(request1)
+        requestModelRepository.add(request2)
+        requestModelRepository.add(customEvent1)
+        requestModelRepository.add(customEvent2)
+        requestModelRepository.add(request3)
+        requestModelRepository.add(customEvent3)
+        val event1: MutableMap<String, Any> = HashMap()
+        event1["type"] = "custom"
+        event1["name"] = "event1"
+        event1["timestamp"] = TimestampUtils.formatTimestampWithUTC(900)
+        val event2: MutableMap<String, Any> = HashMap()
+        event2["type"] = "custom"
+        event2["name"] = "event2"
+        event2["timestamp"] = TimestampUtils.formatTimestampWithUTC(1000)
+        event2["attributes"] = object : HashMap<String?, String?>() {
+            init {
+                put("key1", "value1")
+                put("key2", "value2")
+            }
+        }
+        val event3: MutableMap<String, Any> = HashMap()
+        event3["type"] = "custom"
+        event3["name"] = "event3"
+        event3["timestamp"] = TimestampUtils.formatTimestampWithUTC(1200)
+        val payload: Map<String, Any?> = createCompositeRequestModelPayload(
+                listOf<Map<String, Any>>(event1, event2, event3), emptyList(), emptyList(),
                 false,
-                null);
-
-        RequestModel expectedComposite = new CompositeRequestModel(
+                null)
+        val expectedComposite: RequestModel = CompositeRequestModel(
                 REQUEST_ID,
-                "https://mobile-events.eservice.emarsys.net/v3/apps/" + APPLICATION_CODE + "/client/events",
+                "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
                 RequestMethod.POST,
                 payload,
-                customEvent1.getHeaders(),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                new String[]{customEvent1.getId(), customEvent2.getId(), customEvent3.getId()}
-        );
-
-        List<RequestModel> expected = Arrays.asList(
+                customEvent1.headers,
+                TIMESTAMP, Long.MAX_VALUE, arrayOf(customEvent1.id, customEvent2.id, customEvent3.id))
+        val expected = listOf(
                 request1,
                 request2,
                 expectedComposite,
-                request3);
-
-        assertEquals(expected, compositeRepository.query(new Everything()));
+                request3)
+        Assert.assertEquals(expected, compositeRepository.query(Everything()))
     }
 
     @Test
-    public void testQuery_resultShouldContainClicksAndDisplays_withSingleCustomEvent() {
-        compositeRepository = compositeRepositoryWithRealRepositories();
-
-        HashMap<String, Object> attributes = new HashMap<>();
-        attributes.put("key1", "value1");
-        attributes.put("key2", "value2");
-        final RequestModel customEvent1 = customEvent(1000, "event1", attributes);
-
-        requestModelRepository.add(customEvent1);
-
-        ButtonClicked buttonClicked1 = new ButtonClicked("campaign1", "button1", 200);
-        ButtonClicked buttonClicked2 = new ButtonClicked("campaign1", "button2", 300);
-        ButtonClicked buttonClicked3 = new ButtonClicked("campaign2", "button1", 2000);
-
-        buttonClickedRepository.add(buttonClicked1);
-        buttonClickedRepository.add(buttonClicked2);
-        buttonClickedRepository.add(buttonClicked3);
-
-        DisplayedIam displayedIam1 = new DisplayedIam("campaign1", 100);
-        DisplayedIam displayedIam2 = new DisplayedIam("campaign2", 1500);
-        DisplayedIam displayedIam3 = new DisplayedIam("campaign3", 30000);
-
-        displayedIamRepository.add(displayedIam1);
-        displayedIamRepository.add(displayedIam2);
-        displayedIamRepository.add(displayedIam3);
-
-        HashMap<String, String> eventAttributes = new HashMap<>();
-        eventAttributes.put("key1", "value1");
-        eventAttributes.put("key2", "value2");
-
-        Map<String, Object> event1 = new HashMap<>();
-        event1.put("type", "custom");
-        event1.put("name", "event1");
-        event1.put("timestamp", TimestampUtils.formatTimestampWithUTC(1000));
-        event1.put("attributes", eventAttributes);
-
-        Map<String, Object> payload = RequestPayloadUtils.createCompositeRequestModelPayload(
-                Collections.singletonList(event1),
-                Arrays.asList(
-                        new DisplayedIam("campaign1", 100),
-                        new DisplayedIam("campaign2", 1500),
-                        new DisplayedIam("campaign3", 30000)
+    fun testQuery_resultShouldContainClicksAndDisplays_withSingleCustomEvent() {
+        compositeRepository = compositeRepositoryWithRealRepositories()
+        val attributes = HashMap<String, Any>()
+        attributes["key1"] = "value1"
+        attributes["key2"] = "value2"
+        val customEvent1 = customEvent(1000, "event1", attributes)
+        requestModelRepository.add(customEvent1)
+        val buttonClicked1 = ButtonClicked("campaign1", "button1", 200)
+        val buttonClicked2 = ButtonClicked("campaign1", "button2", 300)
+        val buttonClicked3 = ButtonClicked("campaign2", "button1", 2000)
+        buttonClickedRepository.add(buttonClicked1)
+        buttonClickedRepository.add(buttonClicked2)
+        buttonClickedRepository.add(buttonClicked3)
+        val displayedIam1 = DisplayedIam("campaign1", 100)
+        val displayedIam2 = DisplayedIam("campaign2", 1500)
+        val displayedIam3 = DisplayedIam("campaign3", 30000)
+        displayedIamRepository.add(displayedIam1)
+        displayedIamRepository.add(displayedIam2)
+        displayedIamRepository.add(displayedIam3)
+        val eventAttributes = HashMap<String, String>()
+        eventAttributes["key1"] = "value1"
+        eventAttributes["key2"] = "value2"
+        val event1: MutableMap<String, Any> = HashMap()
+        event1["type"] = "custom"
+        event1["name"] = "event1"
+        event1["timestamp"] = TimestampUtils.formatTimestampWithUTC(1000)
+        event1["attributes"] = eventAttributes
+        val payload: Map<String, Any?> = createCompositeRequestModelPayload(listOf<Map<String, Any>>(event1),
+                listOf(
+                        DisplayedIam("campaign1", 100),
+                        DisplayedIam("campaign2", 1500),
+                        DisplayedIam("campaign3", 30000)
                 ),
-                Arrays.asList(
-                        new ButtonClicked("campaign1", "button1", 200),
-                        new ButtonClicked("campaign1", "button2", 300),
-                        new ButtonClicked("campaign2", "button1", 2000)
+                listOf(
+                        ButtonClicked("campaign1", "button1", 200),
+                        ButtonClicked("campaign1", "button2", 300),
+                        ButtonClicked("campaign2", "button1", 2000)
                 ),
                 false,
-                null);
-
-        RequestModel expectedComposite = new CompositeRequestModel(
+                null)
+        val expectedComposite: RequestModel = CompositeRequestModel(
                 REQUEST_ID,
                 "https://mobile-events.eservice.emarsys.net/v3/apps/" + APPLICATION_CODE + "/client/events",
                 RequestMethod.POST,
                 payload,
-                customEvent1.getHeaders(),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                new String[]{customEvent1.getId()}
-        );
-
-        List<RequestModel> expected = Collections.singletonList(expectedComposite);
-
-        assertEquals(expected, compositeRepository.query(new Everything()));
+                customEvent1.headers,
+                TIMESTAMP, Long.MAX_VALUE, arrayOf(customEvent1.id))
+        val expected = listOf(expectedComposite)
+        Assert.assertEquals(expected, compositeRepository.query(Everything()))
     }
 
     @Test
-    public void testQuery_resultShouldContainDeviceEventState() {
-        FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4);
-        HashMap expected = new HashMap<String, Object>();
-        expected.put("123", "456");
-        expected.put("78910", "6543");
+    fun testQuery_resultShouldContainDeviceEventState() {
+        FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
+        val expected = mapOf("123" to "456", "78910" to "6543")
 
-        when(mockDeviceEventStateStorage.get()).thenReturn("{'123': '456', '78910':'6543'}");
-
-        compositeRepository = compositeRepositoryWithRealRepositories();
-
-        HashMap<String, Object> attributes = new HashMap<>();
-        attributes.put("key1", "value1");
-        attributes.put("key2", "value2");
-        final RequestModel customEvent1 = customEvent(1000, "event1", attributes);
-
-        requestModelRepository.add(customEvent1);
-
-        RequestModel result = compositeRepository.query(new Everything()).get(0);
-        assertEquals(expected, result.getPayload().get("deviceEventState"));
+        whenever(mockDeviceEventStateStorage.get()).thenReturn("{'123': '456', '78910':'6543'}")
+        compositeRepository = compositeRepositoryWithRealRepositories()
+        val attributes = HashMap<String, Any>()
+        attributes["key1"] = "value1"
+        attributes["key2"] = "value2"
+        val customEvent1 = customEvent(1000, "event1", attributes)
+        requestModelRepository.add(customEvent1)
+        val result = compositeRepository.query(Everything())[0]
+        Assert.assertEquals(expected, result.payload?.get("deviceEventState"))
     }
 
     @Test
-    public void testQuery_resultShouldNotContainDeviceEventState_whenEventServiceV4IsNotEnabled() {
-        FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4);
-        String expected = "{'123': '456', '78910':'6543'}";
-
-        when(mockDeviceEventStateStorage.get()).thenReturn(expected);
-
-        compositeRepository = compositeRepositoryWithRealRepositories();
-
-        HashMap<String, Object> attributes = new HashMap<>();
-        attributes.put("key1", "value1");
-        attributes.put("key2", "value2");
-        final RequestModel customEvent1 = customEvent(1000, "event1", attributes);
-
-        requestModelRepository.add(customEvent1);
-
-        RequestModel result = compositeRepository.query(new Everything()).get(0);
-        assertNull(result.getPayload().get("deviceEventState"));
+    fun testQuery_resultShouldNotContainDeviceEventState_whenEventServiceV4IsNotEnabled() {
+        FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
+        val expected = "{'123': '456', '78910':'6543'}"
+        whenever(mockDeviceEventStateStorage.get()).thenReturn(expected)
+        compositeRepository = compositeRepositoryWithRealRepositories()
+        val attributes = HashMap<String, Any>()
+        attributes["key1"] = "value1"
+        attributes["key2"] = "value2"
+        val customEvent1 = customEvent(1000, "event1", attributes)
+        requestModelRepository.add(customEvent1)
+        val result = compositeRepository.query(Everything())[0]
+        Assert.assertNull(result.payload?.get("deviceEventState"))
     }
 
     @Test
-    public void testQuery_resultShouldContainClicksAndDisplays_withMultipleRequests() {
-        compositeRepository = compositeRepositoryWithRealRepositories();
-
-        RequestModel request1 = requestModel();
-        RequestModel request2 = requestModel();
-        RequestModel request3 = requestModel();
-
-        final RequestModel customEvent1 = customEvent(900, "event1");
-
-        HashMap<String, Object> attributes = new HashMap<>();
-        attributes.put("key1", "value1");
-        attributes.put("key2", "value2");
-        final RequestModel customEvent2 = customEvent(1000, "event2", attributes);
-        final RequestModel customEvent3 = customEvent(1200, "event3");
-
-        requestModelRepository.add(request1);
-        requestModelRepository.add(request2);
-        requestModelRepository.add(customEvent1);
-        requestModelRepository.add(customEvent2);
-        requestModelRepository.add(request3);
-        requestModelRepository.add(customEvent3);
-
-        ButtonClicked buttonClicked1 = new ButtonClicked("campaign1", "button1", 200);
-        ButtonClicked buttonClicked2 = new ButtonClicked("campaign1", "button2", 300);
-        ButtonClicked buttonClicked3 = new ButtonClicked("campaign2", "button1", 2000);
-
-        buttonClickedRepository.add(buttonClicked1);
-        buttonClickedRepository.add(buttonClicked2);
-        buttonClickedRepository.add(buttonClicked3);
-
-        DisplayedIam displayedIam1 = new DisplayedIam("campaign1", 100);
-        DisplayedIam displayedIam2 = new DisplayedIam("campaign2", 1500);
-        DisplayedIam displayedIam3 = new DisplayedIam("campaign3", 30000);
-
-        displayedIamRepository.add(displayedIam1);
-        displayedIamRepository.add(displayedIam2);
-        displayedIamRepository.add(displayedIam3);
-
-        Map<String, Object> event1 = new HashMap<>();
-        event1.put("type", "custom");
-        event1.put("name", "event1");
-        event1.put("timestamp", TimestampUtils.formatTimestampWithUTC(900));
-
-        Map<String, Object> event2 = new HashMap<>();
-        event2.put("type", "custom");
-        event2.put("name", "event2");
-        event2.put("timestamp", TimestampUtils.formatTimestampWithUTC(1000));
-        event2.put("attributes", new HashMap<String, String>() {{
-            put("key1", "value1");
-            put("key2", "value2");
-        }});
-
-        Map<String, Object> event3 = new HashMap<>();
-        event3.put("type", "custom");
-        event3.put("name", "event3");
-        event3.put("timestamp", TimestampUtils.formatTimestampWithUTC(1200));
-
-        Map<String, Object> payload = RequestPayloadUtils.createCompositeRequestModelPayload(
-                Arrays.asList(event1, event2, event3),
-                Arrays.asList(
-                        new DisplayedIam("campaign1", 100),
-                        new DisplayedIam("campaign2", 1500),
-                        new DisplayedIam("campaign3", 30000)
+    fun testQuery_resultShouldContainClicksAndDisplays_withMultipleRequests() {
+        compositeRepository = compositeRepositoryWithRealRepositories()
+        val request1 = requestModel()
+        val request2 = requestModel()
+        val request3 = requestModel()
+        val customEvent1 = customEvent(900, "event1")
+        val attributes = HashMap<String, Any>()
+        attributes["key1"] = "value1"
+        attributes["key2"] = "value2"
+        val customEvent2 = customEvent(1000, "event2", attributes)
+        val customEvent3 = customEvent(1200, "event3")
+        requestModelRepository.add(request1)
+        requestModelRepository.add(request2)
+        requestModelRepository.add(customEvent1)
+        requestModelRepository.add(customEvent2)
+        requestModelRepository.add(request3)
+        requestModelRepository.add(customEvent3)
+        val buttonClicked1 = ButtonClicked("campaign1", "button1", 200)
+        val buttonClicked2 = ButtonClicked("campaign1", "button2", 300)
+        val buttonClicked3 = ButtonClicked("campaign2", "button1", 2000)
+        buttonClickedRepository.add(buttonClicked1)
+        buttonClickedRepository.add(buttonClicked2)
+        buttonClickedRepository.add(buttonClicked3)
+        val displayedIam1 = DisplayedIam("campaign1", 100)
+        val displayedIam2 = DisplayedIam("campaign2", 1500)
+        val displayedIam3 = DisplayedIam("campaign3", 30000)
+        displayedIamRepository.add(displayedIam1)
+        displayedIamRepository.add(displayedIam2)
+        displayedIamRepository.add(displayedIam3)
+        val event1: MutableMap<String, Any> = HashMap()
+        event1["type"] = "custom"
+        event1["name"] = "event1"
+        event1["timestamp"] = TimestampUtils.formatTimestampWithUTC(900)
+        val event2: MutableMap<String, Any> = HashMap()
+        event2["type"] = "custom"
+        event2["name"] = "event2"
+        event2["timestamp"] = TimestampUtils.formatTimestampWithUTC(1000)
+        event2["attributes"] = object : HashMap<String?, String?>() {
+            init {
+                put("key1", "value1")
+                put("key2", "value2")
+            }
+        }
+        val event3: MutableMap<String, Any> = HashMap()
+        event3["type"] = "custom"
+        event3["name"] = "event3"
+        event3["timestamp"] = TimestampUtils.formatTimestampWithUTC(1200)
+        val payload: Map<String, Any?> = createCompositeRequestModelPayload(
+                listOf<Map<String, Any>>(event1, event2, event3),
+                listOf(
+                        DisplayedIam("campaign1", 100),
+                        DisplayedIam("campaign2", 1500),
+                        DisplayedIam("campaign3", 30000)
                 ),
-                Arrays.asList(
-                        new ButtonClicked("campaign1", "button1", 200),
-                        new ButtonClicked("campaign1", "button2", 300),
-                        new ButtonClicked("campaign2", "button1", 2000)
+                listOf(
+                        ButtonClicked("campaign1", "button1", 200),
+                        ButtonClicked("campaign1", "button2", 300),
+                        ButtonClicked("campaign2", "button1", 2000)
                 ),
-                false, null);
-
-        RequestModel expectedComposite = new CompositeRequestModel(
+                false, null)
+        val expectedComposite: RequestModel = CompositeRequestModel(
                 REQUEST_ID,
                 "https://mobile-events.eservice.emarsys.net/v3/apps/" + APPLICATION_CODE + "/client/events",
                 RequestMethod.POST,
                 payload,
-                customEvent1.getHeaders(),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                new String[]{customEvent1.getId(), customEvent2.getId(), customEvent3.getId()}
-        );
-
-        List<RequestModel> expected = Arrays.asList(
+                customEvent1.headers,
+                TIMESTAMP, Long.MAX_VALUE, arrayOf(customEvent1.id, customEvent2.id, customEvent3.id))
+        val expected = listOf(
                 request1,
                 request2,
                 expectedComposite,
-                request3);
-
-        assertEquals(expected, compositeRepository.query(new Everything()));
+                request3)
+        Assert.assertEquals(expected, compositeRepository.query(Everything()))
     }
 
     @Test
-    public void testQuery_resultPayloadShouldContainDoNotDisturbWithTrue_whenDoNotDisturbIsOn() {
-        when(inAppEventHandlerInternal.isPaused()).thenReturn(true);
-        compositeRepository = compositeRepositoryWithRealRepositories();
-
-        final RequestModel customEvent1 = customEvent(900, "event1");
-        requestModelRepository.add(customEvent1);
-
-        List<RequestModel> result = compositeRepository.query(new Everything());
-        Map<String, Object> payload = result.get(0).getPayload();
-
-        assertTrue((Boolean) payload.get("dnd"));
+    fun testQuery_resultPayloadShouldContainDoNotDisturbWithTrue_whenDoNotDisturbIsOn() {
+        whenever(inAppEventHandlerInternal.isPaused).thenReturn(true)
+        compositeRepository = compositeRepositoryWithRealRepositories()
+        val customEvent1 = customEvent(900, "event1")
+        requestModelRepository.add(customEvent1)
+        val result = compositeRepository.query(Everything())
+        val payload = result[0].payload
+        payload?.get("dnd") shouldBe true
     }
 
     @Test
-    public void testQuery_resultPayloadShouldNotContainDoNotDisturb_whenDoNotDisturbIsOff() {
-        when(inAppEventHandlerInternal.isPaused()).thenReturn(false);
-        compositeRepository = compositeRepositoryWithRealRepositories();
-
-        final RequestModel customEvent1 = customEvent(900, "event1");
-        requestModelRepository.add(customEvent1);
-
-        List<RequestModel> result = compositeRepository.query(new Everything());
-        Map<String, Object> payload = result.get(0).getPayload();
-
-        assertNull(payload.get("dnd"));
+    fun testQuery_resultPayloadShouldNotContainDoNotDisturb_whenDoNotDisturbIsOff() {
+        whenever(inAppEventHandlerInternal.isPaused).thenReturn(false)
+        compositeRepository = compositeRepositoryWithRealRepositories()
+        val customEvent1 = customEvent(900, "event1")
+        requestModelRepository.add(customEvent1)
+        val result = compositeRepository.query(Everything())
+        val payload = result[0].payload
+        payload?.get("dnd") shouldBe null
     }
 
-    private RequestRepositoryProxy compositeRepositoryWithRealRepositories() {
-        return new RequestRepositoryProxy(
+    private fun compositeRepositoryWithRealRepositories(): RequestRepositoryProxy {
+        return RequestRepositoryProxy(
                 requestModelRepository,
                 displayedIamRepository,
                 buttonClickedRepository,
@@ -620,57 +512,54 @@ public class RequestRepositoryProxyTest {
                 uuidProvider,
                 inAppEventHandlerInternal,
                 mockEventServiceProvider,
-                mockEventServiceV4Provider,
                 mockDeviceEventStateStorage
-        );
+        )
     }
 
-    private RequestModel customEvent(long timestamp, String eventName) {
-        return customEvent(timestamp, eventName, null);
-    }
-
-    private RequestModel customEvent(long timestamp, final String eventName, final Map<String, Object> attributes) {
-        Map<String, Object> event = new HashMap<>();
-        event.put("type", "custom");
-        event.put("name", eventName);
-        event.put("timestamp", TimestampUtils.formatTimestampWithUTC(timestamp));
-        if (attributes != null && !attributes.isEmpty()) {
-            event.put("attributes", attributes);
+    private fun customEvent(timestamp: Long, eventName: String, attributes: Map<String, Any>? = null): RequestModel {
+        val event: MutableMap<String, Any> = HashMap()
+        event["type"] = "custom"
+        event["name"] = eventName
+        event["timestamp"] = TimestampUtils.formatTimestampWithUTC(timestamp)
+        if (attributes != null && attributes.isNotEmpty()) {
+            event["attributes"] = attributes
         }
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("clicks", new ArrayList<>());
-        payload.put("viewed_messages", new ArrayList<>());
-        payload.put("events", Collections.singletonList(event));
-        payload.put("hardware_id", "dummy_hardware_id");
-
-        Map<String, String> headers = new HashMap<>();
-        headers.put("custom_event_header1", "custom_event_value1");
-        headers.put("custom_event_header2", "custom_event_value2");
-
-        return new RequestModel(
-                "https://mobile-events.eservice.emarsys.net/v3/apps/" + APPLICATION_CODE + "/client/events",
+        val payload: MutableMap<String, Any?> = HashMap()
+        payload["clicks"] = ArrayList<Any>()
+        payload["viewed_messages"] = ArrayList<Any>()
+        payload["events"] = listOf<Map<String, Any>>(event)
+        payload["hardware_id"] = "dummy_hardware_id"
+        val headers: MutableMap<String, String> = HashMap()
+        headers["custom_event_header1"] = "custom_event_value1"
+        headers["custom_event_header2"] = "custom_event_value2"
+        return RequestModel(
+                "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
                 RequestMethod.POST,
                 payload,
                 headers,
                 System.currentTimeMillis(),
                 999,
                 uuidProvider.provideId()
-        );
+        )
     }
 
-    private RequestModel requestModel() {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("key", RandomTestUtils.randomString());
-
-        Map<String, String> headers = new HashMap<>();
-        headers.put("header1", "value1");
-        headers.put("header2", "value2");
-
-        return new RequestModel.Builder(timestampProvider, uuidProvider)
+    private fun requestModel(): RequestModel {
+        val payload: MutableMap<String, Any?> = HashMap()
+        payload["key"] = randomString()
+        val headers: MutableMap<String, String> = HashMap()
+        headers["header1"] = "value1"
+        headers["header2"] = "value2"
+        return RequestModel.Builder(timestampProvider, uuidProvider)
                 .url("https://emarsys.com")
                 .payload(payload)
                 .headers(headers)
-                .build();
+                .build()
     }
 
+    companion object {
+        private const val TIMESTAMP = 80000L
+        private const val REQUEST_ID = "REQUEST_ID"
+        private const val APPLICATION_CODE = "applicationCode"
+        private const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net/v3"
+    }
 }

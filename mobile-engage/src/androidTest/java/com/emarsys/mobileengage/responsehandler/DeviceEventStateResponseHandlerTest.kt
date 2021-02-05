@@ -1,16 +1,22 @@
 package com.emarsys.mobileengage.responsehandler
 
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.common.feature.InnerFeature
+import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
+import com.emarsys.mobileengage.testUtil.DependencyTestUtils
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import java.net.URL
@@ -22,8 +28,6 @@ class DeviceEventStateResponseHandlerTest {
     }
 
     private lateinit var mockRequestModel: RequestModel
-    private lateinit var mockEventServiceProvider: ServiceEndpointProvider
-    private lateinit var mockEventServiceV4Provider: ServiceEndpointProvider
     private lateinit var mockDeviceEventStateStorage: StringStorage
     private lateinit var handler: DeviceEventStateResponseHandler
 
@@ -32,16 +36,21 @@ class DeviceEventStateResponseHandlerTest {
         mockRequestModel = mock {
             on { url } doReturn URL(EVENT_BASE)
         }
-        mockEventServiceProvider = mock {
-            on { provideEndpointHost() } doReturn EVENT_HOST
-        }
-        mockEventServiceV4Provider = mock {
-            on { provideEndpointHost() } doReturn EVENT_HOST
-        }
+
         mockDeviceEventStateStorage = mock()
 
-        handler = DeviceEventStateResponseHandler(mockEventServiceProvider, mockEventServiceV4Provider, mockDeviceEventStateStorage)
+        DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
+
+        handler = DeviceEventStateResponseHandler(mockDeviceEventStateStorage)
         FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
+    }
+
+    @After
+    fun tearDown() {
+        val handler = getDependency<Handler>("coreSdkHandler")
+        val looper: Looper? = handler.looper
+        looper?.quit()
+        DependencyInjection.tearDown()
     }
 
     @Test

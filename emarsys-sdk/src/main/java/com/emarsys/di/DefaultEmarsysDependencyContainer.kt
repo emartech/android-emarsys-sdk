@@ -354,10 +354,12 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         RestClient(ConnectionProvider(), getTimestampProvider(), getResponseHandlersProcessor(), createRequestModelMappers()).also {
             addDependency(dependencies, it)
         }
-        val requestModelFactory = MobileEngageRequestModelFactory(getRequestContext(), getClientServiceProvider(), getEventServiceProvider(), getEventServiceV4Provider(), getMobileEngageV2ServiceProvider(), getInboxServiceProvider(), getMessageInboxServiceProvider(), getButtonClickedRepository())
+        val requestModelFactory = MobileEngageRequestModelFactory(getRequestContext(), getClientServiceProvider(), getEventServiceProvider(),
+                getEventServiceV4Provider(), getMobileEngageV2ServiceProvider(), getInboxServiceProvider(), getMessageInboxServiceProvider(),
+                getButtonClickedRepository())
                 .also { addDependency(dependencies, it) }
         val emarsysRequestModelFactory = EmarsysRequestModelFactory(getRequestContext())
-        val contactTokenResponseHandler = MobileEngageTokenResponseHandler("contactToken", getContactTokenStorage(), getClientServiceProvider(), getEventServiceProvider(),  getEventServiceV4Provider(), getMessageInboxServiceProvider()).also {
+        val contactTokenResponseHandler = MobileEngageTokenResponseHandler("contactToken", getContactTokenStorage()).also {
             addDependency(dependencies, it, "contactTokenResponseHandler")
         }
         NotificationCache().also {
@@ -383,10 +385,6 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getRestClient(),
                 getContactTokenStorage(),
                 getPushTokenStorage(),
-                getClientServiceProvider(),
-                getEventServiceProvider(),
-                getEventServiceV4Provider(),
-                getMessageInboxServiceProvider(),
                 getCoreCompletionHandler())
         val worker: Worker = DefaultWorker(
                 requestModelRepository,
@@ -604,14 +602,13 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getUuidProvider(),
                 inAppEventHandler,
                 getEventServiceProvider(),
-                getEventServiceV4Provider(),
                 getDependency(dependencies, MobileEngageStorageKey.DEVICE_EVENT_STATE.key)
         )
     }
 
     private fun createRequestModelMappers(): List<Mapper<RequestModel, RequestModel>> {
         val mappers: MutableList<Mapper<RequestModel, RequestModel>> = ArrayList()
-        mappers.add(MobileEngageHeaderMapper(getRequestContext(), getClientServiceProvider(), getEventServiceProvider(),  getEventServiceV4Provider(), getMessageInboxServiceProvider()))
+        mappers.add(MobileEngageHeaderMapper(getRequestContext()))
         return mappers
     }
 
@@ -663,22 +660,18 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         val responseHandlers: MutableList<AbstractResponseHandler?> = ArrayList()
         responseHandlers.add(VisitorIdResponseHandler(getDependency(dependencies), getPredictServiceProvider()))
         responseHandlers.add(XPResponseHandler(getDependency(dependencies), getPredictServiceProvider()))
-        responseHandlers.add(MobileEngageTokenResponseHandler("refreshToken", getRefreshContactTokenStorage(), getClientServiceProvider(), getEventServiceProvider(),  getEventServiceV4Provider(), getMessageInboxServiceProvider()))
+        responseHandlers.add(MobileEngageTokenResponseHandler("refreshToken", getRefreshContactTokenStorage()))
         responseHandlers.add(getDependency<MobileEngageTokenResponseHandler>("contactTokenResponseHandler"))
-        responseHandlers.add(MobileEngageClientStateResponseHandler(getClientStateStorage(), getClientServiceProvider(), getEventServiceProvider(),  getEventServiceV4Provider(), getMessageInboxServiceProvider()))
+        responseHandlers.add(MobileEngageClientStateResponseHandler(getClientStateStorage()))
         responseHandlers.add(ClientInfoResponseHandler(getDeviceInfo(), getDeviceInfoPayloadStorage()))
         responseHandlers.add(InAppMessageResponseHandler(getOverlayInAppPresenter()))
         responseHandlers.add(InAppCleanUpResponseHandler(
                 getDependency(dependencies, "displayedIamRepository"),
-                getDependency(dependencies, "buttonClickedRepository"),
-                getEventServiceProvider(),
-                getEventServiceV4Provider()
+                getDependency(dependencies, "buttonClickedRepository")
         ))
         responseHandlers.add(InAppCleanUpResponseHandlerV4(
                 getDependency(dependencies, "displayedIamRepository"),
-                getDependency(dependencies, "buttonClickedRepository"),
-                getEventServiceProvider(),
-                getEventServiceV4Provider()
+                getDependency(dependencies, "buttonClickedRepository")
         ))
         responseHandlers.add(OnEventActionResponseHandler(
                 getDependency("onEventActionActionCommandFactory"),
@@ -687,9 +680,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getTimestampProvider(),
                 getCoreSdkHandler()))
         responseHandlers.add(DeviceEventStateResponseHandler(
-                getEventServiceProvider(),
-                getEventServiceV4Provider(),
-                getDependency(dependencies, "mobile_engage_device_event_state")
+                getDependency(dependencies, MobileEngageStorageKey.DEVICE_EVENT_STATE.key)
         ))
         getResponseHandlersProcessor().addResponseHandlers(responseHandlers)
     }

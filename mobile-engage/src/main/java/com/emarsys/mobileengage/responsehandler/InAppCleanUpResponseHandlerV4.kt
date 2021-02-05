@@ -12,17 +12,16 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
 import com.emarsys.mobileengage.util.RequestModelUtils
+import com.emarsys.mobileengage.util.RequestModelUtils.isCustomEvent
 
 class InAppCleanUpResponseHandlerV4(
         private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
-        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
-        private val eventServiceProvider: ServiceEndpointProvider,
-        private val eventServiceV4Provider: ServiceEndpointProvider) : AbstractResponseHandler() {
+        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>) : AbstractResponseHandler() {
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
         val requestModel = responseModel.requestModel
         return FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4) &&
-                RequestModelUtils.isCustomEvent(requestModel, eventServiceProvider, eventServiceV4Provider) &&
+                responseModel.isCustomEvent() &&
                 responseModel.statusCode in 200..299 &&
                 (hasObject(requestModel, "viewedMessages") ||
                         hasObject(requestModel, "clicks"))

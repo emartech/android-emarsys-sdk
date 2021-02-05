@@ -1,31 +1,46 @@
 package com.emarsys.mobileengage.util
 
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.mobileengage.util.RequestUrlUtils.isCustomEvent
-import com.emarsys.mobileengage.util.RequestUrlUtils.isMobileEngageUrl
-import com.emarsys.mobileengage.util.RequestUrlUtils.isRefreshContactTokenUrl
+import com.emarsys.core.response.ResponseModel
+import com.emarsys.mobileengage.endpoint.Endpoint
 
 object RequestModelUtils {
-    @JvmStatic
-    fun isMobileEngageRequest(requestModel: RequestModel,
-                              clientServiceProvider: ServiceEndpointProvider,
-                              eventServiceProvider: ServiceEndpointProvider,
-                              eventServiceV4Provider: ServiceEndpointProvider,
-                              messageInboxServiceProvider: ServiceEndpointProvider): Boolean {
-        val url = requestModel.url.toString()
-        return isMobileEngageUrl(url, clientServiceProvider, eventServiceProvider, eventServiceV4Provider, messageInboxServiceProvider)
+    fun ResponseModel.isMobileEngageRequest() = requestModel.isMobileEngageRequest()
+    fun ResponseModel.isCustomEvent(): Boolean = requestModel.isCustomEvent()
+    fun RequestModel.isMobileEngageRequest(): Boolean {
+        val clientServiceUrl = (getDependency(Endpoint.ME_V3_CLIENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
+        val eventServiceUrl = (getDependency(Endpoint.ME_V3_EVENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
+        val eventServiceV4Url = (getDependency(Endpoint.ME_V4_EVENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
+        val messageInboxServiceUrl = (getDependency(Endpoint.ME_V3_INBOX_HOST) as ServiceEndpointProvider).provideEndpointHost()
+
+        val url = this.url.toString()
+        return url.startsWithOneOf(clientServiceUrl, eventServiceUrl, eventServiceV4Url, messageInboxServiceUrl)
     }
 
-    @JvmStatic
-    fun isCustomEvent(requestModel: RequestModel, eventServiceProvider: ServiceEndpointProvider, eventServiceV4Provider: ServiceEndpointProvider): Boolean {
-        val url = requestModel.url.toString()
-        return isCustomEvent(url, eventServiceProvider, eventServiceV4Provider)
+    fun RequestModel.isRemoteConfigRequest(): Boolean {
+        val url = this.url.toString()
+
+        return url.startsWith(com.emarsys.core.endpoint.Endpoint.REMOTE_CONFIG_URL)
     }
 
-    @JvmStatic
-    fun isRefreshContactTokenRequest(requestModel: RequestModel, clientServiceProvider: ServiceEndpointProvider): Boolean {
-        val url = requestModel.url.toString()
-        return isRefreshContactTokenUrl(url, clientServiceProvider)
+    fun RequestModel.isCustomEvent(): Boolean {
+        val eventServiceUrl = (getDependency(Endpoint.ME_V3_EVENT_HOST)as ServiceEndpointProvider).provideEndpointHost()
+        val eventServiceV4Url = (getDependency(Endpoint.ME_V4_EVENT_HOST)as ServiceEndpointProvider).provideEndpointHost()
+
+        val url = this.url.toString()
+        return url.startsWithOneOf(eventServiceUrl, eventServiceV4Url) && url.endsWith("/events")
+    }
+
+    fun RequestModel.isRefreshContactTokenRequest(): Boolean {
+        val clientServiceUrl = (getDependency(Endpoint.ME_V3_CLIENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
+
+        val url = this.url.toString()
+        return url.startsWithOneOf(clientServiceUrl) && url.endsWith("/contact-token")
+    }
+
+    private fun String.startsWithOneOf(vararg patterns: String): Boolean {
+        return patterns.any { this.startsWith(it) }
     }
 }

@@ -14,9 +14,7 @@ import com.emarsys.mobileengage.util.RequestModelUtils.isCustomEvent
 
 class InAppCleanUpResponseHandler(
         private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
-        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
-        private val eventServiceProvider: ServiceEndpointProvider,
-        private val eventServiceV4Provider: ServiceEndpointProvider) : AbstractResponseHandler() {
+        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>) : AbstractResponseHandler() {
 
     companion object {
         private const val OLD_MESSAGES = "oldCampaigns"
@@ -37,7 +35,7 @@ class InAppCleanUpResponseHandler(
     }
 
     private fun isCustomEventResponseModel(responseModel: ResponseModel): Boolean {
-        return isCustomEvent(responseModel.requestModel, eventServiceProvider, eventServiceV4Provider)
+        return responseModel.requestModel.isCustomEvent()
     }
 
     override fun handleResponse(responseModel: ResponseModel) {

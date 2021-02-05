@@ -7,22 +7,19 @@ import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.util.RequestModelUtils
+import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageRequest
 import org.json.JSONException
 import org.json.JSONObject
 
 @Mockable
 class MobileEngageTokenResponseHandler(private val tokenKey: String,
-                                       private val tokenStorage: StringStorage,
-                                       private val clientServiceProvider: ServiceEndpointProvider,
-                                       private val eventServiceProvider: ServiceEndpointProvider,
-                                       private val eventServiceV4Provider: ServiceEndpointProvider,
-                                       private val messageInboxServiceProvider: ServiceEndpointProvider) : AbstractResponseHandler() {
+                                       private val tokenStorage: StringStorage) : AbstractResponseHandler() {
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
         val body = responseModel.parsedBody
         val request = responseModel.requestModel
 
-        return isMobileEngage(request) && hasCorrectBody(body)
+        return request.isMobileEngageRequest() && hasCorrectBody(body)
     }
 
     override fun handleResponse(responseModel: ResponseModel) {
@@ -32,10 +29,6 @@ class MobileEngageTokenResponseHandler(private val tokenKey: String,
         } catch (ignore: JSONException) {
         }
 
-    }
-
-    private fun isMobileEngage(requestModel: RequestModel): Boolean {
-        return RequestModelUtils.isMobileEngageRequest(requestModel, clientServiceProvider, eventServiceProvider, eventServiceV4Provider, messageInboxServiceProvider)
     }
 
     private fun hasCorrectBody(body: JSONObject?): Boolean {

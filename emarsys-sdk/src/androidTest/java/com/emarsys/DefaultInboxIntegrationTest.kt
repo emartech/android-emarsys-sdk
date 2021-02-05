@@ -1,6 +1,7 @@
 package com.emarsys
 
 import android.app.Application
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
@@ -8,6 +9,7 @@ import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
+import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider

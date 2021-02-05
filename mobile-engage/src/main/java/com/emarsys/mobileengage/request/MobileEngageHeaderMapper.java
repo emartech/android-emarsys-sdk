@@ -14,23 +14,11 @@ import java.util.Map;
 public class MobileEngageHeaderMapper implements Mapper<RequestModel, RequestModel> {
 
     private final MobileEngageRequestContext requestContext;
-    private final ServiceEndpointProvider clientServiceProvider;
-    private final ServiceEndpointProvider eventServiceProvider;
-    private final ServiceEndpointProvider eventServiceV4Provider;
-    private final ServiceEndpointProvider messageInboxServiceProvider;
 
-    public MobileEngageHeaderMapper(MobileEngageRequestContext requestContext, ServiceEndpointProvider clientServiceProvider, ServiceEndpointProvider eventServiceProvider, ServiceEndpointProvider eventServiceV4Provider, ServiceEndpointProvider messageInboxServiceProvider) {
+    public MobileEngageHeaderMapper(MobileEngageRequestContext requestContext) {
         Assert.notNull(requestContext, "RequestContext must not be null!");
-        Assert.notNull(clientServiceProvider, "ClientServiceProvider must not be null!");
-        Assert.notNull(eventServiceProvider, "EventServiceProvider must not be null!");
-        Assert.notNull(eventServiceV4Provider, "EventServiceV4Provider must not be null!");
-        Assert.notNull(messageInboxServiceProvider, "MessageInboxServiceProvider must not be null!");
 
         this.requestContext = requestContext;
-        this.clientServiceProvider = clientServiceProvider;
-        this.eventServiceProvider = eventServiceProvider;
-        this.eventServiceV4Provider = eventServiceV4Provider;
-        this.messageInboxServiceProvider = messageInboxServiceProvider;
     }
 
     @Override
@@ -40,7 +28,7 @@ public class MobileEngageHeaderMapper implements Mapper<RequestModel, RequestMod
         Map<String, String> headersToInject = getHeadersToInject(requestModel);
 
         RequestModel updatedRequestModel = requestModel;
-        if (RequestModelUtils.isMobileEngageRequest(requestModel, eventServiceProvider, clientServiceProvider, eventServiceV4Provider, messageInboxServiceProvider)) {
+        if (RequestModelUtils.INSTANCE.isMobileEngageRequest(requestModel)) {
 
             Map<String, String> updatedHeaders = new HashMap<>(requestModel.getHeaders());
             updatedHeaders.putAll(headersToInject);
@@ -66,7 +54,7 @@ public class MobileEngageHeaderMapper implements Mapper<RequestModel, RequestMod
             headersToInject.put("X-Client-State", clientState);
         }
         String contactToken = requestContext.getContactTokenStorage().get();
-        if (contactToken != null && !RequestModelUtils.isRefreshContactTokenRequest(requestModel, clientServiceProvider)) {
+        if (contactToken != null && !RequestModelUtils.INSTANCE.isRefreshContactTokenRequest(requestModel)) {
             headersToInject.put("X-Contact-Token", contactToken);
         }
         headersToInject.put("X-Request-Order", String.valueOf(requestContext.getTimestampProvider().provideTimestamp()));

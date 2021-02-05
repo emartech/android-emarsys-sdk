@@ -13,11 +13,7 @@ class CoreCompletionHandlerRefreshTokenProxy(private val coreCompletionHandler: 
                                              private val refreshTokenInternal: RefreshTokenInternal,
                                              private val restClient: RestClient,
                                              private val contactTokenStorage: Storage<String>,
-                                             private val pushTokenStorage: Storage<String>,
-                                             private val clientServiceProvider: ServiceEndpointProvider,
-                                             private val eventServiceProvider: ServiceEndpointProvider,
-                                             private val eventServiceV4Provider: ServiceEndpointProvider,
-                                             private val messageInboxServiceProvider: ServiceEndpointProvider) : CoreCompletionHandler {
+                                             private val pushTokenStorage: Storage<String>) : CoreCompletionHandler {
 
     override fun onSuccess(id: String, responseModel: ResponseModel) {
         coreCompletionHandler.onSuccess(id, responseModel)
@@ -25,8 +21,7 @@ class CoreCompletionHandlerRefreshTokenProxy(private val coreCompletionHandler: 
 
     override fun onError(originalId: String, originalResponseModel: ResponseModel) {
         if (originalResponseModel.statusCode == 401
-                && isMobileEngageRequest(originalResponseModel.requestModel, eventServiceProvider,
-                        clientServiceProvider, eventServiceV4Provider, messageInboxServiceProvider)) {
+                && originalResponseModel.isMobileEngageRequest()) {
             pushTokenStorage.remove()
             refreshTokenInternal.refreshContactToken { errorCause ->
                 if (errorCause == null) {
@@ -57,9 +52,6 @@ class CoreCompletionHandlerRefreshTokenProxy(private val coreCompletionHandler: 
         if (restClient != other.restClient) return false
         if (contactTokenStorage != other.contactTokenStorage) return false
         if (pushTokenStorage != other.pushTokenStorage) return false
-        if (clientServiceProvider != other.clientServiceProvider) return false
-        if (eventServiceProvider != other.eventServiceProvider) return false
-        if (messageInboxServiceProvider != other.messageInboxServiceProvider) return false
 
         return true
     }
@@ -70,9 +62,6 @@ class CoreCompletionHandlerRefreshTokenProxy(private val coreCompletionHandler: 
         result = 31 * result + restClient.hashCode()
         result = 31 * result + contactTokenStorage.hashCode()
         result = 31 * result + pushTokenStorage.hashCode()
-        result = 31 * result + clientServiceProvider.hashCode()
-        result = 31 * result + eventServiceProvider.hashCode()
-        result = 31 * result + messageInboxServiceProvider.hashCode()
         return result
     }
 

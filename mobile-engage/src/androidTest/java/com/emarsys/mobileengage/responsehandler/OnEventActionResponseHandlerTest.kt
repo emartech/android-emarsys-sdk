@@ -13,6 +13,7 @@ import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.notification.command.AppEventCommand
+import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.*
@@ -20,7 +21,9 @@ import io.kotlintest.shouldBe
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 
 class OnEventActionResponseHandlerTest {
 
@@ -31,6 +34,10 @@ class OnEventActionResponseHandlerTest {
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var coreSdkHandler: Handler
+
+    @Rule
+    @JvmField
+    val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
     fun setUp() {
