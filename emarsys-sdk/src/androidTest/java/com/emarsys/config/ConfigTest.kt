@@ -6,10 +6,12 @@ import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
+import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.doReturn
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
@@ -22,6 +24,11 @@ import org.mockito.Mockito.verify
 
 class ConfigTest {
 
+    companion object {
+        private const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
+        private const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
+        private const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/v3"
+    }
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
@@ -33,7 +40,21 @@ class ConfigTest {
     fun setUp() {
         FeatureTestUtils.resetFeatures()
         mockConfigInternal = mock(ConfigInternal::class.java)
-        val dependencyContainer = FakeDependencyContainer(configInternal = mockConfigInternal)
+        val mockClientServiceProvider: ServiceEndpointProvider = com.nhaarman.mockitokotlin2.mock {
+            on { provideEndpointHost() } doReturn CLIENT_HOST
+        }
+        val mockEventServiceProvider: ServiceEndpointProvider = com.nhaarman.mockitokotlin2.mock {
+            on { provideEndpointHost() } doReturn EVENT_HOST
+        }
+        val mockMessageInboxServiceProvider: ServiceEndpointProvider = com.nhaarman.mockitokotlin2.mock {
+            on { provideEndpointHost() } doReturn INBOX_HOST
+        }
+        val dependencyContainer = FakeDependencyContainer(
+                configInternal = mockConfigInternal,
+                clientServiceProvider = mockClientServiceProvider,
+                eventServiceProvider = mockEventServiceProvider,
+                messageInboxServiceProvider = mockMessageInboxServiceProvider
+        )
 
         DependencyInjection.setup(dependencyContainer)
         config = Config()
