@@ -68,8 +68,8 @@ class InAppCleanUpResponseHandlerV4Test {
     @After
     fun tearDown() {
         val handler = getDependency<Handler>("coreSdkHandler")
-        val looper: Looper? = handler.looper
-        looper?.quit()
+        val looper: Looper = handler.looper
+        looper.quit()
         DependencyInjection.tearDown()
         FeatureTestUtils.resetFeatures()
     }

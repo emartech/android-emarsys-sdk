@@ -26,7 +26,6 @@ import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.CoreStorageKey
 import com.emarsys.core.storage.KeyValueStore
-import com.emarsys.core.storage.Storage
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
@@ -140,7 +139,6 @@ class FakeDependencyContainer(
         pushTokenProvider: PushTokenProvider = mock(),
         clientServiceProvider: ServiceEndpointProvider = mock(),
         eventServiceProvider: ServiceEndpointProvider = mock(),
-        eventServiceV4Provider: ServiceEndpointProvider = mock(),
         deepLinkServiceProvider: ServiceEndpointProvider = mock(),
         mobileEngageV2ServiceProvider: ServiceEndpointProvider = mock(),
         inboxServiceProvider: ServiceEndpointProvider = mock(),
@@ -149,7 +147,6 @@ class FakeDependencyContainer(
         configInternal: ConfigInternal = mock(),
         clientServiceStorage: StringStorage = mock(),
         eventServiceStorage: StringStorage = mock(),
-        eventServiceV4Storage: StringStorage = mock(),
         deepLinkServiceStorage: StringStorage = mock(),
         mobileEngageV2ServiceStorage: StringStorage = mock(),
         inboxServiceStorage: StringStorage = mock(),
@@ -252,9 +249,8 @@ class FakeDependencyContainer(
         addDependency(dependencies, geofence, "defaultInstance")
         addDependency(dependencies, loggingGeofence, "loggingInstance")
         addDependency(dependencies, pushTokenProvider)
-        addDependency(dependencies, clientServiceProvider, Endpoint.ME_V3_CLIENT_HOST)
-        addDependency(dependencies, eventServiceProvider, Endpoint.ME_V3_EVENT_HOST)
-        addDependency(dependencies, eventServiceV4Provider, Endpoint.ME_V4_EVENT_HOST)
+        addDependency(dependencies, clientServiceProvider, Endpoint.ME_CLIENT_HOST)
+        addDependency(dependencies, eventServiceProvider, Endpoint.ME_EVENT_HOST)
         addDependency(dependencies, deepLinkServiceProvider, Endpoint.DEEP_LINK)
         addDependency(dependencies, mobileEngageV2ServiceProvider, Endpoint.ME_BASE_V2)
         addDependency(dependencies, inboxServiceProvider, Endpoint.INBOX_BASE)
@@ -263,7 +259,6 @@ class FakeDependencyContainer(
         addDependency(dependencies, configInternal)
         addDependency(dependencies, clientServiceStorage, MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
         addDependency(dependencies, eventServiceStorage, MobileEngageStorageKey.EVENT_SERVICE_URL.key)
-        addDependency(dependencies, eventServiceV4Storage, MobileEngageStorageKey.EVENT_SERVICE_V4_URL.key)
         addDependency(dependencies, deepLinkServiceStorage, MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
         addDependency(dependencies, mobileEngageV2ServiceStorage, MobileEngageStorageKey.ME_V2_SERVICE_URL.key)
         addDependency(dependencies, inboxServiceStorage, MobileEngageStorageKey.INBOX_SERVICE_URL.key)
@@ -410,11 +405,9 @@ class FakeDependencyContainer(
 
     override fun getPushTokenProvider(): PushTokenProvider = getDependency(dependencies)
 
-    override fun getClientServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_V3_CLIENT_HOST)
+    override fun getClientServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_CLIENT_HOST)
 
-    override fun getEventServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_V3_EVENT_HOST)
-    
-    override fun getEventServiceV4Provider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_V4_EVENT_HOST)
+    override fun getEventServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.ME_EVENT_HOST)
 
     override fun getDeepLinkServiceProvider(): ServiceEndpointProvider = getDependency(dependencies, Endpoint.DEEP_LINK)
 
@@ -431,8 +424,6 @@ class FakeDependencyContainer(
     override fun getClientServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.CLIENT_SERVICE_URL.key)
 
     override fun getEventServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.EVENT_SERVICE_URL.key)
-
-    override fun getEventServiceV4Storage(): Storage<String?> = getDependency(dependencies, MobileEngageStorageKey.EVENT_SERVICE_V4_URL.key)
 
     override fun getDeepLinkServiceStorage(): StringStorage = getDependency(dependencies, MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key)
 

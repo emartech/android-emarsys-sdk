@@ -99,8 +99,6 @@ interface MobileEngageDependencyContainer : DependencyContainer {
 
     fun getEventServiceProvider(): ServiceEndpointProvider
 
-    fun getEventServiceV4Provider(): ServiceEndpointProvider
-
     fun getDeepLinkServiceProvider(): ServiceEndpointProvider
 
     fun getInboxServiceProvider(): ServiceEndpointProvider
@@ -116,8 +114,6 @@ interface MobileEngageDependencyContainer : DependencyContainer {
     fun getClientServiceStorage(): Storage<String?>
 
     fun getEventServiceStorage(): Storage<String?>
-
-    fun getEventServiceV4Storage(): Storage<String?>
 
     fun getDeepLinkServiceStorage(): Storage<String?>
 

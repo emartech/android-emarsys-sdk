@@ -1,12 +1,10 @@
 package com.emarsys.mobileengage.request
 
-import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.Mockable
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.endpoint.ServiceEndpointProvider
-import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
@@ -27,7 +25,6 @@ import java.util.*
 class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRequestContext,
                                       private val clientServiceProvider: ServiceEndpointProvider,
                                       private val eventServiceProvider: ServiceEndpointProvider,
-                                      private val eventServiceV4Provider: ServiceEndpointProvider,
                                       private val mobileEngageV2Provider: ServiceEndpointProvider,
                                       private val inboxServiceProvider: ServiceEndpointProvider,
                                       private val messageInboxServiceProvider: ServiceEndpointProvider,
@@ -114,13 +111,8 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
     }
 
     private fun createEvent(payload: Map<String, Any>, requestContext: MobileEngageRequestContext): RequestModel {
-        val url = if (FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4)) {
-            eventServiceV4Provider.provideEndpointHost()
-        } else {
-            eventServiceProvider.provideEndpointHost()
-        }
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
-                .url("$url${Endpoint.eventBase(requestContext.applicationCode)}")
+                .url("${eventServiceProvider.provideEndpointHost()}${Endpoint.eventBase(requestContext.applicationCode)}")
                 .method(RequestMethod.POST)
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .payload(payload)
@@ -152,15 +144,10 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
     }
 
     fun createFetchInlineInAppMessagesRequest(viewId: String): RequestModel {
-        val url = if (FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4)) {
-            eventServiceV4Provider.provideEndpointHost()
-        } else {
-            eventServiceProvider.provideEndpointHost()
-        }
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
                 .method(RequestMethod.POST)
                 .payload(RequestPayloadUtils.createInlineInAppPayload(viewId, buttonClickedRepository.query(Everything())))
-                .url("$url${Endpoint.inlineInAppBase(requestContext.applicationCode)}")
+                .url("${eventServiceProvider.provideEndpointHost()}${Endpoint.inlineInAppBase(requestContext.applicationCode)}")
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext) + RequestHeaderUtils.createDefaultHeaders(requestContext))
                 .build()
     }

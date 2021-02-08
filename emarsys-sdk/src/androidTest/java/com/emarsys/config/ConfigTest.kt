@@ -7,6 +7,7 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -30,6 +31,7 @@ class ConfigTest {
 
     @Before
     fun setUp() {
+        FeatureTestUtils.resetFeatures()
         mockConfigInternal = mock(ConfigInternal::class.java)
         val dependencyContainer = FakeDependencyContainer(configInternal = mockConfigInternal)
 
@@ -41,8 +43,8 @@ class ConfigTest {
     fun tearDown() {
         try {
             val handler = getDependency<Handler>("coreSdkHandler")
-            val looper: Looper? = handler.looper
-            looper?.quit()
+            val looper: Looper = handler.looper
+            looper.quit()
             DependencyInjection.tearDown()
         } catch (e: Exception) {
             e.printStackTrace()

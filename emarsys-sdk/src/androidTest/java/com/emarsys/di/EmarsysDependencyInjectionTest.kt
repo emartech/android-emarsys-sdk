@@ -133,8 +133,8 @@ class EmarsysDependencyInjectionTest {
         FeatureTestUtils.resetFeatures()
         try {
             val handler = getDependency<Handler>("coreSdkHandler")
-            val looper: Looper? = handler.looper
-            looper?.quit()
+            val looper: Looper = handler.looper
+            looper.quit()
             DependencyInjection.tearDown()
         } catch (e: Exception) {
             e.printStackTrace()

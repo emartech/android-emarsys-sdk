@@ -9,14 +9,14 @@ import com.emarsys.mobileengage.endpoint.Endpoint
 object RequestModelUtils {
     fun ResponseModel.isMobileEngageRequest() = requestModel.isMobileEngageRequest()
     fun ResponseModel.isCustomEvent(): Boolean = requestModel.isCustomEvent()
+
     fun RequestModel.isMobileEngageRequest(): Boolean {
-        val clientServiceUrl = (getDependency(Endpoint.ME_V3_CLIENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
-        val eventServiceUrl = (getDependency(Endpoint.ME_V3_EVENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
-        val eventServiceV4Url = (getDependency(Endpoint.ME_V4_EVENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
+        val clientServiceUrl = (getDependency(Endpoint.ME_CLIENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
+        val eventServiceUrl = (getDependency(Endpoint.ME_EVENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
         val messageInboxServiceUrl = (getDependency(Endpoint.ME_V3_INBOX_HOST) as ServiceEndpointProvider).provideEndpointHost()
 
         val url = this.url.toString()
-        return url.startsWithOneOf(clientServiceUrl, eventServiceUrl, eventServiceV4Url, messageInboxServiceUrl)
+        return url.startsWithOneOf(clientServiceUrl, eventServiceUrl, messageInboxServiceUrl)
     }
 
     fun RequestModel.isRemoteConfigRequest(): Boolean {
@@ -26,15 +26,14 @@ object RequestModelUtils {
     }
 
     fun RequestModel.isCustomEvent(): Boolean {
-        val eventServiceUrl = (getDependency(Endpoint.ME_V3_EVENT_HOST)as ServiceEndpointProvider).provideEndpointHost()
-        val eventServiceV4Url = (getDependency(Endpoint.ME_V4_EVENT_HOST)as ServiceEndpointProvider).provideEndpointHost()
+        val eventServiceUrl = (getDependency(Endpoint.ME_EVENT_HOST)as ServiceEndpointProvider).provideEndpointHost()
 
         val url = this.url.toString()
-        return url.startsWithOneOf(eventServiceUrl, eventServiceV4Url) && url.endsWith("/events")
+        return url.startsWithOneOf(eventServiceUrl) && url.endsWith("/events")
     }
 
     fun RequestModel.isRefreshContactTokenRequest(): Boolean {
-        val clientServiceUrl = (getDependency(Endpoint.ME_V3_CLIENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
+        val clientServiceUrl = (getDependency(Endpoint.ME_CLIENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
 
         val url = this.url.toString()
         return url.startsWithOneOf(clientServiceUrl) && url.endsWith("/contact-token")

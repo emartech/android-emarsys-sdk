@@ -35,10 +35,9 @@ class MobileEngageRequestModelFactoryTest {
         const val PUSH_TOKEN = "kjhygtfdrtrtdtguyihoj3iurf8y7t6fqyua2gyi8fhu"
         const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
-        const val CLIENT_HOST = "https://me-client.eservice.emarsys.net/v3"
+        const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
         const val MOBILE_ENGAGE_V2_HOST = "https://push.eservice.emarsys.net/api/mobileengage/v2/"
-        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net/v3"
-        const val EVENT_V4_HOST = "https://mobile-events.eservice.emarsys.net/v4"
+        const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/api/"
         const val INBOX_V3_HOST = "https://me-inbox.eservice.emarsys.net/v3"
         val CLICKS = listOf(
@@ -56,7 +55,6 @@ class MobileEngageRequestModelFactoryTest {
     lateinit var mockMessageInboxServiceProvider: ServiceEndpointProvider
     lateinit var requestFactory: MobileEngageRequestModelFactory
     lateinit var mockEventServiceProvider: ServiceEndpointProvider
-    lateinit var mockEventServiceV4Provider: ServiceEndpointProvider
     lateinit var mockClientServiceProvider: ServiceEndpointProvider
     lateinit var mockMobileEngageV2Provider: ServiceEndpointProvider
     lateinit var mockInboxServiceProvider: ServiceEndpointProvider
@@ -67,13 +65,9 @@ class MobileEngageRequestModelFactoryTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
-    @Suppress("UNCHECKED_CAST")
     fun setUp() {
         mockEventServiceProvider = mock {
             on { provideEndpointHost() } doReturn EVENT_HOST
-        }
-        mockEventServiceV4Provider = mock {
-            on { provideEndpointHost() } doReturn EVENT_V4_HOST
         }
         mockClientServiceProvider = mock {
             on { provideEndpointHost() } doReturn CLIENT_HOST
@@ -126,7 +120,14 @@ class MobileEngageRequestModelFactoryTest {
 
         FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
 
-        requestFactory = MobileEngageRequestModelFactory(mockRequestContext, mockClientServiceProvider, mockEventServiceProvider, mockEventServiceV4Provider, mockMobileEngageV2Provider, mockInboxServiceProvider, mockMessageInboxServiceProvider, mockButtonClickedRepository)
+        requestFactory = MobileEngageRequestModelFactory(
+                mockRequestContext,
+                mockClientServiceProvider,
+                mockEventServiceProvider,
+                mockMobileEngageV2Provider,
+                mockInboxServiceProvider,
+                mockMessageInboxServiceProvider,
+                mockButtonClickedRepository)
     }
 
     @Test

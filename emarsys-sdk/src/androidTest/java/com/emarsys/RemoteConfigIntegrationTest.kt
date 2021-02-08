@@ -72,8 +72,8 @@ class RemoteConfigIntegrationTest {
 
         latch.await()
 
-        val clientServiceEndpointHost = getDependency<ServiceEndpointProvider>(Endpoint.ME_V3_CLIENT_HOST).provideEndpointHost()
-        val eventServiceEndpointHost = getDependency<ServiceEndpointProvider>(Endpoint.ME_V3_EVENT_HOST).provideEndpointHost()
+        val clientServiceEndpointHost = getDependency<ServiceEndpointProvider>(Endpoint.ME_CLIENT_HOST).provideEndpointHost()
+        val eventServiceEndpointHost = getDependency<ServiceEndpointProvider>(Endpoint.ME_EVENT_HOST).provideEndpointHost()
         clientServiceEndpointHost shouldBe "https://integration.me-client.eservice.emarsys.net"
         eventServiceEndpointHost shouldBe "https://integration.mobile-events.eservice.emarsys.net"
     }
