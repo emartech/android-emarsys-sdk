@@ -2,9 +2,14 @@ package com.emarsys.config
 
 import android.app.Application
 import com.emarsys.core.api.experimental.FlipperFeature
+import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.endpoint.ServiceEndpointProvider
+import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils
+import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.fail
 import io.kotlintest.shouldBe
@@ -12,6 +17,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.Mockito
 
 class EmarsysConfigTest {
     companion object {
@@ -19,6 +25,9 @@ class EmarsysConfigTest {
         private const val CONTACT_FIELD_ID = 567
         private const val MERCHANT_ID = "MERCHANT_ID"
         private const val SHARED_SECRET = "testSecret"
+        private const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
+        private const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
+        private const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/v3"
         private val SHARED_PACKAGE_NAMES = listOf("package1", "package2")
     }
 
@@ -34,6 +43,25 @@ class EmarsysConfigTest {
 
     @Before
     fun setUp() {
+        FeatureTestUtils.resetFeatures()
+        val mockClientServiceProvider: ServiceEndpointProvider = mock {
+            on { provideEndpointHost() } doReturn CLIENT_HOST
+        }
+        val mockEventServiceProvider: ServiceEndpointProvider = mock {
+            on { provideEndpointHost() } doReturn EVENT_HOST
+        }
+        val mockMessageInboxServiceProvider: ServiceEndpointProvider = mock {
+            on { provideEndpointHost() } doReturn INBOX_HOST
+        }
+        val dependencyContainer = FakeDependencyContainer(
+                clientServiceProvider = mockClientServiceProvider,
+                eventServiceProvider = mockEventServiceProvider,
+                messageInboxServiceProvider = mockMessageInboxServiceProvider
+        )
+
+        DependencyInjection.setup(dependencyContainer)
+
+
         automaticPushTokenSending = true
         application = getTargetContext().applicationContext as Application
         defaultInAppEventHandler = mock()

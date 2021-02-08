@@ -8,6 +8,8 @@ import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.core.provider.timestamp.TimestampProvider
+import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
@@ -25,6 +27,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.internal.verification.Times
 import java.net.URL
 
 class InAppCleanUpResponseHandlerV4Test {

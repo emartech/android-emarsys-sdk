@@ -28,6 +28,7 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
+import com.emarsys.mobileengage.util.RequestModelUtilsTest
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createCompositeRequestModelPayload
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -439,8 +440,12 @@ class RequestRepositoryProxyTest {
         event2["type"] = "custom"
         event2["name"] = "event2"
         event2["timestamp"] = TimestampUtils.formatTimestampWithUTC(1000)
-        event2["attributes"] = mapOf("key1" to "value1", "key2" to "value2")
-
+        event2["attributes"] = object : HashMap<String?, String?>() {
+            init {
+                put("key1", "value1")
+                put("key2", "value2")
+            }
+        }
         val event3: MutableMap<String, Any> = HashMap()
         event3["type"] = "custom"
         event3["name"] = "event3"
@@ -460,7 +465,7 @@ class RequestRepositoryProxyTest {
                 false, null)
         val expectedComposite: RequestModel = CompositeRequestModel(
                 REQUEST_ID,
-                "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
+                "https://mobile-events.eservice.emarsys.net/v3/apps/" + APPLICATION_CODE + "/client/events",
                 RequestMethod.POST,
                 payload,
                 customEvent1.headers,
