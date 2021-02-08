@@ -5,7 +5,6 @@ import android.os.Looper
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
-import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
@@ -103,6 +102,15 @@ class DeviceEventStateResponseHandlerTest {
     }
 
     @Test
+    fun testShouldHandle_shouldReturnFalse_whenBodyIsNull(){
+        val response = buildResponseModel(mockRequestModel, responseBody = null)
+
+        val result = handler.shouldHandleResponse(response)
+
+        result shouldBe false
+    }
+
+    @Test
     fun testHandleResponse(){
         val response = buildResponseModel(mockRequestModel)
 
@@ -111,7 +119,7 @@ class DeviceEventStateResponseHandlerTest {
         verify(mockDeviceEventStateStorage).set(response.parsedBody.getString("deviceEventState"))
     }
 
-    private fun buildResponseModel(requestModel: RequestModel, responseBody: String = "{'deviceEventState': {'123': '456', '78910':'6543'}}", statusCode: Int = 200): ResponseModel {
+    private fun buildResponseModel(requestModel: RequestModel, responseBody: String? = "{'deviceEventState': {'123': '456', '78910':'6543'}}", statusCode: Int = 200): ResponseModel {
         return ResponseModel.Builder()
                 .statusCode(statusCode)
                 .message("OK")
