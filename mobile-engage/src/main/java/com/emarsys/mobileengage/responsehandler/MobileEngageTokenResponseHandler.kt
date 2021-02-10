@@ -1,12 +1,9 @@
 package com.emarsys.mobileengage.responsehandler
 
 import com.emarsys.core.Mockable
-import com.emarsys.core.endpoint.ServiceEndpointProvider
-import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.mobileengage.util.RequestModelUtils
 import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageRequest
 import org.json.JSONException
 import org.json.JSONObject

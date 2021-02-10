@@ -5,7 +5,7 @@ import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.getDependency
 @Mockable
-class Config() : ConfigApi {
+class Config : ConfigApi {
     override val contactFieldId: Int
         get() = getDependency<ConfigInternal>().contactFieldId
 

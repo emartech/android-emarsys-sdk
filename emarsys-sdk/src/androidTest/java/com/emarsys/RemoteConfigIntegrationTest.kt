@@ -3,7 +3,6 @@ package com.emarsys
 import android.app.Application
 import com.emarsys.config.ConfigInternal
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
@@ -21,13 +20,12 @@ import java.util.concurrent.CountDownLatch
 class RemoteConfigIntegrationTest {
 
     private companion object {
-        private const val APP_ID = "integrationTest"
+        private const val APP_ID = "EMS1F-17E15"
         private const val CONTACT_FIELD_ID = 3
     }
 
     private lateinit var baseConfig: EmarsysConfig
 
-    private var errorCause: Throwable? = null
     private lateinit var latch: CountDownLatch
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
@@ -50,8 +48,6 @@ class RemoteConfigIntegrationTest {
 
         FeatureTestUtils.resetFeatures()
 
-        errorCause = null
-
         ConnectionTestUtils.checkConnection(application)
 
         Emarsys.setup(baseConfig)
@@ -66,16 +62,18 @@ class RemoteConfigIntegrationTest {
 
     @Test
     fun testRemoteConfig() {
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-            getDependency<ConfigInternal>().refreshRemoteConfig(CompletionListener { latch.countDown() })
+        val coreSdkHandler = DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler()
+        coreSdkHandler.post {
+            coreSdkHandler.post {
+                getDependency<ConfigInternal>().refreshRemoteConfig { latch.countDown() }
+            }
         }
-
         latch.await()
 
         val clientServiceEndpointHost = getDependency<ServiceEndpointProvider>(Endpoint.ME_CLIENT_HOST).provideEndpointHost()
         val eventServiceEndpointHost = getDependency<ServiceEndpointProvider>(Endpoint.ME_EVENT_HOST).provideEndpointHost()
-        clientServiceEndpointHost shouldBe "https://integration.me-client.eservice.emarsys.net"
-        eventServiceEndpointHost shouldBe "https://integration.mobile-events.eservice.emarsys.net"
+        clientServiceEndpointHost shouldBe "https://me-client-staging.eservice.emarsys.com"
+        eventServiceEndpointHost shouldBe "https://mobile-events-staging.eservice.emarsys.com"
     }
 
 }
