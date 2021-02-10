@@ -29,14 +29,16 @@ class DeepLinkTest {
         mockDeepLinkInternal = mock()
         deeplinkApi = DeepLink()
 
-        DependencyInjection.setup(FakeDependencyContainer(deepLinkInternal = mockDeepLinkInternal))
+        DependencyInjection.setup(FakeDependencyContainer(
+                deepLinkInternal = mockDeepLinkInternal,
+                loggingDeepLinkInternal = mockDeepLinkInternal))
     }
 
     @After
     fun tearDown() {
         try {
-            val looper: Looper? = getDependency<Handler>("coreSdkHandler").looper
-            looper?.quitSafely()
+            val looper: Looper = getDependency<Handler>("coreSdkHandler").looper
+            looper.quitSafely()
             DependencyInjection.tearDown()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -47,7 +49,7 @@ class DeepLinkTest {
     @Test
     fun testDeepLinkApi_delegatesToInternal() {
         val intent = Intent()
-       deeplinkApi.trackDeepLinkOpen(mockActivity, intent, mockCompletionListener)
+        deeplinkApi.trackDeepLinkOpen(mockActivity, intent, mockCompletionListener)
         verify(mockDeepLinkInternal).trackDeepLinkOpen(mockActivity, intent, mockCompletionListener)
     }
 }
