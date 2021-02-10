@@ -1,12 +1,10 @@
 package com.emarsys.eventservice
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.mobileengage.event.EventServiceInternal
+import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -44,14 +42,7 @@ class EventServiceTest {
 
     @After
     fun tearDown() {
-        try {
-            val looper: Looper? = getDependency<Handler>("coreSdkHandler").looper
-            looper?.quitSafely()
-            DependencyInjection.tearDown()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
-        }
+        IntegrationTestUtils.tearDownEmarsys()
     }
 
     @Test

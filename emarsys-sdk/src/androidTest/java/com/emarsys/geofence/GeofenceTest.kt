@@ -5,6 +5,7 @@ import com.emarsys.core.di.DependencyInjection
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.geofence.GeofenceInternal
+import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -36,7 +37,7 @@ class GeofenceTest {
 
     @After
     fun tearDown() {
-        DependencyInjection.tearDown()
+        IntegrationTestUtils.tearDownEmarsys()
     }
 
     @Test

@@ -1,13 +1,11 @@
 package com.emarsys.oneventaction
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.EventHandlerProvider
+import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -41,15 +39,7 @@ class OnEventActionTest {
 
     @After
     fun tearDown() {
-        try {
-            val handler = getDependency<Handler>("coreSdkHandler")
-            val looper: Looper? = handler.looper
-            looper?.quit()
-            DependencyInjection.tearDown()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
-        }
+        IntegrationTestUtils.tearDownEmarsys()
     }
 
     @Test

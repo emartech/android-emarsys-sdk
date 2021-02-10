@@ -1,14 +1,12 @@
 package com.emarsys.config
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.testUtil.FeatureTestUtils
+import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.doReturn
@@ -29,6 +27,7 @@ class ConfigTest {
         private const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         private const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/v3"
     }
+
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
@@ -60,17 +59,10 @@ class ConfigTest {
         config = Config()
     }
 
+
     @After
     fun tearDown() {
-        try {
-            val handler = getDependency<Handler>("coreSdkHandler")
-            val looper: Looper = handler.looper
-            looper.quit()
-            DependencyInjection.tearDown()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
-        }
+        IntegrationTestUtils.tearDownEmarsys()
     }
 
     @Test

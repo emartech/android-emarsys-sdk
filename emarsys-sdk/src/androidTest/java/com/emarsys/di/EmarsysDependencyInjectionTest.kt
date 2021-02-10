@@ -1,10 +1,7 @@
 package com.emarsys.di
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.deeplink.DeepLinkApi
 import com.emarsys.eventservice.EventServiceApi
@@ -18,7 +15,7 @@ import com.emarsys.oneventaction.OnEventActionApi
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictInternal
 import com.emarsys.push.PushApi
-import com.emarsys.testUtil.FeatureTestUtils
+import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
@@ -130,16 +127,7 @@ class EmarsysDependencyInjectionTest {
 
     @After
     fun tearDown() {
-        FeatureTestUtils.resetFeatures()
-        try {
-            val handler = getDependency<Handler>("coreSdkHandler")
-            val looper: Looper = handler.looper
-            looper.quit()
-            DependencyInjection.tearDown()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
-        }
+        IntegrationTestUtils.tearDownEmarsys()
     }
 
     @Test

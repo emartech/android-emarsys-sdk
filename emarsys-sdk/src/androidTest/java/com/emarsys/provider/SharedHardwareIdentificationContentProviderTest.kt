@@ -36,8 +36,10 @@ class SharedHardwareIdentificationContentProviderTest : ProviderTestCase2<Shared
             on { getString(2) } doReturn IV
         }
         mockDatabase = mock {
-            on { query(false, "hardware_identification", arrayOf("encrypted_hardware_id", "salt", "iv"),
-                    null, null, null, null, null, null) } doReturn mockCursor
+            on {
+                query(false, "hardware_identification", arrayOf("encrypted_hardware_id", "salt", "iv"),
+                        null, null, null, null, null, null)
+            } doReturn mockCursor
         }
         mockCoreDbHelper = mock {
             on { readableCoreDatabase } doReturn mockDatabase

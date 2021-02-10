@@ -8,16 +8,17 @@ import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
+import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.fail
 import io.kotlintest.shouldBe
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito
 
 class EmarsysConfigTest {
     companion object {
@@ -70,6 +71,11 @@ class EmarsysConfigTest {
                 mock(),
                 mock()
         )
+    }
+    
+    @After
+    fun tearDown() {
+        IntegrationTestUtils.tearDownEmarsys(application)
     }
 
     @Test

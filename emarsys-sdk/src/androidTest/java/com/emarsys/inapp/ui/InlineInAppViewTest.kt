@@ -23,6 +23,7 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.*
@@ -34,6 +35,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.Mockito.spy
 import java.util.concurrent.CountDownLatch
 
 class InlineInAppViewTest {
@@ -108,7 +110,7 @@ class InlineInAppViewTest {
 
     @After
     fun tearDown() {
-        DependencyInjection.tearDown()
+        IntegrationTestUtils.tearDownEmarsys()
     }
 
     @Test
