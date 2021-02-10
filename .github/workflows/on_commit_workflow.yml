@@ -407,7 +407,7 @@ jobs:
       - name: Run tests
         uses: asadmansr/Firebase-Test-Lab-Action@v1.0
         with:
-          arg-spec: 'testWithAllDevices.yml:common'
+          arg-spec: 'testWithSomeVirtualDevices.yml:common'
         env:
           SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
