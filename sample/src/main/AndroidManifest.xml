@@ -57,7 +57,7 @@
 
         <!--
                     <provider
-                    android:name="com.emarsys.provider.SharedHardwareIdContentProvider"
+                    android:name="com.emarsys.provider.SharedHardwareIdentificationContentProvider"
                     android:authorities="${applicationId}"
                     android:enabled="true"
                     android:exported="true"
