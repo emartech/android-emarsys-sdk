@@ -23,6 +23,14 @@ apply from: 'gradle/release.gradle'
 apply plugin: "com.github.ben-manes.versions"
 apply plugin: "com.vanniktech.dependency.graph.generator"
 
+allprojects {
+    repositories {
+        mavenLocal()
+        google()
+        jcenter()
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
