@@ -1,4 +1,4 @@
-ext.modules = [':common',':core-api', ':core', ':mobile-engage-api', ':mobile-engage', ':predict-api', ':predict', ':emarsys', ':emarsys-sdk']
+ext.modules = [':core-api', ':core', ':common', ':mobile-engage-api', ':mobile-engage', ':predict-api', ':predict', ':emarsys', ':emarsys-sdk']
 
 buildscript {
     repositories {
@@ -7,7 +7,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.2'
-        classpath 'digital.wup:android-maven-publish:3.6.3'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$Versions.kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-allopen:$Versions.kotlin_version"
