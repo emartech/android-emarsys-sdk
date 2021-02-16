@@ -241,6 +241,14 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
+                    <com.google.android.gms.common.SignInButton
+                        android:id="@+id/buttonGoogleLogin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        app:layout_constraintEnd_toStartOf="@+id/buttonLogin"
+                        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutContactId" />
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/buttonLogin"
                         style="@style/Widget.MaterialComponents.Button.TextButton"

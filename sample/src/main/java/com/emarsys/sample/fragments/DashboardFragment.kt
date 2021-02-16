@@ -1,5 +1,6 @@
 package com.emarsys.sample.fragments
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -9,14 +10,21 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.emarsys.Emarsys
+import com.emarsys.sample.BuildConfig
 import com.emarsys.sample.R
 import com.emarsys.sample.SampleApplication
 import com.emarsys.sample.extensions.showSnackBar
 import com.emarsys.sample.prefs.Cache
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import kotlinx.android.synthetic.main.fragment_dashboard.*
 import kotlin.system.exitProcess
 
 class DashboardFragment : Fragment() {
+    companion object {
+        const val REQUEST_CODE_SIGN_IN = 12
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -28,6 +36,12 @@ class DashboardFragment : Fragment() {
         loggedInContact.text = Cache.contactFieldValue ?: getString(R.string.logged_in_anonymous)
 
         refreshConfig()
+
+        buttonGoogleLogin.setOnClickListener {
+            val client = generateGoogleSignInClient()
+            val signInIntent: Intent = client.signInIntent
+            activity?.startActivityForResult(signInIntent, REQUEST_CODE_SIGN_IN)
+        }
 
         buttonLogin.setOnClickListener {
             val contactId = contactId.text.toString()
@@ -125,4 +139,13 @@ class DashboardFragment : Fragment() {
     private fun Editable.toNullableString(): String? {
         return if (this.toString() == "") null else this.toString()
     }
+
+    private fun generateGoogleSignInClient(): GoogleSignInClient {
+        val options: GoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestIdToken(BuildConfig.GOOGLE_OAUTH_SERVER_CLIENT_ID)
+                .build()
+        return GoogleSignIn.getClient(requireActivity(), options)
+    }
+
 }
