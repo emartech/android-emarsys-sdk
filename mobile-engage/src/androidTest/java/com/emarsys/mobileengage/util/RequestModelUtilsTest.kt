@@ -9,6 +9,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.RequestModelUtils.isCustomEvent
 import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageRequest
+import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageSetContactRequest
 import com.emarsys.mobileengage.util.RequestModelUtils.isRefreshContactTokenRequest
 import com.emarsys.mobileengage.util.RequestModelUtils.isRemoteConfigRequest
 import com.emarsys.testUtil.TimeoutUtils
@@ -171,6 +172,28 @@ class RequestModelUtilsTest {
         val result = mockRequestModel.isRefreshContactTokenRequest()
 
         result shouldBe false
+    }
+
+    @Test
+    fun testIsMobileEngageClientRequest_false_whenIsNotClientEndpoint(){
+
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$EVENT_BASE/apps"))
+        }
+        val result = mockRequestModel.isMobileEngageSetContactRequest()
+
+        result shouldBe false
+    }
+
+    @Test
+    fun testIsMobileEngageClientRequest_true_whenClientEndpoint(){
+
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL("$CLIENT_BASE/contact"))
+        }
+        val result = mockRequestModel.isMobileEngageSetContactRequest()
+
+        result shouldBe true
     }
 
 }

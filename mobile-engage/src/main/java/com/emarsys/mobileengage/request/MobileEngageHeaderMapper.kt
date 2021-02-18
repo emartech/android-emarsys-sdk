@@ -1,63 +1,54 @@
-package com.emarsys.mobileengage.request;
+package com.emarsys.mobileengage.request
 
-import com.emarsys.core.Mapper;
-import com.emarsys.core.endpoint.ServiceEndpointProvider;
-import com.emarsys.core.request.model.CompositeRequestModel;
-import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.MobileEngageRequestContext;
-import com.emarsys.mobileengage.util.RequestModelUtils;
+import com.emarsys.core.Mapper
+import com.emarsys.core.request.model.CompositeRequestModel
+import com.emarsys.core.request.model.RequestModel
+import com.emarsys.core.util.Assert
+import com.emarsys.mobileengage.MobileEngageRequestContext
+import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageRequest
+import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageSetContactRequest
+import com.emarsys.mobileengage.util.RequestModelUtils.isRefreshContactTokenRequest
+import java.util.*
 
-import java.util.HashMap;
-import java.util.Map;
+class MobileEngageHeaderMapper(val requestContext: MobileEngageRequestContext) : Mapper<RequestModel, RequestModel> {
 
-public class MobileEngageHeaderMapper implements Mapper<RequestModel, RequestModel> {
-
-    private final MobileEngageRequestContext requestContext;
-
-    public MobileEngageHeaderMapper(MobileEngageRequestContext requestContext) {
-        Assert.notNull(requestContext, "RequestContext must not be null!");
-
-        this.requestContext = requestContext;
-    }
-
-    @Override
-    public RequestModel map(RequestModel requestModel) {
-        Assert.notNull(requestModel, "RequestModel must not be null!");
-
-        Map<String, String> headersToInject = getHeadersToInject(requestModel);
-
-        RequestModel updatedRequestModel = requestModel;
-        if (RequestModelUtils.INSTANCE.isMobileEngageRequest(requestModel)) {
-
-            Map<String, String> updatedHeaders = new HashMap<>(requestModel.getHeaders());
-            updatedHeaders.putAll(headersToInject);
-            if (updatedRequestModel instanceof CompositeRequestModel) {
-                updatedRequestModel = new CompositeRequestModel.Builder(requestModel)
+    override fun map(requestModel: RequestModel): RequestModel {
+        Assert.notNull(requestModel, "RequestModel must not be null!")
+        val headersToInject = getHeadersToInject(requestModel)
+        var updatedRequestModel = requestModel
+        if (requestModel.isMobileEngageRequest()) {
+            val updatedHeaders: MutableMap<String, String> = HashMap(requestModel.headers)
+            updatedHeaders.putAll(headersToInject)
+            updatedRequestModel = if (updatedRequestModel is CompositeRequestModel) {
+                CompositeRequestModel.Builder(requestModel)
                         .headers(updatedHeaders)
-                        .build();
+                        .build()
             } else {
-                updatedRequestModel = new RequestModel.Builder(requestModel)
+                RequestModel.Builder(requestModel)
                         .headers(updatedHeaders)
-                        .build();
+                        .build()
             }
-
         }
-        return updatedRequestModel;
+        return updatedRequestModel
     }
 
-    private Map<String, String> getHeadersToInject(RequestModel requestModel) {
-        Map<String, String> headersToInject = new HashMap<>();
-
-        String clientState = requestContext.getClientStateStorage().get();
-        if (clientState != null) {
-            headersToInject.put("X-Client-State", clientState);
+    private fun getHeadersToInject(requestModel: RequestModel): Map<String, String> {
+        val headersToInject: MutableMap<String, String> = HashMap()
+        requestContext.clientStateStorage.get()?.let {
+            headersToInject["X-Client-State"] = it
         }
-        String contactToken = requestContext.getContactTokenStorage().get();
-        if (contactToken != null && !RequestModelUtils.INSTANCE.isRefreshContactTokenRequest(requestModel)) {
-            headersToInject.put("X-Contact-Token", contactToken);
+        requestContext.contactTokenStorage.get()?.let {
+            if (!requestModel.isRefreshContactTokenRequest() && !requestModel.isMobileEngageSetContactRequest()) {
+                headersToInject["X-Contact-Token"] = it
+            }
         }
-        headersToInject.put("X-Request-Order", String.valueOf(requestContext.getTimestampProvider().provideTimestamp()));
-        return headersToInject;
+        requestContext.idToken?.let {
+            if (requestModel.isMobileEngageSetContactRequest()) {
+                headersToInject["X-Open-Id"] = it
+            }
+        }
+        headersToInject["X-Request-Order"] = requestContext.timestampProvider.provideTimestamp().toString()
+        return headersToInject
     }
+
 }

@@ -39,6 +39,13 @@ object RequestModelUtils {
         return url.startsWithOneOf(clientServiceUrl) && url.endsWith("/contact-token")
     }
 
+    fun RequestModel.isMobileEngageSetContactRequest(): Boolean {
+        val clientServiceUrl = (getDependency(Endpoint.ME_CLIENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
+
+        val url = this.url.toString()
+        return url.startsWithOneOf(clientServiceUrl) && url.endsWith("client/contact")
+    }
+
     private fun String.startsWithOneOf(vararg patterns: String): Boolean {
         return patterns.any { this.startsWith(it) }
     }

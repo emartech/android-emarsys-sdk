@@ -31,6 +31,7 @@ class MobileEngageHeaderMapperTest {
     private companion object {
         const val CLIENT_STATE = "client-state"
         const val CONTACT_TOKEN = "contact-token"
+        const val ID_TOKEN = "id-token"
         const val REFRESH_TOKEN = "refresh-token"
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
@@ -86,6 +87,7 @@ class MobileEngageHeaderMapperTest {
             on { clientStateStorage } doReturn mockClientStateStorage
             on { contactTokenStorage } doReturn mockContactTokenStorage
             on { refreshTokenStorage } doReturn mockRefreshTokenStorage
+            on { idToken } doReturn ID_TOKEN
         }
 
         DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
@@ -99,16 +101,6 @@ class MobileEngageHeaderMapperTest {
         val looper: Looper? = handler.looper
         looper?.quit()
         DependencyInjection.tearDown()
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestContext_mustNotBeNull() {
-        MobileEngageHeaderMapper(null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testMap_requestModel_mustNotBeNull() {
-        mobileEngageHeaderMapper.map(null)
     }
 
     @Test
@@ -197,6 +189,31 @@ class MobileEngageHeaderMapperTest {
 
         result shouldBe expectedRequestModels
     }
+
+    @Test
+    fun testMap_shouldAddOpenIdHeader_whenClientRequestIsForMobileEngage() {
+        val originalRequestModels = createClientRequest()
+
+        val expectedRequestModels = createClientRequest(extraHeaders = mapOf(
+                "X-Client-State" to CLIENT_STATE,
+                "X-Open-Id" to ID_TOKEN,
+                "X-Request-Order" to TIMESTAMP.toString()
+        ))
+
+        val result = mobileEngageHeaderMapper.map(originalRequestModels)
+
+        result shouldBe expectedRequestModels
+    }
+
+    private fun createClientRequest(extraHeaders: Map<String, String> = mapOf()) = RequestModel(
+            "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
+            RequestMethod.POST,
+            null,
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
+    )
 
     private fun createMobileEngageRequest(extraHeaders: Map<String, String> = mapOf()) = RequestModel(
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client",
