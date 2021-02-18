@@ -16,8 +16,10 @@ import com.emarsys.sample.SampleApplication
 import com.emarsys.sample.extensions.showSnackBar
 import com.emarsys.sample.prefs.Cache
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.fragment_dashboard.*
 import kotlin.system.exitProcess
 
@@ -46,15 +48,7 @@ class DashboardFragment : Fragment() {
         buttonLogin.setOnClickListener {
             val contactId = contactId.text.toString()
             Emarsys.setContact(contactId) {
-                if (it != null) {
-                    Log.e(MobileEngageFragmentTracking.TAG, it.toString())
-                    view.showSnackBar("Login: failed :(")
-                } else {
-                    Log.i(MobileEngageFragmentTracking.TAG, "Login successful.")
-                    Cache.contactFieldValue = contactId
-                    loggedInContact.text = contactId
-                    view.showSnackBar("Login: OK :)")
-                }
+                handleLoginResult(it)
             }
         }
 
@@ -101,6 +95,35 @@ class DashboardFragment : Fragment() {
                 view.showSnackBar("MerchantId has been changed!")
                 refreshConfig()
             }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        handleGoogleLogin(requestCode, resultCode, data)
+    }
+
+    private fun handleGoogleLogin(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == DashboardFragment.REQUEST_CODE_SIGN_IN && resultCode != 0) {
+            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
+            Emarsys.setAuthorizedContact(task.result.id!!, task.result.idToken!!) {
+                handleLoginResult(it)
+            }
+            Log.i("GOOGLE_OAUTH_ID_TOKEN", task.result.idToken!!)
+        }
+    }
+
+    private fun handleLoginResult(error: Throwable?) {
+        val contactId = contactId.text.toString()
+        if (error != null) {
+            Log.e(MobileEngageFragmentTracking.TAG, error.toString())
+            view?.showSnackBar("Login: failed :(")
+        } else {
+            Log.i(MobileEngageFragmentTracking.TAG, "Login successful.")
+            Cache.contactFieldValue = contactId
+            loggedInContact.text = contactId
+            view?.showSnackBar("Login: OK :)")
         }
     }
 

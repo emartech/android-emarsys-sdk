@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -16,11 +15,7 @@ import androidx.navigation.ui.NavigationUI
 import com.emarsys.Emarsys
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.sample.extensions.showSnackBar
-import com.emarsys.sample.fragments.DashboardFragment
 import com.emarsys.sample.fragments.MobileEngageFragmentTracking
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
 
@@ -54,15 +49,9 @@ class MainActivity : AppCompatActivity(), EventHandler {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        handleGoogleLogin(requestCode, resultCode, data)
-    }
-
-    private fun handleGoogleLogin(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == DashboardFragment.REQUEST_CODE_SIGN_IN && resultCode != 0) {
-            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
-            Log.i("GOOGLE_OAUTH_ID_TOKEN", task.result.idToken!!)
-        }
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
+        val fragment = navHostFragment?.childFragmentManager?.fragments?.get(0)!!
+        fragment.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun setupBottomNavMenu(navController: NavController) {
