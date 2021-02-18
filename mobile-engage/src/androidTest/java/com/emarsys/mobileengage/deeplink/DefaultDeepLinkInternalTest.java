@@ -68,7 +68,7 @@ public class DefaultDeepLinkInternalTest {
         requestContext = new MobileEngageRequestContext(
                 APPLICATION_CODE,
                 1,
-                mockDeviceInfo,
+                null, mockDeviceInfo,
                 timestampProvider,
                 uuidProvider,
                 mock(StringStorage.class),

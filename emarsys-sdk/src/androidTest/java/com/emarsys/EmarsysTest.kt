@@ -29,6 +29,7 @@ import com.emarsys.Emarsys.Push.setPushToken
 import com.emarsys.Emarsys.Push.setSilentMesssageEventHandler
 import com.emarsys.Emarsys.Push.trackMessageOpen
 import com.emarsys.Emarsys.clearContact
+import com.emarsys.Emarsys.setAuthorizedContact
 import com.emarsys.Emarsys.setContact
 import com.emarsys.Emarsys.setup
 import com.emarsys.Emarsys.trackCustomEvent
@@ -111,6 +112,7 @@ class EmarsysTest {
         private const val MERCHANT_ID = "merchantId"
         private const val SDK_VERSION = "sdkVersion"
         private const val CONTACT_ID = "CONTACT_ID"
+        private const val ID_TOKEN = "testIdToken"
     }
 
     @Rule
@@ -160,6 +162,7 @@ class EmarsysTest {
     private lateinit var baseConfig: EmarsysConfig
     private lateinit var mobileEngageConfig: EmarsysConfig
     private lateinit var predictConfig: EmarsysConfig
+    private lateinit var mobileEngageAndPredictConfig: EmarsysConfig
     private lateinit var configWithInAppEventHandler: EmarsysConfig
     private lateinit var deviceInfo: DeviceInfo
     private lateinit var latch: CountDownLatch
@@ -200,6 +203,11 @@ class EmarsysTest {
             baseConfig = createConfig().build()
             mobileEngageConfig = createConfig().mobileEngageApplicationCode(APPLICATION_CODE).contactFieldId(CONTACT_FIELD_ID).build()
             predictConfig = createConfig().predictMerchantId(MERCHANT_ID).build()
+            mobileEngageAndPredictConfig = createConfig()
+                    .mobileEngageApplicationCode(APPLICATION_CODE)
+                    .contactFieldId(CONTACT_FIELD_ID)
+                    .predictMerchantId(MERCHANT_ID)
+                    .build()
             mockRequestContext = mock()
             mockHardwareIdProvider = mock()
             mockMobileEngageApi = mock()
@@ -281,6 +289,7 @@ class EmarsysTest {
     @After
     fun tearDown() {
         stop()
+        DependencyInjection.tearDown()
     }
 
     @Test
@@ -593,6 +602,55 @@ class EmarsysTest {
     }
 
     @Test
+    fun testSetAuthorizedContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageEnabled() {
+        setup(mobileEngageConfig)
+
+        setAuthorizedContact(CONTACT_ID, ID_TOKEN, completionListener)
+
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockPredictInternal)
+            verify(mockMobileEngageApi).setAuthorizedContact(CONTACT_ID, ID_TOKEN, completionListener)
+        }
+    }
+
+    @Test
+    fun testSetAuthorizedContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageDisabled() {
+        setup(predictConfig)
+
+        setAuthorizedContact(CONTACT_ID, ID_TOKEN, completionListener)
+
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockMobileEngageApi)
+        }
+    }
+
+    @Test
+    fun testSetAuthorizedContactWithCompletionListener_delegatesToInternals_whenMobileEngageAndPredictEnabled() {
+        setup(mobileEngageAndPredictConfig)
+
+        setAuthorizedContact(CONTACT_ID, ID_TOKEN, completionListener)
+
+        runBlockingOnCoreSdkThread()
+
+        runBlockingOnCoreSdkThread {
+            verify(mockMobileEngageApi).setAuthorizedContact(CONTACT_ID, ID_TOKEN, completionListener)
+            verify(mockPredictInternal).setContact(CONTACT_ID)
+        }
+    }
+
+    @Test
+    fun testSetAuthorizedContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageAndPredictDisabled() {
+        setup(baseConfig)
+
+        setAuthorizedContact(CONTACT_ID, ID_TOKEN,completionListener)
+
+        runBlockingOnCoreSdkThread {
+            verifyZeroInteractions(mockPredictInternal)
+            setAuthorizedContact(CONTACT_ID,ID_TOKEN, completionListener)
+        }
+    }
+
+    @Test
     fun testSetContactWithCompletionListener_doNotDelegatesToPredictInternal_whenPredictDisabled() {
         setup(mobileEngageConfig)
 
@@ -614,7 +672,7 @@ class EmarsysTest {
 
     @Test
     fun testSetContactWithCompletionListener_delegatesToInternals_whenBothFeaturesEnabled() {
-        setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
+        setup(mobileEngageAndPredictConfig)
 
         setContact(CONTACT_ID, completionListener)
 
@@ -678,7 +736,7 @@ class EmarsysTest {
 
     @Test
     fun testSetContact_delegatesToInternals_whenBothFeaturesAreEnabled() {
-        setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
+        setup(mobileEngageAndPredictConfig)
         setContact(CONTACT_ID)
         runBlockingOnCoreSdkThread()
 
@@ -748,7 +806,7 @@ class EmarsysTest {
 
     @Test
     fun testClearContactWithCompletionListener_delegatesToInternals_whenBothEnabled() {
-        setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
+        setup(mobileEngageAndPredictConfig)
 
         clearContact(completionListener)
 
@@ -817,7 +875,7 @@ class EmarsysTest {
 
     @Test
     fun testClearContact_delegatesToInternals_whenBothFeaturesAreEnabled() {
-        setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).predictMerchantId(MERCHANT_ID).build())
+        setup(mobileEngageAndPredictConfig)
 
         clearContact()
         runBlockingOnCoreSdkThread()
@@ -1290,8 +1348,8 @@ class EmarsysTest {
         application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
         try {
             val handler = getDependency<Handler>("coreSdkHandler")
-            val looper: Looper? = handler.looper
-            looper?.quit()
+            val looper: Looper = handler.looper
+            looper.quitSafely()
             DependencyInjection.tearDown()
         } catch (e: Exception) {
             e.printStackTrace()

@@ -12,7 +12,8 @@ import org.junit.Test
 
 class MobileEngageTest {
     companion object {
-        private val CONTACT_FIELD_VALUE = "testContactFieldValue"
+        private const val CONTACT_FIELD_VALUE = "testContactFieldValue"
+        private const val CONTACT_ID_TOKEN = "idTOKENTOKENTOKENidTOKEN"
     }
     private lateinit var mockMobileEngageInternal: MobileEngageInternal
     private lateinit var mockCompletionListener: CompletionListener
@@ -37,6 +38,12 @@ class MobileEngageTest {
     fun testSetContact_delegatesToInternal() {
        mobileEngageApi.setContact(CONTACT_FIELD_VALUE, mockCompletionListener)
         verify(mockMobileEngageInternal).setContact(CONTACT_FIELD_VALUE, mockCompletionListener)
+    }
+
+    @Test
+    fun testSetAuthorizedContact_delegatesToInternal() {
+       mobileEngageApi.setAuthorizedContact(CONTACT_FIELD_VALUE, CONTACT_ID_TOKEN, mockCompletionListener)
+        verify(mockMobileEngageInternal).setAuthorizedContact(CONTACT_FIELD_VALUE, CONTACT_ID_TOKEN, mockCompletionListener)
     }
 
     @Test

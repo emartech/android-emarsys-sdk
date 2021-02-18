@@ -123,6 +123,7 @@ class DefaultInboxInternalTest {
         requestContext = MobileEngageRequestContext(
                 APPLICATION_CODE,
                 CONTACT_FIELD_ID,
+                null,
                 deviceInfo,
                 mockTimestampProvider,
                 mockUuidProvider,

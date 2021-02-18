@@ -117,6 +117,23 @@ object Emarsys {
     }
 
     @JvmStatic
+    @JvmOverloads
+    fun setAuthorizedContact(contactId: String, idToken: String, completionListener: CompletionListener? = null) {
+        if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
+            EmarsysDependencyInjection.mobileEngageApi()
+                    .proxyApi(getDependency("coreSdkHandler"))
+                    .setAuthorizedContact(contactId, idToken, completionListener)
+        }
+        if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
+            DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
+                EmarsysDependencyInjection.predictInternal()
+                        .proxyApi(getDependency("coreSdkHandler"))
+                        .setContact(contactId)
+            }
+        }
+    }
+
+    @JvmStatic
     fun setContact(contactId: String) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.mobileEngageApi()

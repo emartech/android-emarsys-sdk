@@ -328,6 +328,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         MobileEngageRequestContext(
                 config.mobileEngageApplicationCode,
                 config.contactFieldId,
+                null,
                 getDeviceInfo(),
                 getTimestampProvider(),
                 getUuidProvider(),

@@ -15,6 +15,16 @@ class LoggingMobileEngageInternal(private val klass: Class<*>) : MobileEngageInt
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
+    override fun setAuthorizedContact(contactFieldValue: String?, idToken: String?, completionListener: CompletionListener?) {
+        val parameters = mapOf(
+                "contact_field_value" to contactFieldValue,
+                "id_token" to idToken,
+                "completion_listener" to (completionListener != null)
+        )
+        val callerMethodName = SystemUtils.getCallerMethodName()
+        debug(MethodNotAllowed(klass, callerMethodName, parameters))
+    }
+
     override fun clearContact(completionListener: CompletionListener?) {
         val parameters = mapOf(
                 "completion_listener" to (completionListener != null)

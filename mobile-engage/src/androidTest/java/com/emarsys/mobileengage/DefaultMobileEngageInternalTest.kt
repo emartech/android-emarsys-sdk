@@ -41,6 +41,7 @@ class DefaultMobileEngageInternalTest {
         const val LANGUAGE = "en-US"
         const val TIMEZONE = "+0200"
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
+        const val ID_TOKEN  = "idToken"
         const val EVENT_NAME = "customEventName"
         val EVENT_ATTRIBUTES = emptyMap<String, String>()
     }
@@ -145,29 +146,38 @@ class DefaultMobileEngageInternalTest {
     }
 
     @Test
-    fun testSetContact_shouldSetContactFieldValue_toContactFieldValueStorage() {
-        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, mockCompletionListener)
+    fun testSetContact_delegatesTo_setAuthorizedContact() {
+        val spyMobileEngageInternal = spy(mobileEngageInternal)
+
+        spyMobileEngageInternal.setContact(CONTACT_FIELD_VALUE, mockCompletionListener)
+
+        verify(spyMobileEngageInternal).setAuthorizedContact(CONTACT_FIELD_VALUE, null, mockCompletionListener)
+    }
+
+    @Test
+    fun testSetAuthorizedContact_shouldSetContactFieldValue_toContactFieldValueStorage() {
+        mobileEngageInternal.setAuthorizedContact(CONTACT_FIELD_VALUE, null, mockCompletionListener)
 
         verify(mockContactFieldValueStorage).set(CONTACT_FIELD_VALUE)
     }
 
     @Test
-    fun testSetContact_completionListener_canBeNull() {
-        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
+    fun testSetAuthorizedContact_completionListener_canBeNull() {
+        mobileEngageInternal.setAuthorizedContact(CONTACT_FIELD_VALUE, null,  null)
 
         verify(mockRequestManager).submit(mockRequestModel, null)
     }
 
     @Test
-    fun testSetContact_shouldStartNewSession() {
-        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
+    fun testSetAuthorizedContact_shouldStartNewSession() {
+        mobileEngageInternal.setAuthorizedContact(CONTACT_FIELD_VALUE, null, null)
 
         verify(mockSession).startSession()
     }
 
     @Test
-    fun testSetContact_shouldEndRunningSessionBeforeStartingANewOne() {
-        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
+    fun testSetAuthorizedContact_shouldEndRunningSessionBeforeStartingANewOne() {
+        mobileEngageInternal.setAuthorizedContact(CONTACT_FIELD_VALUE, null, null)
 
         whenever(mockSessionIdHolder.sessionId).thenReturn("testSessionId")
 
@@ -181,27 +191,35 @@ class DefaultMobileEngageInternalTest {
     }
 
     @Test
-    fun testSetContact_shouldNotCallEndSession_whenNoSessionWasStartedBefore() {
+    fun testSetAuthorizedContact_shouldNotCallEndSession_whenNoSessionWasStartedBefore() {
         whenever(mockSessionIdHolder.sessionId).thenReturn(null)
 
-        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
+        mobileEngageInternal.setAuthorizedContact(CONTACT_FIELD_VALUE, null, null)
 
         verify(mockSession, times(0)).endSession()
         verify(mockSession).startSession()
     }
 
     @Test
-    fun testSetContact_shouldStartNewSession_onlyWhenItIsDifferentFromPreviousContact() {
-        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
+    fun testSetAuthorizedContact_shouldStartNewSession_onlyWhenItIsDifferentFromPreviousContact() {
+        mobileEngageInternal.setAuthorizedContact(CONTACT_FIELD_VALUE, null, null)
 
         val mockContactFieldValueStorage: StringStorage = mock {
             on { get() } doReturn CONTACT_FIELD_VALUE
         }
         whenever(mockRequestContext.contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
 
-        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
+        mobileEngageInternal.setAuthorizedContact(CONTACT_FIELD_VALUE, null, null)
 
         verify(mockSession, times(1)).startSession()
+    }
+
+    @Test
+    fun testSetAuthorizedContact_shouldSetIdToken_inRequestContext() {
+        mobileEngageInternal.setAuthorizedContact(CONTACT_FIELD_VALUE, ID_TOKEN, null)
+
+        verify(mockContactFieldValueStorage).set(CONTACT_FIELD_VALUE)
+        verify(mockRequestContext).idToken = ID_TOKEN
     }
 
     @Test

@@ -11,6 +11,11 @@ class MobileEngage(private val loggingInstance: Boolean = false): MobileEngageAp
                 .setContact(contactFieldValue, completionListener)
     }
 
+    override fun setAuthorizedContact(contactFieldValue: String?, idToken: String, completionListener: CompletionListener?) {
+        (if (loggingInstance) getDependency("loggingInstance") else getDependency<MobileEngageInternal>("defaultInstance"))
+                .setAuthorizedContact(contactFieldValue, idToken, completionListener)
+    }
+
     override fun clearContact(completionListener: CompletionListener?) {
         (if (loggingInstance) getDependency("loggingInstance") else getDependency<MobileEngageInternal>("defaultInstance"))
                 .clearContact(completionListener)
