@@ -3,7 +3,7 @@ core-api:
   app: sample-debug-androidTest.apk
   test: core-api-debug-androidTest.apk
   device:
-    - model: hammerhead
+    - model: flo
       version: 21
       locale: 'en'
       orientation: portrait
@@ -41,7 +41,7 @@ core:
   app: sample-debug-androidTest.apk
   test: core-debug-androidTest.apk
   device:
-    - model: hammerhead
+    - model: flo
       version: 21
       locale: 'en'
       orientation: portrait
@@ -79,7 +79,7 @@ mobile-engage-api:
   app: sample-debug-androidTest.apk
   test: mobile-engage-api-debug-androidTest.apk
   device:
-    - model: hammerhead
+    - model: flo
       version: 21
       locale: 'en'
       orientation: portrait
@@ -117,7 +117,7 @@ mobile-engage:
   app: sample-debug-androidTest.apk
   test: mobile-engage-debug-androidTest.apk
   device:
-    - model: hammerhead
+    - model: flo
       version: 21
       locale: 'en'
       orientation: portrait
@@ -155,7 +155,7 @@ predict-api:
   app: sample-debug-androidTest.apk
   test: predict-api-debug-androidTest.apk
   device:
-    - model: hammerhead
+    - model: flo
       version: 21
       locale: 'en'
       orientation: portrait
@@ -193,7 +193,7 @@ predict:
   app: sample-debug-androidTest.apk
   test: predict-debug-androidTest.apk
   device:
-    - model: hammerhead
+    - model: flo
       version: 21
       locale: 'en'
       orientation: portrait
@@ -231,7 +231,7 @@ emarsys-sdk:
   app: sample-debug-androidTest.apk
   test: emarsys-sdk-debug-androidTest.apk
   device:
-    - model: hammerhead
+    - model: flo
       version: 21
       locale: 'en'
       orientation: portrait
@@ -269,7 +269,7 @@ emarsys:
   app: sample-debug-androidTest.apk
   test: emarsys-debug-androidTest.apk
   device:
-    - model: hammerhead
+    - model: flo
       version: 21
       locale: 'en'
       orientation: portrait
@@ -307,7 +307,7 @@ common:
   app: sample-debug-androidTest.apk
   test: common-debug-androidTest.apk
   device:
-    - model: hammerhead
+    - model: flo
       version: 21
       locale: 'en'
       orientation: portrait
