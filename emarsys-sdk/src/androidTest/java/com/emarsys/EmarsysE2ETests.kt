@@ -6,7 +6,9 @@ import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.IntegrationTestUtils.retry
+import com.emarsys.testUtil.RetryUtils
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.rules.RetryRule
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.After
@@ -32,6 +34,10 @@ class EmarsysE2ETests {
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.longTimeoutRule
+
+    @Rule
+    @JvmField
+    val retryRule: RetryRule = RetryUtils.retryRule
 
     @After
     fun tearDown() {
