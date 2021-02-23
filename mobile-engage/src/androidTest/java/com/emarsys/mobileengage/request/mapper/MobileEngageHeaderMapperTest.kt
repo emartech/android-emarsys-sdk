@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.request
+package com.emarsys.mobileengage.request.mapper
 
 import android.os.Handler
 import android.os.Looper
@@ -14,12 +14,12 @@ import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.testUtil.DependencyTestUtils
 import com.emarsys.mobileengage.util.RequestHeaderUtils
-import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -27,12 +27,8 @@ import org.junit.Test
 import org.junit.rules.TestRule
 
 class MobileEngageHeaderMapperTest {
-
     private companion object {
         const val CLIENT_STATE = "client-state"
-        const val CONTACT_TOKEN = "contact-token"
-        const val ID_TOKEN = "id-token"
-        const val REFRESH_TOKEN = "refresh-token"
         const val TIMESTAMP = 123456789L
         const val REQUEST_ID = "request_id"
         const val HARDWARE_ID = "hwid"
@@ -40,14 +36,12 @@ class MobileEngageHeaderMapperTest {
     }
 
     private lateinit var mobileEngageHeaderMapper: MobileEngageHeaderMapper
-
     private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockClientStateStorage: StringStorage
-    private lateinit var mockContactTokenStorage: StringStorage
-    private lateinit var mockRefreshTokenStorage: StringStorage
     private lateinit var mockDeviceInfo: DeviceInfo
+
 
     @Rule
     @JvmField
@@ -58,14 +52,6 @@ class MobileEngageHeaderMapperTest {
     fun setUp() {
         mockClientStateStorage = mock {
             on { get() } doReturn CLIENT_STATE
-        }
-
-        mockContactTokenStorage = mock {
-            on { get() } doReturn CONTACT_TOKEN
-        }
-
-        mockRefreshTokenStorage = mock {
-            on { get() } doReturn REFRESH_TOKEN
         }
 
         mockDeviceInfo = mock {
@@ -85,9 +71,6 @@ class MobileEngageHeaderMapperTest {
             on { uuidProvider } doReturn mockUuidProvider
             on { deviceInfo } doReturn mockDeviceInfo
             on { clientStateStorage } doReturn mockClientStateStorage
-            on { contactTokenStorage } doReturn mockContactTokenStorage
-            on { refreshTokenStorage } doReturn mockRefreshTokenStorage
-            on { idToken } doReturn ID_TOKEN
         }
 
         DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
@@ -98,8 +81,8 @@ class MobileEngageHeaderMapperTest {
     @After
     fun tearDown() {
         val handler = getDependency<Handler>("coreSdkHandler")
-        val looper: Looper? = handler.looper
-        looper?.quit()
+        val looper: Looper = handler.looper
+        looper.quit()
         DependencyInjection.tearDown()
     }
 
@@ -109,36 +92,20 @@ class MobileEngageHeaderMapperTest {
 
         val expectedRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
                 "X-Client-State" to CLIENT_STATE,
-                "X-Contact-Token" to CONTACT_TOKEN,
                 "X-Request-Order" to TIMESTAMP.toString()
         ))
 
         val result = mobileEngageHeaderMapper.map(originalRequestModels)
 
         result shouldBe expectedRequestModels
+        result shouldNotBe originalRequestModels
     }
 
     @Test
-    fun testMap_shouldLeaveOutContactTokenHeader_whenValueIsMissing() {
-        val originalRequestModels = createMobileEngageRequest()
+    fun testMap_shouldAddHeaders_whenCompositeRequestIsForMobileEngage() {
+        val originalRequestModels = createCustomEventCompositeRequest()
 
-        whenever(mockContactTokenStorage.get()).thenReturn(null)
-
-        val expectedRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
-                "X-Client-State" to CLIENT_STATE,
-                "X-Request-Order" to TIMESTAMP.toString()
-        ))
-
-        val result = mobileEngageHeaderMapper.map(originalRequestModels)
-
-        result shouldBe expectedRequestModels
-    }
-
-    @Test
-    fun testMap_shouldLeaveOutContactTokenHeader_whenRequestIsRefreshContactToken() {
-        val originalRequestModels = createRefreshContactTokenRequest()
-
-        val expectedRequestModels = createRefreshContactTokenRequest(extraHeaders = mapOf(
+        val expectedRequestModels = createCustomEventCompositeRequest(extraHeaders = mapOf(
                 "X-Client-State" to CLIENT_STATE,
                 "X-Request-Order" to TIMESTAMP.toString()
         ))
@@ -150,86 +117,30 @@ class MobileEngageHeaderMapperTest {
 
     @Test
     fun testMap_shouldLeaveOutClientStateHeader_whenValueIsMissing() {
-        val originalRequestModels = createMobileEngageRequest()
-
-        whenever(mockClientStateStorage.get()).thenReturn(null)
-
-        val expectedRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
-                "X-Contact-Token" to CONTACT_TOKEN,
+        val originalRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
                 "X-Request-Order" to TIMESTAMP.toString()
         ))
 
+        whenever(mockClientStateStorage.get()).thenReturn(null)
+
         val result = mobileEngageHeaderMapper.map(originalRequestModels)
 
-        result shouldBe expectedRequestModels
+        result shouldBe originalRequestModels
     }
 
     @Test
     fun testMap_shouldIgnoreRequest_whenRequestWasNotForMobileEngage() {
         val originalRequestModels = createNonMobileEngageRequest()
 
-        val expectedRequestModels = createNonMobileEngageRequest()
-
         val result = mobileEngageHeaderMapper.map(originalRequestModels)
 
-        result shouldBe expectedRequestModels
+        result shouldBe originalRequestModels
     }
-
-    @Test
-    fun testMap_shouldAddHeaders_whenCompositeRequestIsForMobileEngage() {
-        val originalRequestModels = createCustomEventCompositeRequest()
-
-        val expectedRequestModels = createCustomEventCompositeRequest(extraHeaders = mapOf(
-                "X-Client-State" to CLIENT_STATE,
-                "X-Contact-Token" to CONTACT_TOKEN,
-                "X-Request-Order" to TIMESTAMP.toString()
-        ))
-
-        val result = mobileEngageHeaderMapper.map(originalRequestModels)
-
-        result shouldBe expectedRequestModels
-    }
-
-    @Test
-    fun testMap_shouldAddOpenIdHeader_whenClientRequestIsForMobileEngage() {
-        val originalRequestModels = createClientRequest()
-
-        val expectedRequestModels = createClientRequest(extraHeaders = mapOf(
-                "X-Client-State" to CLIENT_STATE,
-                "X-Open-Id" to ID_TOKEN,
-                "X-Request-Order" to TIMESTAMP.toString()
-        ))
-
-        val result = mobileEngageHeaderMapper.map(originalRequestModels)
-
-        result shouldBe expectedRequestModels
-    }
-
-    private fun createClientRequest(extraHeaders: Map<String, String> = mapOf()) = RequestModel(
-            "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
-            RequestMethod.POST,
-            null,
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
-            TIMESTAMP,
-            Long.MAX_VALUE,
-            REQUEST_ID
-    )
 
     private fun createMobileEngageRequest(extraHeaders: Map<String, String> = mapOf()) = RequestModel(
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client",
             RequestMethod.POST,
             null,
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
-            TIMESTAMP,
-            Long.MAX_VALUE,
-            REQUEST_ID
-    )
-
-
-    private fun createRefreshContactTokenRequest(extraHeaders: Map<String, String> = mapOf()) = RequestModel(
-            "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact-token",
-            RequestMethod.POST,
-            RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext),
             RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
             TIMESTAMP,
             Long.MAX_VALUE,
@@ -256,4 +167,5 @@ class MobileEngageHeaderMapperTest {
             Long.MAX_VALUE,
             REQUEST_ID
     )
+
 }

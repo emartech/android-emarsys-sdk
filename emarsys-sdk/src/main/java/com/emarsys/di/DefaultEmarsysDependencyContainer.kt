@@ -106,8 +106,10 @@ import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.*
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider
-import com.emarsys.mobileengage.request.MobileEngageHeaderMapper
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
+import com.emarsys.mobileengage.request.mapper.ContactTokenHeaderMapper
+import com.emarsys.mobileengage.request.mapper.MobileEngageHeaderMapper
+import com.emarsys.mobileengage.request.mapper.OpenIdTokenRequestMapper
 import com.emarsys.mobileengage.responsehandler.*
 import com.emarsys.mobileengage.service.RemoteMessageMapper
 import com.emarsys.mobileengage.session.MobileEngageSession
@@ -609,6 +611,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
     private fun createRequestModelMappers(): List<Mapper<RequestModel, RequestModel>> {
         val mappers: MutableList<Mapper<RequestModel, RequestModel>> = ArrayList()
         mappers.add(MobileEngageHeaderMapper(getRequestContext()))
+        mappers.add(OpenIdTokenRequestMapper(getRequestContext()))
+        mappers.add(ContactTokenHeaderMapper(getRequestContext()))
         return mappers
     }
 
