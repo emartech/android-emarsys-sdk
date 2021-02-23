@@ -83,8 +83,8 @@ class OpenIdTokenRequestMapperTest {
     fun testMap_shouldAddOpenIdHeader_whenClientRequestIsForMobileEngage() {
         val originalRequestModels = createClientRequest()
 
-        val expectedRequestModels = createClientRequest(extraHeaders = mapOf(
-                "X-Open-Id" to OPEN_ID_TOKEN
+        val expectedRequestModels = createClientRequest(extraPayloads = mapOf(
+                "openIdToken" to OPEN_ID_TOKEN
         ))
 
         val result = openIdTokenRequestMapper.map(originalRequestModels)
@@ -94,10 +94,10 @@ class OpenIdTokenRequestMapperTest {
 
     @Test
     fun testMap_shouldAddHeaders_whenCompositeRequestIsForMobileEngage() {
-        val originalRequestModels = createCustomEventCompositeRequest()
+        val originalRequestModels = createCompositeClientRequest()
 
-        val expectedRequestModels = createCustomEventCompositeRequest(extraHeaders = mapOf(
-                "X-Open-Id" to OPEN_ID_TOKEN
+        val expectedRequestModels = createCompositeClientRequest(extraPayloads = mapOf(
+                "openIdToken" to OPEN_ID_TOKEN
         ))
 
         val result = openIdTokenRequestMapper.map(originalRequestModels)
@@ -136,20 +136,21 @@ class OpenIdTokenRequestMapperTest {
     )
 
 
-    private fun createCustomEventCompositeRequest(extraHeaders: Map<String, String> = mapOf()) = CompositeRequestModel(
+    private fun createCompositeClientRequest(extraHeaders: Map<String, String> = mapOf(), extraPayloads: Map<String, Any> = mapOf()) = CompositeRequestModel(
             "0",
             "https://me-client.eservice.emarsys.net/v3/apps/${APPLICATION_CODE}/client/contact",
             RequestMethod.POST,
-            null,
+            mapOf("contactFieldId" to "contactFieldId") + extraPayloads,
             RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
             TIMESTAMP,
             Long.MAX_VALUE,
             arrayOf(REQUEST_ID)
     )
-    private fun createClientRequest(extraHeaders: Map<String, String> = mapOf()) = RequestModel(
+
+    private fun createClientRequest(extraHeaders: Map<String, String> = mapOf(), extraPayloads: Map<String, Any> = mapOf()) = RequestModel(
             "https://me-client.eservice.emarsys.net/v3/apps/${APPLICATION_CODE}/client/contact",
             RequestMethod.POST,
-            null,
+            mapOf("contactFieldId" to "contactFieldId") + extraPayloads,
             RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
             TIMESTAMP,
             Long.MAX_VALUE,
