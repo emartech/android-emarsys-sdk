@@ -61,12 +61,12 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
                 .url("${clientServiceProvider.provideEndpointHost()}${Endpoint.clientBase(requestContext.applicationCode)}/contact")
                 .method(RequestMethod.POST)
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
-        if (contactFieldValue == null) {
+        if (contactFieldValue == null && requestContext.openIdToken == null) {
             val queryParams: MutableMap<String, String> = HashMap()
             queryParams["anonymous"] = "true"
             builder.payload(emptyMap())
             builder.queryParams(queryParams)
-        } else {
+        } else if (contactFieldValue != null && requestContext.openIdToken == null) {
             builder.payload(createSetContactPayload(contactFieldValue, requestContext))
         }
         return builder.build()

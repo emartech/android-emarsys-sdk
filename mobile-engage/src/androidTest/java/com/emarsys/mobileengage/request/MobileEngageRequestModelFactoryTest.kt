@@ -19,6 +19,7 @@ import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
@@ -35,6 +36,7 @@ class MobileEngageRequestModelFactoryTest {
         const val PUSH_TOKEN = "kjhygtfdrtrtdtguyihoj3iurf8y7t6fqyua2gyi8fhu"
         const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
+        const val OPEN_ID_TOKEN = "openIdToken"
         const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
         const val MOBILE_ENGAGE_V2_HOST = "https://push.eservice.emarsys.net/api/mobileengage/v2/"
         const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
@@ -196,7 +198,7 @@ class MobileEngageRequestModelFactoryTest {
     }
 
     @Test
-    fun testCreateSetContactRequest_withoutContactFieldValue() {
+    fun testCreateSetContactRequest_withoutContactFieldValueAndOpenIdToken() {
         val expected = RequestModel(
                 "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact?anonymous=true",
                 RequestMethod.POST,
@@ -207,6 +209,40 @@ class MobileEngageRequestModelFactoryTest {
                 REQUEST_ID
         )
         val result = requestFactory.createSetContactRequest(null)
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateSetContactRequest_doesNotCreateAnonymousContact_withoutContactFieldValueWithOpenIdToken() {
+        whenever(mockRequestContext.openIdToken).doReturn(OPEN_ID_TOKEN)
+        val expected = RequestModel(
+                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
+                RequestMethod.POST,
+                null,
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+        val result = requestFactory.createSetContactRequest(null)
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateSetContactRequest_doesNotFillPayload_withBothContactFieldValueAndOpenIdToken() {
+        whenever(mockRequestContext.openIdToken).doReturn(OPEN_ID_TOKEN)
+        val expected = RequestModel(
+                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
+                RequestMethod.POST,
+                null,
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+        val result = requestFactory.createSetContactRequest("contactFieldValue")
 
         result shouldBe expected
     }
