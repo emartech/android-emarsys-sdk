@@ -219,7 +219,7 @@ class DefaultMobileEngageInternalTest {
         mobileEngageInternal.setAuthorizedContact(CONTACT_FIELD_VALUE, ID_TOKEN, null)
 
         verify(mockContactFieldValueStorage).set(CONTACT_FIELD_VALUE)
-        verify(mockRequestContext).idToken = ID_TOKEN
+        verify(mockRequestContext).openIdToken = ID_TOKEN
     }
 
     @Test

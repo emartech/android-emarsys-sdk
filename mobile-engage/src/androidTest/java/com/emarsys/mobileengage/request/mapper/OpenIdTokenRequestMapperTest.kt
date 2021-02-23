@@ -62,7 +62,7 @@ class OpenIdTokenRequestMapperTest {
             on { timestampProvider } doReturn mockTimestampProvider
             on { uuidProvider } doReturn mockUuidProvider
             on { deviceInfo } doReturn mockDeviceInfo
-            on { idToken } doReturn OPEN_ID_TOKEN
+            on { openIdToken } doReturn OPEN_ID_TOKEN
         }
 
         DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
@@ -109,7 +109,7 @@ class OpenIdTokenRequestMapperTest {
     fun testMap_shouldLeaveOutOpenIdHeader_whenValueIsMissing() {
         val originalRequestModels = createClientRequest()
 
-        whenever(mockRequestContext.idToken).thenReturn(null)
+        whenever(mockRequestContext.openIdToken).thenReturn(null)
 
         val result = openIdTokenRequestMapper.map(originalRequestModels)
 

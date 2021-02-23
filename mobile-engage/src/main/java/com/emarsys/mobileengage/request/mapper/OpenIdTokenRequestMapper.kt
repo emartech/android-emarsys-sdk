@@ -10,7 +10,7 @@ class OpenIdTokenRequestMapper(override val requestContext: MobileEngageRequestC
     override fun createHeaders(requestModel: RequestModel): Map<String, String> {
         val updatedHeaders: MutableMap<String, String> = requestModel.headers.toMutableMap()
 
-        updatedHeaders["X-Open-Id"] = requestContext.idToken!!
+        updatedHeaders["X-Open-Id"] = requestContext.openIdToken!!
 
         return updatedHeaders
     }
@@ -18,6 +18,6 @@ class OpenIdTokenRequestMapper(override val requestContext: MobileEngageRequestC
     override fun shouldMapRequestModel(requestModel: RequestModel): Boolean {
         return requestModel.isMobileEngageRequest()
                 && requestModel.isMobileEngageSetContactRequest()
-                && requestContext.idToken != null
+                && requestContext.openIdToken != null
     }
 }

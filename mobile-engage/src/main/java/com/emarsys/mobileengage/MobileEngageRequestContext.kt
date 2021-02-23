@@ -11,7 +11,7 @@ import com.emarsys.mobileengage.session.SessionIdHolder
 data class MobileEngageRequestContext(
         var applicationCode: String?,
         var contactFieldId: Int,
-        var idToken: String? = null,
+        var openIdToken: String? = null,
         val deviceInfo: DeviceInfo,
         val timestampProvider: TimestampProvider,
         val uuidProvider: UUIDProvider,

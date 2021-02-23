@@ -30,7 +30,7 @@ class DefaultMobileEngageInternal(private val requestManager: RequestManager,
 
     private fun doSetContact(contactFieldValue: String?, idToken: String? = null, completionListener: CompletionListener?) {
         requestContext.contactFieldValueStorage.set(contactFieldValue)
-        requestContext.idToken = idToken
+        requestContext.openIdToken = idToken
         val requestModel = requestModelFactory.createSetContactRequest(contactFieldValue)
         requestManager.submit(requestModel, completionListener)
     }
