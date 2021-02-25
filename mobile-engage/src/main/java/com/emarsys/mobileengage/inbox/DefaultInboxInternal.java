@@ -51,7 +51,7 @@ public class DefaultInboxInternal implements InboxInternal {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    resultListener.onResult(Try.<NotificationInboxStatus>failure(new NotificationInboxException("AppLogin must be called before calling fetchNotifications!")));
+                    resultListener.onResult(Try.<NotificationInboxStatus>failure(new NotificationInboxException("setContact must be called before calling fetchNotifications!")));
                 }
             });
         }
@@ -92,7 +92,7 @@ public class DefaultInboxInternal implements InboxInternal {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        completionListener.onCompleted(new NotificationInboxException("AppLogin must be called before calling fetchNotifications!"));
+                        completionListener.onCompleted(new NotificationInboxException("setContact must be called before calling fetchNotifications!"));
                     }
                 });
             }

@@ -33,6 +33,7 @@ import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
@@ -118,19 +119,14 @@ object Emarsys {
 
     @JvmStatic
     @JvmOverloads
-    fun setAuthorizedContact(contactId: String, idToken: String, completionListener: CompletionListener? = null) {
+    fun setAuthenticatedContact(openIdToken: String, completionListener: CompletionListener? = null) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.mobileEngageApi()
                     .proxyApi(getDependency("coreSdkHandler"))
-                    .setAuthorizedContact(contactId, idToken, completionListener)
+                    .setAuthenticatedContact(openIdToken, completionListener)
         }
-        if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-            DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-                EmarsysDependencyInjection.predictInternal()
-                        .proxyApi(getDependency("coreSdkHandler"))
-                        .setContact(contactId)
-            }
-        }
+
+        FeatureRegistry.disableFeature(PREDICT)
     }
 
     @JvmStatic
@@ -561,11 +557,11 @@ object Emarsys {
     private fun initializeMobileEngageContact() {
         val deviceInfoPayload = getDependency<StringStorage>(MobileEngageStorageKey.DEVICE_INFO_HASH.key).get()
         val contactToken = getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key).get()
-        val contactFieldValue = getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).get()
+        val requestContext = getDependency<MobileEngageRequestContext>()
         val clientState = getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key).get()
         val deviceInfo = getDependency<DeviceInfo>()
 
-        if (contactToken == null && contactFieldValue == null) {
+        if (contactToken == null && !requestContext.hasContactIdentification()) {
             if (clientState == null || deviceInfoPayload != null && deviceInfoPayload != deviceInfo.deviceInfoPayload) {
                 EmarsysDependencyInjection.clientServiceInternal()
                         .proxyWithLogExceptions()

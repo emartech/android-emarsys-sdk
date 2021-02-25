@@ -42,8 +42,8 @@ class MobileEngageTest {
 
     @Test
     fun testSetAuthorizedContact_delegatesToInternal() {
-       mobileEngageApi.setAuthorizedContact(CONTACT_FIELD_VALUE, CONTACT_ID_TOKEN, mockCompletionListener)
-        verify(mockMobileEngageInternal).setAuthorizedContact(CONTACT_FIELD_VALUE, CONTACT_ID_TOKEN, mockCompletionListener)
+       mobileEngageApi.setAuthenticatedContact(CONTACT_ID_TOKEN, mockCompletionListener)
+        verify(mockMobileEngageInternal).setAuthenticatedContact(CONTACT_ID_TOKEN, mockCompletionListener)
     }
 
     @Test

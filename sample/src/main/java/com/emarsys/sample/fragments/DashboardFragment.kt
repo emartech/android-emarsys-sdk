@@ -107,7 +107,7 @@ class DashboardFragment : Fragment() {
     private fun handleGoogleLogin(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == DashboardFragment.REQUEST_CODE_SIGN_IN && resultCode != 0) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
-            Emarsys.setAuthorizedContact(task.result.id!!, task.result.idToken!!) {
+            Emarsys.setAuthenticatedContact(task.result.idToken!!) {
                 handleLoginResult(it)
             }
             Log.i("GOOGLE_OAUTH_ID_TOKEN", task.result.idToken!!)

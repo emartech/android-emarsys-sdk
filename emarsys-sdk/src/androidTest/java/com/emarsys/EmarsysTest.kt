@@ -29,7 +29,7 @@ import com.emarsys.Emarsys.Push.setPushToken
 import com.emarsys.Emarsys.Push.setSilentMesssageEventHandler
 import com.emarsys.Emarsys.Push.trackMessageOpen
 import com.emarsys.Emarsys.clearContact
-import com.emarsys.Emarsys.setAuthorizedContact
+import com.emarsys.Emarsys.setAuthenticatedContact
 import com.emarsys.Emarsys.setContact
 import com.emarsys.Emarsys.setup
 import com.emarsys.Emarsys.trackCustomEvent
@@ -489,9 +489,9 @@ class EmarsysTest {
 
         setup(mobileEngageConfig)
 
-        runBlockingOnCoreSdkThread {
-            verify(mockClientServiceInternal).trackDeviceInfo(null)
-        }
+        runBlockingOnCoreSdkThread()
+
+        verify(mockClientServiceInternal).trackDeviceInfo(null)
     }
 
     @Test
@@ -521,33 +521,36 @@ class EmarsysTest {
 
     @Test
     fun testSetup_sendAnonymousContact() {
-        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         whenever(mockContactTokenStorage.get()).thenReturn(null)
+        whenever(mockRequestContext.hasContactIdentification()).thenReturn(false)
 
         setup(mobileEngageConfig)
 
-        runBlockingOnCoreSdkThread {
-            verify(mockMobileEngageApi).setContact(null, null)
-        }
+        runBlockingOnCoreSdkThread()
+        verify(mockMobileEngageApi).setContact(null, null)
     }
 
     @Test
     fun testSetup_sendDeviceInfoAndAnonymousContact_inOrder() {
-        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
+        whenever(mockRequestContext.hasContactIdentification()).thenReturn(false)
         whenever(mockContactTokenStorage.get()).thenReturn(null)
 
         setup(mobileEngageConfig)
 
-        runBlockingOnCoreSdkThread {
-            val inOrder = inOrder(mockMobileEngageApi, mockClientServiceInternal)
-            inOrder.verify(mockClientServiceInternal).trackDeviceInfo(null)
-            inOrder.verify(mockMobileEngageApi).setContact(null, null)
-            inOrder.verifyNoMoreInteractions()
-        }
+        runBlockingOnCoreSdkThread()
+
+        val inOrder = inOrder(mockMobileEngageApi, mockClientServiceInternal)
+        inOrder.verify(mockClientServiceInternal).trackDeviceInfo(null)
+        inOrder.verify(mockMobileEngageApi).setContact(null, null)
+        inOrder.verifyNoMoreInteractions()
+
     }
 
     @Test
-    fun testSetup_doNotSendAnonymousContact_whenContactFieldValueIsPresent() {
+    fun testSetup_doNotSendAnonymousContact_whenContactIsIdentified() {
+        whenever(mockContactTokenStorage.get()).thenReturn(null)
+        whenever(mockRequestContext.hasContactIdentification()).thenReturn(true)
+
         setup(mobileEngageConfig)
 
         verify(mockMobileEngageApi, never()).setContact(null, null)
@@ -555,7 +558,7 @@ class EmarsysTest {
 
     @Test
     fun testSetup_doNotSendAnonymousContact_whenContactTokenIsPresent() {
-        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
+        whenever(mockRequestContext.hasContactIdentification()).thenReturn(false)
 
         setup(mobileEngageConfig)
 
@@ -570,10 +573,10 @@ class EmarsysTest {
 
         setup(baseConfig)
 
-        runBlockingOnCoreSdkThread {
-            verify(mockMobileEngageApi, never()).setContact(null, null)
-            verify(mockClientServiceInternal, never()).trackDeviceInfo(null)
-        }
+        runBlockingOnCoreSdkThread()
+
+        verify(mockMobileEngageApi, never()).setContact(null, null)
+        verify(mockClientServiceInternal, never()).trackDeviceInfo(null)
     }
 
     @Test
@@ -602,22 +605,22 @@ class EmarsysTest {
     }
 
     @Test
-    fun testSetAuthorizedContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageEnabled() {
+    fun testSetAuthenticatedContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageEnabled() {
         setup(mobileEngageConfig)
 
-        setAuthorizedContact(CONTACT_ID, ID_TOKEN, completionListener)
+        setAuthenticatedContact(ID_TOKEN, completionListener)
 
         runBlockingOnCoreSdkThread {
             verifyZeroInteractions(mockPredictInternal)
-            verify(mockMobileEngageApi).setAuthorizedContact(CONTACT_ID, ID_TOKEN, completionListener)
+            verify(mockMobileEngageApi).setAuthenticatedContact(ID_TOKEN, completionListener)
         }
     }
 
     @Test
-    fun testSetAuthorizedContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageDisabled() {
+    fun testSetAuthenticatedContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageDisabled() {
         setup(predictConfig)
 
-        setAuthorizedContact(CONTACT_ID, ID_TOKEN, completionListener)
+        setAuthenticatedContact(ID_TOKEN, completionListener)
 
         runBlockingOnCoreSdkThread {
             verifyZeroInteractions(mockMobileEngageApi)
@@ -625,28 +628,29 @@ class EmarsysTest {
     }
 
     @Test
-    fun testSetAuthorizedContactWithCompletionListener_delegatesToInternals_whenMobileEngageAndPredictEnabled() {
+    fun testSetAuthenticatedContactWithCompletionListener_delegatesToInternals_whenMobileEngageAndPredictEnabled() {
         setup(mobileEngageAndPredictConfig)
+        FeatureRegistry.enableFeature(InnerFeature.PREDICT)
 
-        setAuthorizedContact(CONTACT_ID, ID_TOKEN, completionListener)
+        setAuthenticatedContact(ID_TOKEN, completionListener)
 
         runBlockingOnCoreSdkThread()
 
-        runBlockingOnCoreSdkThread {
-            verify(mockMobileEngageApi).setAuthorizedContact(CONTACT_ID, ID_TOKEN, completionListener)
-            verify(mockPredictInternal).setContact(CONTACT_ID)
-        }
+        runBlockingOnCoreSdkThread()
+        verify(mockMobileEngageApi).setAuthenticatedContact(ID_TOKEN, completionListener)
+        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe false
+        verifyZeroInteractions(mockPredictInternal)
     }
 
     @Test
-    fun testSetAuthorizedContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageAndPredictDisabled() {
+    fun testSetAuthenticatedContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageAndPredictDisabled() {
         setup(baseConfig)
 
-        setAuthorizedContact(CONTACT_ID, ID_TOKEN,completionListener)
+        setAuthenticatedContact(ID_TOKEN, completionListener)
 
         runBlockingOnCoreSdkThread {
             verifyZeroInteractions(mockPredictInternal)
-            setAuthorizedContact(CONTACT_ID,ID_TOKEN, completionListener)
+            setAuthenticatedContact(ID_TOKEN, completionListener)
         }
     }
 
@@ -1333,8 +1337,9 @@ class EmarsysTest {
                 callback?.invoke()
             } catch (e: Exception) {
                 exception = e
+            } finally {
+                latch.countDown()
             }
-            latch.countDown()
         }
         latch.await()
         if (exception != null) {
