@@ -53,11 +53,11 @@ class ButtonClickedRepositoryTest {
     @Test
     fun testItemFromCursor() {
         val cursor = Mockito.mock(Cursor::class.java)
-        Mockito.`when`(cursor.getColumnIndex(DatabaseContract.BUTTON_CLICKED_COLUMN_NAME_CAMPAIGN_ID)).thenReturn(0)
+        Mockito.`when`(cursor.getColumnIndexOrThrow(DatabaseContract.BUTTON_CLICKED_COLUMN_NAME_CAMPAIGN_ID)).thenReturn(0)
         Mockito.`when`(cursor.getString(0)).thenReturn(buttonClicked1.campaignId)
-        Mockito.`when`(cursor.getColumnIndex(DatabaseContract.BUTTON_CLICKED_COLUMN_NAME_BUTTON_ID)).thenReturn(1)
+        Mockito.`when`(cursor.getColumnIndexOrThrow(DatabaseContract.BUTTON_CLICKED_COLUMN_NAME_BUTTON_ID)).thenReturn(1)
         Mockito.`when`(cursor.getString(1)).thenReturn(buttonClicked1.buttonId)
-        Mockito.`when`(cursor.getColumnIndex(DatabaseContract.BUTTON_CLICKED_COLUMN_NAME_TIMESTAMP)).thenReturn(2)
+        Mockito.`when`(cursor.getColumnIndexOrThrow(DatabaseContract.BUTTON_CLICKED_COLUMN_NAME_TIMESTAMP)).thenReturn(2)
         Mockito.`when`(cursor.getLong(2)).thenReturn(buttonClicked1.timestamp)
         val result = repository.itemFromCursor(cursor)
         val expected = buttonClicked1

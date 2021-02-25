@@ -253,11 +253,11 @@ class CoreDbHelperTest {
             val result = mutableSetOf<ColumnInfo>()
             it.moveToFirst()
             while (!it.isAfterLast) {
-                val columnName = it.getString(it.getColumnIndex("name"))
-                val columnType = it.getString(it.getColumnIndex("type"))
-                val primaryKey = it.getInt(it.getColumnIndex("pk")) == 1
-                val notNull = it.getInt(it.getColumnIndex("notnull")) == 1
-                val defaultValue = it.getString(it.getColumnIndex("dflt_value"))
+                val columnName = it.getString(it.getColumnIndexOrThrow("name"))
+                val columnType = it.getString(it.getColumnIndexOrThrow("type"))
+                val primaryKey = it.getInt(it.getColumnIndexOrThrow("pk")) == 1
+                val notNull = it.getInt(it.getColumnIndexOrThrow("notnull")) == 1
+                val defaultValue = it.getString(it.getColumnIndexOrThrow("dflt_value"))
                 result.add(ColumnInfo(columnName, columnType, defaultValue, primaryKey, notNull))
                 it.moveToNext()
             }
@@ -270,11 +270,11 @@ class CoreDbHelperTest {
             val result = mutableSetOf<String>()
             it.moveToFirst()
             while (!it.isAfterLast) {
-                val indexName = it.getString(it.getColumnIndex("name"))
+                val indexName = it.getString(it.getColumnIndexOrThrow("name"))
                 db.rawQuery("PRAGMA index_info('$indexName');", null).use { indexInfoCursor: Cursor ->
                     indexInfoCursor.moveToFirst()
                     while (!indexInfoCursor.isAfterLast) {
-                        result.add(indexInfoCursor.getString(indexInfoCursor.getColumnIndex("name")))
+                        result.add(indexInfoCursor.getString(indexInfoCursor.getColumnIndexOrThrow("name")))
                         indexInfoCursor.moveToNext()
                     }
                 }

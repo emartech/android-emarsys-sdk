@@ -23,8 +23,8 @@ public class DisplayedIamRepository extends AbstractSqliteRepository<DisplayedIa
 
     @Override
     public DisplayedIam itemFromCursor(Cursor cursor) {
-        String campaignId = cursor.getString(cursor.getColumnIndex(DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID));
-        long timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP));
+        String campaignId = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID));
+        long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP));
         return new DisplayedIam(campaignId, timestamp);
     }
 

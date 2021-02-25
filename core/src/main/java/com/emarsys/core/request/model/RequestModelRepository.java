@@ -43,24 +43,24 @@ public class RequestModelRepository extends AbstractSqliteRepository<RequestMode
     @Override
     @SuppressWarnings("unchecked")
     public RequestModel itemFromCursor(Cursor cursor) {
-        String requestId = cursor.getString(cursor.getColumnIndex(REQUEST_COLUMN_NAME_REQUEST_ID));
-        RequestMethod method = RequestMethod.valueOf(cursor.getString(cursor.getColumnIndex(REQUEST_COLUMN_NAME_METHOD)));
-        String url = cursor.getString(cursor.getColumnIndex(REQUEST_COLUMN_NAME_URL));
+        String requestId = cursor.getString(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_REQUEST_ID));
+        RequestMethod method = RequestMethod.valueOf(cursor.getString(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_METHOD)));
+        String url = cursor.getString(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_URL));
 
         Map<String, String> headers = new HashMap<>();
         try {
-            headers = (Map<String, String>) blobToSerializable(cursor.getBlob(cursor.getColumnIndex(REQUEST_COLUMN_NAME_HEADERS)));
+            headers = (Map<String, String>) blobToSerializable(cursor.getBlob(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_HEADERS)));
         } catch (SerializationException | ClassCastException ignored) {
         }
 
         Map<String, Object> payload = new HashMap<>();
         try {
-            payload = (Map<String, Object>) blobToSerializable(cursor.getBlob(cursor.getColumnIndex(REQUEST_COLUMN_NAME_PAYLOAD)));
+            payload = (Map<String, Object>) blobToSerializable(cursor.getBlob(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_PAYLOAD)));
         } catch (SerializationException | ClassCastException ignored) {
         }
 
-        long timeStamp = cursor.getLong(cursor.getColumnIndex(REQUEST_COLUMN_NAME_TIMESTAMP));
-        long ttl = cursor.getLong(cursor.getColumnIndex(REQUEST_COLUMN_NAME_TTL));
+        long timeStamp = cursor.getLong(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_TIMESTAMP));
+        long ttl = cursor.getLong(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_TTL));
 
         return new RequestModel(url, method, payload, headers, timeStamp, ttl, requestId);
     }

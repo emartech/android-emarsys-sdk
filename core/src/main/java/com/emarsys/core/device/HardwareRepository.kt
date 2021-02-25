@@ -18,10 +18,10 @@ class HardwareRepository(dbHelper: DbHelper) : AbstractSqliteRepository<Hardware
     }
 
     override fun itemFromCursor(cursor: Cursor): HardwareIdentification {
-        val hardwareId = cursor.getString(cursor.getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_HARDWARE_ID))
-        val encryptedHardwareId = cursor.getString(cursor.getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID))
-        val salt = cursor.getString(cursor.getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT))
-        val iv = cursor.getString(cursor.getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV))
+        val hardwareId = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_HARDWARE_ID))
+        val encryptedHardwareId = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID))
+        val salt = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT))
+        val iv = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV))
         return HardwareIdentification(hardwareId, encryptedHardwareId, salt, iv)
     }
 

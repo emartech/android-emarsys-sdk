@@ -64,9 +64,9 @@ public class DisplayedIamRepositoryTest {
     public void testItemFromCursor() {
         Cursor cursor = mock(Cursor.class);
 
-        when(cursor.getColumnIndex(DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID)).thenReturn(0);
+        when(cursor.getColumnIndexOrThrow(DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID)).thenReturn(0);
         when(cursor.getString(0)).thenReturn(displayedIam1.getCampaignId());
-        when(cursor.getColumnIndex(DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP)).thenReturn(1);
+        when(cursor.getColumnIndexOrThrow(DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP)).thenReturn(1);
         when(cursor.getLong(1)).thenReturn(displayedIam1.getTimestamp());
 
         DisplayedIam result = iamRepository.itemFromCursor(cursor);

@@ -72,19 +72,19 @@ class ShardModelRepositoryTest {
     fun testItemFromCursor() {
         val cursor = mock(Cursor::class.java)
 
-        `when`(cursor.getColumnIndex(SHARD_COLUMN_ID)).thenReturn(0)
+        `when`(cursor.getColumnIndexOrThrow(SHARD_COLUMN_ID)).thenReturn(0)
         `when`(cursor.getString(0)).thenReturn(SHARD_ID)
 
-        `when`(cursor.getColumnIndex(SHARD_COLUMN_TYPE)).thenReturn(1)
+        `when`(cursor.getColumnIndexOrThrow(SHARD_COLUMN_TYPE)).thenReturn(1)
         `when`(cursor.getString(1)).thenReturn(TYPE)
 
-        `when`(cursor.getColumnIndex(SHARD_COLUMN_DATA)).thenReturn(2)
+        `when`(cursor.getColumnIndexOrThrow(SHARD_COLUMN_DATA)).thenReturn(2)
         `when`(cursor.getBlob(2)).thenReturn(serializableToBlob(payload))
 
-        `when`(cursor.getColumnIndex(SHARD_COLUMN_TIMESTAMP)).thenReturn(3)
+        `when`(cursor.getColumnIndexOrThrow(SHARD_COLUMN_TIMESTAMP)).thenReturn(3)
         `when`(cursor.getLong(3)).thenReturn(TIMESTAMP)
 
-        `when`(cursor.getColumnIndex(SHARD_COLUMN_TTL)).thenReturn(4)
+        `when`(cursor.getColumnIndexOrThrow(SHARD_COLUMN_TTL)).thenReturn(4)
         `when`(cursor.getLong(4)).thenReturn(TTL)
 
         Assert.assertEquals(shardModel, repository.itemFromCursor(cursor))

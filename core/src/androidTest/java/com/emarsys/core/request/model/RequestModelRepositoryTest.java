@@ -95,25 +95,25 @@ public class RequestModelRepositoryTest {
     public void testItemFromCursor() {
         Cursor cursor = mock(Cursor.class);
 
-        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_REQUEST_ID)).thenReturn(0);
+        when(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_REQUEST_ID)).thenReturn(0);
         when(cursor.getString(0)).thenReturn(REQUEST_ID);
 
-        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_METHOD)).thenReturn(1);
+        when(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_METHOD)).thenReturn(1);
         when(cursor.getString(1)).thenReturn(RequestMethod.GET.name());
 
-        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_URL)).thenReturn(2);
+        when(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_URL)).thenReturn(2);
         when(cursor.getString(2)).thenReturn(URL);
 
-        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_HEADERS)).thenReturn(3);
+        when(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_HEADERS)).thenReturn(3);
         when(cursor.getBlob(3)).thenReturn(serializableToBlob(headers));
 
-        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_PAYLOAD)).thenReturn(4);
+        when(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_PAYLOAD)).thenReturn(4);
         when(cursor.getBlob(4)).thenReturn(serializableToBlob(payload));
 
-        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_TIMESTAMP)).thenReturn(5);
+        when(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_TIMESTAMP)).thenReturn(5);
         when(cursor.getLong(5)).thenReturn(TIMESTAMP);
 
-        when(cursor.getColumnIndex(REQUEST_COLUMN_NAME_TTL)).thenReturn(6);
+        when(cursor.getColumnIndexOrThrow(REQUEST_COLUMN_NAME_TTL)).thenReturn(6);
         when(cursor.getLong(6)).thenReturn(TTL);
 
         RequestModel result = repository.itemFromCursor(cursor);

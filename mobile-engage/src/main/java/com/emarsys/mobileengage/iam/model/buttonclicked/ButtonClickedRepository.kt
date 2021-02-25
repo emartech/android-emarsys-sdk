@@ -18,9 +18,9 @@ class ButtonClickedRepository(dbHelper: DbHelper) : AbstractSqliteRepository<But
     }
 
     override fun itemFromCursor(cursor: Cursor): ButtonClicked {
-        val campaignId = cursor.getString(cursor.getColumnIndex(DatabaseContract.BUTTON_CLICKED_COLUMN_NAME_CAMPAIGN_ID))
-        val buttonId = cursor.getString(cursor.getColumnIndex(DatabaseContract.BUTTON_CLICKED_COLUMN_NAME_BUTTON_ID))
-        val timestamp = cursor.getLong(cursor.getColumnIndex(DatabaseContract.BUTTON_CLICKED_COLUMN_NAME_TIMESTAMP))
+        val campaignId = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.BUTTON_CLICKED_COLUMN_NAME_CAMPAIGN_ID))
+        val buttonId = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.BUTTON_CLICKED_COLUMN_NAME_BUTTON_ID))
+        val timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseContract.BUTTON_CLICKED_COLUMN_NAME_TIMESTAMP))
         return ButtonClicked(campaignId, buttonId, timestamp)
     }
 }

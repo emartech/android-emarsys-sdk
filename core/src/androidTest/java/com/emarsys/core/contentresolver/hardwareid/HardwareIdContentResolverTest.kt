@@ -72,9 +72,9 @@ open class FakeContentProvider : MockContentProvider() {
 
     private var cursor: Cursor = mock {
         on { moveToFirst() } doReturn true
-        on { getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID) } doReturn 0
-        on { getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT) } doReturn 1
-        on { getColumnIndex(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV) } doReturn 2
+        on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID) } doReturn 0
+        on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT) } doReturn 1
+        on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV) } doReturn 2
         on { getString(0) } doReturn HardwareIdProviderTest.ENCRYPTED_HARDWARE_ID
         on { getString(1) } doReturn HardwareIdProviderTest.SALT
         on { getString(2) } doReturn HardwareIdProviderTest.IV

@@ -65,7 +65,7 @@ abstract class AbstractSqliteRepository<T>(var tableName: String, var dbHelper: 
         database.rawQuery("SELECT COUNT(*) FROM $tableName;",
                 null).use { cursor ->
             cursor.moveToFirst()
-            val count = cursor.getInt(cursor.getColumnIndex("COUNT(*)"))
+            val count = cursor.getInt(cursor.getColumnIndexOrThrow("COUNT(*)"))
             return count == 0
         }
     }

@@ -24,17 +24,17 @@ class ShardModelRepository(coreDbHelper: CoreDbHelper) : AbstractSqliteRepositor
 
     override fun itemFromCursor(cursor: Cursor): ShardModel {
 
-        val id = cursor.getString(cursor.getColumnIndex(DatabaseContract.SHARD_COLUMN_ID))
-        val type = cursor.getString(cursor.getColumnIndex(DatabaseContract.SHARD_COLUMN_TYPE))
+        val id = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SHARD_COLUMN_ID))
+        val type = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.SHARD_COLUMN_TYPE))
         var data: Map<String?, Any?> = HashMap()
         try {
             data = SerializationUtils
-                    .blobToSerializable(cursor.getBlob(cursor.getColumnIndex(DatabaseContract.SHARD_COLUMN_DATA))) as Map<String?, Any?>
+                    .blobToSerializable(cursor.getBlob(cursor.getColumnIndexOrThrow(DatabaseContract.SHARD_COLUMN_DATA))) as Map<String?, Any?>
         } catch (ignored: SerializationException) {
         } catch (ignored: ClassCastException) {
         }
-        val timeStamp = cursor.getLong(cursor.getColumnIndex(DatabaseContract.SHARD_COLUMN_TIMESTAMP))
-        val ttl = cursor.getLong(cursor.getColumnIndex(DatabaseContract.SHARD_COLUMN_TTL))
+        val timeStamp = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseContract.SHARD_COLUMN_TIMESTAMP))
+        val ttl = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseContract.SHARD_COLUMN_TTL))
         return ShardModel(id, type, data, timeStamp, ttl)
     }
 }
