@@ -21,7 +21,9 @@ import com.emarsys.core.app.AppLifecycleObserver
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.connection.ConnectionWatchDog
+import com.emarsys.core.contentresolver.hardwareid.HardwareIdContentResolver
 import com.emarsys.core.crypto.Crypto
+import com.emarsys.core.crypto.HardwareIdentificationCrypto
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.Repository
@@ -310,7 +312,9 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         val crypto = Crypto(createPublicKey())
 
         val hardwareRepository = HardwareRepository(coreDbHelper).also { addDependency(dependencies, it as Repository<HardwareIdentification?, SqlSpecification>, "hardwareRepository") }
-        val hardwareIdProvider = HardwareIdProvider(application, config.sharedSecret, crypto, getUuidProvider(), hardwareRepository, hardwareIdStorage, config.sharedPackageNames)
+        val hardwareIdentificationCrypto = HardwareIdentificationCrypto(config.sharedSecret, crypto)
+        val hardwareIdContentResolver = HardwareIdContentResolver(application, hardwareIdentificationCrypto, config.sharedPackageNames)
+        val hardwareIdProvider = HardwareIdProvider(getUuidProvider(), hardwareRepository, hardwareIdStorage, hardwareIdContentResolver, hardwareIdentificationCrypto)
         val versionProvider = VersionProvider()
         val notificationManager = application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationManagerCompat = NotificationManagerCompat.from(application)
