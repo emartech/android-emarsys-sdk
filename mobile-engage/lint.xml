@@ -2,5 +2,6 @@
 <lint>
     <issue id="MissingPermission">
         <ignore path="src/main/java/com/emarsys/mobileengage/geofence" />
+        <ignore path="src/main/java/com/emarsys/mobileengage/notification" />
     </issue>
 </lint>
