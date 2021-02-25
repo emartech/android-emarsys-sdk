@@ -20,4 +20,9 @@ data class MobileEngageRequestContext(
         val refreshTokenStorage: StringStorage,
         val contactFieldValueStorage: StringStorage,
         val pushTokenStorage: StringStorage,
-        val sessionIdHolder: SessionIdHolder)
+        val sessionIdHolder: SessionIdHolder) {
+
+    fun hasContactIdentification(): Boolean {
+        return openIdToken != null || contactFieldValueStorage.get() != null
+    }
+}

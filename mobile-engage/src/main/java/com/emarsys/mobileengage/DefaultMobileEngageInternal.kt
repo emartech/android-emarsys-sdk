@@ -15,17 +15,23 @@ class DefaultMobileEngageInternal(private val requestManager: RequestManager,
                                   private val sessionIdHolder: SessionIdHolder) : MobileEngageInternal {
 
     override fun setContact(contactFieldValue: String?, completionListener: CompletionListener?) {
-        setAuthorizedContact(contactFieldValue, null, completionListener)
-    }
-
-    override fun setAuthorizedContact(contactFieldValue: String?, idToken: String?, completionListener: CompletionListener?) {
         if (requestContext.contactFieldValueStorage.get() != contactFieldValue) {
             if (!sessionIdHolder.sessionId.isNullOrEmpty()) {
                 session.endSession()
             }
             session.startSession()
         }
-        doSetContact(contactFieldValue, idToken, completionListener)
+        doSetContact(contactFieldValue, completionListener =  completionListener)
+    }
+
+    override fun setAuthenticatedContact(openIdToken: String, completionListener: CompletionListener?) {
+        if (requestContext.openIdToken != openIdToken) {
+            if (!sessionIdHolder.sessionId.isNullOrEmpty()) {
+                session.endSession()
+            }
+            session.startSession()
+        }
+        doSetContact(null, openIdToken, completionListener)
     }
 
     private fun doSetContact(contactFieldValue: String?, idToken: String? = null, completionListener: CompletionListener?) {
@@ -48,5 +54,6 @@ class DefaultMobileEngageInternal(private val requestManager: RequestManager,
         requestContext.contactTokenStorage.remove()
         requestContext.contactFieldValueStorage.remove()
         requestContext.pushTokenStorage.remove()
+        requestContext.openIdToken = null
     }
 }

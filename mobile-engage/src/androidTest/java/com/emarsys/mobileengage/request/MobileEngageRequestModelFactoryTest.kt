@@ -183,6 +183,7 @@ class MobileEngageRequestModelFactoryTest {
 
     @Test
     fun testCreateSetContactRequest() {
+        whenever(mockRequestContext.hasContactIdentification()).doReturn(true)
         val expected = RequestModel(
                 "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
                 RequestMethod.POST,
@@ -199,6 +200,7 @@ class MobileEngageRequestModelFactoryTest {
 
     @Test
     fun testCreateSetContactRequest_withoutContactFieldValueAndOpenIdToken() {
+        whenever(mockRequestContext.hasContactIdentification()).doReturn(false)
         val expected = RequestModel(
                 "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact?anonymous=true",
                 RequestMethod.POST,
@@ -216,6 +218,7 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateSetContactRequest_doesNotCreateAnonymousContact_withoutContactFieldValueWithOpenIdToken() {
         whenever(mockRequestContext.openIdToken).doReturn(OPEN_ID_TOKEN)
+        whenever(mockRequestContext.hasContactIdentification()).doReturn(true)
         val expected = RequestModel(
                 "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
                 RequestMethod.POST,
@@ -233,6 +236,7 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateSetContactRequest_doesNotFillPayload_withBothContactFieldValueAndOpenIdToken() {
         whenever(mockRequestContext.openIdToken).doReturn(OPEN_ID_TOKEN)
+        whenever(mockRequestContext.hasContactIdentification()).doReturn(true)
         val expected = RequestModel(
                 "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
                 RequestMethod.POST,
