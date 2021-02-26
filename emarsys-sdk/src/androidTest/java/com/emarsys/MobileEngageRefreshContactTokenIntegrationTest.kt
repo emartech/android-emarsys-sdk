@@ -20,6 +20,7 @@ import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -55,6 +56,10 @@ class MobileEngageRefreshContactTokenIntegrationTest {
     @Rule
     @JvmField
     val retryRule: RetryRule = RetryUtils.retryRule
+
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     @Before
     fun setup() {

@@ -29,6 +29,7 @@ import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
@@ -68,6 +69,10 @@ class PredictIntegrationTest {
     @Rule
     @JvmField
     val retryRule: RetryRule = RetryUtils.retryRule
+
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     @Before
     fun setup() {

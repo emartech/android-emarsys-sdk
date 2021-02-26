@@ -8,6 +8,7 @@ import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.IntegrationTestUtils.retry
 import com.emarsys.testUtil.RetryUtils
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -38,6 +39,10 @@ class EmarsysE2ETests {
     @Rule
     @JvmField
     val retryRule: RetryRule = RetryUtils.retryRule
+
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     @After
     fun tearDown() {

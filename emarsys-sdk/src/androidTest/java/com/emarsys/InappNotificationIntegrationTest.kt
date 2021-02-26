@@ -18,6 +18,7 @@ import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -50,6 +51,10 @@ class InappNotificationIntegrationTest {
     @Rule
     @JvmField
     val activityRule = ActivityTestRule(FakeActivity::class.java, false, false)
+
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     @Before
     fun setup() {

@@ -20,6 +20,7 @@ import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONObject
@@ -58,6 +59,10 @@ class DefaultInboxIntegrationTest {
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
+
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     @Before
     fun setup() {

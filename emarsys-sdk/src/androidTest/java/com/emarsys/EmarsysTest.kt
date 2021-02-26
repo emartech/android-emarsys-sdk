@@ -94,6 +94,7 @@ import com.emarsys.testUtil.FeatureTestUtils.resetFeatures
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils.getInstanceField
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -118,6 +119,10 @@ class EmarsysTest {
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
+
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     private lateinit var activityLifecycleWatchdog: ActivityLifecycleWatchdog
     private lateinit var currentActivityWatchdog: CurrentActivityWatchdog

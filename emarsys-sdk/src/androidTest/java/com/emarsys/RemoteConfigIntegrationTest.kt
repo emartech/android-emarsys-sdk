@@ -9,6 +9,7 @@ import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.testUtil.*
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
@@ -34,6 +35,10 @@ class RemoteConfigIntegrationTest {
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
+
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     @Before
     fun setup() {
