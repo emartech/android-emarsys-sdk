@@ -208,15 +208,6 @@ class RequestPayloadUtilsTest {
     }
 
     @Test
-    fun testCreateSetContactPayload() {
-        val payload = RequestPayloadUtils.createSetContactPayload(CONTACT_FIELD_VALUE, mockRequestContext)
-        payload shouldBe mapOf(
-                "contactFieldId" to CONTACT_FIELD_ID,
-                "contactFieldValue" to CONTACT_FIELD_VALUE
-        )
-    }
-
-    @Test
     fun testCreateCustomEventPayload_whenEventAttributesIsNull() {
         val event = mapOf(
                 "type" to "custom",

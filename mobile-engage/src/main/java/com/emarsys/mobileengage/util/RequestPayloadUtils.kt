@@ -63,14 +63,6 @@ object RequestPayloadUtils {
     }
 
     @JvmStatic
-    fun createSetContactPayload(contactFieldValue: String, requestContext: MobileEngageRequestContext): Map<String, Any> {
-        return mapOf(
-                "contactFieldId" to requestContext.contactFieldId,
-                "contactFieldValue" to contactFieldValue
-        )
-    }
-
-    @JvmStatic
     fun createCustomEventPayload(eventName: String, eventAttributes: Map<String, String>?, requestContext: MobileEngageRequestContext): Map<String, Any> {
         return createEventPayload(EventType.CUSTOM, eventName, eventAttributes, requestContext)
     }

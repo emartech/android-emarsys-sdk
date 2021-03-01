@@ -15,7 +15,6 @@ import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createCustomEventPayload
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createInternalCustomEventPayload
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createRefreshContactTokenPayload
-import com.emarsys.mobileengage.util.RequestPayloadUtils.createSetContactPayload
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createSetPushTokenPayload
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createTrackDeviceInfoPayload
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createTrackNotificationOpenPayload
@@ -61,13 +60,18 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
                 .url("${clientServiceProvider.provideEndpointHost()}${Endpoint.clientBase(requestContext.applicationCode)}/contact")
                 .method(RequestMethod.POST)
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
+
         if (!requestContext.hasContactIdentification()) {
             val queryParams: MutableMap<String, String> = HashMap()
             queryParams["anonymous"] = "true"
             builder.payload(emptyMap())
             builder.queryParams(queryParams)
-        } else if (contactFieldValue != null && requestContext.openIdToken == null) {
-            builder.payload(createSetContactPayload(contactFieldValue, requestContext))
+        } else {
+            val payload = mutableMapOf<String, Any>("contactFieldId" to requestContext.contactFieldId)
+            if (contactFieldValue != null && requestContext.openIdToken == null) {
+                payload["contactFieldValue"] = contactFieldValue
+            }
+            builder.payload(payload)
         }
         return builder.build()
     }

@@ -7,10 +7,10 @@ import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageSetContactR
 
 class OpenIdTokenRequestMapper(override val requestContext: MobileEngageRequestContext) : AbstractRequestMapper(requestContext) {
 
-    override fun createPayload(requestModel: RequestModel): Map<String, Any?>? {
-        val updatedPayload: MutableMap<String, Any?>? = requestModel.payload?.toMutableMap()
+    override fun createPayload(requestModel: RequestModel): Map<String, Any?> {
+        val updatedPayload: MutableMap<String, Any?> = requestModel.payload?.toMutableMap() ?: mutableMapOf()
 
-        updatedPayload?.let { it["openIdToken"]=requestContext.openIdToken }
+        updatedPayload["openIdToken"] = requestContext.openIdToken
 
         return updatedPayload
     }
