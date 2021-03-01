@@ -37,7 +37,6 @@ class MobileEngageRequestModelFactoryTest {
         const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
         const val CONTACT_FIELD_ID = 3
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
-        const val OPEN_ID_TOKEN = "openIdToken"
         const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
         const val MOBILE_ENGAGE_V2_HOST = "https://push.eservice.emarsys.net/api/mobileengage/v2/"
         const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
@@ -62,6 +61,7 @@ class MobileEngageRequestModelFactoryTest {
     lateinit var mockMobileEngageV2Provider: ServiceEndpointProvider
     lateinit var mockInboxServiceProvider: ServiceEndpointProvider
     lateinit var mockButtonClickedRepository: ButtonClickedRepository
+    lateinit var mockContactFieldValueStorage: StringStorage
 
     @Rule
     @JvmField
@@ -103,7 +103,7 @@ class MobileEngageRequestModelFactoryTest {
             on { provideEndpointHost() } doReturn INBOX_V3_HOST
         }
 
-        val mockContactFieldValueStorage: StringStorage = mock {
+        mockContactFieldValueStorage = mock {
             on { get() } doReturn CONTACT_FIELD_VALUE
         }
 
@@ -218,10 +218,32 @@ class MobileEngageRequestModelFactoryTest {
     }
 
     @Test
-    fun testCreateSetContactRequest_doesNotCreateAnonymousContact_withoutContactFieldValueWithOpenIdToken() {
-        whenever(mockRequestContext.openIdToken).doReturn(OPEN_ID_TOKEN)
-        whenever(mockRequestContext.contactFieldId).doReturn(CONTACT_FIELD_ID)
+    fun testCreateSetContactRequest_doesFillPayload_withContactFieldValue() {
         whenever(mockRequestContext.hasContactIdentification()).doReturn(true)
+        whenever(mockRequestContext.contactFieldId).doReturn(CONTACT_FIELD_ID)
+        whenever(mockContactFieldValueStorage.get()).doReturn(CONTACT_FIELD_VALUE)
+
+        val expected = RequestModel(
+                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
+                RequestMethod.POST,
+                mapOf("contactFieldId" to CONTACT_FIELD_ID,
+                        "contactFieldValue" to CONTACT_FIELD_VALUE),
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+                TIMESTAMP,
+                Long.MAX_VALUE,
+                REQUEST_ID
+        )
+        val result = requestFactory.createSetContactRequest(CONTACT_FIELD_VALUE)
+
+        result shouldBe expected
+    }
+
+    @Test
+    fun testCreateSetContactRequest_doesNotFillPayload_withContactFieldValueMissing() {
+        whenever(mockRequestContext.hasContactIdentification()).doReturn(true)
+        whenever(mockContactFieldValueStorage.get()).doReturn(null)
+        whenever(mockRequestContext.contactFieldId).doReturn(CONTACT_FIELD_ID)
+
         val expected = RequestModel(
                 "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
                 RequestMethod.POST,
@@ -232,26 +254,6 @@ class MobileEngageRequestModelFactoryTest {
                 REQUEST_ID
         )
         val result = requestFactory.createSetContactRequest(null)
-
-        result shouldBe expected
-    }
-
-    @Test
-    fun testCreateSetContactRequest_doesNotFillPayload_withBothContactFieldValueAndOpenIdToken() {
-        whenever(mockRequestContext.openIdToken).doReturn(OPEN_ID_TOKEN)
-        whenever(mockRequestContext.contactFieldId).doReturn(CONTACT_FIELD_ID)
-
-        whenever(mockRequestContext.hasContactIdentification()).doReturn(true)
-        val expected = RequestModel(
-                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
-                RequestMethod.POST,
-                mapOf("contactFieldId" to CONTACT_FIELD_ID),
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
-        )
-        val result = requestFactory.createSetContactRequest("contactFieldValue")
 
         result shouldBe expected
     }

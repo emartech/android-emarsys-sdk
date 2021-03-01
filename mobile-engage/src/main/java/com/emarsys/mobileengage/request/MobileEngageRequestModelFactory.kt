@@ -68,7 +68,7 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
             builder.queryParams(queryParams)
         } else {
             val payload = mutableMapOf<String, Any>("contactFieldId" to requestContext.contactFieldId)
-            if (contactFieldValue != null && requestContext.openIdToken == null) {
+            if (contactFieldValue != null) {
                 payload["contactFieldValue"] = contactFieldValue
             }
             builder.payload(payload)
