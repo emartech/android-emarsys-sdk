@@ -21,7 +21,8 @@ data class EmarsysConfig internal constructor(val application: Application,
                                               val experimentalFeatures: List<FlipperFeature>,
                                               val automaticPushTokenSendingEnabled: Boolean,
                                               val sharedPackageNames: List<String>?,
-                                              val sharedSecret: String?) {
+                                              val sharedSecret: String?,
+                                              val verboseConsoleLoggingEnabled: Boolean) {
 
     @Deprecated("will be removed in 3.0.0")
     val inAppEventHandler: com.emarsys.mobileengage.api.EventHandler?
@@ -56,6 +57,7 @@ data class EmarsysConfig internal constructor(val application: Application,
         private var automaticPushTokenSending = true
         private var sharedSecret: String? = null
         private var sharedPackageNames: List<String>? = null
+        private var verboseConsoleLoggingEnabled: Boolean = false
         fun from(baseConfig: EmarsysConfig): Builder {
             application = baseConfig.application
             mobileEngageApplicationCode = baseConfig.mobileEngageApplicationCode
@@ -75,6 +77,7 @@ data class EmarsysConfig internal constructor(val application: Application,
             automaticPushTokenSending = baseConfig.automaticPushTokenSendingEnabled
             sharedSecret = baseConfig.sharedSecret
             sharedPackageNames = baseConfig.sharedPackageNames
+            verboseConsoleLoggingEnabled = baseConfig.verboseConsoleLoggingEnabled
             return this
         }
 
@@ -138,6 +141,11 @@ data class EmarsysConfig internal constructor(val application: Application,
             return this
         }
 
+        fun enableVerboseConsoleLogging(): Builder {
+            this.verboseConsoleLoggingEnabled = true
+            return this
+        }
+
         fun build(): EmarsysConfig {
             experimentalFeatures = if (experimentalFeatures == null) emptyList() else experimentalFeatures
             return EmarsysConfig(
@@ -150,7 +158,8 @@ data class EmarsysConfig internal constructor(val application: Application,
                     experimentalFeatures!!,
                     automaticPushTokenSending,
                     sharedPackageNames,
-                    sharedSecret)
+                    sharedSecret,
+                    verboseConsoleLoggingEnabled)
         }
     }
 }

@@ -72,7 +72,7 @@ class EmarsysConfigTest {
                 mock()
         )
     }
-    
+
     @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys(application)
@@ -90,7 +90,8 @@ class EmarsysConfigTest {
                 listOf(*features),
                 automaticPushTokenSending,
                 SHARED_PACKAGE_NAMES,
-                SHARED_SECRET)
+                SHARED_SECRET,
+                true)
         val result = EmarsysConfig.Builder()
                 .application(application)
                 .mobileEngageApplicationCode(APP_ID)
@@ -101,6 +102,7 @@ class EmarsysConfigTest {
                 .notificationEventHandler(mock())
                 .sharedSecret("testSecret")
                 .sharedPackageNames(SHARED_PACKAGE_NAMES)
+                .enableVerboseConsoleLogging()
                 .build()
         result.application shouldBe expected.application
         result.contactFieldId shouldBe expected.contactFieldId
@@ -109,6 +111,7 @@ class EmarsysConfigTest {
         result.predictMerchantId shouldBe expected.predictMerchantId
         result.sharedSecret shouldBe expected.sharedSecret
         result.sharedPackageNames shouldBe expected.sharedPackageNames
+        result.verboseConsoleLoggingEnabled shouldBe expected.verboseConsoleLoggingEnabled
 
         result.inAppEventHandler?.javaClass?.isInstance(expected.inAppEventHandler) shouldBe true
         result.notificationEventHandler?.javaClass?.isInstance(expected.notificationEventHandler) shouldBe true
@@ -126,7 +129,8 @@ class EmarsysConfigTest {
                 emptyList(),
                 automaticPushTokenSending,
                 null,
-                null)
+                null,
+                false)
         val result = EmarsysConfig.Builder()
                 .application(application)
                 .mobileEngageApplicationCode(APP_ID)
@@ -176,6 +180,31 @@ class EmarsysConfigTest {
     }
 
     @Test
+    fun testBuilder_verboseConsoleLoggingEnabled() {
+        val config = EmarsysConfig.Builder()
+                .application(application)
+                .mobileEngageApplicationCode(APP_ID)
+                .contactFieldId(CONTACT_FIELD_ID)
+                .predictMerchantId(MERCHANT_ID)
+                .enableVerboseConsoleLogging()
+                .build()
+
+        config.verboseConsoleLoggingEnabled shouldBe true
+    }
+
+    @Test
+    fun testBuilder_verboseConsoleLoggingDisabled_byDefault() {
+        val config = EmarsysConfig.Builder()
+                .application(application)
+                .mobileEngageApplicationCode(APP_ID)
+                .contactFieldId(CONTACT_FIELD_ID)
+                .predictMerchantId(MERCHANT_ID)
+                .build()
+
+        config.verboseConsoleLoggingEnabled shouldBe false
+    }
+
+    @Test
     fun testBuilder_from() {
         val expected = EmarsysConfig(
                 application,
@@ -187,7 +216,8 @@ class EmarsysConfigTest {
                 listOf(*features),
                 automaticPushTokenSending,
                 SHARED_PACKAGE_NAMES,
-                SHARED_SECRET)
+                SHARED_SECRET,
+                false)
         val result = EmarsysConfig.Builder()
                 .from(expected)
                 .build()
@@ -198,6 +228,7 @@ class EmarsysConfigTest {
         result.predictMerchantId shouldBe expected.predictMerchantId
         result.sharedSecret shouldBe expected.sharedSecret
         result.sharedPackageNames shouldBe expected.sharedPackageNames
+        result.verboseConsoleLoggingEnabled shouldBe false
 
         result.inAppEventHandler?.javaClass?.isInstance(expected.inAppEventHandler) shouldBe true
         result.notificationEventHandler?.javaClass?.isInstance(expected.notificationEventHandler) shouldBe true
