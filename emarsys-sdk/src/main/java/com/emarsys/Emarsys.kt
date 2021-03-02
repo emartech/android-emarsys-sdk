@@ -4,9 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ProcessLifecycleOwner
-import com.emarsys.common.feature.InnerFeature
-import com.emarsys.common.feature.InnerFeature.MOBILE_ENGAGE
-import com.emarsys.common.feature.InnerFeature.PREDICT
+import com.emarsys.common.feature.InnerFeature.*
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -88,12 +86,12 @@ object Emarsys {
         }
 
         if (emarsysConfig.mobileEngageApplicationCode != null) {
-            FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
-            FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
+            FeatureRegistry.enableFeature(MOBILE_ENGAGE)
+            FeatureRegistry.enableFeature(EVENT_SERVICE_V4)
         }
 
         if (emarsysConfig.predictMerchantId != null) {
-            FeatureRegistry.enableFeature(InnerFeature.PREDICT)
+            FeatureRegistry.enableFeature(PREDICT)
         }
 
         if (!DependencyInjection.isSetup()) {
