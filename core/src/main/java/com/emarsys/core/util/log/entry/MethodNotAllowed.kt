@@ -1,11 +1,6 @@
 package com.emarsys.core.util.log.entry
 
-import android.util.Log
-
 class MethodNotAllowed(klass: Class<*>, callerMethodName: String, parameters: Map<String, Any?>?) : LogEntry {
-    companion object {
-        private const val TAG = "Emarsys SDK"
-    }
 
     override val data: MutableMap<String, Any>
     override val topic: String
@@ -19,6 +14,5 @@ class MethodNotAllowed(klass: Class<*>, callerMethodName: String, parameters: Ma
         if (parameters != null) {
             data["parameters"] = parameters
         }
-        Log.i(TAG, String.format("Feature disabled, Class: %s method: %s not allowed. Please check your config.", klass.simpleName, callerMethodName))
     }
 }

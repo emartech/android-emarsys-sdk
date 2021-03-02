@@ -15,6 +15,7 @@ import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.log.LogLevel.*
 import com.emarsys.core.util.log.entry.CrashLog
 import com.emarsys.core.util.log.entry.LogEntry
+import com.emarsys.core.util.log.entry.MethodNotAllowed
 import com.emarsys.core.util.log.entry.dataWithLogLevel
 
 @Mockable
@@ -83,7 +84,7 @@ class Logger(private val coreSdkHandler: Handler,
     }
 
     fun handleLog(logLevel: LogLevel, logEntry: LogEntry, onCompleted: (() -> Unit)? = null) {
-        if (verboseConsoleLoggingEnabled) {
+        if (verboseConsoleLoggingEnabled || logEntry is MethodNotAllowed) {
             logToConsole(logLevel, logEntry)
         }
         persistLog(logLevel, logEntry, onCompleted)
@@ -111,7 +112,8 @@ class Logger(private val coreSdkHandler: Handler,
     }
 
     fun persistLog(logLevel: LogLevel, logEntry: LogEntry, onCompleted: (() -> Unit)? = null) {
-        if (isAppStartLog(logEntry) || (isNotLogLog(logEntry) && shouldLogBasedOnRemoteConfig(logLevel))) {
+        if (isAppStartLog(logEntry)
+                || (isNotLogLog(logEntry) && shouldLogBasedOnRemoteConfig(logLevel))) {
             coreSdkHandler.post {
                 val shard = ShardModel.Builder(timestampProvider, uuidProvider)
                         .type(logEntry.topic)
