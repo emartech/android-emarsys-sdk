@@ -26,6 +26,7 @@ class Logger(private val coreSdkHandler: Handler,
              private val verboseConsoleLoggingEnabled: Boolean) {
 
     companion object {
+        const val TAG = "Emarsys SDK"
 
         @JvmStatic
         fun log(logEntry: LogEntry) {
@@ -91,18 +92,18 @@ class Logger(private val coreSdkHandler: Handler,
     private fun logToConsole(logLevel: LogLevel, logEntry: LogEntry) {
         when (logLevel) {
             DEBUG ->
-                Log.d(logEntry.topic, logEntry.data.toString())
+                Log.d(TAG, logEntry.data.toString())
             TRACE ->
-                Log.v(logEntry.topic, logEntry.data.toString())
+                Log.v(TAG, logEntry.data.toString())
             INFO ->
-                Log.i(logEntry.topic, logEntry.data.toString())
+                Log.i(TAG, logEntry.data.toString())
             WARN ->
-                Log.w(logEntry.topic, logEntry.data.toString())
+                Log.w(TAG, logEntry.data.toString())
             ERROR ->
                 if (logEntry is CrashLog) {
-                    Log.e(logEntry.topic, logEntry.data.toString(), logEntry.throwable)
+                    Log.e(TAG, logEntry.data.toString(), logEntry.throwable)
                 } else {
-                    Log.e(logEntry.topic, logEntry.data.toString())
+                    Log.e(TAG, logEntry.data.toString())
                 }
             else -> {
             }
