@@ -73,6 +73,6 @@ class LogExceptionProxyTest {
             latch.countDown()
         }
         latch.await()
-        verify(mockLogger).persistLog(eq(LogLevel.ERROR), any(), eq(null))
+        verify(mockLogger).handleLog(eq(LogLevel.ERROR), any(), eq(null))
     }
 }

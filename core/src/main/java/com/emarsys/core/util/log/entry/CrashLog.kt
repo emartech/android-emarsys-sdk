@@ -2,7 +2,7 @@ package com.emarsys.core.util.log.entry
 
 import java.util.*
 
-class CrashLog(throwable: Throwable?) : LogEntry {
+class CrashLog(val throwable: Throwable?) : LogEntry {
     override val data: Map<String, Any?>
     override val topic: String
         get() = "log_crash"

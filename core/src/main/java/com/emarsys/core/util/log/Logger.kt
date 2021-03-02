@@ -1,6 +1,7 @@
 package com.emarsys.core.util.log
 
 import android.os.Handler
+import android.util.Log
 import com.emarsys.core.Mockable
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
@@ -11,6 +12,8 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.StringStorage
+import com.emarsys.core.util.log.LogLevel.*
+import com.emarsys.core.util.log.entry.CrashLog
 import com.emarsys.core.util.log.entry.LogEntry
 import com.emarsys.core.util.log.entry.dataWithLogLevel
 
@@ -19,7 +22,8 @@ class Logger(private val coreSdkHandler: Handler,
              private val shardRepository: Repository<ShardModel, SqlSpecification>,
              private val timestampProvider: TimestampProvider,
              private val uuidProvider: UUIDProvider,
-             private val logLevelStorage: StringStorage) {
+             private val logLevelStorage: StringStorage,
+             private val verboseConsoleLoggingEnabled: Boolean) {
 
     companion object {
 
@@ -34,10 +38,10 @@ class Logger(private val coreSdkHandler: Handler,
                 getDependency<Handler>("coreSdkHandler").post {
                     if (strict) {
                         if (getDependency<Logger>().logLevelStorage.get() == "INFO") {
-                            getDependency<Logger>().persistLog(LogLevel.INFO, logEntry)
+                            getDependency<Logger>().handleLog(INFO, logEntry)
                         }
                     } else {
-                        getDependency<Logger>().persistLog(LogLevel.INFO, logEntry)
+                        getDependency<Logger>().handleLog(INFO, logEntry)
                     }
                 }
             }
@@ -47,7 +51,7 @@ class Logger(private val coreSdkHandler: Handler,
         fun error(logEntry: LogEntry) {
             if (DependencyInjection.isSetup()) {
                 getDependency<Handler>("coreSdkHandler").post {
-                    getDependency<Logger>().persistLog(LogLevel.ERROR, logEntry)
+                    getDependency<Logger>().handleLog(ERROR, logEntry)
                 }
             }
         }
@@ -58,10 +62,10 @@ class Logger(private val coreSdkHandler: Handler,
                 getDependency<Handler>("coreSdkHandler").post {
                     if (strict) {
                         if (getDependency<Logger>().logLevelStorage.get() == "DEBUG") {
-                            getDependency<Logger>().persistLog(LogLevel.DEBUG, logEntry)
+                            getDependency<Logger>().handleLog(DEBUG, logEntry)
                         }
                     } else {
-                        getDependency<Logger>().persistLog(LogLevel.DEBUG, logEntry)
+                        getDependency<Logger>().handleLog(DEBUG, logEntry)
                     }
                 }
             }
@@ -71,8 +75,36 @@ class Logger(private val coreSdkHandler: Handler,
         fun metric(logEntry: LogEntry) {
             if (DependencyInjection.isSetup()) {
                 getDependency<Handler>("coreSdkHandler").post {
-                    getDependency<Logger>().persistLog(LogLevel.METRIC, logEntry)
+                    getDependency<Logger>().handleLog(METRIC, logEntry)
                 }
+            }
+        }
+    }
+
+    fun handleLog(logLevel: LogLevel, logEntry: LogEntry, onCompleted: (() -> Unit)? = null) {
+        if (verboseConsoleLoggingEnabled) {
+            logToConsole(logLevel, logEntry)
+        }
+        persistLog(logLevel, logEntry, onCompleted)
+    }
+
+    private fun logToConsole(logLevel: LogLevel, logEntry: LogEntry) {
+        when (logLevel) {
+            DEBUG ->
+                Log.d(logEntry.topic, logEntry.data.toString())
+            TRACE ->
+                Log.v(logEntry.topic, logEntry.data.toString())
+            INFO ->
+                Log.i(logEntry.topic, logEntry.data.toString())
+            WARN ->
+                Log.w(logEntry.topic, logEntry.data.toString())
+            ERROR ->
+                if (logEntry is CrashLog) {
+                    Log.e(logEntry.topic, logEntry.data.toString(), logEntry.throwable)
+                } else {
+                    Log.e(logEntry.topic, logEntry.data.toString())
+                }
+            else -> {
             }
         }
     }
@@ -93,7 +125,7 @@ class Logger(private val coreSdkHandler: Handler,
     }
 
     private fun shouldLogBasedOnRemoteConfig(logLevel: LogLevel): Boolean {
-        val savedLogLevel: LogLevel = if (logLevelStorage.get() == null) LogLevel.ERROR else LogLevel.valueOf(logLevelStorage.get()!!)
+        val savedLogLevel: LogLevel = if (logLevelStorage.get() == null) ERROR else valueOf(logLevelStorage.get()!!)
 
         return logLevel.priority >= savedLogLevel.priority
     }

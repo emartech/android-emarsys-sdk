@@ -63,7 +63,8 @@ class LoggerTest {
                 shardRepositoryMock,
                 timestampProviderMock,
                 uuidProviderMock,
-                mockLogLevelStorage
+                mockLogLevelStorage,
+                false
         )
         loggerMock = mock()
 
@@ -144,7 +145,7 @@ class LoggerTest {
 
         waitForTask()
 
-        verify(loggerMock).persistLog(LogLevel.INFO, logEntry)
+        verify(loggerMock).handleLog(LogLevel.INFO, logEntry)
     }
 
     @Test
