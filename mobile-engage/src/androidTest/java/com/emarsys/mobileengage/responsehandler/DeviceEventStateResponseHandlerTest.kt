@@ -24,6 +24,7 @@ class DeviceEventStateResponseHandlerTest {
     companion object {
         private const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         private const val EVENT_BASE = "$EVENT_HOST/v4/apps/%s/events"
+        private const val INLINE_IN_APP_BASE = "$EVENT_HOST/v4/apps/%s/inline-messages"
     }
 
     private lateinit var mockRequestModel: RequestModel
@@ -47,13 +48,23 @@ class DeviceEventStateResponseHandlerTest {
     @After
     fun tearDown() {
         val handler = getDependency<Handler>("coreSdkHandler")
-        val looper: Looper? = handler.looper
-        looper?.quit()
+        val looper: Looper = handler.looper
+        looper.quit()
         DependencyInjection.tearDown()
     }
 
     @Test
     fun testShouldHandle_shouldReturnTrue_whenRequestWasSuccessful(){
+        val response = buildResponseModel(mockRequestModel)
+
+        val result = handler.shouldHandleResponse(response)
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testShouldHandle_shouldReturnTrue_whenRequestWasInlineInAppRequest(){
+        whenever(mockRequestModel.url).thenReturn(URL(INLINE_IN_APP_BASE))
         val response = buildResponseModel(mockRequestModel)
 
         val result = handler.shouldHandleResponse(response)
