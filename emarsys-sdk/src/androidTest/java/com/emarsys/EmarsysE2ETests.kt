@@ -13,11 +13,13 @@ import com.emarsys.testUtil.rules.RetryRule
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import java.util.concurrent.CountDownLatch
 
+@Ignore
 class EmarsysE2ETests {
 
     companion object {
