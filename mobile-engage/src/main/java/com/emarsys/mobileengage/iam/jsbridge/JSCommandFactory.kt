@@ -14,14 +14,16 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import java.util.concurrent.CountDownLatch
 
 @Mockable
-class JSCommandFactory(private val currentActivityProvider: CurrentActivityProvider,
-                       private val uiHandler: Handler,
-                       private val coreSdkHandler: Handler,
-                       private val inAppInternal: InAppInternal,
-                       private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
-                       private val onCloseTriggered: OnCloseListener?,
-                       private val onAppEventTriggered: OnAppEventListener?,
-                       private val timestampProvider: TimestampProvider) {
+class JSCommandFactory(
+    private val currentActivityProvider: CurrentActivityProvider,
+    private val uiHandler: Handler,
+    private val coreSdkHandler: Handler,
+    private val inAppInternal: InAppInternal,
+    private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
+    private val onCloseTriggered: OnCloseListener?,
+    private val onAppEventTriggered: OnAppEventListener?,
+    private val timestampProvider: TimestampProvider
+) {
 
     @Throws(RuntimeException::class)
     fun create(command: CommandType, inAppMessage: InAppMessage? = null): JSCommand {
@@ -43,12 +45,20 @@ class JSCommandFactory(private val currentActivityProvider: CurrentActivityProvi
             }
             CommandType.ON_BUTTON_CLICKED -> {
                 { property, _ ->
-                    if (inAppMessage != null) {
+                    if (inAppMessage != null && property != null) {
                         coreSdkHandler.post {
-                            buttonClickedRepository.add(ButtonClicked(inAppMessage.campaignId, property, timestampProvider.provideTimestamp()))
+                            buttonClickedRepository.add(
+                                ButtonClicked(
+                                    inAppMessage.campaignId,
+                                    property,
+                                    timestampProvider.provideTimestamp()
+                                )
+                            )
                             val eventName = "inapp:click"
-                            val attributes: MutableMap<String, String?> = mutableMapOf("campaignId" to inAppMessage.campaignId,
-                                    "buttonId" to property)
+                            val attributes: MutableMap<String, String?> = mutableMapOf(
+                                "campaignId" to inAppMessage.campaignId,
+                                "buttonId" to property
+                            )
 
                             if (inAppMessage.sid != null) {
                                 attributes["sid"] = inAppMessage.sid

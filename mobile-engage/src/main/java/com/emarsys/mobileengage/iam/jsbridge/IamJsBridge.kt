@@ -61,7 +61,7 @@ class IamJsBridge(
         }
     }
 
-    private fun handleJsBridgeEvent(jsonString: String, property: String, jsBridgeEventAction: (property: String?, json: JSONObject) -> JSONObject?) {
+    private fun handleJsBridgeEvent(jsonString: String, property: String, jsBridgeEventAction: (property: String, json: JSONObject) -> JSONObject?) {
         try {
             val json = JSONObject(jsonString)
             val id = json.getString("id")
