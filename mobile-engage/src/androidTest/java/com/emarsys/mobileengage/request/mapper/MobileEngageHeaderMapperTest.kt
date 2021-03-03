@@ -26,7 +26,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 
-class MobileEngageHeaderMapperTest {
+class
+MobileEngageHeaderMapperTest {
     private companion object {
         const val CLIENT_STATE = "client-state"
         const val TIMESTAMP = 123456789L

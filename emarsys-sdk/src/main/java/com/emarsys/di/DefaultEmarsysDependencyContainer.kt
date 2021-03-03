@@ -110,6 +110,7 @@ import com.emarsys.mobileengage.push.*
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.request.mapper.ContactTokenHeaderMapper
+import com.emarsys.mobileengage.request.mapper.DeviceEventStateRequestMapper
 import com.emarsys.mobileengage.request.mapper.MobileEngageHeaderMapper
 import com.emarsys.mobileengage.request.mapper.OpenIdTokenRequestMapper
 import com.emarsys.mobileengage.responsehandler.*
@@ -136,7 +137,6 @@ import org.json.JSONObject
 import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : EmarsysDependencyContainer {
@@ -619,11 +619,11 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
     }
 
     private fun createRequestModelMappers(): List<Mapper<RequestModel, RequestModel>> {
-        val mappers: MutableList<Mapper<RequestModel, RequestModel>> = ArrayList()
-        mappers.add(MobileEngageHeaderMapper(getRequestContext()))
-        mappers.add(OpenIdTokenRequestMapper(getRequestContext()))
-        mappers.add(ContactTokenHeaderMapper(getRequestContext()))
-        return mappers
+        return listOf(
+                MobileEngageHeaderMapper(getRequestContext()),
+                OpenIdTokenRequestMapper(getRequestContext()),
+                ContactTokenHeaderMapper(getRequestContext()),
+                DeviceEventStateRequestMapper(getRequestContext(), getDependency(dependencies, MobileEngageStorageKey.DEVICE_EVENT_STATE.key)))
     }
 
     private fun initializeActivityLifecycleWatchdog() {
