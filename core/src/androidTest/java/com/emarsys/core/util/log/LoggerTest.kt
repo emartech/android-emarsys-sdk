@@ -59,12 +59,14 @@ class LoggerTest {
         }
         mockLogLevelStorage = mock()
 
-        loggerInstance = Logger(coreSdkHandler,
+        loggerInstance = Logger(
+                coreSdkHandler,
                 shardRepositoryMock,
                 timestampProviderMock,
                 uuidProviderMock,
                 mockLogLevelStorage,
-                false
+                false,
+                mock()
         )
         loggerMock = mock()
 

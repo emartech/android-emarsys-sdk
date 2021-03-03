@@ -1,5 +1,7 @@
 package com.emarsys.core.util.log
 
+import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.os.Handler
 import android.util.Log
 import com.emarsys.core.Mockable
@@ -24,7 +26,8 @@ class Logger(private val coreSdkHandler: Handler,
              private val timestampProvider: TimestampProvider,
              private val uuidProvider: UUIDProvider,
              private val logLevelStorage: StringStorage,
-             private val verboseConsoleLoggingEnabled: Boolean) {
+             private val verboseConsoleLoggingEnabled: Boolean,
+             private val context: Context) {
 
     companion object {
         const val TAG = "Emarsys SDK"
@@ -84,7 +87,8 @@ class Logger(private val coreSdkHandler: Handler,
     }
 
     fun handleLog(logLevel: LogLevel, logEntry: LogEntry, onCompleted: (() -> Unit)? = null) {
-        if (verboseConsoleLoggingEnabled || logEntry is MethodNotAllowed) {
+        val isDebugMode: Boolean = 0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
+        if ((verboseConsoleLoggingEnabled || logEntry is MethodNotAllowed) && isDebugMode ) {
             logToConsole(logLevel, logEntry)
         }
         persistLog(logLevel, logEntry, onCompleted)

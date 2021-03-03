@@ -575,7 +575,13 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
             addDependency(dependencies, it as ConfigInternal)
         }
 
-        Logger(getCoreSdkHandler(), getShardRepository(), getTimestampProvider(), getUuidProvider(), getLogLevelStorage(), config.verboseConsoleLoggingEnabled).also {
+        Logger(getCoreSdkHandler(),
+                getShardRepository(),
+                getTimestampProvider(),
+                getUuidProvider(),
+                getLogLevelStorage(),
+                config.verboseConsoleLoggingEnabled,
+                application.applicationContext).also {
             addDependency(dependencies, it)
         }
         FileDownloader(application.applicationContext).also {
