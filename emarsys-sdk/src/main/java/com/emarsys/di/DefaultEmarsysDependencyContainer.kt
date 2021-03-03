@@ -613,8 +613,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getTimestampProvider(),
                 getUuidProvider(),
                 inAppEventHandler,
-                getEventServiceProvider(),
-                getDependency(dependencies, MobileEngageStorageKey.DEVICE_EVENT_STATE.key)
+                getEventServiceProvider()
         )
     }
 
@@ -623,7 +622,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 MobileEngageHeaderMapper(getRequestContext()),
                 OpenIdTokenRequestMapper(getRequestContext()),
                 ContactTokenHeaderMapper(getRequestContext()),
-                DeviceEventStateRequestMapper(getRequestContext(), getDependency(dependencies, MobileEngageStorageKey.DEVICE_EVENT_STATE.key)))
+                DeviceEventStateRequestMapper(getRequestContext(), getDependency<StringStorage>(dependencies, MobileEngageStorageKey.DEVICE_EVENT_STATE.key)))
     }
 
     private fun initializeActivityLifecycleWatchdog() {

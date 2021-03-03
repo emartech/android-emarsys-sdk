@@ -19,7 +19,6 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel
-import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
@@ -28,7 +27,6 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
-import com.emarsys.mobileengage.util.RequestModelUtilsTest
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createCompositeRequestModelPayload
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -43,7 +41,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito
-import java.util.*
 
 class RequestRepositoryProxyTest {
     private lateinit var mockRequestContext: MobileEngageRequestContext
@@ -58,8 +55,6 @@ class RequestRepositoryProxyTest {
     private lateinit var compositeRepository: RequestRepositoryProxy
     private lateinit var uuidProvider: UUIDProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
-
-    private lateinit var mockDeviceEventStateStorage: StringStorage
 
     @Rule
     @JvmField
@@ -83,7 +78,6 @@ class RequestRepositoryProxyTest {
         uuidProvider = mock()
         whenever(uuidProvider.provideId()).thenReturn(REQUEST_ID)
         inAppEventHandlerInternal = mock()
-        mockDeviceEventStateStorage = mock()
 
         mockEventServiceProvider = mock {
             on { provideEndpointHost() } doReturn EVENT_HOST
@@ -95,8 +89,7 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider,
-                mockDeviceEventStateStorage)
+                mockEventServiceProvider)
 
         DependencyInjection.setup(
                 FakeMobileEngageDependencyContainer(
@@ -128,8 +121,7 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider,
-                mockDeviceEventStateStorage)
+                mockEventServiceProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -140,8 +132,7 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider,
-                mockDeviceEventStateStorage)
+                mockEventServiceProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -152,8 +143,7 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider,
-                mockDeviceEventStateStorage)
+                mockEventServiceProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -164,8 +154,7 @@ class RequestRepositoryProxyTest {
                 null,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider,
-                mockDeviceEventStateStorage)
+                mockEventServiceProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -176,8 +165,7 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 null,
-                mockEventServiceProvider,
-                mockDeviceEventStateStorage)
+                mockEventServiceProvider)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -188,8 +176,7 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 null,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider,
-                mockDeviceEventStateStorage)
+                mockEventServiceProvider)
     }
 
 
@@ -201,20 +188,6 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                null,
-                mockDeviceEventStateStorage)
-    }
-
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_deviceEventStateStorage_mustNotBeNull() {
-        RequestRepositoryProxy(mockRequestModelRepository,
-                mockDisplayedIamRepository,
-                buttonClickedRepository,
-                timestampProvider,
-                uuidProvider,
-                inAppEventHandlerInternal,
-                mockEventServiceProvider,
                 null)
     }
 
@@ -302,8 +275,7 @@ class RequestRepositoryProxyTest {
         event3["timestamp"] = TimestampUtils.formatTimestampWithUTC(1200)
         val payload: Map<String, Any?> = createCompositeRequestModelPayload(
                 listOf<Map<String, Any>>(event1, event2, event3), emptyList(), emptyList(),
-                false,
-                null)
+                false)
         val expectedComposite: RequestModel = CompositeRequestModel(
                 REQUEST_ID,
                 "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
@@ -358,8 +330,7 @@ class RequestRepositoryProxyTest {
                         ButtonClicked("campaign1", "button2", 300),
                         ButtonClicked("campaign2", "button1", 2000)
                 ),
-                false,
-                null)
+                false)
         val expectedComposite: RequestModel = CompositeRequestModel(
                 REQUEST_ID,
                 "https://mobile-events.eservice.emarsys.net/v3/apps/" + APPLICATION_CODE + "/client/events",
@@ -369,37 +340,6 @@ class RequestRepositoryProxyTest {
                 TIMESTAMP, Long.MAX_VALUE, arrayOf(customEvent1.id))
         val expected = listOf(expectedComposite)
         Assert.assertEquals(expected, compositeRepository.query(Everything()))
-    }
-
-    @Test
-    fun testQuery_resultShouldContainDeviceEventState() {
-        FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
-        val expected = mapOf("123" to "456", "78910" to "6543")
-
-        whenever(mockDeviceEventStateStorage.get()).thenReturn("{'123': '456', '78910':'6543'}")
-        compositeRepository = compositeRepositoryWithRealRepositories()
-        val attributes = HashMap<String, Any>()
-        attributes["key1"] = "value1"
-        attributes["key2"] = "value2"
-        val customEvent1 = customEvent(1000, "event1", attributes)
-        requestModelRepository.add(customEvent1)
-        val result = compositeRepository.query(Everything())[0]
-        Assert.assertEquals(expected, result.payload?.get("deviceEventState"))
-    }
-
-    @Test
-    fun testQuery_resultShouldNotContainDeviceEventState_whenEventServiceV4IsNotEnabled() {
-        FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
-        val expected = "{'123': '456', '78910':'6543'}"
-        whenever(mockDeviceEventStateStorage.get()).thenReturn(expected)
-        compositeRepository = compositeRepositoryWithRealRepositories()
-        val attributes = HashMap<String, Any>()
-        attributes["key1"] = "value1"
-        attributes["key2"] = "value2"
-        val customEvent1 = customEvent(1000, "event1", attributes)
-        requestModelRepository.add(customEvent1)
-        val result = compositeRepository.query(Everything())[0]
-        Assert.assertNull(result.payload?.get("deviceEventState"))
     }
 
     @Test
@@ -462,7 +402,7 @@ class RequestRepositoryProxyTest {
                         ButtonClicked("campaign1", "button2", 300),
                         ButtonClicked("campaign2", "button1", 2000)
                 ),
-                false, null)
+                false)
         val expectedComposite: RequestModel = CompositeRequestModel(
                 REQUEST_ID,
                 "https://mobile-events.eservice.emarsys.net/v3/apps/" + APPLICATION_CODE + "/client/events",
@@ -508,8 +448,7 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider,
-                mockDeviceEventStateStorage
+                mockEventServiceProvider
         )
     }
 

@@ -399,31 +399,6 @@ class RequestPayloadUtilsTest {
     }
 
     @Test
-    fun testCreateCompositeRequestModelPayload_containsDeviceEventState_whenItsNotNull() {
-        val deviceEventState = "{'123': '456', '78910':'6543'}"
-        val events = listOf(
-                RandomTestUtils.randomMap(),
-                RandomTestUtils.randomMap(),
-                RandomTestUtils.randomMap()
-        )
-
-        val resultPayload = RequestPayloadUtils.createCompositeRequestModelPayload(
-                events,
-                listOf(),
-                listOf(),
-                false,
-                deviceEventState
-        )
-
-        val expected = mapOf(
-                "123" to "456",
-                "78910" to "6543"
-        )
-
-        resultPayload["deviceEventState"] shouldBe expected
-    }
-
-    @Test
     fun testCreateRefreshContactTokenPayload() {
         val expectedPayload = mapOf(
                 "refreshToken" to REFRESH_TOKEN

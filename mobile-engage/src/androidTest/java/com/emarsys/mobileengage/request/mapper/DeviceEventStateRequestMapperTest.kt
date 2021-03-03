@@ -26,6 +26,7 @@ import java.net.URL
 class DeviceEventStateRequestMapperTest {
     companion object {
         const val EVENT_SERVICE_HOST: String = Endpoint.ME_EVENT_HOST
+        const val CLIENT_SERVICE_HOST: String = Endpoint.ME_CLIENT_HOST
         const val DEVICE_EVENT_STATE: String = "device-event-state"
         const val APPLICATION_CODE: String = "TEST_APP_CODE"
         const val TIMESTAMP: Long = 123L
@@ -83,8 +84,18 @@ class DeviceEventStateRequestMapperTest {
     }
 
     @Test
-    fun testShouldMap_false_whenRequestModelIsNotInlineInApp() {
+    fun testShouldMap_true_whenRequestModelIsCustomEvent() {
         whenever(mockRequestModel.url).thenReturn(URL(EVENT_SERVICE_HOST + Endpoint.eventBase(APPLICATION_CODE)))
+
+        val result = deviceEventStateRequestMapper.shouldMapRequestModel(mockRequestModel)
+
+        result shouldBe true
+    }
+
+
+    @Test
+    fun testShouldMap_false_whenRequestModelIsClientService() {
+        whenever(mockRequestModel.url).thenReturn(URL(CLIENT_SERVICE_HOST + Endpoint.clientBase(APPLICATION_CODE)))
 
         val result = deviceEventStateRequestMapper.shouldMapRequestModel(mockRequestModel)
 
@@ -108,18 +119,14 @@ class DeviceEventStateRequestMapperTest {
 
     @Test
     fun testCreatePayload_shouldAddDeviceEventState_toBody() {
-        val expectedRequestPayload =
-                 mapOf("deviceEventState" to DEVICE_EVENT_STATE)
-        val result =
-                deviceEventStateRequestMapper.createPayload(createInlineInAppRequest())
+        val expectedRequestPayload = mapOf("deviceEventState" to DEVICE_EVENT_STATE)
+        val result = deviceEventStateRequestMapper.createPayload(createInlineInAppRequest())
 
         result shouldBe expectedRequestPayload
     }
 
-    private fun createInlineInAppRequest(
-            extraHeaders: Map<String, String> = mapOf(),
-            extraPayloads: Map<String, Any> = mapOf()
-    ) = RequestModel(
+    private fun createInlineInAppRequest(extraHeaders: Map<String, String> = mapOf(),
+                                         extraPayloads: Map<String, Any> = mapOf()) = RequestModel(
             "https://mobile-events.eservice.emarsys.net/v4/apps/${APPLICATION_CODE}/inline-messages",
             RequestMethod.POST,
             extraPayloads,
