@@ -121,7 +121,6 @@ object RequestPayloadUtils {
 
     @JvmStatic
     fun createTrackNotificationOpenPayload(sid: String, requestContext: MobileEngageRequestContext): Map<String, Any?> {
-
         val payload = createBasePayload(requestContext)
         payload["source"] = "inbox"
         payload["sid"] = sid
@@ -130,7 +129,7 @@ object RequestPayloadUtils {
 
     @JvmStatic
     fun createInlineInAppPayload(viewId: String, clicks: List<ButtonClicked>): Map<String, Any?> {
-        return mapOf("viewIds" to listOf(viewId), "clicks" to clicks)
+        return mapOf("viewIds" to listOf(viewId), "clicks" to IamConversionUtils.buttonClicksToArray(clicks))
     }
 }
 

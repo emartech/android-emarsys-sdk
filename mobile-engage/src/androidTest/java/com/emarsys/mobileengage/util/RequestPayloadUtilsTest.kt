@@ -436,8 +436,24 @@ class RequestPayloadUtilsTest {
                 ButtonClicked("campaignId3", "buttonId3", 3L)
         )
         val expectedPayload = mapOf(
-                "viewIds" to listOf(viewId),
-                "clicks" to clicks
+            "viewIds" to listOf(viewId),
+            "clicks" to listOf(
+                mapOf(
+                    "campaignId" to "campaignId1",
+                    "buttonId" to "buttonId1",
+                    "timestamp" to TimestampUtils.formatTimestampWithUTC(1L)
+                ),
+                mapOf(
+                    "campaignId" to "campaignId2",
+                    "buttonId" to "buttonId2",
+                    "timestamp" to TimestampUtils.formatTimestampWithUTC(2L)
+                ),
+                mapOf(
+                    "campaignId" to "campaignId3",
+                    "buttonId" to "buttonId3",
+                    "timestamp" to TimestampUtils.formatTimestampWithUTC(3L)
+                )
+            )
         )
 
         val resultPayload = RequestPayloadUtils.createInlineInAppPayload(viewId, clicks)
