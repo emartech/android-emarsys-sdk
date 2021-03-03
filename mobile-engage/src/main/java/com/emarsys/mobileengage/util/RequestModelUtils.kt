@@ -13,7 +13,8 @@ object RequestModelUtils {
     fun RequestModel.isMobileEngageRequest(): Boolean {
         val clientServiceUrl = (getDependency(Endpoint.ME_CLIENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
         val eventServiceUrl = (getDependency(Endpoint.ME_EVENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
-        val messageInboxServiceUrl = (getDependency(Endpoint.ME_V3_INBOX_HOST) as ServiceEndpointProvider).provideEndpointHost()
+        val messageInboxServiceUrl =
+            (getDependency(Endpoint.ME_V3_INBOX_HOST) as ServiceEndpointProvider).provideEndpointHost()
 
         val url = this.url.toString()
         return url.startsWithOneOf(clientServiceUrl, eventServiceUrl, messageInboxServiceUrl)
@@ -26,10 +27,17 @@ object RequestModelUtils {
     }
 
     fun RequestModel.isCustomEvent(): Boolean {
-        val eventServiceUrl = (getDependency(Endpoint.ME_EVENT_HOST)as ServiceEndpointProvider).provideEndpointHost()
+        val eventServiceUrl = (getDependency(Endpoint.ME_EVENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
 
         val url = this.url.toString()
         return url.startsWithOneOf(eventServiceUrl) && url.endsWith("/events")
+    }
+
+    fun RequestModel.isInlineInAppRequest(): Boolean {
+        val eventServiceUrl = (getDependency(Endpoint.ME_EVENT_HOST) as ServiceEndpointProvider).provideEndpointHost()
+
+        val url = this.url.toString()
+        return url.startsWithOneOf(eventServiceUrl) && url.endsWith("/inline-messages")
     }
 
     fun RequestModel.isRefreshContactTokenRequest(): Boolean {

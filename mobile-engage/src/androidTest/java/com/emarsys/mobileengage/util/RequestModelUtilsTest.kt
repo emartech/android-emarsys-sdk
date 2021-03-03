@@ -8,6 +8,7 @@ import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.RequestModelUtils.isCustomEvent
+import com.emarsys.mobileengage.util.RequestModelUtils.isInlineInAppRequest
 import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageRequest
 import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageSetContactRequest
 import com.emarsys.mobileengage.util.RequestModelUtils.isRefreshContactTokenRequest
@@ -31,6 +32,8 @@ class RequestModelUtilsTest {
         const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         const val EVENT_BASE = "$EVENT_HOST/v3/apps/%s/client/events"
         const val EVENT_BASE_V4 = "$EVENT_HOST/v4/apps/%s/client/events"
+        const val INLINE_IN_APP_V4 = "$EVENT_HOST/v4/apps/%s/inline-messages"
+        const val INLINE_IN_APP_V3 = "$EVENT_HOST/v3/apps/%s/inline-messages"
         const val INBOX_HOST = "https://mobile-events.eservice.emarsys.net/v3"
         const val INBOX_BASE = "$INBOX_HOST/apps/%s/inbox"
         const val REMOTE_CONFIG_HOST = "https://mobile-sdk-config.gservice.emarsys.net"
@@ -55,18 +58,19 @@ class RequestModelUtilsTest {
 
         mockRequestModel = mock(RequestModel::class.java)
         DependencyInjection.setup(
-                FakeMobileEngageDependencyContainer(
-                        clientServiceProvider = mockClientServiceProvider,
-                        eventServiceProvider = mockEventServiceProvider,
-                        messageInboxServiceProvider = mockMessageInboxServiceProvider
-                ))
+            FakeMobileEngageDependencyContainer(
+                clientServiceProvider = mockClientServiceProvider,
+                eventServiceProvider = mockEventServiceProvider,
+                messageInboxServiceProvider = mockMessageInboxServiceProvider
+            )
+        )
     }
 
     @After
     fun tearDown() {
         val handler = getDependency<Handler>("coreSdkHandler")
-        val looper: Looper? = handler.looper
-        looper?.quit()
+        val looper: Looper = handler.looper
+        looper.quit()
         DependencyInjection.tearDown()
     }
 
@@ -175,7 +179,7 @@ class RequestModelUtilsTest {
     }
 
     @Test
-    fun testIsMobileEngageClientRequest_false_whenIsNotClientEndpoint(){
+    fun testIsMobileEngageClientRequest_false_whenIsNotClientEndpoint() {
 
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL("$EVENT_BASE/apps"))
@@ -186,12 +190,42 @@ class RequestModelUtilsTest {
     }
 
     @Test
-    fun testIsMobileEngageClientRequest_true_whenClientEndpoint(){
+    fun testIsMobileEngageClientRequest_true_whenClientEndpoint() {
 
         val mockRequestModel = mock(RequestModel::class.java).apply {
             whenever(url).thenReturn(URL("$CLIENT_BASE/contact"))
         }
         val result = mockRequestModel.isMobileEngageSetContactRequest()
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsInlineInAppRequest_false_whenItIsNotInlineInAppRequest_V4() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL(EVENT_BASE_V4))
+        }
+        val result = mockRequestModel.isInlineInAppRequest()
+
+        result shouldBe false
+    }
+
+    @Test
+    fun testIsInlineInAppRequest_true_whenItIsInlineInAppRequest_V4() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL(INLINE_IN_APP_V4))
+        }
+        val result = mockRequestModel.isInlineInAppRequest()
+
+        result shouldBe true
+    }
+
+    @Test
+    fun testIsInlineInAppRequest_true_whenItIsInlineInAppRequest_V3() {
+        val mockRequestModel = mock(RequestModel::class.java).apply {
+            whenever(url).thenReturn(URL(INLINE_IN_APP_V3))
+        }
+        val result = mockRequestModel.isInlineInAppRequest()
 
         result shouldBe true
     }
