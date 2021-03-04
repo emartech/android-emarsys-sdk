@@ -16,10 +16,8 @@ import com.emarsys.sample.SampleApplication
 import com.emarsys.sample.extensions.showSnackBar
 import com.emarsys.sample.prefs.Cache
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.fragment_dashboard.*
 import kotlin.system.exitProcess
 
@@ -98,22 +96,22 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
 
-        handleGoogleLogin(requestCode, resultCode, data)
-    }
+    /*   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+          super.onActivityResult(requestCode, resultCode, data)
 
-    private fun handleGoogleLogin(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == DashboardFragment.REQUEST_CODE_SIGN_IN && resultCode != 0) {
-            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
-            Emarsys.setAuthenticatedContact(task.result.idToken!!) {
-                handleLoginResult(it)
-            }
-            Log.i("GOOGLE_OAUTH_ID_TOKEN", task.result.idToken!!)
-        }
-    }
-
+          handleGoogleLogin(requestCode, resultCode, data)
+      }
+   private fun handleGoogleLogin(requestCode: Int, resultCode: Int, data: Intent?) {
+          if (requestCode == DashboardFragment.REQUEST_CODE_SIGN_IN && resultCode != 0) {
+              val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
+              Emarsys.setAuthenticatedContact(task.result.idToken!!) {
+                  handleLoginResult(it)
+              }
+              Log.i("GOOGLE_OAUTH_ID_TOKEN", task.result.idToken!!)
+          }
+      }
+  */
     private fun handleLoginResult(error: Throwable?) {
         val contactId = contactId.text.toString()
         if (error != null) {

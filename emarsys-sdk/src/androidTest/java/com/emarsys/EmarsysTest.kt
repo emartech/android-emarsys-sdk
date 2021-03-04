@@ -28,7 +28,6 @@ import com.emarsys.Emarsys.Push.setPushToken
 import com.emarsys.Emarsys.Push.setSilentMesssageEventHandler
 import com.emarsys.Emarsys.Push.trackMessageOpen
 import com.emarsys.Emarsys.clearContact
-import com.emarsys.Emarsys.setAuthenticatedContact
 import com.emarsys.Emarsys.setContact
 import com.emarsys.Emarsys.setup
 import com.emarsys.Emarsys.trackCustomEvent
@@ -608,55 +607,55 @@ class EmarsysTest {
         }
     }
 
-    @Test
-    fun testSetAuthenticatedContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageEnabled() {
-        setup(mobileEngageConfig)
+    /*  @Test
+      fun testSetAuthenticatedContactWithCompletionListener_delegatesToMobileEngageInternal_whenMobileEngageEnabled() {
+          setup(mobileEngageConfig)
 
-        setAuthenticatedContact(ID_TOKEN, completionListener)
+          setAuthenticatedContact(ID_TOKEN, completionListener)
 
-        runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockPredictInternal)
-            verify(mockMobileEngageApi).setAuthenticatedContact(ID_TOKEN, completionListener)
-        }
-    }
+          runBlockingOnCoreSdkThread {
+              verifyZeroInteractions(mockPredictInternal)
+              verify(mockMobileEngageApi).setAuthenticatedContact(ID_TOKEN, completionListener)
+          }
+      }
 
-    @Test
-    fun testSetAuthenticatedContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageDisabled() {
-        setup(predictConfig)
+      @Test
+      fun testSetAuthenticatedContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageDisabled() {
+          setup(predictConfig)
 
-        setAuthenticatedContact(ID_TOKEN, completionListener)
+          setAuthenticatedContact(ID_TOKEN, completionListener)
 
-        runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockMobileEngageApi)
-        }
-    }
+          runBlockingOnCoreSdkThread {
+              verifyZeroInteractions(mockMobileEngageApi)
+          }
+      }
 
-    @Test
-    fun testSetAuthenticatedContactWithCompletionListener_delegatesToInternals_whenMobileEngageAndPredictEnabled() {
-        setup(mobileEngageAndPredictConfig)
-        FeatureRegistry.enableFeature(InnerFeature.PREDICT)
+      @Test
+      fun testSetAuthenticatedContactWithCompletionListener_delegatesToInternals_whenMobileEngageAndPredictEnabled() {
+          setup(mobileEngageAndPredictConfig)
+          FeatureRegistry.enableFeature(InnerFeature.PREDICT)
 
-        setAuthenticatedContact(ID_TOKEN, completionListener)
+          setAuthenticatedContact(ID_TOKEN, completionListener)
 
-        runBlockingOnCoreSdkThread()
+          runBlockingOnCoreSdkThread()
 
-        runBlockingOnCoreSdkThread()
-        verify(mockMobileEngageApi).setAuthenticatedContact(ID_TOKEN, completionListener)
-        FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe false
-        verifyZeroInteractions(mockPredictInternal)
-    }
+          runBlockingOnCoreSdkThread()
+          verify(mockMobileEngageApi).setAuthenticatedContact(ID_TOKEN, completionListener)
+          FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe false
+          verifyZeroInteractions(mockPredictInternal)
+      }
 
-    @Test
-    fun testSetAuthenticatedContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageAndPredictDisabled() {
-        setup(baseConfig)
+      @Test
+      fun testSetAuthenticatedContactWithCompletionListener_doNotDelegatesToMobileEngageApi_whenMobileEngageAndPredictDisabled() {
+          setup(baseConfig)
 
-        setAuthenticatedContact(ID_TOKEN, completionListener)
+          setAuthenticatedContact(ID_TOKEN, completionListener)
 
-        runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockPredictInternal)
-            setAuthenticatedContact(ID_TOKEN, completionListener)
-        }
-    }
+          runBlockingOnCoreSdkThread {
+              verifyZeroInteractions(mockPredictInternal)
+              setAuthenticatedContact(ID_TOKEN, completionListener)
+          }
+      }*/
 
     @Test
     fun testSetContactWithCompletionListener_doNotDelegatesToPredictInternal_whenPredictDisabled() {
