@@ -56,7 +56,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         const val MAX_WAIT_TIME: Long = 60_000
     }
 
-    private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver(getDependency("coreSdkHandler"))
+    private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver(getDependency())
     private var geofenceResponse: GeofenceResponse? = null
     private var nearestGeofences: MutableList<MEGeofence> = mutableListOf()
     private var currentLocation: Location? = null

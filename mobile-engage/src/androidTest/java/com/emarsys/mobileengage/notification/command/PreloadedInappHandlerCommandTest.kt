@@ -3,10 +3,10 @@ package com.emarsys.mobileengage.notification.command
 import android.app.Application
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
@@ -32,7 +32,7 @@ class PreloadedInappHandlerCommandTest {
 
     private lateinit var mockDependencyContainer: MobileEngageDependencyContainer
     private lateinit var mockActivityLifecycleWatchdog: ActivityLifecycleWatchdog
-    private lateinit var mockCoreSdkHandler: Handler
+    private lateinit var mockCoreSdkHandler: CoreSdkHandler
     private lateinit var fileUrl: String
 
     @Rule
@@ -193,7 +193,7 @@ class PreloadedInappHandlerCommandTest {
         verifyZeroInteractions(mockActivityLifecycleWatchdog)
     }
 
-    private fun waitForEventLoopToFinish(handler: Handler) {
+    private fun waitForEventLoopToFinish(handler: CoreSdkHandler) {
         val latch = CountDownLatch(1)
         handler.post { latch.countDown() }
 

@@ -14,6 +14,7 @@ import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.fake.FakeCompletionHandler
 import com.emarsys.core.fake.FakeConnectionWatchDog
 import com.emarsys.core.fake.FakeRestClient
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
@@ -40,7 +41,6 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.CountDownLatch
 
 @RunWith(AndroidJUnit4::class)
@@ -68,7 +68,7 @@ class RequestManagerOfflineTest {
     private lateinit var manager: RequestManager
     private lateinit var fakeRestClient: RestClient
     private lateinit var provider: CoreSdkHandlerProvider
-    private lateinit var coreSdkHandler: Handler
+    private lateinit var coreSdkHandler: CoreSdkHandler
     private lateinit var uiHandler: Handler
     private lateinit var worker: Worker
     private lateinit var coreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider

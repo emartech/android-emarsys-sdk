@@ -143,7 +143,7 @@ class InlineInAppView : LinearLayout {
 
         val buttonClickedRepository = getDependency<Repository<ButtonClicked, SqlSpecification>>("buttonClickedRepository")
 
-        val jsCommandFactory = JSCommandFactory(getDependency(), Handler(Looper.getMainLooper()), getDependency("coreSdkHandler"), inAppInternal,
+        val jsCommandFactory = JSCommandFactory(getDependency(), Handler(Looper.getMainLooper()), getDependency(), inAppInternal,
                 buttonClickedRepository, onCloseListener, onAppEventListener, timestampProvider)
         val jsBridgeFactory: IamJsBridgeFactory = getDependency()
 

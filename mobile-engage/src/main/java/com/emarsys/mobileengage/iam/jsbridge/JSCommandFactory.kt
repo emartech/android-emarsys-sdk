@@ -6,6 +6,7 @@ import android.os.Handler
 import com.emarsys.core.Mockable
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
@@ -15,14 +16,14 @@ import java.util.concurrent.CountDownLatch
 
 @Mockable
 class JSCommandFactory(
-    private val currentActivityProvider: CurrentActivityProvider,
-    private val uiHandler: Handler,
-    private val coreSdkHandler: Handler,
-    private val inAppInternal: InAppInternal,
-    private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
-    private val onCloseTriggered: OnCloseListener?,
-    private val onAppEventTriggered: OnAppEventListener?,
-    private val timestampProvider: TimestampProvider
+        private val currentActivityProvider: CurrentActivityProvider,
+        private val uiHandler: Handler,
+        private val coreSdkHandler: CoreSdkHandler,
+        private val inAppInternal: InAppInternal,
+        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
+        private val onCloseTriggered: OnCloseListener?,
+        private val onAppEventTriggered: OnAppEventListener?,
+        private val timestampProvider: TimestampProvider
 ) {
 
     @Throws(RuntimeException::class)

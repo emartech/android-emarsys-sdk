@@ -1,16 +1,13 @@
-package com.emarsys.core.concurrency;
+package com.emarsys.core.concurrency
 
-import android.os.Handler;
-import android.os.HandlerThread;
+import android.os.HandlerThread
+import com.emarsys.core.handler.CoreSdkHandler
+import java.util.*
 
-import java.util.UUID;
-
-public class CoreSdkHandlerProvider {
-
-    public Handler provideHandler() {
-        HandlerThread handlerThread = new HandlerThread("CoreSDKHandlerThread-" + UUID.randomUUID().toString());
-        handlerThread.start();
-        return new CoreSdkHandler(handlerThread);
+class CoreSdkHandlerProvider {
+    fun provideHandler(): CoreSdkHandler {
+        val handlerThread = HandlerThread("CoreSDKHandlerThread-" + UUID.randomUUID().toString())
+        handlerThread.start()
+        return CoreSdkHandler(CoreHandler(handlerThread))
     }
-
 }

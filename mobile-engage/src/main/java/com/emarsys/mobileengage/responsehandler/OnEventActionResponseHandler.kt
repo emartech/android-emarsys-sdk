@@ -1,8 +1,8 @@
 package com.emarsys.mobileengage.responsehandler
 
-import android.os.Handler
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
@@ -21,7 +21,7 @@ class OnEventActionResponseHandler(private val actionCommandFactory: ActionComma
                                    private val repository: Repository<DisplayedIam, SqlSpecification>,
                                    private val eventServiceInternal: EventServiceInternal,
                                    private val timestampProvider: TimestampProvider,
-                                   private val coreSdkHandler: Handler) : AbstractResponseHandler() {
+                                   private val coreSdkHandler: CoreSdkHandler) : AbstractResponseHandler() {
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
         var shouldHandle = false

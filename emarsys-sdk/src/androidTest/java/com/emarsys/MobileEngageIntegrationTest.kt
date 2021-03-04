@@ -7,13 +7,13 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
@@ -33,7 +33,10 @@ import com.emarsys.testUtil.rules.RetryRule
 import io.kotlintest.matchers.numerics.shouldBeInRange
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.mock
@@ -132,7 +135,7 @@ class MobileEngageIntegrationTest {
 
         Emarsys.setup(baseConfig)
 
-        getDependency<Handler>("coreSdkHandler").post {
+        getDependency<CoreSdkHandler>().post {
             clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().clientStateStorage
             contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().contactTokenStorage
 

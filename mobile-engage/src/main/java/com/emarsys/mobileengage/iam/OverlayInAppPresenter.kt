@@ -6,6 +6,7 @@ import androidx.fragment.app.DialogFragment
 import com.emarsys.core.Mockable
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.log.entry.InAppLoadingTime
@@ -27,7 +28,7 @@ import org.json.JSONObject
 
 @Mockable
 class OverlayInAppPresenter(
-        private val coreSdkHandler: Handler,
+        private val coreSdkHandler: CoreSdkHandler,
         private val uiHandler: Handler,
         private val webViewProvider: IamStaticWebViewProvider,
         private val inAppInternal: InAppInternal,

@@ -7,12 +7,12 @@ import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.specification.FilterByRequestIds
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.testUtil.HandlerUtils.waitForEventLoopToFinish
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.matchers.numerics.shouldBeLessThanOrEqual
@@ -23,7 +23,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
-import java.util.*
+import java.util.concurrent.CountDownLatch
 
 class CoreCompletionHandlerMiddlewareTest {
     private lateinit var coreCompletionHandler: CoreCompletionHandler
@@ -33,7 +33,7 @@ class CoreCompletionHandlerMiddlewareTest {
     private lateinit var middleware: CoreCompletionHandlerMiddleware
     private lateinit var captor: ArgumentCaptor<Message>
     private lateinit var uiHandler: Handler
-    private lateinit var coreSdkHandler: Handler
+    private lateinit var coreSdkHandler: CoreSdkHandler
 
     @Rule
     @JvmField
@@ -121,14 +121,16 @@ class CoreCompletionHandlerMiddlewareTest {
 
     @Test
     fun testOnSuccess_callsHandlerPost() {
-        val handler: Handler = mock()
+        val handler: CoreSdkHandler = mock()
 
         middleware.coreSDKHandler = handler
         middleware.onSuccess(expectedId, createResponseModel(200))
+        argumentCaptor<Runnable> {
+            verify(handler).post(capture())
+            val runnable = this.firstValue
+            runnable.run()
+        }
 
-        verify(handler).sendMessageAtTime(captor.capture(), any())
-        val runnable = captor.value.callback
-        runnable.run()
         verify(worker).run()
     }
 
@@ -170,15 +172,17 @@ class CoreCompletionHandlerMiddlewareTest {
 
     @Test
     fun testOnError_4xx_callsHandlerPost() {
-        val handler = mock<Handler>()
+        val handler: CoreSdkHandler = mock()
+
         middleware.coreSDKHandler = handler
 
         middleware.onError(expectedId, createResponseModel(401))
 
-        verify(handler).sendMessageAtTime(captor.capture(), any())
-
-        val runnable = captor.value.callback
-        runnable.run()
+        argumentCaptor<Runnable> {
+            verify(handler).post(capture())
+            val runnable = this.firstValue
+            runnable.run()
+        }
 
         verify(worker).run()
     }
@@ -343,5 +347,17 @@ class CoreCompletionHandlerMiddlewareTest {
                 .message("message")
                 .requestModel(requestModel)
                 .build()
+    }
+
+    private fun waitForEventLoopToFinish(handler: CoreSdkHandler) {
+        val latch = CountDownLatch(1)
+        handler.post { latch.countDown() }
+        latch.await()
+    }
+
+    private fun waitForEventLoopToFinish(handler: Handler) {
+        val latch = CountDownLatch(1)
+        handler.post { latch.countDown() }
+        latch.await()
     }
 }

@@ -8,6 +8,7 @@ import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.predict.storage.PredictStorageKey
@@ -34,7 +35,7 @@ object IntegrationTestUtils {
     fun tearDownEmarsys(application: Application? = null) {
         FeatureTestUtils.resetFeatures()
 
-        getDependency<Handler>("coreSdkHandler").post {
+        getDependency<CoreSdkHandler>().post {
             if (application != null) {
                 application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
                 application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
@@ -55,7 +56,7 @@ object IntegrationTestUtils {
             getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
             getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
         }
-        getDependency<Handler>("coreSdkHandler").looper.quitSafely()
+        getDependency<CoreSdkHandler>().looper.quitSafely()
 
         DependencyInjection.tearDown()
     }

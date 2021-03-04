@@ -7,6 +7,7 @@ import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RestClient
@@ -20,7 +21,7 @@ import com.emarsys.core.util.log.entry.CrashLog
 
 interface DependencyContainer {
 
-    fun getCoreSdkHandler(): Handler
+    fun getCoreSdkHandler(): CoreSdkHandler
 
     fun getUiHandler(): Handler
 

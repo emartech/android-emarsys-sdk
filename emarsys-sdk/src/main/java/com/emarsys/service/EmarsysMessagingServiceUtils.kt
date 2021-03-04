@@ -1,8 +1,8 @@
 package com.emarsys.service
 
 import android.content.Context
-import android.os.Handler
 import com.emarsys.core.di.getDependency
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.Assert
 import com.emarsys.mobileengage.service.MessagingServiceUtils
@@ -19,7 +19,7 @@ object EmarsysMessagingServiceUtils {
         Assert.notNull(remoteMessage, "RemoteMessage must not be null!")
 
         val latch = CountDownLatch(1)
-        val handler: Handler = getDependency("coreSdkHandler")
+        val handler: CoreSdkHandler = getDependency()
         var result = false
 
         handler.post {

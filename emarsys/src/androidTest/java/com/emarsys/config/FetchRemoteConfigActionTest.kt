@@ -11,6 +11,7 @@ import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RestClient
@@ -42,7 +43,7 @@ class FetchRemoteConfigActionTest {
         mockConfigInternal = mock()
 
         DependencyInjection.setup(object : DependencyContainer {
-            override fun getCoreSdkHandler(): Handler {
+            override fun getCoreSdkHandler(): CoreSdkHandler {
                 return CoreSdkHandlerProvider().provideHandler()
             }
 

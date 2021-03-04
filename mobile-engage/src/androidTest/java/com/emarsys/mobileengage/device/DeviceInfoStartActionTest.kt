@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.device
 
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.storage.Storage
@@ -37,7 +36,7 @@ class DeviceInfoStartActionTest {
         mockClientServiceInternal = mock()
         mockDeviceInfo = mock()
 
-        DependencyInjection.setup(FakeMobileEngageDependencyContainer(coreSdkHandler = CoreSdkHandlerProvider().provideHandler()))
+        DependencyInjection.setup(FakeMobileEngageDependencyContainer())
 
         startAction = DeviceInfoStartAction(mockClientServiceInternal, deviceInfoPayloadStorage, mockDeviceInfo)
 

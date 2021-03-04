@@ -1,21 +1,15 @@
 package com.emarsys.core.concurrency;
 
 import android.os.HandlerThread;
-
 import com.emarsys.testUtil.TimeoutUtils;
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestRule;
 
 import java.util.concurrent.CountDownLatch;
 
-public class CoreSdkHandlerTest {
+public class CoreHandlerTest {
 
-    CoreSdkHandler handler;
+    CoreHandler handler;
     HandlerThread handlerThread;
     Runnable failingRunnable;
 
@@ -28,7 +22,7 @@ public class CoreSdkHandlerTest {
         handlerThread = new HandlerThread(threadName);
         handlerThread.start();
 
-        handler = new CoreSdkHandler(handlerThread);
+        handler = new CoreHandler(handlerThread);
 
         failingRunnable = new Runnable() {
             @Override

@@ -35,6 +35,7 @@ import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.addDependency
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.notification.NotificationManagerProxy
 import com.emarsys.core.permission.PermissionChecker
@@ -162,8 +163,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
 
     private fun initializeDependencies(config: EmarsysConfig) {
         val application = config.application
-        val coreSdkHandler: Handler = CoreSdkHandlerProvider().provideHandler()
-        addDependency(dependencies, coreSdkHandler, "coreSdkHandler")
+        val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+        addDependency(dependencies, coreSdkHandler)
 
         Handler(Looper.getMainLooper()).also {
             addDependency(dependencies, it, "uiHandler")
@@ -843,7 +844,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
 
     override fun getLoggingGeofenceInternal(): GeofenceInternal = getDependency(dependencies, "loggingInstance")
 
-    override fun getCoreSdkHandler(): Handler = getDependency(dependencies, "coreSdkHandler")
+    override fun getCoreSdkHandler(): CoreSdkHandler = getDependency(dependencies)
 
     override fun getUiHandler(): Handler = getDependency(dependencies, "uiHandler")
 

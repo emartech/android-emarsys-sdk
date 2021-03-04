@@ -1,7 +1,6 @@
 package com.emarsys.mobileengage.inbox
 
 import android.app.Application
-import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
 import com.emarsys.core.api.ResponseErrorException
@@ -12,6 +11,7 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -798,7 +798,7 @@ class DefaultInboxInternalTest {
             }
         }
         return RequestManager(
-                mock(Handler::class.java),
+                mock(CoreSdkHandler::class.java),
                 mock(Repository::class.java) as Repository<RequestModel, SqlSpecification>,
                 mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>,
                 mock(Worker::class.java),

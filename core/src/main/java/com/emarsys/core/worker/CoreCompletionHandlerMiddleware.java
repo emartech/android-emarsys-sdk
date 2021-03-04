@@ -1,10 +1,10 @@
 package com.emarsys.core.worker;
 
 import android.os.Handler;
-
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.core.request.factory.DefaultRunnableFactory;
 import com.emarsys.core.request.factory.RunnableFactory;
 import com.emarsys.core.request.model.RequestModel;
@@ -20,7 +20,7 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
     CoreCompletionHandler coreCompletionHandler;
     Repository<RequestModel, SqlSpecification> requestRepository;
     Worker worker;
-    Handler coreSDKHandler;
+    CoreSdkHandler coreSDKHandler;
     Handler uiHandler;
     RunnableFactory runnableFactory;
 
@@ -28,7 +28,7 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
             Worker worker,
             Repository<RequestModel, SqlSpecification> requestRepository,
             Handler uiHandler,
-            Handler coreSDKHandler,
+            CoreSdkHandler coreSDKHandler,
             CoreCompletionHandler coreCompletionHandler) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(worker, "Worker must not be null!");

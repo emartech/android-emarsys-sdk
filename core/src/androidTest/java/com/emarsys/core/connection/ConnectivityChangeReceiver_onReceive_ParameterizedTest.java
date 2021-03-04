@@ -4,14 +4,12 @@ package com.emarsys.core.connection;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.os.Handler;
-
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionWatchDog.ConnectivityChangeReceiver;
 import com.emarsys.core.fake.FakeConnectionChangeListener;
+import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.testUtil.ConnectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -66,7 +64,7 @@ public class ConnectivityChangeReceiver_onReceive_ParameterizedTest {
         FakeConnectionChangeListener listener = new FakeConnectionChangeListener(latch);
         Context contextMock = ConnectionTestUtils.getContextMock_withAppContext_withConnectivityManager(isConnected, connectionType);
 
-        Handler handler = new CoreSdkHandlerProvider().provideHandler();
+        CoreSdkHandler handler = new CoreSdkHandlerProvider().provideHandler();
         ConnectivityChangeReceiver receiver = new ConnectionWatchDog(contextMock, handler).new ConnectivityChangeReceiver(listener);
 
         Context nullContext = null;

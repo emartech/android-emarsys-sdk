@@ -5,6 +5,7 @@ import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
@@ -28,7 +29,7 @@ class CoreCompletionHandlerMiddlewareProviderTest {
 
     private lateinit var mockRequestRepository: Repository<RequestModel, SqlSpecification>
     private lateinit var mockUiHandler: Handler
-    private lateinit var mockCoreSdkHandler: Handler
+    private lateinit var mockCoreSdkHandler: CoreSdkHandler
     private lateinit var mockCoreCompletionHandler: CoreCompletionHandler
     private lateinit var mockWorker: Worker
     private lateinit var mockRequestModel: RequestModel
@@ -50,7 +51,7 @@ class CoreCompletionHandlerMiddlewareProviderTest {
         }
         mockRequestRepository = (mock(Repository::class.java) as Repository<RequestModel, SqlSpecification>)
         mockUiHandler = Handler(Looper.getMainLooper())
-        mockCoreSdkHandler = Handler(Looper.getMainLooper())
+        mockCoreSdkHandler = CoreSdkHandler(Handler(Looper.getMainLooper()))
         mockCoreCompletionHandler = mock(CoreCompletionHandler::class.java).also {
             whenever(it.onSuccess(any(), any())).thenAnswer { latch.countDown() }
         }

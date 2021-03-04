@@ -1,10 +1,10 @@
 package com.emarsys.mobileengage.responsehandler
 
-import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
@@ -33,7 +33,7 @@ class OnEventActionResponseHandlerTest {
     private lateinit var mockRepository: Repository<DisplayedIam, SqlSpecification>
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockTimestampProvider: TimestampProvider
-    private lateinit var coreSdkHandler: Handler
+    private lateinit var coreSdkHandler: CoreSdkHandler
 
     @Rule
     @JvmField

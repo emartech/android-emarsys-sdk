@@ -1,7 +1,8 @@
 package com.emarsys.core.app
 
 import android.os.HandlerThread
-import com.emarsys.core.concurrency.CoreSdkHandler
+import com.emarsys.core.concurrency.CoreHandler
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.session.Session
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
@@ -17,7 +18,7 @@ import java.util.concurrent.CountDownLatch
 class AppLifecycleObserverTest {
     private lateinit var mockSession: Session
     private lateinit var appLifecycleObserver: AppLifecycleObserver
-    private lateinit var coreSdkHandler: CoreSdkHandler
+    private lateinit var coreHandler: CoreSdkHandler
 
     @Rule
     @JvmField
@@ -28,8 +29,8 @@ class AppLifecycleObserverTest {
         mockSession = mock()
         val handlerThread = HandlerThread("CoreSDKHandlerThread-" + UUID.randomUUID().toString())
         handlerThread.start()
-        coreSdkHandler = CoreSdkHandler(handlerThread)
-        appLifecycleObserver = AppLifecycleObserver(mockSession, coreSdkHandler)
+        coreHandler = CoreSdkHandler(CoreHandler(handlerThread))
+        appLifecycleObserver = AppLifecycleObserver(mockSession, coreHandler)
     }
 
     @Test
@@ -37,7 +38,7 @@ class AppLifecycleObserverTest {
         val latch = CountDownLatch(1)
 
         appLifecycleObserver.onEnterForeground()
-        coreSdkHandler.post {
+        coreHandler.post {
             latch.countDown()
         }
 
@@ -51,7 +52,7 @@ class AppLifecycleObserverTest {
         val latch = CountDownLatch(1)
 
         appLifecycleObserver.onEnterBackground()
-        coreSdkHandler.post {
+        coreHandler.post {
             latch.countDown()
         }
 

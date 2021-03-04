@@ -1,19 +1,17 @@
 package com.emarsys.mobileengage.responsehandler
 
-import android.os.Handler
 import android.os.Looper
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.database.repository.Repository
-
-import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
-import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
-import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
 import com.emarsys.mobileengage.testUtil.DependencyTestUtils
 import com.emarsys.testUtil.TimeoutUtils
@@ -60,7 +58,7 @@ class InAppCleanUpResponseHandlerTest {
 
     @After
     fun tearDown() {
-        val handler = getDependency<Handler>("coreSdkHandler")
+        val handler = getDependency<CoreSdkHandler>()
         val looper: Looper? = handler.looper
         looper?.quit()
         DependencyInjection.tearDown()

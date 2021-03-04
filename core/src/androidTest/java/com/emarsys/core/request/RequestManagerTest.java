@@ -3,7 +3,6 @@ package com.emarsys.core.request;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.Mapper;
 import com.emarsys.core.Registry;
@@ -15,6 +14,7 @@ import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.fake.FakeCompletionHandler;
 import com.emarsys.core.fake.FakeRunnableFactory;
+import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider;
@@ -26,12 +26,7 @@ import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
-import com.emarsys.testUtil.ConnectionTestUtils;
-import com.emarsys.testUtil.DatabaseTestUtils;
-import com.emarsys.testUtil.InstrumentationRegistry;
-import com.emarsys.testUtil.RetryUtils;
-import com.emarsys.testUtil.TimeoutUtils;
-
+import com.emarsys.testUtil.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,11 +37,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import static com.emarsys.testUtil.TestUrls.DENNA_ECHO;
@@ -54,11 +45,7 @@ import static com.emarsys.testUtil.TestUrls.customResponse;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class RequestManagerTest {
 
@@ -71,7 +58,7 @@ public class RequestManagerTest {
     private CountDownLatch runnableFactoryLatch;
     private ConnectionWatchDog connectionWatchDog;
     private CoreSdkHandlerProvider coreSdkHandlerProvider;
-    private Handler coreSdkHandler;
+    private CoreSdkHandler coreSdkHandler;
     private Handler uiHandler;
     private Repository<RequestModel, SqlSpecification> requestRepository;
     private Repository<ShardModel, SqlSpecification> shardRepository;

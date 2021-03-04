@@ -2,7 +2,6 @@ package com.emarsys.core.util.log
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
-import android.os.Handler
 import android.util.Log
 import com.emarsys.core.Mockable
 import com.emarsys.core.database.repository.Repository
@@ -10,6 +9,7 @@ import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.Endpoint.LOG_URL
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
@@ -21,7 +21,7 @@ import com.emarsys.core.util.log.entry.MethodNotAllowed
 import com.emarsys.core.util.log.entry.dataWithLogLevel
 
 @Mockable
-class Logger(private val coreSdkHandler: Handler,
+class Logger(private val coreSdkHandler: CoreSdkHandler,
              private val shardRepository: Repository<ShardModel, SqlSpecification>,
              private val timestampProvider: TimestampProvider,
              private val uuidProvider: UUIDProvider,
@@ -40,7 +40,7 @@ class Logger(private val coreSdkHandler: Handler,
         @JvmStatic
         fun info(logEntry: LogEntry, strict: Boolean = false) {
             if (DependencyInjection.isSetup()) {
-                getDependency<Handler>("coreSdkHandler").post {
+                getDependency<CoreSdkHandler>().post {
                     if (strict) {
                         if (getDependency<Logger>().logLevelStorage.get() == "INFO") {
                             getDependency<Logger>().handleLog(INFO, logEntry)
@@ -55,7 +55,7 @@ class Logger(private val coreSdkHandler: Handler,
         @JvmStatic
         fun error(logEntry: LogEntry) {
             if (DependencyInjection.isSetup()) {
-                getDependency<Handler>("coreSdkHandler").post {
+                getDependency<CoreSdkHandler>().post {
                     getDependency<Logger>().handleLog(ERROR, logEntry)
                 }
             }
@@ -64,7 +64,7 @@ class Logger(private val coreSdkHandler: Handler,
         @JvmStatic
         fun debug(logEntry: LogEntry, strict: Boolean = false) {
             if (DependencyInjection.isSetup()) {
-                getDependency<Handler>("coreSdkHandler").post {
+                getDependency<CoreSdkHandler>().post {
                     if (strict) {
                         if (getDependency<Logger>().logLevelStorage.get() == "DEBUG") {
                             getDependency<Logger>().handleLog(DEBUG, logEntry)
@@ -79,7 +79,7 @@ class Logger(private val coreSdkHandler: Handler,
         @JvmStatic
         fun metric(logEntry: LogEntry) {
             if (DependencyInjection.isSetup()) {
-                getDependency<Handler>("coreSdkHandler").post {
+                getDependency<CoreSdkHandler>().post {
                     getDependency<Logger>().handleLog(METRIC, logEntry)
                 }
             }

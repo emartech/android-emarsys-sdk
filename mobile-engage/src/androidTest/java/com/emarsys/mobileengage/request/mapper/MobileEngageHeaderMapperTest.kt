@@ -1,10 +1,10 @@
 package com.emarsys.mobileengage.request.mapper
 
-import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.CompositeRequestModel
@@ -81,7 +81,7 @@ MobileEngageHeaderMapperTest {
 
     @After
     fun tearDown() {
-        val handler = getDependency<Handler>("coreSdkHandler")
+        val handler = getDependency<CoreSdkHandler>()
         val looper: Looper = handler.looper
         looper.quit()
         DependencyInjection.tearDown()

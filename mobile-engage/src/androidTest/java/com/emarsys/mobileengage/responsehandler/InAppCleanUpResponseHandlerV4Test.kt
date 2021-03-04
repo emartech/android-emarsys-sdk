@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.responsehandler
 
-import android.os.Handler
 import android.os.Looper
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.database.repository.Repository
@@ -8,8 +7,7 @@ import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
-import com.emarsys.core.provider.timestamp.TimestampProvider
-import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
@@ -27,7 +25,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.internal.verification.Times
 import java.net.URL
 
 class InAppCleanUpResponseHandlerV4Test {
@@ -70,7 +67,7 @@ class InAppCleanUpResponseHandlerV4Test {
 
     @After
     fun tearDown() {
-        val handler = getDependency<Handler>("coreSdkHandler")
+        val handler = getDependency<CoreSdkHandler>()
         val looper: Looper = handler.looper
         looper.quit()
         DependencyInjection.tearDown()

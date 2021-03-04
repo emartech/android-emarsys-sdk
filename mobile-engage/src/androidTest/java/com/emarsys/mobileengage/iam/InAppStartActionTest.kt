@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.iam
 
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.event.EventServiceInternal
@@ -32,7 +31,7 @@ class InAppStartActionTest {
         mockEventServiceInternal = mock()
         mockContactTokenStorage = mock()
 
-        DependencyInjection.setup(FakeMobileEngageDependencyContainer(coreSdkHandler = CoreSdkHandlerProvider().provideHandler()))
+        DependencyInjection.setup(FakeMobileEngageDependencyContainer())
 
         startAction = InAppStartAction(mockEventServiceInternal, mockContactTokenStorage)
     }

@@ -3,7 +3,6 @@ package com.emarsys
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
-import android.os.Handler
 import android.os.Looper
 import com.emarsys.Emarsys.Config.applicationCode
 import com.emarsys.Emarsys.Config.changeApplicationCode
@@ -54,6 +53,7 @@ import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
@@ -104,7 +104,6 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
 import java.util.*
 import java.util.concurrent.CountDownLatch
-import kotlin.collections.ArrayList
 
 class EmarsysTest {
     companion object {
@@ -1357,7 +1356,7 @@ class EmarsysTest {
         application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
         application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
         try {
-            val handler = getDependency<Handler>("coreSdkHandler")
+            val handler = getDependency<CoreSdkHandler>()
             val looper: Looper = handler.looper
             looper.quitSafely()
             DependencyInjection.tearDown()

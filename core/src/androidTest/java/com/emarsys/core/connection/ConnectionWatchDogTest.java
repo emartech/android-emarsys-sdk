@@ -4,12 +4,11 @@ import android.app.Application;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.os.Handler;
-
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.testUtil.ConnectionTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,11 +16,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -30,7 +25,7 @@ import static org.mockito.Mockito.verify;
 public class ConnectionWatchDogTest {
 
     private Context context;
-    private Handler mockHandler;
+    private CoreSdkHandler mockHandler;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
@@ -38,7 +33,7 @@ public class ConnectionWatchDogTest {
     @Before
     public void setup() {
         context = InstrumentationRegistry.getTargetContext().getApplicationContext();
-        mockHandler = mock(Handler.class);
+        mockHandler = mock(CoreSdkHandler.class);
     }
 
     @Test(expected = IllegalArgumentException.class)

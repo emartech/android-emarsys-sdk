@@ -1,11 +1,11 @@
 package com.emarsys
 
-import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.predict.Predict
 import com.emarsys.predict.PredictInternal
@@ -64,8 +64,8 @@ class PredictTest {
     @After
     fun tearDown() {
         try {
-            val handler = getDependency<Handler>("coreSdkHandler")
-            val looper: Looper? = handler.looper
+            val handler = getDependency<CoreSdkHandler>()
+            val looper: Looper = handler.looper
             looper?.quit()
             DependencyInjection.tearDown()
         } catch (e: Exception) {

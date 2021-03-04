@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.responsehandler;
 
 import android.os.Handler;
-
+import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.core.provider.activity.CurrentActivityProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
@@ -24,7 +24,6 @@ import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider;
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener;
 import com.emarsys.testUtil.CollectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,12 +35,8 @@ import java.util.List;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class InAppMessageResponseHandlerTest {
 
@@ -73,7 +68,7 @@ public class InAppMessageResponseHandlerTest {
         when(dialogProvider.provideDialog(any(String.class), (String) isNull(), (String) isNull(), any(String.class))).thenReturn(dialog);
 
         presenter = new OverlayInAppPresenter(
-                mock(Handler.class),
+                mock(CoreSdkHandler.class),
                 mock(Handler.class),
                 webViewProvider,
                 mock(InAppInternal.class),

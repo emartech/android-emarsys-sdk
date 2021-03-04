@@ -6,15 +6,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Handler;
-
+import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.core.util.Assert;
 
 public class ConnectionWatchDog {
 
     private IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
     private BroadcastReceiver receiver;
-    private Handler coreSdkHandler;
+    private CoreSdkHandler coreSdkHandler;
 
     ConnectivityManager connectivityManager;
 
@@ -23,7 +22,7 @@ public class ConnectionWatchDog {
     protected ConnectionWatchDog() {
     }
 
-    public ConnectionWatchDog(Context context, Handler coreSdkHandler) {
+    public ConnectionWatchDog(Context context, CoreSdkHandler coreSdkHandler) {
         Assert.notNull(context, "Context must not be null!");
         Assert.notNull(coreSdkHandler, "CoreSdkHandler must not be null!");
 

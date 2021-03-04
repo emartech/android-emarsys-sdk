@@ -3,13 +3,12 @@ package com.emarsys.core.concurrency;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-
 import com.emarsys.core.util.log.Logger;
 import com.emarsys.core.util.log.entry.CrashLog;
 
-public class CoreSdkHandler extends Handler {
+public class CoreHandler extends Handler {
 
-    public CoreSdkHandler(HandlerThread handlerThread) {
+    public CoreHandler(HandlerThread handlerThread) {
         super(handlerThread.getLooper());
     }
 

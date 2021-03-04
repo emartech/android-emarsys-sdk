@@ -1,8 +1,8 @@
 package com.emarsys.core.api
 
-import android.os.Handler
 import android.os.HandlerThread
-import com.emarsys.core.concurrency.CoreSdkHandler
+import com.emarsys.core.concurrency.CoreHandler
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotlintest.shouldBe
@@ -16,7 +16,7 @@ import java.util.concurrent.CountDownLatch
 
 class AsyncProxyTest {
 
-    private lateinit var handler: Handler
+    private lateinit var handler: CoreSdkHandler
 
     @Rule
     @JvmField
@@ -26,7 +26,7 @@ class AsyncProxyTest {
     fun setUp() {
         val handlerThread = HandlerThread("CoreSDKHandlerThread-" + UUID.randomUUID().toString())
         handlerThread.start()
-        handler = CoreSdkHandler(handlerThread)
+        handler = CoreSdkHandler(CoreHandler(handlerThread))
     }
 
     @Test

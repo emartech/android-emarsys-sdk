@@ -1,24 +1,20 @@
 package com.emarsys.core.concurrency;
 
 
-import android.os.Handler;
-
+import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.testUtil.TimeoutUtils;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-public class CoreSdkHandlerProviderTest {
+public class CoreHandlerProviderTest {
 
     CoreSdkHandlerProvider provider;
-    Handler provided;
+    CoreSdkHandler provided;
 
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();

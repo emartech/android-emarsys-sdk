@@ -1,7 +1,6 @@
 package com.emarsys.service
 
 import android.app.Application
-import android.os.Handler
 import com.emarsys.Emarsys
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -11,6 +10,7 @@ import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.di.FakeDependencyContainer
@@ -19,15 +19,13 @@ import com.emarsys.push.PushApi
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.*
-import java.util.*
+import org.mockito.stubbing.Answer
 import java.util.concurrent.CountDownLatch
 
 
@@ -56,37 +54,43 @@ class EmarsysMessagingServiceTest {
     private lateinit var mockPush: PushApi
     private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var fakeDependencyContainer: FakeDependencyContainer
-
+    private lateinit var mockCoreSdkHandler: CoreSdkHandler
     private lateinit var baseConfig: EmarsysConfig
     val latch = CountDownLatch(1)
 
     @Before
     fun setUp() {
-        mockPush = mock(PushApi::class.java)
+        mockPush = mock()
 
-        mockRequestContext = mock(MobileEngageRequestContext::class.java).apply {
-            whenever(applicationCode).thenReturn(APPLICATION_CODE)
+        mockRequestContext = mock {
+            on { applicationCode } doReturn APPLICATION_CODE
         }
 
-        mockHardwareIdProvider = mock(HardwareIdProvider::class.java)
-        mockLanguageProvider = mock(LanguageProvider::class.java)
-        mockVersionProvider = mock(VersionProvider::class.java)
-        mockNotificationSettings = mock(NotificationSettings::class.java)
-        whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
-        whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn(LANGUAGE)
-        whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
+        mockHardwareIdProvider = mock {
+            on { provideHardwareId() } doReturn HARDWARE_ID
+        }
+        mockLanguageProvider = mock {
+            on { provideLanguage(any()) } doReturn LANGUAGE
+        }
+        mockVersionProvider = mock {
+            on { provideSdkVersion() } doReturn SDK_VERSION
+        }
+        mockNotificationSettings = mock()
 
         baseConfig = createConfig()
+
+        mockCoreSdkHandler = mock {
+            on { post(any()) } doAnswer Answer<Any?> { invocation ->
+                invocation.getArgument<Runnable>(0).run()
+                null
+            }
+        }
+
         FeatureTestUtils.resetFeatures()
     }
 
     @After
     fun tearDown() {
-        getDependency<Handler>("coreSdkHandler").post {
-            latch.countDown()
-        }
-        latch.await()
-        getDependency<Handler>("coreSdkHandler").looper.quit()
         application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
         application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
         DependencyInjection.tearDown()
@@ -99,7 +103,16 @@ class EmarsysMessagingServiceTest {
 
         EmarsysMessagingService().onNewToken("testToken")
 
-        verify(mockPush).setPushToken("testToken")
+        verify(mockPush, timeout(100)).pushToken = "testToken"
+    }
+
+    @Test
+    fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsTrue_callsSetPushToken_onCoreSdkThread() {
+        setupEmarsys(true)
+
+        EmarsysMessagingService().onNewToken("testToken")
+
+        verify(mockCoreSdkHandler, timeout(1000).times(2)).post(any())
     }
 
     @Test
@@ -108,7 +121,7 @@ class EmarsysMessagingServiceTest {
 
         EmarsysMessagingService().onNewToken("testToken")
 
-        verify(mockPush, never()).setPushToken("testToken")
+        verify(mockPush, times(0)).pushToken = "testToken"
     }
 
     private fun createConfig(): EmarsysConfig {
@@ -120,17 +133,21 @@ class EmarsysMessagingServiceTest {
     }
 
     private fun setupEmarsys(isAutomaticPushSending: Boolean) {
-        val deviceInfo = DeviceInfo(application,
+        val deviceInfo = DeviceInfo(
+                application,
                 mockHardwareIdProvider,
                 mockVersionProvider,
                 mockLanguageProvider,
                 mockNotificationSettings,
-                isAutomaticPushSending)
+                isAutomaticPushSending
+        )
 
         fakeDependencyContainer = FakeDependencyContainer(
+                coreSdkHandler = mockCoreSdkHandler,
                 deviceInfo = deviceInfo,
                 requestContext = mockRequestContext,
-                push = mockPush)
+                push = mockPush
+        )
 
         DependencyInjection.setup(fakeDependencyContainer)
 

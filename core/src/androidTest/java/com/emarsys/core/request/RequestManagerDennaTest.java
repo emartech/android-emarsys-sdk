@@ -3,7 +3,6 @@ package com.emarsys.core.request;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-
 import com.emarsys.core.Mapper;
 import com.emarsys.core.Registry;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
@@ -14,6 +13,7 @@ import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.trigger.TriggerKey;
 import com.emarsys.core.fake.FakeCompletionHandler;
+import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider;
@@ -30,7 +30,6 @@ import com.emarsys.testUtil.ConnectionTestUtils;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
-
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -61,7 +60,7 @@ public class RequestManagerDennaTest {
     private CountDownLatch latch;
     private FakeCompletionHandler fakeCompletionHandler;
     private CoreSdkHandlerProvider provider;
-    private Handler coreSdkHandler;
+    private CoreSdkHandler coreSdkHandler;
     private Handler uiHandler;
     private Worker worker;
     private TimestampProvider timestampProvider;

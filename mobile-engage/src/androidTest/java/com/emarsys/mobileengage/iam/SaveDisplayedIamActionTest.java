@@ -1,27 +1,21 @@
 package com.emarsys.mobileengage.iam;
 
-import android.os.Handler;
-
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.testUtil.TimeoutUtils;
 import com.emarsys.testUtil.mockito.ThreadSpy;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class SaveDisplayedIamActionTest {
 
@@ -34,7 +28,7 @@ public class SaveDisplayedIamActionTest {
     private SaveDisplayedIamAction action;
     private Repository<DisplayedIam, SqlSpecification> repository;
     private ThreadSpy threadSpy;
-    private Handler handler;
+    private CoreSdkHandler handler;
     private TimestampProvider timestampProvider;
 
     @Rule

@@ -1,9 +1,9 @@
 package com.emarsys.mobileengage.responsehandler
 
-import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
@@ -50,9 +50,9 @@ class MobileEngageClientStateResponseHandlerTest {
 
     @After
     fun tearDown() {
-        val handler = getDependency<Handler>("coreSdkHandler")
-        val looper: Looper? = handler.looper
-        looper?.quit()
+        val handler = getDependency<CoreSdkHandler>()
+        val looper: Looper = handler.looper
+        looper.quit()
         DependencyInjection.tearDown()
     }
 

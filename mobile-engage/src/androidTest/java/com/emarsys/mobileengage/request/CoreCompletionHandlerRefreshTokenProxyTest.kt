@@ -1,12 +1,11 @@
 package com.emarsys.mobileengage.request
 
-import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
-import com.emarsys.core.endpoint.ServiceEndpointProvider
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
@@ -76,9 +75,9 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
     @After
     fun tearDown() {
-        val handler = getDependency<Handler>("coreSdkHandler")
-        val looper: Looper? = handler.looper
-        looper?.quit()
+        val handler = getDependency<CoreSdkHandler>()
+        val looper: Looper = handler.looper
+        looper.quit()
         DependencyInjection.tearDown()
     }
 

@@ -8,6 +8,7 @@ import com.emarsys.core.Registry
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
@@ -19,7 +20,7 @@ import org.mockito.Mockito
 
 @Mockable
 class FakeRequestManager(private val responseType: ResponseType, private val response: ResponseModel) : RequestManager(
-        Handler(Looper.getMainLooper()),
+        CoreSdkHandler(Handler(Looper.getMainLooper())),
         Mockito.mock(Repository::class.java) as Repository<RequestModel, SqlSpecification>,
         Mockito.mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>,
         Mockito.mock(Worker::class.java),

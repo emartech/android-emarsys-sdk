@@ -1,11 +1,11 @@
 package com.emarsys
 
 import android.content.Intent
-import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.push.NotificationInformationListener
@@ -47,9 +47,9 @@ class PushTest {
     @After
     fun tearDown() {
         try {
-            val handler = getDependency<Handler>("coreSdkHandler")
-            val looper: Looper? = handler.looper
-            looper?.quit()
+            val handler = getDependency<CoreSdkHandler>()
+            val looper: Looper = handler.looper
+            looper.quit()
             DependencyInjection.tearDown()
         } catch (e: Exception) {
             e.printStackTrace()

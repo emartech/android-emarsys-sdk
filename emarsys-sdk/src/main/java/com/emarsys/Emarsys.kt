@@ -120,7 +120,7 @@ object Emarsys {
     fun setAuthenticatedContact(openIdToken: String, completionListener: CompletionListener? = null) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.mobileEngageApi()
-                    .proxyApi(getDependency("coreSdkHandler"))
+                    .proxyApi(getDependency())
                     .setAuthenticatedContact(openIdToken, completionListener)
         }
 
@@ -131,13 +131,13 @@ object Emarsys {
     fun setContact(contactId: String) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.mobileEngageApi()
-                    .proxyApi(getDependency("coreSdkHandler"))
+                    .proxyApi(getDependency())
                     .setContact(contactId, null)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
                 EmarsysDependencyInjection.predictInternal()
-                        .proxyApi(getDependency("coreSdkHandler"))
+                        .proxyApi(getDependency())
                         .setContact(contactId)
             }
         }
@@ -155,12 +155,12 @@ object Emarsys {
             completionListener: CompletionListener) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.mobileEngageApi()
-                    .proxyApi(getDependency("coreSdkHandler"))
+                    .proxyApi(getDependency())
                     .setContact(contactId, completionListener)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.predictInternal()
-                    .proxyApi(getDependency("coreSdkHandler"))
+                    .proxyApi(getDependency())
                     .setContact(contactId)
         }
     }
@@ -169,13 +169,13 @@ object Emarsys {
     fun clearContact() {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.mobileEngageApi()
-                    .proxyApi(getDependency("coreSdkHandler"))
+                    .proxyApi(getDependency())
                     .clearContact(null)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
                 EmarsysDependencyInjection.predictInternal()
-                        .proxyApi(getDependency("coreSdkHandler"))
+                        .proxyApi(getDependency())
                         .clearContact()
             }
         }
@@ -190,12 +190,12 @@ object Emarsys {
     fun clearContact(completionListener: CompletionListener) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.mobileEngageApi()
-                    .proxyApi(getDependency("coreSdkHandler"))
+                    .proxyApi(getDependency())
                     .clearContact(completionListener)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.predictInternal()
-                    .proxyApi(getDependency("coreSdkHandler"))
+                    .proxyApi(getDependency())
                     .clearContact()
         }
     }
@@ -204,7 +204,7 @@ object Emarsys {
     fun trackDeepLink(activity: Activity,
                       intent: Intent) {
         EmarsysDependencyInjection.deepLinkApi()
-                .proxyApi(getDependency("coreSdkHandler"))
+                .proxyApi(getDependency())
                 .trackDeepLinkOpen(activity, intent, null)
     }
 
@@ -218,7 +218,7 @@ object Emarsys {
                       intent: Intent,
                       completionListener: CompletionListener) {
         EmarsysDependencyInjection.deepLinkApi()
-                .proxyApi(getDependency("coreSdkHandler"))
+                .proxyApi(getDependency())
                 .trackDeepLinkOpen(activity, intent, completionListener)
     }
 
@@ -227,7 +227,7 @@ object Emarsys {
             eventName: String,
             eventAttributes: Map<String, String>?) {
         EmarsysDependencyInjection.eventServiceApi()
-                .proxyApi(getDependency("coreSdkHandler"))
+                .proxyApi(getDependency())
                 .trackCustomEventAsync(eventName, eventAttributes, null)
     }
 
@@ -244,7 +244,7 @@ object Emarsys {
             eventAttributes: Map<String, String>?,
             completionListener: CompletionListener) {
         EmarsysDependencyInjection.eventServiceApi()
-                .proxyApi(getDependency("coreSdkHandler"))
+                .proxyApi(getDependency())
                 .trackCustomEventAsync(eventName, eventAttributes, completionListener)
     }
 

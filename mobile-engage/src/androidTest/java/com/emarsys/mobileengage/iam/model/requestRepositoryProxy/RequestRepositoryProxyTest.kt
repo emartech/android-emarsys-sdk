@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.iam.model.requestRepositoryProxy
 
-import android.os.Handler
 import android.os.Looper
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.database.helper.CoreDbHelper
@@ -12,6 +11,7 @@ import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.CompositeRequestModel
@@ -107,9 +107,9 @@ class RequestRepositoryProxyTest {
     @Throws(Exception::class)
     fun tearDown() {
         FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
-        val handler = getDependency<Handler>("coreSdkHandler")
-        val looper: Looper? = handler.looper
-        looper?.quit()
+        val handler = getDependency<CoreSdkHandler>()
+        val looper: Looper = handler.looper
+        looper.quit()
         DependencyInjection.tearDown()
     }
 

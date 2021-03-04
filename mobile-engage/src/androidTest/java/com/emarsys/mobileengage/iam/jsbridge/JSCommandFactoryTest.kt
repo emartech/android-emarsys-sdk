@@ -7,6 +7,7 @@ import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
@@ -37,7 +38,7 @@ class JSCommandFactoryTest {
     private lateinit var jsCommandFactory: JSCommandFactory
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
     private lateinit var uiHandler: Handler
-    private lateinit var coreSdkHandler: Handler
+    private lateinit var coreSdkHandler: CoreSdkHandler
     private lateinit var mockInAppInternal: InAppInternal
     private lateinit var mockButtonClickedRepository: Repository<ButtonClicked, SqlSpecification>
     private lateinit var mockOnCloseListener: OnCloseListener

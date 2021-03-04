@@ -1,6 +1,6 @@
 package com.emarsys.core.api
 
-import android.os.Handler
+import com.emarsys.core.handler.CoreSdkHandler
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
@@ -8,14 +8,14 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 
-inline fun <reified T : Any> T.proxyWithHandler(handler: Handler): T {
+inline fun <reified T : Any> T.proxyWithHandler(handler: CoreSdkHandler): T {
     return Proxy.newProxyInstance(javaClass.classLoader,
             javaClass.interfaces,
             AsyncProxy(this, handler)) as T
 }
 
 class AsyncProxy<T>(private val apiObject: T,
-                    private val handler: Handler) : InvocationHandler {
+                    private val handler: CoreSdkHandler) : InvocationHandler {
 
     override fun invoke(proxy: Any, method: Method, args: Array<out Any>?): Any? {
         EmarsysIdlingResources.increment()

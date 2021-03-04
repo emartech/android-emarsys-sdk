@@ -1,12 +1,12 @@
 package com.emarsys.core.util.log
 
-import android.os.Handler
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.FakeCoreDependencyContainer
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
@@ -37,7 +37,7 @@ class LoggerTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    private lateinit var coreSdkHandler: Handler
+    private lateinit var coreSdkHandler: CoreSdkHandler
     private lateinit var shardRepositoryMock: Repository<ShardModel, SqlSpecification>
     private lateinit var timestampProviderMock: TimestampProvider
     private lateinit var uuidProviderMock: UUIDProvider

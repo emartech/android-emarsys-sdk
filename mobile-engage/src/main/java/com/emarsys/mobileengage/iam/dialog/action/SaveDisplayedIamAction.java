@@ -1,20 +1,19 @@
 package com.emarsys.mobileengage.iam.dialog.action;
 
-import android.os.Handler;
-
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 
 public class SaveDisplayedIamAction implements OnDialogShownAction {
 
-    Handler handler;
+    CoreSdkHandler handler;
     Repository<DisplayedIam, SqlSpecification> repository;
     TimestampProvider timestampProvider;
 
-    public SaveDisplayedIamAction(Handler handler, Repository<DisplayedIam, SqlSpecification> repository, TimestampProvider timestampProvider) {
+    public SaveDisplayedIamAction(CoreSdkHandler handler, Repository<DisplayedIam, SqlSpecification> repository, TimestampProvider timestampProvider) {
         Assert.notNull(handler, "Handler must not be null!");
         Assert.notNull(repository, "Repository must not be null!");
         Assert.notNull(timestampProvider, "TimestampProvider must not be null!");

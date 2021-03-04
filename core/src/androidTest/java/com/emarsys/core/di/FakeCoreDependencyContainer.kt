@@ -8,6 +8,7 @@ import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -21,7 +22,7 @@ import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
 import com.nhaarman.mockitokotlin2.mock
 
-class FakeCoreDependencyContainer(coreSdkHandler: Handler = mock(),
+class FakeCoreDependencyContainer(coreSdkHandler: CoreSdkHandler = mock(),
                                   uiHandler: Handler = mock(),
                                   activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(),
                                   currentActivityWatchdog: CurrentActivityWatchdog = mock(),
@@ -42,7 +43,7 @@ class FakeCoreDependencyContainer(coreSdkHandler: Handler = mock(),
     override val dependencies: MutableMap<String, Any?> = mutableMapOf()
 
     init {
-        addDependency(dependencies, coreSdkHandler, "coreSdkHandler")
+        addDependency(dependencies, coreSdkHandler)
         addDependency(dependencies, uiHandler, "uiHandler")
         addDependency(dependencies, activityLifecycleWatchdog)
         addDependency(dependencies, currentActivityWatchdog)
@@ -62,7 +63,7 @@ class FakeCoreDependencyContainer(coreSdkHandler: Handler = mock(),
 
     }
 
-    override fun getCoreSdkHandler(): Handler = getDependency(dependencies, "coreSdkHandler")
+    override fun getCoreSdkHandler(): CoreSdkHandler = getDependency(dependencies)
 
     override fun getUiHandler(): Handler = getDependency(dependencies, "uiHandler")
 

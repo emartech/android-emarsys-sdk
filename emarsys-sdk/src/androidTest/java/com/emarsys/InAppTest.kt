@@ -1,12 +1,12 @@
 package com.emarsys
 
 import android.app.Application
-import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.inapp.InApp
 import com.emarsys.mobileengage.api.event.EventHandler
@@ -47,8 +47,8 @@ class InAppTest {
         application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
         application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
         try {
-            val looper: Looper? = getDependency<Handler>("coreSdkHandler").looper
-            looper?.quitSafely()
+            val looper: Looper = getDependency<CoreSdkHandler>().looper
+            looper.quitSafely()
             DependencyInjection.tearDown()
         } catch (e: Exception) {
             e.printStackTrace()

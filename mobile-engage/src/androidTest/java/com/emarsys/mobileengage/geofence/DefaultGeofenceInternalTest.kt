@@ -10,8 +10,6 @@ import android.location.LocationManager
 import android.os.Build
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.concurrency.CoreSdkHandler
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager

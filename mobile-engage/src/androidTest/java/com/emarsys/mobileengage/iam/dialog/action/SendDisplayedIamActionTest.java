@@ -1,13 +1,11 @@
 package com.emarsys.mobileengage.iam.dialog.action;
 
-import android.os.Handler;
-
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
+import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.testUtil.TimeoutUtils;
 import com.emarsys.testUtil.mockito.ThreadSpy;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -20,9 +18,7 @@ import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class SendDisplayedIamActionTest {
 
@@ -32,7 +28,7 @@ public class SendDisplayedIamActionTest {
 
     private SendDisplayedIamAction action;
 
-    private Handler handler;
+    private CoreSdkHandler handler;
     private InAppInternal inAppInternal;
 
     @Rule
@@ -61,7 +57,7 @@ public class SendDisplayedIamActionTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_inAppInternal_mustNotBeNull() {
         new SendDisplayedIamAction(
-                mock(Handler.class),
+                mock(CoreSdkHandler.class),
                 null
         );
     }

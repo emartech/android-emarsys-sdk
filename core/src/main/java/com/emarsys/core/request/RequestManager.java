@@ -1,12 +1,11 @@
 package com.emarsys.core.request;
 
-import android.os.Handler;
-
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.Registry;
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
+import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider;
 import com.emarsys.core.request.factory.DefaultRunnableFactory;
 import com.emarsys.core.request.factory.RunnableFactory;
@@ -25,7 +24,7 @@ public class RequestManager {
 
     private Map<String, String> defaultHeaders;
     private final RestClient restClient;
-    private final Handler coreSDKHandler;
+    private final CoreSdkHandler coreSDKHandler;
     private final Repository<RequestModel, SqlSpecification> requestRepository;
     private final Repository<ShardModel, SqlSpecification> shardRepository;
     private final Registry<RequestModel, CompletionListener> callbackRegistry;
@@ -33,7 +32,7 @@ public class RequestManager {
     private final CompletionHandlerProxyProvider completionHandlerProxyProvider;
 
     public RequestManager(
-            Handler coreSDKHandler,
+            CoreSdkHandler coreSDKHandler,
             Repository<RequestModel, SqlSpecification> requestRepository,
             Repository<ShardModel, SqlSpecification> shardRepository,
             Worker worker,

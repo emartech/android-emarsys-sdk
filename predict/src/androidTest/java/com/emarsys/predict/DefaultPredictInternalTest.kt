@@ -1,6 +1,5 @@
 package com.emarsys.predict
 
-import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
 import com.emarsys.core.api.result.CompletionListener
@@ -8,6 +7,7 @@ import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
@@ -488,7 +488,7 @@ class DefaultPredictInternalTest {
             }
         }
         return RequestManager(
-                mock(Handler::class.java),
+                mock(CoreSdkHandler::class.java),
                 mock(Repository::class.java) as Repository<RequestModel, SqlSpecification>,
                 mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>,
                 mock(Worker::class.java),

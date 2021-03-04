@@ -1,7 +1,6 @@
 package com.emarsys.mobileengage.iam.dialog.action;
 
-import android.os.Handler;
-
+import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.event.EventServiceInternal;
 
@@ -10,11 +9,11 @@ import java.util.Map;
 
 public class SendDisplayedIamAction implements OnDialogShownAction {
 
-    private final Handler handler;
+    private final CoreSdkHandler handler;
     private final EventServiceInternal eventServiceInternal;
 
     public SendDisplayedIamAction(
-            Handler handler,
+            CoreSdkHandler handler,
             EventServiceInternal eventServiceInternal) {
         Assert.notNull(handler, "Handler must not be null!");
         Assert.notNull(eventServiceInternal, "EventServiceInternal must not be null!");
