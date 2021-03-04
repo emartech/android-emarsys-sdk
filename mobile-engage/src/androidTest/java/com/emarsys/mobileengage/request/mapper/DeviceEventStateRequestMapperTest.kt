@@ -18,6 +18,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
+import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -27,7 +28,8 @@ class DeviceEventStateRequestMapperTest {
     companion object {
         const val EVENT_SERVICE_HOST: String = Endpoint.ME_EVENT_HOST
         const val CLIENT_SERVICE_HOST: String = Endpoint.ME_CLIENT_HOST
-        const val DEVICE_EVENT_STATE: String = "device-event-state"
+        const val DEVICE_EVENT_STATE: String = """{"device-event-state":true}"""
+        val DEVICE_EVENT_STATE_JSON: JSONObject = JSONObject("""{"device-event-state":true}""")
         const val APPLICATION_CODE: String = "TEST_APP_CODE"
         const val TIMESTAMP: Long = 123L
         const val REQUEST_ID: String = "123L"
@@ -119,14 +121,13 @@ class DeviceEventStateRequestMapperTest {
 
     @Test
     fun testCreatePayload_shouldAddDeviceEventState_toBody() {
-        val expectedRequestPayload = mapOf("deviceEventState" to DEVICE_EVENT_STATE)
+        val expectedRequestPayload = mapOf("deviceEventState" to DEVICE_EVENT_STATE_JSON)
         val result = deviceEventStateRequestMapper.createPayload(createInlineInAppRequest())
 
-        result shouldBe expectedRequestPayload
+        result["deviceEventState"].toString() shouldBe expectedRequestPayload["deviceEventState"].toString()
     }
 
-    private fun createInlineInAppRequest(extraHeaders: Map<String, String> = mapOf(),
-                                         extraPayloads: Map<String, Any> = mapOf()) = RequestModel(
+    private fun createInlineInAppRequest(extraHeaders: Map<String, String> = mapOf(), extraPayloads: Map<String, Any> = mapOf()) = RequestModel(
             "https://mobile-events.eservice.emarsys.net/v4/apps/${APPLICATION_CODE}/inline-messages",
             RequestMethod.POST,
             extraPayloads,

@@ -7,6 +7,7 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.util.RequestModelUtils.isCustomEvent
 import com.emarsys.mobileengage.util.RequestModelUtils.isInlineInAppRequest
+import org.json.JSONObject
 
 class DeviceEventStateRequestMapper(
         override val requestContext: MobileEngageRequestContext,
@@ -16,7 +17,7 @@ class DeviceEventStateRequestMapper(
         val updatedPayload: MutableMap<String, Any?> = requestModel.payload?.toMutableMap()
                 ?: mutableMapOf()
 
-        updatedPayload["deviceEventState"] = deviceEventStateStorage.get()
+        updatedPayload["deviceEventState"] = JSONObject(deviceEventStateStorage.get()!!)
 
         return updatedPayload
     }
