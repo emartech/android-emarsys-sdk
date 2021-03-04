@@ -35,6 +35,11 @@ class Push(private val loggingInstance: Boolean = false) : PushApi {
                 .setPushToken(pushToken, completionListener)
     }
 
+    override fun getPushToken(): String? {
+        return (if (loggingInstance) getDependency("loggingInstance") else getDependency<PushInternal>("defaultInstance"))
+                .pushToken
+    }
+
     override fun setNotificationInformationListener(notificationInformationListener: NotificationInformationListener) {
         (if (loggingInstance) getDependency("loggingInstance") else getDependency<PushInternal>("defaultInstance"))
                 .setNotificationInformationListener(notificationInformationListener)

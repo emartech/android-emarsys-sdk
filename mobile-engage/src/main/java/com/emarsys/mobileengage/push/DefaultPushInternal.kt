@@ -41,6 +41,10 @@ class DefaultPushInternal(private val requestManager: RequestManager,
         }
     }
 
+    override fun getPushToken(): String? {
+        return pushTokenStorage.get()
+    }
+
     override fun setNotificationInformationListener(notificationInformationListener: NotificationInformationListener) {
         notificationInformationListenerProvider.notificationInformationListener = notificationInformationListener
     }

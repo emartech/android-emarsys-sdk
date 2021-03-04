@@ -18,6 +18,12 @@ class LoggingPushInternal(private val klass: Class<*>) : PushInternal {
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
+    override fun getPushToken(): String? {
+        val callerMethodName = SystemUtils.getCallerMethodName()
+        debug(MethodNotAllowed(klass, callerMethodName, null))
+        return null
+    }
+
     override fun clearPushToken(completionListener: CompletionListener?) {
         val parameters: Map<String, Any?> = mapOf(
                 "completion_listener" to (completionListener != null)

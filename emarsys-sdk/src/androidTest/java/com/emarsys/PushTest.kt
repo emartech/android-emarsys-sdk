@@ -86,6 +86,12 @@ class PushTest {
     }
 
     @Test
+    fun testPush_getPushToken_delegatesTo_pushInternal() {
+       push.pushToken
+        Mockito.verify(mockPushInternal).pushToken
+    }
+
+    @Test
     fun testPush_removePushToken_delegatesTo_mobileEngageInternal() {
         push.clearPushToken()
         Mockito.verify(mockPushInternal).clearPushToken(null)

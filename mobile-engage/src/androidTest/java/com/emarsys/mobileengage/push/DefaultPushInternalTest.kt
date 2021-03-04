@@ -162,6 +162,16 @@ class DefaultPushInternalTest {
     }
 
     @Test
+    fun testGetPushToken_shouldGetPushTokenFromStorage() {
+       whenever(mockPushTokenStorage.get()).thenReturn(PUSH_TOKEN)
+
+        val result = pushInternal.pushToken
+
+        verify(mockPushTokenStorage).get()
+        result shouldBe PUSH_TOKEN
+    }
+
+    @Test
     fun testClearPushToken() {
         pushInternal.clearPushToken(mockCompletionListener)
 

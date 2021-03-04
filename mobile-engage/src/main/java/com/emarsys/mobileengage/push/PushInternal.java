@@ -9,6 +9,8 @@ import com.emarsys.mobileengage.api.push.NotificationInformationListener;
 public interface PushInternal {
     void setPushToken(String pushToken, CompletionListener completionListener);
 
+    String getPushToken();
+
     void clearPushToken(CompletionListener completionListener);
 
     void trackMessageOpen(Intent intent, CompletionListener completionListener);

@@ -31,6 +31,8 @@ public interface PushApi {
             @NonNull final String pushToken,
             @NonNull final CompletionListener completionListener);
 
+    String getPushToken();
+
     void clearPushToken();
 
     void clearPushToken(@NonNull final CompletionListener completionListener);
