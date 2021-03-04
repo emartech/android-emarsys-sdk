@@ -62,6 +62,12 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     override val notificationSettings: NotificationSettings
         get() = deviceInfo.notificationSettings
 
+    override val isAutomaticPushSendingEnabled: Boolean
+        get() = deviceInfo.isAutomaticPushSendingEnabled
+
+    override val sdkVersion: String
+        get() = deviceInfo.sdkVersion
+
     private var originalContactFieldId: Int = 0
     private var originalPushToken: String? = null
 

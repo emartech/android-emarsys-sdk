@@ -17,6 +17,10 @@ interface ConfigApi {
 
     val notificationSettings: NotificationSettings
 
+    val isAutomaticPushSendingEnabled: Boolean
+
+    val sdkVersion: String
+
     fun changeApplicationCode(applicationCode: String?)
 
     fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?)

@@ -17,6 +17,10 @@ interface ConfigInternal {
 
     val notificationSettings: NotificationSettings
 
+    val isAutomaticPushSendingEnabled: Boolean
+
+    val sdkVersion: String
+
     fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: CompletionListener?)
 
     fun changeMerchantId(merchantId: String?)

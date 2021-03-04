@@ -57,6 +57,7 @@ class DefaultConfigInternalTest {
         const val MOBILE_ENGAGE_V2_SERVICE_URL = "https://mev2.emarsys.com"
         const val PREDICT_SERVICE_URL = "https://predict.emarsys.com"
         const val MESSAGE_INBOX_SERVICE_URL = "https://inbox.v3.emarsys.com"
+        const val SDK_VERSION = "testSdkVersion"
     }
 
     private lateinit var configInternal: ConfigInternal
@@ -530,6 +531,24 @@ class DefaultConfigInternalTest {
         val result = configInternal.notificationSettings
 
         result shouldBe notificationSettings
+    }
+
+    @Test
+    fun testIsAutomaticPushSendingEnabled_shouldReturnValueFromDeviceInfo() {
+        whenever(mockDeviceInfo.isAutomaticPushSendingEnabled).thenReturn(true)
+        val result = configInternal.isAutomaticPushSendingEnabled
+
+        result shouldBe true
+        verify(mockDeviceInfo).isAutomaticPushSendingEnabled
+    }
+
+    @Test
+    fun testSdkVersion_shouldReturnSdkVersionFromDeviceInfo() {
+        whenever(mockDeviceInfo.sdkVersion).thenReturn(SDK_VERSION)
+        val result = configInternal.sdkVersion
+
+        result shouldBe SDK_VERSION
+        verify(mockDeviceInfo).sdkVersion
     }
 
     @Test

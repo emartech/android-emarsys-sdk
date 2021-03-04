@@ -14,12 +14,21 @@ class Config : ConfigApi {
 
     override val merchantId: String?
         get() = getDependency<ConfigInternal>().merchantId
+
     override val hardwareId: String
         get() = getDependency<ConfigInternal>().hardwareId
+
     override val language: String
         get() = getDependency<ConfigInternal>().language
+
     override val notificationSettings: NotificationSettings
         get() = getDependency<ConfigInternal>().notificationSettings
+
+    override val isAutomaticPushSendingEnabled: Boolean
+        get() = getDependency<ConfigInternal>().isAutomaticPushSendingEnabled
+
+    override val sdkVersion: String
+        get() = getDependency<ConfigInternal>().sdkVersion
 
     override fun changeApplicationCode(applicationCode: String?) {
         changeApplicationCode(applicationCode, contactFieldId)

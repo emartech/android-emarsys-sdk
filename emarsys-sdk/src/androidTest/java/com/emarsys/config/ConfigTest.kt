@@ -144,4 +144,25 @@ class ConfigTest {
         result shouldBe hardwareId
         verify(mockConfigInternal).hardwareId
     }
+
+    @Test
+    fun testIsAutomaticPushSendingEnabled_delegatesTo_internal_byUsingRunnerProxy() {
+        whenever(mockConfigInternal.isAutomaticPushSendingEnabled).thenReturn(true)
+
+        val result = config.isAutomaticPushSendingEnabled
+
+        result shouldBe true
+        verify(mockConfigInternal).isAutomaticPushSendingEnabled
+    }
+
+    @Test
+    fun testSdkVersion_delegatesTo_internal_byUsingRunnerProxy() {
+        val sdkVersion = "testSdkVersion"
+        whenever(mockConfigInternal.sdkVersion).thenReturn(sdkVersion)
+
+        val result = config.sdkVersion
+
+        result shouldBe sdkVersion
+        verify(mockConfigInternal).sdkVersion
+    }
 }
