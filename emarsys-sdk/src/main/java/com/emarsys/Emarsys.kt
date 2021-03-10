@@ -136,7 +136,7 @@ object Emarsys {
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-                EmarsysDependencyInjection.predictInternal()
+                EmarsysDependencyInjection.predictRestrictedApi()
                         .proxyApi(getDependency())
                         .setContact(contactId)
             }
@@ -159,7 +159,7 @@ object Emarsys {
                     .setContact(contactId, completionListener)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-            EmarsysDependencyInjection.predictInternal()
+            EmarsysDependencyInjection.predictRestrictedApi()
                     .proxyApi(getDependency())
                     .setContact(contactId)
         }
@@ -174,7 +174,7 @@ object Emarsys {
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-                EmarsysDependencyInjection.predictInternal()
+                EmarsysDependencyInjection.predictRestrictedApi()
                         .proxyApi(getDependency())
                         .clearContact()
             }
@@ -194,7 +194,7 @@ object Emarsys {
                     .clearContact(completionListener)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
-            EmarsysDependencyInjection.predictInternal()
+            EmarsysDependencyInjection.predictRestrictedApi()
                     .proxyApi(getDependency())
                     .clearContact()
         }
@@ -561,7 +561,7 @@ object Emarsys {
 
         if (contactToken == null && !requestContext.hasContactIdentification()) {
             if (clientState == null || deviceInfoPayload != null && deviceInfoPayload != deviceInfo.deviceInfoPayload) {
-                EmarsysDependencyInjection.clientServiceInternal()
+                EmarsysDependencyInjection.clientServiceApi()
                         .proxyWithLogExceptions()
                         .trackDeviceInfo(null)
             }

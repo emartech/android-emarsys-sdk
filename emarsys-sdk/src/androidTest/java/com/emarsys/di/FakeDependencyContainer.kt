@@ -2,6 +2,7 @@ package com.emarsys.di
 
 import android.os.Handler
 import android.os.Looper
+import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.ConfigInternal
 import com.emarsys.core.CoreCompletionHandler
@@ -68,6 +69,7 @@ import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.oneventaction.OnEventActionApi
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictInternal
+import com.emarsys.predict.PredictRestrictedApi
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.push.PushApi
 import com.nhaarman.mockitokotlin2.mock
@@ -100,6 +102,8 @@ class FakeDependencyContainer(
         eventServiceInternal: EventServiceInternal = mock(),
         eventServiceApi: EventServiceApi = mock(),
         loggingEventServiceApi: EventServiceApi = mock(),
+        clientServiceApi: ClientServiceApi = mock(),
+        loggingClientServiceApi: ClientServiceApi = mock(),
         loggingEventServiceInternal: EventServiceInternal = mock(),
         clientServiceInternal: ClientServiceInternal = mock(),
         loggingClientServiceInternal: ClientServiceInternal = mock(),
@@ -132,6 +136,8 @@ class FakeDependencyContainer(
         loggingPush: PushApi = mock(),
         predict: PredictApi = mock(),
         loggingPredict: PredictApi = mock(),
+        predictRestricted: PredictRestrictedApi = mock(),
+        loggingPredictRestricted: PredictRestrictedApi = mock(),
         config: ConfigApi = mock(),
         mobileEngageApi: MobileEngageApi = mock(),
         loggingMobileEngageApi: MobileEngageApi = mock(),
@@ -218,6 +224,8 @@ class FakeDependencyContainer(
         addDependency(dependencies, eventServiceInternal, "defaultInstance")
         addDependency(dependencies, eventServiceApi, "defaultInstance")
         addDependency(dependencies, loggingEventServiceApi, "loggingInstance")
+        addDependency(dependencies, clientServiceApi, "defaultInstance")
+        addDependency(dependencies, loggingClientServiceApi, "loggingInstance")
         addDependency(dependencies, loggingEventServiceInternal, "loggingInstance")
         addDependency(dependencies, clientServiceInternal, "defaultInstance")
         addDependency(dependencies, loggingClientServiceInternal, "loggingInstance")
@@ -246,6 +254,8 @@ class FakeDependencyContainer(
         addDependency(dependencies, loggingPush, "loggingInstance")
         addDependency(dependencies, predict, "defaultInstance")
         addDependency(dependencies, loggingPredict, "loggingInstance")
+        addDependency(dependencies, predictRestricted, "defaultInstance")
+        addDependency(dependencies, loggingPredictRestricted, "loggingInstance")
         addDependency(dependencies, config)
         addDependency(dependencies, geofence, "defaultInstance")
         addDependency(dependencies, loggingGeofence, "loggingInstance")

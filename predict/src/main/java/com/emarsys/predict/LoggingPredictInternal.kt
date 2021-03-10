@@ -79,12 +79,12 @@ class LoggingPredictInternal(private val klass: Class<*>) : PredictInternal {
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    override fun recommendProducts(recommendationLogic: Logic, limit: Int?, recommendationFilter: List<RecommendationFilter>?, availabilityZone: String?, resultListener: ResultListener<Try<List<Product>>>) {
+    override fun recommendProducts(recommendationLogic: Logic, limit: Int?, recommendationFilters: List<RecommendationFilter>?, availabilityZone: String?, resultListener: ResultListener<Try<List<Product>>>) {
         val parameters: Map<String, Any?> = mapOf(
                 "recommendation_logic" to recommendationLogic.toString(),
                 "result_listener" to true,
                 "limit" to limit,
-                "recommendation_filter" to recommendationFilter?.toTypedArray()?.contentToString(),
+                "recommendation_filter" to recommendationFilters?.toTypedArray()?.contentToString(),
                 "availabilityZone" to availabilityZone
         )
         val callerMethodName = SystemUtils.getCallerMethodName()

@@ -9,6 +9,8 @@ import android.util.Base64
 import androidx.core.app.NotificationManagerCompat
 import com.emarsys.Emarsys
 import com.emarsys.EmarsysRequestModelFactory
+import com.emarsys.clientservice.ClientService
+import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.config.*
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.Mapper
@@ -182,6 +184,10 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
 
         addDependency(dependencies, (EventService(true) as EventServiceApi).proxyApi(coreSdkHandler), "loggingInstance")
 
+        addDependency(dependencies, (ClientService() as ClientServiceApi).proxyApi(coreSdkHandler), "defaultInstance")
+
+        addDependency(dependencies, (ClientService(true) as ClientServiceApi).proxyApi(coreSdkHandler), "loggingInstance")
+
         addDependency(dependencies, (InApp() as InAppApi).proxyApi(coreSdkHandler), "defaultInstance")
 
         addDependency(dependencies, (InApp(true) as InAppApi).proxyApi(coreSdkHandler), "loggingInstance")
@@ -193,6 +199,10 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         addDependency(dependencies, (Predict() as PredictApi).proxyApi(coreSdkHandler), "defaultInstance")
 
         addDependency(dependencies, (Predict(true) as PredictApi).proxyApi(coreSdkHandler), "loggingInstance")
+
+        addDependency(dependencies, (PredictRestricted() as PredictRestrictedApi).proxyApi(coreSdkHandler), "defaultInstance")
+
+        addDependency(dependencies, (PredictRestricted(true) as PredictRestrictedApi).proxyApi(coreSdkHandler), "loggingInstance")
 
         addDependency(dependencies, (Config() as ConfigApi).proxyApi(coreSdkHandler))
 

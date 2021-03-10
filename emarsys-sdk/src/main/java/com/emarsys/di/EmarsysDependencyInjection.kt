@@ -1,5 +1,6 @@
 package com.emarsys.di
 
+import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
@@ -11,10 +12,9 @@ import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.MobileEngageApi
-import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.oneventaction.OnEventActionApi
 import com.emarsys.predict.PredictApi
-import com.emarsys.predict.PredictInternal
+import com.emarsys.predict.PredictRestrictedApi
 import com.emarsys.push.PushApi
 
 object EmarsysDependencyInjection : DependencyInjection() {
@@ -29,7 +29,16 @@ object EmarsysDependencyInjection : DependencyInjection() {
     }
 
     @JvmStatic
-    fun predictInternal(): PredictInternal {
+    fun predictApi(): PredictApi {
+        return if (isPredictEnabled()) {
+            getDependency("defaultInstance")
+        } else {
+            getDependency("loggingInstance")
+        }
+    }
+
+    @JvmStatic
+    fun predictRestrictedApi(): PredictRestrictedApi {
         return if (isPredictEnabled()) {
             getDependency("defaultInstance")
         } else {
@@ -74,7 +83,7 @@ object EmarsysDependencyInjection : DependencyInjection() {
     }
 
     @JvmStatic
-    fun clientServiceInternal(): ClientServiceInternal {
+    fun clientServiceApi(): ClientServiceApi {
         return if (isMobileEngageEnabled()) {
             getDependency("defaultInstance")
         } else {
