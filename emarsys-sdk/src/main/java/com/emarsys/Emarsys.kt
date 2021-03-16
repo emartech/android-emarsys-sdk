@@ -117,7 +117,7 @@ object Emarsys {
 
     @JvmStatic
     @JvmOverloads
-    private fun setAuthenticatedContact(openIdToken: String, completionListener: CompletionListener? = null) {
+    fun setAuthenticatedContact(openIdToken: String, completionListener: CompletionListener? = null) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.mobileEngageApi()
                     .proxyApi(getDependency())
