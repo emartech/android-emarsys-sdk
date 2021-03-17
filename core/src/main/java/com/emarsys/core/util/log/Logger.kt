@@ -15,10 +15,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.log.LogLevel.*
-import com.emarsys.core.util.log.entry.CrashLog
-import com.emarsys.core.util.log.entry.LogEntry
-import com.emarsys.core.util.log.entry.MethodNotAllowed
-import com.emarsys.core.util.log.entry.dataWithLogLevel
+import com.emarsys.core.util.log.entry.*
 
 @Mockable
 class Logger(private val coreSdkHandler: CoreSdkHandler,
@@ -97,18 +94,18 @@ class Logger(private val coreSdkHandler: CoreSdkHandler,
     private fun logToConsole(logLevel: LogLevel, logEntry: LogEntry) {
         when (logLevel) {
             DEBUG ->
-                Log.d(TAG, logEntry.data.toString())
+                Log.d(TAG, logEntry.asString())
             TRACE ->
-                Log.v(TAG, logEntry.data.toString())
+                Log.v(TAG, logEntry.asString())
             INFO ->
-                Log.i(TAG, logEntry.data.toString())
+                Log.i(TAG, logEntry.asString())
             WARN ->
-                Log.w(TAG, logEntry.data.toString())
+                Log.w(TAG, logEntry.asString())
             ERROR ->
                 if (logEntry is CrashLog) {
-                    Log.e(TAG, logEntry.data.toString(), logEntry.throwable)
+                    Log.e(TAG, logEntry.asString(), logEntry.throwable)
                 } else {
-                    Log.e(TAG, logEntry.data.toString())
+                    Log.e(TAG, logEntry.asString())
                 }
             else -> {
             }
