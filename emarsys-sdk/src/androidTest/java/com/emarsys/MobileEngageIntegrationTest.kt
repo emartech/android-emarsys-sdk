@@ -190,7 +190,12 @@ class MobileEngageIntegrationTest {
     fun testClearContact() {
         Emarsys.clearContact(
                 this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
+        ).also{
+            completionListenerLatch.await()
+            errorCause shouldBe null
+            responseModel.message shouldBe "OK"
+            responseModel.statusCode shouldBeInRange IntRange(200, 299)
+        }
     }
 
     @Test
