@@ -193,6 +193,7 @@ class MobileEngageIntegrationTest {
         ).also{
             completionListenerLatch.await()
             errorCause shouldBe null
+            responseModel.body shouldBe ""
             responseModel.message shouldBe "OK"
             responseModel.statusCode shouldBeInRange IntRange(200, 299)
         }
