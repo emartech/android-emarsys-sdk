@@ -498,13 +498,13 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         DefaultMobileEngageInternal(requestManager, requestModelFactory, getRequestContext(), mobileEngageSession, sessionIdHolder).also {
             addDependency(dependencies, it as MobileEngageInternal, "defaultInstance")
         }
-        ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getOnEventActionEventHandlerProvider()).also {
+        ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getOnEventActionEventHandlerProvider(), getUiHandler()).also {
             addDependency(dependencies, it, "onEventActionActionCommandFactory")
         }
-        ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getSilentMessageEventHandlerProvider()).also {
+        ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getSilentMessageEventHandlerProvider(), getUiHandler()).also {
             addDependency(dependencies, it, "silentMessageActionCommandFactory")
         }
-        val geofenceActionCommandFactory = ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getGeofenceEventHandlerProvider())
+        val geofenceActionCommandFactory = ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getGeofenceEventHandlerProvider(), getUiHandler())
         DefaultGeofenceInternal(requestModelFactory,
                 requestManager,
                 GeofenceResponseMapper(),
@@ -598,7 +598,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         FileDownloader(application.applicationContext).also {
             addDependency(dependencies, it)
         }
-        ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getNotificationEventHandlerProvider()).also {
+        ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getNotificationEventHandlerProvider(), getUiHandler()).also {
             addDependency(dependencies, it, "notificationActionCommandFactory")
         }
         val webViewProvider = WebViewProvider(application.applicationContext).also {

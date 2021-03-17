@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.notification
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Handler
 import com.emarsys.core.Mockable
 import com.emarsys.core.util.JsonUtils
 import com.emarsys.mobileengage.event.EventHandlerProvider
@@ -17,7 +18,8 @@ import org.json.JSONObject
 @Mockable
 class ActionCommandFactory(private val context: Context,
                            private val eventServiceInternal: EventServiceInternal,
-                           private val eventHandlerProvider: EventHandlerProvider) {
+                           private val eventHandlerProvider: EventHandlerProvider,
+                           private val uiHandler: Handler) {
 
     fun createActionCommand(action: JSONObject): Runnable? {
         var result: Runnable? = null
@@ -54,8 +56,10 @@ class ActionCommandFactory(private val context: Context,
         return AppEventCommand(
                 context,
                 eventHandlerProvider,
+                uiHandler,
                 action.getString("name"),
-                action.optJSONObject("payload"))
+                action.optJSONObject("payload")
+        )
     }
 
     private fun createOpenExternalUrlCommand(action: JSONObject): Runnable? {

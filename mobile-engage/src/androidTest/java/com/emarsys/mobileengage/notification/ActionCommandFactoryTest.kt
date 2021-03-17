@@ -1,11 +1,10 @@
 package com.emarsys.mobileengage.notification
 
 import android.content.Context
+import android.os.Handler
 import com.emarsys.core.di.DependencyInjection
-import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
-import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.notification.command.AppEventCommand
 import com.emarsys.mobileengage.notification.command.CustomEventCommand
 import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand
@@ -30,7 +29,7 @@ class ActionCommandFactoryTest {
 
     private lateinit var factory: ActionCommandFactory
     private lateinit var context: Context
-    private lateinit var mockDependencyContainer: MobileEngageDependencyContainer
+    private lateinit var mockUiHandler: Handler
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockNotificationEventHandlerProvider: EventHandlerProvider
 
@@ -40,16 +39,8 @@ class ActionCommandFactoryTest {
 
         mockEventServiceInternal = mock()
         mockNotificationEventHandlerProvider = mock()
-        mockDependencyContainer = mock()
-
-        mockDependencyContainer = FakeMobileEngageDependencyContainer(
-                eventServiceInternal = mockEventServiceInternal,
-                notificationEventHandlerProvider = mockNotificationEventHandlerProvider
-        )
-
-        DependencyInjection.setup(mockDependencyContainer)
-
-        factory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationEventHandlerProvider)
+        mockUiHandler = mock()
+        factory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationEventHandlerProvider, mockUiHandler)
     }
 
     @After

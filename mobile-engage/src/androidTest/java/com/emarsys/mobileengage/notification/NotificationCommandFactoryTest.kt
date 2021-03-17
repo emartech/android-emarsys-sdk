@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.util.JsonUtils
@@ -47,6 +48,7 @@ class NotificationCommandFactoryTest {
 
     private lateinit var factory: NotificationCommandFactory
     private lateinit var context: Context
+    private lateinit var mockUiHandler: Handler
     private lateinit var mockDependencyContainer: MobileEngageDependencyContainer
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockPushInternal: PushInternal
@@ -58,14 +60,14 @@ class NotificationCommandFactoryTest {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
-
+        mockUiHandler = mock()
         mockEventServiceInternal = mock(EventServiceInternal::class.java)
         mockPushInternal = mock(PushInternal::class.java)
         mockEventHandler = mock(EventHandler::class.java)
         mockNotificationEventHandlerProvider = mock(EventHandlerProvider::class.java).apply {
             whenever(eventHandler).thenReturn(mockEventHandler)
         }
-        mockActionCommandFactory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationEventHandlerProvider)
+        mockActionCommandFactory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationEventHandlerProvider, mockUiHandler)
         mockCurrentActivityProvider = mock(CurrentActivityProvider::class.java).apply {
             whenever(get()).thenReturn(null)
         }
@@ -150,7 +152,7 @@ class NotificationCommandFactoryTest {
         val commands = extractCommandsFromComposite<AppEventCommand>(intent)
         val payload = commands.first { it.name == NAME_OF_EVENT }.payload
 
-        payload.getString("payloadKey") shouldBe "payloadValue"
+        payload?.getString("payloadKey") shouldBe "payloadValue"
     }
 
     @Test
@@ -333,7 +335,7 @@ class NotificationCommandFactoryTest {
         val commands = extractCommandsFromComposite<AppEventCommand>(intent)
         val payload = commands.first { it.name == NAME_OF_EVENT }.payload
 
-        payload.getString("payloadKey") shouldBe "payloadValue"
+        payload?.getString("payloadKey") shouldBe "payloadValue"
     }
 
     @Test
@@ -358,7 +360,7 @@ class NotificationCommandFactoryTest {
                         ))))
                 ))
         )
-        JsonUtils.toFlatMap(payload) shouldBe JsonUtils.toFlatMap(expected)
+        JsonUtils.toFlatMap(payload!!) shouldBe JsonUtils.toFlatMap(expected)
     }
 
     @Test

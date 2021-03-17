@@ -664,8 +664,8 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testCreateSilentPushCommands_shouldReturnListOfCommands_whenActionIsDefined() {
-        val expectedCommand1 = AppEventCommand(context, mock(), "MEAppEvent", null)
-        val expectedCommand2 = AppEventCommand(context, mock(), "MEAppEvent", JSONObject(mapOf("key" to "value")))
+        val expectedCommand1 = AppEventCommand(context, mock(), mock(), "MEAppEvent", null)
+        val expectedCommand2 = AppEventCommand(context, mock(), mock(), "MEAppEvent", JSONObject(mapOf("key" to "value")))
         whenever(mockActionCommandFactory.createActionCommand(any())).thenReturn(expectedCommand1).thenReturn(expectedCommand2)
         val message = mapOf(
                 "ems_msg" to "value",
@@ -694,8 +694,8 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testCreateSilentPushCommands_shouldReturnListOfCommands_whenListenerIsRegistered() {
-        val expectedCommand1 = AppEventCommand(context, mock(), "MEAppEvent", null)
-        val expectedCommand2 = AppEventCommand(context, mock(), "MEAppEvent", JSONObject(mapOf("key" to "value")))
+        val expectedCommand1 = AppEventCommand(context, mock(), mock(), "MEAppEvent", null)
+        val expectedCommand2 = AppEventCommand(context, mock(), mock(), "MEAppEvent", JSONObject(mapOf("key" to "value")))
         whenever(mockActionCommandFactory.createActionCommand(any())).thenReturn(expectedCommand1).thenReturn(expectedCommand2)
         val message = mapOf(
                 "ems_msg" to "value",
