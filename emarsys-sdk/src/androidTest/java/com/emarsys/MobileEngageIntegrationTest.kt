@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.device.DeviceInfo
@@ -31,6 +32,7 @@ import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
 import io.kotlintest.matchers.numerics.shouldBeInRange
+import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.After
@@ -190,10 +192,13 @@ class MobileEngageIntegrationTest {
     fun testClearContact() {
         Emarsys.clearContact(
                 this::eventuallyStoreResult
-        ).also{
+        ).also {
             completionListenerLatch.await()
+            if (errorCause != null) {
+                Log.e("testClearContact", responseModel.body, errorCause)
+            }
             errorCause shouldBe null
-            responseModel.body shouldBe ""
+            responseModel.body shouldContain "refreshToken"
             responseModel.message shouldBe "OK"
             responseModel.statusCode shouldBeInRange IntRange(200, 299)
         }
