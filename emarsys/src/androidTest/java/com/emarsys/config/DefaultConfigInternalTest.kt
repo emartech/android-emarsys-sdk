@@ -399,6 +399,7 @@ class DefaultConfigInternalTest {
         latch.await()
 
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe true
+        FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4) shouldBe true
     }
 
     @Test

@@ -119,6 +119,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     private fun handleApplicationCodeChange(applicationCode: String?, newContactFieldId: Int, completionListener: CompletionListener?) {
         if (applicationCode != null) {
             FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
+            FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
             mobileEngageRequestContext.applicationCode = applicationCode
             mobileEngageRequestContext.contactFieldId = newContactFieldId
             collectClientState(completionListener) {
