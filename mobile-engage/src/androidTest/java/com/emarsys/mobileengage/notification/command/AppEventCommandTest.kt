@@ -62,7 +62,15 @@ class AppEventCommandTest {
     @Throws(JSONException::class)
     fun testRun_invokeHandleEventMethod_onNotificationEventHandler_whenThereIsNoPayload() {
         val name = "nameOfTheEvent"
+
+        val latch = CountDownLatch(1)
+
         AppEventCommand(applicationContext, eventHandlerProvider, uiHandler, name, null).run()
+        uiHandler.post {
+            latch.countDown()
+        }
+        latch.await()
+
         verify(mockEventHandler).handleEvent(applicationContext, name, null)
     }
 
