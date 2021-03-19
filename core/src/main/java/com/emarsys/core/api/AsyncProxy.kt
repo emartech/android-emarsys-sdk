@@ -31,10 +31,10 @@ class AsyncProxy<T>(private val apiObject: T,
             if (!isVoid) {
                 latch.countDown()
             }
-            EmarsysIdlingResources.decrement()
         }
         if (!isVoid) {
             latch.await(10, TimeUnit.SECONDS)
+            EmarsysIdlingResources.decrement()
         }
         return result
     }

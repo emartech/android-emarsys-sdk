@@ -1,7 +1,9 @@
 package com.emarsys.core.worker;
 
 import android.os.Handler;
+
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.api.EmarsysIdlingResources;
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.handler.CoreSdkHandler;
@@ -116,6 +118,7 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
                 @Override
                 public void run() {
                     coreCompletionHandler.onSuccess(id, responseModel);
+                    EmarsysIdlingResources.decrement();
                 }
             }));
         }
@@ -127,6 +130,7 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
                 @Override
                 public void run() {
                     coreCompletionHandler.onError(id, responseModel);
+                    EmarsysIdlingResources.decrement();
                 }
             }));
         }
