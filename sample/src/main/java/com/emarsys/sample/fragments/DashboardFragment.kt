@@ -109,14 +109,14 @@ class DashboardFragment : Fragment() {
         if (requestCode == DashboardFragment.REQUEST_CODE_SIGN_IN && resultCode != 0) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             Emarsys.setAuthenticatedContact(task.result.idToken!!) {
-                handleLoginResult(it)
+                handleLoginResult(it, task.result.email)
             }
             Log.i("GOOGLE_OAUTH_ID_TOKEN", task.result.idToken!!)
         }
     }
 
-    private fun handleLoginResult(error: Throwable?) {
-        val contactId = contactId.text.toString()
+    private fun handleLoginResult(error: Throwable?, contactName: String? = null) {
+        val contactId  = contactName ?: contactId.text.toString()
         if (error != null) {
             Log.e(MobileEngageFragmentTracking.TAG, error.toString())
             view?.showSnackBar("Login: failed :(")
