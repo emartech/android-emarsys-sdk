@@ -15,7 +15,7 @@ object Versions {
     const val kotlinMockito = "2.2.0"
     const val location_services_version = "17.1.0"
     const val espresso_idling_resources = "3.3.0"
-    const val archLifecycleVersion ="2.2.0"
+    const val archLifecycleVersion ="2.3.0"
     const val securityCryptoVersion = "1.1.0-alpha03"
 }
 
