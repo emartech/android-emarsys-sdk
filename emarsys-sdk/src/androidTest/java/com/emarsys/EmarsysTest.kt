@@ -652,9 +652,9 @@ class EmarsysTest {
 
         setAuthenticatedContact(ID_TOKEN, completionListener)
 
-        runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockMobileEngageApi)
-        }
+        runBlockingOnCoreSdkThread ()
+
+        verifyZeroInteractions(mockMobileEngageApi)
     }
 
     @Test

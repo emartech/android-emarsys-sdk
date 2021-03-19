@@ -112,7 +112,11 @@ object Emarsys {
     }
 
     private fun registerLifecycleObservers() {
-        ProcessLifecycleOwner.get().lifecycle.addObserver(getDependency<AppLifecycleObserver>())
+        val container: DependencyContainer = DependencyInjection.getContainer()
+        val appLifecycleObserver = getDependency<AppLifecycleObserver>()
+        container.getUiHandler().post {
+            ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
+        }
     }
 
     @JvmStatic

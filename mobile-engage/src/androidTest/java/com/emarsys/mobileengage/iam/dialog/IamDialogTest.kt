@@ -2,14 +2,12 @@ package com.emarsys.mobileengage.iam.dialog
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
-import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.webkit.WebView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.di.DependencyInjection
@@ -33,7 +31,6 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import java.util.concurrent.CountDownLatch
 
-@SdkSuppress(minSdkVersion = VERSION_CODES.KITKAT)
 class IamDialogTest {
     private companion object {
         const val CAMPAIGN_ID = "id_value"
@@ -60,15 +57,17 @@ class IamDialogTest {
     fun setUp() {
         mockTimestampProvider = mock()
         DependencyInjection.setup(FakeMobileEngageDependencyContainer(timestampProvider = mockTimestampProvider))
-        dialog = spy(TestIamDialog.create(
-                CAMPAIGN_ID,
-                CountDownLatch(1),
-                CountDownLatch(1),
-                CountDownLatch(1),
-                CountDownLatch(1)
-        ))
-        dialog.setActions(listOf())
-        dialog.setInAppLoadingTime(InAppLoadingTime(1, 1))
+        activityRule.activity.runOnUiThread {
+            dialog = spy(TestIamDialog.create(
+                    CAMPAIGN_ID,
+                    CountDownLatch(1),
+                    CountDownLatch(1),
+                    CountDownLatch(1),
+                    CountDownLatch(1)
+            ))
+            dialog.setActions(listOf())
+            dialog.setInAppLoadingTime(InAppLoadingTime(1, 1))
+        }
         initWebViewProvider()
     }
 
@@ -81,13 +80,13 @@ class IamDialogTest {
 
     @Test
     fun testCreate_shouldReturnImageDialogInstance() {
-        create("", SID, URL, "requestId") shouldNotBe null
+        runBlocking { create("", SID, URL, "requestId") } shouldNotBe null
     }
 
     @Test
     fun testCreate_shouldInitializeDialog_withCampaignId() {
         val campaignId = "123456789"
-        val dialog = create(campaignId, SID, URL, "requestId")
+        val dialog = runBlocking { create(campaignId, SID, URL, "requestId") }
         val result = dialog.arguments
 
         result shouldNotBe null
@@ -98,7 +97,8 @@ class IamDialogTest {
     fun testCreate_shouldInitializeDialog_withRequestId() {
         val requestId = "requestId"
         val campaignId = "campaignId"
-        val dialog = create(campaignId, SID, URL, requestId)
+        val dialog: IamDialog = runBlocking { create(campaignId, SID, URL, requestId) }
+
         val result = dialog.arguments
 
         result shouldNotBe null
@@ -109,7 +109,7 @@ class IamDialogTest {
     fun testCreate_shouldInitializeDialog_withSid() {
         val requestId = "requestId"
         val campaignId = "campaignId"
-        val dialog = create(campaignId, SID, URL, requestId)
+        val dialog =  runBlocking { create(campaignId, SID, URL, requestId) }
         val result = dialog.arguments
 
         result shouldNotBe null
@@ -120,7 +120,7 @@ class IamDialogTest {
     fun testCreate_shouldInitializeDialog_withUrl() {
         val requestId = "requestId"
         val campaignId = "campaignId"
-        val dialog = create(campaignId, SID, URL, requestId)
+        val dialog =  runBlocking { create(campaignId, SID, URL, requestId) }
         val result = dialog.arguments
 
         result shouldNotBe null
@@ -130,7 +130,7 @@ class IamDialogTest {
     @Test
     fun testCreate_shouldInitializeDialog_withOutRequestId() {
         val campaignId = "campaignId"
-        val dialog = create(campaignId, SID, URL, null)
+        val dialog =  runBlocking { create(campaignId, SID, URL, null) }
         val result = dialog.arguments
 
         result shouldNotBe null
@@ -163,7 +163,7 @@ class IamDialogTest {
     @Test
     @Throws(InterruptedException::class)
     fun testDialog_stillVisible_afterOrientationChange() {
-        val iamDialog = create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY)
+        val iamDialog: IamDialog = runBlocking { create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY) }
         val activity: AppCompatActivity = activityRule.activity
         activity.runOnUiThread { iamDialog.show(activity.supportFragmentManager, "testDialog") }
         activityRule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -182,7 +182,7 @@ class IamDialogTest {
 
     @Test
     fun testDialog_cancel_turnsRetainInstanceOff() {
-        val iamDialog = create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY)
+        val iamDialog: IamDialog = runBlocking { create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY) }
         iamDialog.setInAppLoadingTime(InAppLoadingTime(1, 1))
         val activity: AppCompatActivity = activityRule.activity
         activity.runOnUiThread { iamDialog.show(activity.supportFragmentManager, "testDialog") }
@@ -197,13 +197,18 @@ class IamDialogTest {
 
     @Test
     fun testDialog_dismiss_turnsRetainInstanceOff() {
-        val iamDialog = create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY)
-        iamDialog.setInAppLoadingTime(InAppLoadingTime(1, 1))
         val activity: AppCompatActivity = activityRule.activity
-        activity.runOnUiThread { iamDialog.show(activity.supportFragmentManager, "testDialog") }
+        val iamDialog: IamDialog = runBlocking { create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY) }
+
+        iamDialog.setInAppLoadingTime(InAppLoadingTime(1, 1))
+        iamDialog.show(activity.supportFragmentManager, "testDialog")
+
+
         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
         iamDialog.dismiss()
+
         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
@@ -368,5 +373,16 @@ class IamDialogTest {
                 mock(),
                 mock()
         )
+    }
+
+    inline fun <reified T> runBlocking(crossinline function: () -> T): T {
+        var result: T? = null
+        val latch: CountDownLatch = CountDownLatch(1)
+        activityRule.activity.runOnUiThread {
+            result = function()
+            latch.countDown()
+        }
+        latch.await()
+        return result!!
     }
 }
