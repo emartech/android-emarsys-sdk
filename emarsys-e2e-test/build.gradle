@@ -1,0 +1,8 @@
+dependencies {
+    implementation project(':emarsys-sdk')
+    implementation project(':core')
+    implementation project(':mobile-engage')
+    implementation project(':predict')
+
+    androidTestImplementation project(':testUtils')
+}

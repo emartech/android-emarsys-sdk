@@ -3,9 +3,9 @@ package com.emarsys
 import android.app.Application
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.mobileengage.api.inbox.Message
+import com.emarsys.testUtil.E2ETestUtils
+import com.emarsys.testUtil.E2ETestUtils.retry
 import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.IntegrationTestUtils.retry
 import com.emarsys.testUtil.RetryUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
@@ -13,13 +13,12 @@ import com.emarsys.testUtil.rules.RetryRule
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.After
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
-@Ignore
 class EmarsysE2ETests {
 
     companion object {
@@ -48,7 +47,7 @@ class EmarsysE2ETests {
 
     @After
     fun tearDown() {
-        IntegrationTestUtils.tearDownEmarsys(application)
+        E2ETestUtils.tearDownEmarsys(application)
     }
 
     @Test
@@ -63,7 +62,7 @@ class EmarsysE2ETests {
         val timestamp = System.currentTimeMillis()
 
         trackCustomEvent(title, timestamp)
-        retry {
+        retry(10, 2000) {
             val message = fetchMessage(title, timestamp)
             message shouldNotBe null
         }
@@ -81,7 +80,7 @@ class EmarsysE2ETests {
         val timestamp = System.currentTimeMillis()
         trackCustomEvent(title, timestamp)
 
-        retry {
+        retry(10, 2000) {
             val message = fetchMessage(title, timestamp)
             message shouldNotBe null
         }
@@ -118,7 +117,7 @@ class EmarsysE2ETests {
         val timestamp = System.currentTimeMillis()
         trackCustomEvent(title, timestamp)
         var message: Message? = null
-        retry {
+        retry(10, 2000) {
             message = fetchMessage(title, timestamp)
             message shouldNotBe null
         }
@@ -131,7 +130,7 @@ class EmarsysE2ETests {
             }
             addMessageTagLatch.await()
 
-            retry {
+            retry(10, 2000) {
                 val updatedMessage = fetchMessage(title, timestamp)
                 updatedMessage shouldNotBe null
                 if (updatedMessage != null) {
@@ -143,7 +142,7 @@ class EmarsysE2ETests {
                 removeMessageTagLatch.countDown()
             }
             removeMessageTagLatch.await()
-            retry {
+            retry(10, 2000) {
                 val updatedMessage = fetchMessage(title, timestamp)
                 updatedMessage shouldNotBe null
                 updatedMessage?.tags?.contains(TEST_TAG) shouldBe false
@@ -189,7 +188,7 @@ class EmarsysE2ETests {
                 .build())
     }
 
-    private fun fetchMessage(title: String, timestamp: Long): Message? {
+    private fun fetchMessage(title: String, timestamp: Long, timeout: Long = 1000): Message? {
         var message: Message? = null
         Thread.sleep(1000)
         val fetchMessageInboxLatch = CountDownLatch(1)
@@ -201,7 +200,7 @@ class EmarsysE2ETests {
             fetchMessageInboxLatch.countDown()
         }
 
-        fetchMessageInboxLatch.await()
+        fetchMessageInboxLatch.await(timeout, TimeUnit.MILLISECONDS)
         return message
     }
 }
