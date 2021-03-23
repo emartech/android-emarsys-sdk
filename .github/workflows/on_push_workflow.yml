@@ -1,4 +1,4 @@
-name: Last commit build
+name: Last push build
 
 on:
   workflow_dispatch:
@@ -472,7 +472,7 @@ jobs:
         uses: megamegax/slack_action@0.2.3
         with:
           channel: '${{env.SLACK_CHANNEL}}'
-          message: 'Build successful! :man-gesturing-ok: :bananadance:'
+          message: 'Last push build successful! :man-gesturing-ok: :bananadance:'
           user_name: '${{env.SLACK_USERNAME}}'
           job_status: 'success'
           user_icon: '${{env.SLACK_ICON}}'
@@ -505,7 +505,7 @@ jobs:
         uses: megamegax/slack_action@0.2.3
         with:
           channel: '${{env.SLACK_CHANNEL}}'
-          message: 'Build failed! :man-gesturing-no: :blobcatfearful:'
+          message: 'Last push build failed! :man-gesturing-no: :blobcatfearful:'
           user_name: '${{env.SLACK_USERNAME}}'
           job_status: 'failure'
           user_icon: '${{env.SLACK_ICON}}'

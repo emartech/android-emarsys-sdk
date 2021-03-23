@@ -197,7 +197,7 @@ jobs:
       - name: Slack Notification - Mobile Apps Channel
         uses: megamegax/slack_action@0.2.3
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_MOBILE_APPS_CHANNEL_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_MOBILE_APPS_CHANNEL_WEBHOOK }}
         with:
           channel: 'mobile-apps'
           message: 'Emarsys SDK ${{env.RELEASE_VERSION}} has been released! :man-gesturing-ok: :bananadance:'
@@ -239,7 +239,7 @@ jobs:
         uses: megamegax/slack_action@0.2.3
         with:
           channel: '${{env.SLACK_CHANNEL}}'
-          message: 'Build failed! :man-gesturing-no: :blobcatfearful:'
+          message: 'Release failed! :man-gesturing-no: :blobcatfearful:'
           user_name: '${{env.SLACK_USERNAME}}'
           job_status: 'failure'
           user_icon: '${{env.SLACK_ICON}}'

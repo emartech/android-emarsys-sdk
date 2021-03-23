@@ -130,7 +130,7 @@ jobs:
         uses: megamegax/slack_action@0.2.3
         with:
           channel: '${{env.SLACK_CHANNEL}}'
-          message: 'Build successful! :man-gesturing-ok: :bananadance:'
+          message: 'Nightly E2E tests successful! :man-gesturing-ok: :bananadance:'
           user_name: '${{env.SLACK_USERNAME}}'
           job_status: 'success'
           user_icon: '${{env.SLACK_ICON}}'
@@ -163,7 +163,7 @@ jobs:
         uses: megamegax/slack_action@0.2.3
         with:
           channel: '${{env.SLACK_CHANNEL}}'
-          message: 'Build failed! :man-gesturing-no: :blobcatfearful:'
+          message: 'Nightly E2E tests failed! :man-gesturing-no: :blobcatfearful:'
           user_name: '${{env.SLACK_USERNAME}}'
           job_status: 'failure'
           user_icon: '${{env.SLACK_ICON}}'
