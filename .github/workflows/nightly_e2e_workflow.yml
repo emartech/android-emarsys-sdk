@@ -83,7 +83,7 @@ jobs:
           path: FAILURE.TXT
 
   TestE2E:
-    name: Run core tests on Firebase
+    name: Run E2E tests on Firebase
     needs: Build
     runs-on: ubuntu-latest
     steps:
