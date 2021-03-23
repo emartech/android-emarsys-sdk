@@ -159,3 +159,21 @@ common:
       version: 30
       locale: 'en'
       orientation: portrait
+
+emarsys-e2e-test:
+  type: instrumentation
+  app: sample-debug-androidTest.apk
+  test: emarsys-e2e-test-debug-androidTest.apk
+  device:
+    - model: Nexus10
+      version: 21
+      locale: 'en'
+      orientation: portrait
+    - model: Nexus6P
+      version: 26
+      locale: 'en'
+      orientation: portrait
+    - model: NexusLowRes
+      version: 30
+      locale: 'en'
+      orientation: portrait
