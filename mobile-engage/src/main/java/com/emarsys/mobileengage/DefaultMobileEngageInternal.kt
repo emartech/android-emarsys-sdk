@@ -15,26 +15,32 @@ class DefaultMobileEngageInternal(private val requestManager: RequestManager,
                                   private val sessionIdHolder: SessionIdHolder) : MobileEngageInternal {
 
     override fun setContact(contactFieldValue: String?, completionListener: CompletionListener?) {
+        doSetContact(contactFieldValue, completionListener = completionListener)
+
         if (requestContext.contactFieldValueStorage.get() != contactFieldValue) {
             if (!sessionIdHolder.sessionId.isNullOrEmpty()) {
                 session.endSession()
             }
             session.startSession()
         }
-        doSetContact(contactFieldValue, completionListener =  completionListener)
+
     }
 
     override fun setAuthenticatedContact(openIdToken: String, completionListener: CompletionListener?) {
-        if (requestContext.openIdToken != openIdToken) {
+        val shouldRestartSession = requestContext.openIdToken != openIdToken
+        doSetContact(null, openIdToken, completionListener)
+
+        if (shouldRestartSession) {
             if (!sessionIdHolder.sessionId.isNullOrEmpty()) {
                 session.endSession()
             }
             session.startSession()
         }
-        doSetContact(null, openIdToken, completionListener)
     }
 
-    private fun doSetContact(contactFieldValue: String?, idToken: String? = null, completionListener: CompletionListener?) {
+    private fun doSetContact(contactFieldValue: String?,
+                             idToken: String? = null,
+                             completionListener: CompletionListener?) {
         requestContext.contactFieldValueStorage.set(contactFieldValue)
         requestContext.openIdToken = idToken
         val requestModel = requestModelFactory.createSetContactRequest(contactFieldValue)
@@ -47,6 +53,8 @@ class DefaultMobileEngageInternal(private val requestManager: RequestManager,
             session.endSession()
         }
         doSetContact(null, completionListener = completionListener)
+
+        session.startSession()
     }
 
     fun resetContext() {

@@ -17,11 +17,13 @@ import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.Mockito
 import org.mockito.Mockito.*
 
 
@@ -42,8 +44,8 @@ class DefaultMobileEngageInternalTest {
         const val TIMEZONE = "+0200"
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
         const val OTHER_CONTACT_FIELD_VALUE = "contactFieldValue_potato"
-        const val OPEN_ID_TOKEN  = "idToken"
-        const val OTHER_OPEN_ID_TOKEN  = "idToken_OTHER"
+        const val OPEN_ID_TOKEN = "idToken"
+        const val OTHER_OPEN_ID_TOKEN = "idToken_OTHER"
         const val EVENT_NAME = "customEventName"
         val EVENT_ATTRIBUTES = emptyMap<String, String>()
     }
@@ -137,7 +139,13 @@ class DefaultMobileEngageInternalTest {
 
         mockCompletionListener = mock(CompletionListener::class.java)
 
-        mobileEngageInternal = DefaultMobileEngageInternal(mockRequestManager, mockRequestModelFactory, mockRequestContext, mockSession, mockSessionIdHolder)
+        mobileEngageInternal = DefaultMobileEngageInternal(
+            mockRequestManager,
+            mockRequestModelFactory,
+            mockRequestContext,
+            mockSession,
+            mockSessionIdHolder
+        )
     }
 
     @Test
@@ -179,11 +187,12 @@ class DefaultMobileEngageInternalTest {
     @Test
     fun testSetAuthenticatedContact_shouldNotCallEndSession_whenNoSessionWasStartedBefore() {
         whenever(mockSessionIdHolder.sessionId).thenReturn(null)
+        inOrder(mockSession) {
+            mobileEngageInternal.setAuthenticatedContact(OPEN_ID_TOKEN, null)
+            verify(mockSession, times(0)).endSession()
+            verify(mockSession).startSession()
+        }
 
-        mobileEngageInternal.setAuthenticatedContact(OPEN_ID_TOKEN, null)
-
-        verify(mockSession, times(0)).endSession()
-        verify(mockSession).startSession()
     }
 
     @Test
@@ -192,12 +201,13 @@ class DefaultMobileEngageInternalTest {
             on { get() } doReturn CONTACT_FIELD_VALUE
         }
         whenever(mockRequestContext.contactFieldValueStorage).thenReturn(mockContactFieldValueStorage)
+        inOrder(mockSession) {
+            mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
 
-        mobileEngageInternal.setContact(CONTACT_FIELD_VALUE, null)
+            mobileEngageInternal.setContact(OTHER_CONTACT_FIELD_VALUE, null)
 
-        mobileEngageInternal.setContact(OTHER_CONTACT_FIELD_VALUE, null)
-
-        verify(mockSession, times(1)).startSession()
+            Mockito.verify(mockSession, times(1)).startSession()
+        }
     }
 
     @Test
@@ -221,15 +231,18 @@ class DefaultMobileEngageInternalTest {
 
     @Test
     fun testClearContact() {
+        whenever(mockSessionIdHolder.sessionId).thenReturn("sessionid")
         mobileEngageInternal = spy(mobileEngageInternal)
 
         mobileEngageInternal.clearContact(mockCompletionListener)
 
-        inOrder(mobileEngageInternal, mockRequestManager).run {
+        inOrder(mobileEngageInternal, mockRequestManager, mockSession).run {
             verify(mobileEngageInternal).clearContact(mockCompletionListener)
             verify(mobileEngageInternal).resetContext()
+            verify(mockSession).endSession()
             verify(mockRequestManager).submit(mockRequestModelWithNullContactFieldValue, mockCompletionListener)
             verifyNoMoreInteractions(mobileEngageInternal)
+            verify(mockSession).startSession()
         }
     }
 
