@@ -220,6 +220,7 @@ class DefaultConfigInternalTest {
 
     @Test
     fun testChangeApplicationCode_shouldCallClearContact() {
+        whenever(mockMobileEngageRequestContext.hasContactIdentification()).thenReturn(true)
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener { })
 
         verify(mockMobileEngageInternal).clearContact(any())
@@ -275,6 +276,7 @@ class DefaultConfigInternalTest {
         latch.await()
         verify(mockMobileEngageRequestContext).applicationCode
         verify(mockMobileEngageRequestContext).contactFieldId
+        verify(mockMobileEngageRequestContext).hasContactIdentification()
         verify(mockPushInternal).clearPushToken(any())
         verify(mockMobileEngageInternal).clearContact(any())
         verifyNoMoreInteractions(mockMobileEngageInternal)
@@ -326,7 +328,7 @@ class DefaultConfigInternalTest {
         verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
 
-        verify(mockMobileEngageInternal, times(0)).clearContact(any())
+        verify(mockMobileEngageInternal, times(1)).clearContact(any())
     }
 
     @Test
@@ -462,6 +464,7 @@ class DefaultConfigInternalTest {
         latch.await()
         verify(mockMobileEngageRequestContext).contactFieldId
         verify(mockMobileEngageRequestContext).applicationCode
+        verify(mockMobileEngageRequestContext).hasContactIdentification()
         verify(mockPushInternal).clearPushToken(any())
         verify(mockMobileEngageInternal).clearContact(any())
         verifyNoMoreInteractions(mockMobileEngageRequestContext)
@@ -484,6 +487,36 @@ class DefaultConfigInternalTest {
         inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         inOrder.verify(mockClientServiceInternal).trackDeviceInfo(any())
         verifyZeroInteractions(mockPushInternal)
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldClearContactAfter_ifContactWasNotSet() {
+        val latch = CountDownLatch(1)
+        whenever(mockMobileEngageRequestContext.hasContactIdentification()).doReturn(false)
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
+            latch.countDown()
+        })
+        latch.await()
+        val inOrder = inOrder(mockMobileEngageInternal, mockMobileEngageRequestContext, mockClientServiceInternal)
+        inOrder.verify(mockMobileEngageInternal).clearContact(any())
+        inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
+        inOrder.verify(mockClientServiceInternal).trackDeviceInfo(any())
+        inOrder.verify(mockMobileEngageInternal).clearContact(any())
+    }
+
+    @Test
+    fun testChangeApplicationCode_shouldNotClearContactAfter_ifContactWasSet() {
+        val latch = CountDownLatch(1)
+        whenever(mockMobileEngageRequestContext.hasContactIdentification()).doReturn(true)
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, CONTACT_FIELD_ID, CompletionListener {
+            latch.countDown()
+        })
+        latch.await()
+        val inOrder = inOrder(mockMobileEngageInternal, mockMobileEngageRequestContext, mockClientServiceInternal)
+        inOrder.verify(mockMobileEngageInternal).clearContact(any())
+        inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
+        inOrder.verify(mockClientServiceInternal).trackDeviceInfo(any())
+        verifyNoMoreInteractions(mockMobileEngageInternal)
     }
 
     @Test

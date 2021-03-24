@@ -71,9 +71,12 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     private var originalContactFieldId: Int = 0
     private var originalPushToken: String? = null
 
+    private var hasContactIdentification: Boolean = false
+
     override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: CompletionListener?) {
         originalContactFieldId = mobileEngageRequestContext.contactFieldId
         originalPushToken = pushTokenProvider.providePushToken()
+        hasContactIdentification = mobileEngageRequestContext.hasContactIdentification()
 
         if (mobileEngageRequestContext.applicationCode == null) {
             handleApplicationCodeChange(applicationCode, contactFieldId, completionListener)
@@ -90,6 +93,14 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                 onSuccess()
             }
         }
+    }
+
+    private fun clearContactIfWasNotIdentified(completionListener: CompletionListener?, onSuccess: () -> Unit) {
+            if (hasContactIdentification) {
+                onSuccess()
+            } else {
+                clearContact(completionListener, onSuccess)
+            }
     }
 
     private fun clearContact(completionListener: CompletionListener?, onSuccess: () -> Unit) {
@@ -123,7 +134,9 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
             mobileEngageRequestContext.applicationCode = applicationCode
             mobileEngageRequestContext.contactFieldId = newContactFieldId
             collectClientState(completionListener) {
-                completionListener?.onCompleted(null)
+                clearContactIfWasNotIdentified(completionListener) {
+                    completionListener?.onCompleted(null)
+                }
             }
         } else {
             FeatureRegistry.disableFeature(InnerFeature.MOBILE_ENGAGE)
