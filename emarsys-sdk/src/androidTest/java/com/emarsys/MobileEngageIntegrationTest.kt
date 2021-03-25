@@ -7,32 +7,24 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.core.storage.Storage
-import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.push.PushTokenProvider
-import com.emarsys.mobileengage.storage.MobileEngageStorageKey
-import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
 import io.kotlintest.matchers.numerics.shouldBeInRange
-import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.After
@@ -58,8 +50,6 @@ class MobileEngageIntegrationTest {
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var responseModel: ResponseModel
     private lateinit var completionHandler: DefaultCoreCompletionHandler
-    private lateinit var clientStateStorage: Storage<String?>
-    private lateinit var contactTokenStorage: Storage<String?>
 
     private var errorCause: Throwable? = null
 
@@ -137,28 +127,6 @@ class MobileEngageIntegrationTest {
 
         Emarsys.setup(baseConfig)
 
-        getDependency<CoreSdkHandler>().post {
-            clientStateStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().clientStateStorage
-            contactTokenStorage = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>().getRequestContext().contactTokenStorage
-
-            clientStateStorage = getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key)
-            contactTokenStorage = getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key)
-
-            clientStateStorage.remove()
-            contactTokenStorage.remove()
-
-            getDependency<StringStorage>(MobileEngageStorageKey.DEVICE_INFO_HASH.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.REFRESH_TOKEN.key).remove()
-
-            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
-        }
-
         IntegrationTestUtils.doLogin()
 
         completionListenerLatch = CountDownLatch(1)
@@ -181,7 +149,6 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testSetContact() {
-        contactTokenStorage.remove()
         Emarsys.setContact(
                 "test@test.com",
                 this::eventuallyStoreResult
@@ -192,16 +159,7 @@ class MobileEngageIntegrationTest {
     fun testClearContact() {
         Emarsys.clearContact(
                 this::eventuallyStoreResult
-        ).also {
-            completionListenerLatch.await()
-            if (errorCause != null) {
-                Log.e("testClearContact", responseModel.body, errorCause)
-            }
-            errorCause shouldBe null
-            responseModel.body shouldContain "refreshToken"
-            responseModel.message shouldBe "OK"
-            responseModel.statusCode shouldBeInRange IntRange(200, 299)
-        }
+        ).also(this::eventuallyAssertSuccess)
     }
 
     @Test
@@ -261,9 +219,6 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testSetPushToken() {
-        clientStateStorage.remove()
-        contactTokenStorage.remove()
-
         Emarsys.push.setPushToken("integration_test_push_token",
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
@@ -294,12 +249,10 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackDeviceInfo() {
-        clientStateStorage.remove()
-        contactTokenStorage.remove()
-
         val clientServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().getClientServiceInternal()
 
-        clientServiceInternal.trackDeviceInfo(null).also(this::eventuallyAssertCompletionHandlerSuccess)
+        clientServiceInternal.trackDeviceInfo(this::eventuallyStoreResult)
+                .also(this::eventuallyAssertCompletionHandlerSuccess)
     }
 
     @Test
