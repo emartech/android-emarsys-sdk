@@ -10,18 +10,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
 import static org.mockito.Mockito.mock;
 
-@RunWith(AndroidJUnit4.class)
 public class NotificationCacheTest {
 
     @Rule

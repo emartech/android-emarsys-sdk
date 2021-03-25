@@ -2,24 +2,23 @@ package com.emarsys.core.connection;
 
 import android.content.Context;
 import android.content.Intent;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.fake.FakeConnectionChangeListener;
 import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
-@RunWith(AndroidJUnit4.class)
 public class ConnectivityChangeReceiverTest {
 
     ConnectionWatchDog.ConnectivityChangeReceiver receiver;

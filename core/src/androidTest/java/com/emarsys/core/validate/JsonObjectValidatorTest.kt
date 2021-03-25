@@ -1,6 +1,5 @@
 package com.emarsys.core.validate;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.emarsys.testUtil.TimeoutUtils
 import org.json.JSONObject
 import org.junit.Assert
@@ -8,10 +7,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 
-@RunWith(AndroidJUnit4::class)
 class JsonObjectValidatorTest {
 
     @Rule

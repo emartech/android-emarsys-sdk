@@ -38,5 +38,4 @@ dependencies {
     api TestLibs.support_test_runner
     api TestLibs.support_test_rules
     api TestLibs.multiDex
-    api TestLibs.androidJunit4
 }

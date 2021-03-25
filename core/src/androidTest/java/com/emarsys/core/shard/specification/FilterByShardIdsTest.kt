@@ -1,7 +1,6 @@
 package com.emarsys.core.shard.specification
 
 import android.content.Context
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.shard.ShardModel
@@ -14,9 +13,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
 class FilterByShardIdsTest {
 
     private lateinit var context: Context

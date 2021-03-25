@@ -2,7 +2,6 @@ package com.emarsys.core.shard
 
 import android.content.Context
 import android.database.Cursor
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_DATA
 import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_ID
 import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TIMESTAMP
@@ -18,12 +17,10 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.junit.runner.RunWith
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import java.io.Serializable
 
-@RunWith(AndroidJUnit4::class)
 class ShardModelRepositoryTest {
 
     private lateinit var shardModel: ShardModel

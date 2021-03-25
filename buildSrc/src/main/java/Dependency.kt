@@ -8,7 +8,6 @@ object Versions {
     const val support_annotations = "1.1.0"
     const val buildToolsVersion = "30.0.2"
     const val multiDexVersion = "2.0.0"
-    const val androidJunit4 = "1.1.2"
     const val kotlinMockito = "2.2.0"
     const val location_services_version = "17.1.0"
     const val espresso_idling_resources = "3.3.0"
@@ -35,5 +34,4 @@ object TestLibs {
     const val support_test_runner = "androidx.test:runner:${Versions.support_test_version}"
     const val support_test_rules = "androidx.test:rules:${Versions.support_test_version}"
     const val multiDex = "androidx.multidex:multidex-instrumentation:${Versions.multiDexVersion}"
-    const val androidJunit4 = "androidx.test.ext:junit:${Versions.androidJunit4}"
 }

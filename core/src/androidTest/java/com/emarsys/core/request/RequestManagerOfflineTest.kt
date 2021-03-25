@@ -2,7 +2,6 @@ package com.emarsys.core.request
 
 import android.os.Handler
 import android.os.Looper
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.emarsys.core.Registry
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
@@ -38,12 +37,10 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import java.io.IOException
 import java.util.concurrent.CountDownLatch
 
-@RunWith(AndroidJUnit4::class)
 class RequestManagerOfflineTest {
     companion object {
         const val URL = "https://www.emarsys.com/"
