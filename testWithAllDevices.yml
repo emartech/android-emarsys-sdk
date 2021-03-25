@@ -35,6 +35,10 @@ core-api:
       version: 29
       locale: 'en'
       orientation: portrait
+    - model: redfin
+      version: 30
+      locale: 'en'
+      orientation: portrait
 
 core:
   type: instrumentation
@@ -71,6 +75,10 @@ core:
       orientation: portrait
     - model: flame
       version: 29
+      locale: 'en'
+      orientation: portrait
+    - model: redfin
+      version: 30
       locale: 'en'
       orientation: portrait
 
@@ -111,6 +119,10 @@ mobile-engage-api:
       version: 29
       locale: 'en'
       orientation: portrait
+    - model: redfin
+      version: 30
+      locale: 'en'
+      orientation: portrait
 
 mobile-engage:
   type: instrumentation
@@ -147,6 +159,10 @@ mobile-engage:
       orientation: portrait
     - model: flame
       version: 29
+      locale: 'en'
+      orientation: portrait
+    - model: redfin
+      version: 30
       locale: 'en'
       orientation: portrait
 
@@ -187,6 +203,10 @@ predict-api:
       version: 29
       locale: 'en'
       orientation: portrait
+    - model: redfin
+      version: 30
+      locale: 'en'
+      orientation: portrait
 
 predict:
   type: instrumentation
@@ -223,6 +243,10 @@ predict:
       orientation: portrait
     - model: flame
       version: 29
+      locale: 'en'
+      orientation: portrait
+    - model: redfin
+      version: 30
       locale: 'en'
       orientation: portrait
 
@@ -263,6 +287,10 @@ emarsys-sdk:
       version: 29
       locale: 'en'
       orientation: portrait
+    - model: redfin
+      version: 30
+      locale: 'en'
+      orientation: portrait
 
 emarsys:
   type: instrumentation
@@ -301,6 +329,10 @@ emarsys:
       version: 29
       locale: 'en'
       orientation: portrait
+    - model: redfin
+      version: 30
+      locale: 'en'
+      orientation: portrait
 
 common:
   type: instrumentation
@@ -337,5 +369,9 @@ common:
       orientation: portrait
     - model: flame
       version: 29
+      locale: 'en'
+      orientation: portrait
+    - model: redfin
+      version: 30
       locale: 'en'
       orientation: portrait
