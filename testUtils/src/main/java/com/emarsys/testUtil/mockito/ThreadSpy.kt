@@ -2,8 +2,6 @@ package com.emarsys.testUtil.mockito
 
 import android.os.Looper
 import io.kotlintest.shouldBe
-import org.hamcrest.Matchers.startsWith
-import org.junit.Assert.assertThat
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import java.util.concurrent.CountDownLatch
@@ -36,6 +34,6 @@ class ThreadSpy<T> @JvmOverloads constructor(private val result: T? = null) : An
     }
 
     fun verifyCalledOnCoreSdkThread() {
-        assertThat(thread!!.name, startsWith("CoreSDKHandlerThread"))
+        thread!!.name.startsWith("CoreSDKHandlerThread") shouldBe true
     }
 }
