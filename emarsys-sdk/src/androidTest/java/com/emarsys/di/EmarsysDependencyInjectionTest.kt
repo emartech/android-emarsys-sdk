@@ -61,8 +61,6 @@ class EmarsysDependencyInjectionTest {
 
     @Before
     fun setUp() {
-        DependencyInjection.tearDown()
-
         mockMobileEngageApi = mock()
         mockLoggingMobileEngageApi = mock()
 

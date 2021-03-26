@@ -1,20 +1,20 @@
 package com.emarsys.config
 
+import android.os.Looper
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.di.FakeDependencyContainer
-import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.nhaarman.mockitokotlin2.doReturn
 import io.kotlintest.shouldBe
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -32,12 +32,15 @@ class ConfigTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
+    @Rule
+    @JvmField
+    val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
+
     lateinit var config: Config
     lateinit var mockConfigInternal: ConfigInternal
 
     @Before
     fun setUp() {
-        FeatureTestUtils.resetFeatures()
         mockConfigInternal = mock(ConfigInternal::class.java)
         val mockClientServiceProvider: ServiceEndpointProvider = com.nhaarman.mockitokotlin2.mock {
             on { provideEndpointHost() } doReturn CLIENT_HOST

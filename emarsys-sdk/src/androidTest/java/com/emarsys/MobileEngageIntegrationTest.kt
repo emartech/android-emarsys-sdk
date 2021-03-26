@@ -136,15 +136,11 @@ class MobileEngageIntegrationTest {
     @After
     fun tearDown() {
         try {
-            doTearDown()
+            IntegrationTestUtils.tearDownEmarsys(application)
         } catch (e: Exception) {
             e.printStackTrace()
             throw e
         }
-    }
-
-    private fun doTearDown() {
-        IntegrationTestUtils.tearDownEmarsys(application)
     }
 
     @Test
@@ -265,7 +261,7 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testConfig_changeApplicationCode_nilToSomething() {
-        doTearDown()
+        IntegrationTestUtils.tearDownEmarsys(application)
 
         val config = EmarsysConfig.Builder()
                 .application(application)

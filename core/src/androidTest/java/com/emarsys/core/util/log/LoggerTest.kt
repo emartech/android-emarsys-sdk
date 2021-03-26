@@ -1,11 +1,13 @@
 package com.emarsys.core.util.log
 
+import android.os.Looper
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.FakeCoreDependencyContainer
+import com.emarsys.core.di.getDependency
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -81,8 +83,12 @@ class LoggerTest {
 
     @After
     fun tearDown() {
-        coreSdkHandler.looper.quit()
-        DependencyInjection.tearDown()
+        if (DependencyInjection.isSetup()) {
+            val handler = getDependency<CoreSdkHandler>()
+            val looper: Looper = handler.looper
+            looper.quitSafely()
+            DependencyInjection.tearDown()
+        }
     }
 
     @Test

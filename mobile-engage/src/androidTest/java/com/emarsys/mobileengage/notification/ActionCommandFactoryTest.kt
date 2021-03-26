@@ -2,7 +2,6 @@ package com.emarsys.mobileengage.notification
 
 import android.content.Context
 import android.os.Handler
-import com.emarsys.core.di.DependencyInjection
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.notification.command.AppEventCommand
@@ -15,7 +14,6 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONArray
 import org.json.JSONObject
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -41,11 +39,6 @@ class ActionCommandFactoryTest {
         mockNotificationEventHandlerProvider = mock()
         mockUiHandler = mock()
         factory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationEventHandlerProvider, mockUiHandler)
-    }
-
-    @After
-    fun tearDown() {
-        DependencyInjection.tearDown()
     }
 
     @Test

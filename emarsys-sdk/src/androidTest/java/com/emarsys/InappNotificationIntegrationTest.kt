@@ -5,17 +5,12 @@ import android.content.Context
 import android.content.Intent
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.core.di.DependencyContainer
+import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.addDependency
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.mobileengage.iam.OverlayInAppPresenter
 import com.emarsys.mobileengage.service.IntentUtils
-import com.emarsys.mobileengage.storage.MobileEngageStorageKey
-import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
@@ -93,20 +88,14 @@ class InappNotificationIntegrationTest {
             override fun getOverlayInAppPresenter(): OverlayInAppPresenter {
                 return mockInappPresenterOverlay
             }
+
+            override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog {
+                return mock()
+            }
         })
         ConnectionTestUtils.checkConnection(application)
 
         Emarsys.setup(baseConfig)
-
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
-        }
 
         IntegrationTestUtils.doLogin()
     }
@@ -118,7 +107,6 @@ class InappNotificationIntegrationTest {
 
     @Test
     fun testInappPresent() {
-        addDependency(DependencyInjection.getContainer<DependencyContainer>().dependencies, mockInappPresenterOverlay)
         val context = InstrumentationRegistry.getTargetContext().applicationContext
         val url = FileDownloader(context).download("https://www.google.com")
         val emsPayload = """{"inapp": {"campaignId": "222","url": "https://www.google.com","fileUrl": "$url"}}"""

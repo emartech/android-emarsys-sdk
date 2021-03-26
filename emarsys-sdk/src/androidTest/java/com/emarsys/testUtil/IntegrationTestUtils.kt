@@ -33,8 +33,6 @@ object IntegrationTestUtils {
     }
 
     fun tearDownEmarsys(application: Application? = null) {
-        FeatureTestUtils.resetFeatures()
-
         getDependency<CoreSdkHandler>().post {
             if (application != null) {
                 application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
@@ -59,8 +57,9 @@ object IntegrationTestUtils {
         getDependency<CoreSdkHandler>().looper.quitSafely()
 
         DependencyInjection.tearDown()
-    }
 
+        FeatureTestUtils.resetFeatures()
+    }
 
     fun <T> runOnUiThread(lambda: () -> T): T {
         var result: T? = null

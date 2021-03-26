@@ -43,7 +43,6 @@ class RemoteConfigIntegrationTest {
     @Before
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
-        DependencyInjection.tearDown()
 
         baseConfig = EmarsysConfig.Builder()
                 .application(application)

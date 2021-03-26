@@ -85,8 +85,6 @@ class EmarsysMessagingServiceTest {
                 null
             }
         }
-
-        FeatureTestUtils.resetFeatures()
     }
 
     @After

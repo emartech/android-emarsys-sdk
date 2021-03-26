@@ -906,6 +906,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
 
     override fun getRemoteMessageMapper(): RemoteMessageMapper = getDependency(dependencies)
 
+    override fun getAppLifecycleObserver(): AppLifecycleObserver = getDependency(dependencies)
+
     private fun createPublicKey(): PublicKey {
         val publicKeySpec = X509EncodedKeySpec(
                 Base64.decode(PUBLIC_KEY, 0)

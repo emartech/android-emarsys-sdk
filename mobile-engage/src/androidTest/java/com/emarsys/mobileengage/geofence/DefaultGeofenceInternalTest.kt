@@ -8,9 +8,12 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Build
+import android.os.Looper
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.DependencyInjection
+import com.emarsys.core.di.getDependency
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
@@ -33,9 +36,7 @@ import com.google.android.gms.location.GeofencingRequest
 import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.json.JSONObject
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.TestRule
 import java.util.concurrent.CountDownLatch
 import com.emarsys.mobileengage.geofence.model.Geofence as MEGeofence
@@ -51,6 +52,22 @@ class DefaultGeofenceInternalTest {
                 MEGeofence("geofenceId2", 47.493812, 19.058537, 10.0, null, listOf(trigger)),
                 MEGeofence("geofenceId5", 47.492292, 19.056440, 10.0, null, listOf(trigger))
         )
+
+        @BeforeClass
+        @JvmStatic
+        fun setup() {
+            DependencyInjection.setup(FakeMobileEngageDependencyContainer())
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun teardown() {
+            val handler = getDependency<CoreSdkHandler>()
+            val looper: Looper = handler.looper
+            looper.quitSafely()
+            DependencyInjection.tearDown()
+        }
+
     }
 
     @Rule
@@ -98,8 +115,6 @@ class DefaultGeofenceInternalTest {
         mockGeofenceFilter = mock()
         mockLocation = mock()
         mockGeofencingClient = mock()
-
-        DependencyInjection.setup(FakeMobileEngageDependencyContainer())
 
         mockContext = mock()
         mockActionCommandFactory = mock()

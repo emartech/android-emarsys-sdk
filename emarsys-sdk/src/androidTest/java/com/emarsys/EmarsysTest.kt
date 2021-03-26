@@ -3,7 +3,6 @@ package com.emarsys
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
-import android.os.Looper
 import com.emarsys.Emarsys.Config.applicationCode
 import com.emarsys.Emarsys.Config.changeApplicationCode
 import com.emarsys.Emarsys.Config.changeMerchantId
@@ -54,7 +53,6 @@ import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
@@ -90,8 +88,8 @@ import com.emarsys.predict.response.XPResponseHandler
 import com.emarsys.push.PushApi
 import com.emarsys.testUtil.CollectionTestUtils.getElementByType
 import com.emarsys.testUtil.CollectionTestUtils.numberOfElementsIn
-import com.emarsys.testUtil.FeatureTestUtils.resetFeatures
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
+import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils.getInstanceField
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
@@ -284,11 +282,11 @@ class EmarsysTest {
                             eventServiceApi = mockEventServiceApi,
                             loggingEventServiceApi = mockLoggingEventServiceApi,
                             deepLinkApi = mockDeepLinkApi,
-                            loggingDeepLinkApi = mockLoggingDeepLinkApi
+                            loggingDeepLinkApi = mockLoggingDeepLinkApi,
+                            logger = mock()
                     )
             )
             latch = CountDownLatch(1)
-            resetFeatures()
         } catch (e: Exception) {
             e.printStackTrace()
             throw e
@@ -297,13 +295,15 @@ class EmarsysTest {
 
     @After
     fun tearDown() {
-        stop()
-        DependencyInjection.tearDown()
+        IntegrationTestUtils.tearDownEmarsys()
     }
 
     @Test
     fun testSetup_whenMobileEngageApplicationCodeAndMerchantIdAreNull_mobileEngageAndPredict_shouldBeDisabled() {
-        val config = createConfig().mobileEngageApplicationCode(null).predictMerchantId(null).build()
+        val config = createConfig()
+                .mobileEngageApplicationCode(null)
+                .predictMerchantId(null)
+                .build()
         setup(config)
 
         runBlockingOnCoreSdkThread()
@@ -342,7 +342,7 @@ class EmarsysTest {
 
     @Test
     fun testSetup_initializesDependencyInjectionContainer() {
-        stop()
+        IntegrationTestUtils.tearDownEmarsys()
 
         setup(baseConfig)
 
@@ -353,7 +353,7 @@ class EmarsysTest {
 
     @Test
     fun testSetup_initializesRequestManager_withRequestModelRepositoryProxy() {
-        stop()
+        IntegrationTestUtils.tearDownEmarsys()
 
         setup(mobileEngageConfig)
 
@@ -371,7 +371,7 @@ class EmarsysTest {
 
     @Test
     fun testSetup_initializesCoreCompletionHandler_withNoFlippers() {
-        stop()
+        IntegrationTestUtils.tearDownEmarsys()
 
         setup(mobileEngageConfig)
 
@@ -452,7 +452,7 @@ class EmarsysTest {
 
     @Test
     fun testSetup_registers_activityLifecycleWatchdog_withInAppStartAction() {
-        stop()
+        IntegrationTestUtils.tearDownEmarsys()
         val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
 
         setup(mobileEngageConfig)
@@ -469,7 +469,7 @@ class EmarsysTest {
 
     @Test
     fun testSetup_registers_activityLifecycleWatchdog_withDeepLinkAction() {
-        stop()
+        IntegrationTestUtils.tearDownEmarsys()
         val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
 
         setup(mobileEngageConfig)
@@ -1385,19 +1385,5 @@ class EmarsysTest {
             throw exception as Exception
         }
 
-    }
-
-    private fun stop() {
-        application.unregisterActivityLifecycleCallbacks(activityLifecycleWatchdog)
-        application.unregisterActivityLifecycleCallbacks(currentActivityWatchdog)
-        try {
-            val handler = getDependency<CoreSdkHandler>()
-            val looper: Looper = handler.looper
-            looper.quitSafely()
-            DependencyInjection.tearDown()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
-        }
     }
 }

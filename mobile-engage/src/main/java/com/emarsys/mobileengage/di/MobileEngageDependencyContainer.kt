@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.di
 
 import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.app.AppLifecycleObserver
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.DependencyContainer
@@ -154,4 +155,6 @@ interface MobileEngageDependencyContainer : DependencyContainer {
     fun getIamJsBridgeFactory(): IamJsBridgeFactory
 
     fun getRemoteMessageMapper(): RemoteMessageMapper
+
+    fun getAppLifecycleObserver(): AppLifecycleObserver
 }

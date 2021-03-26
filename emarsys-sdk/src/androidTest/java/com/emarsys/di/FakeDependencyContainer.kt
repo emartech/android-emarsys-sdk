@@ -487,4 +487,6 @@ class FakeDependencyContainer(
     override fun getIamJsBridgeFactory(): IamJsBridgeFactory = getDependency(dependencies)
 
     override fun getRemoteMessageMapper(): RemoteMessageMapper = getDependency(dependencies)
+
+    override fun getAppLifecycleObserver(): AppLifecycleObserver = getDependency(dependencies)
 }

@@ -7,14 +7,12 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.emarsys.common.feature.InnerFeature.*
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.proxyApi
 import com.emarsys.core.api.proxyWithLogExceptions
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
-import com.emarsys.core.app.AppLifecycleObserver
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.trigger.TriggerEvent
@@ -113,7 +111,8 @@ object Emarsys {
 
     private fun registerLifecycleObservers() {
         val container: DependencyContainer = DependencyInjection.getContainer()
-        val appLifecycleObserver = getDependency<AppLifecycleObserver>()
+        val appLifecycleObserver = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>()
+                .getAppLifecycleObserver()
         container.getUiHandler().post {
             ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
         }
@@ -534,7 +533,9 @@ object Emarsys {
     }
 
     private fun registerWatchDogs(config: EmarsysConfig) {
-        config.application.registerActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
+        config.application.registerActivityLifecycleCallbacks(
+                DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>()
+                        .getActivityLifecycleWatchdog())
         config.application.registerActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
     }
 
