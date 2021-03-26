@@ -3,6 +3,9 @@ package com.emarsys.testUtil
 import android.app.Application
 import android.os.Handler
 import android.os.Looper
+import androidx.arch.core.internal.FastSafeIterableMap
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.emarsys.Emarsys
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
@@ -33,6 +36,7 @@ object IntegrationTestUtils {
     }
 
     fun tearDownEmarsys(application: Application? = null) {
+        var latch = CountDownLatch(1)
         getDependency<CoreSdkHandler>().post {
             if (application != null) {
                 application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
@@ -53,8 +57,26 @@ object IntegrationTestUtils {
             getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
             getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
             getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
+            latch.countDown()
         }
         getDependency<CoreSdkHandler>().looper.quitSafely()
+        latch.await()
+
+        latch = CountDownLatch(1)
+        Handler(Looper.getMainLooper()).post {
+            val observerMap = ReflectionTestUtils.getInstanceField<FastSafeIterableMap<Any, Any>>(
+                    ProcessLifecycleOwner.get().lifecycle,
+                    "mObserverMap")
+            if (observerMap != null) {
+                ReflectionTestUtils.getInstanceField<HashMap<Any, Any>>(
+                        observerMap,
+                        "mHashMap")?.entries?.forEach {
+                    ProcessLifecycleOwner.get().lifecycle.removeObserver(it.key as LifecycleObserver)
+                }
+            }
+            latch.countDown()
+        }
+        latch.await()
 
         DependencyInjection.tearDown()
 

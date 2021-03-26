@@ -5,21 +5,20 @@ import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
-import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
-import com.emarsys.mobileengage.storage.MobileEngageStorageKey
-import com.emarsys.predict.storage.PredictStorageKey
-import com.emarsys.testUtil.*
+import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.IntegrationTestUtils
+import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.emarsys.testUtil.rules.ConnectionRule
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -65,9 +64,12 @@ class DefaultInboxIntegrationTest {
     @JvmField
     val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
+    @Rule
+    @JvmField
+    val connectionRule = ConnectionRule(application)
+
     @Before
     fun setup() {
-        FeatureTestUtils.resetFeatures()
         DatabaseTestUtils.deleteCoreDatabase()
 
         baseConfig = EmarsysConfig.Builder()
@@ -78,7 +80,6 @@ class DefaultInboxIntegrationTest {
 
         errorCause = null
         latch = CountDownLatch(1)
-        ConnectionTestUtils.checkConnection(application)
 
         DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
 
@@ -101,22 +102,6 @@ class DefaultInboxIntegrationTest {
         })
 
         Emarsys.setup(baseConfig)
-
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-
-            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
-
-            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
-        }
 
         IntegrationTestUtils.doLogin()
     }

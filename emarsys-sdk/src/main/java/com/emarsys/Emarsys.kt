@@ -24,6 +24,7 @@ import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.di.DefaultEmarsysDependencyContainer
+import com.emarsys.di.EmarsysDependencyContainer
 import com.emarsys.di.EmarsysDependencyInjection
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
@@ -111,7 +112,7 @@ object Emarsys {
 
     private fun registerLifecycleObservers() {
         val container: DependencyContainer = DependencyInjection.getContainer()
-        val appLifecycleObserver = DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>()
+        val appLifecycleObserver = DependencyInjection.getContainer<EmarsysDependencyContainer>()
                 .getAppLifecycleObserver()
         container.getUiHandler().post {
             ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
@@ -534,7 +535,7 @@ object Emarsys {
 
     private fun registerWatchDogs(config: EmarsysConfig) {
         config.application.registerActivityLifecycleCallbacks(
-                DependencyInjection.getContainer<DefaultEmarsysDependencyContainer>()
+                DependencyInjection.getContainer<EmarsysDependencyContainer>()
                         .getActivityLifecycleWatchdog())
         config.application.registerActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
     }

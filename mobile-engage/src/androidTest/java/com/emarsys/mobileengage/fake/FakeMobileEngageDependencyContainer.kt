@@ -6,6 +6,7 @@ import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
+import com.emarsys.core.app.AppLifecycleObserver
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.repository.Repository
@@ -134,7 +135,8 @@ class FakeMobileEngageDependencyContainer(
         webViewProvider: WebViewProvider = mock(),
         inlineInAppWebViewFactory: InlineInAppWebViewFactory = mock(),
         iamJsBridgeFactory: IamJsBridgeFactory = mock(),
-        remoteMessageMapper: RemoteMessageMapper = mock()
+        remoteMessageMapper: RemoteMessageMapper = mock(),
+        appLifecycleObserver: AppLifecycleObserver = mock()
 ) : MobileEngageDependencyContainer {
     override val dependencies: MutableMap<String, Any?> = mutableMapOf()
 
@@ -214,6 +216,7 @@ class FakeMobileEngageDependencyContainer(
         addDependency(dependencies, inlineInAppWebViewFactory)
         addDependency(dependencies, iamJsBridgeFactory)
         addDependency(dependencies, remoteMessageMapper)
+        addDependency(dependencies, appLifecycleObserver)
     }
 
     override fun getCoreSdkHandler(): CoreSdkHandler = getDependency(dependencies)
@@ -363,4 +366,6 @@ class FakeMobileEngageDependencyContainer(
     override fun getIamJsBridgeFactory(): IamJsBridgeFactory = getDependency(dependencies)
 
     override fun getRemoteMessageMapper(): RemoteMessageMapper = getDependency(dependencies)
+
+    override fun getAppLifecycleObserver(): AppLifecycleObserver = getDependency(dependencies)
 }

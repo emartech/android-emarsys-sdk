@@ -8,20 +8,15 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Build
-import android.os.Looper
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
-import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.EventHandlerProvider
-import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.fake.FakeRequestManager
 import com.emarsys.mobileengage.geofence.model.*
 import com.emarsys.mobileengage.notification.ActionCommandFactory
@@ -36,7 +31,9 @@ import com.google.android.gms.location.GeofencingRequest
 import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.json.JSONObject
-import org.junit.*
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TestRule
 import java.util.concurrent.CountDownLatch
 import com.emarsys.mobileengage.geofence.model.Geofence as MEGeofence
@@ -52,29 +49,12 @@ class DefaultGeofenceInternalTest {
                 MEGeofence("geofenceId2", 47.493812, 19.058537, 10.0, null, listOf(trigger)),
                 MEGeofence("geofenceId5", 47.492292, 19.056440, 10.0, null, listOf(trigger))
         )
-
-        @BeforeClass
-        @JvmStatic
-        fun setup() {
-            DependencyInjection.setup(FakeMobileEngageDependencyContainer())
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun teardown() {
-            val handler = getDependency<CoreSdkHandler>()
-            val looper: Looper = handler.looper
-            looper.quitSafely()
-            DependencyInjection.tearDown()
-        }
-
     }
 
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    private lateinit var mockFetchGeofenceRequestModel: RequestModel
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var fakeRequestManager: RequestManager
@@ -92,14 +72,15 @@ class DefaultGeofenceInternalTest {
     private lateinit var geofenceInternalWithMockContext: GeofenceInternal
     private lateinit var mockEnabledStorage: Storage<Boolean>
     private lateinit var mockPendingIntentProvider: GeofencePendingIntentProvider
+    private lateinit var mockHandler: CoreSdkHandler
 
     @Before
     fun setUp() {
+        mockHandler = mock()
         context = InstrumentationRegistry.getTargetContext()
-        mockFetchGeofenceRequestModel = mock()
         mockResponseModel = mock()
         mockRequestModelFactory = mock {
-            on { createFetchGeofenceRequest() } doReturn mockFetchGeofenceRequestModel
+            on { createFetchGeofenceRequest() } doReturn mock()
         }
         val intent = Intent("com.emarsys.sdk.GEOFENCE_ACTION")
         val pendingIntent: PendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -119,13 +100,13 @@ class DefaultGeofenceInternalTest {
         mockContext = mock()
         mockActionCommandFactory = mock()
         mockEventHandlerProvider = mock()
-        mockEnabledStorage = mock() {
+        mockEnabledStorage = mock {
             on { get() } doReturn true
         }
 
-        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockFusedLocationProviderClient, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory, mockEventHandlerProvider, mockEnabledStorage, mockPendingIntentProvider)
+        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockFusedLocationProviderClient, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory, mockEventHandlerProvider, mockEnabledStorage, mockPendingIntentProvider, mockHandler)
 
-        geofenceInternalWithMockContext = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockFusedLocationProviderClient, mockGeofenceFilter, mockGeofencingClient, mockContext, mockActionCommandFactory, mockEventHandlerProvider, mockEnabledStorage, mockPendingIntentProvider)
+        geofenceInternalWithMockContext = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockFusedLocationProviderClient, mockGeofenceFilter, mockGeofencingClient, mockContext, mockActionCommandFactory, mockEventHandlerProvider, mockEnabledStorage, mockPendingIntentProvider, mockHandler)
     }
 
     @Test
@@ -201,23 +182,26 @@ class DefaultGeofenceInternalTest {
 
         geofenceInternal.fetchGeofences(null)
 
-        verify(mockRequestModelFactory.createFetchGeofenceRequest())
+        verify(mockRequestModelFactory).createFetchGeofenceRequest()
     }
 
     @Test
     fun testEnable_shouldSetEnabledStorage_andFetchIfWasDisabled() {
+        val latch = CountDownLatch(1)
         var completionListenerHasBeenCalled = false
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
         whenever(mockEnabledStorage.get()).thenReturn(false).thenReturn(true)
-        geofenceInternal.enable(CompletionListener {
+        geofenceInternal.enable {
             it shouldBe null
             completionListenerHasBeenCalled = true
-        })
+            latch.countDown()
+        }
 
+        latch.await()
         completionListenerHasBeenCalled shouldBe true
         verify(mockEnabledStorage, timeout(100)).set(true)
-        verify(mockRequestModelFactory.createFetchGeofenceRequest())
+        verify(mockRequestModelFactory).createFetchGeofenceRequest()
     }
 
     @Test
@@ -274,15 +258,17 @@ class DefaultGeofenceInternalTest {
 
     @Test
     fun testEnable_fetchLastKnownLocation_fromLocationManager_whenPermissionGranted_withCompletionListener() {
+        val latch = CountDownLatch(1)
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
         var completionListenerHasBeenCalled = false
 
-        geofenceInternal.enable(CompletionListener {
+        geofenceInternal.enable {
             it shouldBe null
             completionListenerHasBeenCalled = true
-        })
-
+            latch.countDown()
+        }
+        latch.await()
         completionListenerHasBeenCalled shouldBe true
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
             verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
@@ -301,11 +287,11 @@ class DefaultGeofenceInternalTest {
         whenever(mockGeofenceResponseMapper.map(any())).thenReturn(geofenceResponse)
 
         var completionListenerHasBeenCalled = false
-        geofenceInternal.enable(CompletionListener {
+        geofenceInternal.enable {
             it is MissingPermissionException
             it?.message shouldBe "Couldn't acquire permission for ACCESS_FINE_LOCATION"
             completionListenerHasBeenCalled = true
-        })
+        }
 
         completionListenerHasBeenCalled shouldBe true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -416,15 +402,6 @@ class DefaultGeofenceInternalTest {
         }
     }
 
-    private fun createGeofence(geofence: MEGeofence): Geofence? {
-        return Geofence.Builder()
-                .setRequestId(geofence.id)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
-                .setExpirationDuration(Long.MAX_VALUE)
-                .setCircularRegion(geofence.lon, geofence.lat, geofence.radius.toFloat())
-                .build()
-    }
-
     @Test
     fun testOnGeofenceTriggered() {
         val latch = CountDownLatch(1)
@@ -532,5 +509,14 @@ class DefaultGeofenceInternalTest {
         geofenceInternal.setEventHandler(mockEventHandler)
 
         verify(mockEventHandlerProvider).eventHandler = mockEventHandler
+    }
+
+    private fun createGeofence(geofence: MEGeofence): Geofence? {
+        return Geofence.Builder()
+                .setRequestId(geofence.id)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
+                .setExpirationDuration(Long.MAX_VALUE)
+                .setCircularRegion(geofence.lon, geofence.lat, geofence.radius.toFloat())
+                .build()
     }
 }

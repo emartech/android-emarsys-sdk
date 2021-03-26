@@ -15,7 +15,7 @@ import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.getDependency
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
@@ -48,7 +48,8 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                               private val actionCommandFactory: ActionCommandFactory,
                               private val geofenceEventHandlerProvider: EventHandlerProvider,
                               private val geofenceEnabledStorage: Storage<Boolean>,
-                              private val geofencePendingIntentProvider: GeofencePendingIntentProvider
+                              private val geofencePendingIntentProvider: GeofencePendingIntentProvider,
+                              private val coreSdkHandler: CoreSdkHandler
 ) : GeofenceInternal, LocationListener {
     private companion object {
         const val FASTEST_INTERNAL: Long = 15_000
@@ -56,7 +57,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         const val MAX_WAIT_TIME: Long = 60_000
     }
 
-    private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver(getDependency())
+    private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver(coreSdkHandler)
     private var geofenceResponse: GeofenceResponse? = null
     private var nearestGeofences: MutableList<MEGeofence> = mutableListOf()
     private var currentLocation: Location? = null

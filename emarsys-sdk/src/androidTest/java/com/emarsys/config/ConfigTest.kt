@@ -1,12 +1,9 @@
 package com.emarsys.config
 
-import android.os.Looper
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
@@ -14,7 +11,10 @@ import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.nhaarman.mockitokotlin2.doReturn
 import io.kotlintest.shouldBe
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -69,7 +69,7 @@ class ConfigTest {
     }
 
     @Test
-    fun testGetContactFieldId_delegatesTo_internal_byUsingRunnerProxy() {
+    fun testGetContactFieldId_delegatesTo_internal() {
         whenever(mockConfigInternal.contactFieldId).thenReturn(3)
 
         val result = config.contactFieldId
@@ -79,7 +79,7 @@ class ConfigTest {
     }
 
     @Test
-    fun testChangeApplicationCode_delegatesTo_internal_byUsingRunnerProxy() {
+    fun testChangeApplicationCode_delegatesTo_internal() {
         val mockCompletionListener = mock(CompletionListener::class.java)
         whenever(mockConfigInternal.contactFieldId).thenReturn(3)
 
@@ -89,7 +89,7 @@ class ConfigTest {
     }
 
     @Test
-    fun testGetApplicationCode_delegatesTo_internal_byUsingRunnerProxy() {
+    fun testGetApplicationCode_delegatesTo_internal() {
         whenever(mockConfigInternal.applicationCode).thenReturn("testApplicationCode")
 
         val result = config.applicationCode
@@ -99,14 +99,14 @@ class ConfigTest {
     }
 
     @Test
-    fun testChangeMerchantId_delegatesTo_internal_byUsingRunnerProxy() {
+    fun testChangeMerchantId_delegatesTo_internal() {
         config.changeMerchantId("testMerchantId")
 
         verify(mockConfigInternal).changeMerchantId("testMerchantId")
     }
 
     @Test
-    fun testGetMerchantId_delegatesTo_internal_byUsingRunnerProxy() {
+    fun testGetMerchantId_delegatesTo_internal() {
         whenever(mockConfigInternal.merchantId).thenReturn("testMerchantId")
 
         val result = config.merchantId
@@ -116,7 +116,7 @@ class ConfigTest {
     }
 
     @Test
-    fun testGetNotificationSettings_delegatesTo_internal_byUsingRunnerProxy() {
+    fun testGetNotificationSettings_delegatesTo_internal() {
         val mockNotificationSettings = mock(NotificationSettings::class.java)
         whenever(mockConfigInternal.notificationSettings).thenReturn(mockNotificationSettings)
 
@@ -127,7 +127,7 @@ class ConfigTest {
     }
 
     @Test
-    fun testGetLanguage_delegatesTo_internal_byUsingRunnerProxy() {
+    fun testGetLanguage_delegatesTo_internal() {
         val language = "testLanguage"
         whenever(mockConfigInternal.language).thenReturn(language)
 
@@ -138,7 +138,7 @@ class ConfigTest {
     }
 
     @Test
-    fun testGetHardwareId_delegatesTo_internal_byUsingRunnerProxy() {
+    fun testGetHardwareId_delegatesTo_internal() {
         val hardwareId = "testHardwareId"
         whenever(mockConfigInternal.hardwareId).thenReturn(hardwareId)
 
@@ -149,7 +149,7 @@ class ConfigTest {
     }
 
     @Test
-    fun testIsAutomaticPushSendingEnabled_delegatesTo_internal_byUsingRunnerProxy() {
+    fun testIsAutomaticPushSendingEnabled_delegatesTo_internal() {
         whenever(mockConfigInternal.isAutomaticPushSendingEnabled).thenReturn(true)
 
         val result = config.isAutomaticPushSendingEnabled
@@ -159,7 +159,7 @@ class ConfigTest {
     }
 
     @Test
-    fun testSdkVersion_delegatesTo_internal_byUsingRunnerProxy() {
+    fun testSdkVersion_delegatesTo_internal() {
         val sdkVersion = "testSdkVersion"
         whenever(mockConfigInternal.sdkVersion).thenReturn(sdkVersion)
 

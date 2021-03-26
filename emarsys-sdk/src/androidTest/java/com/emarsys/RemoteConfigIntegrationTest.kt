@@ -1,7 +1,8 @@
 package com.emarsys
 
 import android.app.Application
-import com.emarsys.config.ConfigInternal
+import android.content.Intent
+import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.di.DependencyContainer
 import com.emarsys.core.di.DependencyInjection
@@ -9,6 +10,7 @@ import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.testUtil.*
+import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotlintest.shouldBe
 import org.junit.After
@@ -38,6 +40,10 @@ class RemoteConfigIntegrationTest {
 
     @Rule
     @JvmField
+    val activityRule = ActivityTestRule(FakeActivity::class.java, false, false)
+
+    @Rule
+    @JvmField
     val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
     @Before
@@ -49,8 +55,6 @@ class RemoteConfigIntegrationTest {
                 .mobileEngageApplicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .build()
-
-        FeatureTestUtils.resetFeatures()
 
         ConnectionTestUtils.checkConnection(application)
 
@@ -66,11 +70,11 @@ class RemoteConfigIntegrationTest {
 
     @Test
     fun testRemoteConfig() {
+        activityRule.launchActivity(Intent())
+
         val coreSdkHandler = DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler()
         coreSdkHandler.post {
-            coreSdkHandler.post {
-                getDependency<ConfigInternal>().refreshRemoteConfig { latch.countDown() }
-            }
+            latch.countDown()
         }
         latch.await()
 
@@ -79,5 +83,4 @@ class RemoteConfigIntegrationTest {
         clientServiceEndpointHost shouldBe "https://me-client-staging.eservice.emarsys.com"
         eventServiceEndpointHost shouldBe "https://mobile-events-staging.eservice.emarsys.com"
     }
-
 }

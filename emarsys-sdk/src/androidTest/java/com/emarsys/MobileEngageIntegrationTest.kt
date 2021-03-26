@@ -86,7 +86,6 @@ class MobileEngageIntegrationTest {
 
         completionHandler = createDefaultCoreCompletionHandler()
 
-        FeatureTestUtils.resetFeatures()
 
         val mockPushTokenProvider = mock(PushTokenProvider::class.java).apply {
             whenever(providePushToken()).thenReturn("integration_test_push_token")
@@ -229,6 +228,7 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testDeepLinkOpen() {
+        Thread.sleep(1000)
         val activity = mock(Activity::class.java)
         whenever(activity.intent).thenReturn(Intent())
 
@@ -241,6 +241,8 @@ class MobileEngageIntegrationTest {
                 intent,
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
+
+        Thread.sleep(1000)
     }
 
     @Test

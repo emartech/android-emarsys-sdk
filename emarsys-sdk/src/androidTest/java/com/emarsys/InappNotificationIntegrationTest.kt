@@ -6,18 +6,17 @@ import android.content.Intent
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
+import com.emarsys.core.app.AppLifecycleObserver
 import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.di.DefaultEmarsysDependencyContainer
+import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.iam.OverlayInAppPresenter
 import com.emarsys.mobileengage.service.IntentUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
-import com.nhaarman.mockitokotlin2.anyOrNull
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -69,8 +68,6 @@ class InappNotificationIntegrationTest {
                 .contactFieldId(CONTACT_FIELD_ID)
                 .build()
 
-        FeatureTestUtils.resetFeatures()
-
         mockInappPresenterOverlay = mock()
 
         whenever(mockInappPresenterOverlay.present(
@@ -90,6 +87,14 @@ class InappNotificationIntegrationTest {
             }
 
             override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog {
+                return mock()
+            }
+
+            override fun getAppLifecycleObserver(): AppLifecycleObserver {
+                return mock()
+            }
+
+            override fun getEventServiceInternal(): EventServiceInternal {
                 return mock()
             }
         })
@@ -124,6 +129,7 @@ class InappNotificationIntegrationTest {
         activityRule.launchActivity(Intent())
 
         completionListenerLatch.await()
+        verify(mockInappPresenterOverlay).present(anyOrNull(),anyOrNull(),anyOrNull(),anyOrNull(),anyOrNull(),anyOrNull(),anyOrNull())
     }
 
 }

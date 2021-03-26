@@ -505,7 +505,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
             addDependency(dependencies, it, "silentMessageActionCommandFactory")
         }
         val geofenceActionCommandFactory = ActionCommandFactory(application.applicationContext, getEventServiceInternal(), getGeofenceEventHandlerProvider(), getUiHandler())
-        DefaultGeofenceInternal(requestModelFactory,
+        DefaultGeofenceInternal(
+                requestModelFactory,
                 requestManager,
                 GeofenceResponseMapper(),
                 PermissionChecker(application.applicationContext),
@@ -516,7 +517,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 geofenceActionCommandFactory,
                 getGeofenceEventHandlerProvider(),
                 geofenceEnabledStorage,
-                GeofencePendingIntentProvider(application.applicationContext)
+                GeofencePendingIntentProvider(application.applicationContext),
+                getCoreSdkHandler()
         ).also {
             addDependency(dependencies, it as GeofenceInternal, "defaultInstance")
         }

@@ -516,6 +516,8 @@ class EmarsysTest {
         whenever(mockClientStateStorage.get()).thenReturn(null)
         whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         whenever(mockContactTokenStorage.get()).thenReturn(null)
+        whenever(mockRequestContext.hasContactIdentification()).thenReturn(false)
+        whenever(mockDeviceInfoPayloadStorage.get()).thenReturn("hardwareInfoPayload")
 
         setup(mobileEngageConfig)
 
@@ -652,7 +654,7 @@ class EmarsysTest {
 
         setAuthenticatedContact(ID_TOKEN, completionListener)
 
-        runBlockingOnCoreSdkThread ()
+        runBlockingOnCoreSdkThread()
 
         verifyZeroInteractions(mockMobileEngageApi)
     }
@@ -755,6 +757,8 @@ class EmarsysTest {
         setup(predictConfig)
 
         setContact(CONTACT_ID)
+
+        runBlockingOnCoreSdkThread()
         verifyZeroInteractions(mockMobileEngageApi)
     }
 
