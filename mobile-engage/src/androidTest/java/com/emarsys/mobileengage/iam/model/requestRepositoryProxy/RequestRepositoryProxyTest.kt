@@ -1,17 +1,13 @@
 package com.emarsys.mobileengage.iam.model.requestRepositoryProxy
 
-import android.os.Looper
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.helper.DbHelper
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.database.repository.specification.Everything
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.feature.FeatureRegistry
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.CompositeRequestModel
@@ -21,12 +17,12 @@ import com.emarsys.core.request.model.RequestModelRepository
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel
 import com.emarsys.core.util.TimestampUtils
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.iam.InAppEventHandlerInternal
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
+import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createCompositeRequestModelPayload
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -40,7 +36,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito
 
 class RequestRepositoryProxyTest {
     private lateinit var mockRequestContext: MobileEngageRequestContext
@@ -55,13 +50,14 @@ class RequestRepositoryProxyTest {
     private lateinit var compositeRepository: RequestRepositoryProxy
     private lateinit var uuidProvider: UUIDProvider
     private lateinit var mockEventServiceProvider: ServiceEndpointProvider
+    private lateinit var mockRequestModelHelper: RequestModelHelper
 
     @Rule
     @JvmField
     val timeout: TestRule = timeoutRule
 
     @Before
-    fun init() {
+    fun setUp() {
         deleteCoreDatabase()
         val context = getTargetContext()
         mockRequestContext = mock()
@@ -82,6 +78,9 @@ class RequestRepositoryProxyTest {
         mockEventServiceProvider = mock {
             on { provideEndpointHost() } doReturn EVENT_HOST
         }
+        mockRequestModelHelper = mock {
+            on { isCustomEvent(any()) } doReturn true
+        }
         compositeRepository = RequestRepositoryProxy(
                 mockRequestModelRepository,
                 mockDisplayedIamRepository,
@@ -89,28 +88,14 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider)
-
-        DependencyInjection.setup(
-                FakeMobileEngageDependencyContainer(
-                        clientServiceProvider = Mockito.mock(ServiceEndpointProvider::class.java).apply {
-                            whenever(provideEndpointHost()).thenReturn("dummyURL")
-                        },
-                        eventServiceProvider = mockEventServiceProvider,
-                        messageInboxServiceProvider = Mockito.mock(ServiceEndpointProvider::class.java).apply {
-                            whenever(provideEndpointHost()).thenReturn("dummyURL")
-                        }
-                ))
+                mockEventServiceProvider,
+                mockRequestModelHelper)
     }
 
     @After
     @Throws(Exception::class)
     fun tearDown() {
         FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
-        val handler = getDependency<CoreSdkHandler>()
-        val looper: Looper = handler.looper
-        looper.quit()
-        DependencyInjection.tearDown()
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -121,7 +106,8 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider)
+                mockEventServiceProvider,
+                mockRequestModelHelper)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -132,7 +118,8 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider)
+                mockEventServiceProvider,
+                mockRequestModelHelper)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -143,7 +130,8 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider)
+                mockEventServiceProvider,
+                mockRequestModelHelper)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -154,7 +142,8 @@ class RequestRepositoryProxyTest {
                 null,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider)
+                mockEventServiceProvider,
+                mockRequestModelHelper)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -165,7 +154,8 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 null,
-                mockEventServiceProvider)
+                mockEventServiceProvider,
+                mockRequestModelHelper)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -176,7 +166,8 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 null,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider)
+                mockEventServiceProvider,
+                mockRequestModelHelper)
     }
 
 
@@ -188,6 +179,20 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
+                null,
+                mockRequestModelHelper)
+    }
+
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_requestModelHelper_mustNotBeNull() {
+        RequestRepositoryProxy(mockRequestModelRepository,
+                mockDisplayedIamRepository,
+                buttonClickedRepository,
+                timestampProvider,
+                uuidProvider,
+                inAppEventHandlerInternal,
+                mockEventServiceProvider,
                 null)
     }
 
@@ -227,7 +232,8 @@ class RequestRepositoryProxyTest {
     }
 
     @Test
-    fun xtestQuery_shouldReturnOriginalQuery_whenThereAreNoCustomEvents() {
+    fun testQuery_shouldReturnOriginalQuery_whenThereAreNoCustomEvents() {
+        whenever(mockRequestModelHelper.isCustomEvent(any())).thenReturn(false)
         compositeRepository = compositeRepositoryWithRealRepositories()
         val firstRequestModel = requestModel()
         requestModelRepository.add(firstRequestModel)
@@ -249,6 +255,12 @@ class RequestRepositoryProxyTest {
         attributes["key2"] = "value2"
         val customEvent2 = customEvent(1000, "event2", attributes)
         val customEvent3 = customEvent(1200, "event3")
+        whenever(mockRequestModelHelper.isCustomEvent(customEvent1)).thenReturn(true)
+        whenever(mockRequestModelHelper.isCustomEvent(customEvent2)).thenReturn(true)
+        whenever(mockRequestModelHelper.isCustomEvent(customEvent3)).thenReturn(true)
+        whenever(mockRequestModelHelper.isCustomEvent(request1)).thenReturn(false)
+        whenever(mockRequestModelHelper.isCustomEvent(request2)).thenReturn(false)
+        whenever(mockRequestModelHelper.isCustomEvent(request3)).thenReturn(false)
         requestModelRepository.add(request1)
         requestModelRepository.add(request2)
         requestModelRepository.add(customEvent1)
@@ -354,6 +366,12 @@ class RequestRepositoryProxyTest {
         attributes["key2"] = "value2"
         val customEvent2 = customEvent(1000, "event2", attributes)
         val customEvent3 = customEvent(1200, "event3")
+        whenever(mockRequestModelHelper.isCustomEvent(customEvent1)).thenReturn(true)
+        whenever(mockRequestModelHelper.isCustomEvent(customEvent2)).thenReturn(true)
+        whenever(mockRequestModelHelper.isCustomEvent(customEvent3)).thenReturn(true)
+        whenever(mockRequestModelHelper.isCustomEvent(request1)).thenReturn(false)
+        whenever(mockRequestModelHelper.isCustomEvent(request2)).thenReturn(false)
+        whenever(mockRequestModelHelper.isCustomEvent(request3)).thenReturn(false)
         requestModelRepository.add(request1)
         requestModelRepository.add(request2)
         requestModelRepository.add(customEvent1)
@@ -448,7 +466,8 @@ class RequestRepositoryProxyTest {
                 timestampProvider,
                 uuidProvider,
                 inAppEventHandlerInternal,
-                mockEventServiceProvider
+                mockEventServiceProvider,
+                mockRequestModelHelper
         )
     }
 

@@ -1,20 +1,16 @@
 package com.emarsys.mobileengage.responsehandler
 
-import android.os.Looper
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.mobileengage.testUtil.DependencyTestUtils
+import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import io.kotlintest.shouldBe
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -32,6 +28,7 @@ class MobileEngageTokenResponseHandlerTest {
     private lateinit var tokenResponseHandler: MobileEngageTokenResponseHandler
     private lateinit var mockStorage: StringStorage
     private lateinit var requestModelMock: RequestModel
+    private lateinit var mockRequestModelHelper: RequestModelHelper
 
     @Rule
     @JvmField
@@ -46,22 +43,16 @@ class MobileEngageTokenResponseHandlerTest {
         requestModelMock = mock {
             on { url } doReturn URL(CLIENT_BASE)
         }
-        DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
+        mockRequestModelHelper = mock {
+            on { isMobileEngageRequest(any()) } doReturn true
+        }
 
-        tokenResponseHandler = MobileEngageTokenResponseHandler(tokenKey, mockStorage)
-    }
-
-    @After
-    fun tearDown() {
-        val handler = getDependency<CoreSdkHandler>()
-        val looper: Looper = handler.looper
-        looper.quit()
-        DependencyInjection.tearDown()
+        tokenResponseHandler = MobileEngageTokenResponseHandler(tokenKey, mockStorage, mockRequestModelHelper)
     }
 
     @Test
     fun testShouldHandleResponse_shouldReturnFalse_whenRequestWasNotForMobileEngage() {
-        whenever(requestModelMock.url).thenReturn(URL("https://emarsys.com"))
+        whenever(mockRequestModelHelper.isMobileEngageRequest(any())).thenReturn(false)
 
         val result = tokenResponseHandler.shouldHandleResponse(responseModelWithToken())
 

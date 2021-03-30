@@ -58,6 +58,7 @@ import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.service.RemoteMessageMapper
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
+import com.emarsys.mobileengage.util.RequestModelHelper
 import com.nhaarman.mockitokotlin2.mock
 
 class FakeMobileEngageDependencyContainer(
@@ -136,7 +137,8 @@ class FakeMobileEngageDependencyContainer(
         inlineInAppWebViewFactory: InlineInAppWebViewFactory = mock(),
         iamJsBridgeFactory: IamJsBridgeFactory = mock(),
         remoteMessageMapper: RemoteMessageMapper = mock(),
-        appLifecycleObserver: AppLifecycleObserver = mock()
+        appLifecycleObserver: AppLifecycleObserver = mock(),
+        requestModelHelper: RequestModelHelper = mock()
 ) : MobileEngageDependencyContainer {
     override val dependencies: MutableMap<String, Any?> = mutableMapOf()
 
@@ -217,6 +219,7 @@ class FakeMobileEngageDependencyContainer(
         addDependency(dependencies, iamJsBridgeFactory)
         addDependency(dependencies, remoteMessageMapper)
         addDependency(dependencies, appLifecycleObserver)
+        addDependency(dependencies, requestModelHelper)
     }
 
     override fun getCoreSdkHandler(): CoreSdkHandler = getDependency(dependencies)
@@ -368,4 +371,6 @@ class FakeMobileEngageDependencyContainer(
     override fun getRemoteMessageMapper(): RemoteMessageMapper = getDependency(dependencies)
 
     override fun getAppLifecycleObserver(): AppLifecycleObserver = getDependency(dependencies)
+
+    override fun getRequestModelHelper(): RequestModelHelper = getDependency(dependencies)
 }

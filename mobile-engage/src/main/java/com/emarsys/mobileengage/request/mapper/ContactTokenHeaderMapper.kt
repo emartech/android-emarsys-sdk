@@ -2,11 +2,10 @@ package com.emarsys.mobileengage.request.mapper
 
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageRequest
-import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageSetContactRequest
-import com.emarsys.mobileengage.util.RequestModelUtils.isRefreshContactTokenRequest
+import com.emarsys.mobileengage.util.RequestModelHelper
 
-class ContactTokenHeaderMapper(override val requestContext: MobileEngageRequestContext) : AbstractRequestMapper(requestContext) {
+class ContactTokenHeaderMapper(override val requestContext: MobileEngageRequestContext,
+                               override val requestModelHelper: RequestModelHelper) : AbstractRequestMapper(requestContext,requestModelHelper) {
 
     override fun createHeaders(requestModel: RequestModel): Map<String, String> {
         val headers: MutableMap<String, String> = requestModel.headers.toMutableMap()
@@ -16,9 +15,9 @@ class ContactTokenHeaderMapper(override val requestContext: MobileEngageRequestC
     }
 
     override fun shouldMapRequestModel(requestModel: RequestModel): Boolean {
-        return requestModel.isMobileEngageRequest()
-                && !requestModel.isRefreshContactTokenRequest()
-                && !requestModel.isMobileEngageSetContactRequest()
+        return requestModelHelper.isMobileEngageRequest(requestModel)
+                && !requestModelHelper.isRefreshContactTokenRequest(requestModel)
+                && !requestModelHelper.isMobileEngageSetContactRequest(requestModel)
                 && requestContext.contactTokenStorage.get() != null
     }
 }

@@ -1,25 +1,22 @@
 package com.emarsys.mobileengage.responsehandler
 
-import android.os.Looper
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
-import com.emarsys.mobileengage.testUtil.DependencyTestUtils
+import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import io.kotlintest.shouldBe
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -36,6 +33,7 @@ class InAppCleanUpResponseHandlerTest {
     private lateinit var mockDisplayedIamRepository: Repository<DisplayedIam, SqlSpecification>
     private lateinit var mockButtonClickRepository: Repository<ButtonClicked, SqlSpecification>
     private lateinit var mockRequestModel: RequestModel
+    private lateinit var mockRequestModelHelper: RequestModelHelper
 
     @Rule
     @JvmField
@@ -48,20 +46,13 @@ class InAppCleanUpResponseHandlerTest {
         }
         mockDisplayedIamRepository = mock()
         mockButtonClickRepository = mock()
+        mockRequestModelHelper = mock {
+            on { isCustomEvent(any()) } doReturn true
+        }
 
-        DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
-
-        handler = InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository)
+        handler = InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository, mockRequestModelHelper)
 
         FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
-    }
-
-    @After
-    fun tearDown() {
-        val handler = getDependency<CoreSdkHandler>()
-        val looper: Looper? = handler.looper
-        looper?.quit()
-        DependencyInjection.tearDown()
     }
 
     @Test
@@ -98,9 +89,8 @@ class InAppCleanUpResponseHandlerTest {
 
     @Test
     fun testShouldHandleResponse_shouldReturnFalseWhen_UrlIsNotCustomEventUrl() {
-        val requestModel: RequestModel = mock {
-            on { url } doReturn URL("https://www.emarsys.com")
-        }
+        val requestModel: RequestModel = mock()
+        whenever(mockRequestModelHelper.isCustomEvent(any())).thenReturn(false)
 
         val response = buildResponseModel(requestModel)
         val result = handler.shouldHandleResponse(response)

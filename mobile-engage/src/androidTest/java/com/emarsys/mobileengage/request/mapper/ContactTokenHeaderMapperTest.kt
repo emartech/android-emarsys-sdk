@@ -1,10 +1,6 @@
 package com.emarsys.mobileengage.request.mapper
 
-import android.os.Looper
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.CompositeRequestModel
@@ -12,16 +8,16 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.testUtil.DependencyTestUtils
 import com.emarsys.mobileengage.util.RequestHeaderUtils
+import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,6 +40,7 @@ class ContactTokenHeaderMapperTest {
     private lateinit var mockContactTokenStorage: StringStorage
     private lateinit var mockRefreshTokenStorage: StringStorage
     private lateinit var mockDeviceInfo: DeviceInfo
+    private lateinit var mockRequestModelHelper: RequestModelHelper
 
 
     @Rule
@@ -79,18 +76,13 @@ class ContactTokenHeaderMapperTest {
             on { contactTokenStorage } doReturn mockContactTokenStorage
             on { refreshTokenStorage } doReturn mockRefreshTokenStorage
         }
+        mockRequestModelHelper = mock {
+            on { isMobileEngageRequest(any()) } doReturn true
+            on { isMobileEngageSetContactRequest(any()) } doReturn false
+            on { isRefreshContactTokenRequest(any()) } doReturn false
+        }
 
-        DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
-
-        contactTokenHeaderMapper = ContactTokenHeaderMapper(mockRequestContext)
-    }
-
-    @After
-    fun tearDown() {
-        val handler = getDependency<CoreSdkHandler>()
-        val looper: Looper = handler.looper
-        looper.quit()
-        DependencyInjection.tearDown()
+        contactTokenHeaderMapper = ContactTokenHeaderMapper(mockRequestContext, mockRequestModelHelper)
     }
 
     @Test
@@ -145,6 +137,7 @@ class ContactTokenHeaderMapperTest {
 
     @Test
     fun testMap_shouldIgnoreRequest_whenRequestWasNotForMobileEngage() {
+        whenever(mockRequestModelHelper.isMobileEngageRequest(any())).thenReturn(false)
         val originalRequestModels = createNonMobileEngageRequest()
 
         val result = contactTokenHeaderMapper.map(originalRequestModels)

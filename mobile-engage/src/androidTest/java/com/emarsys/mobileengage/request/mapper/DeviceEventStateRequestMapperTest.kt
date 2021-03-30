@@ -1,33 +1,25 @@
 package com.emarsys.mobileengage.request.mapper
 
-import android.os.Looper
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.endpoint.Endpoint
-import com.emarsys.mobileengage.testUtil.DependencyTestUtils
 import com.emarsys.mobileengage.util.RequestHeaderUtils
+import com.emarsys.mobileengage.util.RequestModelHelper
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
 import org.json.JSONObject
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import java.net.URL
 
 class DeviceEventStateRequestMapperTest {
     companion object {
-        const val EVENT_SERVICE_HOST: String = Endpoint.ME_EVENT_HOST
-        const val CLIENT_SERVICE_HOST: String = Endpoint.ME_CLIENT_HOST
         const val DEVICE_EVENT_STATE: String = """{"device-event-state":true}"""
         val DEVICE_EVENT_STATE_JSON: JSONObject = JSONObject("""{"device-event-state":true}""")
         const val APPLICATION_CODE: String = "TEST_APP_CODE"
@@ -39,6 +31,7 @@ class DeviceEventStateRequestMapperTest {
     private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockDeviceEventStateStorage: Storage<String?>
+    private lateinit var mockRequestModelHelper: RequestModelHelper
 
     @Before
     fun setUp() {
@@ -49,24 +42,16 @@ class DeviceEventStateRequestMapperTest {
         mockRequestContext = mock {
             on { deviceInfo } doReturn mockDeviceInfo
         }
-        mockRequestModel = mock {
-            on { url } doReturn URL(EVENT_SERVICE_HOST + Endpoint.inlineInAppBase(APPLICATION_CODE))
-        }
+        mockRequestModel = mock()
         mockDeviceEventStateStorage = mock {
             on { get() } doReturn DEVICE_EVENT_STATE
         }
+        mockRequestModelHelper = mock {
+            on { isCustomEvent(any()) } doReturn true
+            on { isInlineInAppRequest(any()) } doReturn true
+        }
 
-        DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
-
-        deviceEventStateRequestMapper = DeviceEventStateRequestMapper(mockRequestContext, mockDeviceEventStateStorage)
-    }
-
-    @After
-    fun tearDown() {
-        val handler = getDependency<CoreSdkHandler>()
-        val looper: Looper = handler.looper
-        looper.quit()
-        DependencyInjection.tearDown()
+        deviceEventStateRequestMapper = DeviceEventStateRequestMapper(mockRequestContext, mockRequestModelHelper, mockDeviceEventStateStorage)
     }
 
     @Test
@@ -87,8 +72,6 @@ class DeviceEventStateRequestMapperTest {
 
     @Test
     fun testShouldMap_true_whenRequestModelIsCustomEvent() {
-        whenever(mockRequestModel.url).thenReturn(URL(EVENT_SERVICE_HOST + Endpoint.eventBase(APPLICATION_CODE)))
-
         val result = deviceEventStateRequestMapper.shouldMapRequestModel(mockRequestModel)
 
         result shouldBe true
@@ -96,9 +79,9 @@ class DeviceEventStateRequestMapperTest {
 
 
     @Test
-    fun testShouldMap_false_whenRequestModelIsClientService() {
-        whenever(mockRequestModel.url).thenReturn(URL(CLIENT_SERVICE_HOST + Endpoint.clientBase(APPLICATION_CODE)))
-
+    fun testShouldMap_false_whenRequestModelIsNotCustemEventNorInlineInappRequest() {
+        whenever(mockRequestModelHelper.isInlineInAppRequest(any())).thenReturn(false)
+        whenever(mockRequestModelHelper.isCustomEvent(any())).thenReturn(false)
         val result = deviceEventStateRequestMapper.shouldMapRequestModel(mockRequestModel)
 
         result shouldBe false

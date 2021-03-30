@@ -1,21 +1,13 @@
 package com.emarsys.mobileengage.responsehandler
 
-import android.os.Looper
 import com.emarsys.common.feature.InnerFeature
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.mobileengage.testUtil.DependencyTestUtils
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
+import com.emarsys.mobileengage.util.RequestModelHelper
+import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import java.net.URL
@@ -30,6 +22,7 @@ class DeviceEventStateResponseHandlerTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockDeviceEventStateStorage: StringStorage
     private lateinit var handler: DeviceEventStateResponseHandler
+    private lateinit var mockRequestModelHelper: RequestModelHelper
 
     @Before
     fun setup() {
@@ -38,23 +31,17 @@ class DeviceEventStateResponseHandlerTest {
         }
 
         mockDeviceEventStateStorage = mock()
+        mockRequestModelHelper = mock {
+            on { isCustomEvent(any()) } doReturn true
+            on { isInlineInAppRequest(any()) } doReturn true
+        }
 
-        DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
-
-        handler = DeviceEventStateResponseHandler(mockDeviceEventStateStorage)
+        handler = DeviceEventStateResponseHandler(mockDeviceEventStateStorage, mockRequestModelHelper)
         FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
     }
 
-    @After
-    fun tearDown() {
-        val handler = getDependency<CoreSdkHandler>()
-        val looper: Looper = handler.looper
-        looper.quit()
-        DependencyInjection.tearDown()
-    }
-
     @Test
-    fun testShouldHandle_shouldReturnTrue_whenRequestWasSuccessful(){
+    fun testShouldHandle_shouldReturnTrue_whenRequestWasSuccessful() {
         val response = buildResponseModel(mockRequestModel)
 
         val result = handler.shouldHandleResponse(response)
@@ -63,7 +50,7 @@ class DeviceEventStateResponseHandlerTest {
     }
 
     @Test
-    fun testShouldHandle_shouldReturnTrue_whenRequestWasInlineInAppRequest(){
+    fun testShouldHandle_shouldReturnTrue_whenRequestWasInlineInAppRequest() {
         whenever(mockRequestModel.url).thenReturn(URL(INLINE_IN_APP_BASE))
         val response = buildResponseModel(mockRequestModel)
 
@@ -73,7 +60,7 @@ class DeviceEventStateResponseHandlerTest {
     }
 
     @Test
-    fun testShouldHandle_shouldReturnTrue_whenRequestWasSuccessfulWithDifferentCode(){
+    fun testShouldHandle_shouldReturnTrue_whenRequestWasSuccessfulWithDifferentCode() {
         val response = buildResponseModel(mockRequestModel, statusCode = 202)
 
         val result = handler.shouldHandleResponse(response)
@@ -82,7 +69,7 @@ class DeviceEventStateResponseHandlerTest {
     }
 
     @Test
-    fun testShouldHandle_shouldReturnFalse_whenV4FeatureIsNotEnabled(){
+    fun testShouldHandle_shouldReturnFalse_whenV4FeatureIsNotEnabled() {
         FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
 
         val response = buildResponseModel(mockRequestModel)
@@ -93,8 +80,9 @@ class DeviceEventStateResponseHandlerTest {
     }
 
     @Test
-    fun testShouldHandle_shouldReturnFalse_whenNotMobileEngageUrl(){
-        whenever(mockRequestModel.url).thenReturn(URL("https://www.test.url.com/test/url/com"))
+    fun testShouldHandle_shouldReturnFalse_whenNotMCustomEventNorInlineInappEvent() {
+        whenever(mockRequestModelHelper.isCustomEvent(any())).thenReturn(false)
+        whenever(mockRequestModelHelper.isInlineInAppRequest(any())).thenReturn(false)
 
         val response = buildResponseModel(mockRequestModel)
 
@@ -104,7 +92,7 @@ class DeviceEventStateResponseHandlerTest {
     }
 
     @Test
-    fun testShouldHandle_shouldReturnFalse_whenDeviceEventStateIsNotInTheResponse(){
+    fun testShouldHandle_shouldReturnFalse_whenDeviceEventStateIsNotInTheResponse() {
         val response = buildResponseModel(mockRequestModel, responseBody = "{}")
 
         val result = handler.shouldHandleResponse(response)
@@ -113,7 +101,7 @@ class DeviceEventStateResponseHandlerTest {
     }
 
     @Test
-    fun testShouldHandle_shouldReturnFalse_whenBodyIsNull(){
+    fun testShouldHandle_shouldReturnFalse_whenBodyIsNull() {
         val response = buildResponseModel(mockRequestModel, responseBody = null)
 
         val result = handler.shouldHandleResponse(response)
@@ -122,7 +110,7 @@ class DeviceEventStateResponseHandlerTest {
     }
 
     @Test
-    fun testHandleResponse(){
+    fun testHandleResponse() {
         val response = buildResponseModel(mockRequestModel)
 
         handler.handleResponse(response)

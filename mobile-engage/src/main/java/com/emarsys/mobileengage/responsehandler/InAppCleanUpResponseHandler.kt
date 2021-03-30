@@ -3,18 +3,18 @@ package com.emarsys.mobileengage.responsehandler
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
-import com.emarsys.mobileengage.util.RequestModelUtils.isCustomEvent
+import com.emarsys.mobileengage.util.RequestModelHelper
 
 class InAppCleanUpResponseHandler(
         private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
-        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>) : AbstractResponseHandler() {
+        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
+        private val requestModelHelper: RequestModelHelper) : AbstractResponseHandler() {
 
     companion object {
         private const val OLD_MESSAGES = "oldCampaigns"
@@ -35,7 +35,7 @@ class InAppCleanUpResponseHandler(
     }
 
     private fun isCustomEventResponseModel(responseModel: ResponseModel): Boolean {
-        return responseModel.requestModel.isCustomEvent()
+        return requestModelHelper.isCustomEvent(responseModel.requestModel)
     }
 
     override fun handleResponse(responseModel: ResponseModel) {

@@ -1,11 +1,7 @@
 package com.emarsys.mobileengage.request
 
-import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
@@ -14,14 +10,13 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.fake.FakeMobileEngageRefreshTokenInternal
-import com.emarsys.mobileengage.testUtil.DependencyTestUtils
+import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -49,6 +44,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     private lateinit var mockRestClient: RestClient
     private lateinit var mockContactTokenStorage: Storage<String>
     private lateinit var mockPushTokenStorage: Storage<String>
+    private lateinit var mockRequestModelHelper: RequestModelHelper
 
     @Before
     fun setUp() {
@@ -63,22 +59,18 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
         mockContactTokenStorage = mock()
         mockPushTokenStorage = mock()
 
-        DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
+        mockRequestModelHelper = mock {
+            on { isMobileEngageRequest(any()) } doReturn true
+        }
 
         proxy = CoreCompletionHandlerRefreshTokenProxy(
                 mockCoreCompletionHandler,
                 mockRefreshTokenInternal,
                 mockRestClient,
                 mockContactTokenStorage,
-                mockPushTokenStorage)
-    }
-
-    @After
-    fun tearDown() {
-        val handler = getDependency<CoreSdkHandler>()
-        val looper: Looper = handler.looper
-        looper.quit()
-        DependencyInjection.tearDown()
+                mockPushTokenStorage,
+                mockRequestModelHelper
+        )
     }
 
     @Test
@@ -111,8 +103,8 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
     @Test
     fun testOnError_shouldCall_shouldGiveTheResponseToNextLevel_whenStatusCodeIs401_andNotMobileEngageRequest() {
-        whenever(mockRequestModel.url).thenReturn(URL("https://www.emarsys.com"))
         whenever(mockResponseModel.statusCode).thenReturn(401)
+        whenever(mockRequestModelHelper.isMobileEngageRequest(any())).thenReturn(false)
 
         proxy.onError(REQUEST_ID, mockResponseModel)
 
@@ -133,11 +125,14 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
     @Test
     fun testOnError_shouldDelegateRequestModelsContactToken_whenStatusCodeIs401() {
-        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler,
+        proxy = CoreCompletionHandlerRefreshTokenProxy(
+                mockCoreCompletionHandler,
                 FakeMobileEngageRefreshTokenInternal(true),
                 mockRestClient,
                 mockContactTokenStorage,
-                mockPushTokenStorage)
+                mockPushTokenStorage,
+                mockRequestModelHelper
+        )
         val requestModel = RequestModel(CLIENT_HOST,
                 RequestMethod.POST,
                 emptyMap(),
@@ -161,11 +156,14 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
         whenever(mockRequestModel.url).thenReturn(URL(CLIENT_HOST))
         whenever(mockResponseModel.statusCode).thenReturn(401)
 
-        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler,
+        proxy = CoreCompletionHandlerRefreshTokenProxy(
+                mockCoreCompletionHandler,
                 FakeMobileEngageRefreshTokenInternal(),
                 mockRestClient,
                 mockContactTokenStorage,
-                mockPushTokenStorage)
+                mockPushTokenStorage,
+                mockRequestModelHelper
+        )
 
         proxy.onError(REQUEST_ID, mockResponseModel)
 
@@ -184,11 +182,14 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
         whenever(mockResponseModel.statusCode).thenReturn(401)
 
 
-        proxy = CoreCompletionHandlerRefreshTokenProxy(mockCoreCompletionHandler,
+        proxy = CoreCompletionHandlerRefreshTokenProxy(
+                mockCoreCompletionHandler,
                 FakeMobileEngageRefreshTokenInternal(),
                 mockRestClient,
                 mockContactTokenStorage,
-                mockPushTokenStorage)
+                mockPushTokenStorage,
+                mockRequestModelHelper
+        )
 
         proxy.onError("compositeRequestId", mockResponseModel)
 

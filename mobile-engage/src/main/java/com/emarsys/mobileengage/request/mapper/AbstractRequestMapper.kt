@@ -4,8 +4,10 @@ import com.emarsys.core.Mapper
 import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
+import com.emarsys.mobileengage.util.RequestModelHelper
 
-abstract class AbstractRequestMapper(open val requestContext: MobileEngageRequestContext) : Mapper<RequestModel, RequestModel> {
+abstract class AbstractRequestMapper(open val requestContext: MobileEngageRequestContext,
+                                     open val requestModelHelper: RequestModelHelper) : Mapper<RequestModel, RequestModel> {
     override fun map(requestModel: RequestModel): RequestModel {
         var updatedRequestModel = requestModel
 

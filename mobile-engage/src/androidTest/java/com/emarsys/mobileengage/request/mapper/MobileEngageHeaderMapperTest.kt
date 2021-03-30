@@ -1,10 +1,6 @@
 package com.emarsys.mobileengage.request.mapper
 
-import android.os.Looper
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.CompositeRequestModel
@@ -12,15 +8,15 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.testUtil.DependencyTestUtils
 import com.emarsys.mobileengage.util.RequestHeaderUtils
+import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -42,6 +38,7 @@ MobileEngageHeaderMapperTest {
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockClientStateStorage: StringStorage
     private lateinit var mockDeviceInfo: DeviceInfo
+    private lateinit var mockRequestModelHelper: RequestModelHelper
 
 
     @Rule
@@ -73,18 +70,11 @@ MobileEngageHeaderMapperTest {
             on { deviceInfo } doReturn mockDeviceInfo
             on { clientStateStorage } doReturn mockClientStateStorage
         }
+        mockRequestModelHelper = mock {
+            on { isMobileEngageRequest(any()) } doReturn true
+        }
 
-        DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
-
-        mobileEngageHeaderMapper = MobileEngageHeaderMapper(mockRequestContext)
-    }
-
-    @After
-    fun tearDown() {
-        val handler = getDependency<CoreSdkHandler>()
-        val looper: Looper = handler.looper
-        looper.quit()
-        DependencyInjection.tearDown()
+        mobileEngageHeaderMapper = MobileEngageHeaderMapper(mockRequestContext, mockRequestModelHelper)
     }
 
     @Test
@@ -131,6 +121,7 @@ MobileEngageHeaderMapperTest {
 
     @Test
     fun testMap_shouldIgnoreRequest_whenRequestWasNotForMobileEngage() {
+        whenever(mockRequestModelHelper.isMobileEngageRequest(any())).thenReturn(false)
         val originalRequestModels = createNonMobileEngageRequest()
 
         val result = mobileEngageHeaderMapper.map(originalRequestModels)

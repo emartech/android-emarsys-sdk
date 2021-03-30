@@ -13,8 +13,9 @@ import com.emarsys.core.util.Assert;
 import com.emarsys.mobileengage.iam.InAppEventHandlerInternal;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
-import com.emarsys.mobileengage.util.RequestModelUtils;
+import com.emarsys.mobileengage.util.RequestModelHelper;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private final UUIDProvider uuidProvider;
     private final InAppEventHandlerInternal inAppEventHandlerInternal;
     private final ServiceEndpointProvider eventServiceProvider;
+    private final RequestModelHelper requestModelHelper;
 
     public RequestRepositoryProxy(
             Repository<RequestModel, SqlSpecification> requestRepository,
@@ -39,7 +41,8 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
             TimestampProvider timestampProvider,
             UUIDProvider uuidProvider,
             InAppEventHandlerInternal inAppEventHandlerInternal,
-            ServiceEndpointProvider eventServiceProvider) {
+            ServiceEndpointProvider eventServiceProvider,
+            RequestModelHelper requestModelHelper) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
         Assert.notNull(iamRepository, "IamRepository must not be null!");
         Assert.notNull(buttonClickedRepository, "ButtonClickedRepository must not be null!");
@@ -47,6 +50,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         Assert.notNull(inAppEventHandlerInternal, "InAppEventHandlerInternal must not be null!");
         Assert.notNull(uuidProvider, "UuidProvider must not be null!");
         Assert.notNull(eventServiceProvider, "EventServiceProvider must not be null!");
+        Assert.notNull(requestModelHelper, "RequestModelHelper must not be null!");
 
         this.requestRepository = requestRepository;
         this.iamRepository = iamRepository;
@@ -55,6 +59,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         this.inAppEventHandlerInternal = inAppEventHandlerInternal;
         this.uuidProvider = uuidProvider;
         this.eventServiceProvider = eventServiceProvider;
+        this.requestModelHelper = requestModelHelper;
     }
 
     @Override
@@ -95,7 +100,7 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
     private List<RequestModel> collectCustomEvents(List<RequestModel> models) {
         List<RequestModel> result = new ArrayList<>();
         for (RequestModel requestModel : models) {
-            if (RequestModelUtils.INSTANCE.isCustomEvent(requestModel)) {
+            if (requestModelHelper.isCustomEvent(requestModel)) {
                 result.add(requestModel);
             }
         }

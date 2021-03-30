@@ -4,19 +4,20 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageRequest
+import com.emarsys.mobileengage.util.RequestModelHelper
 import org.json.JSONException
 import org.json.JSONObject
 
 @Mockable
 class MobileEngageTokenResponseHandler(private val tokenKey: String,
-                                       private val tokenStorage: StringStorage) : AbstractResponseHandler() {
+                                       private val tokenStorage: StringStorage,
+                                       private val requestModelHelper: RequestModelHelper) : AbstractResponseHandler() {
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
         val body = responseModel.parsedBody
         val request = responseModel.requestModel
 
-        return request.isMobileEngageRequest() && hasCorrectBody(body)
+        return requestModelHelper.isMobileEngageRequest(request) && hasCorrectBody(body)
     }
 
     override fun handleResponse(responseModel: ResponseModel) {

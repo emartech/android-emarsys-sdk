@@ -1,19 +1,19 @@
 package com.emarsys.mobileengage.request
 
 import com.emarsys.core.CoreCompletionHandler
-import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.RequestModelUtils
 import com.emarsys.mobileengage.RefreshTokenInternal
-import com.emarsys.mobileengage.util.RequestModelUtils.isMobileEngageRequest
+import com.emarsys.mobileengage.util.RequestModelHelper
 
 class CoreCompletionHandlerRefreshTokenProxy(private val coreCompletionHandler: CoreCompletionHandler,
                                              private val refreshTokenInternal: RefreshTokenInternal,
                                              private val restClient: RestClient,
                                              private val contactTokenStorage: Storage<String>,
-                                             private val pushTokenStorage: Storage<String>) : CoreCompletionHandler {
+                                             private val pushTokenStorage: Storage<String>,
+                                             private val requestModelHelper: RequestModelHelper) : CoreCompletionHandler {
 
     override fun onSuccess(id: String, responseModel: ResponseModel) {
         coreCompletionHandler.onSuccess(id, responseModel)
@@ -21,7 +21,7 @@ class CoreCompletionHandlerRefreshTokenProxy(private val coreCompletionHandler: 
 
     override fun onError(originalId: String, originalResponseModel: ResponseModel) {
         if (originalResponseModel.statusCode == 401
-                && originalResponseModel.isMobileEngageRequest()) {
+                && requestModelHelper.isMobileEngageRequest(originalResponseModel.requestModel)) {
             pushTokenStorage.remove()
             refreshTokenInternal.refreshContactToken { errorCause ->
                 if (errorCause == null) {

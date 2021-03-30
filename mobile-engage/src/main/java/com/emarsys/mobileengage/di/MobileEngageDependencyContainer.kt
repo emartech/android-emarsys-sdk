@@ -34,6 +34,7 @@ import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.service.RemoteMessageMapper
+import com.emarsys.mobileengage.util.RequestModelHelper
 
 interface MobileEngageDependencyContainer : DependencyContainer {
     fun getMobileEngageInternal(): MobileEngageInternal
@@ -157,4 +158,6 @@ interface MobileEngageDependencyContainer : DependencyContainer {
     fun getRemoteMessageMapper(): RemoteMessageMapper
 
     fun getAppLifecycleObserver(): AppLifecycleObserver
+
+    fun getRequestModelHelper(): RequestModelHelper
 }

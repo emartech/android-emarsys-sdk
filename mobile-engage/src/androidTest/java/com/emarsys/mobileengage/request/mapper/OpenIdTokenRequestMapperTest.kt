@@ -1,24 +1,20 @@
 package com.emarsys.mobileengage.request.mapper
 
-import android.os.Looper
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.testUtil.DependencyTestUtils
 import com.emarsys.mobileengage.util.RequestHeaderUtils
+import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -38,6 +34,7 @@ class OpenIdTokenRequestMapperTest {
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var mockDeviceInfo: DeviceInfo
+    private lateinit var mockRequestModelHelper: RequestModelHelper
 
 
     @Rule
@@ -64,20 +61,13 @@ class OpenIdTokenRequestMapperTest {
             on { deviceInfo } doReturn mockDeviceInfo
             on { openIdToken } doReturn OPEN_ID_TOKEN
         }
+        mockRequestModelHelper = mock {
+            on { isMobileEngageRequest(any()) } doReturn true
+            on { isMobileEngageSetContactRequest(any()) } doReturn true
+        }
 
-        DependencyTestUtils.setupDependencyInjectionWithServiceProviders()
-
-        openIdTokenRequestMapper = OpenIdTokenRequestMapper(mockRequestContext)
+        openIdTokenRequestMapper = OpenIdTokenRequestMapper(mockRequestContext, mockRequestModelHelper)
     }
-
-    @After
-    fun tearDown() {
-        val handler = getDependency<CoreSdkHandler>()
-        val looper: Looper = handler.looper
-        looper.quit()
-        DependencyInjection.tearDown()
-    }
-
 
     @Test
     fun testMap_shouldAddOpenIdHeader_whenClientRequestIsForMobileEngage() {
@@ -118,6 +108,7 @@ class OpenIdTokenRequestMapperTest {
 
     @Test
     fun testMap_shouldIgnoreRequest_whenRequestWasNotForMobileEngage() {
+        whenever(mockRequestModelHelper.isMobileEngageRequest(any())).thenReturn(false)
         val originalRequestModels = createNonMobileEngageRequest()
 
         val result = openIdTokenRequestMapper.map(originalRequestModels)

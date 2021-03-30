@@ -5,18 +5,18 @@ import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
-import com.emarsys.mobileengage.util.RequestModelUtils.isCustomEvent
-import com.emarsys.mobileengage.util.RequestModelUtils.isInlineInAppRequest
+import com.emarsys.mobileengage.util.RequestModelHelper
 
 class DeviceEventStateResponseHandler(
-    private val deviceEventStateStorage: StringStorage
+    private val deviceEventStateStorage: StringStorage,
+    private val requestModelHelper: RequestModelHelper
 ) : AbstractResponseHandler() {
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
         return FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4) &&
                 responseModel.statusCode in 200..299 &&
-                (responseModel.requestModel.isCustomEvent() ||
-                        responseModel.requestModel.isInlineInAppRequest()) &&
+                (requestModelHelper.isCustomEvent(responseModel.requestModel) ||
+                        requestModelHelper.isInlineInAppRequest(responseModel.requestModel)) &&
                 responseModel.parsedBody?.has("deviceEventState") ?: false
     }
 
