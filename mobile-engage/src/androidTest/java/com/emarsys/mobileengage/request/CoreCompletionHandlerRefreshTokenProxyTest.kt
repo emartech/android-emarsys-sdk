@@ -1,7 +1,6 @@
 package com.emarsys.mobileengage.request
 
 import com.emarsys.core.CoreCompletionHandler
-import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
@@ -13,15 +12,11 @@ import com.emarsys.mobileengage.fake.FakeMobileEngageRefreshTokenInternal
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import com.nhaarman.mockitokotlin2.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import java.net.URL
 
@@ -60,7 +55,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
         mockPushTokenStorage = mock()
 
         mockRequestModelHelper = mock {
-            on { isMobileEngageRequest(any()) } doReturn true
+            on {isMobileEngageRequest(any())} doReturn true
         }
 
         proxy = CoreCompletionHandlerRefreshTokenProxy(
@@ -98,7 +93,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
         proxy.onError(REQUEST_ID, mockResponseModel)
 
-        verify(mockRefreshTokenInternal).refreshContactToken(any(CompletionListener::class.java))
+        verify(mockRefreshTokenInternal).refreshContactToken(any())
     }
 
     @Test
@@ -167,7 +162,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
         proxy.onError(REQUEST_ID, mockResponseModel)
 
-        verify(mockCoreCompletionHandler).onError(eq(REQUEST_ID), any(Exception::class.java))
+        verify(mockCoreCompletionHandler).onError(eq(REQUEST_ID), any<Exception>())
     }
 
     @Test
@@ -193,6 +188,6 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
         proxy.onError("compositeRequestId", mockResponseModel)
 
-        verify(mockCoreCompletionHandler).onError(eq(REQUEST_ID), any(Exception::class.java))
+        verify(mockCoreCompletionHandler).onError(eq(REQUEST_ID), any<Exception>())
     }
 }
