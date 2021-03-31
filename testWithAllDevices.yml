@@ -11,7 +11,7 @@ core-api:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: zeroflte
+    - model: athene
       version: 23
       locale: 'en'
       orientation: portrait
@@ -53,7 +53,7 @@ core:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: zeroflte
+    - model: athene
       version: 23
       locale: 'en'
       orientation: portrait
@@ -95,7 +95,7 @@ mobile-engage-api:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: zeroflte
+    - model: athene
       version: 23
       locale: 'en'
       orientation: portrait
@@ -137,7 +137,7 @@ mobile-engage:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: zeroflte
+    - model: athene
       version: 23
       locale: 'en'
       orientation: portrait
@@ -179,7 +179,7 @@ predict-api:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: zeroflte
+    - model: athene
       version: 23
       locale: 'en'
       orientation: portrait
@@ -221,7 +221,7 @@ predict:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: zeroflte
+    - model: athene
       version: 23
       locale: 'en'
       orientation: portrait
@@ -263,7 +263,7 @@ emarsys-sdk:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: zeroflte
+    - model: athene
       version: 23
       locale: 'en'
       orientation: portrait
@@ -305,7 +305,7 @@ emarsys:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: zeroflte
+    - model: athene
       version: 23
       locale: 'en'
       orientation: portrait
@@ -347,7 +347,7 @@ common:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: zeroflte
+    - model: athene
       version: 23
       locale: 'en'
       orientation: portrait
