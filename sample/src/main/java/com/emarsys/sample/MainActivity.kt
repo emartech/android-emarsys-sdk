@@ -7,8 +7,8 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
 
 
-class MainActivity : AppCompatActivity(), EventHandler {
+class MainActivity : FragmentActivity(), EventHandler {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
