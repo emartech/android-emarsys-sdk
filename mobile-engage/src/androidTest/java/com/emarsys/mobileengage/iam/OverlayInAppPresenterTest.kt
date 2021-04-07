@@ -6,6 +6,7 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
@@ -43,7 +44,6 @@ import java.util.concurrent.CountDownLatch
 
 class OverlayInAppPresenterTest {
     companion object {
-        private const val CAMPAIGN_ID = "555666777"
         private var SID = "testSid"
         private var URL = "https://www.emarsys.com"
 
@@ -104,6 +104,38 @@ class OverlayInAppPresenterTest {
                 mockTimestampProvider,
                 mockActivityProvider,
                 mockIamJsBridgeFactory)
+    }
+
+    @Test
+    fun testPresent_shouldShowDialog_whenFragmentActivity_isUsed() {
+        val fragmentMock: Fragment = mock()
+        val activityMock: FragmentActivity = mock()
+
+        val iamDialog: IamDialog = mock()
+        val fragmentManager: FragmentManager = mock()
+
+        whenever(activityMock.supportFragmentManager).thenReturn(fragmentManager)
+        whenever(fragmentManager.findFragmentById(anyInt())).thenReturn(fragmentMock)
+        whenever(mockActivityProvider.get()).thenReturn(activityMock)
+        whenever(mockIamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
+
+        val countDownLatch = CountDownLatch(1)
+
+        overlayPresenter.present(
+                "1",
+                SID,
+                URL,
+                "requestId",
+                0L,
+                "<html><body><p>Hello</p></body></html>",
+                MessageLoadedListener {
+                    countDownLatch.countDown()
+                }
+        )
+
+        countDownLatch.await()
+
+        verify(iamDialog).show(any<FragmentManager>(), any())
     }
 
     @Test

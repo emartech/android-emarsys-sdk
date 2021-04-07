@@ -1,8 +1,8 @@
 package com.emarsys.mobileengage.iam
 
 import android.os.Handler
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentActivity
 import com.emarsys.core.Mockable
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
@@ -51,7 +51,7 @@ class OverlayInAppPresenter(
             val currentActivity = currentActivityProvider.get()
             val endTimestamp = timestampProvider.provideTimestamp()
             iamDialog.setInAppLoadingTime(InAppLoadingTime(startTimestamp, endTimestamp))
-            if (currentActivity is AppCompatActivity) {
+            if (currentActivity is FragmentActivity) {
                 val fragmentManager = currentActivity.supportFragmentManager
                 val fragment = fragmentManager.findFragmentByTag(IamDialog.TAG)
                 if (fragment == null) {
@@ -65,7 +65,7 @@ class OverlayInAppPresenter(
     fun onCloseTriggered(): OnCloseListener {
         return {
             val currentActivity = currentActivityProvider.get()
-            if (currentActivity is AppCompatActivity) {
+            if (currentActivity is FragmentActivity) {
                 val fragment = currentActivity.supportFragmentManager.findFragmentByTag(IamDialog.TAG)
                 if (fragment is DialogFragment) {
                     fragment.dismiss()
