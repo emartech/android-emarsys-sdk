@@ -1,7 +1,7 @@
 object Versions {
-    const val kotlin_version = "1.4.31"
+    const val kotlin_version = "1.4.32"
     const val kotlin_test_version = "3.1.11"
-    const val mockito_version = "2.25.0"
+    const val mockito_version = "3.0.0"
     const val firebase_messaging_version = "21.0.1"
     const val support_test_version = "1.3.0"
     const val support_library = "1.2.0"
@@ -9,9 +9,9 @@ object Versions {
     const val buildToolsVersion = "30.0.2"
     const val multiDexVersion = "2.0.0"
     const val kotlinMockito = "2.2.0"
-    const val location_services_version = "17.1.0"
+    const val location_services_version = "18.0.0"
     const val espresso_idling_resources = "3.3.0"
-    const val archLifecycleVersion ="2.3.0"
+    const val archLifecycleVersion ="2.3.1"
     const val securityCryptoVersion = "1.1.0-alpha03"
 }
 
