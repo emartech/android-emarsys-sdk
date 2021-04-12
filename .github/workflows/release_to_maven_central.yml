@@ -53,6 +53,12 @@ jobs:
           echo "${{ secrets.SIGNING_KEY_FILE_ASC }}" > secring.asc
           gpg --dearmor secring.asc > secring.gpg
 
+      - name: Create release keystore file
+        shell: bash
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE }}" > mobile-team-android.jks.asc
+                    gpg -d --passphrase "${{ secrets.ANDROID_GPG_PASSWORD }}" --batch mobile-team-android.jks.asc > sample/mobile-team-android.jks
+
       - name: Gradle assemble release
         run: ./gradlew clean assembleRelease
 
