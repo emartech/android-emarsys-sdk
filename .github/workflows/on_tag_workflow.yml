@@ -16,9 +16,13 @@ env:
   SLACK_ICON: https://icons.iconarchive.com/icons/martz90/circle/256/android-icon.png
   SLACK_TITLE: New SDK Release
   SLACK_USERNAME: Emarsys SDK - Android
-  BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
-  BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
   EXCLUDE_GOOGLE_SERVICES_API_KEY: true
+  SIGNING_SECRET_KEY_RING_FILE: /home/runner/work/android-emarsys-sdk/android-emarsys-sdk/secring.asc.gpg
+  OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+  OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+  SONATYPE_STAGING_PROFILE_ID: ${{ secrets.SONATYPE_STAGING_PROFILE_ID }}
+  SIGNING_KEYID: ${{ secrets.SIGNING_KEYID }}
+  SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
 
 jobs:
   Release:
@@ -34,19 +38,29 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+
       - name: create-google services json
         uses: jsdaniell/create-json@1.1.2
         with:
           name: google-services.json
           json: ${{ secrets.GOOGLE_SERVICES_JSON }}
           dir: sample
+
       - name: setup RELEASE_VERSION
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
       - name: Create release keystore file
         shell: bash
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE }}" > mobile-team-android.jks.asc
                     gpg -d --passphrase "${{ secrets.ANDROID_GPG_PASSWORD }}" --batch mobile-team-android.jks.asc > sample/mobile-team-android.jks
+
+      - name: Create mavenCentral keystore file
+        shell: bash
+        run: |
+          echo "${{ secrets.SIGNING_KEY_FILE_ASC }}" > secring.asc
+          gpg --dearmor secring.asc > secring.gpg
+
       - name: Create file 'FAILURE.TXT' and write 'false' into it
         run: echo 'false' > FAILURE.TXT
 
@@ -57,7 +71,7 @@ jobs:
           path: FAILURE.TXT
 
       - name: Release with Gradle
-        run: ./gradlew clean build -x lint -x test release
+        run: ./gradlew clean assembleRelease publishToSonatype closeSonatypeStagingRepository
 
       - name: Create file 'FAILURE.TXT' and write 'true' into it
         if: ${{ failure() }}
