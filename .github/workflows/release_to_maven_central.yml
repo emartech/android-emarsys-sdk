@@ -18,6 +18,11 @@ env:
   BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
   EXCLUDE_GOOGLE_SERVICES_API_KEY: true
   SIGNING_SECRET_KEY_RING_FILE: /home/runner/work/android-emarsys-sdk/android-emarsys-sdk/secring.asc.gpg
+  OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+  OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+  SONATYPE_STAGING_PROFILE_ID: ${{ secrets.SONATYPE_STAGING_PROFILE_ID }}
+  SIGNING_KEYID: ${{ secrets.SIGNING_KEYID }}
+  SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
 
 jobs:
   Release:
@@ -78,7 +83,7 @@ jobs:
   OnError:
     name: Handle on Error
     runs-on: ubuntu-latest
-    needs: [ReleaseSample]
+    needs: [Release]
     if: always()
     steps:
       - uses: actions/checkout@v2.3.1
