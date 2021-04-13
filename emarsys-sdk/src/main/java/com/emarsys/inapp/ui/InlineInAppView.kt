@@ -17,6 +17,7 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
@@ -28,11 +29,11 @@ import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
 import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.InAppMessage
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
-import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
+import java.util.concurrent.CountDownLatch
 
 
 class InlineInAppView : LinearLayout {
@@ -58,11 +59,17 @@ class InlineInAppView : LinearLayout {
         val intArray = IntArray(1).apply { this[0] = R.attr.view_id }
         val attributes = context.obtainStyledAttributes(attrs, intArray)
         viewId = attributes.getString(0)
-        val webViewFactory: InlineInAppWebViewFactory = getDependency()
-        webView = webViewFactory.create(MessageLoadedListener {
+        var webViewFactory: InlineInAppWebViewFactory? = null
+        val latch = CountDownLatch(1)
+        getDependency<CoreSdkHandler>().post {
+            webViewFactory = getDependency()
+            latch.countDown()
+        }
+        latch.await()
+        webView = webViewFactory!!.create {
             visibility = View.VISIBLE
             onCompletionListener?.onCompleted(null)
-        })
+        }
 
         addView(webView)
         with(webView.layoutParams) {
@@ -109,7 +116,13 @@ class InlineInAppView : LinearLayout {
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
-                onCompletionListener?.onCompleted(ResponseErrorException(responseModel.statusCode, responseModel.message, responseModel.body))
+                onCompletionListener?.onCompleted(
+                    ResponseErrorException(
+                        responseModel.statusCode,
+                        responseModel.message,
+                        responseModel.body
+                    )
+                )
             }
 
             override fun onError(id: String, cause: Exception) {
