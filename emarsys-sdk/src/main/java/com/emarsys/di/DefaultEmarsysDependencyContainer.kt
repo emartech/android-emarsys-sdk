@@ -232,7 +232,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
     private fun initializeDependenciesInBackground(application: Application, config: EmarsysConfig) {
         val oldPrefs = application.getSharedPreferences(EMARSYS_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
         val prefs = SecureSharedPreferencesProvider(application, EMARSYS_SECURE_SHARED_PREFERENCES_NAME, oldPrefs).provide()
-        val uiHandler = Handler(Looper.getMainLooper())
+        val uiHandler = Handler(application.mainLooper)
+
         val sessionIdHolder = SessionIdHolder(null)
 
         TimestampProvider().also {
