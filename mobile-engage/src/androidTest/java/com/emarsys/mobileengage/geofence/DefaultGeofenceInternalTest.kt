@@ -406,36 +406,42 @@ class DefaultGeofenceInternalTest {
     fun testOnGeofenceTriggered() {
         val latch = CountDownLatch(1)
         val mockAction: Runnable = mock()
-        val appEventAction = JSONObject("""
-            {
-                    "type": "MEAppEvent",
-                    "name": "nameValue",
-                    "payload": {
-                      "someKey": "someValue"
-                    }
+        val appEventAction = JSONObject(
+                """
+        {
+                "type": "MEAppEvent",
+                "name": "nameValue",
+                "payload": {
+                  "someKey": "someValue"
                 }
-        """.trimIndent())
-
-        val testTrigger = Trigger(id = "appEventActionId", type = TriggerType.ENTER, action = appEventAction)
+            }
+    """.trimIndent()
+        )
+        val testTrigger =
+                Trigger(id = "appEventActionId", type = TriggerType.ENTER, action = appEventAction)
+        val testExitTrigger =
+                Trigger(id = "appEventActionId", type = TriggerType.EXIT, action = appEventAction)
         val trigger = Trigger(id = "triggerId", type = TriggerType.ENTER, action = JSONObject())
         val allGeofences = listOf(
                 MEGeofence("geofenceId1", 47.493160, 19.058355, 10.0, null, listOf(trigger)),
                 MEGeofence("geofenceId2", 47.493812, 19.058537, 10.0, null, listOf(trigger)),
-                MEGeofence("testId", 47.493827, 19.060715, 10.0, null, listOf(testTrigger)),
+                MEGeofence("testId", 47.493827, 19.060715, 10.0, null, listOf(testTrigger, testExitTrigger)),
                 MEGeofence("geofenceId4", 47.489680, 19.061230, 350.0, null, listOf(trigger)),
                 MEGeofence("geofenceId5", 47.492292, 19.056440, 10.0, null, listOf(trigger))
         )
-
         ReflectionTestUtils.setInstanceField(geofenceInternal, "nearestGeofences", allGeofences)
         whenever(mockAction.run()).thenAnswer { latch.countDown() }
         whenever(mockActionCommandFactory.createActionCommand(appEventAction)).thenReturn(mockAction)
-
-        geofenceInternal.onGeofenceTriggered(listOf(TriggeringGeofence("testId", TriggerType.ENTER)))
-
-        verify(mockActionCommandFactory).createActionCommand(appEventAction)
-
+        geofenceInternal.onGeofenceTriggered(
+                listOf(
+                        TriggeringGeofence(
+                                "testId",
+                                TriggerType.ENTER
+                        )
+                )
+        )
+        verify(mockActionCommandFactory, times(1)).createActionCommand(appEventAction)
         latch.await()
-
         verify(mockAction).run()
     }
 

@@ -193,11 +193,13 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
 
     override fun onGeofenceTriggered(events: List<TriggeringGeofence>) {
         events.flatMap { triggeringGeofence ->
-            nearestGeofences.filter {
-                it.id == triggeringGeofence.geofenceId && it.triggers.any { trigger -> trigger.type == triggeringGeofence.triggerType }
-            }
-        }.flatMap { nearestTriggeredGeofences ->
-            createActionsFromTriggers(nearestTriggeredGeofences)
+            nearestGeofences
+                    .filter {
+                        it.id == triggeringGeofence.geofenceId && it.triggers.any { trigger -> trigger.type == triggeringGeofence.triggerType }
+
+                    }.map { geofence -> Pair(geofence, triggeringGeofence) }
+        }.flatMap { nearestTriggeredGeofencesWithTrigger ->
+            createActionsFromTriggers(nearestTriggeredGeofencesWithTrigger.first, nearestTriggeredGeofencesWithTrigger.second)
         }.forEach { action ->
             Handler(Looper.getMainLooper()).post {
                 action?.run()
@@ -221,8 +223,10 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         this.geofenceEventHandlerProvider.eventHandler = eventHandler
     }
 
-    private fun createActionsFromTriggers(it: MEGeofence): List<Runnable?> {
-        return it.triggers.mapNotNull { actionCommandFactory.createActionCommand(it.action) }
+    private fun createActionsFromTriggers(geofence: MEGeofence, triggeringGeofence: TriggeringGeofence): List<Runnable?> {
+        return geofence.triggers.filter { trigger ->
+            trigger.type == triggeringGeofence.triggerType
+        }.mapNotNull { actionCommandFactory.createActionCommand(it.action) }
     }
 
     override fun onLocationChanged(location: Location) {}
