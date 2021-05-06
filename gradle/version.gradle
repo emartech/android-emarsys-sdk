@@ -1,10 +1,6 @@
 buildscript {
     repositories {
-        mavenCentral()
-        maven {
-            name = 'ajoberstar-backup'
-            url = 'https://ajoberstar.github.io/bintray-backup/'
-        }
+        jcenter()
     }
     dependencies {
         classpath "org.ajoberstar.grgit:grgit-gradle:4.1.0"
