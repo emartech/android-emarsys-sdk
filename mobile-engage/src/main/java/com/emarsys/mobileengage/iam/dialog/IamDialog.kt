@@ -156,7 +156,7 @@ class IamDialog : DialogFragment() {
     }
 
     fun setInAppLoadingTime(inAppLoadingTime: InAppLoadingTime?) {
-        arguments?.putParcelable(LOADING_TIME, inAppLoadingTime)
+        arguments?.putSerializable(LOADING_TIME, inAppLoadingTime)
     }
 
     private fun updateOnScreenTime() {
@@ -174,7 +174,7 @@ class IamDialog : DialogFragment() {
         val args = arguments
         if (args != null) {
             metric(InAppLog(
-                    args.getParcelable(LOADING_TIME)!!,
+                    args.getSerializable(LOADING_TIME)!! as InAppLoadingTime,
                     OnScreenTime(
                             args.getLong(ON_SCREEN_TIME),
                             startTime,
