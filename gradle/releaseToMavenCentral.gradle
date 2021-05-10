@@ -34,7 +34,7 @@ modules.each {
     project(it) {
         task sourcesJar(type: Jar) {
             from android.sourceSets.main.java.srcDirs
-            classifier = 'sources'
+            archiveClassifier = 'sources'
         }
 
         task javadoc(type: Javadoc) {
@@ -44,7 +44,7 @@ modules.each {
         }
 
         task javadocJar(type: Jar, dependsOn: javadoc) {
-            classifier = 'javadoc'
+            archiveClassifier = 'javadoc'
             from javadoc.destinationDir
         }
 
@@ -52,6 +52,7 @@ modules.each {
             publishing {
                 publications {
                     "${project.name}"(MavenPublication) {
+
                         groupId = group
                         artifactId = project.name
                         artifact sourcesJar
@@ -119,6 +120,7 @@ nexusPublishing {
         }
     }
 }
+
 signing {
     sign publishing.publications
 }
