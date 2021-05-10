@@ -23,7 +23,7 @@ object Libs {
     const val kotlin = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin_version}"
     const val location_services = "com.google.android.gms:play-services-location:${Versions.location_services_version}"
     const val lifecycle_extensions = "androidx.lifecycle:lifecycle-process:${Versions.archLifecycleVersion}"
-    const val lifecycle_compiler =  "android.arch.lifecycle:compiler:${Versions.archLifecycleVersion}"
+    const val lifecycle_compiler = "androidx.lifecycle:lifecycle-compiler:${Versions.archLifecycleVersion}"
     const val security_crypto = "androidx.security:security-crypto:${Versions.securityCryptoVersion}"
 }
 
