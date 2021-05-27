@@ -3,6 +3,7 @@ package com.emarsys.core.request;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.Mapper;
 import com.emarsys.core.Registry;
@@ -26,7 +27,12 @@ import com.emarsys.core.response.ResponseHandlersProcessor;
 import com.emarsys.core.shard.ShardModel;
 import com.emarsys.core.worker.DefaultWorker;
 import com.emarsys.core.worker.Worker;
-import com.emarsys.testUtil.*;
+import com.emarsys.testUtil.ConnectionTestUtils;
+import com.emarsys.testUtil.DatabaseTestUtils;
+import com.emarsys.testUtil.InstrumentationRegistry;
+import com.emarsys.testUtil.RetryUtils;
+import com.emarsys.testUtil.TimeoutUtils;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,7 +43,11 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static com.emarsys.testUtil.TestUrls.DENNA_ECHO;
@@ -45,7 +55,11 @@ import static com.emarsys.testUtil.TestUrls.customResponse;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RequestManagerTest {
 
@@ -114,7 +128,8 @@ public class RequestManagerTest {
         completionHandlerLatch = new CountDownLatch(1);
         fakeCompletionHandler = new FakeCompletionHandler(completionHandlerLatch);
         mockDefaultHandler = mock(CoreCompletionHandler.class);
-        RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), requestModelMappers);
+        RestClient restClient = new RestClient(new ConnectionProvider(), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class),
+                requestModelMappers, new Handler(Looper.getMainLooper()), new CoreSdkHandlerProvider().provideHandler());
         restClientMock = mock(RestClient.class);
         coreCompletionHandlerMiddlewareProvider = new CoreCompletionHandlerMiddlewareProvider(requestRepository, uiHandler, coreSdkHandler);
         worker = new DefaultWorker(requestRepository, connectionWatchDog, uiHandler, fakeCompletionHandler, restClient, coreCompletionHandlerMiddlewareProvider);

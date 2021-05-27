@@ -39,7 +39,8 @@ class OverlayInAppPresenter(
         private val currentActivityProvider: CurrentActivityProvider,
         private val jsBridgeFactory: IamJsBridgeFactory) {
 
-    fun present(campaignId: String, sid: String?, url: String?, requestId: String?, startTimestamp: Long, html: String?, messageLoadedListener: MessageLoadedListener?) {
+    fun present(campaignId: String, sid: String?, url: String?, requestId: String?, startTimestamp: Long,
+                html: String?, messageLoadedListener: MessageLoadedListener?) {
         val iamDialog = dialogProvider.provideDialog(campaignId, sid, url, requestId)
         setupDialogWithActions(iamDialog)
         val jsCommandFactory = JSCommandFactory(currentActivityProvider, uiHandler, coreSdkHandler, inAppInternal,

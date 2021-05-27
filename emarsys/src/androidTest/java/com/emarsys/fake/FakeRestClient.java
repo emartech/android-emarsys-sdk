@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.RestClient;
@@ -31,7 +32,8 @@ public class FakeRestClient extends RestClient {
 
     @SuppressWarnings("unchecked")
     public FakeRestClient(List<ResponseModel> responses, Mode mode) {
-        super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), mock(List.class));
+        super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class),
+                mock(List.class), new Handler(Looper.getMainLooper()), new CoreSdkHandlerProvider().provideHandler());
         this.responses = new ArrayList<>(responses);
         this.mode = mode;
     }
@@ -42,7 +44,8 @@ public class FakeRestClient extends RestClient {
 
     @SuppressWarnings("unchecked")
     public FakeRestClient(List<Exception> exceptions) {
-        super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), mock(List.class));
+        super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class),
+                mock(List.class), new Handler(Looper.getMainLooper()), new CoreSdkHandlerProvider().provideHandler());
         this.exceptions = new ArrayList<>(exceptions);
         this.mode = Mode.ERROR_EXCEPTION;
     }

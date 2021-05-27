@@ -1,8 +1,12 @@
 package com.emarsys.core.request
 
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.Mapper
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.fake.FakeCompletionHandler
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
@@ -36,6 +40,8 @@ class RestClientTest {
     private lateinit var mockResponseHandlersProcessor: ResponseHandlersProcessor
     private lateinit var mockRequestModelMapper: Mapper<RequestModel, RequestModel>
     private lateinit var requestModelMappers: List<Mapper<RequestModel, RequestModel>>
+    private lateinit var uiHandler: Handler
+    private lateinit var coreSdkHandler: CoreSdkHandler
 
     @Rule
     @JvmField
@@ -50,6 +56,8 @@ class RestClientTest {
         connectionProvider = ConnectionProvider()
         mockResponseHandlersProcessor = mock(ResponseHandlersProcessor::class.java)
         mockRequestModelMapper = mock(Mapper::class.java) as Mapper<RequestModel, RequestModel>
+        uiHandler = Handler(Looper.getMainLooper())
+        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
 
         whenever(mockRequestModelMapper.map(any<RequestModel>(RequestModel::class.java))).thenAnswer { invocation ->
             val args = invocation.arguments
@@ -57,28 +65,38 @@ class RestClientTest {
         }
 
         requestModelMappers = listOf(mockRequestModelMapper)
-        client = RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers)
+        client = RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, uiHandler, coreSdkHandler)
         latch = CountDownLatch(1)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_connectionProvider_mustNotBeNull() {
-        RestClient(null, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers)
+        RestClient(null, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, uiHandler, coreSdkHandler)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_timestampProvider_mustNotBeNull() {
-        RestClient(connectionProvider, null, mockResponseHandlersProcessor, requestModelMappers)
+        RestClient(connectionProvider, null, mockResponseHandlersProcessor, requestModelMappers, uiHandler, coreSdkHandler)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_responseHandlersRunner_mustNotBeNull() {
-        RestClient(connectionProvider, mockTimestampProvider, null, requestModelMappers)
+        RestClient(connectionProvider, mockTimestampProvider, null, requestModelMappers, uiHandler, coreSdkHandler)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_requestModelMapper_mustNotBeNull() {
-        RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, null)
+        RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, null, uiHandler, coreSdkHandler)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_uiHandler_mustNotBeNull() {
+        RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, null, coreSdkHandler)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testConstructor_coreSdkHandler_mustNotBeNull() {
+        RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, uiHandler, null)
     }
 
     @Test

@@ -29,6 +29,7 @@ import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.ThreadSpy
+import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
 import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.doAnswer
@@ -117,7 +118,7 @@ class OverlayInAppPresenterTest {
         whenever(activityMock.supportFragmentManager).thenReturn(fragmentManager)
         whenever(fragmentManager.findFragmentById(anyInt())).thenReturn(fragmentMock)
         whenever(mockActivityProvider.get()).thenReturn(activityMock)
-        whenever(mockIamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
+        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(iamDialog)
 
         val countDownLatch = CountDownLatch(1)
 
@@ -149,7 +150,7 @@ class OverlayInAppPresenterTest {
         whenever(activityMock.supportFragmentManager).thenReturn(fragmentManager)
         whenever(fragmentManager.findFragmentById(anyInt())).thenReturn(fragmentMock)
         whenever(mockActivityProvider.get()).thenReturn(activityMock)
-        whenever(mockIamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
+        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(iamDialog)
 
         val countDownLatch = CountDownLatch(1)
 
@@ -176,7 +177,7 @@ class OverlayInAppPresenterTest {
         val activity: Activity = mock()
 
         whenever(mockActivityProvider.get()).thenReturn(activity)
-        whenever(mockIamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
+        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(iamDialog)
 
         val countDownLatch = CountDownLatch(1)
 
@@ -202,7 +203,7 @@ class OverlayInAppPresenterTest {
         val iamDialog: IamDialog = mock()
 
         whenever(mockActivityProvider.get()).thenReturn(null)
-        whenever(mockIamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
+        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(iamDialog)
 
         val countDownLatch = CountDownLatch(1)
 
@@ -230,7 +231,7 @@ class OverlayInAppPresenterTest {
         val fragmentManager: FragmentManager = mock()
         val fragment: Fragment = mock()
 
-        whenever(mockIamDialogProvider.provideDialog(any(), any(), any(), any())).thenReturn(iamDialog)
+        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(iamDialog)
         whenever(mockActivityProvider.get()).thenReturn(activity)
         whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
         whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(fragment)

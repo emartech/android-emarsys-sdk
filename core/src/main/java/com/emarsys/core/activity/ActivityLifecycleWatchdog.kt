@@ -4,47 +4,57 @@ import android.app.Activity
 import android.app.Application.ActivityLifecycleCallbacks
 import android.os.Bundle
 import com.emarsys.core.Mockable
+import com.emarsys.core.handler.CoreSdkHandler
 
 @Mockable
-class ActivityLifecycleWatchdog(val applicationStartActions: Array<ActivityLifecycleAction> = emptyArray(),
-                                val activityCreatedActions: Array<ActivityLifecycleAction> = emptyArray(),
-                                val initializationActions: Array<ActivityLifecycleAction?> = emptyArray())
-    : ActivityLifecycleCallbacks {
+class ActivityLifecycleWatchdog(
+        val applicationStartActions: Array<ActivityLifecycleAction> = emptyArray(),
+        val activityCreatedActions: Array<ActivityLifecycleAction> = emptyArray(),
+        val initializationActions: Array<ActivityLifecycleAction?> = emptyArray(),
+        val coreSdkHandler: CoreSdkHandler) : ActivityLifecycleCallbacks {
     private var currentActivity: Activity? = null
     val triggerOnActivityActions: MutableList<ActivityLifecycleAction> = mutableListOf()
 
     fun addTriggerOnActivityAction(triggerOnActivityAction: ActivityLifecycleAction) {
-        triggerOnActivityActions.add(triggerOnActivityAction)
-        if (currentActivity != null) {
-            triggerOnActivity()
+        coreSdkHandler.post {
+            triggerOnActivityActions.add(triggerOnActivityAction)
+            if (currentActivity != null) {
+                triggerOnActivity()
+            }
         }
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-        for (action in activityCreatedActions) {
-            action.execute(activity)
+        coreSdkHandler.post {
+            for (action in activityCreatedActions) {
+                action.execute(activity)
+            }
         }
     }
 
     override fun onActivityStarted(activity: Activity) {}
     override fun onActivityResumed(activity: Activity) {
-        if (currentActivity == null) {
-            initializationActions.forEachIndexed { index, action ->
-                action?.execute(activity)
-                initializationActions[index] = null
+        coreSdkHandler.post {
+            if (currentActivity == null) {
+                initializationActions.forEachIndexed { index, action ->
+                    action?.execute(activity)
+                    initializationActions[index] = null
+                }
+                for (action in applicationStartActions) {
+                    action.execute(activity)
+                }
             }
-            for (action in applicationStartActions) {
-                action.execute(activity)
-            }
+            currentActivity = activity
+            triggerOnActivity()
         }
-        currentActivity = activity
-        triggerOnActivity()
     }
 
     override fun onActivityPaused(activity: Activity) {}
     override fun onActivityStopped(activity: Activity) {
-        if (currentActivity == activity) {
-            currentActivity = null
+        coreSdkHandler.post {
+            if (currentActivity == activity) {
+                currentActivity = null
+            }
         }
     }
 

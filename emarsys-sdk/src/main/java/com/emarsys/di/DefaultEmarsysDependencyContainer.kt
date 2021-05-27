@@ -368,7 +368,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         val shardModelRepository = ShardModelRepository(coreDbHelper).also {
             addDependency(dependencies, it as Repository<ShardModel, SqlSpecification>, "shardModelRepository")
         }
-        RestClient(ConnectionProvider(), getTimestampProvider(), getResponseHandlersProcessor(), createRequestModelMappers()).also {
+        RestClient(ConnectionProvider(), getTimestampProvider(), getResponseHandlersProcessor(), createRequestModelMappers(),
+                getUiHandler(), getCoreSdkHandler()).also {
             addDependency(dependencies, it)
         }
         val requestModelFactory = MobileEngageRequestModelFactory(
@@ -642,7 +643,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         return listOf(
                 MobileEngageHeaderMapper(getRequestContext(), getRequestModelHelper()),
                 OpenIdTokenRequestMapper(getRequestContext(), getRequestModelHelper()),
-                ContactTokenHeaderMapper(getRequestContext(),getRequestModelHelper() ),
+                ContactTokenHeaderMapper(getRequestContext(), getRequestModelHelper()),
                 DeviceEventStateRequestMapper(getRequestContext(), getRequestModelHelper(), getDependency<StringStorage>(dependencies, MobileEngageStorageKey.DEVICE_EVENT_STATE.key)))
     }
 
@@ -662,7 +663,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
         ActivityLifecycleWatchdog(
                 applicationStartActions,
                 activityCreatedActions,
-                initializationActions).also {
+                initializationActions,
+                getCoreSdkHandler()).also {
             addDependency(dependencies, it)
         }
     }
@@ -678,7 +680,7 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getUiHandler(),
                 IamStaticWebViewProvider(application),
                 getInAppInternal(),
-                IamDialogProvider(),
+                IamDialogProvider(getUiHandler()),
                 getDependency(dependencies, "buttonClickedRepository"),
                 getDependency(dependencies, "displayedIamRepository"),
                 getTimestampProvider(),

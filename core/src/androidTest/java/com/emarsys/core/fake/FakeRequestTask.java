@@ -1,6 +1,7 @@
 package com.emarsys.core.fake;
 
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.RequestTask;
@@ -27,7 +28,8 @@ public class FakeRequestTask extends RequestTask {
                 mock(ConnectionProvider.class),
                 mock(TimestampProvider.class),
                 mock(ResponseHandlersProcessor.class),
-                mock(List.class));
+                mock(List.class),
+                new CoreSdkHandlerProvider().provideHandler());
         this.fakeResult = fakeResult;
         this.requestModel = requestModel;
         this.handler = handler;

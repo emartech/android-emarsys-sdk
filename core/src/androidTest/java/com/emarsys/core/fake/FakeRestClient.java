@@ -1,6 +1,10 @@
 package com.emarsys.core.fake;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.RequestTask;
@@ -20,7 +24,8 @@ public class FakeRestClient extends RestClient {
 
     @SuppressWarnings("unchecked")
     public FakeRestClient(Object... fakeResults) {
-        super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), mock(List.class));
+        super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), mock(List.class),
+                new Handler(Looper.getMainLooper()), new CoreSdkHandlerProvider().provideHandler());
         for (Object o : fakeResults) {
             if (!(o instanceof Integer || o instanceof Exception)) {
                 throw new IllegalArgumentException("FakeResults list can only contain Integers and Exceptions!");

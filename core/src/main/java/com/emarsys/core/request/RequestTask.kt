@@ -4,6 +4,7 @@ import android.os.AsyncTask
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mapper
 import com.emarsys.core.connection.ConnectionProvider
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
@@ -23,11 +24,12 @@ import javax.net.ssl.HttpsURLConnection
 
 open class RequestTask(
         private val requestModel: RequestModel,
-        private val handler: CoreCompletionHandler,
+        private val coreCompletionHandler: CoreCompletionHandler,
         private val connectionProvider: ConnectionProvider,
         private val timestampProvider: TimestampProvider,
         private val responseHandlersProcessor: ResponseHandlersProcessor,
-        private val requestModelMappers: List<Mapper<RequestModel, RequestModel>>) : AsyncTask<Void, Long, Void>() {
+        private val requestModelMappers: List<Mapper<RequestModel, RequestModel>>,
+        private val coreSdkHandler: CoreSdkHandler) : AsyncTask<Void, Long, Void>() {
 
     companion object {
         private const val TIMEOUT = 30000
@@ -60,14 +62,16 @@ open class RequestTask(
     }
 
     override fun onPostExecute(result: Void?) {
-        if (exception != null) {
-            handler.onError(requestModel.id, exception)
-        } else if (responseModel != null) {
-            responseHandlersProcessor.process(responseModel)
-            if (isStatusCodeOK(responseModel!!.statusCode)) {
-                handler.onSuccess(requestModel.id, responseModel)
-            } else {
-                handler.onError(requestModel.id, responseModel)
+        coreSdkHandler.post {
+            if (exception != null) {
+                coreCompletionHandler.onError(requestModel.id, exception)
+            } else if (responseModel != null) {
+                responseHandlersProcessor.process(responseModel)
+                if (isStatusCodeOK(responseModel!!.statusCode)) {
+                    coreCompletionHandler.onSuccess(requestModel.id, responseModel)
+                } else {
+                    coreCompletionHandler.onError(requestModel.id, responseModel)
+                }
             }
         }
     }

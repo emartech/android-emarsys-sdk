@@ -2,6 +2,9 @@ package com.emarsys.core.activity
 
 import android.app.Activity
 import android.os.Bundle
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -14,6 +17,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
+import java.util.concurrent.CountDownLatch
 
 class ActivityLifecycleWatchdogTest {
     companion object {
@@ -27,6 +31,8 @@ class ActivityLifecycleWatchdogTest {
     private lateinit var activityCreatedActions: Array<ActivityLifecycleAction>
     private lateinit var initializationActions: Array<ActivityLifecycleAction?>
 
+    private lateinit var coreSdkHandler: CoreSdkHandler
+    private lateinit var fakeAction: ActivityLifecycleAction
 
     private lateinit var activity1: Activity
     private lateinit var activity2: Activity
@@ -38,36 +44,52 @@ class ActivityLifecycleWatchdogTest {
 
     @Before
     fun setUp() {
+        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
         activity1 = Mockito.mock(Activity::class.java)
         activity2 = Mockito.mock(Activity::class.java)
         activity3 = Mockito.mock(Activity::class.java)
         applicationStartActions = initActions()
         activityCreatedActions = initActions()
         initializationActions = arrayOf(mock(), mock(), mock())
-        watchdog = ActivityLifecycleWatchdog(applicationStartActions, activityCreatedActions, initializationActions)
+        fakeAction = object : ActivityLifecycleAction {
+            override fun execute(activity: Activity?) {
+                Thread.currentThread().name.startsWith("CoreSDKHandlerThread") shouldBe true
+            }
+        }
+        watchdog = ActivityLifecycleWatchdog(
+                applicationStartActions,
+                activityCreatedActions,
+                initializationActions,
+                coreSdkHandler
+        )
     }
 
     @Test
     fun testConstructor_ApplicationStartActions_createEmptyArrayIfNull() {
-        val watchdog = ActivityLifecycleWatchdog(activityCreatedActions = activityCreatedActions)
+        val watchdog = ActivityLifecycleWatchdog(activityCreatedActions = activityCreatedActions, coreSdkHandler = coreSdkHandler)
         Assert.assertArrayEquals(arrayOf<ActivityLifecycleAction>(), watchdog.applicationStartActions)
     }
 
     @Test
     fun testConstructor_activityCreatedActions_createEmptyArrayIfNull() {
-        val watchdog = ActivityLifecycleWatchdog(applicationStartActions = applicationStartActions)
+        val watchdog = ActivityLifecycleWatchdog(applicationStartActions = applicationStartActions, coreSdkHandler = coreSdkHandler)
         Assert.assertArrayEquals(arrayOf<ActivityLifecycleAction>(), watchdog.activityCreatedActions)
     }
 
     @Test
     fun testConstructor_initializationActions_createEmptyArrayIfNull() {
-        val watchdog = ActivityLifecycleWatchdog()
+        val watchdog = ActivityLifecycleWatchdog(coreSdkHandler = coreSdkHandler)
         Assert.assertArrayEquals(arrayOf<ActivityLifecycleAction>(), watchdog.initializationActions)
     }
 
     @Test
     fun testConstructor_fieldsInitialized_withConstructorArguments() {
-        val watchdog = ActivityLifecycleWatchdog(applicationStartActions, activityCreatedActions, initializationActions)
+        val watchdog = ActivityLifecycleWatchdog(
+                applicationStartActions,
+                activityCreatedActions,
+                initializationActions,
+                coreSdkHandler
+        )
         Assert.assertArrayEquals(applicationStartActions, watchdog.applicationStartActions)
         Assert.assertArrayEquals(activityCreatedActions, watchdog.activityCreatedActions)
         Assert.assertArrayEquals(initializationActions, watchdog.initializationActions)
@@ -76,11 +98,36 @@ class ActivityLifecycleWatchdogTest {
     @Test
     fun testApplicationStart_onResume_shouldInvokeActions() {
         watchdog.onActivityResumed(activity1)
+        waitForCoreSdkHandler()
 
         verifyExecuteCalled(applicationStartActions, 1)
         initializationActions.filterNotNull().forEach {
             verify(it, times(1)).execute(ArgumentMatchers.any(Activity::class.java))
         }
+    }
+
+    @Test
+    fun testApplicationStart_onResume_schedulesToCoreSDKHandler() {
+        initializationActions = listOf(fakeAction).toTypedArray()
+
+        watchdog = ActivityLifecycleWatchdog(applicationStartActions, activityCreatedActions, initializationActions, coreSdkHandler)
+
+        watchdog.onActivityResumed(activity1)
+    }
+
+    @Test
+    fun testApplicationStart_onCreated_schedulesToCoreSDKHandler() {
+        activityCreatedActions = listOf(fakeAction).toTypedArray()
+
+        watchdog = ActivityLifecycleWatchdog(applicationStartActions, activityCreatedActions, initializationActions, coreSdkHandler)
+
+        watchdog.onActivityCreated(activity1, null)
+    }
+
+    @Test
+    fun testApplicationStart_addTriggerOnActivityAction_schedulesToCoreSDKHandler() {
+        ReflectionTestUtils.setInstanceField(watchdog, "currentActivity", activity1)
+        watchdog.addTriggerOnActivityAction(fakeAction)
     }
 
     @Test
@@ -187,6 +234,7 @@ class ActivityLifecycleWatchdogTest {
         watchdog.onActivityCreated(activity1, Bundle())
         watchdog.onActivityStarted(activity1)
         watchdog.onActivityResumed(activity1)
+        waitForCoreSdkHandler()
         Mockito.verify(action).execute(activity1)
     }
 
@@ -198,6 +246,7 @@ class ActivityLifecycleWatchdogTest {
         watchdog.onActivityResumed(activity1)
         Mockito.verifyZeroInteractions(action)
         watchdog.addTriggerOnActivityAction(action)
+        waitForCoreSdkHandler()
         Mockito.verify(action).execute(activity1)
     }
 
@@ -209,6 +258,7 @@ class ActivityLifecycleWatchdogTest {
         watchdog.onActivityResumed(activity1)
         Mockito.verifyZeroInteractions(action)
         watchdog.addTriggerOnActivityAction(action)
+        waitForCoreSdkHandler()
         Mockito.verify(action).execute(activity1)
         watchdog.triggerOnActivityActions.size shouldBe 0
     }
@@ -223,9 +273,18 @@ class ActivityLifecycleWatchdogTest {
     }
 
     private fun verifyExecuteCalled(actions: Array<ActivityLifecycleAction>, times: Int) {
+        waitForCoreSdkHandler()
         for (action in actions) {
             Mockito.verify(action, Mockito.times(times)).execute(ArgumentMatchers.any(Activity::class.java))
         }
+    }
+
+    private fun waitForCoreSdkHandler() {
+        val latch = CountDownLatch(1)
+        coreSdkHandler.post {
+            latch.countDown()
+        }
+        latch.await()
     }
 
 }
