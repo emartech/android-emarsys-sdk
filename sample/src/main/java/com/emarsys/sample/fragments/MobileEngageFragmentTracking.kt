@@ -18,7 +18,7 @@ import com.emarsys.sample.extensions.copyToClipboard
 import com.emarsys.sample.extensions.showSnackBar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.FirebaseApp
-import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.android.synthetic.main.fragment_mobile_engage_tracking.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -92,9 +92,9 @@ class MobileEngageFragmentTracking : Fragment() {
 
         buttonTrackPushToken.setOnClickListener {
             FirebaseApp.initializeApp(view.context)
-            FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
+            FirebaseMessaging.getInstance().token.addOnCompleteListener {  task ->
                 task.addOnSuccessListener {
-                    val pushToken = it?.token
+                    val pushToken = it
                     Emarsys.push.setPushToken(pushToken.toString())
                     view.showSnackBar("Push Token tracked")
                 }
@@ -107,10 +107,10 @@ class MobileEngageFragmentTracking : Fragment() {
 
         buttonCopyPushToken.setOnClickListener {
             FirebaseApp.initializeApp(view.context)
-            FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener { task ->
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                 run {
                     task.addOnSuccessListener {
-                        val pushToken = it?.token
+                        val pushToken = it
                         pushToken?.copyToClipboard(view.context)
                         view.showSnackBar("Push Token copied: $pushToken")
                     }
