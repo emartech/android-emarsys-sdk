@@ -104,29 +104,35 @@ class InlineInAppView : LinearLayout {
 
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
-                val messageResponseModel = filterMessagesById(responseModel)
-                if (messageResponseModel != null) {
-                    val html = messageResponseModel.getString("html")
+                getDependency<CoreSdkHandler>().post {
+                    val messageResponseModel = filterMessagesById(responseModel)
+                    if (messageResponseModel != null) {
+                        val html = messageResponseModel.getString("html")
 
-                    createJSBridge(messageResponseModel)
-                    callback(html)
-                } else {
-                    callback(null)
+                        createJSBridge(messageResponseModel)
+                        callback(html)
+                    } else {
+                        callback(null)
+                    }
                 }
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
-                onCompletionListener?.onCompleted(
-                    ResponseErrorException(
-                        responseModel.statusCode,
-                        responseModel.message,
-                        responseModel.body
+                getDependency<CoreSdkHandler>().post {
+                    onCompletionListener?.onCompleted(
+                            ResponseErrorException(
+                                    responseModel.statusCode,
+                                    responseModel.message,
+                                    responseModel.body
+                            )
                     )
-                )
+                }
             }
 
             override fun onError(id: String, cause: Exception) {
-                onCompletionListener?.onCompleted(cause)
+                getDependency<CoreSdkHandler>().post {
+                    onCompletionListener?.onCompleted(cause)
+                }
             }
         })
     }
@@ -161,7 +167,12 @@ class InlineInAppView : LinearLayout {
         val jsBridgeFactory: IamJsBridgeFactory = getDependency()
 
         val jsBridge = jsBridgeFactory.createJsBridge(jsCommandFactory, InAppMessage(campaignId!!, null, null))
-        webView.addJavascriptInterface(jsBridge, "Android")
+        val latch = CountDownLatch(1)
+        getDependency<Handler>("uiHandler").post {
+            webView.addJavascriptInterface(jsBridge, "Android")
+            latch.countDown()
+        }
+        latch.await()
         jsBridge.webView = webView
     }
 }
