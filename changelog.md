@@ -1,16 +1,10 @@
-# What's new
-### [Geofence](https://github.com/emartech/android-emarsys-sdk/wiki#8-geofence)
-* If it's enabled, now the SDK sends an event (geofence EXIT) also when the mobile device leaves the area of a configured geofence.
-> Note: The Geofence feature is still in [pilot phase](https://github.com/emartech/android-emarsys-sdk/wiki#pilot-version)!
-
 # What's fixed
 ### [Dependencies](https://github.com/emartech/android-emarsys-sdk/wiki/FAQ#emarsys-sdk-uses-an-other-version-of-kotlin-than-my-application-should-i-be-concerned)
-* Updated some minor dependencies. Related commit is [here](https://github.com/emartech/android-emarsys-sdk/commit/bf59374f131fe7718b6c5dfdddbde940895bfc21).
-### Threading
-* There were some edge-cases when LifecycleObserver addObserver were called on a thread other than the UI thread.
-* It caused a crash, but only in the SDK, it could have caused some issues in the session reporting/handling. Now it's always added on the UI thread.
-### [Inline In-App](https://github.com/emartech/android-emarsys-sdk/wiki#32-inline-in-app)
-* Fixed a crash, which happened when an Inline In-App were displayed before finishing the `Emarsys.setup()`.
+* Updated some minor dependencies. Related commits are [this](https://github.com/emartech/android-emarsys-sdk/commit/a5fe0622edcab152a744d9ee2238e89af318f2a0) and [this](https://github.com/emartech/android-emarsys-sdk/commit/fd1a94c6ad742fabf61cdc3b63f77ccdfc1f924a).
+
+### [In-App](https://github.com/emartech/android-emarsys-sdk/wiki#3-inapp)
+* Fixed a crash, which caused Push to In-App to crash the SDK, when the application was in the background.
+* Related to this, we fixed an issue, that the SDK handled some of the responses in the UI thread, what caused In-App messages to load slower then they should.
 
 
 # Important Notes
