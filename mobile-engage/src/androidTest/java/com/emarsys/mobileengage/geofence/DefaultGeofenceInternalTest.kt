@@ -386,6 +386,28 @@ class DefaultGeofenceInternalTest {
     }
 
     @Test
+    fun testEnable_shouldNotCrash_registersGeofencesWhenRefreshRadiusWouldBeNegative() {
+        val geofenceResponse = GeofenceResponse(listOf(), 1.0)
+
+        whenever(mockGeofenceResponseMapper.map(any())).thenReturn(geofenceResponse)
+
+        val spyGeofenceInternal: GeofenceInternal = spy(geofenceInternal)
+        spyGeofenceInternal.fetchGeofences(null)
+
+        whenever(mockGeofenceFilter.findNearestGeofences(any(), any())).thenReturn(listOf(nearestGeofencesWithoutRefreshArea[0]))
+        val currentLocation = (Location(LocationManager.GPS_PROVIDER).apply {
+            this.latitude = 47.493160
+            this.longitude = 19.058355
+        })
+
+        whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
+        whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
+        whenever(mockFusedLocationProviderClient.lastLocation).thenReturn(FakeLocationTask(currentLocation))
+
+        spyGeofenceInternal.enable(null)
+    }
+
+    @Test
     fun testRegisterGeofences_geofencingClientAddsNearestGeofences() {
         val geofencesToTest = nearestGeofencesWithoutRefreshArea.map { createGeofence(it) } + createGeofence(Companion.refreshArea)
         val geofencingRequest = GeofencingRequest.Builder().addGeofences(geofencesToTest).build()

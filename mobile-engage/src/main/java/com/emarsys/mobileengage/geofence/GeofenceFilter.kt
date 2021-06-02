@@ -9,12 +9,14 @@ import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 @Mockable
 class GeofenceFilter(private val limit: Int) {
     fun findNearestGeofences(currentLocation: Location, geofenceResponse: GeofenceResponse): List<Geofence> {
-        val geofences = geofenceResponse.geofenceGroups.flatMap { it.geofences }.sortedBy {
-            (Location(LocationManager.GPS_PROVIDER).apply {
-                this.longitude = it.lon
-                this.latitude = it.lat
-            }.distanceTo(currentLocation) - it.radius)
-        }
+        val geofences = geofenceResponse.geofenceGroups
+                .flatMap { it.geofences }
+                .sortedBy {
+                    (Location(LocationManager.GPS_PROVIDER).apply {
+                        this.longitude = it.lon
+                        this.latitude = it.lat
+                    }.distanceTo(currentLocation) - it.radius)
+                }
         if (limit > geofences.size) {
             return geofences
         }

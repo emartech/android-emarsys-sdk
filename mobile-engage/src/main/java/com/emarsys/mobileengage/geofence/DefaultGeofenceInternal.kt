@@ -34,6 +34,7 @@ import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.google.android.gms.location.*
 import org.json.JSONObject
+import kotlin.math.abs
 import com.emarsys.mobileengage.geofence.model.Geofence as MEGeofence
 
 @Mockable
@@ -170,7 +171,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         val furthestGeofence = nearestGeofences.last()
         val result = floatArrayOf(1F)
         Location.distanceBetween(currentLocation!!.latitude, currentLocation!!.longitude, furthestGeofence.lat, furthestGeofence.lon, result)
-        val radius = (result[0] - furthestGeofence.radius) * geofenceResponse!!.refreshRadiusRatio
+        val radius = abs((result[0] - furthestGeofence.radius) * geofenceResponse!!.refreshRadiusRatio)
         return MEGeofence("refreshArea", currentLocation!!.latitude, currentLocation!!.longitude, radius, null, listOf(Trigger("refreshAreaTriggerId", TriggerType.EXIT, 0, JSONObject())))
     }
 
