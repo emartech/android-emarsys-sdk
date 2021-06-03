@@ -1,12 +1,17 @@
 package com.emarsys.mobileengage.inbox
 
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.mobileengage.api.action.AppEventActionModel
+import com.emarsys.mobileengage.api.action.CustomEventActionModel
+import com.emarsys.mobileengage.api.action.DismissActionModel
+import com.emarsys.mobileengage.api.action.OpenExternalUrlActionModel
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.api.inbox.Message
 import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Test
+import java.net.URL
 
 class MessageInboxResponseMapperTest {
 
@@ -29,57 +34,99 @@ class MessageInboxResponseMapperTest {
 
     @Test
     fun testMap_shouldReturnMessageInboxResult() {
-        val expected = InboxResult(listOf(
+        val expected = InboxResult(
+            listOf(
                 Message(
-                        "messageId1",
-                        "campaignId",
-                        "collapseId",
-                        "testMessage1",
-                        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                        "https://example.com/image.jpg",
-                        142141412515,
-                        142141412515,
-                        50,
-                        listOf("NEW"),
-                        mapOf("key1" to "value1", "key2" to "value2"
-                        )),
+                    "messageId1",
+                    "campaignId",
+                    "collapseId",
+                    "testMessage1",
+                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                    "https://example.com/image.jpg",
+                    142141412515,
+                    142141412515,
+                    50,
+                    listOf("NEW"),
+                    mapOf("key1" to "value1", "key2" to "value2"),
+                    listOf(
+                        AppEventActionModel(
+                            "testId1",
+                            "testTitle1",
+                            "MEAppEvent",
+                            "testName1",
+                            mapOf(
+                                "testKey1" to "testValue1",
+                                "testKey2" to "testValue2",
+                            )
+                        ),
+                        OpenExternalUrlActionModel(
+                            "testId2",
+                            "testTitle2",
+                            "OpenExternalUrl",
+                            URL("https://www.test.com")
+                        )
+                    )
+                ),
                 Message(
-                        "messageId2",
-                        "campaignId2",
-                        "collapseId2",
-                        "testMessage2",
-                        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                        "https://example.com/image.jpg",
-                        142141412515,
-                        142141412515,
-                        50,
-                        listOf(),
-                        mapOf("key1" to "value1", "key2" to "value2")),
+                    "messageId2",
+                    "campaignId2",
+                    "collapseId2",
+                    "testMessage2",
+                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                    "https://example.com/image.jpg",
+                    142141412515,
+                    142141412515,
+                    50,
+                    listOf(),
+                    mapOf("key1" to "value1", "key2" to "value2"),
+                    listOf(
+                        CustomEventActionModel(
+                            "testId3",
+                            "testTitle3",
+                            "MECustomEvent",
+                            "testName3",
+                            mapOf(
+                                "testKey3" to "testValue3",
+                                "testKey4" to "testValue4",
+                            )
+                        ),
+                        DismissActionModel(
+                            "testId4",
+                            "testTitle4",
+                            "Dismiss"
+                        )
+                    )
+                ),
                 Message(
-                        "messageId3",
-                        "campaignId3",
-                        "collapseId3",
-                        "testMessage3",
-                        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                        "https://example.com/image.jpg",
-                        142141412515,
-                        142141412515,
-                        50,
-                        listOf("READ", "DELETED"),
-                        mapOf("key1" to "value1", "key2" to "value2")),
+                    "messageId3",
+                    "campaignId3",
+                    "collapseId3",
+                    "testMessage3",
+                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                    "https://example.com/image.jpg",
+                    142141412515,
+                    142141412515,
+                    50,
+                    listOf("READ", "DELETED"),
+                    mapOf("key1" to "value1", "key2" to "value2"),
+                    null
+                ),
                 Message(
-                        "messageId4",
-                        "campaignId4",
-                        "collapseId4",
-                        "testMessage4",
-                        "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-                        null,
-                        142141412515,
-                        142141412515,
-                        50,
-                        null,
-                        null)
-        ))
+                    "messageId4",
+                    "campaignId4",
+                    "collapseId4",
+                    "testMessage4",
+                    "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                    null,
+                    142141412515,
+                    142141412515,
+                    50,
+                    null,
+                    null,
+                    null
+                )
+            )
+        )
 
 
         val result = messageInboxResponseMapper.map(createSuccessResponse())
@@ -105,7 +152,25 @@ class MessageInboxResponseMapperTest {
           "properties": {"key1":"value1", "key2":"value2"},
           "sourceId": 1234, 
           "sourceRunId": "1234",
-          "sourceType": "push"
+          "sourceType": "push",
+          "actions": [
+            {
+                "id": "testId1",
+                "title": "testTitle1",
+                "type": "MEAppEvent",
+                "name": "testName1",
+                "payload": {
+                    "testKey1": "testValue1",
+                    "testKey2": "testValue2"
+                }
+            },
+            {
+                "id": "testId2",
+                "title": "testTitle2",
+                "type": "OpenExternalUrl",
+                "url": "https://www.test.com"
+            }
+          ]
         }"""
         val notificationString2 = """
         {
@@ -124,7 +189,24 @@ class MessageInboxResponseMapperTest {
           "properties": {"key1":"value1", "key2":"value2"},
           "sourceId": 1234,
           "sourceRunId": "1234",
-          "sourceType": "push"
+          "sourceType": "push",
+          "actions": [
+            {
+                "id": "testId3",
+                "title": "testTitle3",
+                "type": "MECustomEvent",
+                "name": "testName3",
+                "payload": {
+                    "testKey3": "testValue3",
+                    "testKey4": "testValue4"
+                }
+            },
+            {
+                "id": "testId4",
+                "title": "testTitle4",
+                "type": "Dismiss"
+            }
+          ]
         }"""
         val notificationString3 = """
         {
@@ -161,12 +243,13 @@ class MessageInboxResponseMapperTest {
           "sourceRunId": "1234",
           "sourceType": "push"
         }"""
-        val json = """{"count": 3, "messages": [$notificationString1,$notificationString2,$notificationString3,$notificationString4]}"""
+        val json =
+            """{"count": 3, "messages": [$notificationString1,$notificationString2,$notificationString3,$notificationString4]}"""
         return ResponseModel.Builder()
-                .statusCode(200)
-                .message("OK")
-                .body(json)
-                .requestModel(mock())
-                .build()
+            .statusCode(200)
+            .message("OK")
+            .body(json)
+            .requestModel(mock())
+            .build()
     }
 }

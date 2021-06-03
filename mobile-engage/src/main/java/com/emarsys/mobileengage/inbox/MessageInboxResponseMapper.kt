@@ -4,10 +4,13 @@ import com.emarsys.core.Mapper
 import com.emarsys.core.Mockable
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.JsonUtils
+import com.emarsys.core.util.JsonUtils.toMutableList
+import com.emarsys.mobileengage.api.action.*
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.api.inbox.Message
 import org.json.JSONException
 import org.json.JSONObject
+import java.net.URL
 
 @Mockable
 class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
@@ -34,17 +37,22 @@ class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
         val tags = parseTags(inboxMessageResponse)
 
         return Message(
-                inboxMessageResponse.getString("id"),
-                inboxMessageResponse.getString("campaignId"),
-                if (inboxMessageResponse.isNull("collapseId")) null else inboxMessageResponse.getString("collapseId"),
-                inboxMessageResponse.getString("title"),
-                inboxMessageResponse.getString("body"),
-                if (inboxMessageResponse.isNull("imageUrl")) null else inboxMessageResponse.getString("imageUrl"),
-                inboxMessageResponse.getLong("receivedAt"),
-                inboxMessageResponse.getLong("updatedAt"),
-                if (inboxMessageResponse.isNull("expiresAt")) null else inboxMessageResponse.getLong("expiresAt"),
-                if (inboxMessageResponse.isNull("tags")) null else tags,
-                if (inboxMessageResponse.isNull("properties")) null else JsonUtils.toFlatMap(inboxMessageResponse.getJSONObject("properties"))
+            inboxMessageResponse.getString("id"),
+            inboxMessageResponse.getString("campaignId"),
+            if (inboxMessageResponse.isNull("collapseId")) null else inboxMessageResponse.getString(
+                "collapseId"
+            ),
+            inboxMessageResponse.getString("title"),
+            inboxMessageResponse.getString("body"),
+            if (inboxMessageResponse.isNull("imageUrl")) null else inboxMessageResponse.getString("imageUrl"),
+            inboxMessageResponse.getLong("receivedAt"),
+            inboxMessageResponse.getLong("updatedAt"),
+            if (inboxMessageResponse.isNull("expiresAt")) null else inboxMessageResponse.getLong("expiresAt"),
+            if (inboxMessageResponse.isNull("tags")) null else tags,
+            if (inboxMessageResponse.isNull("properties")) null else JsonUtils.toFlatMap(
+                inboxMessageResponse.getJSONObject("properties")
+            ),
+            inboxMessageResponse.optJSONArray("actions")?.let { it.toMutableList().mapNotNull { jsonObject -> createActionModel(jsonObject) }}
         )
     }
 
@@ -58,6 +66,37 @@ class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
             }
         }
         return tagsList
+    }
+
+    private fun createActionModel(actionJson: JSONObject): ActionModel? {
+        return when (actionJson.optString("type")) {
+            "MEAppEvent" -> AppEventActionModel(
+                actionJson.getString("id"),
+                actionJson.getString("title"),
+                actionJson.getString("type"),
+                actionJson.getString("name"),
+                JsonUtils.toMap(actionJson.getJSONObject("payload"))
+            )
+            "OpenExternalUrl" -> OpenExternalUrlActionModel(
+                actionJson.getString("id"),
+                actionJson.getString("title"),
+                actionJson.getString("type"),
+                URL(actionJson.getString("url"))
+            )
+            "MECustomEvent" -> CustomEventActionModel(
+                actionJson.getString("id"),
+                actionJson.getString("title"),
+                actionJson.getString("type"),
+                actionJson.getString("name"),
+                JsonUtils.toMap(actionJson.getJSONObject("payload"))
+            )
+            "Dismiss" -> DismissActionModel(
+                actionJson.getString("id"),
+                actionJson.getString("title"),
+                actionJson.getString("type")
+            )
+            else -> null
+        }
     }
 
 }

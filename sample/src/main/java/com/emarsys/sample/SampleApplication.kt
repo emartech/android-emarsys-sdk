@@ -11,6 +11,8 @@ import androidx.annotation.RequiresApi
 import com.chibatching.kotpref.Kotpref
 import com.emarsys.Emarsys
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.mobileengage.api.action.ActionModel
+import com.emarsys.mobileengage.api.action.AppEventActionModel
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.push.NotificationInformation
 import com.emarsys.mobileengage.api.push.NotificationInformationListener
