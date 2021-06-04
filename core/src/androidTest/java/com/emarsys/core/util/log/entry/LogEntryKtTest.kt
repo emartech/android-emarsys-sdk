@@ -12,16 +12,17 @@ class LogEntryKtTest {
     fun testDataWithLevel() {
         val logEntry: LogEntry = mock {
             on { data } doReturn mapOf(
-                    "testKey" to "testValue",
-                    "testKey2" to "testValue2"
+                "testKey" to "testValue",
+                "testKey2" to "testValue2"
             )
         }
-        val result = logEntry.dataWithLogLevel(LogLevel.INFO)
+        val result = logEntry.dataWithLogLevel(LogLevel.INFO, "testThreadName")
 
         result shouldBe mapOf(
-                "testKey" to "testValue",
-                "testKey2" to "testValue2",
-                "level" to "INFO"
+            "testKey" to "testValue",
+            "testKey2" to "testValue2",
+            "level" to "INFO",
+            "thread" to "testThreadName"
         )
     }
 }

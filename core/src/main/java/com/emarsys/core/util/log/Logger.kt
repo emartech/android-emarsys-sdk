@@ -18,13 +18,15 @@ import com.emarsys.core.util.log.LogLevel.*
 import com.emarsys.core.util.log.entry.*
 
 @Mockable
-class Logger(private val coreSdkHandler: CoreSdkHandler,
-             private val shardRepository: Repository<ShardModel, SqlSpecification>,
-             private val timestampProvider: TimestampProvider,
-             private val uuidProvider: UUIDProvider,
-             private val logLevelStorage: StringStorage,
-             private val verboseConsoleLoggingEnabled: Boolean,
-             private val context: Context) {
+class Logger(
+    private val coreSdkHandler: CoreSdkHandler,
+    private val shardRepository: Repository<ShardModel, SqlSpecification>,
+    private val timestampProvider: TimestampProvider,
+    private val uuidProvider: UUIDProvider,
+    private val logLevelStorage: StringStorage,
+    private val verboseConsoleLoggingEnabled: Boolean,
+    private val context: Context
+) {
 
     companion object {
         const val TAG = "Emarsys SDK"
@@ -37,14 +39,13 @@ class Logger(private val coreSdkHandler: CoreSdkHandler,
         @JvmStatic
         fun info(logEntry: LogEntry, strict: Boolean = false) {
             if (DependencyInjection.isSetup()) {
-                getDependency<CoreSdkHandler>().post {
-                    if (strict) {
-                        if (getDependency<Logger>().logLevelStorage.get() == "INFO") {
-                            getDependency<Logger>().handleLog(INFO, logEntry)
-                        }
-                    } else {
+
+                if (strict) {
+                    if (getDependency<Logger>().logLevelStorage.get() == "INFO") {
                         getDependency<Logger>().handleLog(INFO, logEntry)
                     }
+                } else {
+                    getDependency<Logger>().handleLog(INFO, logEntry)
                 }
             }
         }
@@ -52,23 +53,19 @@ class Logger(private val coreSdkHandler: CoreSdkHandler,
         @JvmStatic
         fun error(logEntry: LogEntry) {
             if (DependencyInjection.isSetup()) {
-                getDependency<CoreSdkHandler>().post {
-                    getDependency<Logger>().handleLog(ERROR, logEntry)
-                }
+                getDependency<Logger>().handleLog(ERROR, logEntry)
             }
         }
 
         @JvmStatic
         fun debug(logEntry: LogEntry, strict: Boolean = false) {
             if (DependencyInjection.isSetup()) {
-                getDependency<CoreSdkHandler>().post {
-                    if (strict) {
-                        if (getDependency<Logger>().logLevelStorage.get() == "DEBUG") {
-                            getDependency<Logger>().handleLog(DEBUG, logEntry)
-                        }
-                    } else {
+                if (strict) {
+                    if (getDependency<Logger>().logLevelStorage.get() == "DEBUG") {
                         getDependency<Logger>().handleLog(DEBUG, logEntry)
                     }
+                } else {
+                    getDependency<Logger>().handleLog(DEBUG, logEntry)
                 }
             }
         }
@@ -76,19 +73,21 @@ class Logger(private val coreSdkHandler: CoreSdkHandler,
         @JvmStatic
         fun metric(logEntry: LogEntry) {
             if (DependencyInjection.isSetup()) {
-                getDependency<CoreSdkHandler>().post {
-                    getDependency<Logger>().handleLog(METRIC, logEntry)
-                }
+                getDependency<Logger>().handleLog(METRIC, logEntry)
             }
         }
     }
 
     fun handleLog(logLevel: LogLevel, logEntry: LogEntry, onCompleted: (() -> Unit)? = null) {
-        val isDebugMode: Boolean = 0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
-        if ((verboseConsoleLoggingEnabled || logEntry is MethodNotAllowed) && isDebugMode ) {
-            logToConsole(logLevel, logEntry)
+        val currentThreadName = Thread.currentThread().name
+        getDependency<CoreSdkHandler>().post {
+            val isDebugMode: Boolean =
+                0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
+            if ((verboseConsoleLoggingEnabled || logEntry is MethodNotAllowed) && isDebugMode) {
+                logToConsole(logLevel, logEntry)
+            }
+            persistLog(logLevel, logEntry, currentThreadName, onCompleted)
         }
-        persistLog(logLevel, logEntry, onCompleted)
     }
 
     private fun logToConsole(logLevel: LogLevel, logEntry: LogEntry) {
@@ -112,14 +111,20 @@ class Logger(private val coreSdkHandler: CoreSdkHandler,
         }
     }
 
-    fun persistLog(logLevel: LogLevel, logEntry: LogEntry, onCompleted: (() -> Unit)? = null) {
+    fun persistLog(
+        logLevel: LogLevel,
+        logEntry: LogEntry,
+        currentThreadName: String,
+        onCompleted: (() -> Unit)? = null
+    ) {
         if (isAppStartLog(logEntry)
-                || (isNotLogLog(logEntry) && shouldLogBasedOnRemoteConfig(logLevel))) {
+            || (isNotLogLog(logEntry) && shouldLogBasedOnRemoteConfig(logLevel))
+        ) {
             coreSdkHandler.post {
                 val shard = ShardModel.Builder(timestampProvider, uuidProvider)
-                        .type(logEntry.topic)
-                        .payloadEntries(logEntry.dataWithLogLevel(logLevel))
-                        .build()
+                    .type(logEntry.topic)
+                    .payloadEntries(logEntry.dataWithLogLevel(logLevel, currentThreadName))
+                    .build()
                 shardRepository.add(shard)
                 onCompleted?.invoke()
             }
@@ -129,7 +134,8 @@ class Logger(private val coreSdkHandler: CoreSdkHandler,
     }
 
     private fun shouldLogBasedOnRemoteConfig(logLevel: LogLevel): Boolean {
-        val savedLogLevel: LogLevel = if (logLevelStorage.get() == null) ERROR else valueOf(logLevelStorage.get()!!)
+        val savedLogLevel: LogLevel =
+            if (logLevelStorage.get() == null) ERROR else valueOf(logLevelStorage.get()!!)
 
         return logLevel.priority >= savedLogLevel.priority
     }
