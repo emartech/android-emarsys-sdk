@@ -12,6 +12,7 @@ import com.emarsys.core.endpoint.Endpoint.LOG_URL
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.core.provider.wrapper.WrapperInfoContainer
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.log.LogLevel.*
@@ -19,13 +20,13 @@ import com.emarsys.core.util.log.entry.*
 
 @Mockable
 class Logger(
-    private val coreSdkHandler: CoreSdkHandler,
-    private val shardRepository: Repository<ShardModel, SqlSpecification>,
-    private val timestampProvider: TimestampProvider,
-    private val uuidProvider: UUIDProvider,
-    private val logLevelStorage: StringStorage,
-    private val verboseConsoleLoggingEnabled: Boolean,
-    private val context: Context
+        private val coreSdkHandler: CoreSdkHandler,
+        private val shardRepository: Repository<ShardModel, SqlSpecification>,
+        private val timestampProvider: TimestampProvider,
+        private val uuidProvider: UUIDProvider,
+        private val logLevelStorage: StringStorage,
+        private val verboseConsoleLoggingEnabled: Boolean,
+        private val context: Context
 ) {
 
     companion object {
@@ -123,7 +124,7 @@ class Logger(
             coreSdkHandler.post {
                 val shard = ShardModel.Builder(timestampProvider, uuidProvider)
                     .type(logEntry.topic)
-                    .payloadEntries(logEntry.dataWithLogLevel(logLevel, currentThreadName))
+                    .payloadEntries(logEntry.toData(logLevel, currentThreadName, WrapperInfoContainer.wrapperInfo))
                     .build()
                 shardRepository.add(shard)
                 onCompleted?.invoke()

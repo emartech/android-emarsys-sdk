@@ -7,11 +7,16 @@ interface LogEntry {
     val data: Map<String, Any?>
 }
 
-fun LogEntry.dataWithLogLevel(logLevel: LogLevel, currentThreadName: String) =
-    mutableMapOf<String, Any?>(
-        "level" to logLevel.name,
-        "thread" to currentThreadName
-    ).apply { putAll(data) }
+fun LogEntry.toData(logLevel: LogLevel, currentThreadName: String, wrapperInfo: String?) =
+        mutableMapOf<String, Any?>(
+                "level" to logLevel.name,
+                "thread" to currentThreadName
+        ).apply {
+            if (wrapperInfo != null) {
+                put("wrapper", wrapperInfo)
+            }
+            putAll(data)
+        }
 
 fun LogEntry.asString(): String {
     return "topic='$topic', data=$data"

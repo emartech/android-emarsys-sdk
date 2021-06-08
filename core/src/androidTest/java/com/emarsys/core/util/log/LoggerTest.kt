@@ -18,7 +18,10 @@ import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
 import java.util.concurrent.CountDownLatch
@@ -59,13 +62,13 @@ class LoggerTest {
         mockLogLevelStorage = mock()
 
         loggerInstance = Logger(
-            coreSdkHandler,
-            shardRepositoryMock,
-            timestampProviderMock,
-            uuidProviderMock,
-            mockLogLevelStorage,
-            false,
-            mock()
+                coreSdkHandler,
+                shardRepositoryMock,
+                timestampProviderMock,
+                uuidProviderMock,
+                mockLogLevelStorage,
+                false,
+                mock()
         )
         loggerMock = mock()
 
@@ -171,7 +174,6 @@ class LoggerTest {
         verify(loggerMock).handleLog(LogLevel.INFO, logEntry)
     }
 
-    @Ignore
     @Test
     fun testLog_doesNotLogAnything_ifDependencyInjection_isNotSetup() {
         DependencyInjection.tearDown()
