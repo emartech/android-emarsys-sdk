@@ -236,7 +236,7 @@ jobs:
         with:
           project: ${{ secrets.JIRA_PROJECT }}
           issuetype: Product docs
-          fields: '{"priority": {"name": "Major"},"reporter":{"id":${{ secrets.JIRA_USER_ID }}}}'
+          fields: ${{ secrets.JIRA_TICKET_JSON }}
           summary: |
             New Emarsys SDK release on Android
           description: |
