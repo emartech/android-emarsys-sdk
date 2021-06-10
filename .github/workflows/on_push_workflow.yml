@@ -390,7 +390,7 @@ jobs:
           path: FAILURE.TXT
 
   TestCommon:
-    name: Run emarsys tests on Firebase
+    name: Run common tests on Firebase
     needs: Build
     runs-on: ubuntu-latest
     steps:
@@ -429,7 +429,7 @@ jobs:
           path: FAILURE.TXT
 
   TestFirebase:
-    name: Run emarsys tests on emarsys-firebase
+    name: Run emarsys-firebase tests on Firebase
     needs: Build
     runs-on: ubuntu-latest
     steps:
@@ -470,7 +470,7 @@ jobs:
   ReleaseSample:
     name: Release sample app
     runs-on: ubuntu-latest
-    needs: [Build, TestCore, TestMobileEngage, TestPredict, TestEmarsysSDK, TestEmarsys, TestCommon, CreateReleaseBundle, GradleLint]
+    needs: [Build, TestCore, TestMobileEngage, TestPredict, TestEmarsysSDK, TestEmarsys, TestCommon, TestFirebase, CreateReleaseBundle, GradleLint]
     steps:
       - uses: actions/checkout@v2.3.1
         with:
