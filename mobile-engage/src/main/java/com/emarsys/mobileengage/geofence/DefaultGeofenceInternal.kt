@@ -90,20 +90,16 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     }
 
     override fun enable(completionListener: CompletionListener?) {
-        val fineLocationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val missingPermissions = findMissingPermissions()
 
-        val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ()) true else {
-            permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
-        }
-
-        if (fineLocationPermissionGranted && backgroundLocationPermissionGranted) {
+        if (missingPermissions == null) {
             if (!geofenceEnabledStorage.get()) {
                 geofenceEnabledStorage.set(true)
 
-                Logger.debug(StatusLog(DefaultGeofenceInternal::class.java,
-                        SystemUtils.getCallerMethodName(),
+                sendStatusLog(
                         mapOf("completionListener" to (completionListener != null)),
-                        mapOf("geofenceEnabled" to true)))
+                        mapOf("geofenceEnabled" to true)
+                )
 
                 if (geofenceResponse == null) {
                     fetchGeofences(completionListener)
@@ -111,15 +107,10 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                 }
             }
             registerNearestGeofences(completionListener)
-            if (!receiverRegistered) {
-                uiHandler.post {
-                    context.registerReceiver(geofenceBroadcastReceiver, IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION"))
-                }
-                receiverRegistered = true
-            }
+            registerBroadcastReceiver()
         } else {
-            val permissionName = findMissingPermission(fineLocationPermissionGranted, backgroundLocationPermissionGranted)
-            completionListener?.onCompleted(MissingPermissionException("Couldn't acquire permission for $permissionName"))
+            completionListener?.onCompleted(MissingPermissionException("Couldn't acquire permission for $missingPermissions"))
+
         }
     }
 
@@ -129,24 +120,36 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         geofenceEnabledStorage.set(false)
         receiverRegistered = false
 
-        Logger.debug(StatusLog(DefaultGeofenceInternal::class.java, SystemUtils.getCallerMethodName(), mapOf(), mapOf(
+        sendStatusLog(statusMap = mapOf(
                 "geofenceEnabled" to false
-        )))
+        ))
     }
 
     override fun isEnabled(): Boolean {
         return geofenceEnabledStorage.get()
     }
 
+    private fun registerBroadcastReceiver() {
+        if (!receiverRegistered) {
+            uiHandler.post {
+                context.registerReceiver(geofenceBroadcastReceiver, IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION"))
+            }
+            receiverRegistered = true
+        }
+    }
+
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION])
     private fun registerNearestGeofences(completionListener: CompletionListener?) {
         fusedLocationProviderClient.lastLocation?.addOnSuccessListener { currentLocation = it }
 
-        fusedLocationProviderClient.requestLocationUpdates(LocationRequest()
-                .setFastestInterval(FASTEST_INTERNAL)
-                .setInterval(INTERVAL)
-                .setMaxWaitTime(MAX_WAIT_TIME)
-                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY), geofencePendingIntent)
+        fusedLocationProviderClient.requestLocationUpdates(
+                LocationRequest.create().apply {
+                    fastestInterval = FASTEST_INTERNAL
+                    interval = INTERVAL
+                    maxWaitTime = MAX_WAIT_TIME
+                    priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+                },
+                geofencePendingIntent)
 
         completionListener?.onCompleted(null)
 
@@ -157,7 +160,20 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         }
     }
 
-    private fun findMissingPermission(fineLocationPermissionGranted: Boolean, backgroundLocationPermissionGranted: Boolean): String {
+    private fun findMissingPermissions(): String? {
+        val fineLocationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+        val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ()) true else {
+            permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+        }
+        return if (fineLocationPermissionGranted && backgroundLocationPermissionGranted) {
+            null
+        } else {
+            return missingPermissionName(fineLocationPermissionGranted, backgroundLocationPermissionGranted)
+        }
+    }
+
+    private fun missingPermissionName(fineLocationPermissionGranted: Boolean, backgroundLocationPermissionGranted: Boolean): String {
         return if (!fineLocationPermissionGranted && backgroundLocationPermissionGranted) {
             "ACCESS_FINE_LOCATION"
         } else if (!backgroundLocationPermissionGranted && fineLocationPermissionGranted) {
@@ -172,7 +188,8 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         val result = floatArrayOf(1F)
         Location.distanceBetween(currentLocation!!.latitude, currentLocation!!.longitude, furthestGeofence.lat, furthestGeofence.lon, result)
         val radius = abs((result[0] - furthestGeofence.radius) * geofenceResponse!!.refreshRadiusRatio)
-        return MEGeofence("refreshArea", currentLocation!!.latitude, currentLocation!!.longitude, radius, null, listOf(Trigger("refreshAreaTriggerId", TriggerType.EXIT, 0, JSONObject())))
+        return MEGeofence("refreshArea", currentLocation!!.latitude, currentLocation!!.longitude, radius, null,
+                listOf(Trigger("refreshAreaTriggerId", TriggerType.EXIT, 0, JSONObject())))
     }
 
     override fun registerGeofences(geofences: List<MEGeofence>) {
@@ -187,30 +204,23 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         val geofenceRequest = GeofencingRequest.Builder().addGeofences(geofencesToRegister).build()
         geofencingClient.addGeofences(geofenceRequest, geofencePendingIntent)
 
-        Logger.debug(StatusLog(DefaultGeofenceInternal::class.java, SystemUtils.getCallerMethodName(), mapOf(), mapOf(
+        sendStatusLog(statusMap = mapOf(
                 "registeredGeofences" to geofencesToRegister.size
-        )))
+        ))
     }
 
     override fun onGeofenceTriggered(triggeringEmarsysGeofences: List<TriggeringEmarsysGeofence>) {
-        val actions = extractActions(triggeringEmarsysGeofences)
-        executeActions(actions)
+        extractActions(triggeringEmarsysGeofences).run {
+            executeActions(this)
+        }
 
         reRegisterNearestGeofences(triggeringEmarsysGeofences)
     }
 
     private fun reRegisterNearestGeofences(triggeringEmarsysGeofences: List<TriggeringEmarsysGeofence>) {
         val refreshAreaGeofence = triggeringEmarsysGeofences.find { it.geofenceId == "refreshArea" && it.triggerType == TriggerType.EXIT }
-        if (refreshAreaGeofence != null) {
-            val fineLocationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-
-            val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ()) true else {
-                permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
-            }
-
-            if (fineLocationPermissionGranted && backgroundLocationPermissionGranted) {
-                registerNearestGeofences(null)
-            }
+        if (refreshAreaGeofence != null && findMissingPermissions() == null) {
+            registerNearestGeofences(null)
         }
     }
 
@@ -249,6 +259,10 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         return geofence.triggers.filter { trigger ->
             trigger.type == triggerType
         }.mapNotNull { actionCommandFactory.createActionCommand(it.action) }
+    }
+
+    private fun sendStatusLog(parameters: Map<String, Any?>? = mapOf(), statusMap: Map<String, Any>? = mapOf()) {
+        Logger.debug(StatusLog(DefaultGeofenceInternal::class.java, SystemUtils.getCallerMethodName(), parameters, statusMap))
     }
 
     override fun onLocationChanged(location: Location) {}
