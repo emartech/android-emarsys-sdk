@@ -93,6 +93,12 @@ jobs:
           name: common
           path: common/build/outputs/apk/androidTest/debug/common-debug-androidTest.apk
 
+      - name: upload emarsys-firebase test apk artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: emarsys-firebase
+          path: emarsys-firebase/build/outputs/apk/androidTest/debug/emarsys-firebase-debug-androidTest.apk
+
       - name: create testlab services json
         uses: jsdaniell/create-json@1.1.2
         with:
@@ -407,6 +413,45 @@ jobs:
         uses: asadmansr/Firebase-Test-Lab-Action@v1.0
         with:
           arg-spec: 'testWithAllDevices.yml:common'
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Create file 'FAILURE.TXT' and write 'true' into it
+        if: ${{ failure() }}
+        run: echo 'true' > FAILURE.TXT
+
+      - name: Upload file 'FAILURE.TXT' as an artifact
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v1
+        with:
+          name: failure_file
+          path: FAILURE.TXT
+
+  TestEmarsysFirebase:
+    name: Run emarsys tests on Firebase
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.1
+        with:
+          submodules: true
+          fetch-depth: 0 # 0 indicates all history
+      - run: git fetch --all || echo "==> Accept any result"
+
+      - name: Download sample app
+        uses: actions/download-artifact@v2
+        with:
+          name: sample
+
+      - name: Download emarsys-firebase tests
+        uses: actions/download-artifact@v2
+        with:
+          name: emarsys-firebase
+
+      - name: Run tests
+        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
+        with:
+          arg-spec: 'testWithAllDevices.yml:emarsys-firebase'
         env:
           SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
