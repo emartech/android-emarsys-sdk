@@ -8,6 +8,8 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.handler.CoreSdkHandler
@@ -73,10 +75,12 @@ class DefaultGeofenceInternalTest {
     private lateinit var mockEnabledStorage: Storage<Boolean>
     private lateinit var mockPendingIntentProvider: GeofencePendingIntentProvider
     private lateinit var mockHandler: CoreSdkHandler
+    private lateinit var uiHandler: Handler
 
     @Before
     fun setUp() {
         mockHandler = mock()
+        uiHandler = Handler(Looper.getMainLooper())
         context = InstrumentationRegistry.getTargetContext()
         mockResponseModel = mock()
         mockRequestModelFactory = mock {
@@ -104,9 +108,13 @@ class DefaultGeofenceInternalTest {
             on { get() } doReturn true
         }
 
-        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockFusedLocationProviderClient, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory, mockEventHandlerProvider, mockEnabledStorage, mockPendingIntentProvider, mockHandler)
+        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker,
+                mockFusedLocationProviderClient, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory, mockEventHandlerProvider,
+                mockEnabledStorage, mockPendingIntentProvider, mockHandler, uiHandler)
 
-        geofenceInternalWithMockContext = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker, mockFusedLocationProviderClient, mockGeofenceFilter, mockGeofencingClient, mockContext, mockActionCommandFactory, mockEventHandlerProvider, mockEnabledStorage, mockPendingIntentProvider, mockHandler)
+        geofenceInternalWithMockContext = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker,
+                mockFusedLocationProviderClient, mockGeofenceFilter, mockGeofencingClient, mockContext, mockActionCommandFactory, mockEventHandlerProvider,
+                mockEnabledStorage, mockPendingIntentProvider, mockHandler, uiHandler)
     }
 
     @Test
@@ -456,7 +464,7 @@ class DefaultGeofenceInternalTest {
         whenever(mockActionCommandFactory.createActionCommand(appEventAction)).thenReturn(mockAction)
         geofenceInternal.onGeofenceTriggered(
                 listOf(
-                        TriggeringGeofence(
+                        TriggeringEmarsysGeofence(
                                 "testId",
                                 TriggerType.ENTER
                         )
@@ -516,7 +524,7 @@ class DefaultGeofenceInternalTest {
         whenever(mockFusedLocationProviderClient.lastLocation).thenReturn(FakeLocationTask(currentLocation))
         whenever(mockGeofenceFilter.findNearestGeofences(currentLocation, geofenceResponse)).thenReturn(nearestGeofences2)
 
-        spyGeofenceInternal.onGeofenceTriggered(listOf(TriggeringGeofence("geofenceId1", TriggerType.ENTER), TriggeringGeofence("refreshArea", TriggerType.EXIT)))
+        spyGeofenceInternal.onGeofenceTriggered(listOf(TriggeringEmarsysGeofence("geofenceId1", TriggerType.ENTER), TriggeringEmarsysGeofence("refreshArea", TriggerType.EXIT)))
 
         verify(mockActionCommandFactory).createActionCommand(appEventAction)
 

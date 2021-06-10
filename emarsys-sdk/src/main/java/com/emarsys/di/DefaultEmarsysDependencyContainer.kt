@@ -526,7 +526,8 @@ open class DefaultEmarsysDependencyContainer(emarsysConfig: EmarsysConfig) : Ema
                 getGeofenceEventHandlerProvider(),
                 geofenceEnabledStorage,
                 GeofencePendingIntentProvider(application.applicationContext),
-                getCoreSdkHandler()
+                getCoreSdkHandler(),
+                getUiHandler()
         ).also {
             addDependency(dependencies, it as GeofenceInternal, "defaultInstance")
         }

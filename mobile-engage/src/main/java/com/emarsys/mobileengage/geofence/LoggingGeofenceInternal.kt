@@ -6,7 +6,7 @@ import com.emarsys.core.util.log.Logger.Companion.debug
 import com.emarsys.core.util.log.entry.MethodNotAllowed
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.geofence.model.Geofence
-import com.emarsys.mobileengage.geofence.model.TriggeringGeofence
+import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 
 class LoggingGeofenceInternal(private val klass: Class<*>) : GeofenceInternal {
 
@@ -52,9 +52,9 @@ class LoggingGeofenceInternal(private val klass: Class<*>) : GeofenceInternal {
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    override fun onGeofenceTriggered(events: List<TriggeringGeofence>) {
+    override fun onGeofenceTriggered(triggeringEmarsysGeofences: List<TriggeringEmarsysGeofence>) {
         val parameters = mapOf(
-                "events" to events
+                "triggeringEmarsysGeofences" to triggeringEmarsysGeofences
         )
 
         val callerMethodName = SystemUtils.getCallerMethodName()

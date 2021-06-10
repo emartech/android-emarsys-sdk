@@ -9,7 +9,6 @@ import android.location.Location
 import android.location.LocationListener
 import android.os.Bundle
 import android.os.Handler
-import android.os.Looper
 import androidx.annotation.RequiresPermission
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mockable
@@ -29,7 +28,7 @@ import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 import com.emarsys.mobileengage.geofence.model.Trigger
 import com.emarsys.mobileengage.geofence.model.TriggerType
-import com.emarsys.mobileengage.geofence.model.TriggeringGeofence
+import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.google.android.gms.location.*
@@ -50,7 +49,8 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                               private val geofenceEventHandlerProvider: EventHandlerProvider,
                               private val geofenceEnabledStorage: Storage<Boolean>,
                               private val geofencePendingIntentProvider: GeofencePendingIntentProvider,
-                              private val coreSdkHandler: CoreSdkHandler
+                              coreSdkHandler: CoreSdkHandler,
+                              private val uiHandler: Handler
 ) : GeofenceInternal, LocationListener {
     private companion object {
         const val FASTEST_INTERNAL: Long = 15_000
@@ -112,7 +112,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
             }
             registerNearestGeofences(completionListener)
             if (!receiverRegistered) {
-                Handler(Looper.getMainLooper()).post {
+                uiHandler.post {
                     context.registerReceiver(geofenceBroadcastReceiver, IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION"))
                 }
                 receiverRegistered = true
@@ -192,22 +192,16 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         )))
     }
 
-    override fun onGeofenceTriggered(events: List<TriggeringGeofence>) {
-        events.flatMap { triggeringGeofence ->
-            nearestGeofences
-                    .filter {
-                        it.id == triggeringGeofence.geofenceId && it.triggers.any { trigger -> trigger.type == triggeringGeofence.triggerType }
+    override fun onGeofenceTriggered(triggeringEmarsysGeofences: List<TriggeringEmarsysGeofence>) {
+        val actions = extractActions(triggeringEmarsysGeofences)
+        executeActions(actions)
 
-                    }.map { geofence -> Pair(geofence, triggeringGeofence) }
-        }.flatMap { nearestTriggeredGeofencesWithTrigger ->
-            createActionsFromTriggers(nearestTriggeredGeofencesWithTrigger.first, nearestTriggeredGeofencesWithTrigger.second)
-        }.forEach { action ->
-            Handler(Looper.getMainLooper()).post {
-                action?.run()
-            }
-        }
-        val refreshAreaTriggeringGeofence = events.find { it.geofenceId == "refreshArea" && it.triggerType == TriggerType.EXIT }
-        if (refreshAreaTriggeringGeofence != null) {
+        reRegisterNearestGeofences(triggeringEmarsysGeofences)
+    }
+
+    private fun reRegisterNearestGeofences(triggeringEmarsysGeofences: List<TriggeringEmarsysGeofence>) {
+        val refreshAreaGeofence = triggeringEmarsysGeofences.find { it.geofenceId == "refreshArea" && it.triggerType == TriggerType.EXIT }
+        if (refreshAreaGeofence != null) {
             val fineLocationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
             val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ()) true else {
@@ -220,13 +214,40 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         }
     }
 
+    private fun extractActions(triggeringGeofences: List<TriggeringEmarsysGeofence>): List<Runnable?> {
+        val nearestTriggeredGeofences = triggeringGeofences
+                .flatMap { triggeringGeofence ->
+                    collectTriggeredGeofencesWithTriggerType(triggeringGeofence)
+                }
+        return nearestTriggeredGeofences
+                .flatMap { nearestTriggeredGeofencesWithTrigger ->
+                    createActionsFromTriggers(nearestTriggeredGeofencesWithTrigger.first, nearestTriggeredGeofencesWithTrigger.second)
+                }
+    }
+
+    private fun executeActions(actions: List<Runnable?>) {
+        actions.forEach { action ->
+            uiHandler.post {
+                action?.run()
+            }
+        }
+    }
+
+    private fun collectTriggeredGeofencesWithTriggerType(triggeringGeofence: TriggeringEmarsysGeofence): List<Pair<MEGeofence, TriggerType>> {
+        return nearestGeofences
+                .filter {
+                    it.id == triggeringGeofence.geofenceId
+                            && it.triggers.any { trigger -> trigger.type == triggeringGeofence.triggerType }
+                }.map { geofence -> Pair(geofence, triggeringGeofence.triggerType) }
+    }
+
     override fun setEventHandler(eventHandler: EventHandler) {
         this.geofenceEventHandlerProvider.eventHandler = eventHandler
     }
 
-    private fun createActionsFromTriggers(geofence: MEGeofence, triggeringGeofence: TriggeringGeofence): List<Runnable?> {
+    private fun createActionsFromTriggers(geofence: MEGeofence, triggerType: TriggerType): List<Runnable?> {
         return geofence.triggers.filter { trigger ->
-            trigger.type == triggeringGeofence.triggerType
+            trigger.type == triggerType
         }.mapNotNull { actionCommandFactory.createActionCommand(it.action) }
     }
 
