@@ -5,12 +5,15 @@ RESULT=0
 MODULES="
 core-api
 core
+common
 mobile-engage-api
 mobile-engage
 predict-api
 predict
 emarsys
 emarsys-sdk
+emarsys-e2e
+emarsys-firebase
 "
 set -ex
 
