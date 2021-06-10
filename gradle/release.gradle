@@ -5,27 +5,36 @@ apply plugin: 'signing'
 apply plugin: "io.github.gradle-nexus.publish-plugin"
 
 
-def bintrayUser = null
-def bintrayApiKey = null
+def ossrhUsername = null
+def ossrhPassword = null
+def sonatypeStagingProfileId = null
 
 def localConfigPropertiesFile = rootProject.file('localConfig.properties')
 def localConfigProperties = new Properties()
 if (localConfigPropertiesFile.exists()) {
     localConfigProperties.load(new FileInputStream(localConfigPropertiesFile))
-    bintrayUser = localConfigProperties.getProperty("bintrayUser")
-    bintrayApiKey = localConfigProperties.getProperty("bintrayApiKey")
+    ossrhUsername = localConfigProperties.getProperty("ossrhUsername")
+    ossrhPassword = localConfigProperties.getProperty("ossrhPassword")
+    sonatypeStagingProfileId = localConfigProperties.getProperty("sonatypeStagingProfileId")
+
+    ext["signing.keyId"] = localConfigProperties.getProperty("signingKeyId")
+    ext["signing.password"] = localConfigProperties.getProperty("signingPassword")
+    ext["signing.secretKeyRingFile"] = localConfigProperties.getProperty("signingSecretKeyRingFile")
 } else {
-    bintrayUser = System.env.BINTRAY_USER
-    bintrayApiKey = System.env.BINTRAY_API_KEY
+    ossrhUsername = System.env.OSSRH_USERNAME
+    ossrhPassword = System.env.OSSRH_PASSWORD
+    sonatypeStagingProfileId = System.env.SONATYPE_STAGING_PROFILE_ID
+
+    ext["signing.keyId"] = System.env.SIGNING_KEYID
+    ext["signing.password"] = System.env.SIGNING_PASSWORD
+    ext["signing.secretKeyRingFile"] = System.env.SIGNING_SECRET_KEY_RING_FILE
 }
 
 modules.each {
     project(it) {
-        apply plugin: 'com.jfrog.bintray'
-
         task sourcesJar(type: Jar) {
             from android.sourceSets.main.java.srcDirs
-            classifier = 'sources'
+            archiveClassifier = 'sources'
         }
 
         task javadoc(type: Javadoc) {
@@ -35,7 +44,7 @@ modules.each {
         }
 
         task javadocJar(type: Jar, dependsOn: javadoc) {
-            classifier = 'javadoc'
+            archiveClassifier = 'javadoc'
             from javadoc.destinationDir
         }
 
@@ -97,27 +106,20 @@ modules.each {
                 }
             }
         }
-        bintray {
-            publications = ["$project.name"]
-            publish = true
-            override = true
-            user = bintrayUser
-            key = bintrayApiKey
-            pkg {
-                repo = 'android'
-                name = project.name
-                desc = project.name.replace('-', ' ').split(' ').collect { it.capitalize() }.join(' ')
-                websiteUrl = 'https://github.com/emartech/android-emarsys-sdk'
-                vcsUrl = 'https://github.com/emartech/android-emarsys-sdk.git'
-                licenses = ['MPL-2.0']
-                publicDownloadNumbers = true
-            }
+    }
+}
+
+nexusPublishing {
+    packageGroup = "com.emarsys"
+    repositories {
+        sonatype {
+            stagingProfileId = sonatypeStagingProfileId
+            username = ossrhUsername
+            password = ossrhPassword
         }
     }
 }
 
-task release {
-    modules.each {
-        dependsOn project(it).tasks.getByName("bintrayUpload")
-    }
+signing {
+    sign publishing.publications
 }

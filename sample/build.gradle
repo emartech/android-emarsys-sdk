@@ -81,6 +81,10 @@ buildscript {
     }
 }
 
+repositories {
+    jcenter()
+}
+
 dependencies {
     if (project.devConfig.useLocalDependency || System.env.DEVELOPMENT_MODE) {
         implementation project(':emarsys-sdk')

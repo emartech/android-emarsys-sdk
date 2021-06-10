@@ -21,8 +21,7 @@ buildscript {
 apply from: 'gradle/dev.gradle'
 apply from: 'gradle/version.gradle'
 apply from: 'gradle/common.gradle'
-//apply from: 'gradle/release.gradle'
-apply from: 'gradle/releaseToMavenCentral.gradle'
+apply from: 'gradle/release.gradle'
 apply plugin: "com.github.ben-manes.versions"
 apply plugin: "com.vanniktech.dependency.graph.generator"
 
@@ -30,7 +29,6 @@ allprojects {
     repositories {
         mavenLocal()
         google()
-        jcenter()
     }
 }
 
