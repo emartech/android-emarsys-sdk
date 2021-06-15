@@ -4,23 +4,19 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.emarsys.core.Mockable
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.mobileengage.api.push.NotificationInformation
-import com.emarsys.mobileengage.event.EventServiceInternal
+import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.notification.command.*
-import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
-import com.emarsys.mobileengage.push.PushInternal
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
 @Mockable
 class NotificationCommandFactory(private val context: Context) {
-    private val eventServiceInternal by lazy { getDependency<EventServiceInternal>("defaultInstance") }
-    private val pushInternal by lazy { getDependency<PushInternal>("defaultInstance") }
-    private val actionCommandFactory by lazy { getDependency<ActionCommandFactory>("notificationActionCommandFactory") }
-    private val notificationInformationListenerProvider by lazy { getDependency<NotificationInformationListenerProvider>("notificationInformationListenerProvider") }
+    private val eventServiceInternal by lazy { mobileEngage().eventServiceInternal }
+    private val pushInternal by lazy { mobileEngage().pushInternal }
+    private val actionCommandFactory by lazy { mobileEngage().notificationActionCommandFactory}
+    private val notificationInformationListenerProvider by lazy { mobileEngage().notificationInformationListenerProvider }
 
     fun createNotificationCommand(intent: Intent): Runnable {
         val actionId = intent.action
@@ -29,7 +25,7 @@ class NotificationCommandFactory(private val context: Context) {
 
         val commands = createMandatoryCommands(intent, bundle)
         if (action == null || action.optString("type") != "Dismiss") {
-            if (getDependency<CurrentActivityProvider>().get() == null) {
+            if (mobileEngage().currentActivityProvider.get() == null) {
                 commands.add(LaunchApplicationCommand(intent, context, LaunchActivityCommandLifecycleCallbacksFactory()))
             }
         }

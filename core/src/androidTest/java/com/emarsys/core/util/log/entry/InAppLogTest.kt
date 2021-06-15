@@ -1,7 +1,8 @@
 package com.emarsys.core.util.log.entry
 
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.core.di.FakeCoreDependencyContainer
+import com.emarsys.core.di.setupCoreComponent
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.doReturn
@@ -45,7 +46,7 @@ class InAppLogTest {
             on { provideId() } doReturn "test-uuid"
         }
         val dependencyContainer = FakeCoreDependencyContainer(uuidProvider = mockUuidProvider)
-        DependencyInjection.setup(dependencyContainer)
+        setupCoreComponent(dependencyContainer)
 
         val result = InAppLog(
                 InAppLoadingTime(startTime, endTime),

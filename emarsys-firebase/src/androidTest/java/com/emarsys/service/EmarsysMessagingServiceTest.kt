@@ -2,9 +2,11 @@ package com.emarsys.service
 
 import android.app.Application
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.fake.FakeFirebaseDependencyContainer
+import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
@@ -47,7 +49,7 @@ class EmarsysMessagingServiceTest {
 
     @After
     fun tearDown() {
-        DependencyInjection.tearDown()
+        tearDownMobileEngageComponent()
         FeatureTestUtils.resetFeatures()
     }
 
@@ -100,6 +102,6 @@ class EmarsysMessagingServiceTest {
             pushInternal = mockPushInternal
         )
 
-        DependencyInjection.setup(fakeDependencyContainer)
+        setupMobileEngageComponent(fakeDependencyContainer)
     }
 }

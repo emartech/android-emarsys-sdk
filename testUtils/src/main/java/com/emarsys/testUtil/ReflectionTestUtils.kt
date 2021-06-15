@@ -2,6 +2,8 @@ package com.emarsys.testUtil
 
 import java.lang.reflect.Field
 import java.lang.reflect.Method
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.full.memberProperties
 
 object ReflectionTestUtils {
 
@@ -59,6 +61,13 @@ object ReflectionTestUtils {
         method.isAccessible = true
 
         return (method.invoke(instance, *params.map { it.second }.toTypedArray()) as T)
+    }
+
+    fun setKotlinDelegateField(instance: Any, fieldName: String, value: Any?) {
+        val property = instance::class.memberProperties.find { it.name == fieldName }
+        if (property is KMutableProperty<*>) {
+            property.setter.call(value, "value")
+        }
     }
 
     private fun searchForField(type: Class<*>, fieldName: String): Field = try {

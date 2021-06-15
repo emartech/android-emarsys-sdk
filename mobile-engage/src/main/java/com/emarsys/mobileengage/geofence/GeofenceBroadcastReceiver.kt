@@ -4,11 +4,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.emarsys.core.Mockable
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.util.SystemUtils
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.StatusLog
+import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.geofence.model.TriggerType
 import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 import com.google.android.gms.location.GeofencingEvent
@@ -19,7 +19,7 @@ class GeofenceBroadcastReceiver(val coreSdkHandler: CoreSdkHandler) : BroadcastR
     override fun onReceive(context: Context, intent: Intent) {
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
         coreSdkHandler.post {
-            val geofenceInternal = getDependency<GeofenceInternal>("defaultInstance")
+            val geofenceInternal = mobileEngage().geofenceInternal
 
             val triggeringEmarsysGeofences = geofencingEvent.convertToTriggeringEmarsysGeofences()
             geofenceInternal.onGeofenceTriggered(triggeringEmarsysGeofences)

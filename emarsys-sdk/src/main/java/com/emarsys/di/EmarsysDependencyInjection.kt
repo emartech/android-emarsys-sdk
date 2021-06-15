@@ -2,8 +2,6 @@ package com.emarsys.di
 
 import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.common.feature.InnerFeature
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.deeplink.DeepLinkApi
 import com.emarsys.eventservice.EventServiceApi
@@ -17,122 +15,113 @@ import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictRestrictedApi
 import com.emarsys.push.PushApi
 
-object EmarsysDependencyInjection : DependencyInjection() {
+object EmarsysDependencyInjection {
 
     @JvmStatic
     fun mobileEngageApi(): MobileEngageApi {
         return if (isMobileEngageEnabled()) {
-            getDependency("defaultInstance")
+            emarsys().mobileEngage
         } else {
-            getDependency("loggingInstance")
-        }
-    }
-
-    @JvmStatic
-    fun predictApi(): PredictApi {
-        return if (isPredictEnabled()) {
-            getDependency("defaultInstance")
-        } else {
-            getDependency("loggingInstance")
+            emarsys().loggingMobileEngage
         }
     }
 
     @JvmStatic
     fun predictRestrictedApi(): PredictRestrictedApi {
         return if (isPredictEnabled()) {
-            getDependency("defaultInstance")
+            emarsys().predictRestricted
         } else {
-            getDependency("loggingInstance")
+            emarsys().loggingPredictRestricted
         }
     }
 
     @JvmStatic
     fun inbox(): InboxApi {
         return if (isMobileEngageEnabled()) {
-            getDependency("defaultInstance")
+            emarsys().inbox
         } else {
-            getDependency("loggingInstance")
+            emarsys().loggingInbox
         }
     }
 
     @JvmStatic
     fun inApp(): InAppApi {
         return if (isMobileEngageEnabled()) {
-            getDependency("defaultInstance")
+            emarsys().inApp
         } else {
-            getDependency("loggingInstance")
+            emarsys().loggingInApp
         }
     }
 
     @JvmStatic
     fun onEventAction(): OnEventActionApi {
         return if (isMobileEngageEnabled()) {
-            getDependency("defaultInstance")
+            emarsys().onEventAction
         } else {
-            getDependency("loggingInstance")
+            emarsys().loggingOnEventAction
         }
     }
 
     @JvmStatic
     fun deepLinkApi(): DeepLinkApi {
         return if (isMobileEngageEnabled()) {
-            getDependency("defaultInstance")
+            emarsys().deepLink
         } else {
-            getDependency("loggingInstance")
+            emarsys().loggingDeepLink
         }
     }
 
     @JvmStatic
     fun clientServiceApi(): ClientServiceApi {
         return if (isMobileEngageEnabled()) {
-            getDependency("defaultInstance")
+            emarsys().clientService
         } else {
-            getDependency("loggingInstance")
+            emarsys().loggingClientService
         }
     }
 
     @JvmStatic
     fun eventServiceApi(): EventServiceApi {
         return if (isMobileEngageEnabled()) {
-            getDependency("defaultInstance")
+            emarsys().eventService
         } else {
-            getDependency("loggingInstance")
+            emarsys().loggingEventService
         }
     }
 
     @JvmStatic
     fun push(): PushApi {
         return if (isMobileEngageEnabled()) {
-            getDependency("defaultInstance")
+            emarsys().push
         } else {
-            getDependency("loggingInstance")
+            emarsys().loggingPush
         }
     }
 
     @JvmStatic
     fun predict(): PredictApi {
         return if (isPredictEnabled()) {
-            getDependency("defaultInstance")
+            emarsys().predict
         } else {
-            getDependency("loggingInstance")
+            emarsys().loggingPredict
         }
     }
 
     @JvmStatic
     fun messageInbox(): MessageInboxApi {
         return if (isMobileEngageEnabled()) {
-            getDependency("defaultInstance")
+            emarsys().messageInbox
         } else {
-            getDependency("loggingInstance")
+            emarsys().loggingMessageInbox
         }
     }
 
     @JvmStatic
     fun geofence(): GeofenceApi {
         return if (isMobileEngageEnabled()) {
-            getDependency("defaultInstance")
+            emarsys().geofence
         } else {
-            getDependency("loggingInstance")
+            emarsys().loggingGeofence
         }
     }
 

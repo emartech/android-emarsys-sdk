@@ -11,8 +11,8 @@ import com.emarsys.mobileengage.util.RequestModelHelper
 class CoreCompletionHandlerRefreshTokenProxy(private val coreCompletionHandler: CoreCompletionHandler,
                                              private val refreshTokenInternal: RefreshTokenInternal,
                                              private val restClient: RestClient,
-                                             private val contactTokenStorage: Storage<String>,
-                                             private val pushTokenStorage: Storage<String>,
+                                             private val contactTokenStorage: Storage<String?>,
+                                             private val pushTokenStorage: Storage<String?>,
                                              private val requestModelHelper: RequestModelHelper) : CoreCompletionHandler {
 
     override fun onSuccess(id: String, responseModel: ResponseModel) {

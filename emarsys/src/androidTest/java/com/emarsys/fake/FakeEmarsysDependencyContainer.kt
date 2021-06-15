@@ -1,4 +1,5 @@
-package com.emarsys.mobileengage.fake
+package com.emarsys.fake
+
 
 import android.content.SharedPreferences
 import android.os.Handler
@@ -65,7 +66,7 @@ import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.nhaarman.mockitokotlin2.mock
 
-class FakeMobileEngageDependencyContainer(
+class FakeEmarsysDependencyContainer(
         override val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler(),
         override val uiHandler: Handler = Handler(Looper.getMainLooper()),
         override val mobileEngageInternal: MobileEngageInternal = mock(),

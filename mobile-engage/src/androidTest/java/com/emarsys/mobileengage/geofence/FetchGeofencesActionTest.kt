@@ -1,8 +1,8 @@
 package com.emarsys.mobileengage.geofence
 
 import android.app.Activity
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-import com.emarsys.core.di.DependencyInjection
+import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
 import com.emarsys.testUtil.TimeoutUtils
@@ -29,14 +29,14 @@ class FetchGeofencesActionTest {
         mockGeofenceInternal = mock()
         mockActivity = mock()
 
-        DependencyInjection.setup(FakeMobileEngageDependencyContainer(coreSdkHandler = CoreSdkHandlerProvider().provideHandler()))
+        setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
 
         fetchGeofencesAction = FetchGeofencesAction(mockGeofenceInternal)
     }
 
     @After
     fun tearDown() {
-        DependencyInjection.tearDown()
+        tearDownMobileEngageComponent()
     }
 
 

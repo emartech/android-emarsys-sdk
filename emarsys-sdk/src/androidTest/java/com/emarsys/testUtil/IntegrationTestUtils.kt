@@ -1,5 +1,6 @@
 package com.emarsys.testUtil
 
+
 import android.app.Application
 import android.os.Handler
 import android.os.Looper
@@ -7,14 +8,8 @@ import androidx.arch.core.internal.FastSafeIterableMap
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.emarsys.Emarsys
-import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.activity.CurrentActivityWatchdog
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.handler.CoreSdkHandler
-import com.emarsys.core.storage.StringStorage
-import com.emarsys.mobileengage.storage.MobileEngageStorageKey
-import com.emarsys.predict.storage.PredictStorageKey
+import com.emarsys.di.emarsys
+import com.emarsys.di.tearDownEmarsysComponent
 import io.kotlintest.shouldBe
 import java.util.concurrent.CountDownLatch
 
@@ -37,29 +32,29 @@ object IntegrationTestUtils {
 
     fun tearDownEmarsys(application: Application? = null) {
         var latch = CountDownLatch(1)
-        getDependency<CoreSdkHandler>().post {
+        emarsys().coreSdkHandler.post {
             if (application != null) {
-                application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
-                application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
+                application.unregisterActivityLifecycleCallbacks(emarsys().activityLifecycleWatchdog)
+                application.unregisterActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
             }
 
-            getDependency<StringStorage>(MobileEngageStorageKey.DEVICE_INFO_HASH.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.REFRESH_TOKEN.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
+            emarsys().clientStateStorage.remove()
+            emarsys().contactFieldValueStorage.remove()
+            emarsys().contactTokenStorage.remove()
+            emarsys().pushTokenStorage.remove()
+            emarsys().refreshTokenStorage.remove()
+            emarsys().deviceInfoPayloadStorage.remove()
 
-            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
+            emarsys().clientServiceStorage.remove()
+            emarsys().eventServiceStorage.remove()
+            emarsys().deepLinkServiceStorage.remove()
+            emarsys().inboxServiceStorage.remove()
+            emarsys().messageInboxServiceStorage.remove()
+            emarsys().mobileEngageV2ServiceStorage.remove()
+            emarsys().predictServiceStorage.remove()
             latch.countDown()
         }
-        getDependency<CoreSdkHandler>().looper.quitSafely()
+        emarsys().coreSdkHandler.looper.quitSafely()
         latch.await()
 
         latch = CountDownLatch(1)
@@ -78,7 +73,7 @@ object IntegrationTestUtils {
         }
         latch.await()
 
-        DependencyInjection.tearDown()
+        tearDownEmarsysComponent()
 
         FeatureTestUtils.resetFeatures()
     }

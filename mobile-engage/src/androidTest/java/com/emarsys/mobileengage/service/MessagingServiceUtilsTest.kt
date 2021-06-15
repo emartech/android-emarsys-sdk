@@ -14,13 +14,14 @@ import com.emarsys.core.api.notification.ChannelSettings
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.DependencyContainer
-import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.resource.MetaDataReader
 import com.emarsys.core.util.FileDownloader
+import com.emarsys.mobileengage.di.mobileEngage
+import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.inbox.InboxParseUtils
 import com.emarsys.mobileengage.inbox.model.NotificationCache
@@ -125,14 +126,14 @@ class MessagingServiceUtilsTest {
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(1L)
         mockRemoteMessageMapper = mock()
 
-        DependencyInjection.setup(FakeMobileEngageDependencyContainer(
-                silentNotificationInformationListenerProvider = mockSilentNotificationInformationListenerProvider))
+        setupMobileEngageComponent(
+                FakeMobileEngageDependencyContainer(silentNotificationInformationListenerProvider = mockSilentNotificationInformationListenerProvider))
     }
 
     @After
     fun tearDown() {
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().looper.quit()
-        DependencyInjection.tearDown()
+        mobileEngage().coreSdkHandler.looper.quitSafely()
+        tearDownMobileEngageComponent()
     }
 
     @Test

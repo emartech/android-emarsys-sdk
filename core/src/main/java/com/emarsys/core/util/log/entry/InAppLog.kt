@@ -1,8 +1,6 @@
 package com.emarsys.core.util.log.entry
 
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.provider.uuid.UUIDProvider
-
+import com.emarsys.core.di.core
 class InAppLog(inAppLoadingTime: InAppLoadingTime, onScreenTime: OnScreenTime, campaignId: String, requestId: String?) : LogEntry {
     override val data: Map<String, Any>
 
@@ -21,7 +19,7 @@ class InAppLog(inAppLoadingTime: InAppLoadingTime, onScreenTime: OnScreenTime, c
         )
 
         if (requestId == null) {
-            data["requestId"] = getDependency<UUIDProvider>().provideId()
+            data["requestId"] = core().uuidProvider.provideId()
             data["source"] = "push"
         } else {
             data["requestId"] = requestId

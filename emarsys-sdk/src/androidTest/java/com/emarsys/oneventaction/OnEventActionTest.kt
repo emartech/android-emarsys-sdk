@@ -1,8 +1,9 @@
 package com.emarsys.oneventaction
 
 import android.content.Context
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.testUtil.IntegrationTestUtils
@@ -31,7 +32,7 @@ class OnEventActionTest {
     fun setUp() {
         mockEventHandler = mock()
         mockOnEventActionEventHandlerProvider = mock()
-        DependencyInjection.setup(FakeDependencyContainer(
+        setupEmarsysComponent(FakeDependencyContainer(
                 onEventActionEventHandlerProvider = mockOnEventActionEventHandlerProvider)
         )
         onEventAction = OnEventAction()

@@ -14,7 +14,6 @@ import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import com.emarsys.core.Mockable
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.log.Logger.Companion.metric
 import com.emarsys.core.util.log.entry.AppEventLog
@@ -22,6 +21,7 @@ import com.emarsys.core.util.log.entry.InAppLoadingTime
 import com.emarsys.core.util.log.entry.InAppLog
 import com.emarsys.core.util.log.entry.OnScreenTime
 import com.emarsys.mobileengage.R
+import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 
@@ -58,7 +58,7 @@ class IamDialog : DialogFragment() {
     private var webView: WebView? = null
     private var startTime: Long = 0
     private var dismissed = false
-    val timestampProvider: TimestampProvider by lazy { getDependency<TimestampProvider>() }
+    val timestampProvider: TimestampProvider by lazy { mobileEngage().timestampProvider }
 
     fun setActions(actions: List<OnDialogShownAction>?) {
         this.actions = actions

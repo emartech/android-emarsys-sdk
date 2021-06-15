@@ -6,18 +6,17 @@ import android.content.SharedPreferences
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.DependencyContainer
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
+
+
+
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.storage.Storage
-import com.emarsys.core.storage.StringStorage
-import com.emarsys.di.DefaultEmarsysDependencyContainer
-import com.emarsys.mobileengage.RefreshTokenInternal
-import com.emarsys.mobileengage.event.EventServiceInternal
-import com.emarsys.mobileengage.storage.MobileEngageStorageKey
+import com.emarsys.di.DefaultEmarsysComponent
+import com.emarsys.di.DefaultEmarsysDependencies
+import com.emarsys.di.emarsys
+
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
@@ -29,6 +28,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import java.util.concurrent.CountDownLatch
 
@@ -73,21 +73,24 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
         FeatureTestUtils.resetFeatures()
 
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
-            override fun getDeviceInfo(): DeviceInfo {
-                return DeviceInfo(
-                        application,
-                        Mockito.mock(HardwareIdProvider::class.java).apply {
-                            whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
-                        },
-                        Mockito.mock(VersionProvider::class.java).apply {
-                            whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
-                        },
-                        LanguageProvider(),
-                        Mockito.mock(NotificationManagerHelper::class.java),
-                        true
-                )
-            }
+        val deviceInfo = DeviceInfo(
+                application,
+                Mockito.mock(HardwareIdProvider::class.java).apply {
+                    whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
+                },
+                Mockito.mock(VersionProvider::class.java).apply {
+                    whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
+                },
+                Mockito.mock(LanguageProvider::class.java).apply {
+                    whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
+                },
+                Mockito.mock(NotificationManagerHelper::class.java),
+                true
+        )
+
+        DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {
+            override val deviceInfo: DeviceInfo
+                get() = deviceInfo
         })
 
         errorCause = null
@@ -98,10 +101,10 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
         Emarsys.setup(baseConfig)
 
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-            contactTokenStorage = getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key)
+        emarsys().coreSdkHandler.post {
+            contactTokenStorage = emarsys().contactTokenStorage
             contactTokenStorage.remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
+            emarsys().pushTokenStorage.remove()
         }
 
         IntegrationTestUtils.doLogin()
@@ -118,7 +121,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
     fun testRefreshContactToken() {
         contactTokenStorage.remove()
 
-        val refreshTokenInternal = getDependency<RefreshTokenInternal>()
+        val refreshTokenInternal = emarsys().refreshTokenInternal
 
         refreshTokenInternal.refreshContactToken(this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
 
@@ -130,7 +133,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
         contactTokenStorage.remove()
         contactTokenStorage.set("tokenForIntegrationTest")
 
-        val eventServiceInternal = getDependency<EventServiceInternal>("defaultInstance")
+        val eventServiceInternal = emarsys().eventServiceInternal
 
         eventServiceInternal.trackInternalCustomEvent("integrationTest", emptyMap(), this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
 

@@ -1,10 +1,9 @@
 package com.emarsys.service
 
 import android.content.Context
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.handler.CoreSdkHandler
-import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.Assert
+import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.service.MessagingServiceUtils
 import com.emarsys.mobileengage.service.MessagingServiceUtils.handleMessage
 import com.google.firebase.messaging.RemoteMessage
@@ -19,19 +18,19 @@ object EmarsysMessagingServiceUtils {
         Assert.notNull(remoteMessage, "RemoteMessage must not be null!")
 
         val latch = CountDownLatch(1)
-        val handler: CoreSdkHandler = getDependency()
+        val handler: CoreSdkHandler = mobileEngage().coreSdkHandler
         var result = false
 
         handler.post {
             result = handleMessage(
                     context,
                     remoteMessage,
-                    getDependency(),
-                    getDependency(),
-                    getDependency<TimestampProvider>(),
-                    getDependency(),
-                    getDependency("silentMessageActionCommandFactory"),
-                    getDependency())
+                    mobileEngage().deviceInfo,
+                    mobileEngage().notificationCache,
+                    mobileEngage().timestampProvider,
+                    mobileEngage().fileDownloader,
+                    mobileEngage().silentMessageActionCommandFactory,
+                    mobileEngage().remoteMessageMapper)
             latch.countDown()
         }
         latch.await()

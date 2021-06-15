@@ -3,9 +3,8 @@ package com.emarsys.mobileengage.service
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.validate.JsonObjectValidator
+import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.notification.NotificationCommandFactory
 import org.json.JSONException
 import org.json.JSONObject
@@ -13,7 +12,7 @@ import org.json.JSONObject
 object NotificationActionUtils {
     @JvmStatic
     fun handleAction(intent: Intent, commandFactory: NotificationCommandFactory) {
-        getDependency<CoreSdkHandler>().post {
+        mobileEngage().coreSdkHandler.post {
             val command = commandFactory.createNotificationCommand(intent)
             command.run()
         }

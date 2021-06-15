@@ -1,10 +1,10 @@
 package com.emarsys.predict
 
-import android.os.Looper
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.handler.CoreSdkHandler
+
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.emarsys
+import com.emarsys.di.setupEmarsysComponent
+import com.emarsys.di.tearDownEmarsysComponent
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
@@ -29,17 +29,15 @@ class PredictRestrictedTest {
 
         val dependencyContainer = FakeDependencyContainer(predictInternal = mockPredictInternal)
 
-        DependencyInjection.setup(dependencyContainer)
+        setupEmarsysComponent(dependencyContainer)
         predictRestricted = PredictRestricted()
     }
 
     @After
     fun tearDown() {
         try {
-            val handler = getDependency<CoreSdkHandler>()
-            val looper: Looper = handler.looper
-            looper.quit()
-            DependencyInjection.tearDown()
+            emarsys().coreSdkHandler.looper.quit()
+            tearDownEmarsysComponent()
         } catch (e: Exception) {
             e.printStackTrace()
             throw e

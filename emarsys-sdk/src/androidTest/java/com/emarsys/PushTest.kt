@@ -2,8 +2,9 @@ package com.emarsys
 
 import android.content.Intent
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.push.NotificationInformationListener
 import com.emarsys.mobileengage.push.PushInternal
@@ -37,7 +38,7 @@ class PushTest {
         mockNotificationInformationListener = mock()
         val dependencyContainer = FakeDependencyContainer(pushInternal = mockPushInternal)
 
-        DependencyInjection.setup(dependencyContainer)
+        setupEmarsysComponent(dependencyContainer)
 
         push = Push()
     }

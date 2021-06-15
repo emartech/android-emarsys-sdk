@@ -11,14 +11,15 @@ import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.di.DefaultEmarsysDependencyContainer
+import com.emarsys.di.DefaultEmarsysComponent
+import com.emarsys.di.DefaultEmarsysDependencies
+import com.emarsys.di.emarsys
 import com.emarsys.mobileengage.api.EventHandler
-import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
@@ -90,32 +91,28 @@ class MobileEngageIntegrationTest {
         val mockPushTokenProvider = mock(PushTokenProvider::class.java).apply {
             whenever(providePushToken()).thenReturn("integration_test_push_token")
         }
+        val deviceInfo = DeviceInfo(
+                application,
+                mock(HardwareIdProvider::class.java).apply {
+                    whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
+                },
+                mock(VersionProvider::class.java).apply {
+                    whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
+                },
+                mock(LanguageProvider::class.java).apply {
+                    whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
+                },
+                mock(NotificationManagerHelper::class.java),
+                true
+        )
 
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
-            override fun getCoreCompletionHandler(): DefaultCoreCompletionHandler {
-                return completionHandler
-            }
-
-            override fun getPushTokenProvider(): PushTokenProvider {
-                return mockPushTokenProvider
-            }
-
-            override fun getDeviceInfo(): DeviceInfo {
-                return DeviceInfo(
-                        application,
-                        mock(HardwareIdProvider::class.java).apply {
-                            whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
-                        },
-                        mock(VersionProvider::class.java).apply {
-                            whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
-                        },
-                        mock(LanguageProvider::class.java).apply {
-                            whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
-                        },
-                        mock(NotificationManagerHelper::class.java),
-                        true
-                )
-            }
+        DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {
+            override val deviceInfo: DeviceInfo
+                get() = deviceInfo
+            override val pushTokenProvider: PushTokenProvider
+                get() = mockPushTokenProvider
+            override val coreCompletionHandler: DefaultCoreCompletionHandler
+                get() = completionHandler
         })
 
         errorCause = null
@@ -177,7 +174,7 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackInternalCustomEvent_V3_noAttributes() {
-        val eventServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().getEventServiceInternal()
+        val eventServiceInternal = emarsys().eventServiceInternal
 
         eventServiceInternal.trackInternalCustomEvent(
                 "integrationTestInternalCustomEvent",
@@ -188,7 +185,7 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackInternalCustomEvent_V3_withAttributes() {
-        val eventServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().getEventServiceInternal()
+        val eventServiceInternal = emarsys().eventServiceInternal
 
         eventServiceInternal.trackInternalCustomEvent(
                 "integrationTestInternalCustomEvent",
@@ -247,7 +244,7 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testTrackDeviceInfo() {
-        val clientServiceInternal = DependencyInjection.getContainer<MobileEngageDependencyContainer>().getClientServiceInternal()
+        val clientServiceInternal = emarsys().clientServiceInternal
 
         clientServiceInternal.trackDeviceInfo(this::eventuallyStoreResult)
                 .also(this::eventuallyAssertCompletionHandlerSuccess)

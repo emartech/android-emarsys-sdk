@@ -1,7 +1,9 @@
 package com.emarsys.mobileengage.iam
 
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.core.storage.Storage
+import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
@@ -31,14 +33,14 @@ class InAppStartActionTest {
         mockEventServiceInternal = mock()
         mockContactTokenStorage = mock()
 
-        DependencyInjection.setup(FakeMobileEngageDependencyContainer())
+        setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
 
         startAction = InAppStartAction(mockEventServiceInternal, mockContactTokenStorage)
     }
 
     @After
     fun tearDown() {
-        DependencyInjection.tearDown()
+        tearDownMobileEngageComponent()
     }
 
     @Test

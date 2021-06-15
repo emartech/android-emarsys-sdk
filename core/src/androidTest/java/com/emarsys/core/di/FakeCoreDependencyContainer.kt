@@ -1,93 +1,55 @@
 package com.emarsys.core.di
 
+import android.content.SharedPreferences
 import android.os.Handler
-import com.emarsys.core.DefaultCoreCompletionHandler
+import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
+import com.emarsys.core.connection.ConnectionWatchDog
+import com.emarsys.core.crypto.Crypto
 import com.emarsys.core.database.CoreSQLiteDatabase
+import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.handler.CoreSdkHandler
-import com.emarsys.core.provider.activity.CurrentActivityProvider
+import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
+import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
-import com.emarsys.core.response.ResponseHandlersProcessor
+import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
-import com.emarsys.core.storage.CoreStorageKey
 import com.emarsys.core.storage.KeyValueStore
-import com.emarsys.core.storage.StringStorage
+import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
+import com.emarsys.core.worker.Worker
 import com.nhaarman.mockitokotlin2.mock
 
-class FakeCoreDependencyContainer(coreSdkHandler: CoreSdkHandler = mock(),
-                                  uiHandler: Handler = mock(),
-                                  activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(),
-                                  currentActivityWatchdog: CurrentActivityWatchdog = mock(),
-                                  coreSQLiteDatabase: CoreSQLiteDatabase = mock(),
-                                  deviceInfo: DeviceInfo = mock(),
-                                  shardRepository: Repository<ShardModel, SqlSpecification> = mock(),
-                                  timestampProvider: TimestampProvider = mock(),
-                                  uuidProvider: UUIDProvider = mock(),
-                                  completionHandler: DefaultCoreCompletionHandler = mock(),
-                                  logger: Logger = mock(),
-                                  responseHandlersProcessor: ResponseHandlersProcessor = mock(),
-                                  restClient: RestClient = mock(),
-                                  logLevelStorage: StringStorage = mock(),
-                                  fileDownloader: FileDownloader = mock(),
-                                  currentActivityProvider: CurrentActivityProvider = mock(),
-                                  keyValueStore: KeyValueStore = mock()
-) : DependencyContainer {
-    override val dependencies: MutableMap<String, Any?> = mutableMapOf()
-
-    init {
-        addDependency(dependencies, coreSdkHandler)
-        addDependency(dependencies, uiHandler, "uiHandler")
-        addDependency(dependencies, activityLifecycleWatchdog)
-        addDependency(dependencies, currentActivityWatchdog)
-        addDependency(dependencies, coreSQLiteDatabase)
-        addDependency(dependencies, deviceInfo)
-        addDependency(dependencies, shardRepository, "shardRepository")
-        addDependency(dependencies, timestampProvider)
-        addDependency(dependencies, uuidProvider)
-        addDependency(dependencies, completionHandler)
-        addDependency(dependencies, logger)
-        addDependency(dependencies, responseHandlersProcessor)
-        addDependency(dependencies, restClient)
-        addDependency(dependencies, logLevelStorage, CoreStorageKey.LOG_LEVEL.key)
-        addDependency(dependencies, fileDownloader)
-        addDependency(dependencies, currentActivityProvider)
-        addDependency(dependencies, keyValueStore)
-
-    }
-
-    override fun getCoreSdkHandler(): CoreSdkHandler = getDependency(dependencies)
-
-    override fun getUiHandler(): Handler = getDependency(dependencies, "uiHandler")
-
-    override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog = getDependency(dependencies)
-
-    override fun getCurrentActivityWatchdog(): CurrentActivityWatchdog = getDependency(dependencies)
-
-    override fun getCoreSQLiteDatabase(): CoreSQLiteDatabase = getDependency(dependencies)
-
-    override fun getDeviceInfo(): DeviceInfo = getDependency(dependencies)
-
-    override fun getTimestampProvider(): TimestampProvider = getDependency(dependencies)
-
-    override fun getUuidProvider(): UUIDProvider = getDependency(dependencies)
-
-    override fun getLogShardTrigger(): Runnable = getDependency(dependencies, "logShardTrigger")
-
-    override fun getLogger(): Logger = getDependency(dependencies)
-
-    override fun getRestClient(): RestClient = getDependency(dependencies)
-
-    override fun getFileDownloader(): FileDownloader = getDependency(dependencies)
-
-    override fun getShardRepository(): Repository<ShardModel, SqlSpecification> = getDependency(dependencies, "shardRepository")
-
-    override fun getKeyValueStore(): KeyValueStore = getDependency(dependencies)
-}
+class FakeCoreDependencyContainer(override val coreSdkHandler: CoreSdkHandler = mock(),
+                                  override val uiHandler: Handler = mock(),
+                                  override val activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(),
+                                  override val currentActivityWatchdog: CurrentActivityWatchdog = mock(),
+                                  override val coreSQLiteDatabase: CoreSQLiteDatabase = mock(),
+                                  override val deviceInfo: DeviceInfo = mock(),
+                                  override val shardRepository: Repository<ShardModel, SqlSpecification> = mock(),
+                                  override val timestampProvider: TimestampProvider = mock(),
+                                  override val uuidProvider: UUIDProvider = mock(),
+                                  override val logShardTrigger: Runnable = mock(),
+                                  override val logger: Logger = mock(),
+                                  override val restClient: RestClient = mock(),
+                                  override val fileDownloader: FileDownloader = mock(),
+                                  override val keyValueStore: KeyValueStore = mock(),
+                                  override val sharedPreferences: SharedPreferences = mock(),
+                                  override val hardwareIdProvider: HardwareIdProvider = mock(),
+                                  override val coreDbHelper: CoreDbHelper = mock(),
+                                  override val hardwareIdStorage: Storage<String?> = mock(),
+                                  override val crypto: Crypto = mock(),
+                                  override val requestManager: RequestManager = mock(),
+                                  override val worker: Worker = mock(),
+                                  override val requestModelRepository: Repository<RequestModel, SqlSpecification> = mock(),
+                                  override val connectionWatchdog: ConnectionWatchDog = mock(),
+                                  override val coreCompletionHandler: CoreCompletionHandler = mock(),
+                                  override val logLevelStorage: Storage<String?> = mock()
+) : CoreComponent

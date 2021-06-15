@@ -9,12 +9,14 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.setupEmarsysComponent
+import com.emarsys.di.tearDownEmarsysComponent
 import com.emarsys.fake.FakeRestClient
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
@@ -100,10 +102,10 @@ class InlineInAppViewTest {
         mockButtonClickedRepository = mock()
         mockInAppInternal = mock()
 
-        DependencyInjection.setup(FakeDependencyContainer(inlineInAppWebViewFactory = mockInlineInAppWebViewFactory,
+        setupEmarsysComponent(FakeDependencyContainer(inlineInAppWebViewFactory = mockInlineInAppWebViewFactory,
                 iamJsBridgeFactory = mockIamJsBridgeFactory,
                 requestManager = mockRequestManager,
-                requestModelFactory = mockRequestModelFactory,
+                mobileEngageRequestModelFactory = mockRequestModelFactory,
                 inAppInternal = mockInAppInternal,
                 buttonClickedRepository = mockButtonClickedRepository))
     }
@@ -185,7 +187,7 @@ class InlineInAppViewTest {
 
     @Test
     fun testLoadInApp_whenResponseError() {
-        DependencyInjection.tearDown()
+        tearDownEmarsysComponent()
         val expectedBody = """errorBody""".trimMargin()
         val expectedStatusCode = 500
         val expectedMessage = "Error message"
@@ -193,7 +195,10 @@ class InlineInAppViewTest {
         whenever(mockResponseModel.message).thenReturn(expectedMessage)
         whenever(mockResponseModel.statusCode).thenReturn(expectedStatusCode)
         mockRequestManager = spy(RequestManager(CoreSdkHandlerProvider().provideHandler(), mock(), mock(), mock(), FakeRestClient(mockResponseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL), mock(), mock(), mockProvider))
-        DependencyInjection.setup(FakeDependencyContainer(inlineInAppWebViewFactory = mockInlineInAppWebViewFactory, iamJsBridgeFactory = mockIamJsBridgeFactory, requestManager = mockRequestManager, requestModelFactory = mockRequestModelFactory))
+        setupEmarsysComponent(FakeDependencyContainer(inlineInAppWebViewFactory = mockInlineInAppWebViewFactory,
+                iamJsBridgeFactory = mockIamJsBridgeFactory,
+                requestManager = mockRequestManager,
+                mobileEngageRequestModelFactory = mockRequestModelFactory))
         val inlineInAppView = InlineInAppView(context)
 
         val latch = CountDownLatch(1)
@@ -213,10 +218,13 @@ class InlineInAppViewTest {
 
     @Test
     fun testLoadInApp_whenException() {
-        DependencyInjection.tearDown()
+        tearDownEmarsysComponent()
         val expectedException = Exception("Error happened")
         mockRequestManager = spy(RequestManager(CoreSdkHandlerProvider().provideHandler(), mock(), mock(), mock(), FakeRestClient(expectedException), mock(), mock(), mockProvider))
-        DependencyInjection.setup(FakeDependencyContainer(inlineInAppWebViewFactory = mockInlineInAppWebViewFactory, iamJsBridgeFactory = mockIamJsBridgeFactory, requestManager = mockRequestManager, requestModelFactory = mockRequestModelFactory))
+        setupEmarsysComponent(FakeDependencyContainer(inlineInAppWebViewFactory = mockInlineInAppWebViewFactory,
+                iamJsBridgeFactory = mockIamJsBridgeFactory,
+                requestManager = mockRequestManager,
+                mobileEngageRequestModelFactory = mockRequestModelFactory))
         val inlineInAppView = InlineInAppView(context)
         val latch = CountDownLatch(1)
         inlineInAppView.onCompletionListener = CompletionListener { error ->

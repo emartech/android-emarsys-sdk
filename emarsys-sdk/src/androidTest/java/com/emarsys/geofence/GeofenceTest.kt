@@ -1,8 +1,9 @@
 package com.emarsys.geofence
 
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.testUtil.IntegrationTestUtils
@@ -30,7 +31,7 @@ class GeofenceTest {
         mockGeofenceInternal = mock()
         val dependencyContainer = FakeDependencyContainer(geofenceInternal = mockGeofenceInternal)
 
-        DependencyInjection.setup(dependencyContainer)
+        setupEmarsysComponent(dependencyContainer)
 
         geofenceProxy = Geofence()
     }

@@ -7,9 +7,9 @@ import androidx.test.rule.ActivityTestRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.app.AppLifecycleObserver
-import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.util.FileDownloader
-import com.emarsys.di.DefaultEmarsysDependencyContainer
+import com.emarsys.di.DefaultEmarsysComponent
+import com.emarsys.di.DefaultEmarsysDependencies
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.iam.OverlayInAppPresenter
 import com.emarsys.mobileengage.service.IntentUtils
@@ -81,23 +81,17 @@ class InappNotificationIntegrationTest {
             completionListenerLatch.countDown()
         }
 
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
-            override fun getOverlayInAppPresenter(): OverlayInAppPresenter {
-                return mockInappPresenterOverlay
-            }
-
-            override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog {
-                return mock()
-            }
-
-            override fun getAppLifecycleObserver(): AppLifecycleObserver {
-                return mock()
-            }
-
-            override fun getEventServiceInternal(): EventServiceInternal {
-                return mock()
-            }
+        DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {
+            override val overlayInAppPresenter: OverlayInAppPresenter
+                get() = mockInappPresenterOverlay
+            override val activityLifecycleWatchdog: ActivityLifecycleWatchdog
+                get() = mock()
+            override val appLifecycleObserver: AppLifecycleObserver
+                get() = mock()
+            override val eventServiceInternal: EventServiceInternal
+                get() = mock()
         })
+
         ConnectionTestUtils.checkConnection(application)
 
         Emarsys.setup(baseConfig)
@@ -129,7 +123,7 @@ class InappNotificationIntegrationTest {
         activityRule.launchActivity(Intent())
 
         completionListenerLatch.await()
-        verify(mockInappPresenterOverlay).present(anyOrNull(),anyOrNull(),anyOrNull(),anyOrNull(),anyOrNull(),anyOrNull(),anyOrNull())
+        verify(mockInappPresenterOverlay).present(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
     }
 
 }

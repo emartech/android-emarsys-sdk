@@ -5,11 +5,11 @@ import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
-import com.emarsys.di.DefaultEmarsysDependencyContainer
+import com.emarsys.di.DefaultEmarsysComponent
+import com.emarsys.di.DefaultEmarsysDependencies
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
@@ -80,25 +80,24 @@ class DefaultInboxIntegrationTest {
 
         errorCause = null
         latch = CountDownLatch(1)
+        val deviceInfo = DeviceInfo(
+                application,
+                mock(HardwareIdProvider::class.java).apply {
+                    whenever(provideHardwareId()).thenReturn("inboxv1_integration_hwid")
+                },
+                mock(VersionProvider::class.java).apply {
+                    whenever(provideSdkVersion()).thenReturn(SDK_VERSION)
+                },
+                mock(LanguageProvider::class.java).apply {
+                    whenever(provideLanguage(any())).thenReturn(LANGUAGE)
+                },
+                mock(NotificationManagerHelper::class.java),
+                true
+        )
 
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
-
-            override fun getDeviceInfo(): DeviceInfo {
-                return DeviceInfo(
-                        application,
-                        mock(HardwareIdProvider::class.java).apply {
-                            whenever(provideHardwareId()).thenReturn("inboxv1_integration_hwid")
-                        },
-                        mock(VersionProvider::class.java).apply {
-                            whenever(provideSdkVersion()).thenReturn(SDK_VERSION)
-                        },
-                        mock(LanguageProvider::class.java).apply {
-                            whenever(provideLanguage(any())).thenReturn(LANGUAGE)
-                        },
-                        mock(NotificationManagerHelper::class.java),
-                        true
-                )
-            }
+        DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {
+            override val deviceInfo: DeviceInfo
+                get() = deviceInfo
         })
 
         Emarsys.setup(baseConfig)

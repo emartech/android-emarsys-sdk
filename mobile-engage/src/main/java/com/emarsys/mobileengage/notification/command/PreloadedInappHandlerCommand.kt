@@ -2,13 +2,7 @@ package com.emarsys.mobileengage.notification.command
 
 import android.content.Intent
 import android.os.Bundle
-import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.provider.activity.CurrentActivityProvider
-import com.emarsys.core.provider.timestamp.TimestampProvider
-import com.emarsys.core.util.FileDownloader
-import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
+import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.PushToInAppAction
 import org.json.JSONException
 import org.json.JSONObject
@@ -32,11 +26,11 @@ class PreloadedInappHandlerCommand(private val intent: Intent) : Runnable {
                         val sid = extractSid(payload)
                         var html: String? = null
                         if (fileUrl != null) {
-                            html = getDependency<FileDownloader>().readFileIntoString(fileUrl)
+                            html = mobileEngage().fileDownloader.readFileIntoString(fileUrl)
                             File(fileUrl).delete()
                         }
                         if (html == null && url != null) {
-                            html = getDependency<FileDownloader>().readURLIntoString(url)
+                            html = mobileEngage().fileDownloader.readURLIntoString(url)
                         }
                         if (campaignId != null && html != null) {
                             scheduleInAppDisplay(campaignId, html, sid, url)
@@ -49,10 +43,10 @@ class PreloadedInappHandlerCommand(private val intent: Intent) : Runnable {
     }
 
     private fun scheduleInAppDisplay(campaignId: String, html: String, sid: String?, url: String?) {
-        val pushToInAppAction = PushToInAppAction(DependencyInjection.getContainer<MobileEngageDependencyContainer>().getOverlayInAppPresenter(), campaignId, html, sid, url,
-                getDependency<TimestampProvider>())
-        val watchdog = getDependency<ActivityLifecycleWatchdog>()
-        val activityProvider = getDependency<CurrentActivityProvider>()
+        val pushToInAppAction = PushToInAppAction(mobileEngage().overlayInAppPresenter, campaignId, html, sid, url,
+                mobileEngage().timestampProvider)
+        val watchdog = mobileEngage().activityLifecycleWatchdog
+        val activityProvider = mobileEngage().currentActivityProvider
         val currentActivity = activityProvider.get()
         if (currentActivity == null) {
             watchdog.addTriggerOnActivityAction(pushToInAppAction)

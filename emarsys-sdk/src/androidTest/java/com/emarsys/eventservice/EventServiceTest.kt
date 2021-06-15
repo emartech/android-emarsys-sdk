@@ -1,8 +1,9 @@
 package com.emarsys.eventservice
 
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
@@ -37,7 +38,7 @@ class EventServiceTest {
         mockEventServiceInternal = mock()
         eventServiceApi = EventService()
 
-        DependencyInjection.setup(FakeDependencyContainer(eventServiceInternal = mockEventServiceInternal))
+        setupEmarsysComponent(FakeDependencyContainer(eventServiceInternal = mockEventServiceInternal))
     }
 
     @After

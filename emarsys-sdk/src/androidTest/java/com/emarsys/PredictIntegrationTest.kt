@@ -1,31 +1,28 @@
 package com.emarsys
 
 import android.app.Application
-import android.app.NotificationManager
 import android.content.Context
-import androidx.core.app.NotificationManagerCompat
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.DependencyContainer
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
+
+
+
 import com.emarsys.core.notification.NotificationManagerHelper
-import com.emarsys.core.notification.NotificationManagerProxy
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
-import com.emarsys.core.storage.StringStorage
-import com.emarsys.di.DefaultEmarsysDependencyContainer
-import com.emarsys.mobileengage.storage.MobileEngageStorageKey
+import com.emarsys.di.DefaultEmarsysComponent
+import com.emarsys.di.DefaultEmarsysDependencies
+import com.emarsys.di.emarsys
+
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.api.model.RecommendationLogic
-import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.predict.util.CartItemUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
@@ -119,47 +116,46 @@ class PredictIntegrationTest {
             }
         }
 
-        DependencyInjection.setup(object : DefaultEmarsysDependencyContainer(baseConfig) {
-            override fun getDeviceInfo(): DeviceInfo {
-                return DeviceInfo(
-                        application,
-                        mock(HardwareIdProvider::class.java).apply {
-                            whenever(provideHardwareId()).thenReturn("predict_integration_hwid")
-                        },
-                        mock(VersionProvider::class.java).apply {
-                            whenever(provideSdkVersion()).thenReturn("0.0.0-predict_integration_version")
-                        },
-                        mock(LanguageProvider::class.java).apply {
-                            whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
-                        },
-                        NotificationManagerHelper(NotificationManagerProxy(application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager, NotificationManagerCompat.from(application))),
-                        true
-                )
-            }
 
-            override fun getCoreCompletionHandler(): DefaultCoreCompletionHandler {
-                return completionHandler
-            }
+        val deviceInfo = DeviceInfo(
+                application,
+                mock(HardwareIdProvider::class.java).apply {
+                    whenever(provideHardwareId()).thenReturn("mobileengage_integration_hwid")
+                },
+                mock(VersionProvider::class.java).apply {
+                    whenever(provideSdkVersion()).thenReturn("0.0.0-mobileengage_integration_version")
+                },
+                mock(LanguageProvider::class.java).apply {
+                    whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
+                },
+                mock(NotificationManagerHelper::class.java),
+                true
+        )
+
+        DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {
+            override val coreCompletionHandler: DefaultCoreCompletionHandler
+                get() = completionHandler
+            override val deviceInfo: DeviceInfo
+                get() = deviceInfo
         })
 
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-            clientStateStorage = getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key)
-            clientStateStorage.remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_FIELD_VALUE.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.CONTACT_TOKEN.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.PUSH_TOKEN.key).remove()
+        emarsys().coreSdkHandler.post {
+            emarsys().clientStateStorage.remove()
+            emarsys().contactFieldValueStorage.remove()
+            emarsys().contactTokenStorage.remove()
+            emarsys().pushTokenStorage.remove()
         }
 
         Emarsys.setup(baseConfig)
 
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-            getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.EVENT_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.DEEPLINK_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.ME_V2_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.INBOX_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL.key).remove()
-            getDependency<StringStorage>(PredictStorageKey.PREDICT_SERVICE_URL.key).remove()
+        emarsys().coreSdkHandler.post {
+            emarsys().clientServiceStorage.remove()
+            emarsys().eventServiceStorage.remove()
+            emarsys().deepLinkServiceStorage.remove()
+            emarsys().inboxServiceStorage.remove()
+            emarsys().messageInboxServiceStorage.remove()
+            emarsys().mobileEngageV2ServiceStorage.remove()
+            emarsys().predictServiceStorage.remove()
         }
     }
 
@@ -470,8 +466,8 @@ class PredictIntegrationTest {
 
     @Test
     fun testMultipleInvocationsWithSetContact() {
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
-            clientStateStorage = getDependency<StringStorage>(MobileEngageStorageKey.CLIENT_STATE.key)
+        emarsys().coreSdkHandler.post {
+            clientStateStorage = emarsys().clientStateStorage
             clientStateStorage.set("predict-integration-test")
         }
 

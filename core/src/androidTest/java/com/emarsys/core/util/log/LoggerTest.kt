@@ -1,13 +1,9 @@
 package com.emarsys.core.util.log
 
-import android.os.Looper
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.di.DependencyContainer
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.FakeCoreDependencyContainer
-import com.emarsys.core.di.getDependency
+import com.emarsys.core.di.*
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -43,7 +39,7 @@ class LoggerTest {
     private lateinit var shardRepositoryMock: Repository<ShardModel, SqlSpecification>
     private lateinit var timestampProviderMock: TimestampProvider
     private lateinit var uuidProviderMock: UUIDProvider
-    private lateinit var dependencyContainer: DependencyContainer
+    private lateinit var dependencyContainer: CoreComponent
     private lateinit var loggerInstance: Logger
     private lateinit var loggerMock: Logger
     private lateinit var mockLogLevelStorage: StringStorage
@@ -79,17 +75,14 @@ class LoggerTest {
             uuidProvider = uuidProviderMock,
             logger = loggerMock
         )
-
-        DependencyInjection.setup(dependencyContainer)
+        setupCoreComponent(dependencyContainer)
     }
 
     @After
     fun tearDown() {
-        if (DependencyInjection.isSetup()) {
-            val handler = getDependency<CoreSdkHandler>()
-            val looper: Looper = handler.looper
-            looper.quitSafely()
-            DependencyInjection.tearDown()
+        if (CoreComponent.isSetup()) {
+            core().coreSdkHandler.looper.quitSafely()
+            tearDownCoreComponent()
         }
     }
 
@@ -176,12 +169,12 @@ class LoggerTest {
 
     @Test
     fun testLog_doesNotLogAnything_ifDependencyInjection_isNotSetup() {
-        DependencyInjection.tearDown()
+        tearDownCoreComponent()
 
         dependencyContainer = mock()
 
-        DependencyInjection.setup(dependencyContainer)
-        DependencyInjection.tearDown()
+        setupCoreComponent(dependencyContainer)
+        tearDownCoreComponent()
 
         Logger.log(logEntryMock())
 

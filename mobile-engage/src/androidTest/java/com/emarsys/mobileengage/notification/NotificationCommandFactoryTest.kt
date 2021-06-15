@@ -6,11 +6,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.util.JsonUtils
 import com.emarsys.mobileengage.api.event.EventHandler
-import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
+import com.emarsys.mobileengage.di.MobileEngageComponent
+import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
@@ -49,7 +50,7 @@ class NotificationCommandFactoryTest {
     private lateinit var factory: NotificationCommandFactory
     private lateinit var context: Context
     private lateinit var mockUiHandler: Handler
-    private lateinit var mockDependencyContainer: MobileEngageDependencyContainer
+    private lateinit var mockDependencyContainer: MobileEngageComponent
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockPushInternal: PushInternal
     private lateinit var mockNotificationEventHandlerProvider: EventHandlerProvider
@@ -76,18 +77,19 @@ class NotificationCommandFactoryTest {
                 eventServiceInternal = mockEventServiceInternal,
                 pushInternal = mockPushInternal,
                 notificationEventHandlerProvider = mockNotificationEventHandlerProvider,
-                actionCommandFactory = mockActionCommandFactory,
+                notificationActionCommandFactory = mockActionCommandFactory,
                 currentActivityProvider = mockCurrentActivityProvider
         )
 
-        DependencyInjection.setup(mockDependencyContainer)
+        setupMobileEngageComponent(mockDependencyContainer)
+
 
         factory = NotificationCommandFactory(context)
     }
 
     @After
     fun tearDown() {
-        DependencyInjection.tearDown()
+        tearDownMobileEngageComponent()
     }
 
     @Test

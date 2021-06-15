@@ -1,24 +1,8 @@
 package com.emarsys.config
 
-import android.os.Handler
-import android.os.Looper
-import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.activity.CurrentActivityWatchdog
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-import com.emarsys.core.database.CoreSQLiteDatabase
-import com.emarsys.core.database.repository.Repository
-import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.di.DependencyContainer
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.handler.CoreSdkHandler
-import com.emarsys.core.provider.timestamp.TimestampProvider
-import com.emarsys.core.provider.uuid.UUIDProvider
-import com.emarsys.core.request.RestClient
-import com.emarsys.core.shard.ShardModel
-import com.emarsys.core.storage.KeyValueStore
-import com.emarsys.core.util.FileDownloader
-import com.emarsys.core.util.log.Logger
+import com.emarsys.fake.FakeEmarsysDependencyContainer
+import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.testUtil.TimeoutUtils
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.timeout
@@ -42,73 +26,14 @@ class FetchRemoteConfigActionTest {
     fun setup() {
         mockConfigInternal = mock()
 
-        DependencyInjection.setup(object : DependencyContainer {
-            override fun getCoreSdkHandler(): CoreSdkHandler {
-                return CoreSdkHandlerProvider().provideHandler()
-            }
-
-            override fun getUiHandler(): Handler {
-                return Handler(Looper.getMainLooper())
-            }
-
-            override fun getActivityLifecycleWatchdog(): ActivityLifecycleWatchdog {
-                return mock()
-            }
-
-            override fun getCurrentActivityWatchdog(): CurrentActivityWatchdog {
-                return mock()
-            }
-
-            override fun getCoreSQLiteDatabase(): CoreSQLiteDatabase {
-                return mock()
-            }
-
-            override fun getDeviceInfo(): DeviceInfo {
-                return mock()
-            }
-
-            override fun getShardRepository(): Repository<ShardModel, SqlSpecification> {
-                return mock()
-            }
-
-            override fun getTimestampProvider(): TimestampProvider {
-                return mock()
-            }
-
-            override fun getUuidProvider(): UUIDProvider {
-                return mock()
-            }
-
-            override fun getLogShardTrigger(): Runnable {
-                return mock()
-            }
-
-            override fun getLogger(): Logger {
-                return mock()
-            }
-
-            override fun getRestClient(): RestClient {
-                return mock()
-            }
-
-            override fun getFileDownloader(): FileDownloader {
-                return mock()
-            }
-
-            override fun getKeyValueStore(): KeyValueStore {
-                return mock()
-        }
-
-            override val dependencies: MutableMap<String, Any?>
-                get() = mock()
-        })
+        setupMobileEngageComponent(FakeEmarsysDependencyContainer())
 
         fetchAction = FetchRemoteConfigAction(mockConfigInternal)
     }
 
     @After
     fun tearDown() {
-        DependencyInjection.tearDown()
+        tearDownMobileEngageComponent()
     }
 
     @Test

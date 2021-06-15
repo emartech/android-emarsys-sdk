@@ -4,7 +4,7 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
-import com.emarsys.core.storage.StringStorage
+import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.session.SessionIdHolder
 
 @Mockable
@@ -15,11 +15,11 @@ data class MobileEngageRequestContext(
         val deviceInfo: DeviceInfo,
         val timestampProvider: TimestampProvider,
         val uuidProvider: UUIDProvider,
-        val clientStateStorage: StringStorage,
-        val contactTokenStorage: StringStorage,
-        val refreshTokenStorage: StringStorage,
-        val contactFieldValueStorage: StringStorage,
-        val pushTokenStorage: StringStorage,
+        val clientStateStorage: Storage<String?>,
+        val contactTokenStorage: Storage<String?>,
+        val refreshTokenStorage: Storage<String?>,
+        val contactFieldValueStorage: Storage<String?>,
+        val pushTokenStorage: Storage<String?>,
         val sessionIdHolder: SessionIdHolder) {
 
     fun hasContactIdentification(): Boolean {

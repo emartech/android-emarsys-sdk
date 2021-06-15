@@ -6,15 +6,15 @@ import android.util.Log
 import com.emarsys.core.Mockable
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
+import com.emarsys.core.di.CoreComponent
+import com.emarsys.core.di.core
 import com.emarsys.core.endpoint.Endpoint.LOG_URL
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.provider.wrapper.WrapperInfoContainer
 import com.emarsys.core.shard.ShardModel
-import com.emarsys.core.storage.StringStorage
+import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.log.LogLevel.*
 import com.emarsys.core.util.log.entry.*
 
@@ -24,7 +24,7 @@ class Logger(
         private val shardRepository: Repository<ShardModel, SqlSpecification>,
         private val timestampProvider: TimestampProvider,
         private val uuidProvider: UUIDProvider,
-        private val logLevelStorage: StringStorage,
+        private val logLevelStorage: Storage<String?>,
         private val verboseConsoleLoggingEnabled: Boolean,
         private val context: Context
 ) {
@@ -39,49 +39,48 @@ class Logger(
 
         @JvmStatic
         fun info(logEntry: LogEntry, strict: Boolean = false) {
-            if (DependencyInjection.isSetup()) {
-
+            if (CoreComponent.isSetup()) {
                 if (strict) {
-                    if (getDependency<Logger>().logLevelStorage.get() == "INFO") {
-                        getDependency<Logger>().handleLog(INFO, logEntry)
+                    if (core().logLevelStorage.get() == "INFO") {
+                        core().logger.handleLog(INFO, logEntry)
                     }
                 } else {
-                    getDependency<Logger>().handleLog(INFO, logEntry)
+                    core().logger.handleLog(INFO, logEntry)
                 }
             }
         }
 
         @JvmStatic
         fun error(logEntry: LogEntry) {
-            if (DependencyInjection.isSetup()) {
-                getDependency<Logger>().handleLog(ERROR, logEntry)
+            if (CoreComponent.isSetup()) {
+                core().logger.handleLog(ERROR, logEntry)
             }
         }
 
         @JvmStatic
         fun debug(logEntry: LogEntry, strict: Boolean = false) {
-            if (DependencyInjection.isSetup()) {
+            if (CoreComponent.isSetup()) {
                 if (strict) {
-                    if (getDependency<Logger>().logLevelStorage.get() == "DEBUG") {
-                        getDependency<Logger>().handleLog(DEBUG, logEntry)
+                    if (core().logger.logLevelStorage.get() == "DEBUG") {
+                        core().logger.handleLog(DEBUG, logEntry)
                     }
                 } else {
-                    getDependency<Logger>().handleLog(DEBUG, logEntry)
+                    core().logger.handleLog(DEBUG, logEntry)
                 }
             }
         }
 
         @JvmStatic
         fun metric(logEntry: LogEntry) {
-            if (DependencyInjection.isSetup()) {
-                getDependency<Logger>().handleLog(METRIC, logEntry)
+            if (CoreComponent.isSetup()) {
+                core().logger.handleLog(METRIC, logEntry)
             }
         }
     }
 
     fun handleLog(logLevel: LogLevel, logEntry: LogEntry, onCompleted: (() -> Unit)? = null) {
         val currentThreadName = Thread.currentThread().name
-        getDependency<CoreSdkHandler>().post {
+        core().coreSdkHandler.post {
             val isDebugMode: Boolean =
                 0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
             if ((verboseConsoleLoggingEnabled || logEntry is MethodNotAllowed) && isDebugMode) {

@@ -2,9 +2,10 @@ package com.emarsys.config
 
 import android.app.Application
 import com.emarsys.core.api.experimental.FlipperFeature
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -55,12 +56,12 @@ class EmarsysConfigTest {
             on { provideEndpointHost() } doReturn INBOX_HOST
         }
         val dependencyContainer = FakeDependencyContainer(
-                clientServiceProvider = mockClientServiceProvider,
-                eventServiceProvider = mockEventServiceProvider,
+                clientServiceEndpointProvider = mockClientServiceProvider,
+                eventServiceEndpointProvider = mockEventServiceProvider,
                 messageInboxServiceProvider = mockMessageInboxServiceProvider
         )
 
-        DependencyInjection.setup(dependencyContainer)
+        setupEmarsysComponent(dependencyContainer)
 
 
         automaticPushTokenSending = true

@@ -3,10 +3,12 @@ package com.emarsys
 import android.os.Looper
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.handler.CoreSdkHandler
+
+
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.emarsys
+import com.emarsys.di.setupEmarsysComponent
+import com.emarsys.di.tearDownEmarsysComponent
 import com.emarsys.predict.Predict
 import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.api.model.CartItem
@@ -52,7 +54,7 @@ class PredictTest {
 
         val dependencyContainer = FakeDependencyContainer(predictInternal = mockPredictInternal)
 
-        DependencyInjection.setup(dependencyContainer)
+        setupEmarsysComponent(dependencyContainer)
 
         predict = Predict()
         mockResultListener = mock()
@@ -64,10 +66,10 @@ class PredictTest {
     @After
     fun tearDown() {
         try {
-            val handler = getDependency<CoreSdkHandler>()
+            val handler = emarsys().coreSdkHandler
             val looper: Looper = handler.looper
             looper.quit()
-            DependencyInjection.tearDown()
+            tearDownEmarsysComponent()
         } catch (e: Exception) {
             e.printStackTrace()
             throw e

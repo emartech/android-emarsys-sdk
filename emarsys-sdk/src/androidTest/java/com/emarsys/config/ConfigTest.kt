@@ -2,9 +2,10 @@ package com.emarsys.config
 
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -53,12 +54,12 @@ class ConfigTest {
         }
         val dependencyContainer = FakeDependencyContainer(
                 configInternal = mockConfigInternal,
-                clientServiceProvider = mockClientServiceProvider,
-                eventServiceProvider = mockEventServiceProvider,
+                clientServiceEndpointProvider = mockClientServiceProvider,
+                eventServiceEndpointProvider = mockEventServiceProvider,
                 messageInboxServiceProvider = mockMessageInboxServiceProvider
         )
 
-        DependencyInjection.setup(dependencyContainer)
+        setupEmarsysComponent(dependencyContainer)
         config = Config()
     }
 

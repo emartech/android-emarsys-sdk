@@ -13,13 +13,12 @@ import androidx.core.content.ContextCompat
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.validate.JsonObjectValidator
 import com.emarsys.mobileengage.api.push.NotificationInformation
-import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
+import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.inbox.InboxParseUtils
 import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
@@ -74,7 +73,7 @@ object MessagingServiceUtils {
         val actions: MutableList<Runnable?> = mutableListOf()
         val campaignId = JSONObject(remoteMessageData["ems"]).optString("multichannelId")
         if (campaignId.isNotEmpty()) {
-            val silentNotificationInformationListenerProvider = DependencyInjection.getContainer<MobileEngageDependencyContainer>().getSilentNotificationInformationListenerProvider()
+            val silentNotificationInformationListenerProvider = mobileEngage().silentNotificationInformationListenerProvider
             actions.add(SilentNotificationInformationCommand(silentNotificationInformationListenerProvider, NotificationInformation(campaignId)))
         }
         if (actionsJsonArray != null) {

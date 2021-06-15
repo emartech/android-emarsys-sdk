@@ -13,14 +13,10 @@ import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.database.repository.Repository
-import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
-import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
@@ -28,8 +24,6 @@ import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
 import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.InAppMessage
-import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
-import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -61,8 +55,8 @@ class InlineInAppView : LinearLayout {
         viewId = attributes.getString(0)
         var webViewFactory: InlineInAppWebViewFactory? = null
         val latch = CountDownLatch(1)
-        getDependency<CoreSdkHandler>().post {
-            webViewFactory = getDependency()
+        mobileEngage().coreSdkHandler.post {
+            webViewFactory = mobileEngage().inlineInAppWebViewFactory
             latch.countDown()
         }
         latch.await()
@@ -88,7 +82,7 @@ class InlineInAppView : LinearLayout {
         this.viewId = viewId
         fetchInlineInAppMessage(viewId) { html ->
             if (html != null) {
-                getDependency<Handler>("uiHandler").post {
+                mobileEngage().uiHandler.post {
                     webView.loadDataWithBaseURL(null, html, "text/html; charset=utf-8", "UTF-8", null)
                 }
             } else {
@@ -98,13 +92,13 @@ class InlineInAppView : LinearLayout {
     }
 
     private fun fetchInlineInAppMessage(viewId: String, callback: (String?) -> Unit) {
-        val requestManager = getDependency<RequestManager>()
-        val requestModelFactory = getDependency<MobileEngageRequestModelFactory>()
+        val requestManager = mobileEngage().requestManager
+        val requestModelFactory = mobileEngage().mobileEngageRequestModelFactory
         val requestModel = requestModelFactory.createFetchInlineInAppMessagesRequest(viewId)
 
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
-                getDependency<CoreSdkHandler>().post {
+                mobileEngage().coreSdkHandler.post {
                     val messageResponseModel = filterMessagesById(responseModel)
                     if (messageResponseModel != null) {
                         val html = messageResponseModel.getString("html")
@@ -118,7 +112,7 @@ class InlineInAppView : LinearLayout {
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
-                getDependency<CoreSdkHandler>().post {
+                mobileEngage().coreSdkHandler.post {
                     onCompletionListener?.onCompleted(
                             ResponseErrorException(
                                     responseModel.statusCode,
@@ -130,7 +124,7 @@ class InlineInAppView : LinearLayout {
             }
 
             override fun onError(id: String, cause: Exception) {
-                getDependency<CoreSdkHandler>().post {
+                mobileEngage().coreSdkHandler.post {
                     onCompletionListener?.onCompleted(cause)
                 }
             }
@@ -152,23 +146,22 @@ class InlineInAppView : LinearLayout {
     private fun createJSBridge(messageResponseModel: JSONObject?) {
         val campaignId = messageResponseModel?.optString("campaignId")
 
-        val instanceType = if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
-            "defaultInstance"
+        val inAppInternal: InAppInternal = if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
+            mobileEngage().inAppInternal
         } else {
-            "loggingInstance"
+            mobileEngage().loggingInAppInternal
         }
-        val inAppInternal: InAppInternal = getDependency(instanceType)
-        val timestampProvider: TimestampProvider = getDependency()
+        val timestampProvider: TimestampProvider =  mobileEngage().timestampProvider
 
-        val buttonClickedRepository = getDependency<Repository<ButtonClicked, SqlSpecification>>("buttonClickedRepository")
+        val buttonClickedRepository = mobileEngage().buttonClickedRepository
 
-        val jsCommandFactory = JSCommandFactory(getDependency(), Handler(Looper.getMainLooper()), getDependency(), inAppInternal,
+        val jsCommandFactory = JSCommandFactory(mobileEngage().currentActivityProvider, Handler(Looper.getMainLooper()), mobileEngage().coreSdkHandler, inAppInternal,
                 buttonClickedRepository, onCloseListener, onAppEventListener, timestampProvider)
-        val jsBridgeFactory: IamJsBridgeFactory = getDependency()
+        val jsBridgeFactory: IamJsBridgeFactory = mobileEngage().iamJsBridgeFactory
 
         val jsBridge = jsBridgeFactory.createJsBridge(jsCommandFactory, InAppMessage(campaignId!!, null, null))
         val latch = CountDownLatch(1)
-        getDependency<Handler>("uiHandler").post {
+        mobileEngage().uiHandler.post {
             webView.addJavascriptInterface(jsBridge, "Android")
             latch.countDown()
         }

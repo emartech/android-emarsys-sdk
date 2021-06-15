@@ -37,8 +37,8 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockRestClient: RestClient
-    private lateinit var mockContactTokenStorage: Storage<String>
-    private lateinit var mockPushTokenStorage: Storage<String>
+    private lateinit var mockContactTokenStorage: Storage<String?>
+    private lateinit var mockPushTokenStorage: Storage<String?>
     private lateinit var mockRequestModelHelper: RequestModelHelper
 
     @Before

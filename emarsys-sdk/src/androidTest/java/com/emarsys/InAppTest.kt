@@ -2,14 +2,15 @@ package com.emarsys
 
 import android.app.Application
 import android.os.Looper
-import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.activity.CurrentActivityWatchdog
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.handler.CoreSdkHandler
+
+
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.emarsys
+import com.emarsys.di.setupEmarsysComponent
+import com.emarsys.di.tearDownEmarsysComponent
 import com.emarsys.inapp.InApp
 import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
@@ -38,18 +39,19 @@ class InAppTest {
         mockInAppInternal = mock()
         val dependencyContainer = FakeDependencyContainer(inAppInternal = mockInAppInternal)
 
-        DependencyInjection.setup(dependencyContainer)
+        setupEmarsysComponent(dependencyContainer)
         inApp = InApp()
     }
 
     @After
     fun tearDown() {
-        application.unregisterActivityLifecycleCallbacks(getDependency<ActivityLifecycleWatchdog>())
-        application.unregisterActivityLifecycleCallbacks(getDependency<CurrentActivityWatchdog>())
+        application.unregisterActivityLifecycleCallbacks(
+                mobileEngage().activityLifecycleWatchdog)
+        application.unregisterActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
         try {
-            val looper: Looper = getDependency<CoreSdkHandler>().looper
+            val looper: Looper = emarsys().coreSdkHandler.looper
             looper.quitSafely()
-            DependencyInjection.tearDown()
+            tearDownEmarsysComponent()
         } catch (e: Exception) {
             e.printStackTrace()
             throw e

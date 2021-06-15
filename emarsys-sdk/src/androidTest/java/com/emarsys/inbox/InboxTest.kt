@@ -3,8 +3,9 @@ package com.emarsys.inbox
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.inbox.Notification
 import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
 import com.emarsys.mobileengage.inbox.InboxInternal
@@ -32,7 +33,7 @@ class InboxTest {
 
         val dependencyContainer = FakeDependencyContainer(inboxInternal = mockInboxInternal)
 
-        DependencyInjection.setup(dependencyContainer)
+        setupEmarsysComponent(dependencyContainer)
         inbox = Inbox()
     }
 

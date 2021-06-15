@@ -3,32 +3,33 @@ package com.emarsys.config
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.getDependency
+import com.emarsys.di.emarsys
+
 @Mockable
 class Config : ConfigApi {
     override val contactFieldId: Int
-        get() = getDependency<ConfigInternal>().contactFieldId
+        get() = emarsys().configInternal.contactFieldId
 
     override val applicationCode: String?
-        get() = getDependency<ConfigInternal>().applicationCode
+        get() = emarsys().configInternal.applicationCode
 
     override val merchantId: String?
-        get() = getDependency<ConfigInternal>().merchantId
+        get() = emarsys().configInternal.merchantId
 
     override val hardwareId: String
-        get() = getDependency<ConfigInternal>().hardwareId
+        get() = emarsys().configInternal.hardwareId
 
     override val language: String
-        get() = getDependency<ConfigInternal>().language
+        get() = emarsys().configInternal.language
 
     override val notificationSettings: NotificationSettings
-        get() = getDependency<ConfigInternal>().notificationSettings
+        get() = emarsys().configInternal.notificationSettings
 
     override val isAutomaticPushSendingEnabled: Boolean
-        get() = getDependency<ConfigInternal>().isAutomaticPushSendingEnabled
+        get() = emarsys().configInternal.isAutomaticPushSendingEnabled
 
     override val sdkVersion: String
-        get() = getDependency<ConfigInternal>().sdkVersion
+        get() = emarsys().configInternal.sdkVersion
 
     override fun changeApplicationCode(applicationCode: String?) {
         changeApplicationCode(applicationCode, contactFieldId)
@@ -47,7 +48,7 @@ class Config : ConfigApi {
     }
 
     override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: CompletionListener?) {
-        getDependency<ConfigInternal>()
+        emarsys().configInternal
                 .changeApplicationCode(applicationCode, contactFieldId, completionListener)
     }
 
@@ -56,7 +57,7 @@ class Config : ConfigApi {
     }
 
     override fun changeMerchantId(merchantId: String?) {
-        getDependency<ConfigInternal>()
+        emarsys().configInternal
                 .changeMerchantId(merchantId)
     }
 }

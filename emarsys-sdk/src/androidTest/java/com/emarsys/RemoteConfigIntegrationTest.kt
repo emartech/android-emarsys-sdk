@@ -1,13 +1,10 @@
 package com.emarsys
 
 import android.app.Application
-import com.emarsys.config.ConfigInternal
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.core.di.DependencyContainer
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
-import com.emarsys.core.endpoint.ServiceEndpointProvider
-import com.emarsys.mobileengage.endpoint.Endpoint
+
+
+import com.emarsys.di.emarsys
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import io.kotlintest.shouldBe
@@ -64,16 +61,15 @@ class RemoteConfigIntegrationTest {
 
     @Test
     fun testRemoteConfig() {
-        val coreSdkHandler = DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler()
+        val coreSdkHandler = emarsys().coreSdkHandler
         coreSdkHandler.post {
             coreSdkHandler.post {
-                getDependency<ConfigInternal>().refreshRemoteConfig { latch.countDown() }
+                emarsys().configInternal.refreshRemoteConfig { latch.countDown() }
             }
         }
         latch.await()
-
-        val clientServiceEndpointHost = getDependency<ServiceEndpointProvider>(Endpoint.ME_CLIENT_HOST).provideEndpointHost()
-        val eventServiceEndpointHost = getDependency<ServiceEndpointProvider>(Endpoint.ME_EVENT_HOST).provideEndpointHost()
+        val clientServiceEndpointHost = emarsys().clientServiceEndpointProvider.provideEndpointHost()
+        val eventServiceEndpointHost = emarsys().eventServiceEndpointProvider.provideEndpointHost()
         clientServiceEndpointHost shouldBe "https://me-client-staging.eservice.emarsys.com"
         eventServiceEndpointHost shouldBe "https://mobile-events-staging.eservice.emarsys.com"
     }

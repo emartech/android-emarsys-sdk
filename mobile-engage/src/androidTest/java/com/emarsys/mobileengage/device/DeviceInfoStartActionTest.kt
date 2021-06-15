@@ -1,9 +1,10 @@
 package com.emarsys.mobileengage.device
 
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.client.ClientServiceInternal
+import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
 import com.emarsys.testUtil.SharedPrefsUtils
@@ -36,7 +37,7 @@ class DeviceInfoStartActionTest {
         mockClientServiceInternal = mock()
         mockDeviceInfo = mock()
 
-        DependencyInjection.setup(FakeMobileEngageDependencyContainer())
+        setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
 
         startAction = DeviceInfoStartAction(mockClientServiceInternal, deviceInfoPayloadStorage, mockDeviceInfo)
 
@@ -45,7 +46,7 @@ class DeviceInfoStartActionTest {
     @After
     fun tearDown() {
         SharedPrefsUtils.clearSharedPrefs("emarsys_secure_shared_preferences")
-        DependencyInjection.tearDown()
+        tearDownMobileEngageComponent()
     }
 
     @Test

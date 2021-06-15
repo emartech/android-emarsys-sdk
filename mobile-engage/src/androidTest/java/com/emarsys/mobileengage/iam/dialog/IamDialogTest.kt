@@ -10,9 +10,10 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
-import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.log.entry.InAppLoadingTime
+import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.iam.dialog.IamDialog.Companion.create
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
@@ -56,7 +57,7 @@ class IamDialogTest {
     @Throws(InterruptedException::class)
     fun setUp() {
         mockTimestampProvider = mock()
-        DependencyInjection.setup(FakeMobileEngageDependencyContainer(timestampProvider = mockTimestampProvider))
+        setupMobileEngageComponent(FakeMobileEngageDependencyContainer(timestampProvider = mockTimestampProvider))
         activityRule.activity.runOnUiThread {
             dialog = spy(TestIamDialog.create(
                     CAMPAIGN_ID,
@@ -74,7 +75,7 @@ class IamDialogTest {
     @After
     @Throws(Exception::class)
     fun tearDown() {
-        DependencyInjection.tearDown()
+        tearDownMobileEngageComponent()
         setWebViewInProvider(null)
     }
 

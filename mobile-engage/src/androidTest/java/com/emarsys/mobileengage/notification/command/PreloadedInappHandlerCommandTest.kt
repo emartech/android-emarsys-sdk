@@ -5,10 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.util.FileDownloader
-import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
+import com.emarsys.mobileengage.di.MobileEngageComponent
+import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
@@ -30,7 +32,7 @@ class PreloadedInappHandlerCommandTest {
         private const val URL = "https://www.google.com"
     }
 
-    private lateinit var mockDependencyContainer: MobileEngageDependencyContainer
+    private lateinit var mockDependencyContainer: MobileEngageComponent
     private lateinit var mockActivityLifecycleWatchdog: ActivityLifecycleWatchdog
     private lateinit var mockCoreSdkHandler: CoreSdkHandler
     private lateinit var fileUrl: String
@@ -61,7 +63,7 @@ class PreloadedInappHandlerCommandTest {
                 fileDownloader = mockFileDownloader
         )
 
-        DependencyInjection.setup(mockDependencyContainer)
+        setupMobileEngageComponent(mockDependencyContainer)
 
     }
 
@@ -69,7 +71,7 @@ class PreloadedInappHandlerCommandTest {
     fun tearDown() {
         application.unregisterActivityLifecycleCallbacks(mockActivityLifecycleWatchdog)
         mockCoreSdkHandler.looper.quitSafely()
-        DependencyInjection.tearDown()
+        tearDownMobileEngageComponent()
     }
 
     @Test

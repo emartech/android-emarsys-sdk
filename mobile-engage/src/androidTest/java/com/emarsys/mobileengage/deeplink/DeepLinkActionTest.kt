@@ -2,8 +2,8 @@ package com.emarsys.mobileengage.deeplink
 
 import android.app.Activity
 import android.content.Intent
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-import com.emarsys.core.di.DependencyInjection
+import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.util.waitForTask
 import com.emarsys.testUtil.TimeoutUtils
@@ -36,7 +36,7 @@ class DeepLinkActionTest {
     @Before
     fun setUp() {
 
-        DependencyInjection.setup(FakeMobileEngageDependencyContainer(coreSdkHandler = CoreSdkHandlerProvider().provideHandler()))
+        setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
 
         deepLinkInternal = mock()
         action = DeepLinkAction(deepLinkInternal)
@@ -44,7 +44,7 @@ class DeepLinkActionTest {
 
     @After
     fun tearDown() {
-        DependencyInjection.tearDown()
+        tearDownMobileEngageComponent()
     }
 
     @Test

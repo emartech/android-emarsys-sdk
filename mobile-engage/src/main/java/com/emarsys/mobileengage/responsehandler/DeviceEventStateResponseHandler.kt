@@ -4,11 +4,11 @@ import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.core.storage.StringStorage
+import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.util.RequestModelHelper
 
 class DeviceEventStateResponseHandler(
-    private val deviceEventStateStorage: StringStorage,
+    private val deviceEventStateStorage: Storage<String?>,
     private val requestModelHelper: RequestModelHelper
 ) : AbstractResponseHandler() {
 

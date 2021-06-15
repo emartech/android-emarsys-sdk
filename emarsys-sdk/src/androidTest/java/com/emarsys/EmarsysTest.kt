@@ -49,9 +49,6 @@ import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerType
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.di.DependencyContainer
-import com.emarsys.core.di.DependencyInjection
-import com.emarsys.core.di.getDependency
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
@@ -59,8 +56,8 @@ import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.deeplink.DeepLinkApi
-import com.emarsys.di.DefaultEmarsysDependencyContainer
-import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.*
+
 import com.emarsys.eventservice.EventServiceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.InboxApi
@@ -246,7 +243,7 @@ class EmarsysTest {
 
             whenever(mockDeviceInfoPayloadStorage.get()).thenReturn("deviceInfo.deviceInfoPayload")
 
-            DependencyInjection.setup(
+            setupEmarsysComponent(
                     FakeDependencyContainer(
                             activityLifecycleWatchdog = activityLifecycleWatchdog,
                             currentActivityWatchdog = currentActivityWatchdog,
@@ -259,8 +256,8 @@ class EmarsysTest {
                             loggingDeepLinkInternal = mockDeepLinkInternal,
                             eventServiceInternal = mockEventServiceInternal,
                             loggingEventServiceInternal = mockEventServiceInternal,
-                            clientServiceApi = mockClientServiceApi,
-                            loggingClientServiceApi = mockClientServiceApi,
+                            clientService = mockClientServiceApi,
+                            loggingClientService = mockClientServiceApi,
                             requestContext = mockRequestContext,
                             predictShardTrigger = mockPredictShardTrigger,
                             deviceInfoPayloadStorage = mockDeviceInfoPayloadStorage,
@@ -268,8 +265,8 @@ class EmarsysTest {
                             contactTokenStorage = mockContactTokenStorage,
                             clientStateStorage = mockClientStateStorage,
                             responseHandlersProcessor = ResponseHandlersProcessor(ArrayList()),
-                            mobileEngageApi = mockMobileEngageApi,
-                            loggingMobileEngageApi = mockLoggingMobileEngageApi,
+                            mobileEngage = mockMobileEngageApi,
+                            loggingMobileEngage = mockLoggingMobileEngageApi,
                             inbox = mockInbox,
                             inApp = mockInApp,
                             loggingInApp = mockLoggingInApp,
@@ -279,10 +276,10 @@ class EmarsysTest {
                             predictRestricted = mockPredictRestricted,
                             loggingPredictRestricted = mockPredictRestricted,
                             config = mockConfig,
-                            eventServiceApi = mockEventServiceApi,
-                            loggingEventServiceApi = mockLoggingEventServiceApi,
-                            deepLinkApi = mockDeepLinkApi,
-                            loggingDeepLinkApi = mockLoggingDeepLinkApi,
+                            eventService = mockEventServiceApi,
+                            loggingEventService = mockLoggingEventServiceApi,
+                            deepLink = mockDeepLinkApi,
+                            loggingDeepLink = mockLoggingDeepLinkApi,
                             logger = mock()
                     )
             )
@@ -346,9 +343,9 @@ class EmarsysTest {
 
         setup(baseConfig)
 
-        val container = DependencyInjection.getContainer<DependencyContainer>()
-        Assert.assertEquals(DefaultEmarsysDependencyContainer::class.java, container.javaClass)
-        Assert.assertEquals(container.dependencies.isNotEmpty(), true)
+        val container = emarsys()
+        Assert.assertEquals(DefaultEmarsysComponent::class.java, container.javaClass)
+        Assert.assertEquals(isEmarsysComponentSetup(), true)
     }
 
     @Test
@@ -359,9 +356,7 @@ class EmarsysTest {
 
         var repository: Any? = null
         runBlockingOnCoreSdkThread {
-            val requestManager: RequestManager? = getInstanceField(
-                    getDependency<MobileEngageInternal>("defaultInstance"),
-                    "requestManager")
+            val requestManager: RequestManager? = emarsys().requestManager
             repository = getInstanceField<Any>(
                     requestManager!!,
                     "requestRepository")
@@ -376,7 +371,7 @@ class EmarsysTest {
         setup(mobileEngageConfig)
 
         runBlockingOnCoreSdkThread {
-            val responseHandlersProcessor = getDependency<ResponseHandlersProcessor>()
+            val responseHandlersProcessor = emarsys().responseHandlersProcessor
 
             Assert.assertNotNull(responseHandlersProcessor)
             Assert.assertEquals(11, responseHandlersProcessor.responseHandlers.size.toLong())
@@ -1375,7 +1370,7 @@ class EmarsysTest {
     private fun runBlockingOnCoreSdkThread(callback: (() -> Unit)? = null) {
         val latch = CountDownLatch(1)
         var exception: Exception? = null
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().post {
+        emarsys().coreSdkHandler.post {
             try {
                 callback?.invoke()
             } catch (e: Exception) {

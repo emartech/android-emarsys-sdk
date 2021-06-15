@@ -1,8 +1,9 @@
 package com.emarsys.core.api
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-import com.emarsys.core.di.DependencyInjection
 import com.emarsys.core.di.FakeCoreDependencyContainer
+import com.emarsys.core.di.setupCoreComponent
+import com.emarsys.core.di.tearDownCoreComponent
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
@@ -34,12 +35,12 @@ class LogExceptionProxyTest {
 
         val dependencyContainer = FakeCoreDependencyContainer(coreSdkHandler = coreSdkHandler, logger = mockLogger)
 
-        DependencyInjection.setup(dependencyContainer)
+        setupCoreComponent(dependencyContainer)
     }
 
     @After
     fun tearDown() {
-        DependencyInjection.tearDown()
+        tearDownCoreComponent()
     }
 
     @Test

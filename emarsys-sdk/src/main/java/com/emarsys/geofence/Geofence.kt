@@ -2,39 +2,38 @@ package com.emarsys.geofence
 
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.getDependency
 import com.emarsys.mobileengage.api.event.EventHandler
-import com.emarsys.mobileengage.geofence.GeofenceInternal
+import com.emarsys.mobileengage.di.mobileEngage
 
 @Mockable
 class Geofence(private val loggingInstance: Boolean = false) : GeofenceApi {
     override fun enable() {
-        (if (loggingInstance) getDependency<GeofenceInternal>("loggingInstance") else getDependency<GeofenceInternal>("defaultInstance"))
+        (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
                 .enable(null)
     }
 
     override fun enable(completionListener: CompletionListener) {
-        (if (loggingInstance) getDependency<GeofenceInternal>("loggingInstance") else getDependency<GeofenceInternal>("defaultInstance"))
+        (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
                 .enable(completionListener)
     }
 
     override fun isEnabled(): Boolean {
-       return (if (loggingInstance) getDependency<GeofenceInternal>("loggingInstance") else getDependency<GeofenceInternal>("defaultInstance"))
+       return (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
                 .isEnabled()
     }
 
     override fun enable(completionListener: (Throwable?) -> Unit) {
-        (if (loggingInstance) getDependency<GeofenceInternal>("loggingInstance") else getDependency<GeofenceInternal>("defaultInstance"))
+        (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
                 .enable(CompletionListener { completionListener.invoke(it) })
     }
 
     override fun disable() {
-        (if (loggingInstance) getDependency<GeofenceInternal>("loggingInstance") else getDependency<GeofenceInternal>("defaultInstance"))
+        (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
                 .disable()
     }
 
     override fun setEventHandler(eventHandler: EventHandler) {
-        (if (loggingInstance) getDependency<GeofenceInternal>("loggingInstance") else getDependency<GeofenceInternal>("defaultInstance"))
+        (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
                 .setEventHandler(eventHandler)
     }
 }

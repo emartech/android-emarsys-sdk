@@ -1,8 +1,9 @@
 package com.emarsys.mobileengage
 
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -26,7 +27,7 @@ class MobileEngageTest {
         mockCompletionListener = mock()
         mobileEngageApi = MobileEngage()
 
-        DependencyInjection.setup(FakeDependencyContainer(mobileEngageInternal = mockMobileEngageInternal))
+        setupEmarsysComponent(FakeDependencyContainer(mobileEngageInternal = mockMobileEngageInternal))
     }
 
     @After

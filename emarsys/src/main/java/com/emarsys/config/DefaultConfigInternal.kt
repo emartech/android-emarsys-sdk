@@ -15,7 +15,7 @@ import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.core.storage.StringStorage
+import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.client.ClientServiceInternal
@@ -33,14 +33,14 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val requestManager: RequestManager,
                             private val emarsysRequestModelFactory: EmarsysRequestModelFactory,
                             private val configResponseMapper: RemoteConfigResponseMapper,
-                            private val clientServiceStorage: StringStorage,
-                            private val eventServiceStorage: StringStorage,
-                            private val deeplinkServiceStorage: StringStorage,
-                            private val inboxServiceStorage: StringStorage,
-                            private val mobileEngageV2ServiceStorage: StringStorage,
-                            private val predictServiceStorage: StringStorage,
-                            private val messageInboxServiceStorage: StringStorage,
-                            private val logLevelStorage: StringStorage,
+                            private val clientServiceStorage: Storage<String?>,
+                            private val eventServiceStorage: Storage<String?>,
+                            private val deeplinkServiceStorage: Storage<String?>,
+                            private val inboxServiceStorage: Storage<String?>,
+                            private val mobileEngageV2ServiceStorage: Storage<String?>,
+                            private val predictServiceStorage: Storage<String?>,
+                            private val messageInboxServiceStorage: Storage<String?>,
+                            private val logLevelStorage: Storage<String?>,
                             private val crypto: Crypto,
                             private val clientServiceInternal: ClientServiceInternal) : ConfigInternal {
 

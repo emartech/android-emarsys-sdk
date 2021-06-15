@@ -3,9 +3,9 @@ package com.emarsys.mobileengage.service
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-import com.emarsys.core.di.DependencyContainer
-import com.emarsys.core.di.DependencyInjection
+import com.emarsys.mobileengage.di.mobileEngage
+import com.emarsys.mobileengage.di.setupMobileEngageComponent
+import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.notification.NotificationCommandFactory
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -36,13 +36,13 @@ class NotificationActionUtilsTest {
     @Before
     fun init() {
             context = getTargetContext().applicationContext
-            DependencyInjection.setup(FakeMobileEngageDependencyContainer(CoreSdkHandlerProvider().provideHandler()))
+        setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
     }
 
     @After
     fun tearDown() {
-        DependencyInjection.getContainer<DependencyContainer>().getCoreSdkHandler().looper.quit()
-        DependencyInjection.tearDown()
+        mobileEngage().coreSdkHandler.looper.quitSafely()
+        tearDownMobileEngageComponent()
     }
 
     @Test

@@ -3,8 +3,9 @@ package com.emarsys.deeplink
 import android.app.Activity
 import android.content.Intent
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.di.FakeDependencyContainer
+import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.nhaarman.mockitokotlin2.mock
@@ -27,7 +28,7 @@ class DeepLinkTest {
         mockDeepLinkInternal = mock()
         deeplinkApi = DeepLink()
 
-        DependencyInjection.setup(FakeDependencyContainer(
+        setupEmarsysComponent(FakeDependencyContainer(
                 deepLinkInternal = mockDeepLinkInternal,
                 loggingDeepLinkInternal = mockDeepLinkInternal))
     }

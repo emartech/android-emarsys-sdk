@@ -3,11 +3,10 @@ package com.emarsys.config
 import android.app.Application
 import android.content.Context
 import com.emarsys.core.api.experimental.FlipperFeature
-import com.emarsys.core.di.DependencyContainer
-import com.emarsys.core.di.DependencyInjection
+
 import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.api.NotificationEventHandler
-import com.emarsys.mobileengage.di.MobileEngageDependencyContainer
+import com.emarsys.mobileengage.di.mobileEngage
 import org.json.JSONObject
 
 data class EmarsysConfig internal constructor(val application: Application,
@@ -30,7 +29,7 @@ data class EmarsysConfig internal constructor(val application: Application,
             return if (inputInAppEventHandler == null) {
                 null
             } else EventHandler { eventName, payload ->
-                val currentActivityProvider = (DependencyInjection.getContainer<DependencyContainer>() as MobileEngageDependencyContainer).getCurrentActivityProvider()
+                val currentActivityProvider = mobileEngage().currentActivityProvider
                 val currentActivity = currentActivityProvider.get()
                 if (currentActivity != null) {
                     inputInAppEventHandler.handleEvent(currentActivity, eventName, payload)

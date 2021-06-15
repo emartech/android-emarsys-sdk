@@ -9,8 +9,9 @@ class ContactTokenHeaderMapper(override val requestContext: MobileEngageRequestC
 
     override fun createHeaders(requestModel: RequestModel): Map<String, String> {
         val headers: MutableMap<String, String> = requestModel.headers.toMutableMap()
-
-        headers["X-Contact-Token"] = requestContext.contactTokenStorage.get()
+        requestContext.contactTokenStorage.get()?.let {
+            headers["X-Contact-Token"] = it
+        }
         return headers
     }
 
