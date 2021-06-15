@@ -17,8 +17,10 @@ class InlineInAppFragment : Fragment() {
         val TAG: String = InlineInAppFragment::class.java.simpleName
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_inline_in_app, container, false)
     }
 
@@ -48,6 +50,9 @@ class InlineInAppFragment : Fragment() {
             val inlineInApp = InlineInAppView(it.context)
             inlineInApp.onCloseListener = {
                 inlineInApp.visibility = View.GONE
+            }
+            inlineInApp.onCompletionListener = CompletionListener { throwable ->
+                Log.e("InlineInApp", "error", throwable)
             }
             inlineInAppContainer.addView(inlineInApp)
             inlineInAppContainer.invalidate()
