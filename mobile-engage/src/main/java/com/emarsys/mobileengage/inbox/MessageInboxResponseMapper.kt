@@ -27,6 +27,7 @@ class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
                     val inboxMessage = inboxMessage(inboxMessageResponse)
                     inboxMessages.add(inboxMessage)
                 } catch (ignored: JSONException) {
+                    ignored.printStackTrace()
                 }
             }
         }
@@ -52,7 +53,11 @@ class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
             if (inboxMessageResponse.isNull("properties")) null else JsonUtils.toFlatMap(
                 inboxMessageResponse.getJSONObject("properties")
             ),
-            inboxMessageResponse.optJSONArray("actions")?.let { it.toMutableList().mapNotNull { jsonObject -> createActionModel(jsonObject) }}
+            inboxMessageResponse.optJSONObject("ems")
+                ?.optJSONArray("actions")
+                ?.let {
+                    it.toMutableList().mapNotNull { jsonObject -> createActionModel(jsonObject) }
+                }
         )
     }
 

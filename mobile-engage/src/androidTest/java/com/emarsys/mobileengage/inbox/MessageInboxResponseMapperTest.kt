@@ -153,24 +153,26 @@ class MessageInboxResponseMapperTest {
           "sourceId": 1234, 
           "sourceRunId": "1234",
           "sourceType": "push",
-          "actions": [
-            {
-                "id": "testId1",
-                "title": "testTitle1",
-                "type": "MEAppEvent",
-                "name": "testName1",
-                "payload": {
-                    "testKey1": "testValue1",
-                    "testKey2": "testValue2"
+          "ems":{
+              "actions": [
+                {
+                    "id": "testId1",
+                    "title": "testTitle1",
+                    "type": "MEAppEvent",
+                    "name": "testName1",
+                    "payload": {
+                        "testKey1": "testValue1",
+                        "testKey2": "testValue2"
+                    }
+                },
+                {
+                    "id": "testId2",
+                    "title": "testTitle2",
+                    "type": "OpenExternalUrl",
+                    "url": "https://www.test.com"
                 }
-            },
-            {
-                "id": "testId2",
-                "title": "testTitle2",
-                "type": "OpenExternalUrl",
-                "url": "https://www.test.com"
-            }
-          ]
+              ]
+          }
         }"""
         val notificationString2 = """
         {
@@ -190,23 +192,25 @@ class MessageInboxResponseMapperTest {
           "sourceId": 1234,
           "sourceRunId": "1234",
           "sourceType": "push",
-          "actions": [
-            {
-                "id": "testId3",
-                "title": "testTitle3",
-                "type": "MECustomEvent",
-                "name": "testName3",
-                "payload": {
-                    "testKey3": "testValue3",
-                    "testKey4": "testValue4"
+          "ems": {
+              "actions": [
+                {
+                    "id": "testId3",
+                    "title": "testTitle3",
+                    "type": "MECustomEvent",
+                    "name": "testName3",
+                    "payload": {
+                        "testKey3": "testValue3",
+                        "testKey4": "testValue4"
+                    }
+                },
+                {
+                    "id": "testId4",
+                    "title": "testTitle4",
+                    "type": "Dismiss"
                 }
-            },
-            {
-                "id": "testId4",
-                "title": "testTitle4",
-                "type": "Dismiss"
-            }
-          ]
+              ]
+          }
         }"""
         val notificationString3 = """
         {
