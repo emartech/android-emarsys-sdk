@@ -11,7 +11,7 @@ core-api:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: athene
+    - model: harpia
       version: 23
       locale: 'en'
       orientation: portrait
@@ -23,7 +23,7 @@ core-api:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: sailfish
+    - model: HWCOR
       version: 27
       locale: 'en'
       orientation: portrait
@@ -53,7 +53,7 @@ core:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: athene
+    - model: harpia
       version: 23
       locale: 'en'
       orientation: portrait
@@ -65,7 +65,7 @@ core:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: sailfish
+    - model: HWCOR
       version: 27
       locale: 'en'
       orientation: portrait
@@ -95,7 +95,7 @@ mobile-engage-api:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: athene
+    - model: harpia
       version: 23
       locale: 'en'
       orientation: portrait
@@ -107,7 +107,7 @@ mobile-engage-api:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: sailfish
+    - model: HWCOR
       version: 27
       locale: 'en'
       orientation: portrait
@@ -137,7 +137,7 @@ mobile-engage:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: athene
+    - model: harpia
       version: 23
       locale: 'en'
       orientation: portrait
@@ -149,7 +149,7 @@ mobile-engage:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: sailfish
+    - model: HWCOR
       version: 27
       locale: 'en'
       orientation: portrait
@@ -179,7 +179,7 @@ predict-api:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: athene
+    - model: harpia
       version: 23
       locale: 'en'
       orientation: portrait
@@ -191,7 +191,7 @@ predict-api:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: sailfish
+    - model: HWCOR
       version: 27
       locale: 'en'
       orientation: portrait
@@ -221,7 +221,7 @@ predict:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: athene
+    - model: harpia
       version: 23
       locale: 'en'
       orientation: portrait
@@ -233,7 +233,7 @@ predict:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: sailfish
+    - model: HWCOR
       version: 27
       locale: 'en'
       orientation: portrait
@@ -263,7 +263,7 @@ emarsys-sdk:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: athene
+    - model: harpia
       version: 23
       locale: 'en'
       orientation: portrait
@@ -275,7 +275,7 @@ emarsys-sdk:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: sailfish
+    - model: HWCOR
       version: 27
       locale: 'en'
       orientation: portrait
@@ -305,7 +305,7 @@ emarsys:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: athene
+    - model: harpia
       version: 23
       locale: 'en'
       orientation: portrait
@@ -317,7 +317,7 @@ emarsys:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: sailfish
+    - model: HWCOR
       version: 27
       locale: 'en'
       orientation: portrait
@@ -347,7 +347,7 @@ common:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: athene
+    - model: harpia
       version: 23
       locale: 'en'
       orientation: portrait
@@ -359,7 +359,7 @@ common:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: sailfish
+    - model: HWCOR
       version: 27
       locale: 'en'
       orientation: portrait
@@ -389,7 +389,7 @@ emarsys-firebase:
       version: 22
       locale: 'en'
       orientation: portrait
-    - model: athene
+    - model: harpia
       version: 23
       locale: 'en'
       orientation: portrait
@@ -401,7 +401,7 @@ emarsys-firebase:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: sailfish
+    - model: HWCOR
       version: 27
       locale: 'en'
       orientation: portrait
