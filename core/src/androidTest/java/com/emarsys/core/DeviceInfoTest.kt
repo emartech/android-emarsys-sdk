@@ -40,6 +40,7 @@ class DeviceInfoTest {
         private const val HARDWARE_ID = "hwid"
         private const val SDK_VERSION = "sdkVersion"
         private const val LANGUAGE = "en-US"
+        private const val APP_VERSION = "2.0"
     }
 
     private lateinit var deviceInfo: DeviceInfo
@@ -148,7 +149,12 @@ class DeviceInfoTest {
     @Test
     fun testIsDebugMode_withReleaseApplication() {
         val mockReleaseContext = applicationRelease
-        val releaseDeviceInfo = DeviceInfo(mockReleaseContext, mockHardwareIdProvider, mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true)
+        val releaseDeviceInfo = DeviceInfo(mockReleaseContext,
+                mockHardwareIdProvider,
+                mockVersionProvider,
+                mockLanguageProvider,
+                mockNotificationManagerHelper,
+                true)
         releaseDeviceInfo.isDebugMode.shouldBeFalse()
     }
 
@@ -167,7 +173,27 @@ class DeviceInfoTest {
 
     @Test
     fun testGetDeviceInfoPayload_shouldEqualPayload() {
-        whenever(mockNotificationManagerHelper.channelSettings).thenReturn(listOf(ChannelSettings(channelId = "channelId")))
+        val packageName = "packageName"
+        val mockContext = Mockito.mock(Context::class.java)
+        val packageInfo = PackageInfo()
+        val packageManager = Mockito.mock(PackageManager::class.java)
+        packageInfo.versionName = APP_VERSION
+        whenever(mockContext.contentResolver).thenReturn(getTargetContext().contentResolver)
+        whenever(mockContext.packageName).thenReturn(packageName)
+        whenever(mockContext.packageManager).thenReturn(packageManager)
+        whenever(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo)
+        whenever(mockContext.applicationInfo).thenReturn(Mockito.mock(ApplicationInfo::class.java))
+
+        deviceInfo = DeviceInfo(mockContext, mockHardwareIdProvider, mockVersionProvider,
+                mockLanguageProvider, mockNotificationManagerHelper, true)
+
+        whenever(mockNotificationManagerHelper.channelSettings).thenReturn(
+                listOf(
+                        ChannelSettings(
+                                channelId = "channelId"
+                        )
+                )
+        )
 
         var channelSettings = """
         channelSettings: [
@@ -197,7 +223,8 @@ class DeviceInfoTest {
                   "model": "${Build.MODEL}",
                   "osVersion": "${Build.VERSION.RELEASE}",
                   "displayMetrics": "${Resources.getSystem().displayMetrics.widthPixels}x${Resources.getSystem().displayMetrics.heightPixels}",
-                  "sdkVersion": "sdkVersion"
+                  "sdkVersion": "sdkVersion",
+                  "appVersion": "$APP_VERSION" 
                 }""").toString()
         deviceInfo.deviceInfoPayload shouldBe expectedPayload
     }

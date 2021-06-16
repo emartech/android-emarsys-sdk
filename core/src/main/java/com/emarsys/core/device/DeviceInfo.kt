@@ -16,12 +16,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Mockable
-data class DeviceInfo(private val context: Context,
-                      private val hardwareIdProvider: HardwareIdProvider,
-                      private val versionProvider: VersionProvider,
-                      private val languageProvider: LanguageProvider,
-                      val notificationSettings: NotificationSettings,
-                      val isAutomaticPushSendingEnabled: Boolean) {
+data class DeviceInfo(
+        private val context: Context,
+        private val hardwareIdProvider: HardwareIdProvider,
+        private val versionProvider: VersionProvider,
+        private val languageProvider: LanguageProvider,
+        val notificationSettings: NotificationSettings,
+        val isAutomaticPushSendingEnabled: Boolean
+) {
 
     companion object {
         const val UNKNOWN_VERSION_NAME = "unknown"
@@ -51,33 +53,38 @@ data class DeviceInfo(private val context: Context,
         }
 
     val deviceInfoPayload: String
-        get() = JSONObject(mapOf(
-                "notificationSettings" to mapOf(
-                        parseChannelSettings(),
-                        "importance" to notificationSettings.importance,
-                        "areNotificationsEnabled" to notificationSettings.areNotificationsEnabled()
-                ),
-                "hwid" to hardwareId,
-                "platform" to platform,
-                "language" to language,
-                "timezone" to timezone,
-                "manufacturer" to manufacturer,
-                "model" to model,
-                "osVersion" to osVersion,
-                "displayMetrics" to "${displayMetrics.widthPixels}x${displayMetrics.heightPixels}",
-                "sdkVersion" to sdkVersion
-        )).toString()
+        get() = JSONObject(
+                mapOf(
+                        "notificationSettings" to mapOf(
+                                parseChannelSettings(),
+                                "importance" to notificationSettings.importance,
+                                "areNotificationsEnabled" to notificationSettings.areNotificationsEnabled()
+                        ),
+                        "hwid" to hardwareId,
+                        "platform" to platform,
+                        "language" to language,
+                        "timezone" to timezone,
+                        "manufacturer" to manufacturer,
+                        "model" to model,
+                        "osVersion" to osVersion,
+                        "displayMetrics" to "${displayMetrics.widthPixels}x${displayMetrics.heightPixels}",
+                        "sdkVersion" to sdkVersion,
+                        "appVersion" to applicationVersion
+                )
+        ).toString()
 
     private fun parseChannelSettings(): Pair<String, Any> {
         return if (AndroidVersionUtils.isOreoOrAbove()) {
             "channelSettings" to notificationSettings.channelSettings.map {
-                JSONObject(mapOf(
-                        "channelId" to it.channelId,
-                        "importance" to it.importance,
-                        "isCanBypassDnd" to it.isCanBypassDnd,
-                        "isCanShowBadge" to it.isCanShowBadge,
-                        "isShouldVibrate" to it.isShouldVibrate
-                ))
+                JSONObject(
+                        mapOf(
+                                "channelId" to it.channelId,
+                                "importance" to it.importance,
+                                "isCanBypassDnd" to it.isCanBypassDnd,
+                                "isCanShowBadge" to it.isCanShowBadge,
+                                "isShouldVibrate" to it.isShouldVibrate
+                        )
+                )
             }
         } else {
             "channelSettings" to listOf(JSONObject())
