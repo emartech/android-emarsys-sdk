@@ -29,7 +29,7 @@ import java.util.concurrent.CountDownLatch
 
 class InlineInAppView : LinearLayout {
 
-    private lateinit var webView: WebView
+    private var webView: WebView? = null
     private var viewId: String? = null
 
     var onCloseListener: OnCloseListener? = null
@@ -56,29 +56,40 @@ class InlineInAppView : LinearLayout {
             visibility = View.VISIBLE
             onCompletionListener?.onCompleted(null)
         }
+        if (webView != null) {
+            addView(webView)
+            with(webView!!.layoutParams) {
+                width = ViewGroup.LayoutParams.MATCH_PARENT
+                height = ViewGroup.LayoutParams.WRAP_CONTENT
+            }
 
-        addView(webView)
-        with(webView.layoutParams) {
-            width = ViewGroup.LayoutParams.MATCH_PARENT
-            height = ViewGroup.LayoutParams.WRAP_CONTENT
+            if (viewId != null) {
+                loadInApp(viewId!!)
+            }
         }
-
-        if (viewId != null) {
-            loadInApp(viewId!!)
-        }
-
         attributes.recycle()
     }
 
     fun loadInApp(viewId: String) {
+
         mobileEngage().coreSdkHandler.post {
             this.viewId = viewId
-            fetchInlineInAppMessage(viewId) { html ->
-                mobileEngage().uiHandler.post {
-                    if (html != null) {
-                        webView.loadDataWithBaseURL(null, html, "text/html; charset=utf-8", "UTF-8", null)
-                    } else {
-                        onCompletionListener?.onCompleted(IllegalArgumentException("Inline In-App HTML content must not be empty, please check your viewId!"))
+            if (webView == null) {
+                onCompletionListener?.onCompleted(IllegalArgumentException("WebView can not be created, please try again later!"))
+            } else {
+                fetchInlineInAppMessage(viewId) { html ->
+                    mobileEngage().uiHandler.post {
+                        if (html != null) {
+                            webView?.loadDataWithBaseURL(
+                                null,
+                                html,
+                                "text/html; charset=utf-8",
+                                "UTF-8",
+                                null
+                            )
+                        } else {
+                            onCompletionListener?.onCompleted(IllegalArgumentException("Inline In-App HTML content must not be empty, please check your viewId!"))
+                        }
                     }
                 }
             }
@@ -108,11 +119,11 @@ class InlineInAppView : LinearLayout {
             override fun onError(id: String, responseModel: ResponseModel) {
                 mobileEngage().coreSdkHandler.post {
                     onCompletionListener?.onCompleted(
-                            ResponseErrorException(
-                                    responseModel.statusCode,
-                                    responseModel.message,
-                                    responseModel.body
-                            )
+                        ResponseErrorException(
+                            responseModel.statusCode,
+                            responseModel.message,
+                            responseModel.body
+                        )
                     )
                 }
             }
@@ -129,7 +140,9 @@ class InlineInAppView : LinearLayout {
         val inlineMessages: JSONArray? = responseModel.parsedBody?.optJSONArray("inlineMessages")
         if (inlineMessages != null) {
             for (i in 0 until inlineMessages.length()) {
-                if (inlineMessages.getJSONObject(i).optString("viewId").toLowerCase(Locale.ENGLISH) == viewId?.toLowerCase(Locale.ENGLISH)) {
+                if (inlineMessages.getJSONObject(i).optString("viewId")
+                        .toLowerCase(Locale.ENGLISH) == viewId?.toLowerCase(Locale.ENGLISH)
+                ) {
                     return inlineMessages.getJSONObject(i)
                 }
             }
@@ -140,23 +153,33 @@ class InlineInAppView : LinearLayout {
     private fun createJSBridge(messageResponseModel: JSONObject?) {
         val campaignId = messageResponseModel?.optString("campaignId")
 
-        val inAppInternal: InAppInternal = if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
-            mobileEngage().inAppInternal
-        } else {
-            mobileEngage().loggingInAppInternal
-        }
+        val inAppInternal: InAppInternal =
+            if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
+                mobileEngage().inAppInternal
+            } else {
+                mobileEngage().loggingInAppInternal
+            }
         val timestampProvider: TimestampProvider = mobileEngage().timestampProvider
 
         val buttonClickedRepository = mobileEngage().buttonClickedRepository
 
-        val jsCommandFactory = JSCommandFactory(mobileEngage().currentActivityProvider, mobileEngage().uiHandler, mobileEngage().coreSdkHandler, inAppInternal,
-                buttonClickedRepository, onCloseListener, onAppEventListener, timestampProvider)
+        val jsCommandFactory = JSCommandFactory(
+            mobileEngage().currentActivityProvider,
+            mobileEngage().uiHandler,
+            mobileEngage().coreSdkHandler,
+            inAppInternal,
+            buttonClickedRepository,
+            onCloseListener,
+            onAppEventListener,
+            timestampProvider
+        )
         val jsBridgeFactory: IamJsBridgeFactory = mobileEngage().iamJsBridgeFactory
 
-        val jsBridge = jsBridgeFactory.createJsBridge(jsCommandFactory, InAppMessage(campaignId!!, null, null))
+        val jsBridge =
+            jsBridgeFactory.createJsBridge(jsCommandFactory, InAppMessage(campaignId!!, null, null))
         val latch = CountDownLatch(1)
         mobileEngage().uiHandler.post {
-            webView.addJavascriptInterface(jsBridge, "Android")
+            webView?.addJavascriptInterface(jsBridge, "Android")
             latch.countDown()
         }
         latch.await()

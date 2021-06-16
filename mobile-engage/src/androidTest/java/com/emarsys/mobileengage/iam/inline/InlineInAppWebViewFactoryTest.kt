@@ -77,6 +77,15 @@ class InlineInAppWebViewFactoryTest {
     }
 
     @Test
+    fun testCreateShouldReturnNull_whenWebViewCanNotBeCreated() {
+        whenever(mockWebViewProvider.provideWebView()).thenReturn(null)
+        inlineWebViewFactory = InlineInAppWebViewFactory(mockWebViewProvider, uiHandler)
+        val response = runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
+
+        response shouldBe null
+    }
+
+    @Test
     fun testCreateShouldSetBackgroundTransparent() {
         runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
 
@@ -90,7 +99,7 @@ class InlineInAppWebViewFactoryTest {
         var result: MessageLoadedListener? = null
         val latch = CountDownLatch(1)
         uiHandler.post {
-            val webViewClient = webView.webViewClient
+            val webViewClient = webView!!.webViewClient
             result = ReflectionTestUtils.getInstanceField(webViewClient, "listener")
             latch.countDown()
         }
@@ -110,7 +119,7 @@ class InlineInAppWebViewFactoryTest {
         }
     }
 
-    private fun <T> runOnUiThread(lambda: () -> T): T {
+    private fun <T> runOnUiThread(lambda: () -> T): T? {
         var result: T? = null
         val latch = CountDownLatch(1)
         uiHandler.post {
@@ -118,6 +127,6 @@ class InlineInAppWebViewFactoryTest {
             latch.countDown()
         }
         latch.await()
-        return result!!
+        return result
     }
 }

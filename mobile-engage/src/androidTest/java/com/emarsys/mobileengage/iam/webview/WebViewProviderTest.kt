@@ -22,7 +22,7 @@ class WebViewProviderTest {
         val latch = CountDownLatch(1)
         Handler(Looper.getMainLooper()).post {
             val result = webViewProvider.provideWebView()
-            result.javaClass shouldBe WebView::class.java
+            result?.javaClass shouldBe WebView::class.java
             latch.countDown()
         }
         latch.await()
