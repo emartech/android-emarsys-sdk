@@ -5,6 +5,8 @@ import android.graphics.Color
 import android.os.Handler
 import android.webkit.WebView
 import com.emarsys.core.Mockable
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.CrashLog
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 
 @Mockable
@@ -15,7 +17,11 @@ class IamStaticWebViewProvider(private val context: Context, private val uiHandl
 
     fun loadMessageAsync(html: String, jsBridge: IamJsBridge, messageLoadedListener: MessageLoadedListener?) {
         uiHandler.post {
-            webView = WebView(context)
+            try {
+                webView = WebView(context)
+            } catch (e: Exception) {
+                Logger.error(CrashLog(e))
+            }
             jsBridge.webView = webView
             webView?.let {
                 it.settings.javaScriptEnabled = true
