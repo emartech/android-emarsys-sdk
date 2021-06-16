@@ -19,7 +19,7 @@ import com.emarsys.mobileengage.iam.dialog.IamDialog.Companion.create
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.ReflectionTestUtils.setStaticField
+import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.fake.FakeActivity
 import com.nhaarman.mockitokotlin2.*
@@ -44,6 +44,7 @@ class IamDialogTest {
 
     private lateinit var dialog: TestIamDialog
     private lateinit var mockTimestampProvider: TimestampProvider
+    private lateinit var uiHandler: Handler
 
     @Rule
     @JvmField
@@ -56,6 +57,7 @@ class IamDialogTest {
     @Before
     @Throws(InterruptedException::class)
     fun setUp() {
+        uiHandler = Handler(Looper.getMainLooper())
         mockTimestampProvider = mock()
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer(timestampProvider = mockTimestampProvider))
         activityRule.activity.runOnUiThread {
@@ -287,8 +289,8 @@ class IamDialogTest {
         var result: Exception? = null
         try {
             initWebViewProvider()
-            Handler(Looper.getMainLooper()).post {
-                val webView = IamStaticWebViewProvider(getTargetContext()).provideWebView()
+            uiHandler.post {
+                val webView = IamStaticWebViewProvider(getTargetContext(), uiHandler).provideWebView()
                 LinearLayout(getTargetContext()).addView(webView)
             }
             displayDialog()
@@ -302,7 +304,7 @@ class IamDialogTest {
 
     @Test
     fun testOnStart_shouldNotThrowCannotAddANullChildViewToAViewGroup_exception() {
-        setStaticField(IamStaticWebViewProvider::class.java, "webView", null)
+         ReflectionTestUtils.setCompanionField(IamStaticWebViewProvider.Companion, "webView", null)
         var result: Exception? = null
         try {
             displayDialog()

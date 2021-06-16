@@ -260,6 +260,12 @@ class MobileEngageIntegrationTest {
 
     @Test
     fun testConfig_changeApplicationCode_nilToSomething() {
+        val setupLatch = CountDownLatch(1)
+        emarsys().coreSdkHandler.post {
+            setupLatch.countDown()
+        }
+        setupLatch.await()
+
         IntegrationTestUtils.tearDownEmarsys(application)
 
         val config = EmarsysConfig.Builder()

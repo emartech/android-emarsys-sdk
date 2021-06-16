@@ -32,14 +32,20 @@ public class IamWebViewClientTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_shouldNotAcceptNull() {
-        new IamWebViewClient(null);
+    public void testConstructor_listener_shouldNotAcceptNull() {
+        new IamWebViewClient(null, handler);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor_uiHandler_shouldNotAcceptNull() {
+        FakeMessageLoadedListener listener = new FakeMessageLoadedListener(latch);
+        new IamWebViewClient(listener, null);
     }
 
     @Test
     public void testOnPageFinished_shouldCallListener() throws InterruptedException {
         FakeMessageLoadedListener listener = new FakeMessageLoadedListener(latch);
-        final IamWebViewClient client = new IamWebViewClient(listener);
+        final IamWebViewClient client = new IamWebViewClient(listener, handler);
 
         handler.post(new Runnable() {
             @Override
@@ -55,7 +61,7 @@ public class IamWebViewClientTest {
     @Test
     public void testOnPageFinished_shouldCallListener_shouldCallOnMainThread() throws InterruptedException {
         FakeMessageLoadedListener listener = new FakeMessageLoadedListener(latch, FakeMessageLoadedListener.Mode.MAIN_THREAD);
-        final IamWebViewClient client = new IamWebViewClient(listener);
+        final IamWebViewClient client = new IamWebViewClient(listener, handler);
 
         handler.post(new Runnable() {
             @Override

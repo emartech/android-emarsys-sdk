@@ -40,7 +40,7 @@ class OverlayInAppPresenter(
         private val jsBridgeFactory: IamJsBridgeFactory) {
 
     fun present(campaignId: String, sid: String?, url: String?, requestId: String?, startTimestamp: Long,
-                html: String?, messageLoadedListener: MessageLoadedListener?) {
+                html: String, messageLoadedListener: MessageLoadedListener?) {
         val iamDialog = dialogProvider.provideDialog(campaignId, sid, url, requestId)
         setupDialogWithActions(iamDialog)
         val jsCommandFactory = JSCommandFactory(currentActivityProvider, uiHandler, coreSdkHandler, inAppInternal,
@@ -67,9 +67,11 @@ class OverlayInAppPresenter(
         return {
             val currentActivity = currentActivityProvider.get()
             if (currentActivity is FragmentActivity) {
-                val fragment = currentActivity.supportFragmentManager.findFragmentByTag(IamDialog.TAG)
-                if (fragment is DialogFragment) {
-                    fragment.dismiss()
+                uiHandler.post {
+                    val fragment = currentActivity.supportFragmentManager.findFragmentByTag(IamDialog.TAG)
+                    if (fragment is DialogFragment) {
+                        fragment.dismiss()
+                    }
                 }
             }
         }
@@ -81,9 +83,7 @@ class OverlayInAppPresenter(
                 val payload = json.optJSONObject("payload")
                 val currentActivity = currentActivityProvider.get()
                 if (property != null && currentActivity != null) {
-                    uiHandler.post {
-                        inAppInternal.eventHandler?.handleEvent(currentActivity, property, payload)
-                    }
+                    inAppInternal.eventHandler?.handleEvent(currentActivity, property, payload)
                 }
             }
         }

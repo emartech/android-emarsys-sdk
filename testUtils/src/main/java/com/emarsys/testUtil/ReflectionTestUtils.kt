@@ -37,6 +37,19 @@ object ReflectionTestUtils {
         return result as T?
     }
 
+    fun setCompanionField(instance: Any, fieldName: String, value: Any?) {
+        val property = instance::class.memberProperties.find { it.name == fieldName }
+        if (property is KMutableProperty<*>) {
+            property.setter.call(instance, value)
+        }
+    }
+
+    fun <T> getCompanionField(instance: Any, fieldName: String): Any? {
+        val property = instance::class.memberProperties.find { it.name == fieldName }
+        return property?.getter?.call(instance)
+    }
+
+
     @Suppress("UNCHECKED_CAST")
     @JvmStatic
     fun <T> instantiate(type: Class<*>, constructorIndex: Int, vararg args: Any): T {

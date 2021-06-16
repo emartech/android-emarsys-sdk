@@ -58,7 +58,7 @@ object IntegrationTestUtils {
         latch.await()
 
         latch = CountDownLatch(1)
-        Handler(Looper.getMainLooper()).post {
+        emarsys().uiHandler.post {
             val observerMap = ReflectionTestUtils.getInstanceField<FastSafeIterableMap<Any, Any>>(
                     ProcessLifecycleOwner.get().lifecycle,
                     "mObserverMap")

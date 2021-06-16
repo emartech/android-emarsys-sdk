@@ -41,11 +41,13 @@ class InlineInAppWebViewFactoryTest {
     private lateinit var mockWebViewProvider: WebViewProvider
     private lateinit var inlineWebViewFactory: InlineInAppWebViewFactory
     private lateinit var mockMessageLoadedListener: MessageLoadedListener
+    private lateinit var uiHandler: Handler
 
     @Before
     fun setUp() {
+        uiHandler = Handler(Looper.getMainLooper())
         val setUpLatch = CountDownLatch(1)
-        Handler(Looper.getMainLooper()).post {
+        uiHandler.post {
             val webView = WebView(InstrumentationRegistry.getInstrumentation().targetContext)
             mockWebView = spy(webView)
 
@@ -57,7 +59,7 @@ class InlineInAppWebViewFactoryTest {
             on { provideWebView() }.doReturn(mockWebView)
         }
 
-        inlineWebViewFactory = InlineInAppWebViewFactory(mockWebViewProvider)
+        inlineWebViewFactory = InlineInAppWebViewFactory(mockWebViewProvider, uiHandler)
         mockMessageLoadedListener = mock()
     }
 
@@ -68,7 +70,7 @@ class InlineInAppWebViewFactoryTest {
 
     @Test
     fun testCreateShouldReturnWebView() {
-        inlineWebViewFactory = InlineInAppWebViewFactory(mockWebViewProvider)
+        inlineWebViewFactory = InlineInAppWebViewFactory(mockWebViewProvider, uiHandler)
         val response = runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
 
         response shouldBe mockWebView
@@ -87,7 +89,7 @@ class InlineInAppWebViewFactoryTest {
         val webView = runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
         var result: MessageLoadedListener? = null
         val latch = CountDownLatch(1)
-        Handler(Looper.getMainLooper()).post {
+        uiHandler.post {
             val webViewClient = webView.webViewClient
             result = ReflectionTestUtils.getInstanceField(webViewClient, "listener")
             latch.countDown()
@@ -111,7 +113,7 @@ class InlineInAppWebViewFactoryTest {
     private fun <T> runOnUiThread(lambda: () -> T): T {
         var result: T? = null
         val latch = CountDownLatch(1)
-        Handler(Looper.getMainLooper()).post {
+        uiHandler.post {
             result = lambda.invoke()
             latch.countDown()
         }

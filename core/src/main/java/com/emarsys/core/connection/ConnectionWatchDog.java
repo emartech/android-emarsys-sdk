@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
 import com.emarsys.core.handler.CoreSdkHandler;
 import com.emarsys.core.util.Assert;
 
@@ -70,12 +71,11 @@ public class ConnectionWatchDog {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            final ConnectionState connectionState = getConnectionState();
-            final boolean isConnected = isConnected();
-
             coreSdkHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    final ConnectionState connectionState = getConnectionState();
+                    final boolean isConnected = isConnected();
                     connectionChangeListener.onConnectionChanged(connectionState, isConnected);
                 }
             });

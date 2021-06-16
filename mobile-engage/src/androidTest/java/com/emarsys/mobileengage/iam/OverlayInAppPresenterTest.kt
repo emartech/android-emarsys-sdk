@@ -74,10 +74,11 @@ class OverlayInAppPresenterTest {
     private lateinit var mockIamJsBridgeFactory: IamJsBridgeFactory
     private lateinit var mockJsBridge: IamJsBridge
     private lateinit var mockJSCommandFactory: JSCommandFactory
+    private lateinit var uiHandler: Handler
 
     @Before
     fun setUp() {
-        iamStaticWebViewProvider = IamStaticWebViewProvider(InstrumentationRegistry.getTargetContext())
+        iamStaticWebViewProvider = IamStaticWebViewProvider(InstrumentationRegistry.getTargetContext(), Handler(Looper.getMainLooper()))
         mockInAppInternal = mock()
         mockIamDialogProvider = mock()
         mockButtonClickedRepository = mock()
@@ -92,7 +93,7 @@ class OverlayInAppPresenterTest {
         }
 
         val coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
-        val uiHandler = Handler(Looper.getMainLooper())
+        uiHandler = Handler(Looper.getMainLooper())
 
 
         overlayPresenter = OverlayInAppPresenter(coreSdkHandler,
@@ -265,6 +266,9 @@ class OverlayInAppPresenterTest {
         whenever(mockActivityProvider.get()).thenReturn(activity)
 
         overlayPresenter.onCloseTriggered().invoke()
+        val latch = CountDownLatch(1)
+        uiHandler.post { latch.countDown() }
+        latch.await()
 
         verify(fragment).dismiss()
     }

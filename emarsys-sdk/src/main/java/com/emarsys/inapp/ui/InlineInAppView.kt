@@ -1,8 +1,6 @@
 package com.emarsys.inapp.ui
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +16,6 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.InAppInternal
-import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
@@ -53,14 +50,9 @@ class InlineInAppView : LinearLayout {
         val intArray = IntArray(1).apply { this[0] = R.attr.view_id }
         val attributes = context.obtainStyledAttributes(attrs, intArray)
         viewId = attributes.getString(0)
-        var webViewFactory: InlineInAppWebViewFactory? = null
-        val latch = CountDownLatch(1)
-        mobileEngage().coreSdkHandler.post {
-            webViewFactory = mobileEngage().inlineInAppWebViewFactory
-            latch.countDown()
-        }
-        latch.await()
-        webView = webViewFactory!!.create {
+        val webViewFactory = mobileEngage().inlineInAppWebViewFactory
+
+        webView = webViewFactory.create {
             visibility = View.VISIBLE
             onCompletionListener?.onCompleted(null)
         }
@@ -79,14 +71,16 @@ class InlineInAppView : LinearLayout {
     }
 
     fun loadInApp(viewId: String) {
-        this.viewId = viewId
-        fetchInlineInAppMessage(viewId) { html ->
-            if (html != null) {
+        mobileEngage().coreSdkHandler.post {
+            this.viewId = viewId
+            fetchInlineInAppMessage(viewId) { html ->
                 mobileEngage().uiHandler.post {
-                    webView.loadDataWithBaseURL(null, html, "text/html; charset=utf-8", "UTF-8", null)
+                    if (html != null) {
+                        webView.loadDataWithBaseURL(null, html, "text/html; charset=utf-8", "UTF-8", null)
+                    } else {
+                        onCompletionListener?.onCompleted(IllegalArgumentException("Inline In-App HTML content must not be empty, please check your viewId!"))
+                    }
                 }
-            } else {
-                onCompletionListener?.onCompleted(IllegalArgumentException("Inline In-App HTML content must not be empty, please check your viewId!"))
             }
         }
     }
@@ -151,11 +145,11 @@ class InlineInAppView : LinearLayout {
         } else {
             mobileEngage().loggingInAppInternal
         }
-        val timestampProvider: TimestampProvider =  mobileEngage().timestampProvider
+        val timestampProvider: TimestampProvider = mobileEngage().timestampProvider
 
         val buttonClickedRepository = mobileEngage().buttonClickedRepository
 
-        val jsCommandFactory = JSCommandFactory(mobileEngage().currentActivityProvider, Handler(Looper.getMainLooper()), mobileEngage().coreSdkHandler, inAppInternal,
+        val jsCommandFactory = JSCommandFactory(mobileEngage().currentActivityProvider, mobileEngage().uiHandler, mobileEngage().coreSdkHandler, inAppInternal,
                 buttonClickedRepository, onCloseListener, onAppEventListener, timestampProvider)
         val jsBridgeFactory: IamJsBridgeFactory = mobileEngage().iamJsBridgeFactory
 

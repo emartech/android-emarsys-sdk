@@ -209,7 +209,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         OverlayInAppPresenter(
                 coreSdkHandler,
                 uiHandler,
-                IamStaticWebViewProvider(config.application),
+                IamStaticWebViewProvider(config.application, uiHandler),
                 inAppInternal,
                 IamDialogProvider(uiHandler),
                 buttonClickedRepository,
@@ -678,7 +678,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val inlineInAppWebViewFactory: InlineInAppWebViewFactory by lazy {
-        InlineInAppWebViewFactory(webViewProvider)
+        InlineInAppWebViewFactory(webViewProvider, uiHandler)
     }
 
     override val fileDownloader: FileDownloader by lazy {

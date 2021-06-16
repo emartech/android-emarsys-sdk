@@ -7,7 +7,6 @@ import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.service.MessagingServiceUtils
 import com.emarsys.mobileengage.service.MessagingServiceUtils.handleMessage
 import com.google.firebase.messaging.RemoteMessage
-import java.util.concurrent.CountDownLatch
 
 object EmarsysMessagingServiceUtils {
     var MESSAGE_FILTER = MessagingServiceUtils.MESSAGE_FILTER
@@ -17,12 +16,10 @@ object EmarsysMessagingServiceUtils {
         Assert.notNull(context, "Context must not be null!")
         Assert.notNull(remoteMessage, "RemoteMessage must not be null!")
 
-        val latch = CountDownLatch(1)
         val handler: CoreSdkHandler = mobileEngage().coreSdkHandler
-        var result = false
 
         handler.post {
-            result = handleMessage(
+            handleMessage(
                     context,
                     remoteMessage,
                     mobileEngage().deviceInfo,
@@ -31,11 +28,9 @@ object EmarsysMessagingServiceUtils {
                     mobileEngage().fileDownloader,
                     mobileEngage().silentMessageActionCommandFactory,
                     mobileEngage().remoteMessageMapper)
-            latch.countDown()
         }
-        latch.await()
 
-        return result
+        return isMobileEngageMessage(remoteMessage.data)
     }
 
     fun isMobileEngageMessage(remoteMessageData: Map<String, String?>?): Boolean {

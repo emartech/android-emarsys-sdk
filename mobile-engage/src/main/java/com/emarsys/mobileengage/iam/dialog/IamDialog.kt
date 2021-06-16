@@ -74,7 +74,7 @@ class IamDialog : DialogFragment() {
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val v = inflater.inflate(R.layout.mobile_engage_in_app_message, container, false)
-        webView = IamStaticWebViewProvider(activity!!.applicationContext).provideWebView()
+        webView = IamStaticWebViewProvider(activity!!.applicationContext, mobileEngage().uiHandler).provideWebView()
         webViewContainer = v.findViewById(R.id.mobileEngageInAppMessageContainer)
         return v
     }
