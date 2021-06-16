@@ -32,6 +32,7 @@ class MainActivity : FragmentActivity(), EventHandler {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             MobileEngageFragmentTracking.REQUEST_LOCATION_PERMISSIONS -> {
                 if (grantResults.isNotEmpty() && grantResults[0] === PackageManager.PERMISSION_GRANTED) {
