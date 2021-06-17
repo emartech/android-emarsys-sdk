@@ -18,13 +18,15 @@ class GeofenceBroadcastReceiver(val coreSdkHandler: CoreSdkHandler) : BroadcastR
 
     override fun onReceive(context: Context, intent: Intent) {
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
-        coreSdkHandler.post {
-            val geofenceInternal = mobileEngage().geofenceInternal
+        if (geofencingEvent.triggeringGeofences != null) {
+            coreSdkHandler.post {
+                val geofenceInternal = mobileEngage().geofenceInternal
 
-            val triggeringEmarsysGeofences = geofencingEvent.convertToTriggeringEmarsysGeofences()
-            geofenceInternal.onGeofenceTriggered(triggeringEmarsysGeofences)
+                val triggeringEmarsysGeofences = geofencingEvent.convertToTriggeringEmarsysGeofences()
+                geofenceInternal.onGeofenceTriggered(triggeringEmarsysGeofences)
 
-            logTriggeringGeofences(triggeringEmarsysGeofences)
+                logTriggeringGeofences(triggeringEmarsysGeofences)
+            }
         }
     }
 
