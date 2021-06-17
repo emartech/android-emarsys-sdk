@@ -128,6 +128,8 @@ interface MobileEngageComponent : CoreComponent {
 
     val deviceEventStateStorage: Storage<String?>
 
+    val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?>
+
     val responseHandlersProcessor: ResponseHandlersProcessor
 
     val notificationCache: NotificationCache
@@ -193,5 +195,4 @@ interface MobileEngageComponent : CoreComponent {
     val mobileEngageRequestModelFactory: MobileEngageRequestModelFactory
 
     val mobileEngageSession: MobileEngageSession
-
 }

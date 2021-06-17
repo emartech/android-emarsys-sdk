@@ -50,7 +50,8 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                               private val geofenceEnabledStorage: Storage<Boolean>,
                               private val geofencePendingIntentProvider: GeofencePendingIntentProvider,
                               coreSdkHandler: CoreSdkHandler,
-                              private val uiHandler: Handler
+                              private val uiHandler: Handler,
+                              initialEnterTriggerEnabledStorage: Storage<Boolean?>
 ) : GeofenceInternal, LocationListener {
     private companion object {
         const val FASTEST_INTERNAL: Long = 15_000
@@ -66,6 +67,9 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         geofencePendingIntentProvider.providePendingIntent()
     }
     private var receiverRegistered = false
+    private var initialEnterTriggerEnabled = initialEnterTriggerEnabledStorage.get() ?: false
+    private var initialDwellingTriggerEnabled = false
+    private var initialExitTriggerEnabled = false
 
     override fun fetchGeofences(completionListener: CompletionListener?) {
         if (!geofenceEnabledStorage.get()) {
@@ -201,12 +205,23 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
                     .build()
         }
-        val geofenceRequest = GeofencingRequest.Builder().addGeofences(geofencesToRegister).build()
+        val geofenceRequest = GeofencingRequest.Builder()
+                .addGeofences(geofencesToRegister)
+                .setInitialTrigger(calcInitialTrigger())
+                .build()
         geofencingClient.addGeofences(geofenceRequest, geofencePendingIntent)
 
         sendStatusLog(statusMap = mapOf(
                 "registeredGeofences" to geofencesToRegister.size
         ))
+    }
+
+    private fun calcInitialTrigger(): Int {
+        var result = 0
+        if (initialEnterTriggerEnabled) result += GeofencingRequest.INITIAL_TRIGGER_ENTER
+        if (initialDwellingTriggerEnabled) result += GeofencingRequest.INITIAL_TRIGGER_DWELL
+        if (initialExitTriggerEnabled) result += GeofencingRequest.INITIAL_TRIGGER_EXIT
+        return result
     }
 
     override fun onGeofenceTriggered(triggeringEmarsysGeofences: List<TriggeringEmarsysGeofence>) {
@@ -253,6 +268,10 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
 
     override fun setEventHandler(eventHandler: EventHandler) {
         this.geofenceEventHandlerProvider.eventHandler = eventHandler
+    }
+
+    override fun setInitialEnterTriggerEnabled(enabled: Boolean) {
+        this.initialEnterTriggerEnabled = enabled
     }
 
     private fun createActionsFromTriggers(geofence: MEGeofence, triggerType: TriggerType): List<Runnable?> {

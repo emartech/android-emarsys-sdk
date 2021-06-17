@@ -205,5 +205,6 @@ class FakeDependencyContainer(
         override val predictServiceProvider: ServiceEndpointProvider = mock(),
         override val predictServiceStorage: Storage<String?> = mock(),
         override val predictRequestContext: PredictRequestContext = mock(),
-        override val predictRequestModelBuilderProvider: PredictRequestModelBuilderProvider = mock()
+        override val predictRequestModelBuilderProvider: PredictRequestModelBuilderProvider = mock(),
+        override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> = mock()
 ) : EmarsysComponent

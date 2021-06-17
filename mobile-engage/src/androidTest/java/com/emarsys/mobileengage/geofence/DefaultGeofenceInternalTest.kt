@@ -73,6 +73,7 @@ class DefaultGeofenceInternalTest {
     private lateinit var mockEventHandlerProvider: EventHandlerProvider
     private lateinit var geofenceInternalWithMockContext: GeofenceInternal
     private lateinit var mockEnabledStorage: Storage<Boolean>
+    private lateinit var mockInitialEnterTriggerEnabledStorage: Storage<Boolean?>
     private lateinit var mockPendingIntentProvider: GeofencePendingIntentProvider
     private lateinit var mockHandler: CoreSdkHandler
     private lateinit var uiHandler: Handler
@@ -80,6 +81,9 @@ class DefaultGeofenceInternalTest {
     @Before
     fun setUp() {
         mockHandler = mock()
+        mockInitialEnterTriggerEnabledStorage = mock {
+            on {get()} doReturn false
+        }
         uiHandler = Handler(Looper.getMainLooper())
         context = InstrumentationRegistry.getTargetContext()
         mockResponseModel = mock()
@@ -108,13 +112,17 @@ class DefaultGeofenceInternalTest {
             on { get() } doReturn true
         }
 
-        geofenceInternal = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker,
+        geofenceInternal = DefaultGeofenceInternal(
+                mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker,
                 mockFusedLocationProviderClient, mockGeofenceFilter, mockGeofencingClient, context, mockActionCommandFactory, mockEventHandlerProvider,
-                mockEnabledStorage, mockPendingIntentProvider, mockHandler, uiHandler)
+                mockEnabledStorage, mockPendingIntentProvider, mockHandler, uiHandler, mockInitialEnterTriggerEnabledStorage
+        )
 
-        geofenceInternalWithMockContext = DefaultGeofenceInternal(mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker,
+        geofenceInternalWithMockContext = DefaultGeofenceInternal(
+                mockRequestModelFactory, fakeRequestManager, mockGeofenceResponseMapper, mockPermissionChecker,
                 mockFusedLocationProviderClient, mockGeofenceFilter, mockGeofencingClient, mockContext, mockActionCommandFactory, mockEventHandlerProvider,
-                mockEnabledStorage, mockPendingIntentProvider, mockHandler, uiHandler)
+                mockEnabledStorage, mockPendingIntentProvider, mockHandler, uiHandler, mockInitialEnterTriggerEnabledStorage
+        )
     }
 
     @Test
@@ -417,8 +425,8 @@ class DefaultGeofenceInternalTest {
 
     @Test
     fun testRegisterGeofences_geofencingClientAddsNearestGeofences() {
-        val geofencesToTest = nearestGeofencesWithoutRefreshArea.map { createGeofence(it) } + createGeofence(Companion.refreshArea)
-        val geofencingRequest = GeofencingRequest.Builder().addGeofences(geofencesToTest).build()
+        val geofencesToTest = nearestGeofencesWithoutRefreshArea.map { createGeofence(it) } + createGeofence(refreshArea)
+        val geofencingRequest = GeofencingRequest.Builder().addGeofences(geofencesToTest).setInitialTrigger(0).build()
 
         geofenceInternal.registerGeofences(nearestGeofencesWithoutRefreshArea + refreshArea)
 
@@ -426,6 +434,24 @@ class DefaultGeofenceInternalTest {
             verify(mockGeofencingClient).addGeofences(capture(), any())
 
             allValues[0].initialTrigger shouldBe geofencingRequest.initialTrigger
+            allValues[0].geofences.forEachIndexed { index, geofence ->
+                geofence.requestId shouldBe geofencingRequest.geofences[index].requestId
+            }
+        }
+    }
+
+    @Test
+    fun testRegisterGeofences_geofencingRequest_shouldIncludeInitialEnterTrigger() {
+        val geofencesToTest = nearestGeofencesWithoutRefreshArea.map { createGeofence(it) } + createGeofence(Companion.refreshArea)
+        val geofencingRequest = GeofencingRequest.Builder().addGeofences(geofencesToTest).build()
+
+        geofenceInternal.setInitialEnterTriggerEnabled(true)
+        geofenceInternal.registerGeofences(nearestGeofencesWithoutRefreshArea + refreshArea)
+
+        argumentCaptor<GeofencingRequest>().apply {
+            verify(mockGeofencingClient).addGeofences(capture(), any())
+
+            allValues[0].initialTrigger shouldBe GeofencingRequest.INITIAL_TRIGGER_ENTER
             allValues[0].geofences.forEachIndexed { index, geofence ->
                 geofence.requestId shouldBe geofencingRequest.geofences[index].requestId
             }

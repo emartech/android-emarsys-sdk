@@ -10,4 +10,5 @@ interface GeofenceApi {
     fun disable()
     fun setEventHandler(eventHandler: EventHandler)
     fun isEnabled(): Boolean
+    fun setInitialEnterTriggerEnabled(enabled: Boolean)
 }

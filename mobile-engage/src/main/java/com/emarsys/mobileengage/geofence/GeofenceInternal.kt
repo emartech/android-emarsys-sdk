@@ -14,4 +14,5 @@ interface GeofenceInternal {
     fun registerGeofences(geofences: List<Geofence>)
     fun onGeofenceTriggered(triggeringEmarsysGeofences: List<TriggeringEmarsysGeofence>)
     fun setEventHandler(eventHandler: EventHandler)
+    fun setInitialEnterTriggerEnabled(enabled: Boolean)
 }

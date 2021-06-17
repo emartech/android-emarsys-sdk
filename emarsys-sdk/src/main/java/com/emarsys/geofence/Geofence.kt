@@ -18,13 +18,13 @@ class Geofence(private val loggingInstance: Boolean = false) : GeofenceApi {
     }
 
     override fun isEnabled(): Boolean {
-       return (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
+        return (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
                 .isEnabled()
     }
 
     override fun enable(completionListener: (Throwable?) -> Unit) {
         (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
-                .enable(CompletionListener { completionListener.invoke(it) })
+                .enable { completionListener.invoke(it) }
     }
 
     override fun disable() {
@@ -35,5 +35,10 @@ class Geofence(private val loggingInstance: Boolean = false) : GeofenceApi {
     override fun setEventHandler(eventHandler: EventHandler) {
         (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
                 .setEventHandler(eventHandler)
+    }
+
+    override fun setInitialEnterTriggerEnabled(enabled: Boolean) {
+        (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
+                .setInitialEnterTriggerEnabled(enabled)
     }
 }

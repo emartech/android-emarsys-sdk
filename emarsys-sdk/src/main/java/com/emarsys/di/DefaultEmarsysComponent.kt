@@ -416,6 +416,10 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         StringStorage(MobileEngageStorageKey.DEVICE_EVENT_STATE, sharedPreferences)
     }
 
+    override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> by lazy {
+        BooleanStorage(MobileEngageStorageKey.GEOFENCE_INITIAL_ENTER_TRIGGER, sharedPreferences)
+    }
+
     override val clientServiceEndpointProvider: ServiceEndpointProvider by lazy {
         ServiceEndpointProvider(clientServiceStorage, Endpoint.ME_CLIENT_HOST)
     }
@@ -653,7 +657,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val geofenceInternal: GeofenceInternal by lazy {
         val geofenceActionCommandFactory = ActionCommandFactory(config.application, eventServiceInternal, geofenceEventHandlerProvider, uiHandler)
 
-        DefaultGeofenceInternal(mobileEngageRequestModelFactory,
+        DefaultGeofenceInternal(
+                mobileEngageRequestModelFactory,
                 requestManager,
                 GeofenceResponseMapper(),
                 PermissionChecker(config.application),
@@ -666,7 +671,9 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                 BooleanStorage(MobileEngageStorageKey.GEOFENCE_ENABLED, sharedPreferences),
                 GeofencePendingIntentProvider(config.application),
                 coreSdkHandler,
-                uiHandler)
+                uiHandler,
+                geofenceInitialEnterTriggerEnabledStorage
+        )
     }
 
     override val loggingGeofenceInternal: GeofenceInternal by lazy {

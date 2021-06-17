@@ -157,5 +157,6 @@ class FakeEmarsysDependencyContainer(
         override val worker: Worker = mock(),
         override val requestModelRepository: Repository<RequestModel, SqlSpecification> = mock(),
         override val connectionWatchdog: ConnectionWatchDog = mock(),
-        override val coreCompletionHandler: CoreCompletionHandler = mock()
+        override val coreCompletionHandler: CoreCompletionHandler = mock(),
+        override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> = mock()
 ) : MobileEngageComponent

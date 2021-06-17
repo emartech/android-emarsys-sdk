@@ -71,4 +71,14 @@ class LoggingGeofenceInternal(private val klass: Class<*>) : GeofenceInternal {
 
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
+
+    override fun setInitialEnterTriggerEnabled(enabled: Boolean) {
+        val parameters = mapOf(
+                "enabled" to enabled
+        )
+
+        val callerMethodName = SystemUtils.getCallerMethodName()
+
+        debug(MethodNotAllowed(klass, callerMethodName, parameters))
+    }
 }
