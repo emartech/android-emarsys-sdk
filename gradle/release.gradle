@@ -1,4 +1,4 @@
-ext.modules = [':core-api', ':core', ':common', ':mobile-engage-api', ':mobile-engage', ':predict-api', ':predict', ':emarsys', ':emarsys-firebase', ':emarsys-sdk']
+ext.modules = [':core-api', ':core', ':common', ':mobile-engage-api', ':mobile-engage', ':predict-api', ':predict', ':emarsys', ':emarsys-firebase', ':emarsys-huawei', ':emarsys-sdk']
 
 apply plugin: 'maven-publish'
 apply plugin: 'signing'

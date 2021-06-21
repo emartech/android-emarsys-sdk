@@ -100,6 +100,12 @@ jobs:
           name: emarsys-firebase
           path: emarsys-firebase/build/outputs/apk/androidTest/debug/emarsys-firebase-debug-androidTest.apk
 
+      - name: upload emarsys-huawei test apk artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: emarsys-huawei
+          path: emarsys-huawei/build/outputs/apk/androidTest/debug/emarsys-huawei-debug-androidTest.apk
+
       - name: create testlab services json
         uses: jsdaniell/create-json@1.1.2
         with:
@@ -467,10 +473,49 @@ jobs:
           name: failure_file
           path: FAILURE.TXT
 
+  TestEmarsysHuawei:
+    name: Run emarsys-huawei tests on Firebase
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.1
+        with:
+          submodules: true
+          fetch-depth: 0 # 0 indicates all history
+      - run: git fetch --all || echo "==> Accept any result"
+
+      - name: Download sample app
+        uses: actions/download-artifact@v2
+        with:
+          name: sample
+
+      - name: Download emarsys-huawei tests
+        uses: actions/download-artifact@v2
+        with:
+          name: emarsys-huawei
+
+      - name: Run tests
+        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
+        with:
+          arg-spec: 'testWithSomeVirtualDevices.yml:emarsys-huawei'
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Create file 'FAILURE.TXT' and write 'true' into it
+        if: ${{ failure() }}
+        run: echo 'true' > FAILURE.TXT
+
+      - name: Upload file 'FAILURE.TXT' as an artifact
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v1
+        with:
+          name: failure_file
+          path: FAILURE.TXT
+
   ReleaseSample:
     name: Release sample app
     runs-on: ubuntu-latest
-    needs: [Build, TestCore, TestMobileEngage, TestPredict, TestEmarsysSDK, TestEmarsys, TestCommon, TestEmarsysFirebase, CreateReleaseBundle, GradleLint]
+    needs: [Build, TestCore, TestMobileEngage, TestPredict, TestEmarsysSDK, TestEmarsys, TestCommon, TestEmarsysFirebase, TestEmarsysHuawei, CreateReleaseBundle, GradleLint]
     steps:
       - uses: actions/checkout@v2.3.1
         with:

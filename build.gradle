@@ -1,4 +1,4 @@
-ext.modules = [':core-api', ':core', ':common', ':mobile-engage-api', ':mobile-engage',':emarsys-firebase', ':predict-api', ':predict', ':emarsys', ':emarsys-sdk', ':emarsys-e2e-test']
+ext.modules = [':core-api', ':core', ':common', ':mobile-engage-api', ':mobile-engage', ':emarsys-firebase', ':emarsys-huawei', ':predict-api', ':predict', ':emarsys', ':emarsys-sdk', ':emarsys-e2e-test']
 
 buildscript {
     repositories {

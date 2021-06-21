@@ -195,3 +195,21 @@ emarsys-firebase:
       version: 30
       locale: 'en'
       orientation: portrait
+
+emarsys-huawei:
+  type: instrumentation
+  app: sample-debug-androidTest.apk
+  test: emarsys-huawei-debug-androidTest.apk
+  device:
+    - model: Nexus7
+      version: 21
+      locale: 'en'
+      orientation: portrait
+    - model: Nexus6P
+      version: 26
+      locale: 'en'
+      orientation: portrait
+    - model: Pixel2
+      version: 30
+      locale: 'en'
+      orientation: portrait

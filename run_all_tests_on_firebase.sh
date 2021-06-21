@@ -14,6 +14,7 @@ emarsys
 emarsys-sdk
 emarsys-e2e
 emarsys-firebase
+emarsys-huawei
 "
 set -ex
 
