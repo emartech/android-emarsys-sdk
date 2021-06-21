@@ -6,3 +6,4 @@ libs
 local.properties
 localConfig.properties
 sample/google-services.json
+sample/agconnect-services.json

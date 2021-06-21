@@ -1,7 +1,11 @@
+repositories {
+    maven { url 'https://developer.huawei.com/repo/' }
+}
 dependencies {
     implementation project(':core-api')
     implementation project(':core')
     implementation project(':mobile-engage')
+    implementation 'com.huawei.agconnect:agconnect-core:1.4.1.300'
 
     androidTestImplementation project(':testUtils')
 }
