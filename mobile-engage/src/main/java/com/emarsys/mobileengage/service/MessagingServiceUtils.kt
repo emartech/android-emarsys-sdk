@@ -21,7 +21,6 @@ import com.emarsys.mobileengage.inbox.InboxParseUtils
 import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.notification.command.SilentNotificationInformationCommand
-import com.google.firebase.messaging.RemoteMessage
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -31,7 +30,7 @@ object MessagingServiceUtils {
 
     @JvmStatic
     fun handleMessage(context: Context,
-                      remoteMessage: RemoteMessage,
+                      remoteMessageData: Map<String, String>,
                       deviceInfo: DeviceInfo,
                       notificationCache: NotificationCache,
                       timestampProvider: TimestampProvider?,
@@ -40,21 +39,20 @@ object MessagingServiceUtils {
                       remoteMessageMapper: RemoteMessageMapper): Boolean {
 
         var handled = false
-        val remoteData = remoteMessage.data
-        if (isMobileEngageMessage(remoteData)) {
-            if (isSilent(remoteData)) {
-                createSilentPushCommands(actionCommandFactory, remoteData).forEach {
+        if (isMobileEngageMessage(remoteMessageData)) {
+            if (isSilent(remoteMessageData)) {
+                createSilentPushCommands(actionCommandFactory, remoteMessageData).forEach {
                     mobileEngage().uiHandler.post {
                         it?.run()
                     }
                 }
             } else {
-                cacheNotification(timestampProvider, notificationCache, remoteData)
+                cacheNotification(timestampProvider, notificationCache, remoteMessageData)
                 val notificationId = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
                 val notification = createNotification(
                         notificationId,
                         context.applicationContext,
-                        remoteData,
+                        remoteMessageData,
                         deviceInfo,
                         remoteMessageMapper,
                         fileDownloader)
@@ -92,8 +90,8 @@ object MessagingServiceUtils {
     }
 
     @JvmStatic
-    fun isMobileEngageMessage(remoteMessageData: Map<String, String?>?): Boolean {
-        return remoteMessageData != null && remoteMessageData.isNotEmpty() && remoteMessageData.containsKey(MESSAGE_FILTER)
+    fun isMobileEngageMessage(remoteMessageData: Map<String, String?>): Boolean {
+        return remoteMessageData.isNotEmpty() && remoteMessageData.containsKey(MESSAGE_FILTER)
     }
 
     fun createNotification(

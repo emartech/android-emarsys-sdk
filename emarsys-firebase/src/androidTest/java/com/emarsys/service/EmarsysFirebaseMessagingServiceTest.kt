@@ -21,7 +21,7 @@ import org.mockito.stubbing.Answer
 import java.util.concurrent.CountDownLatch
 
 
-class EmarsysMessagingServiceTest {
+class EmarsysFirebaseMessagingServiceTest {
 
     @Rule
     @JvmField
@@ -57,7 +57,7 @@ class EmarsysMessagingServiceTest {
     fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsTrue_callsSetPushToken() {
         setupEmarsys(true)
 
-        EmarsysMessagingService().onNewToken("testToken")
+        EmarsysFirebaseMessagingService().onNewToken("testToken")
 
         verify(mockPushInternal, timeout(100)).setPushToken("testToken", null)
     }
@@ -66,7 +66,7 @@ class EmarsysMessagingServiceTest {
     fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsTrue_callsSetPushToken_onCoreSdkThread() {
         setupEmarsys(true)
 
-        EmarsysMessagingService().onNewToken("testToken")
+        EmarsysFirebaseMessagingService().onNewToken("testToken")
 
         verify(mockCoreSdkHandler, timeout(1000).times(1)).post(any())
     }
@@ -75,7 +75,7 @@ class EmarsysMessagingServiceTest {
     fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsFalse_doesNotCallSetPushToken() {
         setupEmarsys(false)
 
-        EmarsysMessagingService().onNewToken("testToken")
+        EmarsysFirebaseMessagingService().onNewToken("testToken")
 
         verify(mockPushInternal, times(0)).setPushToken("testToken", null)
     }

@@ -4,7 +4,7 @@ import com.emarsys.mobileengage.di.mobileEngage
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
-class EmarsysMessagingService : FirebaseMessagingService() {
+class EmarsysFirebaseMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         mobileEngage().coreSdkHandler.post {
@@ -16,6 +16,6 @@ class EmarsysMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        EmarsysMessagingServiceUtils.handleMessage(this@EmarsysMessagingService, remoteMessage)
+        EmarsysFirebaseMessagingServiceUtils.handleMessage(this@EmarsysFirebaseMessagingService, remoteMessage)
     }
 }

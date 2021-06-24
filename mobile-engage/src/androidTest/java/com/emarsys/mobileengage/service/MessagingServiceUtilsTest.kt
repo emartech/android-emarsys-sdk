@@ -6,7 +6,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Build.VERSION_CODES
-import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.test.filters.SdkSuppress
@@ -31,11 +30,9 @@ import com.emarsys.mobileengage.notification.command.SilentNotificationInformati
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
 import com.emarsys.mobileengage.service.MessagingServiceUtils.styleNotification
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.ReflectionTestUtils.instantiate
 import com.emarsys.testUtil.RetryUtils.retryRule
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.copyInputStreamToFile
-import com.google.firebase.messaging.RemoteMessage
 import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -139,13 +136,13 @@ class MessagingServiceUtilsTest {
     @Test
     fun testHandleMessage_shouldReturnFalse_ifMessageIsNotHandled() {
         whenever(mockRemoteMessageMapper.map(any())).thenReturn(EMPTY_NOTIFICATION_DATA)
-        MessagingServiceUtils.handleMessage(context, createRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader, mockActionCommandFactory, mockRemoteMessageMapper) shouldBe false
+        MessagingServiceUtils.handleMessage(context, createRemoteMessageData(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader, mockActionCommandFactory, mockRemoteMessageMapper) shouldBe false
     }
 
     @Test
     fun testHandleMessage_shouldReturnTrue_ifMessageIsHandled() {
         whenever(mockRemoteMessageMapper.map(any())).thenReturn(EMPTY_NOTIFICATION_DATA)
-        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessage(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader, mockActionCommandFactory, mockRemoteMessageMapper) shouldBe true
+        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessageData(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader, mockActionCommandFactory, mockRemoteMessageMapper) shouldBe true
     }
 
     @Test
@@ -785,19 +782,15 @@ class MessagingServiceUtilsTest {
         verify(mockBuilder).setStyle(any<T>())
     }
 
-    private fun createRemoteMessage(): RemoteMessage {
-        val bundle = Bundle()
-        bundle.putString("title", "title")
-        bundle.putString("body", "body")
-        return instantiate(RemoteMessage::class.java, 0, bundle)
+    private fun createRemoteMessageData(): Map<String, String> {
+        return mapOf("title" to "title",
+                "body" to "body")
     }
 
-    private fun createEMSRemoteMessage(): RemoteMessage {
-        val bundle = Bundle()
-        bundle.putString("title", "title")
-        bundle.putString("body", "body")
-        bundle.putString("ems_msg", "value")
-        return instantiate(RemoteMessage::class.java, 0, bundle)
+    private fun createEMSRemoteMessageData(): Map<String, String> {
+        return mapOf("title" to "title",
+                "body" to "body",
+                "ems_msg" to "value")
     }
 
     private fun createNoEmsInPayload(): Map<String, String> {
