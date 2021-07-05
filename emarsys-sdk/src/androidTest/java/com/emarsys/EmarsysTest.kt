@@ -232,8 +232,11 @@ class EmarsysTest {
             whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn("language")
             whenever(mockVersionProvider.provideSdkVersion()).thenReturn("version")
 
-            deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mockVersionProvider,
-                    mockLanguageProvider, mockNotificationManagerHelper, true)
+            deviceInfo = DeviceInfo(
+                    application, mockHardwareIdProvider, mockVersionProvider,
+                    mockLanguageProvider, mockNotificationManagerHelper,
+                    isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
+            )
 
             whenever(mockRequestContext.applicationCode).thenReturn(APPLICATION_CODE)
             whenever(mockRequestContext.deviceInfo).thenReturn(deviceInfo)

@@ -71,12 +71,15 @@ class ImageUtilsTest {
             on { provideSdkVersion() } doReturn "version"
         }
 
-        deviceInfo = DeviceInfo(getTargetContext(),
+        deviceInfo = DeviceInfo(
+                getTargetContext(),
                 mockHardwareIdProvider,
                 mockVersionProvider,
                 mockLanguageProvider,
                 Mockito.mock(NotificationManagerHelper::class.java),
-                true)
+                isAutomaticPushSendingEnabled = true,
+                isGooglePlayAvailable = true
+        )
     }
 
 

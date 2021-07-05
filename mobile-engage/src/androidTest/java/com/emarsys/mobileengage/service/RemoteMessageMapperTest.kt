@@ -102,12 +102,15 @@ class RemoteMessageMapperTest {
         whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
         whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn(LANGUAGE)
         whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
-        deviceInfo = DeviceInfo(context,
+        deviceInfo = DeviceInfo(
+                context,
                 mockHardwareIdProvider,
                 mockVersionProvider,
                 mockLanguageProvider,
                 mockNotificationSettings,
-                true)
+                isAutomaticPushSendingEnabled = true,
+                isGooglePlayAvailable = true
+        )
         mockMetaDataReader = mock()
         mockNotificationCache = mock()
         mockTimestampProvider = mock()

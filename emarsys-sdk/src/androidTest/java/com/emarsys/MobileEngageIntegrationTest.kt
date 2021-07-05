@@ -103,7 +103,8 @@ class MobileEngageIntegrationTest {
                     whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
                 },
                 mock(NotificationManagerHelper::class.java),
-                true
+                isAutomaticPushSendingEnabled = true,
+                isGooglePlayAvailable = true
         )
 
         DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {

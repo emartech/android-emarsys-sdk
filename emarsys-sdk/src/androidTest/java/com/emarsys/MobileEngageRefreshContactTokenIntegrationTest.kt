@@ -85,7 +85,8 @@ class MobileEngageRefreshContactTokenIntegrationTest {
                     whenever(provideLanguage(ArgumentMatchers.any())).thenReturn("en-US")
                 },
                 Mockito.mock(NotificationManagerHelper::class.java),
-                true
+                isAutomaticPushSendingEnabled = true,
+                isGooglePlayAvailable = true
         )
 
         DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {

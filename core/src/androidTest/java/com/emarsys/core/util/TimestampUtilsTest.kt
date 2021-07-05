@@ -57,7 +57,9 @@ class TimestampUtilsTest {
                 mockVersionProvider,
                 mockLanguageProvider,
                 mockNotificationManagerHelper,
-                true).timezone
+                isAutomaticPushSendingEnabled = true,
+                isGooglePlayAvailable = true
+        ).timezone
         val dateString = "2017-12-07T10:46:09.100"
         val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
         parser.timeZone = TimeZone.getTimeZone(deviceTimeZone)

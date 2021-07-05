@@ -92,7 +92,8 @@ class DefaultInboxIntegrationTest {
                     whenever(provideLanguage(any())).thenReturn(LANGUAGE)
                 },
                 mock(NotificationManagerHelper::class.java),
-                true
+                isAutomaticPushSendingEnabled = true,
+                isGooglePlayAvailable = true
         )
 
         DefaultEmarsysDependencies(baseConfig, object : DefaultEmarsysComponent(baseConfig) {

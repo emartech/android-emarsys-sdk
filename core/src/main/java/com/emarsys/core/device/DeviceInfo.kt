@@ -22,7 +22,8 @@ data class DeviceInfo(
         private val versionProvider: VersionProvider,
         private val languageProvider: LanguageProvider,
         val notificationSettings: NotificationSettings,
-        val isAutomaticPushSendingEnabled: Boolean
+        val isAutomaticPushSendingEnabled: Boolean,
+        val isGooglePlayAvailable: Boolean
 ) {
 
     companion object {
@@ -30,7 +31,10 @@ data class DeviceInfo(
     }
 
     val hardwareId: String = hardwareIdProvider.provideHardwareId()
-    val platform: String = "android"
+    val platform: String
+        get() {
+            return if (isGooglePlayAvailable) "android" else "android-huawei"
+        }
     val language: String = languageProvider.provideLanguage(Locale.getDefault())
     val timezone: String = SimpleDateFormat("Z", Locale.ENGLISH).format(Calendar.getInstance().time)
     val manufacturer: String = Build.MANUFACTURER

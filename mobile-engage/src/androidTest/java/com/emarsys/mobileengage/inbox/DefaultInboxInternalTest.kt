@@ -105,8 +105,11 @@ class DefaultInboxInternalTest {
         whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
         whenever(mockLanguageProvider.provideLanguage(any(Locale::class.java))).thenReturn(LANGUAGE)
         whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
-        deviceInfo = DeviceInfo(application, mockHardwareIdProvider, mockVersionProvider,
-                mockLanguageProvider, mock(), true)
+        deviceInfo = DeviceInfo(
+                application, mockHardwareIdProvider, mockVersionProvider,
+                mockLanguageProvider, mock(),
+                isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
+        )
 
         mockUuidProvider = mock()
         whenever(mockUuidProvider.provideId()).thenReturn(REQUEST_ID)

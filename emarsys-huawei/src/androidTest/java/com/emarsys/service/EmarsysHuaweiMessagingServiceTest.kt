@@ -95,7 +95,8 @@ class EmarsysHuaweiMessagingServiceTest {
                     on { provideLanguage(any()) } doReturn "language"
                 },
                 mock(),
-                isAutomaticPushSending
+                isAutomaticPushSending,
+                false
         )
 
         fakeDependencyContainer = FakeHuaweiDependencyConatiner(

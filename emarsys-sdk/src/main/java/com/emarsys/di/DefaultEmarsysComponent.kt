@@ -131,6 +131,8 @@ import com.emarsys.predict.shard.PredictShardListMerger
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.push.Push
 import com.emarsys.push.PushApi
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
 import org.json.JSONObject
@@ -321,11 +323,13 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val deviceInfo: DeviceInfo by lazy {
-            val notificationManagerCompat = NotificationManagerCompat.from(config.application)
-            val notificationManager = config.application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val notificationManagerProxy = NotificationManagerProxy(notificationManager, notificationManagerCompat)
-            val notificationSettings: NotificationSettings = NotificationManagerHelper(notificationManagerProxy)
-            DeviceInfo(config.application, hardwareIdProvider, VersionProvider(), LanguageProvider(), notificationSettings, config.automaticPushTokenSendingEnabled)
+        val notificationManagerCompat = NotificationManagerCompat.from(config.application)
+        val notificationManager = config.application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManagerProxy = NotificationManagerProxy(notificationManager, notificationManagerCompat)
+        val notificationSettings: NotificationSettings = NotificationManagerHelper(notificationManagerProxy)
+        val isGooglePlayAvailable = GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(config.application) == ConnectionResult.SUCCESS
+        DeviceInfo(config.application, hardwareIdProvider, VersionProvider(), LanguageProvider(),
+                notificationSettings, config.automaticPushTokenSendingEnabled, isGooglePlayAvailable)
     }
 
     override val timestampProvider: TimestampProvider by lazy {

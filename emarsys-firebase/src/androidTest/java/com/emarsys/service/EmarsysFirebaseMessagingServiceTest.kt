@@ -82,18 +82,19 @@ class EmarsysFirebaseMessagingServiceTest {
 
     private fun setupEmarsys(isAutomaticPushSending: Boolean) {
         val deviceInfo = DeviceInfo(
-            application,
-            mock {
-                on { provideHardwareId() } doReturn "hardwareId"
-            },
-            mock {
-                on { provideSdkVersion() } doReturn "version"
-            },
-            mock {
-                on { provideLanguage(any()) } doReturn "language"
-            },
-            mock(),
-            isAutomaticPushSending
+                application,
+                mock {
+                    on { provideHardwareId() } doReturn "hardwareId"
+                },
+                mock {
+                    on { provideSdkVersion() } doReturn "version"
+                },
+                mock {
+                    on { provideLanguage(any()) } doReturn "language"
+                },
+                mock(),
+                isAutomaticPushSending,
+                true
         )
 
         fakeDependencyContainer = FakeFirebaseDependencyContainer(

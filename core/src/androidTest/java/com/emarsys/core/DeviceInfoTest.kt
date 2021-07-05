@@ -71,8 +71,11 @@ class DeviceInfoTest {
         }
         mockNotificationManagerHelper = mock()
 
-        deviceInfo = DeviceInfo(context, mockHardwareIdProvider, mockVersionProvider,
-                mockLanguageProvider, mockNotificationManagerHelper, true)
+        deviceInfo = DeviceInfo(
+                context, mockHardwareIdProvider, mockVersionProvider,
+                mockLanguageProvider, mockNotificationManagerHelper,
+                isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
+        )
     }
 
     @After
@@ -110,8 +113,11 @@ class DeviceInfoTest {
         whenever(mockContext.packageManager).thenReturn(packageManager)
         whenever(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo)
         whenever(mockContext.applicationInfo).thenReturn(Mockito.mock(ApplicationInfo::class.java))
-        val info = DeviceInfo(mockContext, mockHardwareIdProvider, mockVersionProvider,
-                mockLanguageProvider, mockNotificationManagerHelper, true)
+        val info = DeviceInfo(
+                mockContext, mockHardwareIdProvider, mockVersionProvider,
+                mockLanguageProvider, mockNotificationManagerHelper,
+                isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
+        )
         info.applicationVersion shouldBe DeviceInfo.UNKNOWN_VERSION_NAME
     }
 
@@ -141,20 +147,26 @@ class DeviceInfoTest {
     @Test
     fun testIsDebugMode_withDebugApplication() {
         val mockDebugContext = applicationDebug
-        val debugDeviceInfo = DeviceInfo(mockDebugContext, mockHardwareIdProvider,
-                mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper, true)
+        val debugDeviceInfo = DeviceInfo(
+                mockDebugContext, mockHardwareIdProvider,
+                mockVersionProvider, mockLanguageProvider, mockNotificationManagerHelper,
+                isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
+        )
         debugDeviceInfo.isDebugMode.shouldBeTrue()
     }
 
     @Test
     fun testIsDebugMode_withReleaseApplication() {
         val mockReleaseContext = applicationRelease
-        val releaseDeviceInfo = DeviceInfo(mockReleaseContext,
+        val releaseDeviceInfo = DeviceInfo(
+                mockReleaseContext,
                 mockHardwareIdProvider,
                 mockVersionProvider,
                 mockLanguageProvider,
                 mockNotificationManagerHelper,
-                true)
+                isAutomaticPushSendingEnabled = true,
+                isGooglePlayAvailable = true
+        )
         releaseDeviceInfo.isDebugMode.shouldBeFalse()
     }
 
@@ -184,8 +196,11 @@ class DeviceInfoTest {
         whenever(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo)
         whenever(mockContext.applicationInfo).thenReturn(Mockito.mock(ApplicationInfo::class.java))
 
-        deviceInfo = DeviceInfo(mockContext, mockHardwareIdProvider, mockVersionProvider,
-                mockLanguageProvider, mockNotificationManagerHelper, true)
+        deviceInfo = DeviceInfo(
+                mockContext, mockHardwareIdProvider, mockVersionProvider,
+                mockLanguageProvider, mockNotificationManagerHelper,
+                isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = true
+        )
 
         whenever(mockNotificationManagerHelper.channelSettings).thenReturn(
                 listOf(
@@ -227,6 +242,28 @@ class DeviceInfoTest {
                   "appVersion": "$APP_VERSION" 
                 }""").toString()
         deviceInfo.deviceInfoPayload shouldBe expectedPayload
+    }
+
+    @Test
+    fun testDeviceInfo_platformShouldBeHuawei() {
+        val packageName = "packageName"
+        val mockContext = Mockito.mock(Context::class.java)
+        val packageInfo = PackageInfo()
+        val packageManager = Mockito.mock(PackageManager::class.java)
+        packageInfo.versionName = APP_VERSION
+        whenever(mockContext.contentResolver).thenReturn(getTargetContext().contentResolver)
+        whenever(mockContext.packageName).thenReturn(packageName)
+        whenever(mockContext.packageManager).thenReturn(packageManager)
+        whenever(packageManager.getPackageInfo(packageName, 0)).thenReturn(packageInfo)
+        whenever(mockContext.applicationInfo).thenReturn(Mockito.mock(ApplicationInfo::class.java))
+
+        deviceInfo = DeviceInfo(
+                mockContext, mockHardwareIdProvider, mockVersionProvider,
+                mockLanguageProvider, mockNotificationManagerHelper,
+                isAutomaticPushSendingEnabled = true, isGooglePlayAvailable = false
+        )
+
+        deviceInfo.platform shouldBe "android-huawei"
     }
 
     @Test
