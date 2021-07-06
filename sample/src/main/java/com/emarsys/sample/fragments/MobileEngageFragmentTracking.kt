@@ -16,9 +16,12 @@ import com.emarsys.Emarsys
 import com.emarsys.sample.R
 import com.emarsys.sample.extensions.copyToClipboard
 import com.emarsys.sample.extensions.showSnackBar
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
+import com.huawei.hms.aaid.HmsInstanceId
 import kotlinx.android.synthetic.main.fragment_mobile_engage_tracking.*
 import org.json.JSONException
 import org.json.JSONObject
@@ -28,6 +31,8 @@ class MobileEngageFragmentTracking : Fragment() {
     companion object {
         val TAG: String = MobileEngageFragmentTracking::class.java.simpleName
         const val REQUEST_LOCATION_PERMISSIONS = 99
+        const val HUAWEI_APP_ID = "104446913"
+        const val HUAWEI_PUSH_SCOPE = "com.emarsys.sample"
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -91,35 +96,54 @@ class MobileEngageFragmentTracking : Fragment() {
         }
 
         buttonTrackPushToken.setOnClickListener {
-            FirebaseApp.initializeApp(view.context)
-            FirebaseMessaging.getInstance().token.addOnCompleteListener {  task ->
-                task.addOnSuccessListener {
-                    val pushToken = it
-                    Emarsys.push.setPushToken(pushToken.toString())
-                    view.showSnackBar("Push Token tracked")
-                }
-                task.addOnFailureListener {
-                    it.printStackTrace()
-                    view.showSnackBar("Something went wrong!")
-                }
-            }
-        }
-
-        buttonCopyPushToken.setOnClickListener {
-            FirebaseApp.initializeApp(view.context)
-            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                run {
+            if (GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS) {
+                FirebaseApp.initializeApp(view.context)
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                     task.addOnSuccessListener {
                         val pushToken = it
-                        pushToken?.copyToClipboard(view.context)
-                        view.showSnackBar("Push Token copied: $pushToken")
+                        Emarsys.push.pushToken = pushToken
+                        view.showSnackBar("Push Token tracked")
                     }
                     task.addOnFailureListener {
                         it.printStackTrace()
                         view.showSnackBar("Something went wrong!")
                     }
                 }
+            } else {
+                Thread {
+                    val pushToken = HmsInstanceId.getInstance(activity).getToken(HUAWEI_APP_ID, HUAWEI_PUSH_SCOPE)
 
+                    activity?.runOnUiThread {
+                        Emarsys.push.pushToken = pushToken
+                    }
+                }.start()
+            }
+        }
+
+        buttonCopyPushToken.setOnClickListener {
+            if (GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS) {
+                FirebaseApp.initializeApp(view.context)
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                    run {
+                        task.addOnSuccessListener {
+                            val pushToken = it
+                            pushToken?.copyToClipboard(view.context)
+                            view.showSnackBar("Push Token copied: $pushToken")
+                        }
+                        task.addOnFailureListener {
+                            it.printStackTrace()
+                            view.showSnackBar("Something went wrong!")
+                        }
+                    }
+                }
+            } else {
+                Thread {
+                    val pushToken = HmsInstanceId.getInstance(activity).getToken(HUAWEI_APP_ID, HUAWEI_PUSH_SCOPE)
+                    activity?.runOnUiThread {
+                        pushToken?.copyToClipboard(view.context)
+                        view.showSnackBar("Push Token copied: $pushToken")
+                    }
+                }.start()
             }
         }
 
