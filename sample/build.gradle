@@ -95,8 +95,12 @@ repositories {
 dependencies {
     if (project.devConfig.useLocalDependency || System.env.DEVELOPMENT_MODE) {
         implementation project(':emarsys-sdk')
+        implementation project(':emarsys-firebase')
+        implementation project(':emarsys-huawei')
     } else {
         implementation 'com.emarsys:emarsys-sdk:+'
+//        implementation 'com.emarsys::emarsys-firebase:+'
+//        implementation 'com.emarsys::emarsys-huawei:+'
         implementation project(':emarsys-firebase')
         implementation project(':emarsys-huawei')
     }
