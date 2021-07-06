@@ -26,7 +26,6 @@ class MobileEngageFragment : Fragment() {
 
         val viewPagerAdapter = ViewPagerAdapter(requireActivity())
         viewPagerAdapter.addFragment(getString(R.string.menu_title_mobile_engage_tracking), MobileEngageFragmentTracking())
-        viewPagerAdapter.addFragment(getString(R.string.menu_title_inbox), InboxFragment())
         viewPagerAdapter.addFragment(getString(R.string.menu_title_message_inbox), MessageInboxFragment())
         viewPagerAdapter.addFragment(getString(R.string.menu_title_inline_in_app), InlineInAppFragment())
 

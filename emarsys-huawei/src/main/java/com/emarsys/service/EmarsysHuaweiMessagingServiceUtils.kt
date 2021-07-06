@@ -15,8 +15,6 @@ object EmarsysHuaweiMessagingServiceUtils {
                     context,
                     remoteMessage.dataOfMap,
                     mobileEngage().deviceInfo,
-                    mobileEngage().notificationCache,
-                    mobileEngage().timestampProvider,
                     mobileEngage().fileDownloader,
                     mobileEngage().silentMessageActionCommandFactory,
                     mobileEngage().remoteMessageMapper)

@@ -17,7 +17,6 @@ import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
-import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.RetryUtils
@@ -61,7 +60,6 @@ class RemoteMessageMapperTest {
     private lateinit var context: Context
     private lateinit var deviceInfo: DeviceInfo
     private lateinit var mockMetaDataReader: MetaDataReader
-    private lateinit var mockNotificationCache: NotificationCache
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockFileDownloader: FileDownloader
     private lateinit var mockActionCommandFactory: ActionCommandFactory
@@ -112,7 +110,6 @@ class RemoteMessageMapperTest {
                 isGooglePlayAvailable = true
         )
         mockMetaDataReader = mock()
-        mockNotificationCache = mock()
         mockTimestampProvider = mock()
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(1L)
 

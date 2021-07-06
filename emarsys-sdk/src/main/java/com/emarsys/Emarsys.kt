@@ -22,11 +22,8 @@ import com.emarsys.di.emarsys
 import com.emarsys.di.isEmarsysComponentSetup
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
-import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.api.event.EventHandler
-import com.emarsys.mobileengage.api.inbox.Notification
-import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.oneventaction.OnEventActionApi
 import com.emarsys.predict.PredictApi
@@ -58,10 +55,6 @@ object Emarsys {
     @JvmStatic
     val onEventAction: OnEventActionApi
         get() = EmarsysDependencyInjection.onEventAction()
-
-    @JvmStatic
-    val inbox: InboxApi
-        get() = EmarsysDependencyInjection.inbox()
 
     @JvmStatic
     val messageInbox: MessageInboxApi
@@ -465,50 +458,6 @@ object Emarsys {
         @JvmStatic
         fun setEventHandler(eventHandler: EventHandler) {
             inApp.setEventHandler(eventHandler)
-        }
-    }
-
-    @Deprecated(message = "Use inbox property instead, will be removed in 3.0.0", replaceWith = ReplaceWith("Emarsys.inbox"))
-    object Inbox {
-
-        @JvmStatic
-        fun fetchNotifications(resultListener: ResultListener<Try<NotificationInboxStatus>>) {
-            inbox.fetchNotifications(resultListener)
-        }
-
-        @JvmStatic
-        fun fetchNotifications(resultListener: (result: Try<NotificationInboxStatus>) -> Unit) {
-            inbox.fetchNotifications { resultListener(it) }
-        }
-
-        @JvmStatic
-        fun trackNotificationOpen(notification: Notification) {
-            inbox.trackNotificationOpen(notification)
-        }
-
-        @JvmStatic
-        fun trackNotificationOpen(notification: Notification, completionListener: (throwable: Throwable?) -> Unit) {
-            trackNotificationOpen(notification, CompletionListener { completionListener(it) })
-        }
-
-        @JvmStatic
-        fun trackNotificationOpen(notification: Notification, completionListener: CompletionListener) {
-            inbox.trackNotificationOpen(notification, completionListener)
-        }
-
-        @JvmStatic
-        fun resetBadgeCount() {
-            inbox.resetBadgeCount()
-        }
-
-        @JvmStatic
-        fun resetBadgeCount(completionListener: (throwable: Throwable?) -> Unit) {
-            resetBadgeCount(CompletionListener { completionListener(it) })
-        }
-
-        @JvmStatic
-        fun resetBadgeCount(completionListener: CompletionListener) {
-            inbox.resetBadgeCount(completionListener)
         }
     }
 

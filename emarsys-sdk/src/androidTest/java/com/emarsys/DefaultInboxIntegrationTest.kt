@@ -11,8 +11,6 @@ import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
 import com.emarsys.mobileengage.api.inbox.InboxResult
-import com.emarsys.mobileengage.api.inbox.Notification
-import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
@@ -48,7 +46,6 @@ class DefaultInboxIntegrationTest {
 
     private lateinit var latch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
-    lateinit var triedNotificationInboxStatus: Try<NotificationInboxStatus>
     private lateinit var triedInboxResult: Try<InboxResult>
 
     private var errorCause: Throwable? = null
@@ -109,38 +106,6 @@ class DefaultInboxIntegrationTest {
     @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys(application)
-    }
-
-    @Test
-    fun testFetchNotifications() {
-        Emarsys.inbox.fetchNotifications(eventuallyStoreResultInProperty(this::triedNotificationInboxStatus.setter)).eventuallyAssert {
-            triedNotificationInboxStatus.errorCause shouldBe null
-            triedNotificationInboxStatus.result shouldNotBe null
-        }
-    }
-
-    @Test
-    fun testResetBadgeCount() {
-        Emarsys.inbox.resetBadgeCount(eventuallyStoreResultInProperty(this::errorCause.setter)).eventuallyAssert {
-            errorCause shouldBe null
-        }
-    }
-
-    @Test
-    fun testTrackNotificationOpen() {
-        val notification = Notification(
-                "id",
-                "161e_D/1UiO/jCmE4",
-                "title",
-                null,
-                emptyMap(),
-                JSONObject(),
-                2000,
-                Date().time)
-
-        Emarsys.inbox.trackNotificationOpen(notification, eventuallyStoreResultInProperty(this::errorCause.setter)).eventuallyAssert {
-            errorCause shouldBe null
-        }
     }
 
     @Test

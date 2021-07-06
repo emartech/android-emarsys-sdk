@@ -7,7 +7,6 @@ import com.emarsys.deeplink.DeepLinkApi
 import com.emarsys.eventservice.EventServiceApi
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
-import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.MobileEngageApi
 import com.emarsys.oneventaction.OnEventActionApi
@@ -32,15 +31,6 @@ object EmarsysDependencyInjection {
             emarsys().predictRestricted
         } else {
             emarsys().loggingPredictRestricted
-        }
-    }
-
-    @JvmStatic
-    fun inbox(): InboxApi {
-        return if (isMobileEngageEnabled()) {
-            emarsys().inbox
-        } else {
-            emarsys().loggingInbox
         }
     }
 

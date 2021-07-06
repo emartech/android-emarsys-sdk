@@ -10,9 +10,6 @@ import com.emarsys.Emarsys.Config.contactFieldId
 import com.emarsys.Emarsys.InApp.pause
 import com.emarsys.Emarsys.InApp.resume
 import com.emarsys.Emarsys.InApp.setEventHandler
-import com.emarsys.Emarsys.Inbox.fetchNotifications
-import com.emarsys.Emarsys.Inbox.resetBadgeCount
-import com.emarsys.Emarsys.Inbox.trackNotificationOpen
 import com.emarsys.Emarsys.Predict.recommendProducts
 import com.emarsys.Emarsys.Predict.trackCart
 import com.emarsys.Emarsys.Predict.trackCategoryView
@@ -60,14 +57,11 @@ import com.emarsys.di.*
 
 import com.emarsys.eventservice.EventServiceApi
 import com.emarsys.inapp.InAppApi
-import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.MobileEngageApi
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.api.event.EventHandler
-import com.emarsys.mobileengage.api.inbox.Notification
-import com.emarsys.mobileengage.api.inbox.NotificationInboxStatus
 import com.emarsys.mobileengage.deeplink.DeepLinkAction
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
 import com.emarsys.mobileengage.event.EventServiceInternal
@@ -136,7 +130,6 @@ class EmarsysTest {
     private lateinit var mockContactFieldValueStorage: StringStorage
     private lateinit var mockContactTokenStorage: StringStorage
     private lateinit var mockClientStateStorage: StringStorage
-    private lateinit var mockInbox: InboxApi
     private lateinit var mockInApp: InAppApi
     private lateinit var mockLoggingInApp: InAppApi
     private lateinit var mockPush: PushApi
@@ -213,7 +206,6 @@ class EmarsysTest {
             mockHardwareIdProvider = mock()
             mockMobileEngageApi = mock()
             mockLoggingMobileEngageApi = mock()
-            mockInbox = mock()
             mockInApp = mock()
             mockLoggingInApp = mock()
             mockPush = mock()
@@ -270,7 +262,6 @@ class EmarsysTest {
                             responseHandlersProcessor = ResponseHandlersProcessor(ArrayList()),
                             mobileEngage = mockMobileEngageApi,
                             loggingMobileEngage = mockLoggingMobileEngageApi,
-                            inbox = mockInbox,
                             inApp = mockInApp,
                             loggingInApp = mockLoggingInApp,
                             push = mockPush,
@@ -1296,51 +1287,6 @@ class EmarsysTest {
         val mockEventHandler: EventHandler = mock()
         setEventHandler(mockEventHandler)
         verify(mockInApp).setEventHandler(mockEventHandler)
-    }
-
-    @Test
-    fun testInbox_fetchNotification_delegatesTo_inboxInstance() {
-        setup(mobileEngageConfig)
-
-        val mockResultListener: ResultListener<Try<NotificationInboxStatus>> = mock()
-        fetchNotifications(mockResultListener)
-        verify(mockInbox).fetchNotifications(mockResultListener)
-    }
-
-    @Test
-    fun testInbox_trackNotificationOpen_delegatesTo_inboxInstance() {
-        setup(mobileEngageConfig)
-
-        val mockNotification: Notification = mock()
-        trackNotificationOpen(mockNotification)
-        verify(mockInbox).trackNotificationOpen(mockNotification)
-    }
-
-    @Test
-    fun testInbox_trackNotificationOpen_withCompletionListener_delegatesTo_inboxInstance() {
-        setup(mobileEngageConfig)
-
-        val mockNotification: Notification = mock()
-        val mockCompletionListener: CompletionListener = mock()
-        trackNotificationOpen(mockNotification, mockCompletionListener)
-        verify(mockInbox).trackNotificationOpen(mockNotification, mockCompletionListener)
-    }
-
-    @Test
-    fun testInbox_resetBadgeCount_delegatesTo_inboxInstance() {
-        setup(mobileEngageConfig)
-
-        resetBadgeCount()
-        verify(mockInbox).resetBadgeCount()
-    }
-
-    @Test
-    fun testInbox_resetBadgeCount_withCompletionListener_delegatesTo_inboxInstance() {
-        setup(mobileEngageConfig)
-
-        val mockCompletionListener: CompletionListener = mock()
-        resetBadgeCount(mockCompletionListener)
-        verify(mockInbox).resetBadgeCount(mockCompletionListener)
     }
 
     @Test

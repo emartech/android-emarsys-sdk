@@ -19,8 +19,6 @@ object EmarsysFirebaseMessagingServiceUtils {
                     context,
                     remoteMessage.data,
                     mobileEngage().deviceInfo,
-                    mobileEngage().notificationCache,
-                    mobileEngage().timestampProvider,
                     mobileEngage().fileDownloader,
                     mobileEngage().silentMessageActionCommandFactory,
                     mobileEngage().remoteMessageMapper)

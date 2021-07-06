@@ -8,7 +8,6 @@ import com.emarsys.deeplink.DeepLinkApi
 import com.emarsys.eventservice.EventServiceApi
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
-import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.MobileEngageApi
 import com.emarsys.mobileengage.di.MobileEngageComponent
@@ -45,10 +44,6 @@ interface EmarsysComponent : MobileEngageComponent, PredictComponent {
     companion object {
         var instance: EmarsysComponent? = null
     }
-
-    val inbox: InboxApi
-
-    val loggingInbox: InboxApi
 
     val messageInbox: MessageInboxApi
 

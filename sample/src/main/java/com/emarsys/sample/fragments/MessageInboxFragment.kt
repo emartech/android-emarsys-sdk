@@ -16,8 +16,6 @@ import com.emarsys.sample.R
 import com.emarsys.sample.TagChangeListener
 import com.emarsys.sample.adapters.MessageInboxAdapter
 import com.emarsys.sample.extensions.showSnackBar
-import kotlinx.android.synthetic.main.fragment_inbox.inboxView
-import kotlinx.android.synthetic.main.fragment_inbox.swipeRefreshLayout
 import kotlinx.android.synthetic.main.fragment_message_inbox.*
 
 class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, TagChangeListener {

@@ -2,7 +2,6 @@
     <string name="app_name">Emarsys SDK Samples</string>
     <string name="menu_title_mobile_engage">Mobile engage</string>
     <string name="menu_title_mobile_engage_tracking">Tracking</string>
-    <string name="menu_title_inbox">Inbox</string>
     <string name="menu_title_inline_in_app">Inline In-App</string>
     <string name="menu_title_message_inbox">Message Inbox</string>
     <string name="menu_title_predict">Predict</string>

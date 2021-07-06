@@ -14,7 +14,6 @@ import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
-import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.resource.MetaDataReader
 import com.emarsys.core.util.FileDownloader
@@ -22,8 +21,6 @@ import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
-import com.emarsys.mobileengage.inbox.InboxParseUtils
-import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.notification.command.AppEventCommand
 import com.emarsys.mobileengage.notification.command.SilentNotificationInformationCommand
@@ -67,8 +64,6 @@ class MessagingServiceUtilsTest {
 
     private lateinit var context: Context
     private lateinit var deviceInfo: DeviceInfo
-    private lateinit var mockNotificationCache: NotificationCache
-    private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockFileDownloader: FileDownloader
     private lateinit var mockActionCommandFactory: ActionCommandFactory
     private lateinit var mockSilentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider
@@ -121,9 +116,6 @@ class MessagingServiceUtilsTest {
                 isAutomaticPushSendingEnabled = true,
                 isGooglePlayAvailable = true
         )
-        mockNotificationCache = mock()
-        mockTimestampProvider = mock()
-        whenever(mockTimestampProvider.provideTimestamp()).thenReturn(1L)
         mockRemoteMessageMapper = mock()
 
         setupMobileEngageComponent(
@@ -139,13 +131,13 @@ class MessagingServiceUtilsTest {
     @Test
     fun testHandleMessage_shouldReturnFalse_ifMessageIsNotHandled() {
         whenever(mockRemoteMessageMapper.map(any())).thenReturn(EMPTY_NOTIFICATION_DATA)
-        MessagingServiceUtils.handleMessage(context, createRemoteMessageData(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader, mockActionCommandFactory, mockRemoteMessageMapper) shouldBe false
+        MessagingServiceUtils.handleMessage(context, createRemoteMessageData(), deviceInfo, mockFileDownloader, mockActionCommandFactory, mockRemoteMessageMapper) shouldBe false
     }
 
     @Test
     fun testHandleMessage_shouldReturnTrue_ifMessageIsHandled() {
         whenever(mockRemoteMessageMapper.map(any())).thenReturn(EMPTY_NOTIFICATION_DATA)
-        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessageData(), deviceInfo, mockNotificationCache, mockTimestampProvider, mockFileDownloader, mockActionCommandFactory, mockRemoteMessageMapper) shouldBe true
+        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessageData(), deviceInfo, mockFileDownloader, mockActionCommandFactory, mockRemoteMessageMapper) shouldBe true
     }
 
     @Test
@@ -621,20 +613,6 @@ class MessagingServiceUtilsTest {
         val result = MessagingServiceUtils.createPreloadedRemoteMessageData(inAppPayload, inAppDescriptor)
 
         JSONObject(result["ems"]).has("inapp") shouldBe false
-    }
-
-    @Test
-    fun testCacheNotification_shouldCacheNotification() {
-        val remoteData: MutableMap<String, String?> = mutableMapOf(
-                "ems_msg" to "true",
-                "u" to """{"test_field":"","image":"https://media.giphy.com/media/ktvFa67wmjDEI/giphy.gif","deep_link":"lifestylelabels.com/mobile/product/3245678","sid":"sid_here"}""",
-                "id" to "21022.150123121212.43223434c3b9",
-                "inbox" to "true",
-                "title" to "hello there",
-                "rootParam1" to "param_param")
-        MessagingServiceUtils.cacheNotification(mockTimestampProvider, mockNotificationCache, remoteData)
-        val notification = InboxParseUtils.parseNotificationFromPushMessage(mockTimestampProvider, false, remoteData)
-        verify(mockNotificationCache).cache(notification)
     }
 
     @Test

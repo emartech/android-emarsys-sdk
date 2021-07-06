@@ -38,7 +38,6 @@ import com.emarsys.deeplink.DeepLinkApi
 import com.emarsys.eventservice.EventServiceApi
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InAppApi
-import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.MobileEngageApi
 import com.emarsys.mobileengage.MobileEngageInternal
@@ -57,9 +56,7 @@ import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
-import com.emarsys.mobileengage.inbox.InboxInternal
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
-import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
@@ -84,8 +81,6 @@ import com.nhaarman.mockitokotlin2.mock
 class FakeDependencyContainer(
         override val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler(),
         override val uiHandler: Handler = Handler(Looper.getMainLooper()),
-        override val inbox: InboxApi = mock(),
-        override val loggingInbox: InboxApi = mock(),
         override val messageInbox: MessageInboxApi = mock(),
         override val loggingMessageInbox: MessageInboxApi = mock(),
         override val deepLink: DeepLinkApi = mock(),
@@ -114,8 +109,6 @@ class FakeDependencyContainer(
         override val loggingMobileEngageInternal: MobileEngageInternal = mock(),
         override val clientServiceInternal: ClientServiceInternal = mock(),
         override val loggingClientServiceInternal: ClientServiceInternal = mock(),
-        override val inboxInternal: InboxInternal = mock(),
-        override val loggingInboxInternal: InboxInternal = mock(),
         override val messageInboxInternal: MessageInboxInternal = mock(),
         override val loggingMessageInboxInternal: MessageInboxInternal = mock(),
         override val inAppInternal: InAppInternal = mock(),
@@ -144,7 +137,6 @@ class FakeDependencyContainer(
         override val mobileEngageV2ServiceStorage: Storage<String?> = mock(),
         override val deviceEventStateStorage: Storage<String?> = mock(),
         override val responseHandlersProcessor: ResponseHandlersProcessor = mock(),
-        override val notificationCache: NotificationCache = mock(),
         override val pushTokenProvider: PushTokenProvider = mock(),
         override val clientServiceEndpointProvider: ServiceEndpointProvider = mock(),
         override val eventServiceEndpointProvider: ServiceEndpointProvider = mock(),

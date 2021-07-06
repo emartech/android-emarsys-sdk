@@ -49,9 +49,7 @@ import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
-import com.emarsys.mobileengage.inbox.InboxInternal
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
-import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
@@ -73,8 +71,6 @@ class FakeEmarsysDependencyContainer(
         override val loggingMobileEngageInternal: MobileEngageInternal = mock(),
         override val clientServiceInternal: ClientServiceInternal = mock(),
         override val loggingClientServiceInternal: ClientServiceInternal = mock(),
-        override val inboxInternal: InboxInternal = mock(),
-        override val loggingInboxInternal: InboxInternal = mock(),
         override val messageInboxInternal: MessageInboxInternal = mock(),
         override val loggingMessageInboxInternal: MessageInboxInternal = mock(),
         override val inAppInternal: InAppInternal = mock(),
@@ -103,7 +99,6 @@ class FakeEmarsysDependencyContainer(
         override val mobileEngageV2ServiceStorage: Storage<String?> = mock(),
         override val deviceEventStateStorage: Storage<String?> = mock(),
         override val responseHandlersProcessor: ResponseHandlersProcessor = mock(),
-        override val notificationCache: NotificationCache = mock(),
         override val pushTokenProvider: PushTokenProvider = mock(),
         override val clientServiceEndpointProvider: ServiceEndpointProvider = mock(),
         override val eventServiceEndpointProvider: ServiceEndpointProvider = mock(),

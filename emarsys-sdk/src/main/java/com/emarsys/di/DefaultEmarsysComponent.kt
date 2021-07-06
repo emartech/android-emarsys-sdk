@@ -71,8 +71,6 @@ import com.emarsys.geofence.Geofence
 import com.emarsys.geofence.GeofenceApi
 import com.emarsys.inapp.InApp
 import com.emarsys.inapp.InAppApi
-import com.emarsys.inbox.Inbox
-import com.emarsys.inbox.InboxApi
 import com.emarsys.inbox.MessageInbox
 import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.*
@@ -103,7 +101,6 @@ import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestReposito
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
 import com.emarsys.mobileengage.inbox.*
-import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.*
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider
@@ -155,10 +152,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
 
     override val uiHandler: Handler = Handler(config.application.mainLooper)
-
-    override val inbox: InboxApi = (Inbox() as InboxApi).proxyApi(coreSdkHandler)
-
-    override val loggingInbox: InboxApi = (Inbox(true) as InboxApi).proxyApi(coreSdkHandler)
 
     override val deepLink: DeepLinkApi = (DeepLink() as DeepLinkApi).proxyApi(coreSdkHandler)
 
@@ -558,14 +551,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         LoggingClientServiceInternal(Emarsys::class.java)
     }
 
-    override val inboxInternal: InboxInternal by lazy {
-        DefaultInboxInternal(requestManager, requestContext, mobileEngageRequestModelFactory)
-    }
-
-    override val loggingInboxInternal: InboxInternal by lazy {
-        LoggingInboxInternal(Emarsys::class.java)
-    }
-
     override val messageInboxInternal: MessageInboxInternal by lazy {
         DefaultMessageInboxInternal(requestManager, mobileEngageRequestModelFactory, MessageInboxResponseMapper())
     }
@@ -634,10 +619,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val logLevelStorage: Storage<String?> by lazy {
         StringStorage(CoreStorageKey.LOG_LEVEL, sharedPreferences)
-    }
-
-    override val notificationCache: NotificationCache by lazy {
-        NotificationCache()
     }
 
     override val pushTokenProvider: PushTokenProvider by lazy {

@@ -24,9 +24,7 @@ import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
-import com.emarsys.mobileengage.inbox.InboxInternal
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
-import com.emarsys.mobileengage.inbox.model.NotificationCache
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
 import com.emarsys.mobileengage.push.PushInternal
@@ -69,10 +67,6 @@ interface MobileEngageComponent : CoreComponent {
     val clientServiceInternal: ClientServiceInternal
 
     val loggingClientServiceInternal: ClientServiceInternal
-
-    val inboxInternal: InboxInternal
-
-    val loggingInboxInternal: InboxInternal
 
     val messageInboxInternal: MessageInboxInternal
 
@@ -131,8 +125,6 @@ interface MobileEngageComponent : CoreComponent {
     val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?>
 
     val responseHandlersProcessor: ResponseHandlersProcessor
-
-    val notificationCache: NotificationCache
 
     val pushTokenProvider: PushTokenProvider
 
