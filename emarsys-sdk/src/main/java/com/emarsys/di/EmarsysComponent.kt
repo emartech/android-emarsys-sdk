@@ -98,4 +98,5 @@ interface EmarsysComponent : MobileEngageComponent, PredictComponent {
 
     val loggingEventService: EventServiceApi
 
+    val isGooglePlayServiceAvailable: Boolean
 }

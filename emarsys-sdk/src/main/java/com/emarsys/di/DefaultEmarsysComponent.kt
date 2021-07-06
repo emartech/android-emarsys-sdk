@@ -149,6 +149,9 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         private const val PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELjWEUIBX9zlm1OI4gF1hMCBLzpaBwgs9HlmSIBAqP4MDGy4ibOOV3FVDrnAY0Q34LZTbPBlp3gRNZJ19UoSy2Q=="
     }
 
+    override val isGooglePlayServiceAvailable =
+            GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(config.application) == ConnectionResult.SUCCESS
+
     override val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
 
     override val uiHandler: Handler = Handler(config.application.mainLooper)
@@ -327,9 +330,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         val notificationManager = config.application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationManagerProxy = NotificationManagerProxy(notificationManager, notificationManagerCompat)
         val notificationSettings: NotificationSettings = NotificationManagerHelper(notificationManagerProxy)
-        val isGooglePlayAvailable = GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(config.application) == ConnectionResult.SUCCESS
         DeviceInfo(config.application, hardwareIdProvider, VersionProvider(), LanguageProvider(),
-                notificationSettings, config.automaticPushTokenSendingEnabled, isGooglePlayAvailable)
+                notificationSettings, config.automaticPushTokenSendingEnabled, isGooglePlayServiceAvailable)
     }
 
     override val timestampProvider: TimestampProvider by lazy {

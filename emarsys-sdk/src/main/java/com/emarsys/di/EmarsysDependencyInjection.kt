@@ -118,7 +118,7 @@ object EmarsysDependencyInjection {
 
     @JvmStatic
     fun geofence(): GeofenceApi {
-        return if (isMobileEngageEnabled()) {
+        return if (isMobileEngageEnabled() && emarsys().isGooglePlayServiceAvailable) {
             emarsys().geofence
         } else {
             emarsys().loggingGeofence
