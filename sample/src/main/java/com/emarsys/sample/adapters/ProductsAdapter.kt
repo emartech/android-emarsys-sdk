@@ -7,7 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import coil.api.load
+import coil.load
 import com.emarsys.Emarsys
 import com.emarsys.predict.api.model.Product
 import com.emarsys.sample.R
