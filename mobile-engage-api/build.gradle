@@ -1,7 +1,6 @@
 dependencies {
     implementation project(':core-api')
 
-    api Libs.firebase_messaging, { exclude group: 'androidx' }
     api Libs.location_services
 
     androidTestImplementation project(':testUtils')

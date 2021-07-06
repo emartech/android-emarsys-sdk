@@ -2,8 +2,6 @@ dependencies {
     api project(':core-api')
     api project(':mobile-engage-api')
     api project(':predict-api')
-    api project(':emarsys-firebase')
-    api project(':emarsys-huawei')
 
     implementation project(':common')
     implementation project(':core')
