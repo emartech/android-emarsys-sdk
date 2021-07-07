@@ -6,9 +6,6 @@ import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
 import io.kotlintest.shouldBe
 import org.junit.Assert
 import org.junit.Before
@@ -17,6 +14,9 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 
 class ActivityLifecycleWatchdogTest {

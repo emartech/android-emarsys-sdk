@@ -25,7 +25,7 @@ import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
-import io.kotlintest.matchers.numerics.shouldBeInRange
+import io.kotlintest.matchers.shouldBeInRange
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.After

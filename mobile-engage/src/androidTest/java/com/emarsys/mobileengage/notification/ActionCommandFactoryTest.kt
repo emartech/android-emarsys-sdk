@@ -9,7 +9,6 @@ import com.emarsys.mobileengage.notification.command.CustomEventCommand
 import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONArray
@@ -18,6 +17,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.mock
 
 class ActionCommandFactoryTest {
 

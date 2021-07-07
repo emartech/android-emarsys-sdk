@@ -16,7 +16,6 @@ import com.emarsys.mobileengage.notification.command.AppEventCommand
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.json.JSONObject
 import org.junit.After
@@ -24,6 +23,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.*
 
 class OnEventActionResponseHandlerTest {
 

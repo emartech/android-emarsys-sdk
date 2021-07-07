@@ -1,12 +1,12 @@
 package com.emarsys.mobileengage.notification.command
 
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.inOrder
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 class CompositeCommandTest {
 

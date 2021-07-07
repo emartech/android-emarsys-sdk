@@ -1,11 +1,11 @@
 package com.emarsys.core.crypto
 
 import com.emarsys.core.device.HardwareIdentification
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class HardwareIdentificationCryptoTest {
 

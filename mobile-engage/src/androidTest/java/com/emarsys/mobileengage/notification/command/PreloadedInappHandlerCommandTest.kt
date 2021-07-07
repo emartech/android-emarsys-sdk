@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.mobileengage.di.MobileEngageComponent
@@ -15,7 +14,6 @@ import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.json.JSONObject
 import org.junit.After
@@ -23,6 +21,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.*
 import java.io.File
 import java.util.concurrent.CountDownLatch
 

@@ -6,10 +6,10 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.*
 import java.net.URL
 
 class DeviceEventStateResponseHandlerTest {

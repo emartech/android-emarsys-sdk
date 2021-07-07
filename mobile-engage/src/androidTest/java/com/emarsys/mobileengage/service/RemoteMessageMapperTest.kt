@@ -22,10 +22,6 @@ import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.RetryUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.copyInputStreamToFile
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONObject
@@ -35,6 +31,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import java.io.File
 import java.util.*
 

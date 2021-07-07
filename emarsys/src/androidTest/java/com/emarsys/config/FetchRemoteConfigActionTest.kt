@@ -4,14 +4,14 @@ import com.emarsys.fake.FakeEmarsysDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.timeout
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.verify
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.timeout
 
 class FetchRemoteConfigActionTest {
 

@@ -1,9 +1,8 @@
 package com.emarsys
 
+
 import android.app.Application
 import android.os.Looper
-
-
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.emarsys
 import com.emarsys.di.setupEmarsysComponent
@@ -14,15 +13,15 @@ import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 class InAppTest {
     private lateinit var inApp: InApp

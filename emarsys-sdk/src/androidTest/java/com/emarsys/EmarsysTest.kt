@@ -54,7 +54,6 @@ import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.deeplink.DeepLinkApi
 import com.emarsys.di.*
-
 import com.emarsys.eventservice.EventServiceApi
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.MessageInboxApi
@@ -84,13 +83,13 @@ import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils.getInstanceField
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers
+import org.mockito.kotlin.*
 import java.util.*
 import java.util.concurrent.CountDownLatch
 

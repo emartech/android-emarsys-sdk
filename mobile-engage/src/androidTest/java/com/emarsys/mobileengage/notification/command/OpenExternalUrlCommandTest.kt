@@ -3,12 +3,12 @@ package com.emarsys.mobileengage.notification.command
 import android.content.Context
 import android.content.Intent
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 class OpenExternalUrlCommandTest {
     companion object {

@@ -6,13 +6,13 @@ import com.emarsys.di.emarsys
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.di.tearDownEmarsysComponent
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito
+import org.mockito.kotlin.mock
 
 class PredictRestrictedTest {
 

@@ -11,7 +11,6 @@ import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.data.forall
 import io.kotlintest.shouldBe
 import io.kotlintest.tables.row
@@ -19,6 +18,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.*
 import java.net.URL
 
 class InAppCleanUpResponseHandlerV4Test {

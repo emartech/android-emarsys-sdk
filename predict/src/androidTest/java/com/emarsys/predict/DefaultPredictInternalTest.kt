@@ -29,9 +29,6 @@ import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.Assert
 import org.junit.Before
@@ -39,6 +36,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.*
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 
 class DefaultPredictInternalTest {
@@ -479,11 +479,11 @@ class DefaultPredictInternalTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
-        val mockProvider: CompletionHandlerProxyProvider = com.nhaarman.mockitokotlin2.mock {
-            on { provideProxy(com.nhaarman.mockitokotlin2.isNull(), com.nhaarman.mockitokotlin2.any()) } doAnswer {
+        val mockProvider: CompletionHandlerProxyProvider = org.mockito.kotlin.mock {
+            on { provideProxy(org.mockito.kotlin.isNull(), org.mockito.kotlin.any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
             }
-            on { provideProxy(com.nhaarman.mockitokotlin2.any(), com.nhaarman.mockitokotlin2.any()) } doAnswer {
+            on { provideProxy(org.mockito.kotlin.any(), org.mockito.kotlin.any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
             }
         }

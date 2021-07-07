@@ -30,7 +30,6 @@ import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.RetryUtils.retryRule
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.copyInputStreamToFile
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONArray
@@ -41,6 +40,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
+import org.mockito.kotlin.*
 import java.io.File
 import java.util.*
 import kotlin.collections.HashMap
@@ -751,8 +751,8 @@ class MessagingServiceUtilsTest {
 
     private inline infix fun <reified T : NotificationCompat.Style> String.shouldCreateNotificationWithStyle(style: Class<T>) {
         val mockBuilder: NotificationCompat.Builder = mock {
-            on { setLargeIcon(com.nhaarman.mockitokotlin2.any()) } doReturn it
-            on { setStyle(com.nhaarman.mockitokotlin2.any()) } doReturn it
+            on { setLargeIcon(org.mockito.kotlin.any()) } doReturn it
+            on { setStyle(org.mockito.kotlin.any()) } doReturn it
         }
         val title = "testTitle"
         val body = "testBody"

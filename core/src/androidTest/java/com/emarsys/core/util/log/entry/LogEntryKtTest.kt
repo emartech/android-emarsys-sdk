@@ -1,10 +1,10 @@
 package com.emarsys.core.util.log.entry
 
 import com.emarsys.core.util.log.LogLevel
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 
 class LogEntryKtTest {
 

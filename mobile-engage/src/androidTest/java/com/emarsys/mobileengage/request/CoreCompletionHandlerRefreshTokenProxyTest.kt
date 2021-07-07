@@ -12,12 +12,12 @@ import com.emarsys.mobileengage.fake.FakeMobileEngageRefreshTokenInternal
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import com.nhaarman.mockitokotlin2.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers.eq
+import org.mockito.kotlin.*
 import java.net.URL
 
 class CoreCompletionHandlerRefreshTokenProxyTest {

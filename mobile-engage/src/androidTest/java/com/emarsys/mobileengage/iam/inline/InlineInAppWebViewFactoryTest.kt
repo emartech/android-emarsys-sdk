@@ -13,12 +13,12 @@ import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
 import com.emarsys.testUtil.ReflectionTestUtils
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
 class InlineInAppWebViewFactoryTest {

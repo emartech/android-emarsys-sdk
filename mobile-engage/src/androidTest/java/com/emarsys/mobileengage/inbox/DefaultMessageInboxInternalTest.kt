@@ -15,12 +15,12 @@ import com.emarsys.mobileengage.fake.FakeRestClient
 import com.emarsys.mobileengage.fake.FakeResultListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
 class DefaultMessageInboxInternalTest {

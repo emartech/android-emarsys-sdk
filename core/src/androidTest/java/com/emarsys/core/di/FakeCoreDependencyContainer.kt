@@ -25,7 +25,7 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.worker.Worker
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 
 class FakeCoreDependencyContainer(override val coreSdkHandler: CoreSdkHandler = mock(),
                                   override val uiHandler: Handler = mock(),

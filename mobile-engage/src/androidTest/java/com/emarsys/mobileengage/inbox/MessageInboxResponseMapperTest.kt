@@ -7,10 +7,10 @@ import com.emarsys.mobileengage.api.action.DismissActionModel
 import com.emarsys.mobileengage.api.action.OpenExternalUrlActionModel
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.api.inbox.Message
-import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 import java.net.URL
 
 class MessageInboxResponseMapperTest {

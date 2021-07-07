@@ -2,7 +2,6 @@ package com.emarsys.service
 
 import android.app.Application
 import com.emarsys.core.device.DeviceInfo
-
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.fake.FakeFirebaseDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
@@ -11,12 +10,12 @@ import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.*
 import org.mockito.stubbing.Answer
 import java.util.concurrent.CountDownLatch
 

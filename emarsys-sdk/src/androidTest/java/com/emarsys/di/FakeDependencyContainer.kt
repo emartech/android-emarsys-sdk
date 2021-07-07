@@ -76,7 +76,7 @@ import com.emarsys.predict.PredictRestrictedApi
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.push.PushApi
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 
 class FakeDependencyContainer(
         override val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler(),

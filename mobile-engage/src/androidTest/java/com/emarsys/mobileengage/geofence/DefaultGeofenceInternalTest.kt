@@ -30,13 +30,13 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 import com.emarsys.mobileengage.geofence.model.Geofence as MEGeofence
 

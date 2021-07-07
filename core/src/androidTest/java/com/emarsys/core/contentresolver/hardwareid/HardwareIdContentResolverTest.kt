@@ -8,15 +8,15 @@ import com.emarsys.core.crypto.HardwareIdentificationCrypto
 import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.provider.hardwareid.HardwareIdProviderTest
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyZeroInteractions
 
 class HardwareIdContentResolverTest : ProviderTestCase2<FakeContentProvider>(FakeContentProvider::class.java, "com.emarsys.test") {
 

@@ -20,7 +20,6 @@ import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.whenever
-import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.shouldBe
 import org.junit.Before
@@ -29,6 +28,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
+import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 
 class DefaultPushInternalTest {

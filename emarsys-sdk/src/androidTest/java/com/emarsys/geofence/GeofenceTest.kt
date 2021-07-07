@@ -1,21 +1,20 @@
 package com.emarsys.geofence
 
 import com.emarsys.core.api.result.CompletionListener
-
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 class GeofenceTest {
 

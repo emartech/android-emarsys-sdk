@@ -2,7 +2,6 @@ package com.emarsys
 
 import android.content.Intent
 import com.emarsys.core.api.result.CompletionListener
-
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
@@ -11,13 +10,13 @@ import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.push.Push
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito
+import org.mockito.kotlin.mock
 
 class PushTest {
     private lateinit var mockPushInternal: PushInternal

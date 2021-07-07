@@ -6,12 +6,12 @@ import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.session.Session
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import java.util.*
 import java.util.concurrent.CountDownLatch
 

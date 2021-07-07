@@ -13,12 +13,12 @@ import com.emarsys.core.util.batch.BatchingShardTrigger.RequestStrategy.TRANSIEN
 import com.emarsys.core.util.predicate.Predicate
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import com.nhaarman.mockitokotlin2.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito
+import org.mockito.kotlin.*
 
 class BatchingShardTriggerTest {
 

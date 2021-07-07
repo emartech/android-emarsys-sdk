@@ -1,18 +1,19 @@
 object Versions {
     const val kotlin_version = "1.5.20"
-    const val kotlin_test_version = "3.1.11"
-    const val mockito_version = "3.0.0"
+    const val kotlin_test_version = "3.4.2"
+    const val mockito_version = "3.11.2"
     const val firebase_messaging_version = "22.0.0"
     const val support_test_version = "1.4.0"
     const val support_library = "1.2.0"
     const val support_annotations = "1.2.0"
     const val buildToolsVersion = "30.0.2"
     const val multiDexVersion = "2.0.0"
-    const val kotlinMockito = "2.2.0"
+    const val kotlinMockito = "3.2.0"
     const val location_services_version = "18.0.0"
     const val espresso_idling_resources = "3.4.0"
     const val archLifecycleVersion ="2.3.1"
     const val securityCryptoVersion = "1.1.0-alpha03"
+    const val byte_buddy_version = "1.11.6"
 }
 
 object Libs {
@@ -30,7 +31,9 @@ object Libs {
 object TestLibs {
     const val kotlin_test = "io.kotlintest:kotlintest-runner-junit4:${Versions.kotlin_test_version}"
     const val mockito_android = "org.mockito:mockito-android:${Versions.mockito_version}"
-    const val kotlin_mockito = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.kotlinMockito}"
+    const val mockito_core = "org.mockito:mockito-core:${Versions.mockito_version}"
+    const val kotlin_mockito = "org.mockito.kotlin:mockito-kotlin:${Versions.kotlinMockito}"
+    const val byte_buddy = "net.bytebuddy:byte-buddy:${Versions.byte_buddy_version}"
     const val support_test_runner = "androidx.test:runner:${Versions.support_test_version}"
     const val support_test_rules = "androidx.test:rules:${Versions.support_test_version}"
     const val multiDex = "androidx.multidex:multidex-instrumentation:${Versions.multiDexVersion}"

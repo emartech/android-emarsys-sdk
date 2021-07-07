@@ -9,7 +9,6 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.model.RequestModel
@@ -28,7 +27,6 @@ import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONObject
@@ -38,6 +36,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.spy
+import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
 class InlineInAppViewTest {

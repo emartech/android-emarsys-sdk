@@ -3,11 +3,11 @@ package com.emarsys.mobileengage.session
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.mobileengage.event.EventServiceInternal
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.*
 
 class MobileEngageSessionTest {
 

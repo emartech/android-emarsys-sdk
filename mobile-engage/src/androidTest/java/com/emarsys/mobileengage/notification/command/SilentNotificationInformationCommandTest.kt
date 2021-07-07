@@ -4,12 +4,12 @@ import com.emarsys.mobileengage.api.push.NotificationInformation
 import com.emarsys.mobileengage.api.push.NotificationInformationListener
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 class SilentNotificationInformationCommandTest {
 

@@ -1,19 +1,18 @@
 package com.emarsys.eventservice
 
 import com.emarsys.core.api.result.CompletionListener
-
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 class EventServiceTest {
     companion object {

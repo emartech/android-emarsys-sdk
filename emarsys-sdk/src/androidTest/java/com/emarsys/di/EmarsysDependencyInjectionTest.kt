@@ -2,10 +2,10 @@ package com.emarsys.di
 
 import com.emarsys.geofence.Geofence
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 class EmarsysDependencyInjectionTest {
 

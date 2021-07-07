@@ -14,7 +14,6 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.specification.FilterByRequestIds
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.matchers.numerics.shouldBeLessThanOrEqual
 import io.kotlintest.shouldBe
 import org.junit.Assert
@@ -23,6 +22,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
+import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
 class CoreCompletionHandlerMiddlewareTest {

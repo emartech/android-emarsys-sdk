@@ -1,10 +1,9 @@
 package com.emarsys
 
+
 import android.os.Looper
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
-
-
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.emarsys
 import com.emarsys.di.setupEmarsysComponent
@@ -19,16 +18,16 @@ import com.emarsys.testUtil.RandomTestUtils.randomNumberString
 import com.emarsys.testUtil.RandomTestUtils.randomString
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.anyNotNull
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.isNull
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.isNull
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import java.util.*
 
 class PredictTest {

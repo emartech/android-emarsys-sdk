@@ -23,6 +23,8 @@ android {
 
     packagingOptions {
         exclude 'README.txt'
+        exclude 'META-INF/LICENSE.md'
+        exclude 'META-INF/LICENSE-notice.md'
     }
 }
 
@@ -34,7 +36,9 @@ dependencies {
     api Libs.kotlin
     api TestLibs.kotlin_test
     api TestLibs.mockito_android
+    api TestLibs.mockito_core
     api TestLibs.kotlin_mockito
+    api TestLibs.byte_buddy
     api TestLibs.support_test_runner
     api TestLibs.support_test_rules
     api TestLibs.multiDex

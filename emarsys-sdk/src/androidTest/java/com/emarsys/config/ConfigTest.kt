@@ -2,7 +2,6 @@ package com.emarsys.config
 
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.result.CompletionListener
-
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
@@ -10,7 +9,6 @@ import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
-import com.nhaarman.mockitokotlin2.doReturn
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
@@ -19,6 +17,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
+import org.mockito.kotlin.doReturn
 
 
 class ConfigTest {
@@ -43,13 +42,13 @@ class ConfigTest {
     @Before
     fun setUp() {
         mockConfigInternal = mock(ConfigInternal::class.java)
-        val mockClientServiceProvider: ServiceEndpointProvider = com.nhaarman.mockitokotlin2.mock {
+        val mockClientServiceProvider: ServiceEndpointProvider = org.mockito.kotlin.mock {
             on { provideEndpointHost() } doReturn CLIENT_HOST
         }
-        val mockEventServiceProvider: ServiceEndpointProvider = com.nhaarman.mockitokotlin2.mock {
+        val mockEventServiceProvider: ServiceEndpointProvider = org.mockito.kotlin.mock {
             on { provideEndpointHost() } doReturn EVENT_HOST
         }
-        val mockMessageInboxServiceProvider: ServiceEndpointProvider = com.nhaarman.mockitokotlin2.mock {
+        val mockMessageInboxServiceProvider: ServiceEndpointProvider = org.mockito.kotlin.mock {
             on { provideEndpointHost() } doReturn INBOX_HOST
         }
         val dependencyContainer = FakeDependencyContainer(

@@ -11,7 +11,6 @@ import com.emarsys.mobileengage.notification.NotificationCommandFactory
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
-import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
 import junit.framework.Assert
 import org.json.JSONArray
@@ -23,6 +22,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito
+import org.mockito.kotlin.whenever
 import java.util.*
 import java.util.concurrent.CountDownLatch
 

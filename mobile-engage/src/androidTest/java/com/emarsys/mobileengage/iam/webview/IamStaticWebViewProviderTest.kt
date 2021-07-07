@@ -10,13 +10,13 @@ import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider.Companion.webView
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import com.nhaarman.mockitokotlin2.mock
 import junit.framework.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito
+import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 
 internal class TestJSInterface : IamJsBridge(mock(), mock(), mock()) {

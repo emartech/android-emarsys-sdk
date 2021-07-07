@@ -8,7 +8,6 @@ import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.mockito.ThreadSpy
-import com.nhaarman.mockitokotlin2.*
 import junit.framework.Assert
 import org.json.JSONException
 import org.json.JSONObject
@@ -16,6 +15,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
 class AppEventCommandTest {

@@ -8,16 +8,16 @@ import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 
 class LogExceptionProxyTest {

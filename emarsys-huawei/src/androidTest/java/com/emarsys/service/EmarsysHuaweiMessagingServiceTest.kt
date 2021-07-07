@@ -11,12 +11,12 @@ import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.*
 import org.mockito.stubbing.Answer
 import java.util.concurrent.CountDownLatch
 

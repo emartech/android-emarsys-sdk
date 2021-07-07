@@ -11,13 +11,13 @@ import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
-import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
+import org.mockito.kotlin.mock
 
 class CoreCompletionHandlerRefreshTokenProxyProviderTest {
     private lateinit var mockCoreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider

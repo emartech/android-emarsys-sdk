@@ -12,7 +12,6 @@ import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.log.entry.LogEntry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
@@ -20,6 +19,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentCaptor
+import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
 

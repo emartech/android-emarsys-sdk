@@ -34,13 +34,13 @@ import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
 class DefaultConfigInternalTest {

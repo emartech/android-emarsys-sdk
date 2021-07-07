@@ -5,12 +5,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.test.platform.app.InstrumentationRegistry
 import com.emarsys.testUtil.fake.FakeActivity
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 
 class LaunchActivityCommandLifecycleCallbacksTest {

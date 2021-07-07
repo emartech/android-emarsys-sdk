@@ -62,7 +62,7 @@ import com.emarsys.mobileengage.service.RemoteMessageMapper
 import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.util.RequestModelHelper
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 
 class FakeEmarsysDependencyContainer(
         override val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler(),

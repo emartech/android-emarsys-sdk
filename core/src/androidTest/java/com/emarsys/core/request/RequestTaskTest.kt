@@ -11,13 +11,13 @@ import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.*
 import io.kotlintest.shouldBe
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.*
 import java.io.IOException
 import java.net.URL
 import java.util.*

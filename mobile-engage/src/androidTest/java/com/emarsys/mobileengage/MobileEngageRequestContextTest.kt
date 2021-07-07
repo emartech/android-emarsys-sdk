@@ -1,12 +1,12 @@
 package com.emarsys.mobileengage
 
 import com.emarsys.core.storage.StringStorage
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class MobileEngageRequestContextTest {
 

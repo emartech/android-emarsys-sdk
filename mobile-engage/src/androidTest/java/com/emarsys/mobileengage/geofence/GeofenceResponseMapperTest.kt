@@ -3,8 +3,6 @@ package com.emarsys.mobileengage.geofence
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.geofence.model.*
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import io.kotlintest.shouldBe
 import org.json.JSONArray
 import org.json.JSONObject
@@ -12,6 +10,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 class GeofenceResponseMapperTest {
 

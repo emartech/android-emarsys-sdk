@@ -2,7 +2,6 @@ package com.emarsys.config
 
 import android.app.Application
 import com.emarsys.core.api.experimental.FlipperFeature
-
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
@@ -11,8 +10,6 @@ import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.fail
 import io.kotlintest.shouldBe
 import org.junit.After
@@ -20,6 +17,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 
 class EmarsysConfigTest {
     companion object {

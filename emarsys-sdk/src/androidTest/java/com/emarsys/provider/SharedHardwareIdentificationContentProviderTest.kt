@@ -7,12 +7,12 @@ import android.test.ProviderTestCase2
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.testUtil.ReflectionTestUtils
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 
 
 class SharedHardwareIdentificationContentProviderTest : ProviderTestCase2<SharedHardwareIdentificationContentProvider>(SharedHardwareIdentificationContentProvider::class.java, "com.emarsys.test") {
