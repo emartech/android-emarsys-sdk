@@ -77,8 +77,6 @@ class DefaultConfigInternalTest {
     private lateinit var mockEventServiceStorage: StringStorage
     private lateinit var mockClientServiceStorage: StringStorage
     private lateinit var mockDeeplinkServiceStorage: StringStorage
-    private lateinit var mockInboxServiceStorage: StringStorage
-    private lateinit var mockMobileEngageV2ServiceStorage: StringStorage
     private lateinit var mockPredictServiceStorage: StringStorage
     private lateinit var mockMessageInboxServiceStorage: StringStorage
     private lateinit var mockLogLevelStorage: StringStorage
@@ -144,8 +142,6 @@ class DefaultConfigInternalTest {
         mockClientServiceStorage = mock()
         mockEventServiceStorage = mock()
         mockDeeplinkServiceStorage = mock()
-        mockInboxServiceStorage = mock()
-        mockMobileEngageV2ServiceStorage = mock()
         mockPredictServiceStorage = mock()
         mockMessageInboxServiceStorage = mock()
         mockLogLevelStorage = mock()
@@ -168,8 +164,6 @@ class DefaultConfigInternalTest {
                 mockClientServiceStorage,
                 mockEventServiceStorage,
                 mockDeeplinkServiceStorage,
-                mockInboxServiceStorage,
-                mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
                 mockLogLevelStorage,
@@ -261,8 +255,6 @@ class DefaultConfigInternalTest {
                 mockClientServiceStorage,
                 mockEventServiceStorage,
                 mockDeeplinkServiceStorage,
-                mockInboxServiceStorage,
-                mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
                 mockLogLevelStorage,
@@ -310,8 +302,6 @@ class DefaultConfigInternalTest {
                 mockClientServiceStorage,
                 mockEventServiceStorage,
                 mockDeeplinkServiceStorage,
-                mockInboxServiceStorage,
-                mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
                 mockLogLevelStorage,
@@ -359,8 +349,6 @@ class DefaultConfigInternalTest {
                 mockClientServiceStorage,
                 mockEventServiceStorage,
                 mockDeeplinkServiceStorage,
-                mockInboxServiceStorage,
-                mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
                 mockLogLevelStorage,
@@ -631,8 +619,6 @@ class DefaultConfigInternalTest {
                 mockClientServiceStorage,
                 mockEventServiceStorage,
                 mockDeeplinkServiceStorage,
-                mockInboxServiceStorage,
-                mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
                 mockLogLevelStorage,
@@ -662,8 +648,6 @@ class DefaultConfigInternalTest {
                 mockClientServiceStorage,
                 mockEventServiceStorage,
                 mockDeeplinkServiceStorage,
-                mockInboxServiceStorage,
-                mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
                 mockLogLevelStorage,
@@ -695,8 +679,6 @@ class DefaultConfigInternalTest {
                 mockClientServiceStorage,
                 mockEventServiceStorage,
                 mockDeeplinkServiceStorage,
-                mockInboxServiceStorage,
-                mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
                 mockLogLevelStorage,
@@ -730,8 +712,6 @@ class DefaultConfigInternalTest {
                 mockClientServiceStorage,
                 mockEventServiceStorage,
                 mockDeeplinkServiceStorage,
-                mockInboxServiceStorage,
-                mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
                 mockLogLevelStorage,
@@ -761,8 +741,6 @@ class DefaultConfigInternalTest {
                 mockClientServiceStorage,
                 mockEventServiceStorage,
                 mockDeeplinkServiceStorage,
-                mockInboxServiceStorage,
-                mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
                 mockLogLevelStorage,
@@ -794,8 +772,6 @@ class DefaultConfigInternalTest {
                 mockClientServiceStorage,
                 mockEventServiceStorage,
                 mockDeeplinkServiceStorage,
-                mockInboxServiceStorage,
-                mockMobileEngageV2ServiceStorage,
                 mockPredictServiceStorage,
                 mockMessageInboxServiceStorage,
                 mockLogLevelStorage,
@@ -822,8 +798,6 @@ class DefaultConfigInternalTest {
         verify(mockClientServiceStorage).set(CLIENT_SERVICE_URL)
         verify(mockEventServiceStorage).set(null)
         verify(mockDeeplinkServiceStorage).set(null)
-        verify(mockInboxServiceStorage).set(null)
-        verify(mockMobileEngageV2ServiceStorage).set(null)
         verify(mockPredictServiceStorage).set(null)
         verify(mockMessageInboxServiceStorage).set(null)
     }
@@ -855,8 +829,6 @@ class DefaultConfigInternalTest {
         verify(mockClientServiceStorage).set(CLIENT_SERVICE_URL)
         verify(mockEventServiceStorage).set(EVENT_SERVICE_URL)
         verify(mockDeeplinkServiceStorage).set(DEEPLINK_SERVICE_URL)
-        verify(mockInboxServiceStorage).set(INBOX_SERVICE_URL)
-        verify(mockMobileEngageV2ServiceStorage).set(MOBILE_ENGAGE_V2_SERVICE_URL)
         verify(mockPredictServiceStorage).set(PREDICT_SERVICE_URL)
         verify(mockMessageInboxServiceStorage).set(MESSAGE_INBOX_SERVICE_URL)
         verify(mockLogLevelStorage).set("DEBUG")
@@ -889,8 +861,6 @@ class DefaultConfigInternalTest {
         verify(mockClientServiceStorage).set(null)
         verify(mockEventServiceStorage).set(null)
         verify(mockDeeplinkServiceStorage).set(null)
-        verify(mockInboxServiceStorage).set(null)
-        verify(mockMobileEngageV2ServiceStorage).set(null)
         verify(mockPredictServiceStorage).set(null)
         verify(mockMessageInboxServiceStorage).set(null)
         verify(mockLogLevelStorage).set(null)

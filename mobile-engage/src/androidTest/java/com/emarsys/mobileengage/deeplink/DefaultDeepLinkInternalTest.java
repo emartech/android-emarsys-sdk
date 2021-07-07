@@ -47,7 +47,7 @@ public class DefaultDeepLinkInternalTest {
     private DeviceInfo mockDeviceInfo;
     private ServiceEndpointProvider mockDeepLinkServiceProvider;
     private static final String APPLICATION_CODE = "applicationCode";
-    private static final String DEEPLINK_BASE = "https://deep-link.eservice.emarsys.net/api/";
+    private static final String DEEPLINK_BASE = "https://deep-link.eservice.emarsys.net";
     @Rule
     public TestRule timeout = TimeoutUtils.getTimeoutRule();
 
@@ -118,7 +118,7 @@ public class DefaultDeepLinkInternalTest {
                 String.format("Emarsys SDK %s Android %s", requestContext.getDeviceInfo().getSdkVersion(), Build.VERSION.SDK_INT));
 
         RequestModel expected = new RequestModel.Builder(timestampProvider, uuidProvider)
-                .url(DEEPLINK_BASE + "clicks")
+                .url(DEEPLINK_BASE + "/api/clicks")
                 .headers(headers)
                 .payload(payload)
                 .build();

@@ -38,9 +38,7 @@ class MobileEngageRequestModelFactoryTest {
         const val CONTACT_FIELD_ID = 3
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
         const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
-        const val MOBILE_ENGAGE_V2_HOST = "https://push.eservice.emarsys.net/api/mobileengage/v2/"
         const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
-        const val INBOX_HOST = "https://me-inbox.eservice.emarsys.net/api/"
         const val INBOX_V3_HOST = "https://me-inbox.eservice.emarsys.net/v3"
         val CLICKS = listOf(
                 ButtonClicked("campaignId1", "buttonId1", 1L),
@@ -58,8 +56,6 @@ class MobileEngageRequestModelFactoryTest {
     lateinit var requestFactory: MobileEngageRequestModelFactory
     lateinit var mockEventServiceProvider: ServiceEndpointProvider
     lateinit var mockClientServiceProvider: ServiceEndpointProvider
-    lateinit var mockMobileEngageV2Provider: ServiceEndpointProvider
-    lateinit var mockInboxServiceProvider: ServiceEndpointProvider
     lateinit var mockButtonClickedRepository: ButtonClickedRepository
     lateinit var mockContactFieldValueStorage: StringStorage
 
@@ -75,12 +71,7 @@ class MobileEngageRequestModelFactoryTest {
         mockClientServiceProvider = mock {
             on { provideEndpointHost() } doReturn CLIENT_HOST
         }
-        mockMobileEngageV2Provider = mock {
-            on { provideEndpointHost() } doReturn MOBILE_ENGAGE_V2_HOST
-        }
-        mockInboxServiceProvider = mock {
-            on { provideEndpointHost() } doReturn INBOX_HOST
-        }
+
         mockNotificationSettings = mock {
             on { channelSettings } doReturn listOf()
             on { importance } doReturn 0
@@ -127,8 +118,6 @@ class MobileEngageRequestModelFactoryTest {
                 mockRequestContext,
                 mockClientServiceProvider,
                 mockEventServiceProvider,
-                mockMobileEngageV2Provider,
-                mockInboxServiceProvider,
                 mockMessageInboxServiceProvider,
                 mockButtonClickedRepository)
     }
@@ -323,57 +312,6 @@ class MobileEngageRequestModelFactoryTest {
         )
 
         val result = requestFactory.createRefreshContactTokenRequest()
-
-        result shouldBe expected
-    }
-
-    @Test
-    fun testCreateTrackNotificationOpenRequest() {
-        val expected = RequestModel(
-                "https://push.eservice.emarsys.net/api/mobileengage/v2/events/message_open",
-                RequestMethod.POST,
-                RequestPayloadUtils.createTrackNotificationOpenPayload("sid", mockRequestContext),
-                RequestHeaderUtils.createBaseHeaders_V2(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
-        )
-
-        val result = requestFactory.createTrackNotificationOpenRequest("sid")
-
-        result shouldBe expected
-    }
-
-    @Test
-    fun testCreateResetBadgeCountRequest() {
-        val expected = RequestModel(
-                "https://me-inbox.eservice.emarsys.net/api/reset-badge-count",
-                RequestMethod.POST,
-                null,
-                RequestHeaderUtils.createInboxHeaders(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
-        )
-
-        val result = requestFactory.createResetBadgeCountRequest()
-
-        result shouldBe expected
-    }
-
-    @Test
-    fun testCreateFetchNotificationsRequest() {
-        val expected = RequestModel(
-                "https://me-inbox.eservice.emarsys.net/api/notifications",
-                RequestMethod.GET,
-                null,
-                RequestHeaderUtils.createInboxHeaders(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
-        )
-
-        val result = requestFactory.createFetchNotificationsRequest()
 
         result shouldBe expected
     }

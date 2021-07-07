@@ -1,5 +1,7 @@
 package com.emarsys.mobileengage.deeplink;
 
+import static com.emarsys.mobileengage.endpoint.Endpoint.deepLinkBase;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -55,7 +57,7 @@ public class DefaultDeepLinkInternal implements DeepLinkInternal {
                 payload.put(ems_dl, deepLinkQueryParam);
 
                 RequestModel model = new RequestModel.Builder(requestContext.getTimestampProvider(), requestContext.getUuidProvider())
-                        .url(deepLinkServiceProvider.provideEndpointHost() + "clicks")
+                        .url(deepLinkServiceProvider.provideEndpointHost() + deepLinkBase())
                         .headers(createHeaders())
                         .payload(payload)
                         .build();

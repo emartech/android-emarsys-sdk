@@ -399,16 +399,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         StringStorage(MobileEngageStorageKey.DEEPLINK_SERVICE_URL, sharedPreferences)
     }
 
-    override val inboxServiceStorage: Storage<String?> by lazy {
-        StringStorage(MobileEngageStorageKey.INBOX_SERVICE_URL, sharedPreferences)
-    }
-
     override val messageInboxServiceStorage: Storage<String?> by lazy {
         StringStorage(MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL, sharedPreferences)
-    }
-
-    override val mobileEngageV2ServiceStorage: Storage<String?> by lazy {
-        StringStorage(MobileEngageStorageKey.ME_V2_SERVICE_URL, sharedPreferences)
     }
 
     override val deviceEventStateStorage: Storage<String?> by lazy {
@@ -431,16 +423,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         ServiceEndpointProvider(deepLinkServiceStorage, Endpoint.DEEP_LINK)
     }
 
-    override val inboxServiceProvider: ServiceEndpointProvider by lazy {
-        ServiceEndpointProvider(inboxServiceStorage, Endpoint.INBOX_BASE)
-    }
-
     override val messageInboxServiceProvider: ServiceEndpointProvider by lazy {
         ServiceEndpointProvider(messageInboxServiceStorage, Endpoint.ME_V3_INBOX_HOST)
-    }
-
-    override val mobileEngageV2ServiceProvider: ServiceEndpointProvider by lazy {
-        ServiceEndpointProvider(mobileEngageV2ServiceStorage, Endpoint.ME_BASE_V2)
     }
 
     override val requestModelHelper: RequestModelHelper by lazy {
@@ -493,8 +477,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                 requestContext,
                 clientServiceEndpointProvider,
                 eventServiceEndpointProvider,
-                mobileEngageV2ServiceProvider,
-                inboxServiceProvider,
                 messageInboxServiceProvider,
                 buttonClickedRepository)
     }
@@ -711,8 +693,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                 clientServiceStorage,
                 eventServiceStorage,
                 deepLinkServiceStorage,
-                inboxServiceStorage,
-                mobileEngageV2ServiceStorage,
                 predictServiceStorage,
                 messageInboxServiceStorage,
                 logLevelStorage,

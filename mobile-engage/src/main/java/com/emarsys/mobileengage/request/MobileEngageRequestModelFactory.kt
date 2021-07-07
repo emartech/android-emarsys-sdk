@@ -24,8 +24,6 @@ import java.util.*
 class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRequestContext,
                                       private val clientServiceProvider: ServiceEndpointProvider,
                                       private val eventServiceProvider: ServiceEndpointProvider,
-                                      private val mobileEngageV2Provider: ServiceEndpointProvider,
-                                      private val inboxServiceProvider: ServiceEndpointProvider,
                                       private val messageInboxServiceProvider: ServiceEndpointProvider,
                                       private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>) {
 
@@ -76,22 +74,6 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
         return builder.build()
     }
 
-    fun createTrackNotificationOpenRequest(sid: String): RequestModel {
-        return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
-                .url("${mobileEngageV2Provider.provideEndpointHost()}events/message_open")
-                .payload(createTrackNotificationOpenPayload(sid, requestContext))
-                .headers(RequestHeaderUtils.createBaseHeaders_V2(requestContext))
-                .build()
-    }
-
-    fun createResetBadgeCountRequest(): RequestModel {
-        return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
-                .url("${inboxServiceProvider.provideEndpointHost()}reset-badge-count")
-                .headers(RequestHeaderUtils.createInboxHeaders(requestContext))
-                .method(RequestMethod.POST)
-                .build()
-    }
-
     fun createCustomEventRequest(eventName: String, eventAttributes: Map<String, String>?): RequestModel {
         val payload = createCustomEventPayload(eventName, eventAttributes, requestContext)
         return createEvent(payload, requestContext)
@@ -120,14 +102,6 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
                 .method(RequestMethod.POST)
                 .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .payload(payload)
-                .build()
-    }
-
-    fun createFetchNotificationsRequest(): RequestModel {
-        return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
-                .url("${inboxServiceProvider.provideEndpointHost()}notifications")
-                .headers(RequestHeaderUtils.createInboxHeaders(requestContext))
-                .method(RequestMethod.GET)
                 .build()
     }
 

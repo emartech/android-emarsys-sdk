@@ -27,28 +27,4 @@ public class RequestHeaderUtils {
 
         return defaultHeaders;
     }
-
-    public static Map<String, String> createBaseHeaders_V2(MobileEngageRequestContext requestContext) {
-        Assert.notNull(requestContext, "RequestContext must not be null!");
-
-        Map<String, String> baseHeaders = new HashMap<>();
-        baseHeaders.put("Authorization", HeaderUtils.createBasicAuth(requestContext.getApplicationCode()));
-        return baseHeaders;
-    }
-
-    public static Map<String, String> createInboxHeaders(MobileEngageRequestContext requestContext) {
-        Assert.notNull(requestContext, "RequestContext must not be null!");
-
-        Map<String, String> headers = new HashMap<>();
-
-        headers.put("x-ems-me-hardware-id", requestContext.getDeviceInfo().getHardwareId());
-        headers.put("x-ems-me-application-code", requestContext.getApplicationCode());
-        headers.put("x-ems-me-contact-field-id", String.valueOf(requestContext.getContactFieldId()));
-        headers.put("x-ems-me-contact-field-value", requestContext.getContactFieldValueStorage().get());
-
-        headers.putAll(createDefaultHeaders(requestContext));
-        headers.putAll(createBaseHeaders_V2(requestContext));
-
-        return headers;
-    }
 }

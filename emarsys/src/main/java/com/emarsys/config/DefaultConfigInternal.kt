@@ -36,8 +36,6 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val clientServiceStorage: Storage<String?>,
                             private val eventServiceStorage: Storage<String?>,
                             private val deeplinkServiceStorage: Storage<String?>,
-                            private val inboxServiceStorage: Storage<String?>,
-                            private val mobileEngageV2ServiceStorage: Storage<String?>,
                             private val predictServiceStorage: Storage<String?>,
                             private val messageInboxServiceStorage: Storage<String?>,
                             private val logLevelStorage: Storage<String?>,
@@ -261,8 +259,6 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         clientServiceStorage.set(remoteConfig.clientServiceUrl)
         eventServiceStorage.set(remoteConfig.eventServiceUrl)
         deeplinkServiceStorage.set(remoteConfig.deepLinkServiceUrl)
-        inboxServiceStorage.set(remoteConfig.inboxServiceUrl)
-        mobileEngageV2ServiceStorage.set(remoteConfig.mobileEngageV2ServiceUrl)
         predictServiceStorage.set(remoteConfig.predictServiceUrl)
         messageInboxServiceStorage.set(remoteConfig.messageInboxServiceUrl)
         logLevelStorage.set(remoteConfig.logLevel?.name)
@@ -285,8 +281,6 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         clientServiceStorage.set(null)
         eventServiceStorage.set(null)
         deeplinkServiceStorage.set(null)
-        inboxServiceStorage.set(null)
-        mobileEngageV2ServiceStorage.set(null)
         predictServiceStorage.set(null)
         messageInboxServiceStorage.set(null)
         logLevelStorage.set(null)

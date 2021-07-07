@@ -114,11 +114,7 @@ interface MobileEngageComponent : CoreComponent {
 
     val deepLinkServiceStorage: Storage<String?>
 
-    val inboxServiceStorage: Storage<String?>
-
     val messageInboxServiceStorage: Storage<String?>
-
-    val mobileEngageV2ServiceStorage: Storage<String?>
 
     val deviceEventStateStorage: Storage<String?>
 
@@ -134,11 +130,7 @@ interface MobileEngageComponent : CoreComponent {
 
     val deepLinkServiceProvider: ServiceEndpointProvider
 
-    val inboxServiceProvider: ServiceEndpointProvider
-
     val messageInboxServiceProvider: ServiceEndpointProvider
-
-    val mobileEngageV2ServiceProvider: ServiceEndpointProvider
 
     val notificationInformationListenerProvider: NotificationInformationListenerProvider
 

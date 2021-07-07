@@ -48,9 +48,7 @@ object IntegrationTestUtils {
             emarsys().clientServiceStorage.remove()
             emarsys().eventServiceStorage.remove()
             emarsys().deepLinkServiceStorage.remove()
-            emarsys().inboxServiceStorage.remove()
             emarsys().messageInboxServiceStorage.remove()
-            emarsys().mobileEngageV2ServiceStorage.remove()
             emarsys().predictServiceStorage.remove()
             latch.countDown()
         }

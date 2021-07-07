@@ -103,43 +103,4 @@ class RequestHeaderUtilsTest {
 
         result shouldBe expected
     }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateBaseHeaders_V2_requestContext_mustNotBeNull() {
-        RequestHeaderUtils.createBaseHeaders_V2(null)
-    }
-
-    @Test
-    fun testCreateBaseHeaders_V2_shouldReturnCorrectMap() {
-        val expected = HashMap<String, String>()
-        expected["Authorization"] = HeaderUtils.createBasicAuth(APPLICATION_CODE)
-
-        val result = RequestHeaderUtils.createBaseHeaders_V2(mockRequestContext)
-
-        result shouldBe expected
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateInboxHeaders_requestContext_mustNotBeNull() {
-        RequestHeaderUtils.createInboxHeaders(null)
-    }
-
-    @Test
-    fun testCreateInboxHeaders() {
-        val expected = mapOf(
-                "x-ems-me-hardware-id" to HARDWARE_ID,
-                "x-ems-me-application-code" to APPLICATION_CODE,
-                "x-ems-me-contact-field-id" to CONTACT_FIELD_ID.toString(),
-                "x-ems-me-contact-field-value" to CONTACT_FIELD_VALUE,
-                "Content-Type" to "application/json",
-                "X-EMARSYS-SDK-VERSION" to SDK_VERSION,
-                "X-EMARSYS-SDK-MODE" to "production",
-                "Authorization" to HeaderUtils.createBasicAuth(APPLICATION_CODE)
-        )
-
-        val result = RequestHeaderUtils.createInboxHeaders(mockRequestContext)
-
-        result shouldBe expected
-    }
-
 }
