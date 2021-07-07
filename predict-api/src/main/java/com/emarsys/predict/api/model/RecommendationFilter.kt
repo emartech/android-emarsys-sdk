@@ -1,159 +1,119 @@
-package com.emarsys.predict.api.model;
+package com.emarsys.predict.api.model
 
-import androidx.annotation.NonNull;
+class RecommendationFilter {
+    companion object {
+        private const val IS = "IS"
+        private const val IN = "IN"
+        private const val HAS = "HAS"
+        private const val OVERLAPS = "OVERLAPS"
 
-import com.emarsys.core.util.Assert;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
-public class RecommendationFilter {
-
-    private String type;
-    private String field;
-    private String comparison;
-    private List<String> expectations;
-
-    private static final String IS = "IS";
-    private static final String IN = "IN";
-    private static final String HAS = "HAS";
-    private static final String OVERLAPS = "OVERLAPS";
-
-    RecommendationFilter(String type, String field, String comparison, List<String> expectations) {
-        this.type = type;
-        this.field = field;
-        this.comparison = comparison;
-        this.expectations = expectations;
-    }
-
-    RecommendationFilter(String type, String field, String comparison, String expectation) {
-        this.type = type;
-        this.field = field;
-        this.comparison = comparison;
-        this.expectations = Collections.singletonList(expectation);
-    }
-
-    public static Exclude exclude(@NonNull String field) {
-        Assert.notNull(field, "Field must not be null!");
-
-        return new Exclude(field);
-    }
-
-    public static Include include(@NonNull String field) {
-        Assert.notNull(field, "Field must not be null!");
-
-        return new Include(field);
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getField() {
-        return field;
-    }
-
-    public String getComparison() {
-        return comparison;
-    }
-
-    public List<String> getExpectations() {
-        return expectations;
-    }
-
-    public static class Exclude {
-
-        private static final String TYPE = "EXCLUDE";
-        final String field;
-
-        private Exclude(String field) {
-            this.field = field;
+        @JvmStatic
+        fun include(field: String): Include {
+            return Include.include(field)
         }
 
-        public RecommendationFilter isValue(@NonNull String value) {
-            Assert.notNull(value, "Value must not be null!");
-
-            return new RecommendationFilter(TYPE, field, IS, value);
-        }
-
-        public RecommendationFilter inValues(@NonNull List<String> values) {
-            Assert.elementsNotNull(values, "Values must not be null!");
-
-            return new RecommendationFilter(TYPE, field, IN, values);
-        }
-
-        public RecommendationFilter hasValue(@NonNull String value) {
-            Assert.notNull(value, "Value must not be null!");
-
-            return new RecommendationFilter(TYPE, field, HAS, value);
-        }
-
-        public RecommendationFilter overlapsValues(@NonNull List<String> values) {
-            Assert.elementsNotNull(values, "Values must not be null!");
-
-            return new RecommendationFilter(TYPE, field, OVERLAPS, values);
+        @JvmStatic
+        fun exclude(field: String): Exclude {
+            return Exclude.exclude(field)
         }
     }
 
-    public static class Include {
+    val type: String
+    val field: String
+    val comparison: String
+    val expectations: List<String?>
 
-        private static final String TYPE = "INCLUDE";
-        final String field;
+    internal constructor(type: String, field: String, comparison: String, expectations: List<String?>) {
+        this.type = type
+        this.field = field
+        this.comparison = comparison
+        this.expectations = expectations
+    }
 
-        public Include(String field) {
-            this.field = field;
+    internal constructor(type: String, field: String, comparison: String, expectation: String) {
+        this.type = type
+        this.field = field
+        this.comparison = comparison
+        expectations = listOf(expectation)
+    }
+
+    class Exclude private constructor(val field: String) {
+
+        companion object {
+            private const val TYPE = "EXCLUDE"
+
+            @JvmStatic
+            fun exclude(field: String): Exclude {
+                return Exclude(field)
+            }
         }
 
-        public RecommendationFilter isValue(@NonNull String value) {
-            Assert.notNull(value, "Value must not be null!");
-
-            return new RecommendationFilter(TYPE, field, IS, value);
+        fun isValue(value: String): RecommendationFilter {
+            return RecommendationFilter(TYPE, field, IS, value)
         }
 
-        public RecommendationFilter inValues(@NonNull List<String> values) {
-            Assert.elementsNotNull(values, "Values must not be null!");
-
-            return new RecommendationFilter(TYPE, field, IN, values);
+        fun inValues(values: List<String>): RecommendationFilter {
+            return RecommendationFilter(TYPE, field, IN, values)
         }
 
-        public RecommendationFilter hasValue(@NonNull String value) {
-            Assert.notNull(value, "Value must not be null!");
-
-            return new RecommendationFilter(TYPE, field, HAS, value);
+        fun hasValue(value: String): RecommendationFilter {
+            return RecommendationFilter(TYPE, field, HAS, value)
         }
 
-        public RecommendationFilter overlapsValues(@NonNull List<String> values) {
-            Assert.elementsNotNull(values, "Values must not be null!");
+        fun overlapsValues(values: List<String>): RecommendationFilter {
+            return RecommendationFilter(TYPE, field, OVERLAPS, values)
+        }
 
-            return new RecommendationFilter(TYPE, field, OVERLAPS, values);
+
+    }
+
+    class Include private constructor(val field: String) {
+        companion object {
+            private const val TYPE = "INCLUDE"
+
+            @JvmStatic
+            fun include(field: String): Include {
+                return Include(field)
+            }
+        }
+
+        fun isValue(value: String): RecommendationFilter {
+            return RecommendationFilter(TYPE, field, IS, value)
+        }
+
+        fun inValues(values: List<String>): RecommendationFilter {
+            return RecommendationFilter(TYPE, field, IN, values)
+        }
+
+        fun hasValue(value: String): RecommendationFilter {
+            return RecommendationFilter(TYPE, field, HAS, value)
+        }
+
+        fun overlapsValues(values: List<String>): RecommendationFilter {
+            return RecommendationFilter(TYPE, field, OVERLAPS, values)
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RecommendationFilter that = (RecommendationFilter) o;
-        return Objects.equals(type, that.type) &&
-                Objects.equals(field, that.field) &&
-                Objects.equals(comparison, that.comparison) &&
-                Objects.equals(expectations, that.expectations);
+        other as RecommendationFilter
+
+        if (type != other.type) return false
+        if (field != other.field) return false
+        if (comparison != other.comparison) return false
+        if (expectations != other.expectations) return false
+
+        return true
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(type, field, comparison, expectations);
+    override fun hashCode(): Int {
+        var result = type.hashCode()
+        result = 31 * result + field.hashCode()
+        result = 31 * result + comparison.hashCode()
+        result = 31 * result + expectations.hashCode()
+        return result
     }
 
-    @Override
-    public String toString() {
-        return "RecommendationFilter{" +
-                "type='" + type + '\'' +
-                ", field='" + field + '\'' +
-                ", comparison='" + comparison + '\'' +
-                ", expectations=" + expectations +
-                '}';
-    }
 }

@@ -1,182 +1,129 @@
-package com.emarsys.predict.api.model;
+package com.emarsys.predict.api.model
 
-import com.emarsys.testUtil.TimeoutUtils;
+import com.emarsys.testUtil.TimeoutUtils.timeoutRule
+import com.emarsys.predict.api.model.RecommendationFilter.Companion.exclude
+import com.emarsys.predict.api.model.RecommendationFilter.Companion.include
+import io.kotlintest.shouldBe
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.TestRule
+import java.util.*
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+class RecommendationFilterTest {
 
-import java.util.Arrays;
-import java.util.List;
+    companion object {
+        private const val FIELD = "field"
+        private const val SINGLE_EXPECTATION = "singleExpectation"
+        private val MULTIPLE_EXPECTATIONS = listOf("expectation1", "expectation2")
+        private const val EXCLUDE_TYPE = "EXCLUDE"
+        private const val INCLUDE_TYPE = "INCLUDE"
+    }
 
-public class RecommendationFilterTest {
-
-    private static final String FIELD = "field";
-    private static final String SINGLE_EXPECTATION = "singleExpectation";
-    private static final List<String> MULTIPLE_EXPECTATIONS = Arrays.asList("expectation1", "expectation2");
-
-    private static final String EXCLUDE_TYPE = "EXCLUDE";
-    private static final String INCLUDE_TYPE = "INCLUDE";
-
-    RecommendationFilter.Exclude exclude;
-    RecommendationFilter.Include include;
+    lateinit var exclude: RecommendationFilter.Exclude
+    lateinit var include: RecommendationFilter.Include
 
     @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
+    @JvmField
+    var timeout: TestRule = timeoutRule
 
     @Before
-    public void setUp() {
-        exclude = RecommendationFilter.exclude(FIELD);
-        include = RecommendationFilter.include(FIELD);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testExclude_field_mustNotBeNull() {
-        RecommendationFilter.exclude(null);
+    fun setUp() {
+        exclude = exclude(FIELD)
+        include = include(FIELD)
     }
 
     @Test
-    public void testExclude_shouldReturn_withExcludeInstance() {
-        Assert.assertEquals(RecommendationFilter.exclude(FIELD).getClass(), RecommendationFilter.Exclude.class);
+    fun testExclude_shouldReturn_withExcludeInstance() {
+        exclude(FIELD).javaClass shouldBe RecommendationFilter.Exclude::class.java
     }
 
     @Test
-    public void testExcludeConstructor_withField() {
-        Assert.assertEquals(RecommendationFilter.exclude(FIELD).field, "field");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testExclude_is_expectation_mustNotBeNull() {
-        exclude.isValue(null);
+    fun testExcludeConstructor_withField() {
+        exclude(FIELD).field shouldBe "field"
     }
 
     @Test
-    public void testExclude_is_shouldReturn_RecommendationFilter() {
-        Assert.assertEquals(exclude.isValue("singleExpectation").getClass(), RecommendationFilter.class);
+    fun testExclude_is_shouldReturn_RecommendationFilter() {
+        exclude.isValue("singleExpectation").javaClass shouldBe RecommendationFilter::class.java
     }
 
     @Test
-    public void testExclude_is_shouldReturn_RecommendationFilterFilledWithInputParameters() {
-        RecommendationFilter expected = new RecommendationFilter(EXCLUDE_TYPE, FIELD, "IS", SINGLE_EXPECTATION);
-        RecommendationFilter result = exclude.isValue("singleExpectation");
+    fun testExclude_is_shouldReturn_RecommendationFilterFilledWithInputParameters() {
+        val expected = RecommendationFilter(EXCLUDE_TYPE, FIELD, "IS", SINGLE_EXPECTATION)
+        val result = exclude.isValue("singleExpectation")
 
-        Assert.assertEquals(expected, result);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testExclude_in_expectation_mustNotBeNull() {
-        exclude.inValues(null);
+        result shouldBe expected
     }
 
     @Test
-    public void testExclude_in_shouldReturn_RecommendationFilterFilledWithInputParameters() {
-        RecommendationFilter expected = new RecommendationFilter(EXCLUDE_TYPE, FIELD, "IN", MULTIPLE_EXPECTATIONS);
-        RecommendationFilter result = exclude.inValues(Arrays.asList("expectation1", "expectation2"));
+    fun testExclude_in_shouldReturn_RecommendationFilterFilledWithInputParameters() {
+        val expected = RecommendationFilter(EXCLUDE_TYPE, FIELD, "IN", MULTIPLE_EXPECTATIONS)
+        val result = exclude.inValues(listOf("expectation1", "expectation2"))
 
-        Assert.assertEquals(expected, result);
-    }
-
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testExclude_has_expectation_mustNotBeNull() {
-        exclude.hasValue(null);
+        result shouldBe expected
     }
 
     @Test
-    public void testExclude_has_shouldReturn_RecommendationFilterFilledWithInputParameters() {
-        RecommendationFilter expected = new RecommendationFilter(EXCLUDE_TYPE, FIELD, "HAS", SINGLE_EXPECTATION);
-        RecommendationFilter result = exclude.hasValue("singleExpectation");
+    fun testExclude_has_shouldReturn_RecommendationFilterFilledWithInputParameters() {
+        val expected = RecommendationFilter(EXCLUDE_TYPE, FIELD, "HAS", SINGLE_EXPECTATION)
+        val result = exclude.hasValue("singleExpectation")
 
-        Assert.assertEquals(expected, result);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testExclude_overlaps_expectation_mustNotBeNull() {
-        exclude.overlapsValues(null);
+        result shouldBe expected
     }
 
     @Test
-    public void testExclude_overlaps_shouldReturn_RecommendationFilterFilledWithInputParameters() {
-        RecommendationFilter expected = new RecommendationFilter(EXCLUDE_TYPE, FIELD, "OVERLAPS", MULTIPLE_EXPECTATIONS);
-        RecommendationFilter result = exclude.overlapsValues(Arrays.asList("expectation1", "expectation2"));
+    fun testExclude_overlaps_shouldReturn_RecommendationFilterFilledWithInputParameters() {
+        val expected = RecommendationFilter(EXCLUDE_TYPE, FIELD, "OVERLAPS", MULTIPLE_EXPECTATIONS)
+        val result = exclude.overlapsValues(listOf("expectation1", "expectation2"))
 
-        Assert.assertEquals(expected, result);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInclude_field_mustNotBeNull() {
-        RecommendationFilter.include(null);
-    }
-
-
-    @Test
-    public void testInclude_shouldReturn_withIncludeInstance() {
-        Assert.assertEquals(RecommendationFilter.include(FIELD).getClass(), RecommendationFilter.Include.class);
+        result shouldBe expected
     }
 
     @Test
-    public void testIncludeConstructor_withField() {
-        Assert.assertEquals(RecommendationFilter.include(FIELD).field, "field");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInclude_is_expectation_mustNotBeNull() {
-        include.isValue(null);
+    fun testInclude_shouldReturn_withIncludeInstance() {
+        include(FIELD).javaClass shouldBe RecommendationFilter.Include::class.java
     }
 
     @Test
-    public void testInclude_is_shouldReturn_RecommendationFilter() {
-        Assert.assertEquals(include.isValue("singleExpectation").getClass(), RecommendationFilter.class);
+    fun testIncludeConstructor_withField() {
+        include(FIELD).field shouldBe "field"
     }
 
     @Test
-    public void testInclude_is_shouldReturn_RecommendationFilterFilledWithInputParameters() {
-        RecommendationFilter expected = new RecommendationFilter(INCLUDE_TYPE, FIELD, "IS", SINGLE_EXPECTATION);
-        RecommendationFilter result = include.isValue("singleExpectation");
-
-        Assert.assertEquals(expected, result);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInclude_in_expectation_mustNotBeNull() {
-        include.inValues(null);
+    fun testInclude_is_shouldReturn_RecommendationFilter() {
+        include.isValue("singleExpectation").javaClass shouldBe RecommendationFilter::class.java
     }
 
     @Test
-    public void testInclude_in_shouldReturn_RecommendationFilterFilledWithInputParameters() {
-        RecommendationFilter expected = new RecommendationFilter(INCLUDE_TYPE, FIELD, "IN", MULTIPLE_EXPECTATIONS);
-        RecommendationFilter result = include.inValues(Arrays.asList("expectation1", "expectation2"));
+    fun testInclude_is_shouldReturn_RecommendationFilterFilledWithInputParameters() {
+        val expected = RecommendationFilter(INCLUDE_TYPE, FIELD, "IS", SINGLE_EXPECTATION)
+        val result = include.isValue("singleExpectation")
 
-        Assert.assertEquals(expected, result);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInclude_has_expectation_mustNotBeNull() {
-        include.hasValue(null);
+        result shouldBe expected
     }
 
     @Test
-    public void testInclude_has_shouldReturn_RecommendationFilterFilledWithInputParameters() {
-        RecommendationFilter expected = new RecommendationFilter(INCLUDE_TYPE, FIELD, "HAS", SINGLE_EXPECTATION);
-        RecommendationFilter result = include.hasValue("singleExpectation");
+    fun testInclude_in_shouldReturn_RecommendationFilterFilledWithInputParameters() {
+        val expected = RecommendationFilter(INCLUDE_TYPE, FIELD, "IN", MULTIPLE_EXPECTATIONS)
+        val result = include.inValues(listOf("expectation1", "expectation2"))
 
-        Assert.assertEquals(expected, result);
-    }
-
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInclude_overlaps_expectation_mustNotBeNull() {
-        include.overlapsValues(null);
+        result shouldBe expected
     }
 
     @Test
-    public void testInclude_overlaps_shouldReturn_RecommendationFilterFilledWithInputParameters() {
-        RecommendationFilter expected = new RecommendationFilter(INCLUDE_TYPE, FIELD, "OVERLAPS", MULTIPLE_EXPECTATIONS);
-        RecommendationFilter result = include.overlapsValues(Arrays.asList("expectation1", "expectation2"));
+    fun testInclude_has_shouldReturn_RecommendationFilterFilledWithInputParameters() {
+        val expected = RecommendationFilter(INCLUDE_TYPE, FIELD, "HAS", SINGLE_EXPECTATION)
+        val result = include.hasValue("singleExpectation")
 
-        Assert.assertEquals(expected, result);
+        result shouldBe expected
     }
 
+    @Test
+    fun testInclude_overlaps_shouldReturn_RecommendationFilterFilledWithInputParameters() {
+        val expected = RecommendationFilter(INCLUDE_TYPE, FIELD, "OVERLAPS", MULTIPLE_EXPECTATIONS)
+        val result = include.overlapsValues(Arrays.asList("expectation1", "expectation2"))
+
+        result shouldBe expected
+    }
 }
