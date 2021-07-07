@@ -19,7 +19,6 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
 import com.emarsys.di.emarsys
-import com.emarsys.mobileengage.api.EventHandler
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.mockito.whenever
@@ -80,8 +79,7 @@ class MobileEngageIntegrationTest {
 
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
-                .inAppEventHandler(mock(EventHandler::class.java))
-                .mobileEngageApplicationCode(APP_ID)
+                .applicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .build()
 
@@ -191,21 +189,6 @@ class MobileEngageIntegrationTest {
         eventServiceInternal.trackInternalCustomEvent(
                 "integrationTestInternalCustomEvent",
                 mapOf("key1" to "value1", "key2" to "value2"),
-                this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
-    }
-
-    @Test
-    fun testTrackMessageOpen_V3() {
-        val intent = Intent().apply {
-            putExtra("payload", Bundle().apply {
-                putString("key1", "value1")
-                putString("u", """{"sid": "1cf3f_JhIPRzBvNtQF"}""")
-            })
-        }
-
-        Emarsys.push.trackMessageOpen(
-                intent,
                 this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
     }

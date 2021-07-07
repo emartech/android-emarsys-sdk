@@ -39,10 +39,6 @@ class Config : ConfigApi {
         changeApplicationCode(applicationCode, contactFieldId, completionListener)
     }
 
-    override fun changeApplicationCode(applicationCode: String?, completionListener: (throwable: Throwable?) -> Unit) {
-        changeApplicationCode(applicationCode, CompletionListener { completionListener(it) })
-    }
-
     override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int) {
         changeApplicationCode(applicationCode, contactFieldId, null)
     }
@@ -50,10 +46,6 @@ class Config : ConfigApi {
     override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: CompletionListener?) {
         emarsys().configInternal
                 .changeApplicationCode(applicationCode, contactFieldId, completionListener)
-    }
-
-    override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: (throwable: Throwable?) -> Unit) {
-        changeApplicationCode(applicationCode, contactFieldId, CompletionListener { completionListener(it) })
     }
 
     override fun changeMerchantId(merchantId: String?) {

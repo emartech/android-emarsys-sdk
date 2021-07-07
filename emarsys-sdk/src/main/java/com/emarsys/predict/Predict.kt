@@ -94,56 +94,6 @@ class Predict(private val loggingInstance: Boolean = false) : PredictApi {
                 .recommendProducts(recommendationLogic, limit, recommendationFilters, null, resultListener)
     }
 
-    override fun recommendProducts(recommendationLogic: Logic, resultListener: (Try<List<Product>>) -> Unit) {
-        (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, null, null, null, ResultListener { result -> resultListener.invoke(result) })
-    }
-
-    override fun recommendProducts(recommendationLogic: Logic, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit) {
-        (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, null, null, availabilityZone, ResultListener { result -> resultListener.invoke(result) })
-    }
-
-    override fun recommendProducts(recommendationLogic: Logic, limit: Int, resultListener: (Try<List<Product>>) -> Unit) {
-        Assert.positiveInt(limit, "Limit must be greater than zero!")
-        (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, limit, null, null, ResultListener { result -> resultListener.invoke(result) })
-    }
-
-    override fun recommendProducts(recommendationLogic: Logic, limit: Int, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit) {
-        Assert.positiveInt(limit, "Limit must be greater than zero!")
-        (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, limit, null, availabilityZone, ResultListener { result -> resultListener.invoke(result) })
-    }
-
-    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, resultListener: (Try<List<Product>>) -> Unit) {
-        (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, null, recommendationFilters, null, ResultListener { result -> resultListener.invoke(result) })
-    }
-
-    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit) {
-        (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, null, recommendationFilters, availabilityZone, ResultListener { result -> resultListener.invoke(result) })
-    }
-
-    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, resultListener: (Try<List<Product>>) -> Unit) {
-        Assert.positiveInt(limit, "Limit must be greater than zero!")
-        (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, limit, recommendationFilters, null, ResultListener { result -> resultListener.invoke(result) })
-    }
-
-    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit) {
-        Assert.positiveInt(limit, "Limit must be greater than zero!")
-        (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, limit, recommendationFilters, availabilityZone, ResultListener { result -> resultListener.invoke(result) })
-    }
-
-    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>?, limit: Int?, availabilityZone: String?, resultListener: (Try<List<Product>>) -> Unit) {
-        Assert.positiveInt(limit, "Limit must be greater than zero!")
-        (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, limit, recommendationFilters, availabilityZone, ResultListener { result -> resultListener.invoke(result) })
-    }
-
     override fun trackRecommendationClick(product: Product) {
         (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
                 .trackRecommendationClick(product)

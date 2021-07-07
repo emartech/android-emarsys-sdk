@@ -116,7 +116,7 @@ class DashboardFragment : Fragment() {
     }
 
     private fun handleLoginResult(error: Throwable?, contactName: String? = null) {
-        val contactId  = contactName ?: contactId.text.toString()
+        val contactId = contactName ?: contactId.text.toString()
         if (error != null) {
             Log.e(MobileEngageFragmentTracking.TAG, error.toString())
             view?.showSnackBar("Login: failed :(")

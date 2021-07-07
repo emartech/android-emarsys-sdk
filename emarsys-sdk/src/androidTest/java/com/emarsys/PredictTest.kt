@@ -294,17 +294,12 @@ class PredictTest {
 
     private fun createItem(id: String, price: Double, quantity: Double): CartItem {
         return object : CartItem {
-            override fun getItemId(): String {
-                return id
-            }
-
-            override fun getPrice(): Double {
-                return price
-            }
-
-            override fun getQuantity(): Double {
-                return quantity
-            }
+            override val itemId: String?
+                get() = id
+            override val price: Double
+                get() = price
+            override val quantity: Double
+                get() = quantity
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.emarsys.push
 
-import android.content.Intent
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.mobileengage.api.event.EventHandler
@@ -10,34 +9,23 @@ import com.emarsys.mobileengage.di.mobileEngage
 @Mockable
 class Push(private val loggingInstance: Boolean = false) : PushApi {
 
-    override fun trackMessageOpen(intent: Intent) {
-        (if (loggingInstance) mobileEngage().loggingPushInternal else mobileEngage().pushInternal)
-                .trackMessageOpen(intent, null)
-    }
-
-    override fun trackMessageOpen(
-            intent: Intent,
-            completionListener: CompletionListener) {
-        (if (loggingInstance) mobileEngage().loggingPushInternal else mobileEngage().pushInternal)
-                .trackMessageOpen(intent, completionListener)
-    }
-
-    override fun setPushToken(pushToken: String) {
-        (if (loggingInstance) mobileEngage().loggingPushInternal else mobileEngage().pushInternal)
-                .setPushToken(pushToken, null)
-    }
+    override var pushToken: String?
+        get() {
+            return (if (loggingInstance) mobileEngage().loggingPushInternal else mobileEngage().pushInternal)
+                    .pushToken
+        }
+        set(value) {
+            (if (loggingInstance) mobileEngage().loggingPushInternal else mobileEngage().pushInternal)
+                    .setPushToken(value, null)
+        }
 
     override fun setPushToken(
             pushToken: String,
-            completionListener: CompletionListener) {
+            completionListener: CompletionListener?) {
         (if (loggingInstance) mobileEngage().loggingPushInternal else mobileEngage().pushInternal)
                 .setPushToken(pushToken, completionListener)
     }
 
-    override fun getPushToken(): String? {
-        return (if (loggingInstance) mobileEngage().loggingPushInternal else mobileEngage().pushInternal)
-                .pushToken
-    }
 
     override fun setNotificationInformationListener(notificationInformationListener: NotificationInformationListener) {
         (if (loggingInstance) mobileEngage().loggingPushInternal else mobileEngage().pushInternal)

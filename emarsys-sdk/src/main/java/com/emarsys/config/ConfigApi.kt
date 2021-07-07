@@ -25,13 +25,9 @@ interface ConfigApi {
 
     fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?)
 
-    fun changeApplicationCode(applicationCode: String?, completionListener: (throwable: Throwable?) -> Unit)
-
     fun changeApplicationCode(applicationCode: String?, contactFieldId: Int)
 
     fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: CompletionListener?)
-
-    fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: (throwable: Throwable?) -> Unit)
 
     fun changeMerchantId(merchantId: String?)
 }

@@ -48,20 +48,6 @@ class PushTest {
     }
 
     @Test
-    fun testPush_trackMessageOpen_delegatesTo_mobileEngageInternal() {
-        val intent = Mockito.mock(Intent::class.java)
-        push.trackMessageOpen(intent)
-        Mockito.verify(mockPushInternal).trackMessageOpen(intent, null)
-    }
-
-    @Test
-    fun testPush_trackMessageOpenWithCompletionListener_delegatesTo_mobileEngageInternal() {
-        val intent = Mockito.mock(Intent::class.java)
-        push.trackMessageOpen(intent, mockCompletionListener)
-        Mockito.verify(mockPushInternal).trackMessageOpen(intent, mockCompletionListener)
-    }
-
-    @Test
     fun testPush_setPushToken_delegatesTo_mobileEngageInternal() {
         val pushToken = "PushToken"
         push.setPushToken(pushToken)

@@ -24,14 +24,5 @@ interface PredictApi {
     fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, resultListener: ResultListener<Try<List<Product>>>)
     fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>)
 
-    fun recommendProducts(recommendationLogic: Logic, resultListener: (Try<List<Product>>) -> Unit)
-    fun recommendProducts(recommendationLogic: Logic, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit)
-    fun recommendProducts(recommendationLogic: Logic, limit: Int, resultListener: (Try<List<Product>>) -> Unit)
-    fun recommendProducts(recommendationLogic: Logic, limit: Int, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit)
-    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, resultListener: (Try<List<Product>>) -> Unit)
-    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit)
-    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, resultListener: (Try<List<Product>>) -> Unit)
-    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, availabilityZone: String, resultListener: (Try<List<Product>>) -> Unit)
-    fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>? = null, limit: Int? = null, availabilityZone: String? = null, resultListener: (Try<List<Product>>) -> Unit)
     fun trackRecommendationClick(product: Product)
 }

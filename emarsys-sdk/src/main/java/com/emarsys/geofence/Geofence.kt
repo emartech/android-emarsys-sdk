@@ -22,11 +22,6 @@ class Geofence(private val loggingInstance: Boolean = false) : GeofenceApi {
                 .isEnabled()
     }
 
-    override fun enable(completionListener: (Throwable?) -> Unit) {
-        (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
-                .enable { completionListener.invoke(it) }
-    }
-
     override fun disable() {
         (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
                 .disable()

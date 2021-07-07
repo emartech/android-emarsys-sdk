@@ -63,8 +63,7 @@ class InappNotificationIntegrationTest {
 
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
-                .inAppEventHandler(mock())
-                .mobileEngageApplicationCode(APP_ID)
+                .applicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .build()
 

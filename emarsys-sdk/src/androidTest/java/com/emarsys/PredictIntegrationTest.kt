@@ -83,7 +83,7 @@ class PredictIntegrationTest {
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
                 .contactFieldId(CONTACT_FIELD_ID)
-                .predictMerchantId(MERCHANT_ID)
+                .merchantId(MERCHANT_ID)
                 .build()
 
         latch = CountDownLatch(1)

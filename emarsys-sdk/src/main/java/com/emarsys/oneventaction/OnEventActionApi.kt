@@ -6,6 +6,4 @@ import org.json.JSONObject
 
 interface OnEventActionApi {
     fun setOnEventActionEventHandler(eventHandler: EventHandler)
-
-    fun setOnEventActionEventHandler(eventHandler: (context: Context, eventName: String, payload: JSONObject?) -> Unit)
 }

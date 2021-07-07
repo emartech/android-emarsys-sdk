@@ -3,26 +3,6 @@ package com.emarsys
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
-import com.emarsys.Emarsys.Config.applicationCode
-import com.emarsys.Emarsys.Config.changeApplicationCode
-import com.emarsys.Emarsys.Config.changeMerchantId
-import com.emarsys.Emarsys.Config.contactFieldId
-import com.emarsys.Emarsys.InApp.pause
-import com.emarsys.Emarsys.InApp.resume
-import com.emarsys.Emarsys.InApp.setEventHandler
-import com.emarsys.Emarsys.Predict.recommendProducts
-import com.emarsys.Emarsys.Predict.trackCart
-import com.emarsys.Emarsys.Predict.trackCategoryView
-import com.emarsys.Emarsys.Predict.trackItemView
-import com.emarsys.Emarsys.Predict.trackPurchase
-import com.emarsys.Emarsys.Predict.trackRecommendationClick
-import com.emarsys.Emarsys.Predict.trackSearchTerm
-import com.emarsys.Emarsys.Predict.trackTag
-import com.emarsys.Emarsys.Push.clearPushToken
-import com.emarsys.Emarsys.Push.setNotificationEventHandler
-import com.emarsys.Emarsys.Push.setPushToken
-import com.emarsys.Emarsys.Push.setSilentMesssageEventHandler
-import com.emarsys.Emarsys.Push.trackMessageOpen
 import com.emarsys.Emarsys.clearContact
 import com.emarsys.Emarsys.setAuthenticatedContact
 import com.emarsys.Emarsys.setContact
@@ -69,7 +49,6 @@ import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestReposito
 import com.emarsys.mobileengage.responsehandler.*
 import com.emarsys.predict.PredictApi
 import com.emarsys.predict.PredictRestrictedApi
-import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.Logic
 import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.api.model.RecommendationFilter
@@ -146,7 +125,6 @@ class EmarsysTest {
     private lateinit var mockLogic: Logic
     private lateinit var mockRecommendationFilter: RecommendationFilter
     private lateinit var inappEventHandler: EventHandler
-    private lateinit var oldInappEventHandler: com.emarsys.mobileengage.api.EventHandler
     private lateinit var application: Application
     private lateinit var completionListener: CompletionListener
     private lateinit var mockResultListener: ResultListener<Try<List<Product>>>
@@ -154,7 +132,6 @@ class EmarsysTest {
     private lateinit var mobileEngageConfig: EmarsysConfig
     private lateinit var predictConfig: EmarsysConfig
     private lateinit var mobileEngageAndPredictConfig: EmarsysConfig
-    private lateinit var configWithInAppEventHandler: EmarsysConfig
     private lateinit var deviceInfo: DeviceInfo
     private lateinit var latch: CountDownLatch
     private lateinit var predictResultListenerCallback: (Try<List<Product>>) -> Unit
@@ -181,25 +158,24 @@ class EmarsysTest {
             mockLanguageProvider = mock()
             mockVersionProvider = mock()
             inappEventHandler = mock()
-            oldInappEventHandler = mock()
             mockDeviceInfoPayloadStorage = mock()
             mockContactFieldValueStorage = mock()
             mockContactTokenStorage = mock()
             mockClientStateStorage = mock()
             mockNotificationManagerHelper = mock()
 
-            configWithInAppEventHandler = createConfig().mobileEngageApplicationCode(APPLICATION_CODE)
-                    .inAppEventHandler { eventName, payload -> oldInappEventHandler.handleEvent(eventName, payload) }
-                    .build()
-
             baseConfig = createConfig().build()
-            mobileEngageConfig =
-                    createConfig().mobileEngageApplicationCode(APPLICATION_CODE).contactFieldId(CONTACT_FIELD_ID).build()
-            predictConfig = createConfig().predictMerchantId(MERCHANT_ID).build()
-            mobileEngageAndPredictConfig = createConfig()
-                    .mobileEngageApplicationCode(APPLICATION_CODE)
+            mobileEngageConfig = createConfig()
+                    .applicationCode(APPLICATION_CODE)
                     .contactFieldId(CONTACT_FIELD_ID)
-                    .predictMerchantId(MERCHANT_ID)
+                    .build()
+            predictConfig = createConfig()
+                    .merchantId(MERCHANT_ID)
+                    .build()
+            mobileEngageAndPredictConfig = createConfig()
+                    .applicationCode(APPLICATION_CODE)
+                    .contactFieldId(CONTACT_FIELD_ID)
+                    .merchantId(MERCHANT_ID)
                     .build()
             mockRequestContext = mock()
             mockHardwareIdProvider = mock()
@@ -291,8 +267,8 @@ class EmarsysTest {
     @Test
     fun testSetup_whenMobileEngageApplicationCodeAndMerchantIdAreNull_mobileEngageAndPredict_shouldBeDisabled() {
         val config = createConfig()
-                .mobileEngageApplicationCode(null)
-                .predictMerchantId(null)
+                .applicationCode(null)
+                .merchantId(null)
                 .build()
         setup(config)
 
@@ -349,9 +325,9 @@ class EmarsysTest {
 
         var repository: Any? = null
         runBlockingOnCoreSdkThread {
-            val requestManager: RequestManager? = emarsys().requestManager
+            val requestManager: RequestManager = emarsys().requestManager
             repository = getInstanceField<Any>(
-                    requestManager!!,
+                    requestManager,
                     "requestRepository")
         }
         Assert.assertEquals(RequestRepositoryProxy::class.java, repository?.javaClass)
@@ -478,15 +454,6 @@ class EmarsysTest {
 
         runBlockingOnCoreSdkThread {
             verify(application).registerActivityLifecycleCallbacks(currentActivityWatchdog)
-        }
-    }
-
-    @Test
-    fun testSetup_setsInAppEventHandler_whenProvidedInConfig() {
-        setup(configWithInAppEventHandler)
-
-        runBlockingOnCoreSdkThread {
-            verify(mockInApp).setEventHandler(any())
         }
     }
 
@@ -719,74 +686,6 @@ class EmarsysTest {
     }
 
     @Test
-    fun testSetContact_delegatesToMobileEngageApi_whenMobileEngageIsEnabled() {
-        setup(mobileEngageConfig)
-
-        setContact(CONTACT_ID)
-        runBlockingOnCoreSdkThread {
-            verify(mockMobileEngageApi).setContact(CONTACT_ID, null)
-        }
-    }
-
-    @Test
-    fun testSetContact_delegatesToInternal_whenPredictIsEnabled() {
-        setup(predictConfig)
-
-        setContact(CONTACT_ID)
-        runBlockingOnCoreSdkThread()
-
-        runBlockingOnCoreSdkThread {
-            verify(mockPredictRestricted).setContact(CONTACT_ID)
-        }
-    }
-
-    @Test
-    fun testSetContact_doNotDelegatesToMobileEngageApi_whenMobileEngageIsDisabled() {
-        setup(predictConfig)
-
-        setContact(CONTACT_ID)
-
-        runBlockingOnCoreSdkThread()
-        verifyZeroInteractions(mockMobileEngageApi)
-    }
-
-    @Test
-    fun testSetContact_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
-        setup(mobileEngageConfig)
-
-        setContact(CONTACT_ID)
-        runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockPredictRestricted)
-        }
-    }
-
-    @Test
-    fun testSetContact_delegatesToInternals_whenBothFeaturesAreEnabled() {
-        setup(mobileEngageAndPredictConfig)
-        setContact(CONTACT_ID)
-        runBlockingOnCoreSdkThread()
-
-        runBlockingOnCoreSdkThread {
-            verify(mockPredictRestricted).setContact(CONTACT_ID)
-            verify(mockMobileEngageApi).setContact(CONTACT_ID, null)
-        }
-    }
-
-    @Test
-    fun testSetContact_delegatesToLoggingMobileEngageApiOnly_whenBothFeaturesAreDisabled() {
-        setup(baseConfig)
-
-        setContact(CONTACT_ID)
-        runBlockingOnCoreSdkThread()
-
-        runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockPredictRestricted)
-        }
-
-        verify(mockLoggingMobileEngageApi).setContact(CONTACT_ID, null)
-    }
-
-    @Test
     fun testClearContactWithCompletionListener_delegatesToPredictInternal_whenPredictIsEnabled() {
         setup(predictConfig)
 
@@ -855,81 +754,8 @@ class EmarsysTest {
     }
 
     @Test
-    fun testClearContact_delegatesToMobileEngageApi_whenMobileEngageIsEnabled() {
-        setup(mobileEngageConfig)
-
-        clearContact()
-
-        runBlockingOnCoreSdkThread {
-            verify(mockMobileEngageApi).clearContact(null)
-            verifyZeroInteractions(mockPredictRestricted)
-        }
-    }
-
-    @Test
-    fun testClearContact_doNotDelegatesToPredictInternal_whenPredictIsDisabled() {
-        setup(mobileEngageConfig)
-
-        clearContact()
-
-        runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockPredictRestricted)
-        }
-    }
-
-    @Test
-    fun testClearContact_doNotDelegatesToMobileEngageApi_whenMobileEngageIsDisabled() {
-        setup(predictConfig)
-
-        clearContact()
-
-        verifyZeroInteractions(mockMobileEngageApi)
-    }
-
-    @Test
-    fun testClearContact_delegatesToPredictInternal_whenPredictIsEnabled() {
-        setup(predictConfig)
-
-        clearContact()
-        runBlockingOnCoreSdkThread()
-
-        runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockMobileEngageApi)
-            verify(mockPredictRestricted).clearContact()
-        }
-    }
-
-    @Test
-    fun testClearContact_delegatesToInternals_whenBothFeaturesAreEnabled() {
-        setup(mobileEngageAndPredictConfig)
-
-        clearContact()
-        runBlockingOnCoreSdkThread()
-
-        runBlockingOnCoreSdkThread {
-            verify(mockPredictRestricted).clearContact()
-        }
-
-        verify(mockMobileEngageApi).clearContact(null)
-    }
-
-    @Test
-    fun testClearContact_shouldCallLoggingMobileEngageApiOnly_whenBothFeaturesAreDisabled() {
-        setup(baseConfig)
-
-        clearContact()
-        runBlockingOnCoreSdkThread()
-
-        runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockPredictRestricted)
-        }
-
-        verify(mockLoggingMobileEngageApi).clearContact(null)
-    }
-
-    @Test
     fun testTrackDeepLink_delegatesTo_deepLinkApi() {
-        setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).build())
+        setup(createConfig().applicationCode(APPLICATION_CODE).build())
         val mockActivity: Activity = mock()
         val mockIntent: Intent = mock()
         trackDeepLink(mockActivity, mockIntent)
@@ -951,43 +777,8 @@ class EmarsysTest {
     }
 
     @Test
-    fun testTrackDeepLinkWithCompletionListener_delegatesTo_deepLinkApi() {
-        setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).build())
-        val mockActivity: Activity = mock()
-        val mockIntent: Intent = mock()
-        trackDeepLink(mockActivity, mockIntent, completionListener)
-
-        runBlockingOnCoreSdkThread {
-            verify(mockDeepLinkApi).trackDeepLinkOpen(mockActivity, mockIntent, completionListener)
-        }
-    }
-
-    @Test
-    fun testTrackCustomEvent_delegatesTo_eventServiceApi() {
-        setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).build())
-        val eventName = "eventName"
-        val eventAttributes = HashMap<String, String>()
-        trackCustomEvent(eventName, eventAttributes)
-        runBlockingOnCoreSdkThread {
-            verify(mockEventServiceApi).trackCustomEventAsync(eventName, eventAttributes, null)
-        }
-
-    }
-
-    @Test
-    fun testTrackCustomEvent_delegatesTo_loggingEventServiceApi_whenMobileEngageIsNotEnabled() {
-        val eventName = "eventName"
-        val eventAttributes = HashMap<String, String>()
-        trackCustomEvent(eventName, eventAttributes)
-
-        runBlockingOnCoreSdkThread {
-            verify(mockLoggingEventServiceApi).trackCustomEventAsync(eventName, eventAttributes, null)
-        }
-    }
-
-    @Test
     fun testTrackCustomEventWithCompletionListener_delegatesTo_eventServiceApi() {
-        setup(createConfig().mobileEngageApplicationCode(APPLICATION_CODE).build())
+        setup(createConfig().applicationCode(APPLICATION_CODE).build())
         val eventName = "eventName"
         val eventAttributes = HashMap<String, String>()
         trackCustomEvent(eventName, eventAttributes, completionListener)
@@ -1008,292 +799,11 @@ class EmarsysTest {
     }
 
     @Test
-    fun testConfig_changeApplicationCode_delegatesTo_configInstance() {
-        setup(mobileEngageConfig)
-
-        changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID)
-        verify(mockConfig).changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID, null)
-    }
-
-    @Test
-    fun testConfig_changeApplicationCode_withCompletionListener_delegatesTo_configInstance() {
-        setup(mobileEngageConfig)
-
-        changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
-        verify(mockConfig).changeApplicationCode(APPLICATION_CODE, CONTACT_FIELD_ID, completionListener)
-    }
-
-    @Test
-    fun testConfig_getApplicationCode_delegatesTo_configInstance() {
-        setup(mobileEngageConfig)
-
-        whenever(mockConfig.applicationCode).thenReturn(APPLICATION_CODE)
-        val applicationCode = applicationCode
-        verify(mockConfig).applicationCode
-        Assert.assertEquals(APPLICATION_CODE, applicationCode)
-    }
-
-    @Test
-    fun testConfig_changeMerchantId_delegatesTo_configInstance() {
-        setup(predictConfig)
-
-        changeMerchantId(MERCHANT_ID)
-
-        verify(mockConfig).changeMerchantId(MERCHANT_ID)
-    }
-
-    @Test
-    fun testConfig_getContactFieldId_delegatesTo_configInstance() {
-        setup(baseConfig)
-
-        whenever(mockConfig.contactFieldId).thenReturn(CONTACT_FIELD_ID)
-        val contactFieldId = contactFieldId
-        verify(mockConfig).contactFieldId
-        Assert.assertEquals(CONTACT_FIELD_ID.toLong(), contactFieldId.toLong())
-    }
-
-    @Test
-    fun testPush_trackMessageOpen_delegatesTo_pushInstance() {
-        setup(mobileEngageConfig)
-
-        val mockIntent: Intent = mock()
-        trackMessageOpen(mockIntent)
-        verify(mockPush).trackMessageOpen(mockIntent)
-    }
-
-    @Test
-    fun testPush_trackMessageOpen_withCompletionListener_delegatesTo_pushInstance() {
-        setup(mobileEngageConfig)
-
-        val mockIntent: Intent = mock()
-        val mockCompletionListener: CompletionListener = mock()
-        trackMessageOpen(mockIntent, mockCompletionListener)
-        verify(mockPush).trackMessageOpen(mockIntent, mockCompletionListener)
-    }
-
-    @Test
-    fun testPush_setPushToken_delegatesTo_pushInstance() {
-        setup(mobileEngageConfig)
-
-        setPushToken("pushToken")
-        verify(mockPush).setPushToken("pushToken")
-    }
-
-    @Test
-    fun testPush_setPushToken_withCompletionListener_delegatesTo_pushInstance() {
-        setup(mobileEngageConfig)
-
-        val mockCompletionListener: CompletionListener = mock()
-        setPushToken("pushToken", mockCompletionListener)
-        verify(mockPush).setPushToken("pushToken", mockCompletionListener)
-    }
-
-    @Test
-    fun testPush_clearPushToken_delegatesTo_pushInstance() {
-        setup(mobileEngageConfig)
-
-        clearPushToken()
-        verify(mockPush).clearPushToken()
-    }
-
-    @Test
-    fun testPush_clearPushToken_withCompletionListener_delegatesTo_pushInstance() {
-        setup(mobileEngageConfig)
-
-        val mockCompletionListener: CompletionListener = mock()
-        clearPushToken(mockCompletionListener)
-        verify(mockPush).clearPushToken(mockCompletionListener)
-    }
-
-    @Test
-    fun testPush_setNotificationEventHandler_delegatesTo_pushInstance() {
-        setup(mobileEngageConfig)
-
-        val mockEventHandler: EventHandler = mock()
-        setNotificationEventHandler(mockEventHandler)
-        verify(mockPush).setNotificationEventHandler(mockEventHandler)
-    }
-
-    @Test
-    fun testPush_setSilentMessageEventHandler_delegatesTo_pushInstance() {
-        setup(mobileEngageConfig)
-
-        val mockEventHandler: EventHandler = mock()
-        setSilentMesssageEventHandler(mockEventHandler)
-        verify(mockPush).setSilentMessageEventHandler(mockEventHandler)
-    }
-
-    @Test
-    fun testPredict_trackCart_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        val cartItems: List<CartItem> = ArrayList()
-        trackCart(cartItems)
-        verify(mockPredict).trackCart(cartItems)
-    }
-
-    @Test
-    fun testPredict_trackPurchase_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        val cartItems: List<CartItem> = ArrayList()
-        trackPurchase("orderId", cartItems)
-        verify(mockPredict).trackPurchase("orderId", cartItems)
-    }
-
-    @Test
-    fun testPredict_trackItemView_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        trackItemView("itemId")
-        verify(mockPredict).trackItemView("itemId")
-    }
-
-    @Test
-    fun testPredict_trackCategoryView_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        trackCategoryView("categoryPath")
-        verify(mockPredict).trackCategoryView("categoryPath")
-    }
-
-    @Test
-    fun testPredict_trackSearchTerm_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        trackSearchTerm("searchTerm")
-        verify(mockPredict).trackSearchTerm("searchTerm")
-    }
-
-    @Test
-    fun testPredict_trackTag_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        trackTag("testTag", HashMap())
-        verify(mockPredict).trackTag("testTag", HashMap())
-    }
-
-    @Test
-    fun testPredict_recommendProducts_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        recommendProducts(mockLogic, mockResultListener)
-        verify(mockPredict).recommendProducts(mockLogic, mockResultListener)
-    }
-
-    @Test
-    fun testPredict_recommendProductsWithResultListenerCallback_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        recommendProducts(mockLogic, predictResultListenerCallback)
-        verify(mockPredict).recommendProducts(mockLogic, predictResultListenerCallback)
-    }
-
-    @Test
-    fun testPredict_recommendProductsWithLimit_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        recommendProducts(mockLogic, 5, mockResultListener)
-        verify(mockPredict).recommendProducts(mockLogic, 5, mockResultListener)
-    }
-
-    @Test
-    fun testPredict_recommendProductsWithLimitAndResultListenerCallback_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        recommendProducts(mockLogic, 5, predictResultListenerCallback)
-        verify(mockPredict).recommendProducts(mockLogic, 5, predictResultListenerCallback)
-    }
-
-    @Test
-    fun testPredict_recommendProductsWithFilters_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        recommendProducts(mockLogic, listOf(mockRecommendationFilter), mockResultListener)
-        verify(mockPredict).recommendProducts(mockLogic, listOf(mockRecommendationFilter), mockResultListener)
-    }
-
-    @Test
-    fun testPredict_recommendProductsWithFiltersAndResultListenerCallback_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        recommendProducts(mockLogic, listOf(mockRecommendationFilter), predictResultListenerCallback)
-        verify(mockPredict).recommendProducts(
-                mockLogic,
-                listOf(mockRecommendationFilter),
-                predictResultListenerCallback
-        )
-    }
-
-    @Test
-    fun testPredict_recommendProductsWithLimitAndFilters_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, mockResultListener)
-        verify(mockPredict).recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, mockResultListener)
-    }
-
-    @Test
-    fun testPredict_recommendProductsWithLimitAndFiltersAndResultListenerCallback_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        recommendProducts(mockLogic, listOf(mockRecommendationFilter), 123, predictResultListenerCallback)
-        verify(mockPredict).recommendProducts(
-                mockLogic,
-                listOf(mockRecommendationFilter),
-                123,
-                predictResultListenerCallback
-        )
-    }
-
-    @Test
-    fun testPredict_trackRecommendationClick_delegatesTo_predictInstance() {
-        setup(predictConfig)
-
-        val product = Product("itemId", "title", "https://emarsys.com", "RELATED", "AAAA")
-        trackRecommendationClick(product)
-        verify(mockPredict).trackRecommendationClick(product)
-    }
-
-    @Test
-    fun testInApp_pause_delegatesTo_inAppInstance() {
-        setup(mobileEngageConfig)
-
-        pause()
-        verify(mockInApp).pause()
-    }
-
-    @Test
-    fun testInApp_resume_delegatesTo_inAppInstance() {
-        setup(mobileEngageConfig)
-
-        resume()
-        verify(mockInApp).resume()
-    }
-
-    @Test
-    fun testInApp_isPaused_delegatesTo_inAppInstance() {
-        setup(mobileEngageConfig)
-
-        Emarsys.InApp.isPaused
-        verify(mockInApp).isPaused
-    }
-
-    @Test
-    fun testInApp_setEventHandler_delegatesTo_inAppInstance() {
-        setup(mobileEngageConfig)
-
-        val mockEventHandler: EventHandler = mock()
-        setEventHandler(mockEventHandler)
-        verify(mockInApp).setEventHandler(mockEventHandler)
-    }
-
-    @Test
     fun testMobileEngageApiInstances_shouldAlwaysGetInstanceFromDI() {
         setup(predictConfig)
 
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
-        Emarsys.InApp.isPaused
+        Emarsys.inApp.isPaused
         verify(mockInApp).isPaused
         verifyZeroInteractions(mockLoggingInApp)
     }
@@ -1303,7 +813,7 @@ class EmarsysTest {
         setup(mobileEngageConfig)
 
         FeatureRegistry.enableFeature(InnerFeature.PREDICT)
-        trackItemView("testItemId")
+        Emarsys.predict.trackItemView("testItemId")
         verify(mockPredict).trackItemView("testItemId")
         verifyZeroInteractions(mockLoggingPredict)
     }

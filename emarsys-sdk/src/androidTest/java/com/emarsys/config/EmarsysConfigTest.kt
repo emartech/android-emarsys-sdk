@@ -85,8 +85,6 @@ class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                defaultInAppEventHandler,
-                defaultNotificationEventHandler,
                 listOf(*features),
                 automaticPushTokenSending,
                 SHARED_PACKAGE_NAMES,
@@ -94,12 +92,10 @@ class EmarsysConfigTest {
                 true)
         val result = EmarsysConfig.Builder()
                 .application(application)
-                .mobileEngageApplicationCode(APP_ID)
+                .applicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
-                .predictMerchantId(MERCHANT_ID)
+                .merchantId(MERCHANT_ID)
                 .enableExperimentalFeatures(*features)
-                .inAppEventHandler(mock())
-                .notificationEventHandler(mock())
                 .sharedSecret("testSecret")
                 .sharedPackageNames(SHARED_PACKAGE_NAMES)
                 .enableVerboseConsoleLogging()
@@ -107,14 +103,11 @@ class EmarsysConfigTest {
         result.application shouldBe expected.application
         result.contactFieldId shouldBe expected.contactFieldId
         result.experimentalFeatures shouldBe expected.experimentalFeatures
-        result.mobileEngageApplicationCode shouldBe expected.mobileEngageApplicationCode
-        result.predictMerchantId shouldBe expected.predictMerchantId
+        result.applicationCode shouldBe expected.applicationCode
+        result.merchantId shouldBe expected.merchantId
         result.sharedSecret shouldBe expected.sharedSecret
         result.sharedPackageNames shouldBe expected.sharedPackageNames
         result.verboseConsoleLoggingEnabled shouldBe expected.verboseConsoleLoggingEnabled
-
-        result.inAppEventHandler?.javaClass?.isInstance(expected.inAppEventHandler) shouldBe true
-        result.notificationEventHandler?.javaClass?.isInstance(expected.notificationEventHandler) shouldBe true
     }
 
     @Test
@@ -124,8 +117,6 @@ class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                null,
-                null,
                 emptyList(),
                 automaticPushTokenSending,
                 null,
@@ -133,9 +124,9 @@ class EmarsysConfigTest {
                 false)
         val result = EmarsysConfig.Builder()
                 .application(application)
-                .mobileEngageApplicationCode(APP_ID)
+                .applicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
-                .predictMerchantId(MERCHANT_ID)
+                .merchantId(MERCHANT_ID)
                 .build()
 
         result shouldBe expected
@@ -146,9 +137,9 @@ class EmarsysConfigTest {
         try {
             EmarsysConfig.Builder()
                     .application(application)
-                    .mobileEngageApplicationCode(APP_ID)
+                    .applicationCode(APP_ID)
                     .contactFieldId(CONTACT_FIELD_ID)
-                    .predictMerchantId(MERCHANT_ID)
+                    .merchantId(MERCHANT_ID)
                     .build()
         } catch (e: IllegalArgumentException) {
             fail("Should not fail with: ${e.message}")
@@ -159,9 +150,9 @@ class EmarsysConfigTest {
     fun testBuilder_automaticPushTokenSending_whenDisabled() {
         val config = EmarsysConfig.Builder()
                 .application(application)
-                .mobileEngageApplicationCode(APP_ID)
+                .applicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
-                .predictMerchantId(MERCHANT_ID)
+                .merchantId(MERCHANT_ID)
                 .disableAutomaticPushTokenSending()
                 .build()
         config.automaticPushTokenSendingEnabled shouldBe false
@@ -171,9 +162,9 @@ class EmarsysConfigTest {
     fun testBuilder_automaticPushTokenSending_default() {
         val config = EmarsysConfig.Builder()
                 .application(application)
-                .mobileEngageApplicationCode(APP_ID)
+                .applicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
-                .predictMerchantId(MERCHANT_ID)
+                .merchantId(MERCHANT_ID)
                 .build()
 
         config.automaticPushTokenSendingEnabled shouldBe true
@@ -183,9 +174,9 @@ class EmarsysConfigTest {
     fun testBuilder_verboseConsoleLoggingEnabled() {
         val config = EmarsysConfig.Builder()
                 .application(application)
-                .mobileEngageApplicationCode(APP_ID)
+                .applicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
-                .predictMerchantId(MERCHANT_ID)
+                .merchantId(MERCHANT_ID)
                 .enableVerboseConsoleLogging()
                 .build()
 
@@ -196,9 +187,9 @@ class EmarsysConfigTest {
     fun testBuilder_verboseConsoleLoggingDisabled_byDefault() {
         val config = EmarsysConfig.Builder()
                 .application(application)
-                .mobileEngageApplicationCode(APP_ID)
+                .applicationCode(APP_ID)
                 .contactFieldId(CONTACT_FIELD_ID)
-                .predictMerchantId(MERCHANT_ID)
+                .merchantId(MERCHANT_ID)
                 .build()
 
         config.verboseConsoleLoggingEnabled shouldBe false
@@ -211,8 +202,6 @@ class EmarsysConfigTest {
                 APP_ID,
                 CONTACT_FIELD_ID,
                 MERCHANT_ID,
-                defaultInAppEventHandler,
-                defaultNotificationEventHandler,
                 listOf(*features),
                 automaticPushTokenSending,
                 SHARED_PACKAGE_NAMES,
@@ -224,13 +213,10 @@ class EmarsysConfigTest {
         result.application shouldBe expected.application
         result.contactFieldId shouldBe expected.contactFieldId
         result.experimentalFeatures shouldBe expected.experimentalFeatures
-        result.mobileEngageApplicationCode shouldBe expected.mobileEngageApplicationCode
-        result.predictMerchantId shouldBe expected.predictMerchantId
+        result.applicationCode shouldBe expected.applicationCode
+        result.merchantId shouldBe expected.merchantId
         result.sharedSecret shouldBe expected.sharedSecret
         result.sharedPackageNames shouldBe expected.sharedPackageNames
         result.verboseConsoleLoggingEnabled shouldBe false
-
-        result.inAppEventHandler?.javaClass?.isInstance(expected.inAppEventHandler) shouldBe true
-        result.notificationEventHandler?.javaClass?.isInstance(expected.notificationEventHandler) shouldBe true
     }
 }

@@ -60,23 +60,24 @@ class LoggingInAppInternal(private val klass: Class<*>) : InAppInternal {
         debug(MethodNotAllowed(klass, callerMethodName, null))
     }
 
-    override fun isPaused(): Boolean {
-        val callerMethodName = SystemUtils.getCallerMethodName()
-        debug(MethodNotAllowed(klass, callerMethodName, null))
-        return false
-    }
+    override val isPaused: Boolean
+        get() {
+            val callerMethodName = SystemUtils.getCallerMethodName()
+            debug(MethodNotAllowed(klass, callerMethodName, null))
+            return false
+        }
+    override var eventHandler: EventHandler?
+        get() {
+            val callerMethodName = SystemUtils.getCallerMethodName()
+            debug(MethodNotAllowed(klass, callerMethodName, null))
+            return null
+        }
+        set(value) {
+            val parameters = mapOf(
+                    "event_handler" to (value != null)
+            )
+            val callerMethodName = SystemUtils.getCallerMethodName()
+            debug(MethodNotAllowed(klass, callerMethodName, parameters))
 
-    override fun setEventHandler(eventHandler: EventHandler?) {
-        val parameters = mapOf(
-                "event_handler" to (eventHandler != null)
-        )
-        val callerMethodName = SystemUtils.getCallerMethodName()
-        debug(MethodNotAllowed(klass, callerMethodName, parameters))
-    }
-
-    override fun getEventHandler(): EventHandler? {
-        val callerMethodName = SystemUtils.getCallerMethodName()
-        debug(MethodNotAllowed(klass, callerMethodName, null))
-        return null
-    }
+        }
 }

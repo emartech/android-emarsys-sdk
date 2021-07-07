@@ -188,7 +188,7 @@ class EmarsysE2ETests {
     private fun setup(appCode: String?) {
         Emarsys.setup(EmarsysConfig.Builder()
                 .application(application)
-                .mobileEngageApplicationCode(appCode)
+                .applicationCode(appCode)
                 .contactFieldId(CONTACT_FIELD_ID)
                 .build())
     }

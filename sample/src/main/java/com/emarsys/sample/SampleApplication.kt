@@ -11,8 +11,6 @@ import androidx.annotation.RequiresApi
 import com.chibatching.kotpref.Kotpref
 import com.emarsys.Emarsys
 import com.emarsys.config.EmarsysConfig
-import com.emarsys.mobileengage.api.action.ActionModel
-import com.emarsys.mobileengage.api.action.AppEventActionModel
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.push.NotificationInformation
 import com.emarsys.mobileengage.api.push.NotificationInformationListener
@@ -30,9 +28,9 @@ open class SampleApplication : Application(), EventHandler, NotificationInformat
         Kotpref.init(this)
         val config = EmarsysConfig.Builder()
                 .application(this)
-                .mobileEngageApplicationCode(getApplicationCode())
+                .applicationCode(getApplicationCode())
                 .contactFieldId(Cache.contactFieldId)
-                .predictMerchantId(Cache.merchantId)
+                .merchantId(Cache.merchantId)
                 .build()
 
         createNotificationChannels()

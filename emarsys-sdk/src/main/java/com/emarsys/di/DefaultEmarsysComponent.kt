@@ -74,7 +74,6 @@ import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.MessageInbox
 import com.emarsys.inbox.MessageInboxApi
 import com.emarsys.mobileengage.*
-import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.client.DefaultClientServiceInternal
 import com.emarsys.mobileengage.client.LoggingClientServiceInternal
@@ -132,7 +131,6 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
-import org.json.JSONObject
 import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
@@ -345,7 +343,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val requestContext: MobileEngageRequestContext by lazy {
         MobileEngageRequestContext(
-                config.mobileEngageApplicationCode,
+                config.applicationCode,
                 config.contactFieldId,
                 null,
                 deviceInfo,
@@ -498,15 +496,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val notificationEventHandlerProvider: EventHandlerProvider by lazy {
-        var notificationEventHandler: EventHandler? = null
-        if (config.notificationEventHandler != null) {
-            notificationEventHandler = object : EventHandler {
-                override fun handleEvent(context: Context, eventName: String, payload: JSONObject?) {
-                    config.notificationEventHandler!!.handleEvent(context, eventName, payload)
-                }
-            }
-        }
-        EventHandlerProvider(notificationEventHandler)
+        EventHandlerProvider(null)
     }
 
     override val silentMessageEventHandlerProvider: EventHandlerProvider by lazy {
@@ -674,7 +664,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val predictRequestContext: PredictRequestContext by lazy {
-        PredictRequestContext(config.predictMerchantId, deviceInfo, timestampProvider, uuidProvider, keyValueStore)
+        PredictRequestContext(config.merchantId, deviceInfo, timestampProvider, uuidProvider, keyValueStore)
     }
 
     override val configInternal: ConfigInternal by lazy {
@@ -711,7 +701,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                 ListSizeAtLeast(10),
                 FilterByShardType(FilterByShardType.SHARD_TYPE_LOG),
                 ListChunker(10),
-                LogShardListMerger(timestampProvider, uuidProvider, deviceInfo, config.mobileEngageApplicationCode, config.predictMerchantId),
+                LogShardListMerger(timestampProvider, uuidProvider, deviceInfo, config.applicationCode, config.merchantId),
                 requestManager,
                 BatchingShardTrigger.RequestStrategy.TRANSIENT,
                 connectionWatchdog)

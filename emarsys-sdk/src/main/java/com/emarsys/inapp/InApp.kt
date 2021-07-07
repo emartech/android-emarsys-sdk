@@ -17,10 +17,9 @@ class InApp(private val loggingInstance: Boolean = false) : InAppApi {
                 .resume()
     }
 
-    override fun isPaused(): Boolean {
-        return (if (loggingInstance) mobileEngage().loggingInAppInternal else mobileEngage().inAppInternal)
+    override val isPaused: Boolean
+        get() = (if (loggingInstance) mobileEngage().loggingInAppInternal else mobileEngage().inAppInternal)
                 .isPaused
-    }
 
     override fun setEventHandler(eventHandler: EventHandler) {
         (if (loggingInstance) mobileEngage().loggingInAppInternal else mobileEngage().inAppInternal)

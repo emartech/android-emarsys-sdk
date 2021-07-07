@@ -44,23 +44,6 @@ class MobileEngageFragmentTracking : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        buttonTrackMessage.setOnClickListener {
-            val intent = Intent()
-            val id = trackMessageId.text.toString()
-            val payload = Bundle()
-            payload.putString("key1", "value1")
-            payload.putString("u", String.format("""{"sid":"%s"}""", id))
-            intent.putExtra("payload", payload)
-            Emarsys.push.trackMessageOpen(intent) {
-                if (it != null) {
-                    Log.e(TAG, it.toString())
-                } else {
-                    Log.i(TAG, "Message id: $id")
-                    view.showSnackBar("Message open: OK")
-                }
-            }
-        }
-
         buttonTrackCustomEvent.setOnClickListener {
             val eventName = eventName.text.toString()
             val stringAttributes = eventAttributes.text.toString()
@@ -101,6 +84,7 @@ class MobileEngageFragmentTracking : Fragment() {
                 FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                     task.addOnSuccessListener {
                         val pushToken = it
+
                         Emarsys.push.pushToken = pushToken
                         view.showSnackBar("Push Token tracked")
                     }

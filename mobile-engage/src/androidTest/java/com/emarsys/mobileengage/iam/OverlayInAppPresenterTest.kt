@@ -302,7 +302,7 @@ class OverlayInAppPresenterTest {
         whenever(mockInAppInternal.eventHandler).thenReturn(mockEventHandler)
 
         val threadSpy: ThreadSpy<*> = ThreadSpy<Any?>()
-        whenever(mockInAppInternal.eventHandler.handleEvent(anyOrNull(), anyOrNull(), anyOrNull())).doAnswer(threadSpy)
+        whenever(mockInAppInternal.eventHandler?.handleEvent(anyOrNull(), anyOrNull(), anyOrNull())).doAnswer(threadSpy)
 
         val id = "12346789"
         val eventName = "eventName"

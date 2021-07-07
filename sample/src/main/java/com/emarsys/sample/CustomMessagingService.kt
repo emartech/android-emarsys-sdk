@@ -10,7 +10,7 @@ class CustomMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
 
-        Emarsys.push.setPushToken(token)
+        Emarsys.push.pushToken = token
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
