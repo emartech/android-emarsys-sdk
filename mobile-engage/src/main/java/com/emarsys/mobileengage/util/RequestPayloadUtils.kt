@@ -138,5 +138,5 @@ internal enum class EventType {
 }
 
 internal fun EventType.eventType(): String {
-    return this.name.toLowerCase(Locale.forLanguageTag("en_US"))
+    return this.name.lowercase(Locale.forLanguageTag("en_US"))
 }

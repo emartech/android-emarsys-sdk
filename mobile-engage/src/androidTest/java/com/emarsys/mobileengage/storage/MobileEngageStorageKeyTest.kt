@@ -17,7 +17,7 @@ class MobileEngageStorageKeyTest {
     @Test
     fun testGetKey() {
         MobileEngageStorageKey.values().map {
-            "mobile_engage_${it.name.toLowerCase()}"
+            "mobile_engage_${it.name.lowercase()}"
         }.zip(MobileEngageStorageKey.values()) { stringValue, enum ->
             row(enum, stringValue)
         }.let {

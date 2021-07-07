@@ -22,7 +22,7 @@ class DefaultMessageInboxInternal(private val requestManager: RequestManager,
     override fun addTag(tag: String, messageId: String, completionListener: CompletionListener?) {
         val eventAttributes = mapOf(
                 "messageId" to messageId,
-                "tag" to tag.toLowerCase(Locale.ENGLISH)
+                "tag" to tag.lowercase(Locale.ENGLISH)
         )
         val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest("inbox:tag:add", eventAttributes)
 
@@ -32,7 +32,7 @@ class DefaultMessageInboxInternal(private val requestManager: RequestManager,
     override fun removeTag(tag: String, messageId: String, completionListener: CompletionListener?) {
         val eventAttributes = mapOf(
                 "messageId" to messageId,
-                "tag" to tag.toLowerCase(Locale.ENGLISH)
+                "tag" to tag.lowercase(Locale.ENGLISH)
         )
         val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest("inbox:tag:remove", eventAttributes)
 

@@ -141,7 +141,7 @@ class InlineInAppView : LinearLayout {
         if (inlineMessages != null) {
             for (i in 0 until inlineMessages.length()) {
                 if (inlineMessages.getJSONObject(i).optString("viewId")
-                        .toLowerCase(Locale.ENGLISH) == viewId?.toLowerCase(Locale.ENGLISH)
+                        .lowercase(Locale.ENGLISH) == viewId?.lowercase(Locale.ENGLISH)
                 ) {
                     return inlineMessages.getJSONObject(i)
                 }

@@ -23,7 +23,7 @@ class InnerFeatureTest {
     @Test
     fun testGetName_shouldReturnCorrectValue() {
         InnerFeature.values().map {
-            "inner_feature_${it.name.toLowerCase()}"
+            "inner_feature_${it.name.lowercase()}"
         }.zip(InnerFeature.values()) { stringValue, enum ->
             row(enum, stringValue)
         }.let {

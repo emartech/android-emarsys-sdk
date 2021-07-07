@@ -7,6 +7,6 @@ enum class PredictStorageKey : StorageKey {
     PREDICT_SERVICE_URL;
 
     override fun getKey(): String {
-        return "predict_" + name.toLowerCase(Locale.getDefault())
+        return "predict_" + name.lowercase(Locale.getDefault())
     }
 }

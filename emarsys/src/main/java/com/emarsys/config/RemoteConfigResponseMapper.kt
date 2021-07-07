@@ -94,7 +94,7 @@ class RemoteConfigResponseMapper(private val randomProvider: RandomProvider,
     }
 
     private fun convertLogLevelStringToLogLevel(logLevel: String): LogLevel? {
-        return when (logLevel.toLowerCase(Locale.ENGLISH)) {
+        return when (logLevel.lowercase(Locale.ENGLISH)) {
             "trace" -> LogLevel.TRACE
             "debug" -> LogLevel.DEBUG
             "info" -> LogLevel.INFO

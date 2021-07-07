@@ -91,7 +91,7 @@ class PredictFragment : Fragment() {
     }
 
     private fun generateCartItem(): SampleCartItem {
-        return SampleCartItem(Random.nextInt(99).toDouble(), (Random.nextInt(99)).toDouble(), getRandomItemId())
+        return SampleCartItem(getRandomItemId(), Random.nextInt(99).toDouble(), (Random.nextInt(99)).toDouble())
     }
 
     private fun getRandomItemId(): String {

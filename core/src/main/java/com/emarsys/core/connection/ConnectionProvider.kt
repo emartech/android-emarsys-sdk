@@ -1,26 +1,15 @@
-package com.emarsys.core.connection;
+package com.emarsys.core.connection
 
-import android.webkit.URLUtil;
+import android.webkit.URLUtil
+import com.emarsys.core.request.model.RequestModel
+import java.util.*
+import javax.net.ssl.HttpsURLConnection
 
-import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.util.Assert;
+class ConnectionProvider {
 
-import java.io.IOException;
-import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
-
-public class ConnectionProvider {
-
-    public HttpsURLConnection provideConnection(RequestModel requestModel) throws IOException {
-        Assert.notNull(requestModel, "RequestModel must not be null!");
-
-        URL url = requestModel.getUrl();
-
-        if (!URLUtil.isHttpsUrl(url.toString())) {
-            throw new IllegalArgumentException("Expected HTTPS request model, but got: " + url.getProtocol().toUpperCase());
-        }
-
-        return (HttpsURLConnection) requestModel.getUrl().openConnection();
+    fun provideConnection(requestModel: RequestModel): HttpsURLConnection {
+        val url = requestModel.url
+        require(URLUtil.isHttpsUrl(url.toString())) { "Expected HTTPS request model, but got: " + url.protocol.uppercase(Locale.getDefault()) }
+        return requestModel.url.openConnection() as HttpsURLConnection
     }
 }

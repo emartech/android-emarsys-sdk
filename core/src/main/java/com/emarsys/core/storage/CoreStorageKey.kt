@@ -7,6 +7,6 @@ enum class CoreStorageKey : StorageKey {
     LOG_LEVEL;
 
     override fun getKey(): String {
-        return "core_" + name.toLowerCase(Locale.getDefault())
+        return "core_" + name.lowercase(Locale.getDefault())
     }
 }

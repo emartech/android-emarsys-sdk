@@ -16,7 +16,7 @@ class CoreStorageKeyTest {
     @Test
     fun testGetKey() {
         CoreStorageKey.values().map {
-            "core_${it.name.toLowerCase()}"
+            "core_${it.name.lowercase()}"
         }.zip(CoreStorageKey.values()) { stringValue, enum ->
             row(enum, stringValue)
         }.let {

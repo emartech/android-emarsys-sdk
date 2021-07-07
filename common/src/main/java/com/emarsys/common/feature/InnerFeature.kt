@@ -7,7 +7,7 @@ enum class InnerFeature : FlipperFeature {
     MOBILE_ENGAGE, PREDICT, EVENT_SERVICE_V4;
 
     override fun getName(): String {
-        return "inner_feature_" + name.toLowerCase(Locale.getDefault())
+        return "inner_feature_" + name.lowercase(Locale.getDefault())
     }
 
     companion object {

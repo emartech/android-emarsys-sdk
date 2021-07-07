@@ -21,6 +21,6 @@ enum class MobileEngageStorageKey : StorageKey {
     GEOFENCE_INITIAL_ENTER_TRIGGER;
 
     override fun getKey(): String {
-        return "mobile_engage_" + name.toLowerCase(Locale.getDefault())
+        return "mobile_engage_" + name.lowercase(Locale.getDefault())
     }
 }

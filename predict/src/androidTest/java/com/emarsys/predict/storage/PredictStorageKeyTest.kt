@@ -17,7 +17,7 @@ class PredictStorageKeyTest {
     @Test
     fun testGetKey() {
         PredictStorageKey.values().map {
-            "predict_${it.name.toLowerCase()}"
+            "predict_${it.name.lowercase()}"
         }.zip(PredictStorageKey.values()) { stringValue, enum ->
             row(enum, stringValue)
         }.let {
