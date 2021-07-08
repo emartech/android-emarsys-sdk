@@ -41,7 +41,7 @@ jobs:
           dir: sample
 
       - name: Build with Gradle
-        run: ./gradlew assembleAndroidTest -x lint
+        run: ./gradlew clean assembleAndroidTest -x lint
 
       - name: Create file 'FAILURE.TXT' and write 'false' into it
         run: echo 'false' > FAILURE.TXT
