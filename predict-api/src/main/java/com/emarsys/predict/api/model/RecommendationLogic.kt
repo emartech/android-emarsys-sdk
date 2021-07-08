@@ -1,8 +1,6 @@
 package com.emarsys.predict.api.model
 
-import java.lang.StringBuilder
-
-class RecommendationLogic internal constructor(override val logicName: String, override val data: Map<String, String>, override val variants: List<String>) : Logic {
+class RecommendationLogic internal constructor(override val logicName: String, override val data: Map<String, String> = mapOf(), override val variants: List<String> = listOf()) : Logic {
 
     companion object {
         const val SEARCH = "SEARCH"

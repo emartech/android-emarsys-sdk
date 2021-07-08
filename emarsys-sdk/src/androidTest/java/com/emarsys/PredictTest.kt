@@ -294,7 +294,7 @@ class PredictTest {
 
     private fun createItem(id: String, price: Double, quantity: Double): CartItem {
         return object : CartItem {
-            override val itemId: String?
+            override val itemId: String
                 get() = id
             override val price: Double
                 get() = price

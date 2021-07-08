@@ -29,11 +29,6 @@ class ConnectionProviderTest {
         provider = ConnectionProvider()
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testProvideConnection_requestModel_shouldNotBeNull() {
-        provider.provideConnection(null)
-    }
-
     @Test
     fun testProvideConnection_returnsCorrectConnection() {
         val url = URL(HTTPS_PATH)
