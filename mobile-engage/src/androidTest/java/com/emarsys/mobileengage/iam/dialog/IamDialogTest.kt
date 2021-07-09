@@ -256,10 +256,11 @@ class IamDialogTest {
         bundle.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
 
         val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
-        var latch = CountDownLatch(1)
+        val fragmentLatch = CountDownLatch(1)
 
         fragmentScenario.onFragment {
             it.setInAppLoadingTime(InAppLoadingTime(1, 1))
+            val uiLatch = CountDownLatch(1)
             it.activity?.runOnUiThread {
                 it.dialog?.show()
 
@@ -268,19 +269,18 @@ class IamDialogTest {
                 it.dialog?.cancel()
 
                 it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                latch.countDown()
+                uiLatch.countDown()
             }
 
-            latch.await()
-            latch = CountDownLatch(1)
+            uiLatch.await()
             Thread {
                 it.activity?.runOnUiThread {
                     it.retainInstance shouldBe false
-                    latch.countDown()
+                    fragmentLatch.countDown()
                 }
             }.start()
         }
-        latch.await()
+        fragmentLatch.await()
     }
 
 
@@ -293,10 +293,11 @@ class IamDialogTest {
         bundle.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
 
         val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
-        var latch = CountDownLatch(1)
+        val fragmentLatch = CountDownLatch(1)
 
         fragmentScenario.onFragment {
             it.setInAppLoadingTime(InAppLoadingTime(1, 1))
+            val uiLatch = CountDownLatch(1)
             it.activity?.runOnUiThread {
                 it.dialog?.show()
 
@@ -305,19 +306,18 @@ class IamDialogTest {
                 it.dismiss()
 
                 it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                latch.countDown()
+                uiLatch.countDown()
             }
 
-            latch.await()
-            latch = CountDownLatch(1)
+            uiLatch.await()
             Thread {
                 it.activity?.runOnUiThread {
                     it.retainInstance shouldBe false
-                    latch.countDown()
+                    fragmentLatch.countDown()
                 }
             }.start()
         }
-        latch.await()
+        fragmentLatch.await()
     }
 
 
@@ -332,7 +332,6 @@ class IamDialogTest {
             }
         }
         fragmentScenario.onFragment {
-
             displayDialog(fragmentScenario)
 
             for (action in actions) {
@@ -362,7 +361,6 @@ class IamDialogTest {
             for (action in actions) {
                 verify(action, times(1)).execute(any(), any(), any())
             }
-
         }
     }
 
@@ -469,7 +467,6 @@ class IamDialogTest {
             val fragmentScenario = launchFragment(args) {
                 IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider)
             }
-
             displayDialog(fragmentScenario)
         } catch (exception: IllegalArgumentException) {
             exception.message shouldBe "The fragment has been removed from the FragmentManager already."
