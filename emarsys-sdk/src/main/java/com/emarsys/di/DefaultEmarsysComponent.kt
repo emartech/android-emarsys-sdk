@@ -99,7 +99,10 @@ import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
-import com.emarsys.mobileengage.inbox.*
+import com.emarsys.mobileengage.inbox.DefaultMessageInboxInternal
+import com.emarsys.mobileengage.inbox.LoggingMessageInboxInternal
+import com.emarsys.mobileengage.inbox.MessageInboxInternal
+import com.emarsys.mobileengage.inbox.MessageInboxResponseMapper
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.*
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider
@@ -207,7 +210,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                 uiHandler,
                 IamStaticWebViewProvider(config.application, uiHandler),
                 inAppInternal,
-                IamDialogProvider(uiHandler),
+                IamDialogProvider(uiHandler, timestampProvider),
                 buttonClickedRepository,
                 displayedIamRepository,
                 timestampProvider,
