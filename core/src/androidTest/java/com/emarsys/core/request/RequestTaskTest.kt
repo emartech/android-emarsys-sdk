@@ -78,13 +78,16 @@ class RequestTaskTest {
     @Test
     @Throws(IOException::class)
     fun testDoInBackground_shouldBeResilientToRuntimeExceptions() {
-        connectionProvider = mock()
-        val requestModel: RequestModel = mock()
-        whenever(requestModel.url).thenReturn(URL(WRONG_URL))
+        val requestModel: RequestModel = mock {
+            on { url } doReturn URL(WRONG_URL)
+        }
         val runtimeException: Exception = RuntimeException("Sneaky exception")
-        val connection: HttpsURLConnection = mock()
-        doThrow(runtimeException).`when`(connection).connect()
-        whenever(connectionProvider.provideConnection(requestModel)).thenReturn(connection)
+        val connection: HttpsURLConnection = mock {
+            on { connect() } doThrow runtimeException
+        }
+        connectionProvider = mock {
+            on { it.provideConnection(requestModel) } doReturn connection
+        }
 
         val requestTask = createRequestTask(requestModel)
 
@@ -99,17 +102,20 @@ class RequestTaskTest {
     @Throws(IOException::class)
     fun testDoInBackground_mappersHaveBeenCalled() {
         connectionProvider = mock()
-        val requestModel: RequestModel = mock()
-        whenever(requestModel.url).thenReturn(URL(URL))
+        val requestModel: RequestModel = mock {
+            on { url } doReturn URL(URL)
+        }
         val connection: HttpsURLConnection = mock()
-        val mapper1: Mapper<RequestModel, RequestModel> = mock()
-        val mapper2: Mapper<RequestModel, RequestModel> = mock()
         val expectedRequestModel1: RequestModel = mock()
         val expectedRequestModel2: RequestModel = mock()
+        val mapper1: Mapper<RequestModel, RequestModel> = mock {
+            on { map(requestModel) } doReturn expectedRequestModel1
+        }
+        val mapper2: Mapper<RequestModel, RequestModel> = mock {
+            on { map(expectedRequestModel1) } doReturn expectedRequestModel2
+        }
         requestModelMappers.add(mapper1)
         requestModelMappers.add(mapper2)
-        whenever(mapper1.map(requestModel)).thenReturn(expectedRequestModel1)
-        whenever(mapper2.map(expectedRequestModel1)).thenReturn(expectedRequestModel2)
         whenever(connectionProvider.provideConnection(expectedRequestModel2)).thenReturn(connection)
 
         val requestTask = createRequestTask(requestModel)

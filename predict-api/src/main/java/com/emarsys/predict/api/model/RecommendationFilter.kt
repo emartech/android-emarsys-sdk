@@ -1,5 +1,8 @@
 package com.emarsys.predict.api.model
 
+import com.emarsys.core.Mockable
+
+@Mockable
 class RecommendationFilter {
     companion object {
         private const val IS = "IS"

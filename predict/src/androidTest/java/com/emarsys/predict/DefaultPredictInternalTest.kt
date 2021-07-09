@@ -7,7 +7,6 @@ import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
@@ -17,7 +16,6 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
-import com.emarsys.core.worker.Worker
 import com.emarsys.predict.api.model.*
 import com.emarsys.predict.fake.FakeRestClient
 import com.emarsys.predict.fake.FakeResultListener
@@ -35,10 +33,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.*
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
+import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
 class DefaultPredictInternalTest {
@@ -85,48 +80,48 @@ class DefaultPredictInternalTest {
         mockRequestModel = mock {
             on { id } doReturn ID1
         }
-        mockResponseModel = mock(ResponseModel::class.java)
-        mockKeyValueStore = mock(KeyValueStore::class.java)
-        mockRequestManager = mock(RequestManager::class.java)
-        mockPredictResponseMapper = mock(PredictResponseMapper::class.java)
-        mockLogic = mock(Logic::class.java)
-        mockRecommendationFilter = mock(RecommendationFilter::class.java).apply {
-            whenever(field).thenReturn(FIELD)
-            whenever(comparison).thenReturn(COMPARISON)
-            whenever(type).thenReturn(TYPE)
-            whenever(expectations).thenReturn(EXPECTATIONS)
+        mockResponseModel = mock()
+        mockKeyValueStore = mock()
+        mockRequestManager = mock()
+        mockPredictResponseMapper = mock()
+        mockLogic = mock()
+        mockRecommendationFilter = mock {
+            on { field } doReturn FIELD
+            on { comparison } doReturn COMPARISON
+            on { type } doReturn TYPE
+            on { expectations } doReturn EXPECTATIONS
         }
         mockRecommendationFilters = listOf(mockRecommendationFilter)
 
-        mockResultListener = mock(ResultListener::class.java) as ResultListener<Try<List<Product>>>
-        mockTimestampProvider = mock(TimestampProvider::class.java).apply {
-            whenever(provideTimestamp()).thenReturn(TIMESTAMP)
+        mockResultListener = mock() as ResultListener<Try<List<Product>>>
+        mockTimestampProvider = mock {
+            on { provideTimestamp() } doReturn TIMESTAMP
         }
 
-        mockUuidProvider = mock(UUIDProvider::class.java).apply {
-            whenever(provideId()).thenReturn(ID1, ID2)
+        mockUuidProvider = mock {
+            on { provideId() } doReturnConsecutively listOf(ID1, ID2)
         }
 
-        mockRequestContext = mock(PredictRequestContext::class.java).apply {
-            whenever(keyValueStore).thenReturn(mockKeyValueStore)
-            whenever(timestampProvider).thenReturn(mockTimestampProvider)
-            whenever(uuidProvider).thenReturn(mockUuidProvider)
+        mockRequestContext = mock {
+            on { keyValueStore } doReturn mockKeyValueStore
+            on { timestampProvider } doReturn mockTimestampProvider
+            on { uuidProvider } doReturn mockUuidProvider
         }
 
-        mockRequestModelBuilder = mock(PredictRequestModelBuilder::class.java).apply {
-            whenever(withLogic(anyNotNull(), anyNotNull())).thenReturn(this)
-            whenever(withLimit(any())).thenReturn(this)
-            whenever(withAvailabilityZone(any())).thenReturn(this)
-            whenever(withShardData(anyMap())).thenReturn(this)
-            whenever(withFilters(any())).thenReturn(this)
-            whenever(build()).thenReturn(mockRequestModel)
+        mockRequestModelBuilder = mock {
+            on { withLogic(anyNotNull(), anyNotNull()) } doReturn it
+            on { withLimit(anyOrNull()) } doReturn it
+            on { withAvailabilityZone(anyOrNull()) } doReturn it
+            on { withShardData(anyOrNull()) } doReturn it
+            on { withFilters(anyOrNull()) } doReturn it
+            on { build() } doReturn mockRequestModel
         }
 
-        mockRequestModelBuilderProvider = mock(PredictRequestModelBuilderProvider::class.java).apply {
-            whenever(providePredictRequestModelBuilder()).thenReturn(mockRequestModelBuilder)
+        mockRequestModelBuilderProvider = mock {
+            on { providePredictRequestModelBuilder() } doReturn mockRequestModelBuilder
         }
 
-        mockLastTrackedItemContainer = mock(LastTrackedItemContainer::class.java)
+        mockLastTrackedItemContainer = mock()
 
         predictInternal = DefaultPredictInternal(mockRequestContext, mockRequestManager, mockRequestModelBuilderProvider, mockPredictResponseMapper)
 
@@ -435,7 +430,7 @@ class DefaultPredictInternalTest {
 
     @Test
     fun testRecommendProducts_shouldCallRequestManager_failureWithException_shouldBeCalledOnMainThread() {
-        val mockException = mock(Exception::class.java)
+        val mockException: Exception = mock()
 
         predictInternal = DefaultPredictInternal(
                 mockRequestContext,
@@ -479,22 +474,22 @@ class DefaultPredictInternalTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
-        val mockProvider: CompletionHandlerProxyProvider = org.mockito.kotlin.mock {
-            on { provideProxy(org.mockito.kotlin.isNull(), org.mockito.kotlin.any()) } doAnswer {
+        val mockProvider: CompletionHandlerProxyProvider = mock {
+            on { provideProxy(isNull(), any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
             }
-            on { provideProxy(org.mockito.kotlin.any(), org.mockito.kotlin.any()) } doAnswer {
+            on { provideProxy(any(), any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
             }
         }
         return RequestManager(
-                mock(CoreSdkHandler::class.java),
-                mock(Repository::class.java) as Repository<RequestModel, SqlSpecification>,
-                mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>,
-                mock(Worker::class.java),
+                mock(),
+                mock() as Repository<RequestModel, SqlSpecification>,
+                mock() as Repository<ShardModel, SqlSpecification>,
+                mock(),
                 restClient,
-                mock(Registry::class.java) as Registry<RequestModel, CompletionListener>,
-                mock(CoreCompletionHandler::class.java),
+                mock() as Registry<RequestModel, CompletionListener>,
+                mock(),
                 mockProvider
         )
     }

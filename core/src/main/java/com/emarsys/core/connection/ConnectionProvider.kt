@@ -1,10 +1,12 @@
 package com.emarsys.core.connection
 
 import android.webkit.URLUtil
+import com.emarsys.core.Mockable
 import com.emarsys.core.request.model.RequestModel
 import java.util.*
 import javax.net.ssl.HttpsURLConnection
 
+@Mockable
 class ConnectionProvider {
 
     fun provideConnection(requestModel: RequestModel): HttpsURLConnection {
