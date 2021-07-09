@@ -7,6 +7,7 @@ import com.emarsys.testUtil.fake.FakeActivity
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 import kotlin.concurrent.thread
 
@@ -20,7 +21,7 @@ class IamDialogProviderTest {
 
     @Before
     fun setUp() {
-        iamDialogProvider = IamDialogProvider(Handler(Looper.getMainLooper()))
+        iamDialogProvider = IamDialogProvider(Handler(Looper.getMainLooper()), mock())
     }
 
     @Test
@@ -28,7 +29,7 @@ class IamDialogProviderTest {
         val latch = CountDownLatch(1)
         thread(start = true) {
             iamDialogProvider.provideDialog(
-                "campaignId", "id", "https://www.example.com", "reqId")
+                    "campaignId", "id", "https://www.example.com", "reqId")
             latch.countDown()
         }
         latch.await()

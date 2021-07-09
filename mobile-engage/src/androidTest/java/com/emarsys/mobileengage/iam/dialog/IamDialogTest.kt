@@ -1,21 +1,22 @@
 package com.emarsys.mobileengage.iam.dialog
 
-import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.webkit.WebView
 import android.widget.LinearLayout
-import androidx.appcompat.app.AppCompatActivity
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
+import androidx.fragment.app.testing.FragmentScenario
+import androidx.fragment.app.testing.launchFragment
+import androidx.lifecycle.Lifecycle
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emarsys.core.provider.timestamp.TimestampProvider
+import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.util.log.entry.InAppLoadingTime
+import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
-import com.emarsys.mobileengage.iam.dialog.IamDialog.Companion.create
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -42,7 +43,6 @@ class IamDialogTest {
         const val REQUEST_ID_KEY = "request_id"
     }
 
-    private lateinit var dialog: TestIamDialog
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var uiHandler: Handler
 
@@ -52,30 +52,22 @@ class IamDialogTest {
 
     @Rule
     @JvmField
-    var activityRule = ActivityTestRule(FakeActivity::class.java)
+    var activityScenarioRule: ActivityScenarioRule<FakeActivity> = ActivityScenarioRule(FakeActivity::class.java)
 
     @Before
-    @Throws(InterruptedException::class)
     fun setUp() {
         uiHandler = Handler(Looper.getMainLooper())
         mockTimestampProvider = mock()
-        setupMobileEngageComponent(FakeMobileEngageDependencyContainer(timestampProvider = mockTimestampProvider))
-        activityRule.activity.runOnUiThread {
-            dialog = spy(TestIamDialog.create(
-                    CAMPAIGN_ID,
-                    CountDownLatch(1),
-                    CountDownLatch(1),
-                    CountDownLatch(1),
-                    CountDownLatch(1)
-            ))
-            dialog.setActions(listOf())
-            dialog.setInAppLoadingTime(InAppLoadingTime(1, 1))
+        val mockUuidProvider: UUIDProvider = mock {
+            on { provideId() } doReturn "uuid"
         }
+        setupMobileEngageComponent(FakeMobileEngageDependencyContainer(
+                timestampProvider = mockTimestampProvider,
+                uuidProvider = mockUuidProvider))
         initWebViewProvider()
     }
 
     @After
-    @Throws(Exception::class)
     fun tearDown() {
         tearDownMobileEngageComponent()
         setWebViewInProvider(null)
@@ -83,206 +75,365 @@ class IamDialogTest {
 
     @Test
     fun testCreate_shouldReturnImageDialogInstance() {
-        runBlocking { create("", SID, URL, "requestId") } shouldNotBe null
+        val fragmentScenario = launchFragment { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        fragmentScenario.onFragment { fragment ->
+            fragment shouldNotBe null
+        }
     }
 
     @Test
     fun testCreate_shouldInitializeDialog_withCampaignId() {
         val campaignId = "123456789"
-        val dialog = runBlocking { create(campaignId, SID, URL, "requestId") }
-        val result = dialog.arguments
+        val bundle = Bundle()
+        bundle.putString(IamDialog.CAMPAIGN_ID, campaignId)
+        bundle.putString(IamDialog.SID, null)
+        bundle.putString(IamDialog.URL, null)
+        bundle.putString(IamDialog.REQUEST_ID, null)
+        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        fragmentScenario.onFragment { fragment ->
+            val result = fragment.arguments
 
-        result shouldNotBe null
-        result!!.getString(CAMPAIGN_ID_KEY) shouldBe campaignId
+            result shouldNotBe null
+            result!!.getString(CAMPAIGN_ID_KEY) shouldBe campaignId
+        }
     }
 
     @Test
     fun testCreate_shouldInitializeDialog_withRequestId() {
         val requestId = "requestId"
         val campaignId = "campaignId"
-        val dialog: IamDialog = runBlocking { create(campaignId, SID, URL, requestId) }
+        val bundle = Bundle()
+        bundle.putString(IamDialog.CAMPAIGN_ID, campaignId)
+        bundle.putString(IamDialog.SID, null)
+        bundle.putString(IamDialog.URL, null)
+        bundle.putString(IamDialog.REQUEST_ID, requestId)
+        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        fragmentScenario.onFragment { fragment ->
+            val result = fragment.arguments
 
-        val result = dialog.arguments
-
-        result shouldNotBe null
-        result!!.getString(REQUEST_ID_KEY) shouldBe requestId
+            result shouldNotBe null
+            result!!.getString(REQUEST_ID_KEY) shouldBe requestId
+        }
     }
 
     @Test
     fun testCreate_shouldInitializeDialog_withSid() {
         val requestId = "requestId"
         val campaignId = "campaignId"
-        val dialog =  runBlocking { create(campaignId, SID, URL, requestId) }
-        val result = dialog.arguments
+        val bundle = Bundle()
+        bundle.putString(IamDialog.CAMPAIGN_ID, campaignId)
+        bundle.putString(IamDialog.SID, SID)
+        bundle.putString(IamDialog.URL, null)
+        bundle.putString(IamDialog.REQUEST_ID, requestId)
 
-        result shouldNotBe null
-        result!!.getString("sid") shouldBe "testSid"
+        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        fragmentScenario.onFragment { fragment ->
+            val result = fragment.arguments
+
+            result shouldNotBe null
+            result!!.getString("sid") shouldBe "testSid"
+        }
     }
 
     @Test
     fun testCreate_shouldInitializeDialog_withUrl() {
         val requestId = "requestId"
         val campaignId = "campaignId"
-        val dialog =  runBlocking { create(campaignId, SID, URL, requestId) }
-        val result = dialog.arguments
+        val bundle = Bundle()
+        bundle.putString(IamDialog.CAMPAIGN_ID, campaignId)
+        bundle.putString(IamDialog.SID, SID)
+        bundle.putString(IamDialog.URL, URL)
+        bundle.putString(IamDialog.REQUEST_ID, requestId)
 
-        result shouldNotBe null
-        result!!.getString("url") shouldBe "https://www.emarsys.com"
+        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        fragmentScenario.onFragment { fragment ->
+            val result = fragment.arguments
+
+            result shouldNotBe null
+            result!!.getString("url") shouldBe "https://www.emarsys.com"
+        }
     }
 
     @Test
     fun testCreate_shouldInitializeDialog_withOutRequestId() {
         val campaignId = "campaignId"
-        val dialog =  runBlocking { create(campaignId, SID, URL, null) }
-        val result = dialog.arguments
+        val bundle = Bundle()
+        bundle.putString(IamDialog.CAMPAIGN_ID, campaignId)
+        bundle.putString(IamDialog.SID, SID)
+        bundle.putString(IamDialog.URL, URL)
+        bundle.putString(IamDialog.REQUEST_ID, null)
+        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        fragmentScenario.onFragment { fragment ->
+            val result = fragment.arguments
 
-        result shouldNotBe null
-        result!!.getString(REQUEST_ID_KEY) shouldBe null
+            result shouldNotBe null
+            result!!.getString(REQUEST_ID_KEY) shouldBe null
+        }
     }
 
     @Test
-    @Throws(InterruptedException::class)
     fun testInitialization_setsDimAmountToZero() {
-        displayDialog()
-        val expected = 0.0f
-        val actual = dialog.dialog!!.window!!.attributes.dimAmount
-        org.junit.Assert.assertEquals(expected.toDouble(), actual.toDouble(), 0.0000001)
 
-
+        val bundle = Bundle()
+        bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
+        bundle.putString(IamDialog.SID, SID)
+        bundle.putString(IamDialog.URL, URL)
+        bundle.putString(IamDialog.REQUEST_ID, null)
+        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        displayDialog(fragmentScenario)
+        fragmentScenario.onFragment {
+            val expected = 0.0f
+            val actual = it.dialog!!.window!!.attributes.dimAmount
+            org.junit.Assert.assertEquals(expected.toDouble(), actual.toDouble(), 0.0000001)
+        }
     }
 
     @Test
-    @Throws(InterruptedException::class)
     fun testInitialization_setsDialogToFullscreen() {
-        displayDialog()
-        val dialogWidth = activityRule.activity.window.attributes.width.toFloat()
-        val dialogHeight = activityRule.activity.window.attributes.height.toFloat()
-        val windowWidth = dialog.dialog!!.window!!.attributes.width.toFloat()
-        val windowHeight = dialog.dialog!!.window!!.attributes.height.toFloat()
-        org.junit.Assert.assertEquals(windowWidth.toDouble(), dialogWidth.toDouble(), 0.0001)
-        org.junit.Assert.assertEquals(windowHeight.toDouble(), dialogHeight.toDouble(), 0.0001)
+        val bundle = Bundle()
+        bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
+        bundle.putString(IamDialog.SID, SID)
+        bundle.putString(IamDialog.URL, URL)
+        bundle.putString(IamDialog.REQUEST_ID, null)
+
+        val fragmentScenario = launchFragment(bundle) {
+            IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider)
+        }
+
+        displayDialog(fragmentScenario)
+        fragmentScenario.onFragment {
+            val windowWidth = it.activity!!.window.attributes.width
+            val windowHeight = it.activity!!.window.attributes.height
+
+            val dialogWidth = it.dialog!!.window!!.attributes.width
+            val dialogHeight = it.dialog!!.window!!.attributes.height
+
+            dialogWidth shouldBe windowWidth
+            dialogHeight shouldBe windowHeight
+        }
     }
 
     @Test
-    @Throws(InterruptedException::class)
     fun testDialog_stillVisible_afterOrientationChange() {
-        val iamDialog: IamDialog = runBlocking { create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY) }
-        val activity: AppCompatActivity = activityRule.activity
-        activity.runOnUiThread { iamDialog.show(activity.supportFragmentManager, "testDialog") }
-        activityRule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
         initWebViewProvider()
-        activityRule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        initWebViewProvider()
-        val dialogWidth = activityRule.activity.window.attributes.width.toFloat()
-        val dialogHeight = activityRule.activity.window.attributes.height.toFloat()
-        val windowWidth = iamDialog.dialog!!.window!!.attributes.width.toFloat()
-        val windowHeight = iamDialog.dialog!!.window!!.attributes.height.toFloat()
-        org.junit.Assert.assertEquals(windowWidth.toDouble(), dialogWidth.toDouble(), 0.0001)
-        org.junit.Assert.assertEquals(windowHeight.toDouble(), dialogHeight.toDouble(), 0.0001)
+
+        val bundle = Bundle()
+        bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
+        bundle.putString(IamDialog.SID, SID)
+        bundle.putString(IamDialog.URL, URL)
+        bundle.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
+        bundle.putSerializable("loading_time", InAppLoadingTime(0, 0))
+
+        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+
+        displayDialog(fragmentScenario)
+
+        fragmentScenario.onFragment {
+            it.activity?.runOnUiThread {
+                it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
+
+            it.activity?.runOnUiThread {
+                it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+
+            val dialogWidth = it.activity?.window?.attributes?.width ?: 0
+            val dialogHeight = it.activity?.window?.attributes?.height ?: 0
+            val windowWidth = it.dialog!!.window!!.attributes.width
+            val windowHeight = it.dialog!!.window!!.attributes.height
+
+            dialogWidth shouldBe windowWidth
+            dialogHeight shouldBe windowHeight
+        }
     }
 
     @Test
     fun testDialog_cancel_turnsRetainInstanceOff() {
-        val iamDialog: IamDialog = runBlocking { create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY) }
-        iamDialog.setInAppLoadingTime(InAppLoadingTime(1, 1))
-        val activity: AppCompatActivity = activityRule.activity
-        activity.runOnUiThread { iamDialog.show(activity.supportFragmentManager, "testDialog") }
-        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        iamDialog.dialog!!.cancel()
-        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        val bundle = Bundle()
+        bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
+        bundle.putString(IamDialog.SID, SID)
+        bundle.putString(IamDialog.URL, URL)
+        bundle.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
 
-        iamDialog.retainInstance shouldBe false
+        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        var latch = CountDownLatch(1)
+
+        fragmentScenario.onFragment {
+            it.setInAppLoadingTime(InAppLoadingTime(1, 1))
+            it.activity?.runOnUiThread {
+                it.dialog?.show()
+
+                it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+
+                it.dialog?.cancel()
+
+                it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                latch.countDown()
+            }
+
+            latch.await()
+            latch = CountDownLatch(1)
+            Thread {
+                it.activity?.runOnUiThread {
+                    it.retainInstance shouldBe false
+                    latch.countDown()
+                }
+            }.start()
+        }
+        latch.await()
     }
+
 
     @Test
     fun testDialog_dismiss_turnsRetainInstanceOff() {
-        val activity: AppCompatActivity = activityRule.activity
-        val iamDialog: IamDialog = runBlocking { create(CAMPAIGN_ID, SID, URL, REQUEST_ID_KEY) }
+        val bundle = Bundle()
+        bundle.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
+        bundle.putString(IamDialog.SID, SID)
+        bundle.putString(IamDialog.URL, URL)
+        bundle.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
 
-        iamDialog.setInAppLoadingTime(InAppLoadingTime(1, 1))
-        iamDialog.show(activity.supportFragmentManager, "testDialog")
+        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        var latch = CountDownLatch(1)
 
+        fragmentScenario.onFragment {
+            it.setInAppLoadingTime(InAppLoadingTime(1, 1))
+            it.activity?.runOnUiThread {
+                it.dialog?.show()
 
-        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+                it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
-        iamDialog.dismiss()
+                it.dismiss()
 
-        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+                it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                latch.countDown()
+            }
 
-        iamDialog.retainInstance shouldBe false
+            latch.await()
+            latch = CountDownLatch(1)
+            Thread {
+                it.activity?.runOnUiThread {
+                    it.retainInstance shouldBe false
+                    latch.countDown()
+                }
+            }.start()
+        }
+        latch.await()
     }
+
 
     @Test
     fun testOnResume_callsActions_ifProvided() {
         val args = Bundle()
         args.putString(CAMPAIGN_ID_KEY, "123456789")
-        dialog.arguments = args
-        val actions = createMockActions()
-        dialog.setActions(actions)
-        displayDialog()
-        for (action in actions) {
-            verify(action).execute("123456789", null, null)
+        val actions: List<OnDialogShownAction> = listOf(mock(), mock(), mock())
+        val fragmentScenario = launchFragment(args) {
+            IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider).apply {
+                setActions(actions)
+            }
+        }
+        fragmentScenario.onFragment {
+
+            displayDialog(fragmentScenario)
+
+            for (action in actions) {
+                verify(action).execute("123456789", null, null)
+            }
         }
     }
 
     @Test
     fun testOnResume_callsActions_onlyOnce() {
-        val actions = createMockActions()
-        dialog.setActions(actions)
-        displayDialog()
-        dismissDialog()
-        displayDialog()
-        for (action in actions) {
-            verify(action, times(1)).execute(any(), any(), any())
+        val actions: List<OnDialogShownAction> = listOf(mock(), mock(), mock())
+
+        val args = Bundle()
+        args.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
+        args.putString(IamDialog.SID, SID)
+        args.putString(IamDialog.URL, URL)
+        val fragmentScenario = launchFragment(args) {
+            IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider).apply {
+                setActions(actions)
+            }
+        }
+        fragmentScenario.moveToState(Lifecycle.State.CREATED)
+        fragmentScenario.moveToState(Lifecycle.State.RESUMED)
+        fragmentScenario.moveToState(Lifecycle.State.CREATED)
+        fragmentScenario.moveToState(Lifecycle.State.RESUMED)
+        fragmentScenario.onFragment {
+            for (action in actions) {
+                verify(action, times(1)).execute(any(), any(), any())
+            }
+
         }
     }
 
     @Test
     fun testOnScreenTime_savesDuration_betweenResumeAndPause() {
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(100L, 250L)
+        val args = Bundle()
+        args.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
+        args.putString(IamDialog.SID, SID)
+        args.putString(IamDialog.URL, URL)
+        val fragmentScenario = launchFragment(args) {
+            IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider)
+        }
 
-        displayDialog()
-        pauseDialog()
-        val onScreenTime = dialog.arguments!!.getLong(ON_SCREEN_TIME_KEY)
+        fragmentScenario.onFragment {
+            it.activity?.runOnUiThread {
+                it.onPause()
+            }
+            val onScreenTime = it.arguments?.getLong(ON_SCREEN_TIME_KEY) ?: -1
 
-        dialog.arguments shouldNotBe null
-        onScreenTime shouldBe 150
+            it.arguments shouldNotBe null
+            onScreenTime shouldBe 150
+
+        }
     }
 
     @Test
     fun testOnScreenTime_aggregatesDurations_betweenMultipleResumeAndPause() {
         whenever(mockTimestampProvider.provideTimestamp()).thenReturn(100L, 250L, 1000L, 1003L)
 
+        val args = Bundle()
+        args.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
+        args.putString(IamDialog.SID, SID)
+        args.putString(IamDialog.URL, URL)
+        val fragmentScenario = launchFragment(args) {
+            IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider)
+        }
+        fragmentScenario.onFragment {
+            it.activity?.runOnUiThread {
+                it.onPause()
+            }
+            it.arguments shouldNotBe null
+            it.arguments!!.getLong(ON_SCREEN_TIME_KEY) shouldBe 150
 
-        displayDialog()
-        pauseDialog()
-        dialog.arguments shouldNotBe null
-        dialog.arguments!!.getLong(ON_SCREEN_TIME_KEY) shouldBe 150
-        resumeDialog()
-        pauseDialog()
-        dialog.arguments shouldNotBe null
-        dialog.arguments!!.getLong(ON_SCREEN_TIME_KEY) shouldBe 153
+            it.activity?.runOnUiThread {
+                it.onResume()
+                it.onPause()
+            }
+            it.arguments shouldNotBe null
+            it.arguments!!.getLong(ON_SCREEN_TIME_KEY) shouldBe 153
+        }
     }
 
     @Test
     fun testOnStart_shouldNotThrowTheSpecifiedChildAlreadyHasAParent_exception() {
         var result: Exception? = null
         try {
-            displayDialog()
-            val activity: AppCompatActivity = activityRule.activity
-            activity.runOnUiThread { dialog.onStart() }
+            val fragmentScenario = launchFragment {
+                IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider)
+            }
+            displayDialog(fragmentScenario)
+            fragmentScenario.onFragment {
+                it.activity?.runOnUiThread { it.onStart() }
+            }
         } catch (exception: IllegalStateException) {
             result = exception
         }
 
         result shouldBe null
     }
+
 
     @Test
     fun testOnStart_shouldNotThrowTheSpecifiedWebViewAlreadyHasAParent_exception() {
@@ -293,9 +444,13 @@ class IamDialogTest {
                 val webView = IamStaticWebViewProvider(getTargetContext(), uiHandler).provideWebView()
                 LinearLayout(getTargetContext()).addView(webView)
             }
-            displayDialog()
-            val activity: AppCompatActivity = activityRule.activity
-            activity.runOnUiThread { dialog.onStart() }
+            val fragmentScenario = launchFragment {
+                IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider)
+            }
+            displayDialog(fragmentScenario)
+            fragmentScenario.onFragment {
+                it.activity?.runOnUiThread { it.onStart() }
+            }
         } catch (exception: IllegalStateException) {
             result = exception
         }
@@ -304,53 +459,23 @@ class IamDialogTest {
 
     @Test
     fun testOnStart_shouldNotThrowCannotAddANullChildViewToAViewGroup_exception() {
-         ReflectionTestUtils.setCompanionField(IamStaticWebViewProvider.Companion, "webView", null)
-        var result: Exception? = null
+        ReflectionTestUtils.setCompanionField(IamStaticWebViewProvider.Companion, "webView", null)
+        val args = Bundle()
+        args.putString(IamDialog.CAMPAIGN_ID, CAMPAIGN_ID)
+        args.putString(IamDialog.SID, SID)
+        args.putString(IamDialog.URL, URL)
+        args.putSerializable("loading_time", InAppLoadingTime(0, 0))
         try {
-            displayDialog()
+            val fragmentScenario = launchFragment(args) {
+                IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider)
+            }
+
+            displayDialog(fragmentScenario)
         } catch (exception: IllegalArgumentException) {
-            result = exception
+            exception.message shouldBe "The fragment has been removed from the FragmentManager already."
         }
-        result shouldBe null
-        verify(dialog).dismiss()
     }
 
-    private fun displayDialog() {
-        dialog.resumeLatch = CountDownLatch(1)
-        val activity: AppCompatActivity = activityRule.activity
-        activity.runOnUiThread { dialog.show(activity.supportFragmentManager, "testDialog") }
-        dialog.resumeLatch.await()
-    }
-
-    private fun resumeDialog() {
-        dialog.resumeLatch = CountDownLatch(1)
-        val activity: Activity = activityRule.activity
-        activity.runOnUiThread { dialog.onResume() }
-        dialog.resumeLatch.await()
-    }
-
-    private fun pauseDialog() {
-        dialog.pauseLatch = CountDownLatch(1)
-        val activity: Activity = activityRule.activity
-        activity.runOnUiThread { dialog.onPause() }
-        dialog.pauseLatch.await()
-    }
-
-    private fun cancelDialog() {
-        dialog.cancelLatch = CountDownLatch(1)
-        val activity: Activity = activityRule.activity
-        activity.runOnUiThread { dialog.onCancel(mock()) }
-        dialog.cancelLatch.await()
-    }
-
-    private fun dismissDialog() {
-        dialog.stopLatch = CountDownLatch(1)
-        val activity: Activity = activityRule.activity
-        activity.runOnUiThread { dialog.dismiss() }
-        dialog.stopLatch.await()
-    }
-
-    @Throws(Exception::class)
     private fun setWebViewInProvider(webView: WebView?) {
         val webViewField = IamStaticWebViewProvider::class.java.getDeclaredField("webView")
         webViewField.isAccessible = true
@@ -370,22 +495,12 @@ class IamDialogTest {
         initLatch.await()
     }
 
-    private fun createMockActions(): List<OnDialogShownAction> {
-        return listOf(
-                mock(),
-                mock(),
-                mock()
-        )
-    }
-
-    inline fun <reified T> runBlocking(crossinline function: () -> T): T {
-        var result: T? = null
-        val latch: CountDownLatch = CountDownLatch(1)
-        activityRule.activity.runOnUiThread {
-            result = function()
-            latch.countDown()
+    private fun displayDialog(fragmentScenario: FragmentScenario<IamDialog>) {
+        fragmentScenario.onFragment { dialog ->
+            dialog.activity?.runOnUiThread {
+                dialog.activity?.supportFragmentManager?.executePendingTransactions()
+            }
         }
-        latch.await()
-        return result!!
+        fragmentScenario.moveToState(Lifecycle.State.RESUMED)
     }
 }

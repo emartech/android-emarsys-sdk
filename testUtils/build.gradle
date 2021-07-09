@@ -32,6 +32,8 @@ group = 'com.emarsys.testUtil'
 
 dependencies {
     implementation Libs.support_appcompat
+    api TestLibs.support_test_extensions
+    debugApi TestLibs.support_test_fragment
 
     api Libs.kotlin
     api TestLibs.kotlin_test

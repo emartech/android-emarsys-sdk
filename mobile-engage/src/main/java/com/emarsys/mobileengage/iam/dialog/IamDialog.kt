@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,7 +28,7 @@ import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 
 @Mockable
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-class IamDialog : DialogFragment() {
+class IamDialog(private val uiHandler: Handler, private val timestampProvider: TimestampProvider) : DialogFragment() {
 
     companion object {
         const val TAG = "MOBILE_ENGAGE_IAM_DIALOG_TAG"
@@ -39,18 +40,6 @@ class IamDialog : DialogFragment() {
         const val ON_SCREEN_TIME = "on_screen_time"
         const val END_SCREEN_TIME = "end_screen_time"
         const val LOADING_TIME = "loading_time"
-
-        @JvmStatic
-        fun create(campaignId: String, sid: String?, url: String?, requestId: String?): IamDialog {
-            val iamDialog = IamDialog()
-            val bundle = Bundle()
-            bundle.putString(CAMPAIGN_ID, campaignId)
-            bundle.putString(SID, sid)
-            bundle.putString(URL, url)
-            bundle.putString(REQUEST_ID, requestId)
-            iamDialog.arguments = bundle
-            return iamDialog
-        }
     }
 
     private var actions: List<OnDialogShownAction>? = null
@@ -58,7 +47,6 @@ class IamDialog : DialogFragment() {
     private var webView: WebView? = null
     private var startTime: Long = 0
     private var dismissed = false
-    val timestampProvider: TimestampProvider by lazy { mobileEngage().timestampProvider }
 
     fun setActions(actions: List<OnDialogShownAction>?) {
         this.actions = actions
@@ -74,7 +62,7 @@ class IamDialog : DialogFragment() {
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val v = inflater.inflate(R.layout.mobile_engage_in_app_message, container, false)
-        webView = IamStaticWebViewProvider(activity!!.applicationContext, mobileEngage().uiHandler).provideWebView()
+        webView = IamStaticWebViewProvider(requireActivity().applicationContext, uiHandler).provideWebView()
         webViewContainer = v.findViewById(R.id.mobileEngageInAppMessageContainer)
         return v
     }
@@ -163,7 +151,7 @@ class IamDialog : DialogFragment() {
         if (!dismissed) {
             val endScreenTime = timestampProvider.provideTimestamp()
             val currentDuration = endScreenTime - startTime
-            val previousDuration = arguments!!.getLong(ON_SCREEN_TIME)
+            val previousDuration = arguments?.getLong(ON_SCREEN_TIME) ?: 0
             arguments?.putLong(ON_SCREEN_TIME, previousDuration + currentDuration)
             arguments?.putLong(END_SCREEN_TIME, endScreenTime)
         }

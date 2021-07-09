@@ -4,7 +4,9 @@ object Versions {
     const val mockito_version = "3.11.2"
     const val firebase_messaging_version = "22.0.0"
     const val support_test_version = "1.4.0"
-    const val support_library = "1.2.0"
+    const val support_library = "1.3.0"
+    const val support_test_extensions= "1.1.3"
+    const val support_test_fragment= "1.3.5"
     const val support_annotations = "1.2.0"
     const val buildToolsVersion = "30.0.2"
     const val multiDexVersion = "2.0.0"
@@ -26,6 +28,7 @@ object Libs {
     const val lifecycle_extensions = "androidx.lifecycle:lifecycle-process:${Versions.archLifecycleVersion}"
     const val lifecycle_compiler = "androidx.lifecycle:lifecycle-compiler:${Versions.archLifecycleVersion}"
     const val security_crypto = "androidx.security:security-crypto:${Versions.securityCryptoVersion}"
+
 }
 
 object TestLibs {
@@ -36,5 +39,7 @@ object TestLibs {
     const val byte_buddy = "net.bytebuddy:byte-buddy:${Versions.byte_buddy_version}"
     const val support_test_runner = "androidx.test:runner:${Versions.support_test_version}"
     const val support_test_rules = "androidx.test:rules:${Versions.support_test_version}"
+    const val support_test_extensions = "androidx.test.ext:junit:${Versions.support_test_extensions}"
+    const val support_test_fragment = "androidx.fragment:fragment-testing:${Versions.support_test_fragment}"
     const val multiDex = "androidx.multidex:multidex-instrumentation:${Versions.multiDexVersion}"
 }
