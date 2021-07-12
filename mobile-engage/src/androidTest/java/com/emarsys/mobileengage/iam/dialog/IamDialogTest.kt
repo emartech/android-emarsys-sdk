@@ -255,29 +255,22 @@ class IamDialogTest {
         bundle.putString(IamDialog.URL, URL)
         bundle.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
 
-        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        val fragmentScenario = launchFragment(bundle) { IamDialog(uiHandler, mockTimestampProvider) }
         val fragmentLatch = CountDownLatch(1)
 
         displayDialog(fragmentScenario)
         fragmentScenario.onFragment {
             it.setInAppLoadingTime(InAppLoadingTime(1, 1))
-            val uiLatch = CountDownLatch(1)
             it.activity?.runOnUiThread {
                 it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
-                it.dialog?.cancel()
+                it.onCancel(it.dialog!!)
 
                 it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                uiLatch.countDown()
-            }
 
-            uiLatch.await()
-            Thread {
-                it.activity?.runOnUiThread {
-                    it.retainInstance shouldBe false
-                    fragmentLatch.countDown()
-                }
-            }.start()
+                it.retainInstance shouldBe false
+            }
+            fragmentLatch.countDown()
         }
         fragmentLatch.await()
     }
@@ -297,23 +290,16 @@ class IamDialogTest {
         displayDialog(fragmentScenario)
         fragmentScenario.onFragment {
             it.setInAppLoadingTime(InAppLoadingTime(1, 1))
-            val uiLatch = CountDownLatch(1)
             it.activity?.runOnUiThread {
                 it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
                 it.dismiss()
 
                 it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                uiLatch.countDown()
-            }
 
-            uiLatch.await()
-            Thread {
-                it.activity?.runOnUiThread {
-                    it.retainInstance shouldBe false
-                    fragmentLatch.countDown()
-                }
-            }.start()
+                it.retainInstance shouldBe false
+                fragmentLatch.countDown()
+            }
         }
         fragmentLatch.await()
     }
