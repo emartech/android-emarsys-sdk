@@ -18,7 +18,7 @@ import com.emarsys.sample.adapters.MessageInboxAdapter
 import com.emarsys.sample.extensions.showSnackBar
 import kotlinx.android.synthetic.main.fragment_message_inbox.*
 
-class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, TagChangeListener {
+class  MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, TagChangeListener {
 
     private companion object {
         val TAG: String = MessageInboxFragment::class.java.simpleName

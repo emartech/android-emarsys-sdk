@@ -258,12 +258,11 @@ class IamDialogTest {
         val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
         val fragmentLatch = CountDownLatch(1)
 
+        displayDialog(fragmentScenario)
         fragmentScenario.onFragment {
             it.setInAppLoadingTime(InAppLoadingTime(1, 1))
             val uiLatch = CountDownLatch(1)
             it.activity?.runOnUiThread {
-                it.dialog?.show()
-
                 it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
                 it.dialog?.cancel()
@@ -295,12 +294,11 @@ class IamDialogTest {
         val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
         val fragmentLatch = CountDownLatch(1)
 
+        displayDialog(fragmentScenario)
         fragmentScenario.onFragment {
             it.setInAppLoadingTime(InAppLoadingTime(1, 1))
             val uiLatch = CountDownLatch(1)
             it.activity?.runOnUiThread {
-                it.dialog?.show()
-
                 it.activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
                 it.dismiss()
