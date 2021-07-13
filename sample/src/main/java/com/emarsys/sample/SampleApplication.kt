@@ -26,12 +26,11 @@ open class SampleApplication : Application(), EventHandler, NotificationInformat
     override fun onCreate() {
         super.onCreate()
         Kotpref.init(this)
-        val config = EmarsysConfig.Builder()
-                .application(this)
-                .applicationCode(getApplicationCode())
-                .contactFieldId(Cache.contactFieldId)
-                .merchantId(Cache.merchantId)
-                .build()
+
+        val config = EmarsysConfig(application = this,
+                applicationCode = getApplicationCode(),
+                contactFieldId = Cache.contactFieldId,
+                merchantId = Cache.merchantId)
 
         createNotificationChannels()
         Emarsys.setup(config)
@@ -68,7 +67,7 @@ open class SampleApplication : Application(), EventHandler, NotificationInformat
 
     override fun handleEvent(context: Context, eventName: String, payload: JSONObject?) {
         if (eventName != "push:payload") {
-            Toast.makeText(this, eventName + " - " + payload.toString(), Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "$eventName - $payload", Toast.LENGTH_LONG).show()
         }
     }
 
