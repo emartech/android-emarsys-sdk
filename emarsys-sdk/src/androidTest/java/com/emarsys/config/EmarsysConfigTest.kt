@@ -1,6 +1,7 @@
 package com.emarsys.config
 
 import android.app.Application
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.api.experimental.FlipperFeature
 import com.emarsys.core.endpoint.ServiceEndpointProvider
 import com.emarsys.di.FakeDependencyContainer
@@ -193,6 +194,45 @@ class EmarsysConfigTest {
                 .build()
 
         config.verboseConsoleLoggingEnabled shouldBe false
+    }
+
+    @Test
+    fun testEmarsysConfig_defaultParameters(){
+        val config = EmarsysConfig(application = application,
+                contactFieldId = 999)
+
+        config.contactFieldId shouldBe 999
+        config.application shouldBe application
+        config.applicationCode shouldBe null
+        config.automaticPushTokenSendingEnabled shouldBe true
+        config.verboseConsoleLoggingEnabled shouldBe false
+        config.experimentalFeatures shouldBe listOf()
+        config.merchantId shouldBe null
+        config.sharedSecret shouldBe null
+        config.sharedPackageNames shouldBe null
+    }
+
+    @Test
+    fun testEmarsysConfig_allParameters(){
+        val config = EmarsysConfig(application = application,
+        contactFieldId = 999,
+        applicationCode = APP_ID,
+        merchantId = MERCHANT_ID,
+        experimentalFeatures = listOf(InnerFeature.EVENT_SERVICE_V4),
+        automaticPushTokenSendingEnabled = false,
+        sharedPackageNames = SHARED_PACKAGE_NAMES,
+        sharedSecret = SHARED_SECRET,
+        verboseConsoleLoggingEnabled = true)
+
+        config.contactFieldId shouldBe 999
+        config.application shouldBe application
+        config.applicationCode shouldBe APP_ID
+        config.automaticPushTokenSendingEnabled shouldBe false
+        config.verboseConsoleLoggingEnabled shouldBe true
+        config.experimentalFeatures shouldBe listOf(InnerFeature.EVENT_SERVICE_V4)
+        config.merchantId shouldBe MERCHANT_ID
+        config.sharedSecret shouldBe SHARED_SECRET
+        config.sharedPackageNames shouldBe SHARED_PACKAGE_NAMES
     }
 
     @Test
