@@ -38,11 +38,6 @@ class FileDownloaderTest {
     }
 
     @Test
-    fun testDownload_pathShouldNotBeNull() {
-        assertNull(fileDownloader.download(null))
-    }
-
-    @Test
     fun testDownload_shouldNotReturnNull_whenUrlIsCorrect() {
         assertNotNull(fileDownloader.download(LARGE_IMAGE))
     }
@@ -71,7 +66,7 @@ class FileDownloaderTest {
         val file = File(filePath)
         val fileInputStream: InputStream = FileInputStream(file)
         val remoteInputStream = fileDownloader.inputStreamFromUrl(path)
-        assertTrue(Arrays.equals(convertToByteArray(fileInputStream), convertToByteArray(remoteInputStream)))
+        assertTrue(Arrays.equals(convertToByteArray(fileInputStream), convertToByteArray(remoteInputStream!!)))
     }
 
     @Test
@@ -100,19 +95,10 @@ class FileDownloaderTest {
 
     @Test
     fun testReadURLIntoString() {
-        val file = fileDownloader.download(LARGE_IMAGE)
-        val expected = fileDownloader.readFileIntoString(file)
-        assertEquals(expected, fileDownloader.readURLIntoString(LARGE_IMAGE))
-    }
-
-    @Test
-    fun testReadURLIntoString_shouldReturnNull_whenUrlIsNull() {
-        assertEquals(null, fileDownloader.readURLIntoString(null))
-    }
-
-    @Test
-    fun testReadFileIntoString_shouldReturnNull_whenFileUrlIsNull() {
-        assertEquals(null, fileDownloader.readFileIntoString(null))
+        fileDownloader.download(LARGE_IMAGE)?.let {
+            val expected = fileDownloader.readFileIntoString(it)
+            assertEquals(expected, fileDownloader.readURLIntoString(LARGE_IMAGE))
+        }
     }
 
     private fun convertToByteArray(inputStream: InputStream): ByteArray? {

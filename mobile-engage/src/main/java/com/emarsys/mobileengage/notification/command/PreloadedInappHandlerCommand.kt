@@ -21,8 +21,8 @@ class PreloadedInappHandlerCommand(private val intent: Intent) : Runnable {
                         val emsJson = JSONObject(ems)
                         val inAppDescriptor = JSONObject(emsJson.getString("inapp"))
                         val campaignId = inAppDescriptor.getString("campaignId")
-                        val url = inAppDescriptor.optString("url", null)
-                        val fileUrl = inAppDescriptor.optString("fileUrl", null)
+                        val url = if (inAppDescriptor.isNull("url")) null else inAppDescriptor.getString("url")
+                        val fileUrl = if (inAppDescriptor.isNull("fileUrl")) null else inAppDescriptor.getString("fileUrl")
                         val sid = extractSid(payload)
                         var html: String? = null
                         if (fileUrl != null) {

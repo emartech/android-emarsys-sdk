@@ -34,7 +34,7 @@ object ImageUtils {
 
     private fun downloadImage(fileDownloader: FileDownloader, imageUrl: String?): String? {
         var fileUrl = imageUrl
-        if (isRemoteUrl(imageUrl)) {
+        if (isRemoteUrl(imageUrl) && imageUrl != null) {
             fileUrl = fileDownloader.download(imageUrl)
         }
         return fileUrl

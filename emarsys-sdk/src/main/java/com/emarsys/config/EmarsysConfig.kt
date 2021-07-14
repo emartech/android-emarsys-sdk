@@ -3,7 +3,7 @@ package com.emarsys.config
 import android.app.Application
 import com.emarsys.core.api.experimental.FlipperFeature
 
-data class EmarsysConfig constructor(val application: Application,
+data class EmarsysConfig(val application: Application,
                                      val applicationCode: String? = null,
                                      val contactFieldId: Int,
                                      val merchantId: String? = null,

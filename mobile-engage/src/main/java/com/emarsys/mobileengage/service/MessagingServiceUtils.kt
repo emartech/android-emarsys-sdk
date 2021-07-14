@@ -173,7 +173,7 @@ object MessagingServiceUtils {
                             .hasFieldWithType("url", String::class.java)
                             .validate()
                     if (errors.isEmpty()) {
-                        val inAppUrl = inAppPayload.getString("url")
+                        val inAppUrl: String = inAppPayload.getString("url")
                         val inAppDescriptor = JSONObject()
                         inAppDescriptor.put("campaignId", inAppPayload.getString("campaign_id"))
                         inAppDescriptor.put("url", inAppUrl)
