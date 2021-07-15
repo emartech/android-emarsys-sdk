@@ -46,52 +46,52 @@ class Predict(private val loggingInstance: Boolean = false) : PredictApi {
                 .trackTag(tag, attributes)
     }
 
-    override fun recommendProducts(recommendationLogic: Logic, resultListener: ResultListener<Try<List<Product>>>) {
+    override fun recommendProducts(logic: Logic, resultListener: ResultListener<Try<List<Product>>>) {
         (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, null, null, null, resultListener)
+                .recommendProducts(logic, null, null, null, resultListener)
     }
 
-    override fun recommendProducts(recommendationLogic: Logic, limit: Int, resultListener: ResultListener<Try<List<Product>>>) {
+    override fun recommendProducts(logic: Logic, limit: Int, resultListener: ResultListener<Try<List<Product>>>) {
         Assert.positiveInt(limit, "Limit must be greater than zero!")
         (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, limit, null, null, resultListener)
+                .recommendProducts(logic, limit, null, null, resultListener)
     }
 
-    override fun recommendProducts(recommendationLogic: Logic,
-                                   recommendationFilters: List<RecommendationFilter>,
+    override fun recommendProducts(logic: Logic,
+                                   filters: List<RecommendationFilter>,
                                    limit: Int,
                                    availabilityZone: String,
                                    resultListener: ResultListener<Try<List<Product>>>) {
         Assert.positiveInt(limit, "Limit must be greater than zero!")
         (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, limit, recommendationFilters, availabilityZone, resultListener)
+                .recommendProducts(logic, limit, filters, availabilityZone, resultListener)
     }
 
-    override fun recommendProducts(recommendationLogic: Logic, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>) {
+    override fun recommendProducts(logic: Logic, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>) {
         (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, null, null, availabilityZone, resultListener)
+                .recommendProducts(logic, null, null, availabilityZone, resultListener)
     }
 
-    override fun recommendProducts(recommendationLogic: Logic, limit: Int, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>) {
+    override fun recommendProducts(logic: Logic, limit: Int, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>) {
         Assert.positiveInt(limit, "Limit must be greater than zero!")
         (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, limit, null, availabilityZone, resultListener)
+                .recommendProducts(logic, limit, null, availabilityZone, resultListener)
     }
 
-    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, resultListener: ResultListener<Try<List<Product>>>) {
+    override fun recommendProducts(logic: Logic, filters: List<RecommendationFilter>, resultListener: ResultListener<Try<List<Product>>>) {
         (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, null, recommendationFilters, null, resultListener)
+                .recommendProducts(logic, null, filters, null, resultListener)
     }
 
-    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>) {
+    override fun recommendProducts(logic: Logic, filters: List<RecommendationFilter>, availabilityZone: String, resultListener: ResultListener<Try<List<Product>>>) {
         (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, null, recommendationFilters, availabilityZone, resultListener)
+                .recommendProducts(logic, null, filters, availabilityZone, resultListener)
     }
 
-    override fun recommendProducts(recommendationLogic: Logic, recommendationFilters: List<RecommendationFilter>, limit: Int, resultListener: ResultListener<Try<List<Product>>>) {
+    override fun recommendProducts(logic: Logic, filters: List<RecommendationFilter>, limit: Int, resultListener: ResultListener<Try<List<Product>>>) {
         Assert.positiveInt(limit, "Limit must be greater than zero!")
         (if (loggingInstance) predict().loggingPredictInternal else predict().predictInternal)
-                .recommendProducts(recommendationLogic, limit, recommendationFilters, null, resultListener)
+                .recommendProducts(logic, limit, filters, null, resultListener)
     }
 
     override fun trackRecommendationClick(product: Product) {

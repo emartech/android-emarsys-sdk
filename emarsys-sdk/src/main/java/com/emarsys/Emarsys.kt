@@ -108,17 +108,17 @@ object Emarsys {
     @JvmStatic
     @JvmOverloads
     fun setContact(
-            contactId: String,
+            contactFieldValue: String,
             completionListener: CompletionListener? = null) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.mobileEngageApi()
                     .proxyApi(mobileEngage().coreSdkHandler)
-                    .setContact(contactId, completionListener)
+                    .setContact(contactFieldValue, completionListener)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.predictRestrictedApi()
                     .proxyApi(mobileEngage().coreSdkHandler)
-                    .setContact(contactId)
+                    .setContact(contactFieldValue)
         }
     }
 

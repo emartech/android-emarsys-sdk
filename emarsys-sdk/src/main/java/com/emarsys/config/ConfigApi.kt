@@ -13,7 +13,7 @@ interface ConfigApi {
 
     val hardwareId: String
 
-    val language: String
+    val languageCode: String
 
     val notificationSettings: NotificationSettings
 

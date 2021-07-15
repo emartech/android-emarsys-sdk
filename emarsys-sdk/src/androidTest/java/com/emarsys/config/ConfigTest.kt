@@ -131,7 +131,7 @@ class ConfigTest {
         val language = "testLanguage"
         whenever(mockConfigInternal.language).thenReturn(language)
 
-        val result = config.language
+        val result = config.languageCode
 
         result shouldBe language
         verify(mockConfigInternal).language

@@ -151,7 +151,7 @@ class DashboardFragment : Fragment() {
         currentContactFieldId?.text = resources.getString(R.string.current_contact_field_id, Emarsys.config.contactFieldId)
         currentMerchantId?.text = resources.getString(R.string.current_merchant_id, if (Cache.merchantId.isNullOrEmpty()) "not set" else Cache.merchantId)
         hardwareIdField?.text = Emarsys.config.hardwareId
-        languageCodeField?.text = Emarsys.config.language
+        languageCodeField?.text = Emarsys.config.languageCode
         pushSettingsField?.text = resources.getString(R.string.config_information,
                 Emarsys.config.notificationSettings.areNotificationsEnabled(),
                 Emarsys.config.notificationSettings.importance,

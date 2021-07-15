@@ -19,7 +19,7 @@ class Config : ConfigApi {
     override val hardwareId: String
         get() = emarsys().configInternal.hardwareId
 
-    override val language: String
+    override val languageCode: String
         get() = emarsys().configInternal.language
 
     override val notificationSettings: NotificationSettings
