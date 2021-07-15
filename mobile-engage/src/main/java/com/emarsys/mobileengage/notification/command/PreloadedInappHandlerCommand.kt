@@ -2,6 +2,7 @@ package com.emarsys.mobileengage.notification.command
 
 import android.content.Intent
 import android.os.Bundle
+import com.emarsys.core.util.getNullableString
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.PushToInAppAction
 import org.json.JSONException
@@ -21,8 +22,8 @@ class PreloadedInappHandlerCommand(private val intent: Intent) : Runnable {
                         val emsJson = JSONObject(ems)
                         val inAppDescriptor = JSONObject(emsJson.getString("inapp"))
                         val campaignId = inAppDescriptor.getString("campaignId")
-                        val url = if (inAppDescriptor.isNull("url")) null else inAppDescriptor.getString("url")
-                        val fileUrl = if (inAppDescriptor.isNull("fileUrl")) null else inAppDescriptor.getString("fileUrl")
+                        val url = inAppDescriptor.getNullableString("url")
+                        val fileUrl = inAppDescriptor.getNullableString("fileUrl")
                         val sid = extractSid(payload)
                         var html: String? = null
                         if (fileUrl != null) {

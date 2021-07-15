@@ -10,6 +10,7 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.JsonUtils
 import com.emarsys.core.util.camelToUpperSnakeCase
 import com.emarsys.core.util.filterNotNull
+import com.emarsys.core.util.getNullableString
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
@@ -54,13 +55,13 @@ class RemoteConfigResponseMapper(private val randomProvider: RandomProvider,
         if (remoteConfigJson.has("serviceUrls")) {
             val serviceUrls = remoteConfigJson.getJSONObject("serviceUrls")
             remoteConfig = remoteConfig.copy(
-                    eventServiceUrl = validateUrl(serviceUrls.optString("eventService", null)),
-                    clientServiceUrl = validateUrl(serviceUrls.optString("clientService", null)),
-                    deepLinkServiceUrl = validateUrl(serviceUrls.optString("deepLinkService", null)),
-                    inboxServiceUrl = validateUrl(serviceUrls.optString("inboxService", null)),
-                    messageInboxServiceUrl = validateUrl(serviceUrls.optString("messageInboxService", null)),
-                    mobileEngageV2ServiceUrl = validateUrl(serviceUrls.optString("mobileEngageV2Service", null)),
-                    predictServiceUrl = validateUrl(serviceUrls.optString("predictService", null)))
+                    eventServiceUrl = validateUrl(serviceUrls.getNullableString("eventService")),
+                    clientServiceUrl = validateUrl(serviceUrls.getNullableString("clientService")),
+                    deepLinkServiceUrl = validateUrl(serviceUrls.getNullableString("deepLinkService")),
+                    inboxServiceUrl = validateUrl(serviceUrls.getNullableString("inboxService")),
+                    messageInboxServiceUrl = validateUrl(serviceUrls.getNullableString("messageInboxService")),
+                    mobileEngageV2ServiceUrl = validateUrl(serviceUrls.getNullableString("mobileEngageV2Service")),
+                    predictServiceUrl = validateUrl(serviceUrls.getNullableString("predictService")))
         }
         remoteConfig = remoteConfig.copy(logLevel = calculateLogLevel(remoteConfigJson))
         remoteConfig = remoteConfig.copy(features = extractFeatures(remoteConfigJson))

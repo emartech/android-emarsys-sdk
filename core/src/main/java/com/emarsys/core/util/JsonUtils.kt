@@ -139,6 +139,14 @@ object JsonUtils {
     }
 }
 
+fun JSONObject.getNullableString(key: String): String? {
+    return if (this.isNull(key)) null else this.getString(key)
+}
+
+fun JSONObject.getNullableLong(key: String): Long? {
+    return if (this.isNull(key)) null else this.getLong(key)
+}
+
 private fun String.convertNullStringValueToNull(): String? {
     return if (this == "null") null else this
 }
