@@ -28,8 +28,10 @@ class DashboardFragment : Fragment() {
         const val REQUEST_CODE_SIGN_IN = 12
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_dashboard, container, false)
     }
 
@@ -47,7 +49,7 @@ class DashboardFragment : Fragment() {
 
         buttonLogin.setOnClickListener {
             val contactId = contactId.text.toString()
-            Emarsys.setContact(contactId) {
+            Emarsys.setContact(Cache.contactFieldId, contactId) {
                 handleLoginResult(it)
             }
         }
@@ -82,7 +84,10 @@ class DashboardFragment : Fragment() {
                     view.showSnackBar("ApplicationCode is needed!")
                 }
                 else -> {
-                    Emarsys.config.changeApplicationCode(newApplicationCode.text?.toNullableString(), newContactFieldId.text.toString().toInt()) { throwable ->
+                    Emarsys.config.changeApplicationCode(
+                        newApplicationCode.text?.toNullableString(),
+                        newContactFieldId.text.toString().toInt()
+                    ) { throwable ->
                         onApplicationCodeChanged(throwable, view)
                     }
                 }
@@ -108,7 +113,7 @@ class DashboardFragment : Fragment() {
     private fun handleGoogleLogin(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == DashboardFragment.REQUEST_CODE_SIGN_IN && resultCode != 0) {
             val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
-            Emarsys.setAuthenticatedContact(task.result.idToken!!) {
+            Emarsys.setAuthenticatedContact(Cache.contactFieldId, task.result.idToken!!) {
                 handleLoginResult(it, task.result.email)
             }
             Log.i("GOOGLE_OAUTH_ID_TOKEN", task.result.idToken!!)
@@ -131,31 +136,43 @@ class DashboardFragment : Fragment() {
     private fun onApplicationCodeChanged(throwable: Throwable?, view: View) {
         if (throwable == null) {
             if (Cache.applicationCode == null
-                    && newApplicationCode?.text?.toNullableString() != null) {
+                && newApplicationCode?.text?.toNullableString() != null
+            ) {
                 (activity?.application as SampleApplication).setupEventHandlers()
             }
             Cache.applicationCode = newApplicationCode?.text?.toNullableString()
-            Cache.contactFieldId = Emarsys.config.contactFieldId
+            Cache.contactFieldId = Emarsys.config.contactFieldId ?: 0
             view.showSnackBar("ApplicationCode has been changed!")
         } else {
             Cache.applicationCode = resources.getString(R.string.not_set)
-            view.showSnackBar(throwable.message
-                    ?: "Error during ApplicationCode change, Mobile Engage is disabled!")
+            view.showSnackBar(
+                throwable.message
+                    ?: "Error during ApplicationCode change, Mobile Engage is disabled!"
+            )
         }
 
         refreshConfig()
     }
 
     private fun refreshConfig() {
-        currentApplicationCode?.text = resources.getString(R.string.current_application_code, if (Cache.applicationCode.isNullOrEmpty()) "not set" else Cache.applicationCode)
-        currentContactFieldId?.text = resources.getString(R.string.current_contact_field_id, Emarsys.config.contactFieldId)
-        currentMerchantId?.text = resources.getString(R.string.current_merchant_id, if (Cache.merchantId.isNullOrEmpty()) "not set" else Cache.merchantId)
+        currentApplicationCode?.text = resources.getString(
+            R.string.current_application_code,
+            if (Cache.applicationCode.isNullOrEmpty()) "not set" else Cache.applicationCode
+        )
+        currentContactFieldId?.text =
+            resources.getString(R.string.current_contact_field_id, Emarsys.config.contactFieldId)
+        currentMerchantId?.text = resources.getString(
+            R.string.current_merchant_id,
+            if (Cache.merchantId.isNullOrEmpty()) "not set" else Cache.merchantId
+        )
         hardwareIdField?.text = Emarsys.config.hardwareId
         languageCodeField?.text = Emarsys.config.languageCode
-        pushSettingsField?.text = resources.getString(R.string.config_information,
-                Emarsys.config.notificationSettings.areNotificationsEnabled(),
-                Emarsys.config.notificationSettings.importance,
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Emarsys.config.notificationSettings.channelSettings else "[not supported on this API level]")
+        pushSettingsField?.text = resources.getString(
+            R.string.config_information,
+            Emarsys.config.notificationSettings.areNotificationsEnabled(),
+            Emarsys.config.notificationSettings.importance,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Emarsys.config.notificationSettings.channelSettings else "[not supported on this API level]"
+        )
         newApplicationCode?.setText(Cache.applicationCode ?: "")
         newContactFieldId?.setText(Cache.contactFieldId.toString() ?: "")
     }
@@ -165,7 +182,8 @@ class DashboardFragment : Fragment() {
     }
 
     private fun generateGoogleSignInClient(): GoogleSignInClient {
-        val options: GoogleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        val options: GoogleSignInOptions =
+            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestIdToken(BuildConfig.GOOGLE_OAUTH_SERVER_CLIENT_ID)
                 .build()

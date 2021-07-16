@@ -29,7 +29,6 @@ open class SampleApplication : Application(), EventHandler, NotificationInformat
 
         val config = EmarsysConfig(application = this,
                 applicationCode = getApplicationCode(),
-                contactFieldId = Cache.contactFieldId,
                 merchantId = Cache.merchantId)
 
         createNotificationChannels()
