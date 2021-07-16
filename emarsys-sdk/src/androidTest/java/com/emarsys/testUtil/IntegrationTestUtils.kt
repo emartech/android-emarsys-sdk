@@ -15,13 +15,17 @@ import java.util.concurrent.CountDownLatch
 
 object IntegrationTestUtils {
 
-    fun doLogin(contactFieldValue: String = "test@test.com", pushToken: String = "integration_test_push_token") {
+    fun doLogin(
+        contactFieldId: Int = 2575,
+        contactFieldValue: String = "test@test.com",
+        pushToken: String = "integration_test_push_token"
+    ) {
         val latchForPushToken = CountDownLatch(2)
         var errorCause: Throwable? = null
         Emarsys.push.setPushToken(pushToken) { throwable ->
             errorCause = throwable
             latchForPushToken.countDown()
-            Emarsys.setContact(contactFieldValue) {
+            Emarsys.setContact(contactFieldId, contactFieldValue) {
                 errorCause = it
                 latchForPushToken.countDown()
             }

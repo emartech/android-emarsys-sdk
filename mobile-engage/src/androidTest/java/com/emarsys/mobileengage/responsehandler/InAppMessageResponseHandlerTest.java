@@ -61,7 +61,7 @@ public class InAppMessageResponseHandlerTest {
         mockJsBridgeFactory = mock(IamJsBridgeFactory.class);
         mockJsBridge = mock(IamJsBridge.class);
 
-        when(mockJsBridgeFactory.createJsBridge(any(JSCommandFactory.class),any(InAppMessage.class))).thenReturn(mockJsBridge);
+        when(mockJsBridgeFactory.createJsBridge(any(JSCommandFactory.class), any(InAppMessage.class))).thenReturn(mockJsBridge);
 
         dialog = mock(IamDialog.class);
         IamDialogProvider dialogProvider = mock(IamDialogProvider.class);

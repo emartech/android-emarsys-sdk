@@ -70,7 +70,6 @@ class DefaultInboxIntegrationTest {
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
                 .applicationCode(APP_ID)
-                .contactFieldId(CONTACT_FIELD_ID)
                 .build()
 
         errorCause = null
@@ -98,7 +97,7 @@ class DefaultInboxIntegrationTest {
 
         Emarsys.setup(baseConfig)
 
-        IntegrationTestUtils.doLogin()
+        IntegrationTestUtils.doLogin(2575)
     }
 
     @After

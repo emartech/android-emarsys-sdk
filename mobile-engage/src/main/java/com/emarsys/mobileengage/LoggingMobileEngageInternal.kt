@@ -6,19 +6,29 @@ import com.emarsys.core.util.log.Logger.Companion.debug
 import com.emarsys.core.util.log.entry.MethodNotAllowed
 
 class LoggingMobileEngageInternal(private val klass: Class<*>) : MobileEngageInternal {
-    override fun setContact(contactFieldValue: String?, completionListener: CompletionListener?) {
+    override fun setContact(
+        contactFieldId: Int?,
+        contactFieldValue: String?,
+        completionListener: CompletionListener?
+    ) {
         val parameters = mapOf(
-                "contact_field_value" to contactFieldValue,
-                "completion_listener" to (completionListener != null)
+            "contact_field_id" to contactFieldId,
+            "contact_field_value" to contactFieldValue,
+            "completion_listener" to (completionListener != null)
         )
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    override fun setAuthenticatedContact(openIdToken: String, completionListener: CompletionListener?) {
+    override fun setAuthenticatedContact(
+        contactFieldId: Int,
+        openIdToken: String,
+        completionListener: CompletionListener?
+    ) {
         val parameters = mapOf(
-                "id_token" to openIdToken,
-                "completion_listener" to (completionListener != null)
+            "contact_field_id" to contactFieldId,
+            "id_token" to openIdToken,
+            "completion_listener" to (completionListener != null)
         )
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
@@ -26,7 +36,7 @@ class LoggingMobileEngageInternal(private val klass: Class<*>) : MobileEngageInt
 
     override fun clearContact(completionListener: CompletionListener?) {
         val parameters = mapOf(
-                "completion_listener" to (completionListener != null)
+            "completion_listener" to (completionListener != null)
         )
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))

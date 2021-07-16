@@ -19,7 +19,6 @@ class RemoteConfigIntegrationTest {
 
     private companion object {
         private const val APP_ID = "EMS1F-17E15"
-        private const val CONTACT_FIELD_ID = 3
     }
 
     private lateinit var baseConfig: EmarsysConfig
@@ -44,7 +43,6 @@ class RemoteConfigIntegrationTest {
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
                 .applicationCode(APP_ID)
-                .contactFieldId(CONTACT_FIELD_ID)
                 .build()
 
         ConnectionTestUtils.checkConnection(application)

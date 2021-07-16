@@ -4,9 +4,17 @@ import com.emarsys.core.api.result.CompletionListener
 
 interface MobileEngageApi {
 
-    fun setContact(contactFieldValue: String?, completionListener: CompletionListener?)
+    fun setContact(
+        contactFieldId: Int? = null,
+        contactFieldValue: String? = null,
+        completionListener: CompletionListener? = null
+    )
 
-    fun setAuthenticatedContact(openIdToken: String, completionListener: CompletionListener?)
+    fun setAuthenticatedContact(
+        contactFieldId: Int,
+        openIdToken: String,
+        completionListener: CompletionListener?
+    )
 
     fun clearContact(completionListener: CompletionListener?)
 }

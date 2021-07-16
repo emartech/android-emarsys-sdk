@@ -142,13 +142,16 @@ import java.security.spec.X509EncodedKeySpec
 open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     companion object {
         private const val EMARSYS_SHARED_PREFERENCES_NAME = "emarsys_shared_preferences"
-        private const val EMARSYS_SECURE_SHARED_PREFERENCES_NAME = "emarsys_secure_shared_preferences"
+        private const val EMARSYS_SECURE_SHARED_PREFERENCES_NAME =
+            "emarsys_secure_shared_preferences"
         private const val GEOFENCE_LIMIT = 99
-        private const val PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELjWEUIBX9zlm1OI4gF1hMCBLzpaBwgs9HlmSIBAqP4MDGy4ibOOV3FVDrnAY0Q34LZTbPBlp3gRNZJ19UoSy2Q=="
+        private const val PUBLIC_KEY =
+            "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELjWEUIBX9zlm1OI4gF1hMCBLzpaBwgs9HlmSIBAqP4MDGy4ibOOV3FVDrnAY0Q34LZTbPBlp3gRNZJ19UoSy2Q=="
     }
 
     override val isGooglePlayServiceAvailable =
-            GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(config.application) == ConnectionResult.SUCCESS
+        GoogleApiAvailabilityLight.getInstance()
+            .isGooglePlayServicesAvailable(config.application) == ConnectionResult.SUCCESS
 
     override val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
 
@@ -156,19 +159,24 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val deepLink: DeepLinkApi = (DeepLink() as DeepLinkApi).proxyApi(coreSdkHandler)
 
-    override val loggingDeepLink: DeepLinkApi = (DeepLink(true) as DeepLinkApi).proxyApi(coreSdkHandler)
+    override val loggingDeepLink: DeepLinkApi =
+        (DeepLink(true) as DeepLinkApi).proxyApi(coreSdkHandler)
 
-    override val messageInbox: MessageInboxApi = (MessageInbox() as MessageInboxApi).proxyApi(coreSdkHandler)
+    override val messageInbox: MessageInboxApi =
+        (MessageInbox() as MessageInboxApi).proxyApi(coreSdkHandler)
 
-    override val loggingMessageInbox: MessageInboxApi = (MessageInbox(true) as MessageInboxApi).proxyApi(coreSdkHandler)
+    override val loggingMessageInbox: MessageInboxApi =
+        (MessageInbox(true) as MessageInboxApi).proxyApi(coreSdkHandler)
 
     override val inApp: InAppApi = (InApp() as InAppApi).proxyApi(coreSdkHandler)
 
     override val loggingInApp: InAppApi = (InApp(true) as InAppApi).proxyApi(coreSdkHandler)
 
-    override val onEventAction: OnEventActionApi = (OnEventAction() as OnEventActionApi).proxyApi(coreSdkHandler)
+    override val onEventAction: OnEventActionApi =
+        (OnEventAction() as OnEventActionApi).proxyApi(coreSdkHandler)
 
-    override val loggingOnEventAction: OnEventActionApi = (OnEventAction() as OnEventActionApi).proxyApi(coreSdkHandler)
+    override val loggingOnEventAction: OnEventActionApi =
+        (OnEventAction() as OnEventActionApi).proxyApi(coreSdkHandler)
 
     override val push: PushApi = (Push() as PushApi).proxyApi(coreSdkHandler)
 
@@ -182,23 +190,32 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val geofence: GeofenceApi = (Geofence() as GeofenceApi).proxyApi(coreSdkHandler)
 
-    override val loggingGeofence: GeofenceApi = (Geofence(true) as GeofenceApi).proxyApi(coreSdkHandler)
+    override val loggingGeofence: GeofenceApi =
+        (Geofence(true) as GeofenceApi).proxyApi(coreSdkHandler)
 
-    override val mobileEngage: MobileEngageApi = (MobileEngage() as MobileEngageApi).proxyApi(coreSdkHandler)
+    override val mobileEngage: MobileEngageApi =
+        (MobileEngage() as MobileEngageApi).proxyApi(coreSdkHandler)
 
-    override val loggingMobileEngage: MobileEngageApi = (MobileEngage(true) as MobileEngageApi).proxyApi(coreSdkHandler)
+    override val loggingMobileEngage: MobileEngageApi =
+        (MobileEngage(true) as MobileEngageApi).proxyApi(coreSdkHandler)
 
-    override val predictRestricted: PredictRestrictedApi = (PredictRestricted() as PredictRestrictedApi).proxyApi(coreSdkHandler)
+    override val predictRestricted: PredictRestrictedApi =
+        (PredictRestricted() as PredictRestrictedApi).proxyApi(coreSdkHandler)
 
-    override val loggingPredictRestricted: PredictRestrictedApi = (PredictRestricted(true) as PredictRestrictedApi).proxyApi(coreSdkHandler)
+    override val loggingPredictRestricted: PredictRestrictedApi =
+        (PredictRestricted(true) as PredictRestrictedApi).proxyApi(coreSdkHandler)
 
-    override val clientService: ClientServiceApi = (ClientService() as ClientServiceApi).proxyApi(coreSdkHandler)
+    override val clientService: ClientServiceApi =
+        (ClientService() as ClientServiceApi).proxyApi(coreSdkHandler)
 
-    override val loggingClientService: ClientServiceApi = (ClientService(true) as ClientServiceApi).proxyApi(coreSdkHandler)
+    override val loggingClientService: ClientServiceApi =
+        (ClientService(true) as ClientServiceApi).proxyApi(coreSdkHandler)
 
-    override val eventService: EventServiceApi = (EventService() as EventServiceApi).proxyApi(coreSdkHandler)
+    override val eventService: EventServiceApi =
+        (EventService() as EventServiceApi).proxyApi(coreSdkHandler)
 
-    override val loggingEventService: EventServiceApi = (EventService(true) as EventServiceApi).proxyApi(coreSdkHandler)
+    override val loggingEventService: EventServiceApi =
+        (EventService(true) as EventServiceApi).proxyApi(coreSdkHandler)
 
     override val responseHandlersProcessor: ResponseHandlersProcessor by lazy {
         ResponseHandlersProcessor(mutableListOf())
@@ -206,82 +223,118 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val overlayInAppPresenter: OverlayInAppPresenter by lazy {
         OverlayInAppPresenter(
-                coreSdkHandler,
-                uiHandler,
-                IamStaticWebViewProvider(config.application, uiHandler),
-                inAppInternal,
-                IamDialogProvider(uiHandler, timestampProvider),
-                buttonClickedRepository,
-                displayedIamRepository,
-                timestampProvider,
-                currentActivityProvider,
-                iamJsBridgeFactory)
+            coreSdkHandler,
+            uiHandler,
+            IamStaticWebViewProvider(config.application, uiHandler),
+            inAppInternal,
+            IamDialogProvider(uiHandler, timestampProvider),
+            buttonClickedRepository,
+            displayedIamRepository,
+            timestampProvider,
+            currentActivityProvider,
+            iamJsBridgeFactory
+        )
     }
 
     override val activityLifecycleWatchdog: ActivityLifecycleWatchdog by lazy {
         val applicationStartActions = arrayOf<ActivityLifecycleAction>(
-                DeviceInfoStartAction(clientServiceInternal, deviceInfoPayloadStorage, deviceInfo)
+            DeviceInfoStartAction(clientServiceInternal, deviceInfoPayloadStorage, deviceInfo)
         )
         val activityCreatedActions = arrayOf<ActivityLifecycleAction>(
-                DeepLinkAction(deepLinkInternal)
+            DeepLinkAction(deepLinkInternal)
         )
         val initializationActions = arrayOf<ActivityLifecycleAction?>(
-                FetchGeofencesAction(geofenceInternal),
-                FetchRemoteConfigAction(configInternal),
-                InAppStartAction(eventServiceInternal, contactTokenStorage)
+            FetchGeofencesAction(geofenceInternal),
+            FetchRemoteConfigAction(configInternal),
+            InAppStartAction(eventServiceInternal, contactTokenStorage)
         )
 
         ActivityLifecycleWatchdog(
-                applicationStartActions,
-                activityCreatedActions,
-                initializationActions,
-                coreSdkHandler)
+            applicationStartActions,
+            activityCreatedActions,
+            initializationActions,
+            coreSdkHandler
+        )
     }
 
     fun initializeResponseHandlers(config: EmarsysConfig) {
         val responseHandlers: MutableList<AbstractResponseHandler?> = ArrayList()
         responseHandlers.add(VisitorIdResponseHandler(keyValueStore, predictServiceProvider))
         responseHandlers.add(XPResponseHandler(keyValueStore, predictServiceProvider))
-        responseHandlers.add(MobileEngageTokenResponseHandler("refreshToken", refreshTokenStorage, requestModelHelper))
+        responseHandlers.add(
+            MobileEngageTokenResponseHandler(
+                "refreshToken",
+                refreshTokenStorage,
+                requestModelHelper
+            )
+        )
         responseHandlers.add(contactTokenResponseHandler)
-        responseHandlers.add(MobileEngageClientStateResponseHandler(clientStateStorage, requestModelHelper))
+        responseHandlers.add(
+            MobileEngageClientStateResponseHandler(
+                clientStateStorage,
+                requestModelHelper
+            )
+        )
         responseHandlers.add(ClientInfoResponseHandler(deviceInfo, deviceInfoPayloadStorage))
         responseHandlers.add(InAppMessageResponseHandler(overlayInAppPresenter))
-        responseHandlers.add(InAppCleanUpResponseHandler(
+        responseHandlers.add(
+            InAppCleanUpResponseHandler(
                 displayedIamRepository,
                 buttonClickedRepository,
                 requestModelHelper
-        ))
-        responseHandlers.add(InAppCleanUpResponseHandlerV4(
+            )
+        )
+        responseHandlers.add(
+            InAppCleanUpResponseHandlerV4(
                 displayedIamRepository,
                 buttonClickedRepository,
                 requestModelHelper
-        ))
-        responseHandlers.add(OnEventActionResponseHandler(
-                ActionCommandFactory(config.application, eventServiceInternal, onEventActionEventHandlerProvider, uiHandler),
+            )
+        )
+        responseHandlers.add(
+            OnEventActionResponseHandler(
+                ActionCommandFactory(
+                    config.application,
+                    eventServiceInternal,
+                    onEventActionEventHandlerProvider,
+                    uiHandler
+                ),
                 displayedIamRepository,
                 eventServiceInternal,
                 timestampProvider,
-                coreSdkHandler))
-        responseHandlers.add(DeviceEventStateResponseHandler(
+                coreSdkHandler
+            )
+        )
+        responseHandlers.add(
+            DeviceEventStateResponseHandler(
                 deviceEventStateStorage,
                 requestModelHelper
-        ))
+            )
+        )
         responseHandlersProcessor.addResponseHandlers(responseHandlers)
     }
 
     override val restClient: RestClient by lazy {
-        RestClient(ConnectionProvider(),
-                timestampProvider,
-                responseHandlersProcessor,
-                createRequestModelMappers(),
-                uiHandler,
-                coreSdkHandler)
+        RestClient(
+            ConnectionProvider(),
+            timestampProvider,
+            responseHandlersProcessor,
+            createRequestModelMappers(),
+            uiHandler,
+            coreSdkHandler
+        )
     }
 
     override val sharedPreferences: SharedPreferences by lazy {
-        val oldPrefs = config.application.getSharedPreferences(EMARSYS_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
-        SecureSharedPreferencesProvider(config.application, EMARSYS_SECURE_SHARED_PREFERENCES_NAME, oldPrefs).provide()
+        val oldPrefs = config.application.getSharedPreferences(
+            EMARSYS_SHARED_PREFERENCES_NAME,
+            Context.MODE_PRIVATE
+        )
+        SecureSharedPreferencesProvider(
+            config.application,
+            EMARSYS_SECURE_SHARED_PREFERENCES_NAME,
+            oldPrefs
+        ).provide()
     }
 
     override val contactTokenStorage: Storage<String?> by lazy {
@@ -315,17 +368,37 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val hardwareIdProvider: HardwareIdProvider by lazy {
         val hardwareRepository = HardwareRepository(coreDbHelper)
         val hardwareIdentificationCrypto = HardwareIdentificationCrypto(config.sharedSecret, crypto)
-        val hardwareIdContentResolver = HardwareIdContentResolver(config.application, hardwareIdentificationCrypto, config.sharedPackageNames)
-        HardwareIdProvider(uuidProvider, hardwareRepository, hardwareIdStorage, hardwareIdContentResolver, hardwareIdentificationCrypto)
+        val hardwareIdContentResolver = HardwareIdContentResolver(
+            config.application,
+            hardwareIdentificationCrypto,
+            config.sharedPackageNames
+        )
+        HardwareIdProvider(
+            uuidProvider,
+            hardwareRepository,
+            hardwareIdStorage,
+            hardwareIdContentResolver,
+            hardwareIdentificationCrypto
+        )
     }
 
     override val deviceInfo: DeviceInfo by lazy {
         val notificationManagerCompat = NotificationManagerCompat.from(config.application)
-        val notificationManager = config.application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notificationManagerProxy = NotificationManagerProxy(notificationManager, notificationManagerCompat)
-        val notificationSettings: NotificationSettings = NotificationManagerHelper(notificationManagerProxy)
-        DeviceInfo(config.application, hardwareIdProvider, VersionProvider(), LanguageProvider(),
-                notificationSettings, config.automaticPushTokenSendingEnabled, isGooglePlayServiceAvailable)
+        val notificationManager =
+            config.application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManagerProxy =
+            NotificationManagerProxy(notificationManager, notificationManagerCompat)
+        val notificationSettings: NotificationSettings =
+            NotificationManagerHelper(notificationManagerProxy)
+        DeviceInfo(
+            config.application,
+            hardwareIdProvider,
+            VersionProvider(),
+            LanguageProvider(),
+            notificationSettings,
+            config.automaticPushTokenSendingEnabled,
+            isGooglePlayServiceAvailable
+        )
     }
 
     override val timestampProvider: TimestampProvider by lazy {
@@ -346,18 +419,19 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val requestContext: MobileEngageRequestContext by lazy {
         MobileEngageRequestContext(
-                config.applicationCode,
-                config.contactFieldId,
-                null,
-                deviceInfo,
-                timestampProvider,
-                uuidProvider,
-                clientStateStorage,
-                contactTokenStorage,
-                refreshTokenStorage,
-                contactFieldValueStorage,
-                pushTokenStorage,
-                sessionIdHolder)
+            config.applicationCode,
+            null,
+            null,
+            null,
+            deviceInfo,
+            timestampProvider,
+            uuidProvider,
+            clientStateStorage,
+            contactTokenStorage,
+            refreshTokenStorage,
+            pushTokenStorage,
+            sessionIdHolder
+        )
     }
 
     override val inAppEventHandlerInternal: InAppEventHandlerInternal by lazy {
@@ -429,45 +503,51 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val requestModelHelper: RequestModelHelper by lazy {
-        RequestModelHelper(clientServiceEndpointProvider, eventServiceEndpointProvider, messageInboxServiceProvider)
+        RequestModelHelper(
+            clientServiceEndpointProvider,
+            eventServiceEndpointProvider,
+            messageInboxServiceProvider
+        )
     }
 
     override val coreCompletionHandlerRefreshTokenProxyProvider: CoreCompletionHandlerRefreshTokenProxyProvider by lazy {
         val coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(
-                requestModelRepository,
-                uiHandler,
-                coreSdkHandler
+            requestModelRepository,
+            uiHandler,
+            coreSdkHandler
         )
         CoreCompletionHandlerRefreshTokenProxyProvider(
-                coreCompletionHandlerMiddlewareProvider,
-                refreshTokenInternal,
-                restClient,
-                contactTokenStorage,
-                pushTokenStorage,
-                coreCompletionHandler,
-                requestModelHelper)
+            coreCompletionHandlerMiddlewareProvider,
+            refreshTokenInternal,
+            restClient,
+            contactTokenStorage,
+            pushTokenStorage,
+            coreCompletionHandler,
+            requestModelHelper
+        )
     }
 
     override val worker: Worker by lazy {
         DefaultWorker(
-                requestModelRepository,
-                connectionWatchdog,
-                uiHandler,
-                coreCompletionHandler,
-                restClient,
-                coreCompletionHandlerRefreshTokenProxyProvider)
+            requestModelRepository,
+            connectionWatchdog,
+            uiHandler,
+            coreCompletionHandler,
+            restClient,
+            coreCompletionHandlerRefreshTokenProxyProvider
+        )
     }
 
     override val requestManager: RequestManager by lazy {
         RequestManager(
-                coreSdkHandler,
-                requestModelRepository,
-                shardRepository,
-                worker,
-                restClient,
-                coreCompletionHandler,
-                coreCompletionHandler,
-                coreCompletionHandlerRefreshTokenProxyProvider
+            coreSdkHandler,
+            requestModelRepository,
+            shardRepository,
+            worker,
+            restClient,
+            coreCompletionHandler,
+            coreCompletionHandler,
+            coreCompletionHandlerRefreshTokenProxyProvider
         ).apply {
             setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(requestContext))
         }
@@ -475,11 +555,12 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val mobileEngageRequestModelFactory: MobileEngageRequestModelFactory by lazy {
         MobileEngageRequestModelFactory(
-                requestContext,
-                clientServiceEndpointProvider,
-                eventServiceEndpointProvider,
-                messageInboxServiceProvider,
-                buttonClickedRepository)
+            requestContext,
+            clientServiceEndpointProvider,
+            eventServiceEndpointProvider,
+            messageInboxServiceProvider,
+            buttonClickedRepository
+        )
     }
 
     override val loggingMobileEngageInternal: MobileEngageInternal by lazy {
@@ -515,7 +596,13 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val mobileEngageInternal: MobileEngageInternal by lazy {
-        DefaultMobileEngageInternal(requestManager, mobileEngageRequestModelFactory, requestContext, mobileEngageSession, sessionIdHolder)
+        DefaultMobileEngageInternal(
+            requestManager,
+            mobileEngageRequestModelFactory,
+            requestContext,
+            mobileEngageSession,
+            sessionIdHolder
+        )
     }
 
     override val clientServiceInternal: ClientServiceInternal by lazy {
@@ -527,7 +614,11 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val messageInboxInternal: MessageInboxInternal by lazy {
-        DefaultMessageInboxInternal(requestManager, mobileEngageRequestModelFactory, MessageInboxResponseMapper())
+        DefaultMessageInboxInternal(
+            requestManager,
+            mobileEngageRequestModelFactory,
+            MessageInboxResponseMapper()
+        )
     }
 
     override val loggingMessageInboxInternal: MessageInboxInternal by lazy {
@@ -550,15 +641,17 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val pushInternal: PushInternal by lazy {
-        DefaultPushInternal(requestManager,
-                uiHandler,
-                mobileEngageRequestModelFactory,
-                eventServiceInternal,
-                pushTokenStorage,
-                notificationEventHandlerProvider,
-                silentMessageEventHandlerProvider,
-                notificationInformationListenerProvider,
-                silentNotificationInformationListenerProvider)
+        DefaultPushInternal(
+            requestManager,
+            uiHandler,
+            mobileEngageRequestModelFactory,
+            eventServiceInternal,
+            pushTokenStorage,
+            notificationEventHandlerProvider,
+            silentMessageEventHandlerProvider,
+            notificationInformationListenerProvider,
+            silentNotificationInformationListenerProvider
+        )
     }
 
     override val loggingPushInternal: PushInternal by lazy {
@@ -567,9 +660,10 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val refreshTokenInternal: RefreshTokenInternal by lazy {
         MobileEngageRefreshTokenInternal(
-                contactTokenResponseHandler,
-                restClient,
-                mobileEngageRequestModelFactory)
+            contactTokenResponseHandler,
+            restClient,
+            mobileEngageRequestModelFactory
+        )
     }
 
     override val webViewProvider: WebViewProvider by lazy {
@@ -605,11 +699,21 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val notificationActionCommandFactory: ActionCommandFactory by lazy {
-        ActionCommandFactory(config.application, eventServiceInternal, onEventActionEventHandlerProvider, uiHandler)
+        ActionCommandFactory(
+            config.application,
+            eventServiceInternal,
+            onEventActionEventHandlerProvider,
+            uiHandler
+        )
     }
 
     override val silentMessageActionCommandFactory: ActionCommandFactory by lazy {
-        ActionCommandFactory(config.application, eventServiceInternal, silentMessageEventHandlerProvider, uiHandler)
+        ActionCommandFactory(
+            config.application,
+            eventServiceInternal,
+            silentMessageEventHandlerProvider,
+            uiHandler
+        )
     }
 
     override val geofenceEventHandlerProvider: EventHandlerProvider by lazy {
@@ -617,24 +721,29 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val geofenceInternal: GeofenceInternal by lazy {
-        val geofenceActionCommandFactory = ActionCommandFactory(config.application, eventServiceInternal, geofenceEventHandlerProvider, uiHandler)
+        val geofenceActionCommandFactory = ActionCommandFactory(
+            config.application,
+            eventServiceInternal,
+            geofenceEventHandlerProvider,
+            uiHandler
+        )
 
         DefaultGeofenceInternal(
-                mobileEngageRequestModelFactory,
-                requestManager,
-                GeofenceResponseMapper(),
-                PermissionChecker(config.application),
-                FusedLocationProviderClient(config.application),
-                GeofenceFilter(GEOFENCE_LIMIT),
-                GeofencingClient(config.application),
-                config.application,
-                geofenceActionCommandFactory,
-                geofenceEventHandlerProvider,
-                BooleanStorage(MobileEngageStorageKey.GEOFENCE_ENABLED, sharedPreferences),
-                GeofencePendingIntentProvider(config.application),
-                coreSdkHandler,
-                uiHandler,
-                geofenceInitialEnterTriggerEnabledStorage
+            mobileEngageRequestModelFactory,
+            requestManager,
+            GeofenceResponseMapper(),
+            PermissionChecker(config.application),
+            FusedLocationProviderClient(config.application),
+            GeofenceFilter(GEOFENCE_LIMIT),
+            GeofencingClient(config.application),
+            config.application,
+            geofenceActionCommandFactory,
+            geofenceEventHandlerProvider,
+            BooleanStorage(MobileEngageStorageKey.GEOFENCE_ENABLED, sharedPreferences),
+            GeofencePendingIntentProvider(config.application),
+            coreSdkHandler,
+            uiHandler,
+            geofenceInitialEnterTriggerEnabledStorage
         )
     }
 
@@ -667,30 +776,37 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val predictRequestContext: PredictRequestContext by lazy {
-        PredictRequestContext(config.merchantId, deviceInfo, timestampProvider, uuidProvider, keyValueStore)
+        PredictRequestContext(
+            config.merchantId,
+            deviceInfo,
+            timestampProvider,
+            uuidProvider,
+            keyValueStore
+        )
     }
 
     override val configInternal: ConfigInternal by lazy {
         val emarsysRequestModelFactory = EmarsysRequestModelFactory(requestContext)
 
         DefaultConfigInternal(
-                requestContext,
-                mobileEngageInternal,
-                pushInternal,
-                pushTokenProvider,
-                predictRequestContext,
-                deviceInfo,
-                requestManager,
-                emarsysRequestModelFactory,
-                RemoteConfigResponseMapper(RandomProvider(), hardwareIdProvider),
-                clientServiceStorage,
-                eventServiceStorage,
-                deepLinkServiceStorage,
-                predictServiceStorage,
-                messageInboxServiceStorage,
-                logLevelStorage,
-                crypto,
-                clientServiceInternal)
+            requestContext,
+            mobileEngageInternal,
+            pushInternal,
+            pushTokenProvider,
+            predictRequestContext,
+            deviceInfo,
+            requestManager,
+            emarsysRequestModelFactory,
+            RemoteConfigResponseMapper(RandomProvider(), hardwareIdProvider),
+            clientServiceStorage,
+            eventServiceStorage,
+            deepLinkServiceStorage,
+            predictServiceStorage,
+            messageInboxServiceStorage,
+            logLevelStorage,
+            crypto,
+            clientServiceInternal
+        )
     }
 
 
@@ -700,32 +816,50 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val logShardTrigger: Runnable by lazy {
         BatchingShardTrigger(
-                shardRepository,
-                ListSizeAtLeast(10),
-                FilterByShardType(FilterByShardType.SHARD_TYPE_LOG),
-                ListChunker(10),
-                LogShardListMerger(timestampProvider, uuidProvider, deviceInfo, config.applicationCode, config.merchantId),
-                requestManager,
-                BatchingShardTrigger.RequestStrategy.TRANSIENT,
-                connectionWatchdog)
+            shardRepository,
+            ListSizeAtLeast(10),
+            FilterByShardType(FilterByShardType.SHARD_TYPE_LOG),
+            ListChunker(10),
+            LogShardListMerger(
+                timestampProvider,
+                uuidProvider,
+                deviceInfo,
+                config.applicationCode,
+                config.merchantId
+            ),
+            requestManager,
+            BatchingShardTrigger.RequestStrategy.TRANSIENT,
+            connectionWatchdog
+        )
     }
 
     override val logger: Logger by lazy {
-        Logger(coreSdkHandler,
-                shardRepository,
-                timestampProvider,
-                uuidProvider,
-                logLevelStorage,
-                config.verboseConsoleLoggingEnabled,
-                config.application)
+        Logger(
+            coreSdkHandler,
+            shardRepository,
+            timestampProvider,
+            uuidProvider,
+            logLevelStorage,
+            config.verboseConsoleLoggingEnabled,
+            config.application
+        )
     }
 
     override val predictRequestModelBuilderProvider: PredictRequestModelBuilderProvider by lazy {
-        PredictRequestModelBuilderProvider(predictRequestContext, PredictHeaderFactory(predictRequestContext), predictServiceProvider)
+        PredictRequestModelBuilderProvider(
+            predictRequestContext,
+            PredictHeaderFactory(predictRequestContext),
+            predictServiceProvider
+        )
     }
 
     override val predictInternal: PredictInternal by lazy {
-        DefaultPredictInternal(predictRequestContext, requestManager, predictRequestModelBuilderProvider, PredictResponseMapper())
+        DefaultPredictInternal(
+            predictRequestContext,
+            requestManager,
+            predictRequestModelBuilderProvider,
+            PredictResponseMapper()
+        )
     }
 
     override val loggingPredictInternal: PredictInternal by lazy {
@@ -734,42 +868,48 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val predictShardTrigger: Runnable by lazy {
         BatchingShardTrigger(
-                shardRepository,
-                ListSizeAtLeast(1),
-                FilterByShardType(FilterByShardType.SHARD_TYPE_PREDICT),
-                ListChunker(1),
-                PredictShardListMerger(predictRequestContext, predictRequestModelBuilderProvider),
-                requestManager,
-                BatchingShardTrigger.RequestStrategy.PERSISTENT,
-                connectionWatchdog
+            shardRepository,
+            ListSizeAtLeast(1),
+            FilterByShardType(FilterByShardType.SHARD_TYPE_PREDICT),
+            ListChunker(1),
+            PredictShardListMerger(predictRequestContext, predictRequestModelBuilderProvider),
+            requestManager,
+            BatchingShardTrigger.RequestStrategy.PERSISTENT,
+            connectionWatchdog
         )
     }
 
     override val predictServiceProvider: ServiceEndpointProvider by lazy {
-        ServiceEndpointProvider(predictServiceStorage, com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL)
+        ServiceEndpointProvider(
+            predictServiceStorage,
+            com.emarsys.predict.endpoint.Endpoint.PREDICT_BASE_URL
+        )
     }
 
     override val predictServiceStorage: Storage<String?> by lazy {
         StringStorage(PredictStorageKey.PREDICT_SERVICE_URL, sharedPreferences)
     }
 
-    private fun createRequestModelRepository(coreDbHelper: CoreDbHelper, inAppEventHandler: InAppEventHandlerInternal): Repository<RequestModel, SqlSpecification> {
+    private fun createRequestModelRepository(
+        coreDbHelper: CoreDbHelper,
+        inAppEventHandler: InAppEventHandlerInternal
+    ): Repository<RequestModel, SqlSpecification> {
         val requestModelRepository = RequestModelRepository(coreDbHelper)
         return RequestRepositoryProxy(
-                requestModelRepository,
-                displayedIamRepository,
-                buttonClickedRepository,
-                timestampProvider,
-                uuidProvider,
-                inAppEventHandler,
-                eventServiceEndpointProvider,
-                requestModelHelper
+            requestModelRepository,
+            displayedIamRepository,
+            buttonClickedRepository,
+            timestampProvider,
+            uuidProvider,
+            inAppEventHandler,
+            eventServiceEndpointProvider,
+            requestModelHelper
         )
     }
 
     private fun createPublicKey(): PublicKey {
         val publicKeySpec = X509EncodedKeySpec(
-                Base64.decode(PUBLIC_KEY, 0)
+            Base64.decode(PUBLIC_KEY, 0)
         )
         val keyFactory = KeyFactory.getInstance("EC")
         return keyFactory.generatePublic(publicKeySpec)
@@ -777,9 +917,14 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     private fun createRequestModelMappers(): List<Mapper<RequestModel, RequestModel>> {
         return listOf(
-                MobileEngageHeaderMapper(requestContext, requestModelHelper),
-                OpenIdTokenRequestMapper(requestContext, requestModelHelper),
-                ContactTokenHeaderMapper(requestContext, requestModelHelper),
-                DeviceEventStateRequestMapper(requestContext, requestModelHelper, deviceEventStateStorage))
+            MobileEngageHeaderMapper(requestContext, requestModelHelper),
+            OpenIdTokenRequestMapper(requestContext, requestModelHelper),
+            ContactTokenHeaderMapper(requestContext, requestModelHelper),
+            DeviceEventStateRequestMapper(
+                requestContext,
+                requestModelHelper,
+                deviceEventStateStorage
+            )
+        )
     }
 }

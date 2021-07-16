@@ -9,17 +9,6 @@ import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import java.util.*
 
 object RequestPayloadUtils {
-    fun createBasePayload(requestContext: MobileEngageRequestContext): MutableMap<String, Any?> {
-        val payload: MutableMap<String, Any?> = mutableMapOf(
-                "application_id" to requestContext.applicationCode,
-                "hardware_id" to requestContext.deviceInfo.hardwareId
-        )
-        if (requestContext.contactFieldValueStorage.get() != null) {
-            payload["contact_field_id"] = requestContext.contactFieldId
-            payload["contact_field_value"] = requestContext.contactFieldValueStorage.get()
-        }
-        return payload
-    }
 
     @JvmStatic
     fun createSetPushTokenPayload(pushToken: String): Map<String, Any> {
@@ -117,14 +106,6 @@ object RequestPayloadUtils {
         return mutableMapOf<String, Any?>(
                 "refreshToken" to requestContext.refreshTokenStorage.get()
         )
-    }
-
-    @JvmStatic
-    fun createTrackNotificationOpenPayload(sid: String, requestContext: MobileEngageRequestContext): Map<String, Any?> {
-        val payload = createBasePayload(requestContext)
-        payload["source"] = "inbox"
-        payload["sid"] = sid
-        return payload
     }
 
     @JvmStatic

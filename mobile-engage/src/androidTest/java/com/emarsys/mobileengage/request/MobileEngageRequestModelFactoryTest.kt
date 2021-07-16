@@ -34,16 +34,18 @@ class MobileEngageRequestModelFactoryTest {
         const val HARDWARE_ID = "hardware_id"
         const val APPLICATION_CODE = "app_code"
         const val PUSH_TOKEN = "kjhygtfdrtrtdtguyihoj3iurf8y7t6fqyua2gyi8fhu"
-        const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
+        const val REFRESH_TOKEN =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
         const val CONTACT_FIELD_ID = 3
         const val CONTACT_FIELD_VALUE = "contactFieldValue"
         const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
         const val EVENT_HOST = "https://mobile-events.eservice.emarsys.net"
         const val INBOX_V3_HOST = "https://me-inbox.eservice.emarsys.net/v3"
         val CLICKS = listOf(
-                ButtonClicked("campaignId1", "buttonId1", 1L),
-                ButtonClicked("campaignId2", "buttonId2", 2L),
-                ButtonClicked("campaignId3", "buttonId3", 3L))
+            ButtonClicked("campaignId1", "buttonId1", 1L),
+            ButtonClicked("campaignId2", "buttonId2", 2L),
+            ButtonClicked("campaignId3", "buttonId3", 3L)
+        )
     }
 
     lateinit var mockRequestContext: MobileEngageRequestContext
@@ -57,7 +59,6 @@ class MobileEngageRequestModelFactoryTest {
     lateinit var mockEventServiceProvider: ServiceEndpointProvider
     lateinit var mockClientServiceProvider: ServiceEndpointProvider
     lateinit var mockButtonClickedRepository: ButtonClickedRepository
-    lateinit var mockContactFieldValueStorage: StringStorage
 
     @Rule
     @JvmField
@@ -94,17 +95,14 @@ class MobileEngageRequestModelFactoryTest {
             on { provideEndpointHost() } doReturn INBOX_V3_HOST
         }
 
-        mockContactFieldValueStorage = mock {
-            on { get() } doReturn CONTACT_FIELD_VALUE
-        }
-
         mockRequestContext = mock {
             on { timestampProvider } doReturn mockTimestampProvider
             on { uuidProvider } doReturn mockUuidProvider
             on { deviceInfo } doReturn mockDeviceInfo
             on { applicationCode } doReturn APPLICATION_CODE
             on { refreshTokenStorage } doReturn mockRefreshTokenStorage
-            on { contactFieldValueStorage } doReturn mockContactFieldValueStorage
+            on { contactFieldValue } doReturn CONTACT_FIELD_VALUE
+            on { contactFieldId } doReturn CONTACT_FIELD_ID
             on { sessionIdHolder } doReturn mock()
         }
 
@@ -115,23 +113,24 @@ class MobileEngageRequestModelFactoryTest {
         FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
 
         requestFactory = MobileEngageRequestModelFactory(
-                mockRequestContext,
-                mockClientServiceProvider,
-                mockEventServiceProvider,
-                mockMessageInboxServiceProvider,
-                mockButtonClickedRepository)
+            mockRequestContext,
+            mockClientServiceProvider,
+            mockEventServiceProvider,
+            mockMessageInboxServiceProvider,
+            mockButtonClickedRepository
+        )
     }
 
     @Test
     fun testCreateSetPushTokenRequest() {
         val expected = RequestModel(
-                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/push-token",
-                RequestMethod.PUT,
-                RequestPayloadUtils.createSetPushTokenPayload(PUSH_TOKEN),
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
+            "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/push-token",
+            RequestMethod.PUT,
+            RequestPayloadUtils.createSetPushTokenPayload(PUSH_TOKEN),
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
         )
 
         val result = requestFactory.createSetPushTokenRequest(PUSH_TOKEN)
@@ -142,12 +141,13 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateRemovePushTokenRequest() {
         val expected = RequestModel(
-                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/push-token", RequestMethod.DELETE,
-                null,
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
+            "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/push-token",
+            RequestMethod.DELETE,
+            null,
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
         )
 
         val result = requestFactory.createRemovePushTokenRequest()
@@ -158,13 +158,13 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateTrackDeviceInfoRequest() {
         val expected = RequestModel(
-                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client",
-                RequestMethod.POST,
-                RequestPayloadUtils.createTrackDeviceInfoPayload(mockRequestContext),
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
+            "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client",
+            RequestMethod.POST,
+            RequestPayloadUtils.createTrackDeviceInfoPayload(mockRequestContext),
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
         )
         val result = requestFactory.createTrackDeviceInfoRequest()
 
@@ -176,15 +176,15 @@ class MobileEngageRequestModelFactoryTest {
         whenever(mockRequestContext.hasContactIdentification()).doReturn(true)
         whenever(mockRequestContext.contactFieldId).doReturn(CONTACT_FIELD_ID)
         val expected = RequestModel(
-                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
-                RequestMethod.POST,
-                mapOf("contactFieldId" to CONTACT_FIELD_ID, "contactFieldValue" to CONTACT_FIELD_VALUE),
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
+            "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
+            RequestMethod.POST,
+            mapOf("contactFieldId" to CONTACT_FIELD_ID, "contactFieldValue" to CONTACT_FIELD_VALUE),
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
         )
-        val result = requestFactory.createSetContactRequest(CONTACT_FIELD_VALUE)
+        val result = requestFactory.createSetContactRequest(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE)
 
         result shouldBe expected
     }
@@ -193,15 +193,15 @@ class MobileEngageRequestModelFactoryTest {
     fun testCreateSetContactRequest_withoutContactFieldValueAndOpenIdToken() {
         whenever(mockRequestContext.hasContactIdentification()).doReturn(false)
         val expected = RequestModel(
-                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact?anonymous=true",
-                RequestMethod.POST,
-                emptyMap(),
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
+            "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact?anonymous=true",
+            RequestMethod.POST,
+            emptyMap(),
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
         )
-        val result = requestFactory.createSetContactRequest(null)
+        val result = requestFactory.createSetContactRequest(null, null)
 
         result shouldBe expected
     }
@@ -210,19 +210,21 @@ class MobileEngageRequestModelFactoryTest {
     fun testCreateSetContactRequest_doesFillPayload_withContactFieldValue() {
         whenever(mockRequestContext.hasContactIdentification()).doReturn(true)
         whenever(mockRequestContext.contactFieldId).doReturn(CONTACT_FIELD_ID)
-        whenever(mockContactFieldValueStorage.get()).doReturn(CONTACT_FIELD_VALUE)
+        whenever(mockRequestContext.contactFieldValue).doReturn(CONTACT_FIELD_VALUE)
 
         val expected = RequestModel(
-                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
-                RequestMethod.POST,
-                mapOf("contactFieldId" to CONTACT_FIELD_ID,
-                        "contactFieldValue" to CONTACT_FIELD_VALUE),
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
+            "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
+            RequestMethod.POST,
+            mapOf(
+                "contactFieldId" to CONTACT_FIELD_ID,
+                "contactFieldValue" to CONTACT_FIELD_VALUE
+            ),
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
         )
-        val result = requestFactory.createSetContactRequest(CONTACT_FIELD_VALUE)
+        val result = requestFactory.createSetContactRequest(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE)
 
         result shouldBe expected
     }
@@ -230,19 +232,19 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateSetContactRequest_doesNotFillPayload_withContactFieldValueMissing() {
         whenever(mockRequestContext.hasContactIdentification()).doReturn(true)
-        whenever(mockContactFieldValueStorage.get()).doReturn(null)
+        whenever(mockRequestContext.contactFieldValue).doReturn(null)
         whenever(mockRequestContext.contactFieldId).doReturn(CONTACT_FIELD_ID)
 
         val expected = RequestModel(
-                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
-                RequestMethod.POST,
-                mapOf("contactFieldId" to CONTACT_FIELD_ID),
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
+            "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
+            RequestMethod.POST,
+            mapOf(),
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
         )
-        val result = requestFactory.createSetContactRequest(null)
+        val result = requestFactory.createSetContactRequest(null, null)
 
         result shouldBe expected
     }
@@ -251,13 +253,17 @@ class MobileEngageRequestModelFactoryTest {
     fun testCreateInternalCustomEventRequest_whenEventServiceV4_isNotEnabled() {
         FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
         val expected = RequestModel(
-                "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
-                RequestMethod.POST,
-                RequestPayloadUtils.createInternalCustomEventPayload("eventName", emptyMap(), mockRequestContext),
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
+            "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
+            RequestMethod.POST,
+            RequestPayloadUtils.createInternalCustomEventPayload(
+                "eventName",
+                emptyMap(),
+                mockRequestContext
+            ),
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
         )
 
         val result = requestFactory.createInternalCustomEventRequest("eventName", emptyMap())
@@ -268,13 +274,17 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateCustomEventRequest_whenEventServiceV4_isEnabled() {
         val expected = RequestModel(
-                "https://mobile-events.eservice.emarsys.net/v4/apps/$APPLICATION_CODE/client/events",
-                RequestMethod.POST,
-                RequestPayloadUtils.createInternalCustomEventPayload("eventName", emptyMap(), mockRequestContext),
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
+            "https://mobile-events.eservice.emarsys.net/v4/apps/$APPLICATION_CODE/client/events",
+            RequestMethod.POST,
+            RequestPayloadUtils.createInternalCustomEventPayload(
+                "eventName",
+                emptyMap(),
+                mockRequestContext
+            ),
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
         )
 
         val result = requestFactory.createInternalCustomEventRequest("eventName", emptyMap())
@@ -285,13 +295,17 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateInternalCustomEventRequest() {
         val expected = RequestModel(
-                "https://mobile-events.eservice.emarsys.net/v4/apps/$APPLICATION_CODE/client/events",
-                RequestMethod.POST,
-                RequestPayloadUtils.createInternalCustomEventPayload("eventName", emptyMap(), mockRequestContext),
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
+            "https://mobile-events.eservice.emarsys.net/v4/apps/$APPLICATION_CODE/client/events",
+            RequestMethod.POST,
+            RequestPayloadUtils.createInternalCustomEventPayload(
+                "eventName",
+                emptyMap(),
+                mockRequestContext
+            ),
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
         )
 
         val result = requestFactory.createInternalCustomEventRequest("eventName", emptyMap())
@@ -302,13 +316,15 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateRefreshContactTokenRequest() {
         val expected = RequestModel(
-                "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact-token",
-                RequestMethod.POST,
-                RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext),
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + RequestHeaderUtils.createDefaultHeaders(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
+            "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact-token",
+            RequestMethod.POST,
+            RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext),
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + RequestHeaderUtils.createDefaultHeaders(
+                mockRequestContext
+            ),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
         )
 
         val result = requestFactory.createRefreshContactTokenRequest()
@@ -319,13 +335,13 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateFetchInboxMessagesRequest() {
         val expected = RequestModel(
-                "https://me-inbox.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/inbox",
-                RequestMethod.GET,
-                null,
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
-                TIMESTAMP,
-                Long.MAX_VALUE,
-                REQUEST_ID
+            "https://me-inbox.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/inbox",
+            RequestMethod.GET,
+            null,
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            TIMESTAMP,
+            Long.MAX_VALUE,
+            REQUEST_ID
         )
 
         val result = requestFactory.createFetchInboxMessagesRequest()
@@ -335,11 +351,14 @@ class MobileEngageRequestModelFactoryTest {
 
     @Test
     fun testCreateFetchGeofenceRequest() {
-        val expected = RequestModel.Builder(mockRequestContext.timestampProvider, mockRequestContext.uuidProvider)
-                .method(RequestMethod.GET)
-                .url("https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/geo-fences")
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext))
-                .build()
+        val expected = RequestModel.Builder(
+            mockRequestContext.timestampProvider,
+            mockRequestContext.uuidProvider
+        )
+            .method(RequestMethod.GET)
+            .url("https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/geo-fences")
+            .headers(RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext))
+            .build()
 
         val result = requestFactory.createFetchGeofenceRequest()
 
@@ -349,12 +368,19 @@ class MobileEngageRequestModelFactoryTest {
     @Test
     fun testCreateFetchInlineInAppMessagesRequest() {
         val viewId = "testViewId"
-        val expected = RequestModel.Builder(mockRequestContext.timestampProvider, mockRequestContext.uuidProvider)
-                .method(RequestMethod.POST)
-                .payload(RequestPayloadUtils.createInlineInAppPayload(viewId, CLICKS))
-                .url("https://mobile-events.eservice.emarsys.net/v4/apps/$APPLICATION_CODE/inline-messages")
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + RequestHeaderUtils.createDefaultHeaders(mockRequestContext))
-                .build()
+        val expected = RequestModel.Builder(
+            mockRequestContext.timestampProvider,
+            mockRequestContext.uuidProvider
+        )
+            .method(RequestMethod.POST)
+            .payload(RequestPayloadUtils.createInlineInAppPayload(viewId, CLICKS))
+            .url("https://mobile-events.eservice.emarsys.net/v4/apps/$APPLICATION_CODE/inline-messages")
+            .headers(
+                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + RequestHeaderUtils.createDefaultHeaders(
+                    mockRequestContext
+                )
+            )
+            .build()
 
         val result = requestFactory.createFetchInlineInAppMessagesRequest(viewId)
 

@@ -79,7 +79,6 @@ class MobileEngageIntegrationTest {
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
                 .applicationCode(APP_ID)
-                .contactFieldId(CONTACT_FIELD_ID)
                 .build()
 
         completionHandler = createDefaultCoreCompletionHandler()
@@ -140,8 +139,9 @@ class MobileEngageIntegrationTest {
     @Test
     fun testSetContact() {
         Emarsys.setContact(
-                "test@test.com",
-                this::eventuallyStoreResult
+            CONTACT_FIELD_ID,
+            "test@test.com",
+            this::eventuallyStoreResult
         ).also(this::eventuallyAssertSuccess)
     }
 
@@ -253,7 +253,6 @@ class MobileEngageIntegrationTest {
 
         val config = EmarsysConfig.Builder()
                 .application(application)
-                .contactFieldId(CONTACT_FIELD_ID)
                 .build()
         Emarsys.setup(config)
 

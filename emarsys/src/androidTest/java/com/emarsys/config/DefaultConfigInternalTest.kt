@@ -110,7 +110,7 @@ class DefaultConfigInternalTest {
             on { clearContact(any()) } doAnswer { invocation ->
                 (invocation.getArgument(0) as CompletionListener?)?.onCompleted(null)
             }
-            on { setContact(any(), any()) } doAnswer { invocation ->
+            on { setContact(any(), any(), any()) } doAnswer { invocation ->
                 (invocation.getArgument(1) as CompletionListener?)?.onCompleted(null)
             }
         }

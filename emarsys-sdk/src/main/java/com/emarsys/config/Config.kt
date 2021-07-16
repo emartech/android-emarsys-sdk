@@ -7,7 +7,7 @@ import com.emarsys.di.emarsys
 
 @Mockable
 class Config : ConfigApi {
-    override val contactFieldId: Int
+    override val contactFieldId: Int?
         get() = emarsys().configInternal.contactFieldId
 
     override val applicationCode: String?
@@ -32,24 +32,33 @@ class Config : ConfigApi {
         get() = emarsys().configInternal.sdkVersion
 
     override fun changeApplicationCode(applicationCode: String?) {
-        changeApplicationCode(applicationCode, contactFieldId)
+        emarsys().configInternal
+            .changeApplicationCode(applicationCode, contactFieldId, null)
     }
 
-    override fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?) {
-        changeApplicationCode(applicationCode, contactFieldId, completionListener)
+    override fun changeApplicationCode(
+        applicationCode: String?,
+        completionListener: CompletionListener?
+    ) {
+        emarsys().configInternal
+            .changeApplicationCode(applicationCode, contactFieldId, completionListener)
     }
 
     override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int) {
         changeApplicationCode(applicationCode, contactFieldId, null)
     }
 
-    override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: CompletionListener?) {
+    override fun changeApplicationCode(
+        applicationCode: String?,
+        contactFieldId: Int,
+        completionListener: CompletionListener?
+    ) {
         emarsys().configInternal
-                .changeApplicationCode(applicationCode, contactFieldId, completionListener)
+            .changeApplicationCode(applicationCode, contactFieldId, completionListener)
     }
 
     override fun changeMerchantId(merchantId: String?) {
         emarsys().configInternal
-                .changeMerchantId(merchantId)
+            .changeMerchantId(merchantId)
     }
 }

@@ -53,7 +53,6 @@ class RequestPayloadUtilsTest {
     private lateinit var mockRequestContext: MobileEngageRequestContext
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockRefreshTokenStorage: StringStorage
-    private lateinit var mockContactFieldValueStorage: StringStorage
     private lateinit var mockNotificationSettings: NotificationSettings
     private lateinit var mockChannelSettings: List<ChannelSettings>
     private lateinit var mockSessionIdHolder: SessionIdHolder
@@ -99,7 +98,6 @@ class RequestPayloadUtilsTest {
         mockRefreshTokenStorage = mock {
             on { get() } doReturn REFRESH_TOKEN
         }
-        mockContactFieldValueStorage = mock()
 
         mockSessionIdHolder = mock {
             on { sessionId } doReturn SESSION_ID
@@ -108,39 +106,12 @@ class RequestPayloadUtilsTest {
         mockRequestContext = mock {
             on { applicationCode } doReturn APPLICATION_CODE
             on { deviceInfo } doReturn mockDeviceInfo
-            on { contactFieldId } doReturn (CONTACT_FIELD_ID)
+            on { contactFieldId } doReturn CONTACT_FIELD_ID
             on { timestampProvider } doReturn mockTimestampProvider
             on { refreshTokenStorage } doReturn mockRefreshTokenStorage
-            on { contactFieldValueStorage } doReturn mockContactFieldValueStorage
+            on { contactFieldValue } doReturn CONTACT_FIELD_VALUE
             on { sessionIdHolder } doReturn mockSessionIdHolder
         }
-    }
-
-
-    @Test
-    fun testCreateBasePayload_shouldReturnTheCorrectPayload_withoutLogin() {
-        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
-
-        val payload = RequestPayloadUtils.createBasePayload(mockRequestContext)
-        val expected = mapOf(
-                "application_id" to APPLICATION_CODE,
-                "hardware_id" to HARDWARE_ID
-        )
-        payload shouldBe expected
-    }
-
-    @Test
-    fun testCreateBasePayload_shouldReturnTheCorrectPayload_withLogin() {
-        whenever(mockContactFieldValueStorage.get()).thenReturn(CONTACT_FIELD_VALUE)
-
-        val payload = RequestPayloadUtils.createBasePayload(mockRequestContext)
-        val expected = mapOf(
-                "application_id" to APPLICATION_CODE,
-                "hardware_id" to HARDWARE_ID,
-                "contact_field_id" to CONTACT_FIELD_ID,
-                "contact_field_value" to CONTACT_FIELD_VALUE
-        )
-        payload shouldBe expected
     }
 
     @Test
@@ -184,7 +155,6 @@ class RequestPayloadUtilsTest {
                         )
                 )
         )
-
     }
 
     @Test
@@ -405,24 +375,6 @@ class RequestPayloadUtilsTest {
         )
 
         val resultPayload = RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext)
-
-        resultPayload shouldBe expectedPayload
-    }
-
-    @Test
-    fun testCreateTrackNotificationOpenPayload() {
-        whenever(mockContactFieldValueStorage.get()).thenReturn(CONTACT_FIELD_VALUE)
-
-        val expectedPayload = mapOf(
-                "application_id" to APPLICATION_CODE,
-                "hardware_id" to HARDWARE_ID,
-                "contact_field_id" to CONTACT_FIELD_ID,
-                "contact_field_value" to CONTACT_FIELD_VALUE,
-                "source" to "inbox",
-                "sid" to SID
-        )
-
-        val resultPayload = RequestPayloadUtils.createTrackNotificationOpenPayload(SID, mockRequestContext)
 
         resultPayload shouldBe expectedPayload
     }

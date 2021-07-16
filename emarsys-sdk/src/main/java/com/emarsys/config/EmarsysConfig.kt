@@ -5,7 +5,6 @@ import com.emarsys.core.api.experimental.FlipperFeature
 
 data class EmarsysConfig(val application: Application,
                                      val applicationCode: String? = null,
-                                     val contactFieldId: Int,
                                      val merchantId: String? = null,
                                      val experimentalFeatures: List<FlipperFeature> = listOf(),
                                      val automaticPushTokenSendingEnabled: Boolean = true,
@@ -17,7 +16,6 @@ data class EmarsysConfig(val application: Application,
     class Builder {
         private lateinit var application: Application
         private var applicationCode: String? = null
-        private var contactFieldId: Int = 0
         private var merchantId: String? = null
         private var experimentalFeatures: List<FlipperFeature>? = null
         private var automaticPushTokenSending = true
@@ -29,7 +27,6 @@ data class EmarsysConfig(val application: Application,
         fun from(baseConfig: EmarsysConfig): Builder {
             application = baseConfig.application
             applicationCode = baseConfig.applicationCode
-            contactFieldId = baseConfig.contactFieldId
             merchantId = baseConfig.merchantId
             experimentalFeatures = baseConfig.experimentalFeatures
             automaticPushTokenSending = baseConfig.automaticPushTokenSendingEnabled
@@ -48,12 +45,6 @@ data class EmarsysConfig(val application: Application,
         @Deprecated(message = "Deprecated in Kotlin, please use the EmarsysConfig property based constructor.")
         fun applicationCode(mobileEngageApplicationCode: String?): Builder {
             this.applicationCode = mobileEngageApplicationCode
-            return this
-        }
-
-        @Deprecated(message = "Deprecated in Kotlin, please use the EmarsysConfig property based constructor.")
-        fun contactFieldId(contactFieldId: Int): Builder {
-            this.contactFieldId = contactFieldId
             return this
         }
 
@@ -99,7 +90,6 @@ data class EmarsysConfig(val application: Application,
             return EmarsysConfig(
                     application,
                     applicationCode,
-                    contactFieldId,
                     merchantId,
                     experimentalFeatures!!,
                     automaticPushTokenSending,

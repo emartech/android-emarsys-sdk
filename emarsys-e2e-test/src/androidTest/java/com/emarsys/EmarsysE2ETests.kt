@@ -26,7 +26,7 @@ class EmarsysE2ETests {
         private const val OLD_APPLICATION_CODE = "14C19-A121F"
         private const val APPLICATION_CODE = "EMS11-C3FD3"
         private const val CONTACT_FIELD_ID = 2575
-        private const val CONTACT_ID = "test@test.com"
+        private const val CONTACT_FIELD_VALUE = "test@test.com"
         private const val TRIGGER_INBOX_EVENT = "emarsys-sdk-e2e-inbox-test"
         private const val TEST_TAG = "test_tag"
     }
@@ -98,14 +98,16 @@ class EmarsysE2ETests {
 
         changeApplicationCode(null)
 
-        Emarsys.setContact(CONTACT_ID) { disabled = false }
+        Emarsys.setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE) { disabled = false }
 
         val title = "Android - disable ME feature"
         val timestamp = System.currentTimeMillis()
-        Emarsys.trackCustomEvent(TRIGGER_INBOX_EVENT, mapOf(
+        Emarsys.trackCustomEvent(
+            TRIGGER_INBOX_EVENT, mapOf(
                 "eventName" to title,
                 "timestamp" to timestamp.toString()
-        )) { disabled = false }
+            )
+        ) { disabled = false }
 
         Emarsys.messageInbox.fetchMessages { disabled = false }
 
@@ -166,10 +168,12 @@ class EmarsysE2ETests {
 
     private fun trackCustomEvent(title: String, timestamp: Long) {
         val trackCustomEventLatch = CountDownLatch(1)
-        Emarsys.trackCustomEvent(TRIGGER_INBOX_EVENT, mapOf(
+        Emarsys.trackCustomEvent(
+            TRIGGER_INBOX_EVENT, mapOf(
                 "eventName" to title,
                 "timestamp" to timestamp.toString()
-        )) {
+            )
+        ) {
             trackCustomEventLatch.countDown()
         }
 
@@ -178,7 +182,7 @@ class EmarsysE2ETests {
 
     private fun setContact() {
         val setContactLatch = CountDownLatch(1)
-        Emarsys.setContact(CONTACT_ID) {
+        Emarsys.setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE) {
             setContactLatch.countDown()
         }
 
@@ -186,11 +190,12 @@ class EmarsysE2ETests {
     }
 
     private fun setup(appCode: String?) {
-        Emarsys.setup(EmarsysConfig.Builder()
+        Emarsys.setup(
+            EmarsysConfig.Builder()
                 .application(application)
                 .applicationCode(appCode)
-                .contactFieldId(CONTACT_FIELD_ID)
-                .build())
+                .build()
+        )
     }
 
     private fun fetchMessage(title: String, timestamp: Long, timeout: Long = 1000): Message? {
@@ -200,8 +205,8 @@ class EmarsysE2ETests {
 
         Emarsys.messageInbox.fetchMessages { response ->
             message = response.result
-                    ?.messages
-                    ?.firstOrNull { message -> message.title == title && message.body == timestamp.toString() }
+                ?.messages
+                ?.firstOrNull { message -> message.title == title && message.body == timestamp.toString() }
             fetchMessageInboxLatch.countDown()
         }
 

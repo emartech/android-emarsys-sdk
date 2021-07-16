@@ -95,11 +95,15 @@ object Emarsys {
 
     @JvmStatic
     @JvmOverloads
-    fun setAuthenticatedContact(openIdToken: String, completionListener: CompletionListener? = null) {
+    fun setAuthenticatedContact(
+        contactFieldId: Int,
+        openIdToken: String,
+        completionListener: CompletionListener? = null
+    ) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.mobileEngageApi()
                     .proxyApi(mobileEngage().coreSdkHandler)
-                    .setAuthenticatedContact(openIdToken, completionListener)
+                    .setAuthenticatedContact(contactFieldId, openIdToken, completionListener)
         }
 
         FeatureRegistry.disableFeature(PREDICT)
@@ -108,12 +112,14 @@ object Emarsys {
     @JvmStatic
     @JvmOverloads
     fun setContact(
-            contactFieldValue: String,
-            completionListener: CompletionListener? = null) {
+        contactFieldId: Int,
+        contactFieldValue: String,
+        completionListener: CompletionListener? = null
+    ) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE) && !FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.mobileEngageApi()
                     .proxyApi(mobileEngage().coreSdkHandler)
-                    .setContact(contactFieldValue, completionListener)
+                    .setContact(contactFieldId, contactFieldValue, completionListener)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.predictRestrictedApi()
@@ -197,7 +203,7 @@ object Emarsys {
             }
             EmarsysDependencyInjection.mobileEngageApi()
                     .proxyWithLogExceptions()
-                    .setContact(null, null)
+                    .setContact()
         }
     }
 }

@@ -24,7 +24,6 @@ import org.mockito.kotlin.mock
 class EmarsysConfigTest {
     companion object {
         private const val APP_ID = "appID"
-        private const val CONTACT_FIELD_ID = 567
         private const val MERCHANT_ID = "MERCHANT_ID"
         private const val SHARED_SECRET = "testSecret"
         private const val CLIENT_HOST = "https://me-client.eservice.emarsys.net"
@@ -56,9 +55,9 @@ class EmarsysConfigTest {
             on { provideEndpointHost() } doReturn INBOX_HOST
         }
         val dependencyContainer = FakeDependencyContainer(
-                clientServiceEndpointProvider = mockClientServiceProvider,
-                eventServiceEndpointProvider = mockEventServiceProvider,
-                messageInboxServiceProvider = mockMessageInboxServiceProvider
+            clientServiceEndpointProvider = mockClientServiceProvider,
+            eventServiceEndpointProvider = mockEventServiceProvider,
+            messageInboxServiceProvider = mockMessageInboxServiceProvider
         )
 
         setupEmarsysComponent(dependencyContainer)
@@ -69,8 +68,8 @@ class EmarsysConfigTest {
         defaultInAppEventHandler = mock()
         defaultNotificationEventHandler = mock()
         features = arrayOf(
-                mock(),
-                mock()
+            mock(),
+            mock()
         )
     }
 
@@ -82,27 +81,25 @@ class EmarsysConfigTest {
     @Test
     fun testBuilder_withAllArguments() {
         val expected = EmarsysConfig(
-                application,
-                APP_ID,
-                CONTACT_FIELD_ID,
-                MERCHANT_ID,
-                listOf(*features),
-                automaticPushTokenSending,
-                SHARED_PACKAGE_NAMES,
-                SHARED_SECRET,
-                true)
+            application,
+            APP_ID,
+            MERCHANT_ID,
+            listOf(*features),
+            automaticPushTokenSending,
+            SHARED_PACKAGE_NAMES,
+            SHARED_SECRET,
+            true
+        )
         val result = EmarsysConfig.Builder()
-                .application(application)
-                .applicationCode(APP_ID)
-                .contactFieldId(CONTACT_FIELD_ID)
-                .merchantId(MERCHANT_ID)
-                .enableExperimentalFeatures(*features)
-                .sharedSecret("testSecret")
-                .sharedPackageNames(SHARED_PACKAGE_NAMES)
-                .enableVerboseConsoleLogging()
-                .build()
+            .application(application)
+            .applicationCode(APP_ID)
+            .merchantId(MERCHANT_ID)
+            .enableExperimentalFeatures(*features)
+            .sharedSecret("testSecret")
+            .sharedPackageNames(SHARED_PACKAGE_NAMES)
+            .enableVerboseConsoleLogging()
+            .build()
         result.application shouldBe expected.application
-        result.contactFieldId shouldBe expected.contactFieldId
         result.experimentalFeatures shouldBe expected.experimentalFeatures
         result.applicationCode shouldBe expected.applicationCode
         result.merchantId shouldBe expected.merchantId
@@ -114,21 +111,20 @@ class EmarsysConfigTest {
     @Test
     fun testBuilder_withRequiredArguments() {
         val expected = EmarsysConfig(
-                application,
-                APP_ID,
-                CONTACT_FIELD_ID,
-                MERCHANT_ID,
-                emptyList(),
-                automaticPushTokenSending,
-                null,
-                null,
-                false)
+            application,
+            APP_ID,
+            MERCHANT_ID,
+            emptyList(),
+            automaticPushTokenSending,
+            null,
+            null,
+            false
+        )
         val result = EmarsysConfig.Builder()
-                .application(application)
-                .applicationCode(APP_ID)
-                .contactFieldId(CONTACT_FIELD_ID)
-                .merchantId(MERCHANT_ID)
-                .build()
+            .application(application)
+            .applicationCode(APP_ID)
+            .merchantId(MERCHANT_ID)
+            .build()
 
         result shouldBe expected
     }
@@ -137,11 +133,10 @@ class EmarsysConfigTest {
     fun testBuilder_whenInAppMessagingFlipperIsOff_defaultInAppMessageHandlerIsNotRequired() {
         try {
             EmarsysConfig.Builder()
-                    .application(application)
-                    .applicationCode(APP_ID)
-                    .contactFieldId(CONTACT_FIELD_ID)
-                    .merchantId(MERCHANT_ID)
-                    .build()
+                .application(application)
+                .applicationCode(APP_ID)
+                .merchantId(MERCHANT_ID)
+                .build()
         } catch (e: IllegalArgumentException) {
             fail("Should not fail with: ${e.message}")
         }
@@ -150,23 +145,21 @@ class EmarsysConfigTest {
     @Test
     fun testBuilder_automaticPushTokenSending_whenDisabled() {
         val config = EmarsysConfig.Builder()
-                .application(application)
-                .applicationCode(APP_ID)
-                .contactFieldId(CONTACT_FIELD_ID)
-                .merchantId(MERCHANT_ID)
-                .disableAutomaticPushTokenSending()
-                .build()
+            .application(application)
+            .applicationCode(APP_ID)
+            .merchantId(MERCHANT_ID)
+            .disableAutomaticPushTokenSending()
+            .build()
         config.automaticPushTokenSendingEnabled shouldBe false
     }
 
     @Test
     fun testBuilder_automaticPushTokenSending_default() {
         val config = EmarsysConfig.Builder()
-                .application(application)
-                .applicationCode(APP_ID)
-                .contactFieldId(CONTACT_FIELD_ID)
-                .merchantId(MERCHANT_ID)
-                .build()
+            .application(application)
+            .applicationCode(APP_ID)
+            .merchantId(MERCHANT_ID)
+            .build()
 
         config.automaticPushTokenSendingEnabled shouldBe true
     }
@@ -174,12 +167,11 @@ class EmarsysConfigTest {
     @Test
     fun testBuilder_verboseConsoleLoggingEnabled() {
         val config = EmarsysConfig.Builder()
-                .application(application)
-                .applicationCode(APP_ID)
-                .contactFieldId(CONTACT_FIELD_ID)
-                .merchantId(MERCHANT_ID)
-                .enableVerboseConsoleLogging()
-                .build()
+            .application(application)
+            .applicationCode(APP_ID)
+            .merchantId(MERCHANT_ID)
+            .enableVerboseConsoleLogging()
+            .build()
 
         config.verboseConsoleLoggingEnabled shouldBe true
     }
@@ -187,21 +179,20 @@ class EmarsysConfigTest {
     @Test
     fun testBuilder_verboseConsoleLoggingDisabled_byDefault() {
         val config = EmarsysConfig.Builder()
-                .application(application)
-                .applicationCode(APP_ID)
-                .contactFieldId(CONTACT_FIELD_ID)
-                .merchantId(MERCHANT_ID)
-                .build()
+            .application(application)
+            .applicationCode(APP_ID)
+            .merchantId(MERCHANT_ID)
+            .build()
 
         config.verboseConsoleLoggingEnabled shouldBe false
     }
 
     @Test
-    fun testEmarsysConfig_defaultParameters(){
-        val config = EmarsysConfig(application = application,
-                contactFieldId = 999)
+    fun testEmarsysConfig_defaultParameters() {
+        val config = EmarsysConfig(
+            application = application
+        )
 
-        config.contactFieldId shouldBe 999
         config.application shouldBe application
         config.applicationCode shouldBe null
         config.automaticPushTokenSendingEnabled shouldBe true
@@ -213,18 +204,18 @@ class EmarsysConfigTest {
     }
 
     @Test
-    fun testEmarsysConfig_allParameters(){
-        val config = EmarsysConfig(application = application,
-        contactFieldId = 999,
-        applicationCode = APP_ID,
-        merchantId = MERCHANT_ID,
-        experimentalFeatures = listOf(InnerFeature.EVENT_SERVICE_V4),
-        automaticPushTokenSendingEnabled = false,
-        sharedPackageNames = SHARED_PACKAGE_NAMES,
-        sharedSecret = SHARED_SECRET,
-        verboseConsoleLoggingEnabled = true)
+    fun testEmarsysConfig_allParameters() {
+        val config = EmarsysConfig(
+            application = application,
+            applicationCode = APP_ID,
+            merchantId = MERCHANT_ID,
+            experimentalFeatures = listOf(InnerFeature.EVENT_SERVICE_V4),
+            automaticPushTokenSendingEnabled = false,
+            sharedPackageNames = SHARED_PACKAGE_NAMES,
+            sharedSecret = SHARED_SECRET,
+            verboseConsoleLoggingEnabled = true
+        )
 
-        config.contactFieldId shouldBe 999
         config.application shouldBe application
         config.applicationCode shouldBe APP_ID
         config.automaticPushTokenSendingEnabled shouldBe false
@@ -238,20 +229,19 @@ class EmarsysConfigTest {
     @Test
     fun testBuilder_from() {
         val expected = EmarsysConfig(
-                application,
-                APP_ID,
-                CONTACT_FIELD_ID,
-                MERCHANT_ID,
-                listOf(*features),
-                automaticPushTokenSending,
-                SHARED_PACKAGE_NAMES,
-                SHARED_SECRET,
-                false)
+            application,
+            APP_ID,
+            MERCHANT_ID,
+            listOf(*features),
+            automaticPushTokenSending,
+            SHARED_PACKAGE_NAMES,
+            SHARED_SECRET,
+            false
+        )
         val result = EmarsysConfig.Builder()
-                .from(expected)
-                .build()
+            .from(expected)
+            .build()
         result.application shouldBe expected.application
-        result.contactFieldId shouldBe expected.contactFieldId
         result.experimentalFeatures shouldBe expected.experimentalFeatures
         result.applicationCode shouldBe expected.applicationCode
         result.merchantId shouldBe expected.merchantId

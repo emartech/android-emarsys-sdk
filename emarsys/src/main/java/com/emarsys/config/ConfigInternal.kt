@@ -5,7 +5,7 @@ import com.emarsys.core.api.result.CompletionListener
 
 interface ConfigInternal {
 
-    val contactFieldId: Int
+    val contactFieldId: Int?
 
     val applicationCode: String?
 
@@ -21,7 +21,7 @@ interface ConfigInternal {
 
     val sdkVersion: String
 
-    fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: CompletionListener?)
+    fun changeApplicationCode(applicationCode: String?, contactFieldId: Int?, completionListener: CompletionListener?)
 
     fun changeMerchantId(merchantId: String?)
 

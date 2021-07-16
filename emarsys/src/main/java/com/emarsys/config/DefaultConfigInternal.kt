@@ -48,7 +48,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     override val merchantId: String?
         get() = predictRequestContext.merchantId
 
-    override val contactFieldId: Int
+    override val contactFieldId: Int?
         get() = mobileEngageRequestContext.contactFieldId
 
     override val hardwareId: String
@@ -66,12 +66,12 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     override val sdkVersion: String
         get() = deviceInfo.sdkVersion
 
-    private var originalContactFieldId: Int = 0
+    private var originalContactFieldId: Int? = null
     private var originalPushToken: String? = null
 
     private var hasContactIdentification: Boolean = false
 
-    override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int, completionListener: CompletionListener?) {
+    override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int?, completionListener: CompletionListener?) {
         originalContactFieldId = mobileEngageRequestContext.contactFieldId
         originalPushToken = pushTokenProvider.providePushToken()
         hasContactIdentification = mobileEngageRequestContext.hasContactIdentification()
@@ -125,7 +125,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         }
     }
 
-    private fun handleApplicationCodeChange(applicationCode: String?, newContactFieldId: Int, completionListener: CompletionListener?) {
+    private fun handleApplicationCodeChange(applicationCode: String?, newContactFieldId: Int?, completionListener: CompletionListener?) {
         if (applicationCode != null) {
             FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
             FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)

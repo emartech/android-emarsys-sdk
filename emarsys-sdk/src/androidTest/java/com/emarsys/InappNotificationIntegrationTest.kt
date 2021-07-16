@@ -64,7 +64,6 @@ class InappNotificationIntegrationTest {
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
                 .applicationCode(APP_ID)
-                .contactFieldId(CONTACT_FIELD_ID)
                 .build()
 
         mockInappPresenterOverlay = mock()

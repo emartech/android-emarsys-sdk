@@ -6,14 +6,22 @@ import com.emarsys.mobileengage.di.mobileEngage
 
 class MobileEngage(private val loggingInstance: Boolean = false): MobileEngageApi {
 
-    override fun setContact(contactFieldValue: String?, completionListener: CompletionListener?) {
+    override fun setContact(
+        contactFieldId: Int?,
+        contactFieldValue: String?,
+        completionListener: CompletionListener?
+    ) {
         (if (loggingInstance) mobileEngage().loggingMobileEngageInternal else mobileEngage().mobileEngageInternal)
-                .setContact(contactFieldValue, completionListener)
+                .setContact(contactFieldId, contactFieldValue, completionListener)
     }
 
-    override fun setAuthenticatedContact(openIdToken: String, completionListener: CompletionListener?) {
+    override fun setAuthenticatedContact(
+        contactFieldId: Int,
+        openIdToken: String,
+        completionListener: CompletionListener?
+    ) {
         (if (loggingInstance) mobileEngage().loggingMobileEngageInternal else mobileEngage().mobileEngageInternal)
-                .setAuthenticatedContact(openIdToken, completionListener)
+                .setAuthenticatedContact(contactFieldId, openIdToken, completionListener)
     }
 
     override fun clearContact(completionListener: CompletionListener?) {

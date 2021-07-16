@@ -5,7 +5,7 @@ import com.emarsys.core.api.result.CompletionListener
 
 interface ConfigApi {
 
-    val contactFieldId: Int
+    val contactFieldId: Int?
 
     val applicationCode: String?
 

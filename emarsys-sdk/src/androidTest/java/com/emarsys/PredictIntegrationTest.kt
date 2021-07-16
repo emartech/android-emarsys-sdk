@@ -82,7 +82,6 @@ class PredictIntegrationTest {
 
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
-                .contactFieldId(CONTACT_FIELD_ID)
                 .merchantId(MERCHANT_ID)
                 .build()
 
@@ -471,7 +470,7 @@ class PredictIntegrationTest {
         }
 
 
-        Emarsys.setContact("test@test.com")
+        Emarsys.setContact(CONTACT_FIELD_ID, "test@test.com")
         testMultipleInvocations()
     }
 

@@ -17,7 +17,6 @@ import com.emarsys.mobileengage.util.RequestPayloadUtils.createInternalCustomEve
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createRefreshContactTokenPayload
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createSetPushTokenPayload
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createTrackDeviceInfoPayload
-import com.emarsys.mobileengage.util.RequestPayloadUtils.createTrackNotificationOpenPayload
 import java.util.*
 
 @Mockable
@@ -53,7 +52,7 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
                 .build()
     }
 
-    fun createSetContactRequest(contactFieldValue: String?): RequestModel {
+    fun createSetContactRequest(contactFieldId: Int?, contactFieldValue: String?): RequestModel {
         val builder = RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
                 .url("${clientServiceProvider.provideEndpointHost()}${Endpoint.clientBase(requestContext.applicationCode)}/contact")
                 .method(RequestMethod.POST)
@@ -65,7 +64,10 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
             builder.payload(emptyMap())
             builder.queryParams(queryParams)
         } else {
-            val payload = mutableMapOf<String, Any>("contactFieldId" to requestContext.contactFieldId)
+            val payload = mutableMapOf<String, Any>()
+            if (contactFieldId != null) {
+                payload["contactFieldId"] = contactFieldId
+            }
             if (contactFieldValue != null) {
                 payload["contactFieldValue"] = contactFieldValue
             }

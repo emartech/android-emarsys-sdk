@@ -12,6 +12,7 @@ import org.mockito.kotlin.verify
 
 class MobileEngageTest {
     companion object {
+        private const val CONTACT_FIELD_ID = 999
         private const val CONTACT_FIELD_VALUE = "testContactFieldValue"
         private const val CONTACT_ID_TOKEN = "idTOKENTOKENTOKENidTOKEN"
     }
@@ -36,14 +37,18 @@ class MobileEngageTest {
 
     @Test
     fun testSetContact_delegatesToInternal() {
-       mobileEngageApi.setContact(CONTACT_FIELD_VALUE, mockCompletionListener)
-        verify(mockMobileEngageInternal).setContact(CONTACT_FIELD_VALUE, mockCompletionListener)
+       mobileEngageApi.setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, mockCompletionListener)
+        verify(mockMobileEngageInternal).setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, mockCompletionListener)
     }
 
     @Test
     fun testSetAuthorizedContact_delegatesToInternal() {
-       mobileEngageApi.setAuthenticatedContact(CONTACT_ID_TOKEN, mockCompletionListener)
-        verify(mockMobileEngageInternal).setAuthenticatedContact(CONTACT_ID_TOKEN, mockCompletionListener)
+       mobileEngageApi.setAuthenticatedContact(CONTACT_FIELD_ID, CONTACT_ID_TOKEN, mockCompletionListener)
+        verify(mockMobileEngageInternal).setAuthenticatedContact(
+            CONTACT_FIELD_ID,
+            CONTACT_ID_TOKEN,
+            mockCompletionListener
+        )
     }
 
     @Test

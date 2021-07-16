@@ -10,21 +10,29 @@ import org.mockito.kotlin.whenever
 
 class MobileEngageRequestContextTest {
 
-    private lateinit var mockContactFieldValueStorage: StringStorage
     private lateinit var requestContext: MobileEngageRequestContext
 
     @Before
     fun setUp() {
-        mockContactFieldValueStorage = mock {
-            on { get() } doReturn null
-        }
-        requestContext = MobileEngageRequestContext("appCode", 1, null,
-                mock(), mock(), mock(), mock(), mock(), mock(), mockContactFieldValueStorage, mock(), mock())
+
+        requestContext = MobileEngageRequestContext(
+            "appCode",
+            1,
+            null,
+            null,
+            mock(),
+            mock(),
+            mock(),
+            mock(),
+            mock(),
+            mock(),
+            mock(),
+            mock()
+        )
     }
 
     @Test
     fun testHasContactIdentification_whenFalse() {
-        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         requestContext.openIdToken = null
 
         requestContext.hasContactIdentification() shouldBe false
@@ -32,7 +40,6 @@ class MobileEngageRequestContextTest {
 
     @Test
     fun testHasContactIdentification_whenHasOpenId_shouldBeTrue() {
-        whenever(mockContactFieldValueStorage.get()).thenReturn(null)
         requestContext.openIdToken = "openId"
 
         requestContext.hasContactIdentification() shouldBe true
@@ -40,7 +47,8 @@ class MobileEngageRequestContextTest {
 
     @Test
     fun testHasContactIdentification__whenHasBothOpenIdAndContactFieldValue_shouldBeTrue() {
-        whenever(mockContactFieldValueStorage.get()).thenReturn("contactFieldValue")
+        requestContext.contactFieldValue = "contactFieldValue"
+
         requestContext.openIdToken = "openId"
 
         requestContext.hasContactIdentification() shouldBe true
@@ -48,7 +56,8 @@ class MobileEngageRequestContextTest {
 
     @Test
     fun testHasContactIdentification_whenHasContactFieldValue_shouldBeTrue() {
-        whenever(mockContactFieldValueStorage.get()).thenReturn("contactFieldValue")
+        requestContext.contactFieldValue = "contactFieldValue"
+
         requestContext.openIdToken = null
 
         requestContext.hasContactIdentification() shouldBe true

@@ -68,7 +68,6 @@ class MobileEngageRefreshContactTokenIntegrationTest {
         baseConfig = EmarsysConfig.Builder()
                 .application(application)
                 .applicationCode(APP_ID)
-                .contactFieldId(CONTACT_FIELD_ID)
                 .build()
 
         FeatureTestUtils.resetFeatures()

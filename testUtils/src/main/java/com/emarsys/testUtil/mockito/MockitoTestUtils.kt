@@ -11,6 +11,7 @@ fun <T> anyNotNull(): T {
     return uninitialized()
 }
 
+@Suppress("UNCHECKED_CAST")
 private fun <T> uninitialized(): T {
     return null as T
 }

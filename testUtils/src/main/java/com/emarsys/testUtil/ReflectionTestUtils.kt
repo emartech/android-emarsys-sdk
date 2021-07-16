@@ -9,11 +9,11 @@ object ReflectionTestUtils {
 
     @JvmStatic
     fun setInstanceField(instance: Any, fieldName: String, value: Any?) =
-            setField(instance, instance.javaClass, fieldName, value)
+        setField(instance, instance.javaClass, fieldName, value)
 
     @JvmStatic
     fun setStaticField(type: Class<*>, fieldName: String, value: Any?) =
-            setField(null, type, fieldName, value)
+        setField(null, type, fieldName, value)
 
     private fun setField(instance: Any?, type: Class<*>, fieldName: String, value: Any?) {
         val containerField = searchForField(type, fieldName)
@@ -23,11 +23,11 @@ object ReflectionTestUtils {
 
     @JvmStatic
     fun <T> getInstanceField(instance: Any, fieldName: String): T? =
-            getField(instance, instance::class.java, fieldName)
+        getField(instance, instance::class.java, fieldName)
 
     @JvmStatic
     fun <T> getStaticField(type: Class<*>, fieldName: String): T? =
-            getField(null, type, fieldName)
+        getField(null, type, fieldName)
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> getField(instance: Any?, type: Class<*>, fieldName: String): T? {
@@ -68,7 +68,12 @@ object ReflectionTestUtils {
     }
 
     @JvmStatic
-    fun <T> invokeInstanceMethod(instance: Any, methodName: String, vararg params: Pair<Class<*>, *>): T {
+    @Suppress("UNCHECKED_CAST")
+    fun <T> invokeInstanceMethod(
+        instance: Any,
+        methodName: String,
+        vararg params: Pair<Class<*>, *>
+    ): T {
         val types = params.map { it.first }.toTypedArray()
         val method: Method = instance.javaClass.getDeclaredMethod(methodName, *types)
         method.isAccessible = true
