@@ -169,7 +169,7 @@ class DashboardFragment : Fragment() {
         languageCodeField?.text = Emarsys.config.languageCode
         pushSettingsField?.text = resources.getString(
             R.string.config_information,
-            Emarsys.config.notificationSettings.areNotificationsEnabled(),
+            Emarsys.config.notificationSettings.areNotificationsEnabled,
             Emarsys.config.notificationSettings.importance,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Emarsys.config.notificationSettings.channelSettings else "[not supported on this API level]"
         )
