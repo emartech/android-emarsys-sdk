@@ -11,9 +11,10 @@ import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.api.model.RecommendationFilter
 
 class LoggingPredictInternal(private val klass: Class<*>) : PredictInternal {
-    override fun setContact(contactId: String) {
+    override fun setContact(contactFieldId: Int, contactFieldValue: String) {
         val parameters: Map<String, Any?> = mapOf(
-                "contact_id" to contactId
+                "contact_field_value" to contactFieldValue,
+                "contact_field_id" to contactFieldId
         )
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))

@@ -23,16 +23,19 @@ import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.util.CartItemUtils
 
-class DefaultPredictInternal(requestContext: PredictRequestContext,
-                             private val requestManager: RequestManager,
-                             private val requestModelBuilderProvider: PredictRequestModelBuilderProvider,
-                             private val responseMapper: PredictResponseMapper,
-                             private val lastTrackedContainer: LastTrackedItemContainer = LastTrackedItemContainer()) : PredictInternal {
+class DefaultPredictInternal(
+    requestContext: PredictRequestContext,
+    private val requestManager: RequestManager,
+    private val requestModelBuilderProvider: PredictRequestModelBuilderProvider,
+    private val responseMapper: PredictResponseMapper,
+    private val lastTrackedContainer: LastTrackedItemContainer = LastTrackedItemContainer()
+) : PredictInternal {
 
     companion object {
         const val VISITOR_ID_KEY = "predict_visitor_id"
         const val XP_KEY = "xp"
-        const val CONTACT_ID_KEY = "predict_contact_id"
+        const val CONTACT_FIELD_VALUE_KEY = "predict_contact_id"
+        const val CONTACT_FIELD_ID_KEY = "predict_contact_field_id"
         private const val TYPE_CART = "predict_cart"
         private const val TYPE_PURCHASE = "predict_purchase"
         private const val TYPE_ITEM_VIEW = "predict_item_view"
@@ -46,22 +49,24 @@ class DefaultPredictInternal(requestContext: PredictRequestContext,
     private val keyValueStore: KeyValueStore = requestContext.keyValueStore
 
 
-    override fun setContact(contactId: String) {
-        keyValueStore.putString(CONTACT_ID_KEY, contactId)
+    override fun setContact(contactFieldId: Int, contactFieldValue: String) {
+        keyValueStore.putString(CONTACT_FIELD_VALUE_KEY, contactFieldValue)
+        keyValueStore.putInt(CONTACT_FIELD_ID_KEY, contactFieldId)
     }
 
     override fun clearContact() {
-        keyValueStore.remove(CONTACT_ID_KEY)
+        keyValueStore.remove(CONTACT_FIELD_VALUE_KEY)
+        keyValueStore.remove(CONTACT_FIELD_ID_KEY)
         keyValueStore.remove(VISITOR_ID_KEY)
     }
 
     override fun trackCart(items: List<CartItem>): String {
         Assert.elementsNotNull(items, "Item elements must not be null!")
         val shard = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type(TYPE_CART)
-                .payloadEntry("cv", 1)
-                .payloadEntry("ca", CartItemUtils.cartItemsToQueryParam(items))
-                .build()
+            .type(TYPE_CART)
+            .payloadEntry("cv", 1)
+            .payloadEntry("ca", CartItemUtils.cartItemsToQueryParam(items))
+            .build()
         requestManager.submit(shard)
         lastTrackedContainer.lastCartItems = items
         return shard.id
@@ -70,10 +75,10 @@ class DefaultPredictInternal(requestContext: PredictRequestContext,
     override fun trackPurchase(orderId: String, items: List<CartItem>): String {
         Assert.elementsNotNull(items, "Item elements must not be null!")
         val shard = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type(TYPE_PURCHASE)
-                .payloadEntry("oi", orderId)
-                .payloadEntry("co", CartItemUtils.cartItemsToQueryParam(items))
-                .build()
+            .type(TYPE_PURCHASE)
+            .payloadEntry("oi", orderId)
+            .payloadEntry("co", CartItemUtils.cartItemsToQueryParam(items))
+            .build()
         requestManager.submit(shard)
         lastTrackedContainer.lastCartItems = items
         return shard.id
@@ -81,9 +86,9 @@ class DefaultPredictInternal(requestContext: PredictRequestContext,
 
     override fun trackItemView(itemId: String): String {
         val shard = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type(TYPE_ITEM_VIEW)
-                .payloadEntry("v", "i:$itemId")
-                .build()
+            .type(TYPE_ITEM_VIEW)
+            .payloadEntry("v", "i:$itemId")
+            .build()
         requestManager.submit(shard)
         lastTrackedContainer.lastItemView = itemId
         return shard.id
@@ -91,9 +96,9 @@ class DefaultPredictInternal(requestContext: PredictRequestContext,
 
     override fun trackCategoryView(categoryPath: String): String {
         val shard = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type(TYPE_CATEGORY_VIEW)
-                .payloadEntry("vc", categoryPath)
-                .build()
+            .type(TYPE_CATEGORY_VIEW)
+            .payloadEntry("vc", categoryPath)
+            .build()
         requestManager.submit(shard)
         lastTrackedContainer.lastCategoryPath = categoryPath
         return shard.id
@@ -101,9 +106,9 @@ class DefaultPredictInternal(requestContext: PredictRequestContext,
 
     override fun trackSearchTerm(searchTerm: String): String {
         val shard = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type(TYPE_SEARCH_TERM)
-                .payloadEntry("q", searchTerm)
-                .build()
+            .type(TYPE_SEARCH_TERM)
+            .payloadEntry("q", searchTerm)
+            .build()
         requestManager.submit(shard)
         lastTrackedContainer.lastSearchTerm = searchTerm
         return shard.id
@@ -111,13 +116,13 @@ class DefaultPredictInternal(requestContext: PredictRequestContext,
 
     override fun trackTag(tag: String, attributes: Map<String, String>?) {
         val shardBuilder = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type(TYPE_TAG)
+            .type(TYPE_TAG)
         if (attributes == null) {
             shardBuilder.payloadEntry("t", tag)
         } else {
             val payload: Map<String, Any> = mapOf(
-                    "name" to tag,
-                    "attributes" to attributes
+                "name" to tag,
+                "attributes" to attributes
             )
             shardBuilder.payloadEntry("ta", fromMap(payload).toString())
         }
@@ -125,13 +130,19 @@ class DefaultPredictInternal(requestContext: PredictRequestContext,
         requestManager.submit(shard)
     }
 
-    override fun recommendProducts(recommendationLogic: Logic, limit: Int?, recommendationFilters: List<RecommendationFilter>?, availabilityZone: String?, resultListener: ResultListener<Try<List<Product>>>) {
+    override fun recommendProducts(
+        recommendationLogic: Logic,
+        limit: Int?,
+        recommendationFilters: List<RecommendationFilter>?,
+        availabilityZone: String?,
+        resultListener: ResultListener<Try<List<Product>>>
+    ) {
         val requestModel = requestModelBuilderProvider.providePredictRequestModelBuilder()
-                .withLogic(recommendationLogic, lastTrackedContainer)
-                .withLimit(limit)
-                .withAvailabilityZone(availabilityZone)
-                .withFilters(recommendationFilters)
-                .build()
+            .withLogic(recommendationLogic, lastTrackedContainer)
+            .withLimit(limit)
+            .withAvailabilityZone(availabilityZone)
+            .withFilters(recommendationFilters)
+            .build()
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
                 val products = responseMapper.map(responseModel)
@@ -139,10 +150,15 @@ class DefaultPredictInternal(requestContext: PredictRequestContext,
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
-                resultListener.onResult(failure(ResponseErrorException(
-                        responseModel.statusCode,
-                        responseModel.message,
-                        responseModel.body)))
+                resultListener.onResult(
+                    failure(
+                        ResponseErrorException(
+                            responseModel.statusCode,
+                            responseModel.message,
+                            responseModel.body
+                        )
+                    )
+                )
             }
 
             override fun onError(id: String, cause: Exception) {
@@ -153,9 +169,12 @@ class DefaultPredictInternal(requestContext: PredictRequestContext,
 
     override fun trackRecommendationClick(product: Product): String {
         val shard = ShardModel.Builder(timestampProvider, uuidProvider)
-                .type(TYPE_ITEM_VIEW)
-                .payloadEntry("v", "i:" + product.productId + ",t:" + product.feature + ",c:" + product.cohort)
-                .build()
+            .type(TYPE_ITEM_VIEW)
+            .payloadEntry(
+                "v",
+                "i:" + product.productId + ",t:" + product.feature + ",c:" + product.cohort
+            )
+            .build()
         requestManager.submit(shard)
         lastTrackedContainer.lastItemView = product.productId
         return shard.id

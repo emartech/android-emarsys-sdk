@@ -59,7 +59,7 @@ public class PredictShardListMerger implements Mapper<List<ShardModel>, RequestM
             result.put("vi", visitorId);
         }
 
-        String contactId = keyValueStore.getString(DefaultPredictInternal.CONTACT_ID_KEY);
+        String contactId = keyValueStore.getString(DefaultPredictInternal.CONTACT_FIELD_VALUE_KEY);
         if (contactId != null) {
             result.put("ci", contactId);
         }

@@ -2,6 +2,6 @@ package com.emarsys.predict
 
 interface PredictRestrictedApi {
 
-    fun setContact(contactId: String)
+    fun setContact(contactFieldId: Int, contactFieldValue: String)
     fun clearContact()
 }

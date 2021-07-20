@@ -15,6 +15,9 @@ import org.mockito.Mockito
 import org.mockito.kotlin.mock
 
 class PredictRestrictedTest {
+    private companion object {
+        const val CONTACT_FIELD_ID = 999
+    }
 
     private lateinit var mockPredictInternal: PredictInternal
     private lateinit var predictRestricted: PredictRestricted
@@ -46,8 +49,8 @@ class PredictRestrictedTest {
 
     @Test
     fun testPredict_setContact_delegatesTo_Predict_Internal() {
-        predictRestricted.setContact("contactId")
-        Mockito.verify(mockPredictInternal).setContact("contactId")
+        predictRestricted.setContact(CONTACT_FIELD_ID, "contactId")
+        Mockito.verify(mockPredictInternal).setContact(CONTACT_FIELD_ID, "contactId")
     }
 
     @Test

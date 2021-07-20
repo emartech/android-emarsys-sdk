@@ -8,7 +8,7 @@ import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.api.model.RecommendationFilter
 
 interface PredictInternal {
-    fun setContact(contactId: String)
+    fun setContact(contactFieldId: Int, contactFieldValue: String)
     fun clearContact()
     fun trackCart(items: List<CartItem>): String
     fun trackPurchase(orderId: String, items: List<CartItem>): String

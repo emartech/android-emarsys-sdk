@@ -48,6 +48,7 @@ class DefaultPredictInternalTest {
         const val COMPARISON = "Comparison"
         const val TYPE = "INCLUDE_OR_EXCLUDE"
         val EXPECTATIONS = listOf<String>()
+        const val CONTACT_FIELD_ID = 999
     }
 
     @Rule
@@ -132,7 +133,7 @@ class DefaultPredictInternalTest {
     fun testSetContact_shouldPersistsWithKeyValueStore() {
         val contactId = "contactId"
 
-        predictInternal.setContact(contactId)
+        predictInternal.setContact(CONTACT_FIELD_ID, contactId)
 
         verify(mockKeyValueStore).putString("predict_contact_id", contactId)
     }

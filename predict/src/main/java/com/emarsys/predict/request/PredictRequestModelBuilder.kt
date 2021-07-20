@@ -85,7 +85,7 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
             uriBuilder.appendQueryParameter("vi", visitorId)
         }
 
-        val contactId = keyValueStore.getString(DefaultPredictInternal.CONTACT_ID_KEY)
+        val contactId = keyValueStore.getString(DefaultPredictInternal.CONTACT_FIELD_VALUE_KEY)
 
         if (contactId != null) {
             uriBuilder.appendQueryParameter("ci", contactId)

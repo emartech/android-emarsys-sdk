@@ -196,7 +196,7 @@ class EmarsysTest {
                 )
             )
             whenever(mockNotificationManagerHelper.importance).thenReturn(-1000)
-            whenever(mockNotificationManagerHelper.areNotificationsEnabled()).thenReturn(false)
+            whenever(mockNotificationManagerHelper.areNotificationsEnabled).thenReturn(false)
             whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn("hwid")
             whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn(
                 "language"
@@ -648,7 +648,7 @@ class EmarsysTest {
         runBlockingOnCoreSdkThread()
 
         runBlockingOnCoreSdkThread {
-            verify(mockPredictRestricted).setContact(CONTACT_FIELD_VALUE)
+            verify(mockPredictRestricted).setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE)
             verifyZeroInteractions(mockMobileEngageApi)
         }
     }
@@ -754,7 +754,7 @@ class EmarsysTest {
         setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, completionListener)
 
         runBlockingOnCoreSdkThread {
-            verify(mockPredictRestricted).setContact(CONTACT_FIELD_VALUE)
+            verify(mockPredictRestricted).setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE)
             verify(mockMobileEngageApi).setContact(
                 CONTACT_FIELD_ID,
                 CONTACT_FIELD_VALUE,
