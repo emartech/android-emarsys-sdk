@@ -1,27 +1,29 @@
-package com.emarsys.core.feature;
+package com.emarsys.core.feature
 
-import com.emarsys.core.api.experimental.FlipperFeature;
+import com.emarsys.core.api.experimental.FlipperFeature
+import java.util.*
 
-import java.util.HashSet;
-import java.util.Set;
+object FeatureRegistry {
+    @JvmField
+    var enabledFeatures: MutableSet<String> = HashSet()
 
-public class FeatureRegistry {
-
-    static Set<String> enabledFeatures = new HashSet<>();
-
-    public static boolean isFeatureEnabled(FlipperFeature feature) {
-        return enabledFeatures.contains(feature.getName());
+    @JvmStatic
+    fun isFeatureEnabled(feature: FlipperFeature): Boolean {
+        return enabledFeatures.contains(feature.featureName)
     }
 
-    public static void enableFeature(FlipperFeature feature) {
-        enabledFeatures.add(feature.getName());
+    @JvmStatic
+    fun enableFeature(feature: FlipperFeature) {
+        enabledFeatures.add(feature.featureName)
     }
 
-    static void reset() {
-        enabledFeatures.clear();
+    @JvmStatic
+    fun reset() {
+        enabledFeatures.clear()
     }
 
-    public static void disableFeature(FlipperFeature feature) {
-        enabledFeatures.remove(feature.getName());
+    @JvmStatic
+    fun disableFeature(feature: FlipperFeature) {
+        enabledFeatures.remove(feature.featureName)
     }
 }

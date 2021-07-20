@@ -1,13 +1,7 @@
-package com.emarsys.core.api.notification;
+package com.emarsys.core.api.notification
 
-import java.util.List;
-
-public interface NotificationSettings {
-
-    boolean areNotificationsEnabled();
-
-    int getImportance();
-
-    List<ChannelSettings> getChannelSettings();
-
+interface NotificationSettings {
+    val areNotificationsEnabled: Boolean
+    val importance: Int
+    val channelSettings: List<ChannelSettings>
 }

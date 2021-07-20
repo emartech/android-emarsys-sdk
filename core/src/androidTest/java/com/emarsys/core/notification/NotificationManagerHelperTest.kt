@@ -31,22 +31,17 @@ class NotificationManagerHelperTest {
         notificationManagerHelper = NotificationManagerHelper(mockNotificationManagerProxy)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_notificationManagerProxy_mustNotBeNull() {
-        NotificationManagerHelper(null)
-    }
-
     @Test
     fun testAreNotificationsEnabled_shouldReturnTrue_whenNotificationsAreEnabled() {
         whenever(mockNotificationManagerProxy.areNotificationsEnabled()).thenReturn(true)
-        val result = notificationManagerHelper.areNotificationsEnabled()
+        val result = notificationManagerHelper.areNotificationsEnabled
 
         result shouldBe true
     }
 
     @Test
     fun testAreNotificationsEnabled_shouldReturnFalse_whenNotificationsAreDisabled() {
-        val result = notificationManagerHelper.areNotificationsEnabled()
+        val result = notificationManagerHelper.areNotificationsEnabled
         result shouldBe false
     }
 
@@ -61,28 +56,46 @@ class NotificationManagerHelperTest {
     @Test
     fun testGetChannelSettings() {
         val expected = listOf(
-                ChannelSettings(CHANNEL_ID_1, IMPORTANCE, true, true, true, true),
-                ChannelSettings(CHANNEL_ID_2, IMPORTANCE, false, true, false, true))
+            ChannelSettings(
+                CHANNEL_ID_1, IMPORTANCE,
+                isCanBypassDnd = true,
+                isCanShowBadge = true,
+                isShouldVibrate = true,
+                isShouldShowLights = true
+            ),
+            ChannelSettings(
+                CHANNEL_ID_2, IMPORTANCE,
+                isCanBypassDnd = false,
+                isCanShowBadge = true,
+                isShouldVibrate = false,
+                isShouldShowLights = true
+            )
+        )
 
         val notificationChannel1 = ChannelSettings(
-                CHANNEL_ID_1,
-                IMPORTANCE,
-                true,
-                true,
-                true,
-                true
+            CHANNEL_ID_1,
+            IMPORTANCE,
+            isCanBypassDnd = true,
+            isCanShowBadge = true,
+            isShouldVibrate = true,
+            isShouldShowLights = true
         )
 
         val notificationChannel2 = ChannelSettings(
-                CHANNEL_ID_2,
-                IMPORTANCE,
-                false,
-                true,
-                false,
-                true
+            CHANNEL_ID_2,
+            IMPORTANCE,
+            isCanBypassDnd = false,
+            isCanShowBadge = true,
+            isShouldVibrate = false,
+            isShouldShowLights = true
         )
 
-        whenever(mockNotificationManagerProxy.notificationChannels).thenReturn(listOf(notificationChannel1, notificationChannel2))
+        whenever(mockNotificationManagerProxy.notificationChannels).thenReturn(
+            listOf(
+                notificationChannel1,
+                notificationChannel2
+            )
+        )
 
         val result = notificationManagerHelper.channelSettings
 

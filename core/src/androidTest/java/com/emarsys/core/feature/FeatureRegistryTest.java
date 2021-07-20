@@ -33,13 +33,13 @@ public class FeatureRegistryTest {
         FeatureRegistry.reset();
 
         feature1 = mock(FlipperFeature.class);
-        when(feature1.getName()).thenReturn("feature1");
+        when(feature1.getFeatureName()).thenReturn("feature1");
 
         feature2 = mock(FlipperFeature.class);
-        when(feature2.getName()).thenReturn("feature2");
+        when(feature2.getFeatureName()).thenReturn("feature2");
 
         feature3 = mock(FlipperFeature.class);
-        when(feature3.getName()).thenReturn("feature3");
+        when(feature3.getFeatureName()).thenReturn("feature3");
 
         features = Arrays.asList(feature1, feature2, feature3);
     }

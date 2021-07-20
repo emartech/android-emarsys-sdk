@@ -1,7 +1,5 @@
-package com.emarsys.core.api.experimental;
+package com.emarsys.core.api.experimental
 
-public interface FlipperFeature {
-
-    String getName();
-
+interface FlipperFeature {
+    val featureName: String
 }

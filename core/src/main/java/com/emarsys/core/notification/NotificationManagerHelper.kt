@@ -1,52 +1,32 @@
-package com.emarsys.core.notification;
+package com.emarsys.core.notification
 
-import android.os.Build;
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.emarsys.core.api.notification.ChannelSettings
+import com.emarsys.core.api.notification.NotificationSettings
+import java.util.*
 
-import androidx.annotation.RequiresApi;
+class NotificationManagerHelper(private val notificationManagerProxy: NotificationManagerProxy) :
+    NotificationSettings {
 
-import com.emarsys.core.api.notification.ChannelSettings;
-import com.emarsys.core.api.notification.NotificationSettings;
-import com.emarsys.core.util.Assert;
+    override val areNotificationsEnabled: Boolean
+        get() = notificationManagerProxy.areNotificationsEnabled
 
-import java.util.List;
-import java.util.Objects;
+    override val importance: Int
+        get() = notificationManagerProxy.importance
 
-public class NotificationManagerHelper implements NotificationSettings {
+    @get:RequiresApi(api = Build.VERSION_CODES.O)
+    override val channelSettings: List<ChannelSettings>
+        get() = notificationManagerProxy.notificationChannels
 
-    private NotificationManagerProxy notificationManagerProxy;
-
-    public NotificationManagerHelper(NotificationManagerProxy notificationManagerProxy) {
-        Assert.notNull(notificationManagerProxy, "NotificationManagerProxy must not be null!");
-
-        this.notificationManagerProxy = notificationManagerProxy;
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val that = o as NotificationManagerHelper
+        return notificationManagerProxy == that.notificationManagerProxy
     }
 
-    @Override
-    public boolean areNotificationsEnabled() {
-        return notificationManagerProxy.areNotificationsEnabled();
-    }
-
-    @Override
-    public int getImportance() {
-        return notificationManagerProxy.getImportance();
-    }
-
-    @Override
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public List<ChannelSettings> getChannelSettings() {
-        return notificationManagerProxy.getNotificationChannels();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        NotificationManagerHelper that = (NotificationManagerHelper) o;
-        return Objects.equals(notificationManagerProxy, that.notificationManagerProxy);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(notificationManagerProxy);
+    override fun hashCode(): Int {
+        return Objects.hash(notificationManagerProxy)
     }
 }

@@ -28,7 +28,7 @@ class InnerFeatureTest {
             row(enum, stringValue)
         }.let {
             forall(*it.toTypedArray()) { input, expected ->
-                input.getName() shouldBe expected
+                input.featureName shouldBe expected
             }
         }
     }

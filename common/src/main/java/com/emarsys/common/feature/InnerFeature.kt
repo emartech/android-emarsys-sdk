@@ -6,9 +6,8 @@ import java.util.*
 enum class InnerFeature : FlipperFeature {
     MOBILE_ENGAGE, PREDICT, EVENT_SERVICE_V4;
 
-    override fun getName(): String {
-        return "inner_feature_" + name.lowercase(Locale.getDefault())
-    }
+    override val featureName: String
+        get() = "inner_feature_" + name.lowercase(Locale.getDefault())
 
     companion object {
         fun safeValueOf(enumAsString: String): InnerFeature? {
