@@ -33,7 +33,7 @@ class NotificationManagerHelperTest {
 
     @Test
     fun testAreNotificationsEnabled_shouldReturnTrue_whenNotificationsAreEnabled() {
-        whenever(mockNotificationManagerProxy.areNotificationsEnabled()).thenReturn(true)
+        whenever(mockNotificationManagerProxy.areNotificationsEnabled).thenReturn(true)
         val result = notificationManagerHelper.areNotificationsEnabled
 
         result shouldBe true

@@ -28,7 +28,7 @@ object RequestPayloadUtils {
                 "timezone" to deviceInfo.timezone)
         val notificationSettings = deviceInfo.notificationSettings
         val notificationSettingsMap: MutableMap<String, Any> = mutableMapOf(
-                "areNotificationsEnabled" to notificationSettings.areNotificationsEnabled(),
+                "areNotificationsEnabled" to notificationSettings.areNotificationsEnabled,
                 "importance" to notificationSettings.importance
         )
         val channelSettings: MutableList<Map<String, Any>> = mutableListOf()

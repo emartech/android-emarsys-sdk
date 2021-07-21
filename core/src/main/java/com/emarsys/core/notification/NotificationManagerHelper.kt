@@ -2,10 +2,12 @@ package com.emarsys.core.notification
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.ChannelSettings
 import com.emarsys.core.api.notification.NotificationSettings
 import java.util.*
 
+@Mockable
 class NotificationManagerHelper(private val notificationManagerProxy: NotificationManagerProxy) :
     NotificationSettings {
 

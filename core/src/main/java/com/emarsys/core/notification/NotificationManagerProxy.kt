@@ -4,9 +4,11 @@ import android.app.NotificationManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationManagerCompat
+import com.emarsys.core.Mockable
 import com.emarsys.core.api.notification.ChannelSettings
 import java.util.*
 
+@Mockable
 class NotificationManagerProxy(
     private val notificationManager: NotificationManager,
     private val notificationManagerCompat: NotificationManagerCompat

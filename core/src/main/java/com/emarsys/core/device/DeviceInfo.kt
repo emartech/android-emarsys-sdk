@@ -62,7 +62,7 @@ data class DeviceInfo(
                         "notificationSettings" to mapOf(
                                 parseChannelSettings(),
                                 "importance" to notificationSettings.importance,
-                                "areNotificationsEnabled" to notificationSettings.areNotificationsEnabled()
+                                "areNotificationsEnabled" to notificationSettings.areNotificationsEnabled
                         ),
                         "hwid" to hardwareId,
                         "platform" to platform,
