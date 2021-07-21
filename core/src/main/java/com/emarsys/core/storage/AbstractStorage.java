@@ -1,5 +1,7 @@
 package com.emarsys.core.storage;
 
+import androidx.annotation.Nullable;
+
 import com.emarsys.core.util.Assert;
 
 public abstract class AbstractStorage<T, S> implements PersistentStorage<T, S> {
@@ -21,7 +23,7 @@ public abstract class AbstractStorage<T, S> implements PersistentStorage<T, S> {
     }
 
     @Override
-    public T get() {
+    public @Nullable T get() {
         value = value != null ? value : readPersistedValue(store);
         return value;
     }

@@ -7,10 +7,6 @@ import com.emarsys.core.storage.Storage
 class ServiceEndpointProvider(private val serviceUrlStorage: Storage<String?>, private val defaultEndpoint: String) {
 
     fun provideEndpointHost(): String {
-        return if (serviceUrlStorage.get() == null) {
-            defaultEndpoint
-        } else {
-            serviceUrlStorage.get()!!
-        }
+        return serviceUrlStorage.get() ?: defaultEndpoint
     }
 }

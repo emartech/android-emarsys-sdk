@@ -16,6 +16,7 @@ object Versions {
     const val archLifecycleVersion ="2.3.1"
     const val securityCryptoVersion = "1.1.0-alpha03"
     const val byte_buddy_version = "1.11.6"
+    const val google_tink_version = "1.6.1"
 }
 
 object Libs {
@@ -28,7 +29,7 @@ object Libs {
     const val lifecycle_extensions = "androidx.lifecycle:lifecycle-process:${Versions.archLifecycleVersion}"
     const val lifecycle_compiler = "androidx.lifecycle:lifecycle-compiler:${Versions.archLifecycleVersion}"
     const val security_crypto = "androidx.security:security-crypto:${Versions.securityCryptoVersion}"
-
+    const val google_tink = "com.google.crypto.tink:tink-android:${Versions.google_tink_version}"
 }
 
 object TestLibs {

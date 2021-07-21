@@ -1,5 +1,6 @@
 dependencies {
     implementation project(':core-api')
+    implementation Libs.google_tink
 
     androidTestImplementation project(':testUtils')
 }
