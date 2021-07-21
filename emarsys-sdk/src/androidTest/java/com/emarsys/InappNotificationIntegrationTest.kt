@@ -28,7 +28,6 @@ class InappNotificationIntegrationTest {
 
     companion object {
         private const val APP_ID = "14C19-A121F"
-        private const val CONTACT_FIELD_ID = 3
     }
 
     private lateinit var completionListenerLatch: CountDownLatch

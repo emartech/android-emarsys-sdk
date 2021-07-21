@@ -36,7 +36,6 @@ class DefaultInboxIntegrationTest {
 
     companion object {
         private const val APP_ID = "14C19-A121F"
-        private const val CONTACT_FIELD_ID = 3
         private const val SDK_VERSION = "2.1.0-integration"
         private const val LANGUAGE = "en-US"
         private const val MESSAGE_ID = Integer.MAX_VALUE.toString()

@@ -41,7 +41,6 @@ class RequestPayloadUtilsTest {
         const val EVENT_NAME = "testEventName"
         const val TIMESTAMP = 123456789L
         const val REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ4IjoieSJ9.bKXKVZCwf8J55WzWagrg2S0o2k_xZQ-HYfHIIj_2Z_U"
-        const val SID = "sid"
         const val ARE_NOTIFICATIONS_ENABLED = true
         const val IMPORTANCE = 0
         const val CHANNEL_ID_1 = "channelId1"
@@ -74,7 +73,7 @@ class RequestPayloadUtilsTest {
                 ChannelSettings(channelId = CHANNEL_ID_2,
                         importance = IMPORTANCE))
         mockNotificationSettings = mock {
-            on { areNotificationsEnabled() } doReturn ARE_NOTIFICATIONS_ENABLED
+            on { areNotificationsEnabled } doReturn ARE_NOTIFICATIONS_ENABLED
             on { importance } doReturn IMPORTANCE
             on { channelSettings } doReturn mockChannelSettings
         }
