@@ -1,4 +1,4 @@
-![build](https://github.com/emartech/android-emarsys-sdk/workflows/Last%20commit%20build/badge.svg)
+![build](https://github.com/emartech/android-emarsys-sdk/workflows/Last%20push%20build/badge.svg)
 
 ## Contents
 
@@ -9,7 +9,9 @@
     - [1.3 Add Gradle dependency](#13-add-gradle-dependency "Add as dependency")
 - [2. Requirements](#2-requirements "Requirements")
     - [2.1 Using AndroidX](#21-using-androidx "AndroidX")
-    - [2.2 Firebase](#22-firebase "Firebase")
+    - [2.2 Push Notifications](#22-push-notifications "Push Notifications")
+        - [2.2.1 Firebase](#221-firebase "Firebase")
+        - [2.2.2 Huawei](#222-huawei "Huawei")
 - [Documentation](https://github.com/emartech/android-emarsys-sdk/wiki "Documentation")
 - [Migrate from Mobile Engage SDK](https://github.com/emartech/android-emarsys-sdk/wiki/Migrate-from-Mobile-Engage "Migration Guide")
 - [Mobile Engage Glossary](https://github.com/emartech/android-emarsys-sdk/wiki/Glossary "Glossary")
@@ -67,7 +69,21 @@ android.useAndroidX: When set to true, the Android plugin uses the appropriate A
 
 android.enableJetifier: When set to true, the Android plugin automatically migrates existing third-party libraries to use AndroidX by rewriting their binaries. The flag is false by default if it is not specified.
 
-### 2.2 Firebase
+### 2.2 Push Notifications
+
+Emarsys SDK supports multiple push providers([Firebase](https://firebase.google.com/docs/cloud-messaging), [Huawei](https://developer.huawei.com/consumer/en/hms/huawei-pushkit/)). Integrating both, or one of them is necessary for using the Mobile Engage Push feature.
+
+If you want to support both providers, you can include both of them in your application.
+
+You can set a custom notification icon, by specifying it as a meta-data between your application tag:
+
+```xml
+<meta-data
+android:name="com.emarsys.mobileengage.small_notification_icon"
+android:resource="@drawable/notification_icon" />
+```
+
+### 2.2.1 Firebase
 
 When the pushToken arrives we need to set it using `Emarsys.Push.setPushToken()`. For more information about how to obtain your
 FCM token please consult the Firebase integration guides:
@@ -79,19 +95,12 @@ FCM token please consult the Firebase integration guides:
 The recommended way of using the SDK is to enable the Emarsys SDK to automatically handle `setPushToken` and `trackMessageOpen` calls for you, please register this service in your manifest:
 
 ```xml
-<service android:name="com.emarsys.service.EmarsysMessagingService">
+<service android:name="com.emarsys.service.EmarsysFirebaseMessagingService"
+         android:exported="false">
     <intent-filter>
         <action android:name="com.google.firebase.MESSAGING_EVENT"/>
     </intent-filter>
 </service>
-```
-
-Additionally, you can set a custom notification icon, by specifying it as a meta-data between your application tag:
-
-```xml
-<meta-data
-android:name="com.emarsys.mobileengage.small_notification_icon"
-android:resource="@drawable/notification_icon" />
 ```
 
 If it is needed, you can add your custom implementation to handle `setPushToken` and `trackMessageOpen`.
@@ -111,7 +120,7 @@ public class MyMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
     super.onMessageReceived(remoteMessage);
 
-        boolean handledByEmarsysSDK = EmarsysMessagingServiceUtils.handleMessage(this, remoteMessage);
+        boolean handledByEmarsysSDK = EmarsysFirebaseMessagingServiceUtils.handleMessage(this, remoteMessage);
 
         if (!handledByEmarsysSDK) {
             //handle your custom push message here
@@ -129,11 +138,80 @@ class MyMessagingService : FirebaseMessagingService() {
         super.onNewToken(token)
         Emarsys.Push.setPushToken(token!!)
     }
-    
+
     override fun onMessageReceived(remoteMessage: RemoteMessage?) {
         super.onMessageReceived(remoteMessage)
         val handledByEmarsysSDK =
-        EmarsysMessagingServiceUtils.handleMessage(this, remoteMessage)
+        EmarsysFirebaseMessagingServiceUtils.handleMessage(this, remoteMessage)
+        if (!handledByEmarsysSDK) {
+            //handle your custom push message here
+            ...
+        }
+    }
+}
+```
+
+#### 2.2.2 Huawei
+> __Important Note__: Push sending for [Huawei is unavailable](https://developer.huawei.com/consumer/en/doc/HMSCore-Guides/emui-version-dependent-0000001050042515) for devices below API level 22!
+>
+> __Huawei Push Messaging__ is only available from Emarsys SDK 3.0.0!
+
+When the pushToken arrives we need to set it using `Emarsys.Push.setPushToken()`. For more information about how to obtain your
+HMS token please consult the Huawei integration guides:
+
+* [Huawei Push Kit integration](https://developer.huawei.com/consumer/en/doc/development/HMSCore-Guides/service-introduction-0000001050040060 "Huawei Push Kit Integration Guide")
+
+The recommended way of using the SDK is to enable the Emarsys SDK to automatically handle `setPushToken` and `trackMessageOpen` calls for you, please register this service in your manifest:
+
+```xml
+<service
+    android:name="com.emarsys.service.EmarsysHuaweiMessagingService"
+    android:exported="false">
+    <intent-filter>
+        <action android:name="com.huawei.push.action.MESSAGING_EVENT"/>
+    </intent-filter>
+</service>
+```
+
+If it is needed, you can add your custom implementation to handle `setPushToken` and `trackMessageOpen`.
+
+###### Java
+```java
+public class MyMessagingService extends HmsMessageService {
+
+    @Override
+    public void onNewToken(String token) {
+        super.onNewToken(token);
+
+        Emarsys.Push.setPushToken(token);
+    }
+
+    @Override
+    public void onMessageReceived(RemoteMessage remoteMessage) {
+    super.onMessageReceived(remoteMessage);
+
+        boolean handledByEmarsysSDK = EmarsysHuaweiMessagingServiceUtils.handleMessage(this, remoteMessage);
+
+        if (!handledByEmarsysSDK) {
+            //handle your custom push message here
+            ...
+        }
+    }
+}
+```
+###### Kotlin
+```kotlin
+class MyMessagingService : HmsMessageService() {
+
+    override fun onNewToken(token: String?) {
+        super.onNewToken(token)
+        Emarsys.Push.setPushToken(token!!)
+    }
+
+    override fun onMessageReceived(remoteMessage: RemoteMessage?) {
+        super.onMessageReceived(remoteMessage)
+        val handledByEmarsysSDK =
+        EmarsysHuaweiMessagingServiceUtils.handleMessage(this, remoteMessage)
         if (!handledByEmarsysSDK) {
             //handle your custom push message here
             ...
