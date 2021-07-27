@@ -17,6 +17,8 @@ object Versions {
     const val securityCryptoVersion = "1.1.0-alpha03"
     const val byte_buddy_version = "1.11.6"
     const val google_tink_version = "1.6.1"
+    const val huawei_agconnect_core_version = "1.4.2.300"
+    const val huawei_hms_push_version = "5.1.1.301"
 }
 
 object Libs {
@@ -30,6 +32,8 @@ object Libs {
     const val lifecycle_compiler = "androidx.lifecycle:lifecycle-compiler:${Versions.archLifecycleVersion}"
     const val security_crypto = "androidx.security:security-crypto:${Versions.securityCryptoVersion}"
     const val google_tink = "com.google.crypto.tink:tink-android:${Versions.google_tink_version}"
+    const val huawei_agconnect_core = "com.huawei.agconnect:agconnect-core:${Versions.huawei_agconnect_core_version}"
+    const val huawei_hms_push = "com.huawei.hms:push:${Versions.huawei_hms_push_version}"
 }
 
 object TestLibs {
