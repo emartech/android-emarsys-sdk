@@ -15,13 +15,12 @@ fun setupAndLogin(uiDevice: UiDevice) {
     uiDevice.wait(Until.hasObject(By.text("CHANGE")), 10000)
 
     BaristaEditTextInteractions.writeTo(R.id.newApplicationCode, "EMS11-C3FD3")
-    BaristaEditTextInteractions.writeTo(R.id.newContactFieldId, "2575")
+    BaristaEditTextInteractions.writeTo(R.id.contactFieldId, "2575")
     BaristaClickInteractions.clickOn("CHANGE")
 
     BaristaScrollInteractions.scrollTo(R.id.loggedInContact)
     uiDevice.wait(Until.hasObject(By.textContains("Logged in as")), 10000)
     BaristaVisibilityAssertions.assertDisplayed(R.id.currentApplicationCode, "ApplicationCode: EMS11-C3FD3")
-    BaristaVisibilityAssertions.assertDisplayed(R.id.currentContactFieldId, "ContactFieldId: 2575")
 
     BaristaScrollInteractions.scrollTo(R.id.newApplicationCode)
     BaristaEditTextInteractions.writeTo(R.id.contactId, resolveApiLevelToContact())

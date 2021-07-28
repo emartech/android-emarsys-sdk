@@ -47,12 +47,11 @@ class DashboardFragmentTests {
 
         scrollTo(R.id.buttonSetupChange)
         writeTo(R.id.newApplicationCode, "EMS11-C3FD3")
-        writeTo(R.id.newContactFieldId, "2575")
+        writeTo(R.id.contactFieldId, "2575")
         clickOn("CHANGE")
 
         scrollTo(R.id.dashboardCard)
         assertDisplayed(R.id.currentApplicationCode, "ApplicationCode: EMS11-C3FD3")
-        assertDisplayed(R.id.currentContactFieldId, "ContactFieldId: 2575")
 
         scrollTo(R.id.newApplicationCode)
         writeTo(R.id.contactId, resolveApiLevelToContact())
@@ -73,12 +72,11 @@ class DashboardFragmentTests {
 
         scrollTo(R.id.buttonSetupChange)
         writeTo(R.id.newApplicationCode, "EMS-C3FD3")
-        writeTo(R.id.newContactFieldId, "2575")
+        writeTo(R.id.contactFieldId, "2575")
         clickOn("CHANGE")
 
         scrollTo(R.id.dashboardCard)
         assertDisplayed(R.id.currentApplicationCode, "ApplicationCode: not set")
-        assertDisplayed(R.id.currentContactFieldId, "ContactFieldId: 2575")
 
         scrollTo(R.id.newApplicationCode)
         writeTo(R.id.contactId, resolveApiLevelToContact())

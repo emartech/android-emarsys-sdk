@@ -78,19 +78,6 @@
                         app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
                     <TextView
-                        android:id="@+id/currentContactFieldId"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="@string/current_contact_field_id"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/currentApplicationCode" />
-
-                    <TextView
                         android:id="@+id/currentMerchantId"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -101,7 +88,7 @@
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/currentContactFieldId" />
+                        app:layout_constraintTop_toBottomOf="@+id/currentApplicationCode" />
 
                     <TextView
                         android:id="@+id/hardwareIdField"
@@ -247,7 +234,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         app:layout_constraintEnd_toStartOf="@+id/buttonLogin"
-                        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutContactId" />
+                        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutNewContactFieldId" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/buttonLogin"
@@ -259,7 +246,7 @@
                         android:text="@string/login_button_label"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/buttonLogout"
-                        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutContactId" />
+                        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutNewContactFieldId" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/buttonLogout"
@@ -291,6 +278,29 @@
                             android:hint="@string/contactField_hint"
                             android:importantForAutofill="no"
                             android:inputType="text"
+                            tools:targetApi="o" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/textInputLayoutNewContactFieldId"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutContactId">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/contactFieldId"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:hint="@string/change_contact_field_id_hint"
+                            android:importantForAutofill="no"
+                            android:inputType="numberDecimal"
                             tools:targetApi="o" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -360,7 +370,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.452"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutNewContactFieldId">
+                        app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/newMerchantId"
@@ -370,29 +380,6 @@
                             android:hint="@string/change_merchant_id_hint"
                             android:importantForAutofill="no"
                             android:inputType="text"
-                            tools:targetApi="o" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/textInputLayoutNewContactFieldId"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="8dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/newContactFieldId"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:ems="10"
-                            android:hint="@string/change_contact_field_id_hint"
-                            android:importantForAutofill="no"
-                            android:inputType="numberDecimal"
                             tools:targetApi="o" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -408,7 +395,6 @@
                         app:layout_constraintHorizontal_bias="0.452"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/changeSetupTitle">
-
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/newApplicationCode"
