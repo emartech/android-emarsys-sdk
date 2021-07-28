@@ -702,7 +702,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         ActionCommandFactory(
             config.application,
             eventServiceInternal,
-            onEventActionEventHandlerProvider,
+            notificationEventHandlerProvider,
             uiHandler
         )
     }
