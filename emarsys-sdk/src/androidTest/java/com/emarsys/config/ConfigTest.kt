@@ -85,7 +85,7 @@ class ConfigTest {
 
         config.changeApplicationCode("testApplicationCode", mockCompletionListener)
 
-        verify(mockConfigInternal).changeApplicationCode("testApplicationCode", 3, mockCompletionListener)
+        verify(mockConfigInternal).changeApplicationCode("testApplicationCode", mockCompletionListener)
     }
 
     @Test

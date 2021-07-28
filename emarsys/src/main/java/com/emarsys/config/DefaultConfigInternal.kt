@@ -66,21 +66,19 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     override val sdkVersion: String
         get() = deviceInfo.sdkVersion
 
-    private var originalContactFieldId: Int? = null
     private var originalPushToken: String? = null
 
     private var hasContactIdentification: Boolean = false
 
-    override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int?, completionListener: CompletionListener?) {
-        originalContactFieldId = mobileEngageRequestContext.contactFieldId
+    override fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?) {
         originalPushToken = pushTokenProvider.providePushToken()
         hasContactIdentification = mobileEngageRequestContext.hasContactIdentification()
 
         if (mobileEngageRequestContext.applicationCode == null) {
-            handleApplicationCodeChange(applicationCode, contactFieldId, completionListener)
+            handleApplicationCodeChange(applicationCode, completionListener)
         } else {
             clearUpPushTokenAndContact(completionListener) {
-                handleApplicationCodeChange(applicationCode, contactFieldId, completionListener)
+                handleApplicationCodeChange(applicationCode, completionListener)
             }
         }
     }
@@ -125,12 +123,11 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         }
     }
 
-    private fun handleApplicationCodeChange(applicationCode: String?, newContactFieldId: Int?, completionListener: CompletionListener?) {
+    private fun handleApplicationCodeChange(applicationCode: String?, completionListener: CompletionListener?) {
         if (applicationCode != null) {
             FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
             FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
             mobileEngageRequestContext.applicationCode = applicationCode
-            mobileEngageRequestContext.contactFieldId = newContactFieldId
             collectClientState(completionListener) {
                 clearContactIfWasNotIdentified(completionListener) {
                     completionListener?.onCompleted(null)
@@ -161,7 +158,6 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     private fun handleError(throwable: Throwable?, completionListener: CompletionListener?) {
         FeatureRegistry.disableFeature(InnerFeature.MOBILE_ENGAGE)
         mobileEngageRequestContext.applicationCode = null
-        mobileEngageRequestContext.contactFieldId = originalContactFieldId
         completionListener?.onCompleted(throwable)
     }
 

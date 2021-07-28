@@ -21,7 +21,7 @@ interface ConfigInternal {
 
     val sdkVersion: String
 
-    fun changeApplicationCode(applicationCode: String?, contactFieldId: Int?, completionListener: CompletionListener?)
+    fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?)
 
     fun changeMerchantId(merchantId: String?)
 

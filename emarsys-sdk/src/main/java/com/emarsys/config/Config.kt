@@ -32,33 +32,14 @@ class Config : ConfigApi {
         get() = emarsys().configInternal.sdkVersion
 
     override fun changeApplicationCode(applicationCode: String?) {
-        emarsys().configInternal
-            .changeApplicationCode(applicationCode, contactFieldId, null)
+        emarsys().configInternal.changeApplicationCode(applicationCode, null)
     }
 
-    override fun changeApplicationCode(
-        applicationCode: String?,
-        completionListener: CompletionListener?
-    ) {
-        emarsys().configInternal
-            .changeApplicationCode(applicationCode, contactFieldId, completionListener)
-    }
-
-    override fun changeApplicationCode(applicationCode: String?, contactFieldId: Int) {
-        changeApplicationCode(applicationCode, contactFieldId, null)
-    }
-
-    override fun changeApplicationCode(
-        applicationCode: String?,
-        contactFieldId: Int,
-        completionListener: CompletionListener?
-    ) {
-        emarsys().configInternal
-            .changeApplicationCode(applicationCode, contactFieldId, completionListener)
+    override fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?) {
+        emarsys().configInternal.changeApplicationCode(applicationCode, completionListener)
     }
 
     override fun changeMerchantId(merchantId: String?) {
-        emarsys().configInternal
-            .changeMerchantId(merchantId)
+        emarsys().configInternal.changeMerchantId(merchantId)
     }
 }
