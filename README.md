@@ -155,6 +155,8 @@ class MyMessagingService : FirebaseMessagingService() {
 > __Important Note__: Push sending for [Huawei is unavailable](https://developer.huawei.com/consumer/en/doc/HMSCore-Guides/emui-version-dependent-0000001050042515) for devices below API level 22!
 >
 > __Huawei Push Messaging__ is only available from Emarsys SDK 3.0.0!
+> 
+> Emarsys SDK checks if the device has Google Play Services available and if not, it is considered as a `Huawei` device. Please note that as Google Play Services is not availeble with Huawei only integrations, [Geofencing](https://github.com/emartech/android-emarsys-sdk/wiki#8-geofence) will not work!
 
 When the pushToken arrives we need to set it using `Emarsys.Push.setPushToken()`. For more information about how to obtain your
 HMS token please consult the Huawei integration guides:
