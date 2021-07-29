@@ -17,8 +17,8 @@ object Versions {
     const val securityCryptoVersion = "1.1.0-alpha03"
     const val byte_buddy_version = "1.11.9"
     const val google_tink_version = "1.6.1"
-    const val huawei_agconnect_core_version = "1.4.2.300"
-    const val huawei_hms_push_version = "5.1.1.301"
+    const val huawei_agconnect_core_version = "1.5.3.200"
+    const val huawei_hms_push_version = "5.3.0.304"
 }
 
 object Libs {

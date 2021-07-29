@@ -27,6 +27,9 @@ modules.each {
                     javaMaxHeapSize "4g"
                 }
             }
+            lintOptions {
+                checkDependencies true
+            }
             compileOptions {
                 coreLibraryDesugaringEnabled true
                 sourceCompatibility JavaVersion.VERSION_1_8
