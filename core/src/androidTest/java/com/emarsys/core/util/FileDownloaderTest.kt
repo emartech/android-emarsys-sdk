@@ -66,7 +66,12 @@ class FileDownloaderTest {
         val file = File(filePath)
         val fileInputStream: InputStream = FileInputStream(file)
         val remoteInputStream = fileDownloader.inputStreamFromUrl(path)
-        assertTrue(Arrays.equals(convertToByteArray(fileInputStream), convertToByteArray(remoteInputStream!!)))
+        try {
+            assertTrue(Arrays.equals(convertToByteArray(fileInputStream), convertToByteArray(remoteInputStream!!)))
+        } finally {
+            fileInputStream.close()
+            remoteInputStream?.close()
+        }
     }
 
     @Test
