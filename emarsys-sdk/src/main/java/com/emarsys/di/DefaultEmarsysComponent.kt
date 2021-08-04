@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Handler
 import android.util.Base64
+import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import com.emarsys.Emarsys
 import com.emarsys.EmarsysRequestModelFactory
@@ -245,7 +246,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         )
         val initializationActions = arrayOf<ActivityLifecycleAction?>(
             FetchGeofencesAction(geofenceInternal),
-            FetchRemoteConfigAction(configInternal),
+            FetchRemoteConfigAction(configInternal) { logInitialSetup(config) },
             InAppStartAction(eventServiceInternal, contactTokenStorage)
         )
 
@@ -926,5 +927,32 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                 deviceEventStateStorage
             )
         )
+    }
+
+    private fun logInitialSetup(emarsysConfig: EmarsysConfig) {
+        if (!emarsysConfig.verboseConsoleLoggingEnabled) {
+            return
+        }
+        Log.d("EMARSYS_SDK", "ApplicationCode : ${emarsysConfig.applicationCode}")
+        Log.d("EMARSYS_SDK", "MerchantId : ${emarsysConfig.merchantId}")
+        Log.d("EMARSYS_SDK", "ExperimentalFeatures : ${emarsysConfig.experimentalFeatures}")
+        Log.d("EMARSYS_SDK", "AutomaticPushSendingEnabled : ${emarsysConfig.automaticPushTokenSendingEnabled}")
+        Log.d("EMARSYS_SDK", "HardwareId : ${hardwareIdStorage.get()}")
+
+        Log.d("EMARSYS_SDK", "${MobileEngageStorageKey.EVENT_SERVICE_URL} : ${eventServiceStorage.get()}")
+        Log.d("EMARSYS_SDK", "${MobileEngageStorageKey.CLIENT_SERVICE_URL} : ${clientServiceStorage.get()}")
+        Log.d("EMARSYS_SDK", "${MobileEngageStorageKey.MESSAGE_INBOX_SERVICE_URL} : ${messageInboxServiceStorage.get()}")
+        Log.d("EMARSYS_SDK", "${MobileEngageStorageKey.DEEPLINK_SERVICE_URL} : ${deepLinkServiceStorage.get()}")
+        Log.d("EMARSYS_SDK", "${PredictStorageKey.PREDICT_SERVICE_URL} : ${predictServiceStorage.get()}")
+
+        Log.d("EMARSYS_SDK", "${MobileEngageStorageKey.CONTACT_TOKEN} : ${contactTokenStorage.get()}")
+        Log.d("EMARSYS_SDK", "${MobileEngageStorageKey.CLIENT_STATE} : ${clientStateStorage.get()}")
+        Log.d("EMARSYS_SDK", "${MobileEngageStorageKey.REFRESH_TOKEN} : ${refreshTokenStorage.get()}")
+        Log.d("EMARSYS_SDK", "${MobileEngageStorageKey.DEVICE_EVENT_STATE} : ${deviceEventStateStorage.get()}")
+        Log.d("EMARSYS_SDK", "${MobileEngageStorageKey.GEOFENCE_ENABLED} : ${emarsys().geofence.isEnabled()}")
+        Log.d("EMARSYS_SDK", "${MobileEngageStorageKey.GEOFENCE_INITIAL_ENTER_TRIGGER} : ${geofenceInitialEnterTriggerEnabledStorage.get()}")
+        Log.d("EMARSYS_SDK", "${MobileEngageStorageKey.PUSH_TOKEN} : ${pushTokenStorage.get()}")
+        Log.d("EMARSYS_SDK", "${MobileEngageStorageKey.DEVICE_INFO_HASH} : ${deviceInfoPayloadStorage.get()}")
+        Log.d("EMARSYS_SDK", "${CoreStorageKey.LOG_LEVEL} : ${logLevelStorage.get()}")
     }
 }

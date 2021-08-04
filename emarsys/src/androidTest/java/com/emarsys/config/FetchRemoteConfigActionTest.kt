@@ -1,5 +1,6 @@
 package com.emarsys.config
 
+import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.fake.FakeEmarsysDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
@@ -17,6 +18,7 @@ class FetchRemoteConfigActionTest {
 
     private lateinit var fetchAction: FetchRemoteConfigAction
     private lateinit var mockConfigInternal: ConfigInternal
+    private lateinit var mockCompletionListener: CompletionListener
 
     @Rule
     @JvmField
@@ -25,10 +27,11 @@ class FetchRemoteConfigActionTest {
     @Before
     fun setup() {
         mockConfigInternal = mock()
+        mockCompletionListener = mock()
 
         setupMobileEngageComponent(FakeEmarsysDependencyContainer())
 
-        fetchAction = FetchRemoteConfigAction(mockConfigInternal)
+        fetchAction = FetchRemoteConfigAction(mockConfigInternal, mockCompletionListener)
     }
 
     @After
@@ -39,7 +42,7 @@ class FetchRemoteConfigActionTest {
     @Test
     fun testExecute_invokesConfigInternalsRefreshRemoteConfigMethod() {
         fetchAction.execute(null)
-        verify(mockConfigInternal, timeout(100)).refreshRemoteConfig(null)
+        verify(mockConfigInternal, timeout(100)).refreshRemoteConfig(mockCompletionListener)
     }
 
 }

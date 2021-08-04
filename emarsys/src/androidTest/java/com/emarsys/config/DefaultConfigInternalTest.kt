@@ -82,6 +82,7 @@ class DefaultConfigInternalTest {
     private lateinit var mockLogLevelStorage: StringStorage
     private lateinit var mockCrypto: Crypto
     private lateinit var mockClientServiceInternal: ClientServiceInternal
+    private lateinit var mockCompletionListener: CompletionListener
 
     @Rule
     @JvmField
@@ -93,6 +94,8 @@ class DefaultConfigInternalTest {
         FeatureTestUtils.resetFeatures()
 
         latch = CountDownLatch(1)
+
+        mockCompletionListener = mock()
 
         mockPushTokenProvider = mock {
             on { providePushToken() } doReturn PUSH_TOKEN
@@ -868,7 +871,9 @@ class DefaultConfigInternalTest {
             (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
 
-        configInternal.refreshRemoteConfig(null)
+        configInternal.refreshRemoteConfig(mockCompletionListener)
+
+        verify(mockCompletionListener).onCompleted(any())
         verify(configInternal as DefaultConfigInternal).resetRemoteConfig()
         verify(configInternal as DefaultConfigInternal, times(0)).fetchRemoteConfig(any())
     }
@@ -899,8 +904,9 @@ class DefaultConfigInternalTest {
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfig(any())
         whenever(mockCrypto.verify(expectedResponseModel.body.toByteArray(), "signature")).thenReturn(true)
 
-        configInternal.refreshRemoteConfig(null)
+        configInternal.refreshRemoteConfig(mockCompletionListener)
 
+        verify(mockCompletionListener).onCompleted(anyOrNull())
         verify(mockCrypto).verify(expectedResponseModel.body.toByteArray(), "signature")
         verify(mockConfigResponseMapper).map(any())
         verify((configInternal as DefaultConfigInternal)).applyRemoteConfig(expectedRemoteConfig)
@@ -932,8 +938,9 @@ class DefaultConfigInternalTest {
             (it.arguments[0] as ResultListener<Try<ResponseModel>>).onResult(result)
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfig(any())
 
-        configInternal.refreshRemoteConfig(null)
+        configInternal.refreshRemoteConfig(mockCompletionListener)
 
+        verify(mockCompletionListener).onCompleted(any())
         verify(mockCrypto).verify(expectedResponseModel.body.toByteArray(), "signature")
         verify((configInternal as DefaultConfigInternal)).resetRemoteConfig()
         verifyZeroInteractions(mockConfigResponseMapper)
@@ -954,8 +961,9 @@ class DefaultConfigInternalTest {
             (it.arguments[0] as ResultListener<Try<ResponseModel>>).onResult(result)
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfig(any())
 
-        configInternal.refreshRemoteConfig(null)
+        configInternal.refreshRemoteConfig(mockCompletionListener)
 
+        verify(mockCompletionListener).onCompleted(any())
         verify(configInternal as DefaultConfigInternal).resetRemoteConfig()
     }
 
