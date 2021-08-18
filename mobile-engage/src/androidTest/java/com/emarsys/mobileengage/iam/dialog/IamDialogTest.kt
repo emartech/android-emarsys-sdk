@@ -61,9 +61,13 @@ class IamDialogTest {
         val mockUuidProvider: UUIDProvider = mock {
             on { provideId() } doReturn "uuid"
         }
-        setupMobileEngageComponent(FakeMobileEngageDependencyContainer(
+        setupMobileEngageComponent(
+            FakeMobileEngageDependencyContainer(
+                uiHandler = uiHandler,
                 timestampProvider = mockTimestampProvider,
-                uuidProvider = mockUuidProvider))
+                uuidProvider = mockUuidProvider
+            )
+        )
         initWebViewProvider()
     }
 
@@ -71,6 +75,18 @@ class IamDialogTest {
     fun tearDown() {
         tearDownMobileEngageComponent()
         setWebViewInProvider(null)
+    }
+
+    @Test
+    fun testDefaultConstructor() {
+        val dialog = IamDialog()
+
+        val dialogUiHandler = ReflectionTestUtils.getInstanceField<Handler>(dialog, "uiHandler")
+        val dialogTimestampProvider =
+            ReflectionTestUtils.getInstanceField<TimestampProvider>(dialog, "timestampProvider")
+
+        dialogUiHandler shouldBe uiHandler
+        dialogTimestampProvider shouldBe mockTimestampProvider
     }
 
     @Test

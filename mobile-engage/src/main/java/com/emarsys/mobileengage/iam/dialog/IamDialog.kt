@@ -23,12 +23,14 @@ import com.emarsys.core.util.log.entry.InAppLoadingTime
 import com.emarsys.core.util.log.entry.InAppLog
 import com.emarsys.core.util.log.entry.OnScreenTime
 import com.emarsys.mobileengage.R
+import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 
 @Mockable
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 class IamDialog(private val uiHandler: Handler, private val timestampProvider: TimestampProvider) : DialogFragment() {
+    constructor() : this(mobileEngage().uiHandler, mobileEngage().timestampProvider)
 
     companion object {
         const val TAG = "MOBILE_ENGAGE_IAM_DIALOG_TAG"
