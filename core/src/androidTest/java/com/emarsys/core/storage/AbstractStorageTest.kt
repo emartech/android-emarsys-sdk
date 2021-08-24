@@ -9,16 +9,18 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito
-import org.mockito.Mockito.*
+import org.mockito.Mockito.CALLS_REAL_METHODS
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 
 class AbstractStorageTest {
     private companion object {
         const val VALUE = "value"
     }
 
-    private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var storage: AbstractStorage<String, SharedPreferences>
+    private lateinit var mockSharedPreferences: SharedPreferences
+    private lateinit var mockStorage: AbstractStorage<String, SharedPreferences>
 
     @Rule
     @JvmField
@@ -27,10 +29,9 @@ class AbstractStorageTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
-        sharedPreferences = mock(SharedPreferences::class.java)
-        storage = (mock(AbstractStorage::class.java, Mockito.CALLS_REAL_METHODS) as AbstractStorage<String, SharedPreferences>).apply {
-            ReflectionTestUtils.setInstanceField(this, "store", sharedPreferences)
-        }
+        mockSharedPreferences = mock()
+        mockStorage = (mock(defaultAnswer = CALLS_REAL_METHODS) as AbstractStorage<String, SharedPreferences>)
+        ReflectionTestUtils.setInstanceField(mockStorage, "store", mockSharedPreferences)
     }
 
     @Test(expected = java.lang.IllegalArgumentException::class)
@@ -46,29 +47,29 @@ class AbstractStorageTest {
 
     @Test
     fun testGet_shouldReturnValueFromMemory() {
-        storage.set(VALUE)
+        mockStorage.set(VALUE)
 
-        val result = storage.get()
+        val result = mockStorage.get()
 
         result shouldBe VALUE
-        verify(storage, times(0)).readPersistedValue(sharedPreferences)
+        verify(mockStorage, times(0)).readPersistedValue(mockSharedPreferences)
     }
 
     @Test
     fun testSet_shouldPersistValue() {
-        storage.set(VALUE)
+        mockStorage.set(VALUE)
 
-        verify(storage).persistValue(sharedPreferences, VALUE)
+        verify(mockStorage).persistValue(mockSharedPreferences, VALUE)
     }
 
     @Test
     fun testGet_shouldReturnPersistedValueWhenImMemoryNotExists() {
         val persistedValue = "persisted"
-        whenever(storage.readPersistedValue(sharedPreferences)).thenReturn(persistedValue)
+        whenever(mockStorage.readPersistedValue(mockSharedPreferences)).thenReturn(persistedValue)
 
-        storage.remove()
+        mockStorage.remove()
 
-        val result = storage.get()
+        val result = mockStorage.get()
 
         result shouldBe persistedValue
     }
@@ -76,32 +77,32 @@ class AbstractStorageTest {
     @Test
     fun testGet_shouldCachePersistedValue_inMemory_whenNull() {
         val expected = "persistedAndStoredInMemory"
-        whenever(storage.readPersistedValue(sharedPreferences)).thenReturn(expected, null)
+        whenever(mockStorage.readPersistedValue(mockSharedPreferences)).thenReturn(expected, null)
 
-        storage.remove()
+        mockStorage.remove()
 
-        storage.get()
+        mockStorage.get()
 
-        val result = storage.get()
+        val result = mockStorage.get()
         result shouldBe expected
     }
 
     @Test
     fun testRemove_shouldRemoveInMemoryValue() {
-        storage.set(VALUE)
+        mockStorage.set(VALUE)
 
-        storage.remove()
+        mockStorage.remove()
 
-        val inMemoryValue = ReflectionTestUtils.getInstanceField<String>(storage, "value")
+        val inMemoryValue = ReflectionTestUtils.getInstanceField<String>(mockStorage, "value")
 
         inMemoryValue shouldBe null
     }
 
     @Test
     fun testRemove_shouldRemovePersistedValue() {
-        storage.remove()
+        mockStorage.remove()
 
-        verify(storage).removePersistedValue(sharedPreferences)
+        verify(mockStorage).removePersistedValue(mockSharedPreferences)
     }
 }
 

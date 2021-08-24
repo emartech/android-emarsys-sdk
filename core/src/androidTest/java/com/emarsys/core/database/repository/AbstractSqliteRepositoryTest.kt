@@ -22,18 +22,13 @@ import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.anyNotNull
-import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.Mockito
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
+import org.mockito.kotlin.*
 import java.util.*
 
 class AbstractSqliteRepositoryTest {
@@ -75,14 +70,15 @@ class AbstractSqliteRepositoryTest {
                 LIMIT
         )
 
-        dbMock = mock(CoreSQLiteDatabase::class.java)
+        dbMock = mock()
 
-        dbHelperMock = mock(DbHelper::class.java).apply {
-            whenever(readableCoreDatabase).thenReturn(dbMock)
-            whenever(writableCoreDatabase).thenReturn(dbMock)
+        dbHelperMock = mock {
+            on { readableCoreDatabase } doReturn dbMock
+            on { writableCoreDatabase } doReturn dbMock
         }
 
-        repository = (mock(AbstractSqliteRepository::class.java, Mockito.CALLS_REAL_METHODS) as AbstractSqliteRepository<Any>).apply {
+
+        repository = (mock(defaultAnswer = Mockito.CALLS_REAL_METHODS) as AbstractSqliteRepository<Any>).apply {
             tableName = TABLE_NAME
             dbHelper = dbHelperMock
         }
@@ -93,9 +89,9 @@ class AbstractSqliteRepositoryTest {
         val contentValues = ContentValues().apply {
             put("key", "value")
         }
-        whenever(repository.contentValuesFromItem(anyNotNull())).thenReturn(contentValues)
+        whenever(repository.contentValuesFromItem(anyOrNull())).thenReturn(contentValues)
 
-        val input = anyNotNull<Any>()
+        val input = any<Any>()
 
         repository.add(input)
 
@@ -127,11 +123,10 @@ class AbstractSqliteRepositoryTest {
 
     @Test
     fun testQuery_shouldReturnCorrectResult() {
-        val cursor = mock(Cursor::class.java).apply {
-            whenever(moveToFirst()).thenReturn(true)
-            whenever(isAfterLast).thenReturn(false, false, false, true)
+        val cursor = mock<Cursor> {
+            on { moveToFirst() } doReturn true
         }
-
+        whenever(cursor.isAfterLast).thenReturn(false, false, false, true)
         whenever(dbMock.query(
                 DISTINCT,
                 TABLE_NAME,
@@ -167,8 +162,8 @@ class AbstractSqliteRepositoryTest {
 
     @Test
     fun testQuery_shouldReturnCorrectResult_whenCursorIsEmpty() {
-        val cursor = mock(Cursor::class.java).apply {
-            whenever(moveToFirst()).thenReturn(false)
+        val cursor = mock<Cursor> {
+            on { moveToFirst() } doReturn false
         }
 
         whenever(dbMock.query(
@@ -233,10 +228,10 @@ class AbstractSqliteRepositoryTest {
 
     @Test
     fun testCursor_shouldBeClosed_afterException() {
-        val mockCursor = mock(Cursor::class.java).apply {
-            whenever(moveToFirst()).thenThrow(RuntimeException("TestException"))
+        val mockCursor = mock<Cursor> {
+            on { moveToFirst() } doThrow RuntimeException("TestException")
         }
-        whenever(dbMock.query(anyBoolean(), anyNotNull(), anyNotNull(), anyNotNull(), anyNotNull(), anyNotNull(), anyNotNull(), anyNotNull(), anyNotNull())).thenReturn(mockCursor)
+        whenever(dbMock.query(any(), any(), any(), any(), any(), any(), any(), any(), any())).thenReturn(mockCursor)
         try {
             repository.query(dummySpecification)
         } catch (ignored: RuntimeException) {
