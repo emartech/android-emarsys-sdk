@@ -22,9 +22,14 @@ class LaunchActivityCommandLifecycleCallbacks(private val latch: CountDownLatch)
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+        countDownIfEmarsysPackage(activity)
     }
 
     override fun onActivityResumed(activity: Activity) {
+        countDownIfEmarsysPackage(activity)
+    }
+
+    private fun countDownIfEmarsysPackage(activity: Activity) {
         val launchIntent = activity.packageManager.getLaunchIntentForPackage(activity.packageName)
 
         if (launchIntent?.resolveActivity(activity.packageManager)?.shortClassName?.endsWith(activity.localClassName) == true) {
