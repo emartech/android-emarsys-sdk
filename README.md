@@ -166,6 +166,13 @@ HMS token please consult the Huawei integration guides:
 The recommended way of using the SDK is to enable the Emarsys SDK to automatically handle `setPushToken` and `trackMessageOpen` calls for you, please register this service in your manifest:
 
 ```xml
+
+<meta-data
+    android:name="com.huawei.hms.client.channel.androidMarket"
+    android:value="false" />
+<meta-data
+android:name="push_kit_auto_init_enabled"
+android:value="true" />
 <service
     android:name="com.emarsys.service.EmarsysHuaweiMessagingService"
     android:exported="false">
