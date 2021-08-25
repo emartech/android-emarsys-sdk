@@ -51,7 +51,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                               private val geofencePendingIntentProvider: GeofencePendingIntentProvider,
                               coreSdkHandler: CoreSdkHandler,
                               private val uiHandler: Handler,
-                              initialEnterTriggerEnabledStorage: Storage<Boolean?>
+                              private val initialEnterTriggerEnabledStorage: Storage<Boolean?>
 ) : GeofenceInternal, LocationListener {
     private companion object {
         const val FASTEST_INTERNAL: Long = 15_000
@@ -272,6 +272,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
 
     override fun setInitialEnterTriggerEnabled(enabled: Boolean) {
         this.initialEnterTriggerEnabled = enabled
+        initialEnterTriggerEnabledStorage.set(enabled)
     }
 
     private fun createActionsFromTriggers(geofence: MEGeofence, triggerType: TriggerType): List<Runnable?> {

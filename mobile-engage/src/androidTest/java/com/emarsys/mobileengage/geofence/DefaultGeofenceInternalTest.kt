@@ -448,6 +448,7 @@ class DefaultGeofenceInternalTest {
         geofenceInternal.setInitialEnterTriggerEnabled(true)
         geofenceInternal.registerGeofences(nearestGeofencesWithoutRefreshArea + refreshArea)
 
+        verify(mockInitialEnterTriggerEnabledStorage).set(true)
         argumentCaptor<GeofencingRequest>().apply {
             verify(mockGeofencingClient).addGeofences(capture(), any())
 
