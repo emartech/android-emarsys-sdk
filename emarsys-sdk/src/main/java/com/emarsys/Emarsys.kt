@@ -13,6 +13,8 @@ import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.trigger.TriggerEvent
 import com.emarsys.core.database.trigger.TriggerType
 import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.CrashLog
 import com.emarsys.di.DefaultEmarsysDependencies
 import com.emarsys.di.EmarsysDependencyInjection
 import com.emarsys.di.emarsys
@@ -75,9 +77,16 @@ object Emarsys {
             DefaultEmarsysDependencies(emarsysConfig)
         }
 
+        emarsys().uiHandler.post {
+            try {
+                registerLifecycleObservers()
+            } catch (e: Throwable) {
+                Logger.error(CrashLog(e))
+            }
+        }
+
         emarsys().coreSdkHandler.post {
             registerWatchDogs(emarsysConfig)
-            registerLifecycleObservers()
             registerDatabaseTriggers()
 
             if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)) {
@@ -88,25 +97,23 @@ object Emarsys {
 
     private fun registerLifecycleObservers() {
         val appLifecycleObserver = emarsys().appLifecycleObserver
-        emarsys().uiHandler.post {
-            ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
-        }
+        ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
     }
 
     @JvmStatic
     @JvmOverloads
     fun setAuthenticatedContact(
-        contactFieldId: Int,
-        openIdToken: String,
-        completionListener: CompletionListener? = null
+            contactFieldId: Int,
+            openIdToken: String,
+            completionListener: CompletionListener? = null
     ) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            && !FeatureRegistry.isFeatureEnabled(PREDICT)
+                || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
+                && !FeatureRegistry.isFeatureEnabled(PREDICT)
         ) {
             EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
-                .setAuthenticatedContact(contactFieldId, openIdToken, completionListener)
+                    .proxyApi(mobileEngage().coreSdkHandler)
+                    .setAuthenticatedContact(contactFieldId, openIdToken, completionListener)
         }
 
         FeatureRegistry.disableFeature(PREDICT)
@@ -115,22 +122,22 @@ object Emarsys {
     @JvmStatic
     @JvmOverloads
     fun setContact(
-        contactFieldId: Int,
-        contactFieldValue: String,
-        completionListener: CompletionListener? = null
+            contactFieldId: Int,
+            contactFieldValue: String,
+            completionListener: CompletionListener? = null
     ) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            && !FeatureRegistry.isFeatureEnabled(PREDICT)
+                || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
+                && !FeatureRegistry.isFeatureEnabled(PREDICT)
         ) {
             EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
-                .setContact(contactFieldId, contactFieldValue, completionListener)
+                    .proxyApi(mobileEngage().coreSdkHandler)
+                    .setContact(contactFieldId, contactFieldValue, completionListener)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.predictRestrictedApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
-                .setContact(contactFieldId, contactFieldValue)
+                    .proxyApi(mobileEngage().coreSdkHandler)
+                    .setContact(contactFieldId, contactFieldValue)
         }
     }
 
@@ -138,47 +145,47 @@ object Emarsys {
     @JvmOverloads
     fun clearContact(completionListener: CompletionListener? = null) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            && !FeatureRegistry.isFeatureEnabled(PREDICT)
+                || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
+                && !FeatureRegistry.isFeatureEnabled(PREDICT)
         ) {
             EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
-                .clearContact(completionListener)
+                    .proxyApi(mobileEngage().coreSdkHandler)
+                    .clearContact(completionListener)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.predictRestrictedApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
-                .clearContact()
+                    .proxyApi(mobileEngage().coreSdkHandler)
+                    .clearContact()
         }
     }
 
     @JvmStatic
     @JvmOverloads
     fun trackDeepLink(
-        activity: Activity,
-        intent: Intent,
-        completionListener: CompletionListener? = null
+            activity: Activity,
+            intent: Intent,
+            completionListener: CompletionListener? = null
     ) {
         EmarsysDependencyInjection.deepLinkApi()
-            .proxyApi(mobileEngage().coreSdkHandler)
-            .trackDeepLinkOpen(activity, intent, completionListener)
+                .proxyApi(mobileEngage().coreSdkHandler)
+                .trackDeepLinkOpen(activity, intent, completionListener)
     }
 
     @JvmStatic
     @JvmOverloads
     fun trackCustomEvent(
-        eventName: String,
-        eventAttributes: Map<String, String>?,
-        completionListener: CompletionListener? = null
+            eventName: String,
+            eventAttributes: Map<String, String>?,
+            completionListener: CompletionListener? = null
     ) {
         EmarsysDependencyInjection.eventServiceApi()
-            .proxyApi(mobileEngage().coreSdkHandler)
-            .trackCustomEventAsync(eventName, eventAttributes, completionListener)
+                .proxyApi(mobileEngage().coreSdkHandler)
+                .trackCustomEventAsync(eventName, eventAttributes, completionListener)
     }
 
     private fun registerWatchDogs(config: EmarsysConfig) {
         config.application.registerActivityLifecycleCallbacks(
-            emarsys().activityLifecycleWatchdog
+                emarsys().activityLifecycleWatchdog
         )
         config.application.registerActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
     }
@@ -186,21 +193,21 @@ object Emarsys {
     private fun registerDatabaseTriggers() {
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             emarsys().coreSQLiteDatabase
-                .registerTrigger(
-                    DatabaseContract.SHARD_TABLE_NAME,
-                    TriggerType.AFTER,
-                    TriggerEvent.INSERT,
-                    emarsys().predictShardTrigger
-                )
+                    .registerTrigger(
+                            DatabaseContract.SHARD_TABLE_NAME,
+                            TriggerType.AFTER,
+                            TriggerEvent.INSERT,
+                            emarsys().predictShardTrigger
+                    )
         }
 
         emarsys().coreSQLiteDatabase
-            .registerTrigger(
-                DatabaseContract.SHARD_TABLE_NAME,
-                TriggerType.AFTER,
-                TriggerEvent.INSERT,
-                emarsys().logShardTrigger
-            )
+                .registerTrigger(
+                        DatabaseContract.SHARD_TABLE_NAME,
+                        TriggerType.AFTER,
+                        TriggerEvent.INSERT,
+                        emarsys().logShardTrigger
+                )
     }
 
     private fun initializeMobileEngageContact() {
@@ -213,12 +220,12 @@ object Emarsys {
         if (contactToken == null && !requestContext.hasContactIdentification()) {
             if (clientState == null || deviceInfoPayload != null && deviceInfoPayload != deviceInfo.deviceInfoPayload) {
                 EmarsysDependencyInjection.clientServiceApi()
-                    .proxyWithLogExceptions()
-                    .trackDeviceInfo(null)
+                        .proxyWithLogExceptions()
+                        .trackDeviceInfo(null)
             }
             EmarsysDependencyInjection.mobileEngageApi()
-                .proxyWithLogExceptions()
-                .setContact()
+                    .proxyWithLogExceptions()
+                    .setContact()
         }
     }
 }

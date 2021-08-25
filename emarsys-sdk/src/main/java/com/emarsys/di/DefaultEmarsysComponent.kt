@@ -154,7 +154,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         GoogleApiAvailabilityLight.getInstance()
             .isGooglePlayServicesAvailable(config.application) == ConnectionResult.SUCCESS
 
-    override val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+    final override val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
 
     override val uiHandler: Handler = Handler(config.application.mainLooper)
 

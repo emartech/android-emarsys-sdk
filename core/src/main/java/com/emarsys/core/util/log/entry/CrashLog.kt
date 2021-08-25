@@ -2,7 +2,7 @@ package com.emarsys.core.util.log.entry
 
 import java.util.*
 
-class CrashLog(val throwable: Throwable?) : LogEntry {
+class CrashLog(val throwable: Throwable?, additionalInformation: String? = null) : LogEntry {
     override val data: Map<String, Any?>
     override val topic: String
         get() = "log_crash"
@@ -12,8 +12,9 @@ class CrashLog(val throwable: Throwable?) : LogEntry {
             mapOf(
                     "exception" to throwable.javaClass.name,
                     "reason" to throwable.message,
+                    "additionalInformation" to additionalInformation,
                     "stackTrace" to getStackTrace(throwable)
-            )
+            ).filterValues { it != null }
         } else {
             emptyMap()
         }
