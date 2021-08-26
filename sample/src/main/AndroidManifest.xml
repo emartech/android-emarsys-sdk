@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.emarsys.sample">
+    package="com.emarsys.sample"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -19,9 +21,16 @@
             android:value="false" />
         <meta-data
             android:name="push_kit_auto_init_enabled"
-            android:value="true" />
-
-        <activity android:name="com.emarsys.sample.MainActivity">
+            android:value="false" />
+        <receiver android:name="com.huawei.hms.support.api.push.PushMsgReceiver"
+            android:exported="false"
+            tools:node="merge" />
+        <receiver android:name="com.huawei.hms.support.api.push.PushReceiver"
+            android:exported="false"
+            tools:node="merge" />
+        <activity
+            android:name="com.emarsys.sample.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -56,7 +65,9 @@
             android:name="com.emarsys.mobileengage.notification_color"
             android:resource="@color/colorPrimary" />
 
-        <service android:name="com.emarsys.service.EmarsysFirebaseMessagingService">
+        <service
+            android:name="com.emarsys.service.EmarsysFirebaseMessagingService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

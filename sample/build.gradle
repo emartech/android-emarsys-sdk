@@ -13,8 +13,8 @@ android {
     compileSdkVersion Config.targetApiLevel
     defaultConfig {
         applicationId "com.emarsys.sample"
-        minSdkVersion 21
-        targetSdkVersion 30
+        minSdkVersion 24
+        targetSdkVersion 31
         multiDexEnabled true
         versionCode gitVersionCode
         versionName gitVersionName

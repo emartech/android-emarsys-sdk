@@ -16,6 +16,6 @@ public class HideNotificationShadeCommand implements Runnable {
 
     @Override
     public void run() {
-        context.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+       // context.sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
     }
 }

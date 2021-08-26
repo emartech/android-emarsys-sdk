@@ -21,7 +21,7 @@ object IntentUtils {
             context: Context, remoteMessageData: Map<String, String?>,
             notificationId: Int,
             action: String?): Intent {
-        val intent = Intent(context, NotificationHandlerService::class.java)
+        val intent = Intent(context, NotificationOpenedActivity::class.java)
         if (action != null) {
             intent.action = action
         }
@@ -50,10 +50,10 @@ object IntentUtils {
             notificationId: Int,
             action: String?): PendingIntent {
         val intent = createNotificationHandlerServiceIntent(context, remoteMessageData, notificationId, action)
-        return PendingIntent.getService(
+        return PendingIntent.getActivity(
                 context,
                 (System.currentTimeMillis() % Int.MAX_VALUE).toInt(),
                 intent,
-                0)
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
     }
 }

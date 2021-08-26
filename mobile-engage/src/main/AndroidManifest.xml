@@ -3,8 +3,11 @@
 
     <application>
 
-        <service android:name=".service.NotificationHandlerService" />
+        <activity
+            android:name=".service.NotificationOpenedActivity"
+            android:exported="true">
 
+        </activity>
     </application>
 
 </manifest>
