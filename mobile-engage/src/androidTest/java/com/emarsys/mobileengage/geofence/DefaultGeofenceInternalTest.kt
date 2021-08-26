@@ -91,7 +91,7 @@ class DefaultGeofenceInternalTest {
             on { createFetchGeofenceRequest() } doReturn mock()
         }
         val intent = Intent("com.emarsys.sdk.GEOFENCE_ACTION")
-        val pendingIntent: PendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent: PendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
         mockPendingIntentProvider = mock {
             on { providePendingIntent() } doReturn pendingIntent
