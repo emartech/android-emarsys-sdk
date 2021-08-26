@@ -5,6 +5,7 @@
     <application>
         <activity
             android:name=".fake.FakeActivity"
+            android:exported="true"
             android:theme="@style/Base.Theme.AppCompat.Light" />
     </application>
 </manifest>
