@@ -293,7 +293,7 @@ class NotificationCommandFactoryTest {
 
         command as CompositeCommand
 
-        command.commands.size shouldBe 5
+        command.commands.size shouldBe 4
         contains<DismissNotificationCommand>(command) shouldBe true
         contains<TrackActionClickCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
@@ -495,7 +495,7 @@ class NotificationCommandFactoryTest {
         val compositeCommands = factory.createNotificationCommand(intent) as CompositeCommand
         val result = compositeCommands.commands
 
-        result[3]::class.java shouldBe LaunchApplicationCommand::class.java
+        result[2]::class.java shouldBe LaunchApplicationCommand::class.java
     }
 
     @Test

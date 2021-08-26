@@ -122,6 +122,8 @@ class InappNotificationIntegrationTest {
 
         completionListenerLatch.await()
         verify(mockInappPresenterOverlay).present(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
+
+        activityRule.finishActivity()
     }
 
 }
