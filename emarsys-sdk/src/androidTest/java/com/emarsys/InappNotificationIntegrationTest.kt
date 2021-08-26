@@ -114,8 +114,9 @@ class InappNotificationIntegrationTest {
                 0,
                 null
         )
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-        context.startService(intent)
+        context.startActivity(intent)
 
         activityRule.launchActivity(Intent())
 
