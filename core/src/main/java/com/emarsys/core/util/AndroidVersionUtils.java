@@ -7,6 +7,7 @@ public class AndroidVersionUtils {
     public static boolean isOreoOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
+
     public static boolean isNougatOrAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
@@ -21,5 +22,9 @@ public class AndroidVersionUtils {
 
     public static boolean isBelowQ() {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.Q;
+    }
+
+    public static boolean isBelowS() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.S;
     }
 }

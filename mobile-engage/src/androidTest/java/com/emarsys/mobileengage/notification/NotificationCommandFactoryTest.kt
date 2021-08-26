@@ -98,7 +98,6 @@ class NotificationCommandFactoryTest {
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
-        contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackMessageOpenCommand>(command) shouldBe true
     }
 
@@ -108,7 +107,6 @@ class NotificationCommandFactoryTest {
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
-        contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackActionClickCommand>(command) shouldBe true
     }
 
@@ -118,7 +116,6 @@ class NotificationCommandFactoryTest {
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
-        contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackMessageOpenCommand>(command) shouldBe true
     }
 
@@ -134,7 +131,6 @@ class NotificationCommandFactoryTest {
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
-        contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackMessageOpenCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
         command.commands.filterIsInstance<AppEventCommand>().size shouldBe 2
@@ -178,7 +174,6 @@ class NotificationCommandFactoryTest {
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
-        contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackMessageOpenCommand>(command) shouldBe true
         contains<OpenExternalUrlCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
@@ -203,7 +198,6 @@ class NotificationCommandFactoryTest {
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
-        contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackMessageOpenCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
 
@@ -220,7 +214,6 @@ class NotificationCommandFactoryTest {
         command as CompositeCommand
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
-        contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackMessageOpenCommand>(command) shouldBe true
         contains<CustomEventCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
@@ -284,7 +277,6 @@ class NotificationCommandFactoryTest {
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
-        contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackActionClickCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
         command.commands.filterIsInstance<AppEventCommand>().size shouldBe 2
@@ -303,7 +295,6 @@ class NotificationCommandFactoryTest {
 
         command.commands.size shouldBe 5
         contains<DismissNotificationCommand>(command) shouldBe true
-        contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackActionClickCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
         contains<NotificationInformationCommand>(command) shouldBe true
@@ -407,7 +398,6 @@ class NotificationCommandFactoryTest {
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
-        contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackActionClickCommand>(command) shouldBe true
         contains<OpenExternalUrlCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true
@@ -433,7 +423,6 @@ class NotificationCommandFactoryTest {
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
-        contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackActionClickCommand>(command) shouldBe true
     }
 
@@ -449,7 +438,6 @@ class NotificationCommandFactoryTest {
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
-        contains<HideNotificationShadeCommand>(command) shouldBe true
         contains<TrackActionClickCommand>(command) shouldBe true
         contains<CustomEventCommand>(command) shouldBe true
         contains<AppEventCommand>(command) shouldBe true

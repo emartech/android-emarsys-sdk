@@ -60,7 +60,6 @@ class NotificationCommandFactory(private val context: Context) {
 
     private fun createMandatoryCommands(intent: Intent, bundle: Bundle?): MutableList<Runnable?> {
         val commands: MutableList<Runnable?> = ArrayList()
-        commands.add(HideNotificationShadeCommand(context))
         commands.add(DismissNotificationCommand(context, intent))
         if (bundle != null) {
             commands.add(actionCommandFactory.createActionCommand(createActionCommandPayload(bundle)))
