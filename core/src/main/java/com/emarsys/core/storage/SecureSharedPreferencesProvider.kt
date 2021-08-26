@@ -2,24 +2,14 @@ package com.emarsys.core.storage
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Build
-import android.security.KeyPairGeneratorSpec
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import androidx.annotation.RequiresApi
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme
 import androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme
 import androidx.security.crypto.MasterKey
-import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.StatusLog
-import java.math.BigInteger
-import java.security.KeyPair
-import java.security.KeyPairGenerator
-import java.util.*
-import javax.security.auth.x500.X500Principal
-import kotlin.math.abs
 
 class SecureSharedPreferencesProvider(context: Context, fileName: String, oldSharedPreferences: SharedPreferences) {
 
@@ -28,22 +18,13 @@ class SecureSharedPreferencesProvider(context: Context, fileName: String, oldSha
     init {
         sharedPreferences =
                 try {
-                    if (!AndroidVersionUtils.isBelowMarshmallow()) {
-                        EncryptedSharedPreferences.create(
-                                context,
-                                fileName,
-                                createMasterKey(context),
-                                PrefKeyEncryptionScheme.AES256_SIV,
-                                PrefValueEncryptionScheme.AES256_GCM
-                        )
-                    } else {
-                        EncryptedSharedPreferences.create(
-                                fileName,
-                                createMasterKeyBelowM(context),
-                                context,
-                                PrefKeyEncryptionScheme.AES256_SIV,
-                                PrefValueEncryptionScheme.AES256_GCM)
-                    }
+                    EncryptedSharedPreferences.create(
+                            context,
+                            fileName,
+                            createMasterKey(context),
+                            PrefKeyEncryptionScheme.AES256_SIV,
+                            PrefValueEncryptionScheme.AES256_GCM
+                    )
                 } catch (e: Exception) {
                     EmarsysSecureSharedPreferences.create(
                             fileName,
@@ -69,31 +50,6 @@ class SecureSharedPreferencesProvider(context: Context, fileName: String, oldSha
         }
     }
 
-    private fun createMasterKeyBelowM(context: Context): String {
-        val alias = MasterKey.DEFAULT_MASTER_KEY_ALIAS
-        val start: Calendar = GregorianCalendar()
-        val end: Calendar = GregorianCalendar()
-        end.add(Calendar.YEAR, 30)
-
-        val spec = KeyPairGeneratorSpec.Builder(context)
-                .setAlias(alias)
-                .setSubject(X500Principal("CN=$alias"))
-                .setSerialNumber(BigInteger.valueOf(abs(alias.hashCode().toLong())))
-                .setStartDate(start.time)
-                .setEndDate(end.time)
-                .build()
-
-        val kpGenerator: KeyPairGenerator = KeyPairGenerator.getInstance(
-                "RSA",
-                "AndroidKeyStore"
-        )
-        kpGenerator.initialize(spec)
-        val kp: KeyPair = kpGenerator.generateKeyPair()
-
-        return kp.public.toString()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
     private fun createMasterKey(context: Context): MasterKey {
         val spec = KeyGenParameterSpec.Builder(
                 MasterKey.DEFAULT_MASTER_KEY_ALIAS,

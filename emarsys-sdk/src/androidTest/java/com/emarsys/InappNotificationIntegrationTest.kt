@@ -3,7 +3,8 @@ package com.emarsys
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import androidx.test.rule.ActivityTestRule
+import androidx.lifecycle.Lifecycle
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.app.AppLifecycleObserver
@@ -43,7 +44,7 @@ class InappNotificationIntegrationTest {
 
     @Rule
     @JvmField
-    val activityRule = ActivityTestRule(FakeActivity::class.java, false, false)
+    var activityScenarioRule: ActivityScenarioRule<FakeActivity> = ActivityScenarioRule(FakeActivity::class.java)
 
     @Rule
     @JvmField
@@ -118,12 +119,10 @@ class InappNotificationIntegrationTest {
 
         context.startActivity(intent)
 
-        activityRule.launchActivity(Intent())
+        activityScenarioRule.scenario.moveToState(Lifecycle.State.CREATED)
 
         completionListenerLatch.await()
         verify(mockInappPresenterOverlay).present(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
-
-        activityRule.finishActivity()
     }
 
 }

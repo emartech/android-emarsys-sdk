@@ -1,8 +1,6 @@
 package com.emarsys.mobileengage.service
 
 import android.content.Context
-import android.os.Build
-import androidx.test.filters.SdkSuppress
 import com.emarsys.core.api.notification.ChannelSettings
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
@@ -41,7 +39,6 @@ import java.util.*
 class RemoteMessageMapperTest {
     private companion object {
         const val TITLE = "title"
-        const val DEFAULT_TITLE = "emarsys-mobile-engage-android-test"
         const val BODY = "body"
         const val CHANNEL_ID = "channelId"
         const val HARDWARE_ID = "hwid"
@@ -150,23 +147,7 @@ class RemoteMessageMapperTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
-    fun testMap_whenTitleIsMissing_andVersionBelowMarshmallow() {
-        val input: MutableMap<String, String> = HashMap()
-        input["body"] = BODY
-        input["channel_id"] = CHANNEL_ID
-
-        val notificationData = remoteMessageMapper.map(input)
-
-        notificationData.body shouldBe  BODY
-        notificationData.style shouldBe  ""
-        notificationData.title shouldBe  DEFAULT_TITLE
-        notificationData.channelId shouldBe  CHANNEL_ID
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
-    fun testMap_whenTitleIsMissing_andVersionAboveMarshmallow() {
+    fun testMap_whenTitleIsMissing() {
         val input: MutableMap<String, String> = HashMap()
         input["body"] = BODY
         input["channel_id"] = CHANNEL_ID
@@ -212,61 +193,4 @@ class RemoteMessageMapperTest {
 
         notificationData.image shouldBe  null
     }
-
-    @Test
-    fun testGetTitle_withTitleSet() {
-        val input: MutableMap<String, String> = HashMap()
-        input["title"] = TITLE
-        remoteMessageMapper.getTitle(input, context) shouldBe TITLE
-    }
-
-    @Test
-    fun testGetTitle_shouldReturnAppName_whenTitleNotSet() {
-        val input: MutableMap<String, String> = HashMap()
-        input["key1"] = "value1"
-        input["key2"] = "value2"
-        val expectedBefore23 = applicationName
-        val expectedFrom23 = null
-        val expected = expectedBasedOnApiLevel(expectedBefore23, expectedFrom23)
-        remoteMessageMapper.getTitle(input, context) shouldBe expected
-    }
-
-    @Test
-    fun testGetTitle_shouldReturnAppName_whenTitleIsEmpty() {
-        val input: MutableMap<String, String> = HashMap()
-        input["key1"] = "value1"
-        input["key2"] = "value2"
-        input["title"] = ""
-        val expectedBefore23 = applicationName
-        val expectedFrom23 = null
-        val expected = expectedBasedOnApiLevel(expectedBefore23, expectedFrom23)
-        remoteMessageMapper.getTitle(input, context) shouldBe expected
-    }
-
-    @Test
-    fun testGetTitle_defaultTitleShouldNotOverrideTitle() {
-        val input: MutableMap<String, String> = HashMap()
-        input["key1"] = "value1"
-        input["key2"] = "value2"
-        input["title"] = TITLE
-        input["u"] = "{\"test_field\":\"\",\"ems_default_title\":\"${DEFAULT_TITLE}\",\"image\":\"https:\\/\\/media.giphy.com\\/media\\/ktvFa67wmjDEI\\/giphy.gif\",\"deep_link\":\"lifestylelabels.com\\/mobile\\/product\\/3245678\",\"sid\":\"sid_here\"}"
-
-        remoteMessageMapper.getTitle(input, context) shouldBe TITLE
-    }
-
-
-    private fun expectedBasedOnApiLevel(before23: String?, fromApi23: String?): String? {
-        return if (Build.VERSION.SDK_INT < 23) {
-            before23
-        } else {
-            fromApi23
-        }
-    }
-
-    private val applicationName: String
-        get() {
-            val applicationInfo = context.applicationInfo
-            val stringId = applicationInfo.labelRes
-            return if (stringId == 0) applicationInfo.nonLocalizedLabel.toString() else context.getString(stringId)
-        }
 }
