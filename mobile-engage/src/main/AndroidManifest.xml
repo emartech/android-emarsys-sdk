@@ -2,11 +2,10 @@
     package="com.emarsys.mobileengage">
 
     <application>
-
         <activity
             android:name=".service.NotificationOpenedActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:exported="true">
-
         </activity>
     </application>
 

@@ -22,12 +22,6 @@
         <meta-data
             android:name="push_kit_auto_init_enabled"
             android:value="false" />
-        <receiver android:name="com.huawei.hms.support.api.push.PushMsgReceiver"
-            android:exported="false"
-            tools:node="merge" />
-        <receiver android:name="com.huawei.hms.support.api.push.PushReceiver"
-            android:exported="false"
-            tools:node="merge" />
         <activity
             android:name="com.emarsys.sample.MainActivity"
             android:exported="true">
