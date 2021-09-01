@@ -1,4 +1,3 @@
 #!/bin/bash
 
-cd android-emarsys-sdk
-./gradlew build
+./gradlew build -x :sample:build
