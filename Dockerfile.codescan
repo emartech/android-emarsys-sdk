@@ -1,0 +1,12 @@
+FROM thyrlian/android-sdk
+USER root
+
+RUN mkdir -p /workspace/source
+RUN chown root /workspace/source
+
+RUN git clone https://github.com/emartech/android-emarsys-sdk.git /workspace/source
+
+RUN chmod 755 /workspace/source/install.sh
+WORKDIR /workspace/source
+
+ENTRYPOINT ["./install.sh"]
