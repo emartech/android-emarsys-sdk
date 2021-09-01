@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId "com.emarsys.sample"
         minSdkVersion 24
-        targetSdkVersion 31
+        targetSdkVersion 30
         multiDexEnabled true
         versionCode gitVersionCode
         versionName gitVersionName
@@ -98,8 +98,8 @@ dependencies {
         implementation project(':emarsys-huawei')
     } else {
         implementation 'com.emarsys:emarsys-sdk:+'
-        implementation 'com.emarsys::emarsys-firebase:+'
-        implementation 'com.emarsys::emarsys-huawei:+'
+        implementation 'com.emarsys:emarsys-firebase:+'
+        implementation 'com.emarsys:emarsys-huawei:+'
     }
     // Getting a "Could not find firebase-core" error? Make sure you have
     // the latest Google Repository in the Android SDK manager
