@@ -2,7 +2,6 @@ package com.emarsys.sample.fragments
 
 import android.Manifest
 import android.app.Activity
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -149,18 +148,31 @@ class MobileEngageFragmentTracking : Fragment() {
 
 
     private fun checkLocationPermission(context: Activity?): Boolean {
-        return if (context != null && ContextCompat.checkSelfPermission(context,
-                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(context,
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            MaterialAlertDialogBuilder(context).setTitle("Permission needed").setMessage("Emarsys SDK collects location data to enable Geofencing feature even when the app is closed or not in use.").setPositiveButton("Ok") { dialog, b ->
-                ActivityCompat.requestPermissions(context,
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                        REQUEST_LOCATION_PERMISSIONS)
-            }.show()
-            false
-        } else {
+        return if (context == null
+            || ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED
+            && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                == PackageManager.PERMISSION_GRANTED
+        ) {
             true
+        } else {
+            MaterialAlertDialogBuilder(context)
+                .setTitle("Permission needed")
+                .setMessage("Emarsys SDK collects location data to enable Geofencing feature even when the app is closed or not in use.")
+                .setPositiveButton("Ok") { dialog, b ->
+                    ActivityCompat.requestPermissions(
+                        context,
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                        ),
+                        REQUEST_LOCATION_PERMISSIONS
+                    )
+                }.show()
+            false
         }
     }
 }

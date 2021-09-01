@@ -114,7 +114,6 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
             registerBroadcastReceiver()
         } else {
             completionListener?.onCompleted(MissingPermissionException("Couldn't acquire permission for $missingPermissions"))
-
         }
     }
 
@@ -142,8 +141,15 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         }
     }
 
-    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION])
+    @RequiresPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+    private fun validateBackgroundPermission() {
+    }
+
+    @RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun registerNearestGeofences(completionListener: CompletionListener?) {
+        if (!AndroidVersionUtils.isBelowQ()) {
+            validateBackgroundPermission()
+        }
         fusedLocationProviderClient.lastLocation?.addOnSuccessListener { currentLocation = it }
 
         fusedLocationProviderClient.requestLocationUpdates(
@@ -165,25 +171,27 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     }
 
     private fun findMissingPermissions(): String? {
-        val fineLocationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val locationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
         val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ()) true else {
             permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
         }
-        return if (fineLocationPermissionGranted && backgroundLocationPermissionGranted) {
+
+        return if (locationPermissionGranted && backgroundLocationPermissionGranted) {
             null
         } else {
-            return missingPermissionName(fineLocationPermissionGranted, backgroundLocationPermissionGranted)
+            return missingPermissionName(locationPermissionGranted, backgroundLocationPermissionGranted)
         }
     }
 
-    private fun missingPermissionName(fineLocationPermissionGranted: Boolean, backgroundLocationPermissionGranted: Boolean): String {
-        return if (!fineLocationPermissionGranted && backgroundLocationPermissionGranted) {
-            "ACCESS_FINE_LOCATION"
-        } else if (!backgroundLocationPermissionGranted && fineLocationPermissionGranted) {
+    private fun missingPermissionName(locationPermissionGranted: Boolean, backgroundLocationPermissionGranted: Boolean): String {
+        return if (!locationPermissionGranted && backgroundLocationPermissionGranted) {
+            "ACCESS_FINE_LOCATION or ACCESS_COARSE_LOCATION"
+        } else if (!backgroundLocationPermissionGranted && locationPermissionGranted) {
             "ACCESS_BACKGROUND_LOCATION"
         } else {
-            "ACCESS_FINE_LOCATION, ACCESS_BACKGROUND_LOCATION"
+            "ACCESS_FINE_LOCATION or ACCESS_COARSE_LOCATION and ACCESS_BACKGROUND_LOCATION"
         }
     }
 

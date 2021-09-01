@@ -11,7 +11,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.api.MissingPermissionException
-import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
@@ -99,7 +98,10 @@ class DefaultGeofenceInternalTest {
 
         fakeRequestManager = spy(FakeRequestManager(FakeRequestManager.ResponseType.SUCCESS, mockResponseModel))
         mockGeofenceResponseMapper = mock()
-        mockPermissionChecker = mock()
+
+        mockPermissionChecker = mock {
+            on {checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)} doReturn PackageManager.PERMISSION_DENIED
+        }
         mockFusedLocationProviderClient = mock()
         mockGeofenceFilter = mock()
         mockLocation = mock()
@@ -294,6 +296,29 @@ class DefaultGeofenceInternalTest {
     }
 
     @Test
+    fun testEnable_returnDoNoTReturn_PermissionForLocationException_whenFineLocationPermissionDenied_andCoarseLocationGranted() {
+        val latch = CountDownLatch(1)
+        whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)).thenReturn(PackageManager.PERMISSION_DENIED)
+        whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
+        whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)).thenReturn(PackageManager.PERMISSION_GRANTED)
+        var completionListenerHasBeenCalled = false
+
+        geofenceInternal.enable {
+            it shouldBe null
+            completionListenerHasBeenCalled = true
+            latch.countDown()
+        }
+        latch.await()
+        completionListenerHasBeenCalled shouldBe true
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        }
+        verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+        verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+        verify(mockFusedLocationProviderClient).lastLocation
+    }
+
+    @Test
     fun testEnable_returnNoPermissionForLocationException_whenFineLocationPermissionDenied() {
         val geofenceResponse = GeofenceResponse(listOf(), 0.0)
 
@@ -305,7 +330,7 @@ class DefaultGeofenceInternalTest {
         var completionListenerHasBeenCalled = false
         geofenceInternal.enable {
             it is MissingPermissionException
-            it?.message shouldBe "Couldn't acquire permission for ACCESS_FINE_LOCATION"
+            it?.message shouldBe "Couldn't acquire permission for ACCESS_FINE_LOCATION or ACCESS_COARSE_LOCATION"
             completionListenerHasBeenCalled = true
         }
 
@@ -328,13 +353,13 @@ class DefaultGeofenceInternalTest {
         whenever(mockGeofenceResponseMapper.map(any())).thenReturn(geofenceResponse)
 
         var completionListenerHasBeenCalled = false
-        geofenceInternal.enable(CompletionListener {
+        geofenceInternal.enable {
             it is MissingPermissionException
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 it?.message shouldBe "Couldn't acquire permission for ACCESS_BACKGROUND_LOCATION"
             }
             completionListenerHasBeenCalled = true
-        })
+        }
 
         completionListenerHasBeenCalled shouldBe true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -355,15 +380,15 @@ class DefaultGeofenceInternalTest {
         whenever(mockGeofenceResponseMapper.map(any())).thenReturn(geofenceResponse)
 
         var completionListenerHasBeenCalled = false
-        geofenceInternal.enable(CompletionListener {
+        geofenceInternal.enable {
             it is MissingPermissionException
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                it?.message shouldBe "Couldn't acquire permission for ACCESS_FINE_LOCATION, ACCESS_BACKGROUND_LOCATION"
+                it?.message shouldBe "Couldn't acquire permission for ACCESS_FINE_LOCATION or ACCESS_COARSE_LOCATION and ACCESS_BACKGROUND_LOCATION"
             } else {
-                it?.message shouldBe "Couldn't acquire permission for ACCESS_FINE_LOCATION"
+                it?.message shouldBe "Couldn't acquire permission for ACCESS_FINE_LOCATION or ACCESS_COARSE_LOCATION"
             }
             completionListenerHasBeenCalled = true
-        })
+        }
 
         completionListenerHasBeenCalled shouldBe true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
