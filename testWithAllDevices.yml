@@ -3,18 +3,6 @@ core-api:
   app: sample-debug-androidTest.apk
   test: core-api-debug-androidTest.apk
   device:
-    - model: flo
-      version: 21
-      locale: 'en'
-      orientation: portrait
-    - model: Nexus10
-      version: 22
-      locale: 'en'
-      orientation: portrait
-    - model: harpia
-      version: 23
-      locale: 'en'
-      orientation: portrait
     - model: griffin
       version: 24
       locale: 'en'
@@ -45,18 +33,6 @@ core:
   app: sample-debug-androidTest.apk
   test: core-debug-androidTest.apk
   device:
-    - model: flo
-      version: 21
-      locale: 'en'
-      orientation: portrait
-    - model: Nexus10
-      version: 22
-      locale: 'en'
-      orientation: portrait
-    - model: harpia
-      version: 23
-      locale: 'en'
-      orientation: portrait
     - model: griffin
       version: 24
       locale: 'en'
@@ -87,18 +63,6 @@ mobile-engage-api:
   app: sample-debug-androidTest.apk
   test: mobile-engage-api-debug-androidTest.apk
   device:
-    - model: flo
-      version: 21
-      locale: 'en'
-      orientation: portrait
-    - model: Nexus10
-      version: 22
-      locale: 'en'
-      orientation: portrait
-    - model: harpia
-      version: 23
-      locale: 'en'
-      orientation: portrait
     - model: griffin
       version: 24
       locale: 'en'
@@ -129,18 +93,6 @@ mobile-engage:
   app: sample-debug-androidTest.apk
   test: mobile-engage-debug-androidTest.apk
   device:
-    - model: flo
-      version: 21
-      locale: 'en'
-      orientation: portrait
-    - model: Nexus10
-      version: 22
-      locale: 'en'
-      orientation: portrait
-    - model: harpia
-      version: 23
-      locale: 'en'
-      orientation: portrait
     - model: griffin
       version: 24
       locale: 'en'
@@ -171,18 +123,6 @@ predict-api:
   app: sample-debug-androidTest.apk
   test: predict-api-debug-androidTest.apk
   device:
-    - model: flo
-      version: 21
-      locale: 'en'
-      orientation: portrait
-    - model: Nexus10
-      version: 22
-      locale: 'en'
-      orientation: portrait
-    - model: harpia
-      version: 23
-      locale: 'en'
-      orientation: portrait
     - model: griffin
       version: 24
       locale: 'en'
@@ -213,18 +153,6 @@ predict:
   app: sample-debug-androidTest.apk
   test: predict-debug-androidTest.apk
   device:
-    - model: flo
-      version: 21
-      locale: 'en'
-      orientation: portrait
-    - model: Nexus10
-      version: 22
-      locale: 'en'
-      orientation: portrait
-    - model: harpia
-      version: 23
-      locale: 'en'
-      orientation: portrait
     - model: griffin
       version: 24
       locale: 'en'
@@ -255,18 +183,6 @@ emarsys-sdk:
   app: sample-debug-androidTest.apk
   test: emarsys-sdk-debug-androidTest.apk
   device:
-    - model: flo
-      version: 21
-      locale: 'en'
-      orientation: portrait
-    - model: Nexus10
-      version: 22
-      locale: 'en'
-      orientation: portrait
-    - model: harpia
-      version: 23
-      locale: 'en'
-      orientation: portrait
     - model: griffin
       version: 24
       locale: 'en'
@@ -297,18 +213,6 @@ emarsys:
   app: sample-debug-androidTest.apk
   test: emarsys-debug-androidTest.apk
   device:
-    - model: flo
-      version: 21
-      locale: 'en'
-      orientation: portrait
-    - model: Nexus10
-      version: 22
-      locale: 'en'
-      orientation: portrait
-    - model: harpia
-      version: 23
-      locale: 'en'
-      orientation: portrait
     - model: griffin
       version: 24
       locale: 'en'
@@ -339,18 +243,6 @@ common:
   app: sample-debug-androidTest.apk
   test: common-debug-androidTest.apk
   device:
-    - model: flo
-      version: 21
-      locale: 'en'
-      orientation: portrait
-    - model: Nexus10
-      version: 22
-      locale: 'en'
-      orientation: portrait
-    - model: harpia
-      version: 23
-      locale: 'en'
-      orientation: portrait
     - model: griffin
       version: 24
       locale: 'en'
@@ -381,18 +273,6 @@ emarsys-firebase:
   app: sample-debug-androidTest.apk
   test: emarsys-firebase-debug-androidTest.apk
   device:
-    - model: flo
-      version: 21
-      locale: 'en'
-      orientation: portrait
-    - model: Nexus10
-      version: 22
-      locale: 'en'
-      orientation: portrait
-    - model: harpia
-      version: 23
-      locale: 'en'
-      orientation: portrait
     - model: griffin
       version: 24
       locale: 'en'
@@ -423,18 +303,6 @@ emarsys-huawei:
   app: sample-debug-androidTest.apk
   test: emarsys-huawei-debug-androidTest.apk
   device:
-    - model: flo
-      version: 21
-      locale: 'en'
-      orientation: portrait
-    - model: Nexus10
-      version: 22
-      locale: 'en'
-      orientation: portrait
-    - model: harpia
-      version: 23
-      locale: 'en'
-      orientation: portrait
     - model: griffin
       version: 24
       locale: 'en'

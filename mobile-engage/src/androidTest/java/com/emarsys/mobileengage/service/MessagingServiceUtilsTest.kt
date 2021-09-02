@@ -4,7 +4,6 @@ import android.R
 import android.app.Notification
 import android.content.Context
 import android.graphics.Bitmap
-import android.os.Build
 import android.os.Build.VERSION_CODES
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -794,19 +793,4 @@ class MessagingServiceUtilsTest {
         payload["ems"] = ems.toString()
         return payload
     }
-
-    private fun expectedBasedOnApiLevel(before23: String?, fromApi23: String?): String? {
-        return if (Build.VERSION.SDK_INT < 23) {
-            before23
-        } else {
-            fromApi23
-        }
-    }
-
-    private val applicationName: String
-        get() {
-            val applicationInfo = context.applicationInfo
-            val stringId = applicationInfo.labelRes
-            return if (stringId == 0) applicationInfo.nonLocalizedLabel.toString() else context.getString(stringId)
-        }
 }

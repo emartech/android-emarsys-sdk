@@ -3,7 +3,6 @@ package com.emarsys.mobileengage.iam.dialog
 import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
@@ -12,7 +11,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.webkit.WebView
 import android.widget.FrameLayout
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import com.emarsys.core.Mockable
 import com.emarsys.core.provider.timestamp.TimestampProvider
@@ -28,7 +26,6 @@ import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 
 @Mockable
-@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 class IamDialog(private val uiHandler: Handler, private val timestampProvider: TimestampProvider) : DialogFragment() {
     constructor() : this(mobileEngage().uiHandler, mobileEngage().timestampProvider)
 
