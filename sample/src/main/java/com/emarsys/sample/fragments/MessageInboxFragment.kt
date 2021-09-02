@@ -18,20 +18,23 @@ import com.emarsys.sample.adapters.MessageInboxAdapter
 import com.emarsys.sample.extensions.showSnackBar
 import kotlinx.android.synthetic.main.fragment_message_inbox.*
 
-class  MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, TagChangeListener {
+class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, TagChangeListener {
 
     private companion object {
         val TAG: String = MessageInboxFragment::class.java.simpleName
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.fragment_message_inbox, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        messageInboxRecycleView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        messageInboxRecycleView.layoutManager =
+            LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         messageInboxRecycleView.adapter = MessageInboxAdapter(this)
 
         loadMessages()
