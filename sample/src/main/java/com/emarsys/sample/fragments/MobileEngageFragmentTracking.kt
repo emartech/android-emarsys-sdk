@@ -1,23 +1,18 @@
 package com.emarsys.sample.fragments
 
-import android.Manifest
-import android.app.Activity
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.emarsys.Emarsys
+import com.emarsys.sample.MainActivity
 import com.emarsys.sample.R
 import com.emarsys.sample.extensions.copyToClipboard
 import com.emarsys.sample.extensions.showSnackBar
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailabilityLight
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import com.huawei.hms.aaid.HmsInstanceId
@@ -34,8 +29,10 @@ class MobileEngageFragmentTracking : Fragment() {
         const val HUAWEI_PUSH_SCOPE = "com.emarsys.sample"
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
         return inflater.inflate(R.layout.fragment_mobile_engage_tracking, container, false)
     }
@@ -78,7 +75,9 @@ class MobileEngageFragmentTracking : Fragment() {
         }
 
         buttonTrackPushToken.setOnClickListener {
-            if (GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS) {
+            if (GoogleApiAvailabilityLight.getInstance()
+                    .isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS
+            ) {
                 FirebaseApp.initializeApp(view.context)
                 FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                     task.addOnSuccessListener {
@@ -94,7 +93,8 @@ class MobileEngageFragmentTracking : Fragment() {
                 }
             } else {
                 Thread {
-                    val pushToken = HmsInstanceId.getInstance(activity).getToken(HUAWEI_APP_ID, HUAWEI_PUSH_SCOPE)
+                    val pushToken = HmsInstanceId.getInstance(activity)
+                        .getToken(HUAWEI_APP_ID, HUAWEI_PUSH_SCOPE)
 
                     activity?.runOnUiThread {
                         Emarsys.push.pushToken = pushToken
@@ -104,7 +104,9 @@ class MobileEngageFragmentTracking : Fragment() {
         }
 
         buttonCopyPushToken.setOnClickListener {
-            if (GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS) {
+            if (GoogleApiAvailabilityLight.getInstance()
+                    .isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS
+            ) {
                 FirebaseApp.initializeApp(view.context)
                 FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
                     run {
@@ -121,7 +123,8 @@ class MobileEngageFragmentTracking : Fragment() {
                 }
             } else {
                 Thread {
-                    val pushToken = HmsInstanceId.getInstance(activity).getToken(HUAWEI_APP_ID, HUAWEI_PUSH_SCOPE)
+                    val pushToken = HmsInstanceId.getInstance(activity)
+                        .getToken(HUAWEI_APP_ID, HUAWEI_PUSH_SCOPE)
                     activity?.runOnUiThread {
                         pushToken?.copyToClipboard(view.context)
                         view.showSnackBar("Push Token copied: $pushToken")
@@ -131,8 +134,7 @@ class MobileEngageFragmentTracking : Fragment() {
         }
 
         buttonEnableGeofence.setOnClickListener {
-
-            if (checkLocationPermission(activity)) {
+            if ((activity as MainActivity).checkLocationPermission()) {
                 Emarsys.geofence.enable {
                     view.showSnackBar("Geofence has been Enabled!")
                 }
@@ -143,36 +145,6 @@ class MobileEngageFragmentTracking : Fragment() {
         buttonDisableGeofence.setOnClickListener {
             Emarsys.geofence.disable()
             view.showSnackBar("Geofence has been Disabled!")
-        }
-    }
-
-
-    private fun checkLocationPermission(context: Activity?): Boolean {
-        return if (context == null
-            || ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED
-            || ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED
-            && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                == PackageManager.PERMISSION_GRANTED
-        ) {
-            true
-        } else {
-            MaterialAlertDialogBuilder(context)
-                .setTitle("Permission needed")
-                .setMessage("Emarsys SDK collects location data to enable Geofencing feature even when the app is closed or not in use.")
-                .setPositiveButton("Ok") { dialog, b ->
-                    ActivityCompat.requestPermissions(
-                        context,
-                        arrayOf(
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                        ),
-                        REQUEST_LOCATION_PERMISSIONS
-                    )
-                }.show()
-            false
         }
     }
 }
