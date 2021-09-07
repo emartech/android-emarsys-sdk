@@ -4,9 +4,14 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.di.mobileEngage
+import com.emarsys.mobileengage.geofence.model.Geofence
 
 @Mockable
 class Geofence(private val loggingInstance: Boolean = false) : GeofenceApi {
+    override val registeredGeofences: List<Geofence>
+        get() = (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
+            .registeredGeofences
+
     override fun enable() {
         (if (loggingInstance) mobileEngage().loggingGeofenceInternal else mobileEngage().geofenceInternal)
                 .enable(null)

@@ -85,4 +85,11 @@ class GeofenceTest {
 
         verify(mockGeofenceInternal).isEnabled()
     }
+
+    @Test
+    fun testRegisteredGeofencesDelegatesToInternal() {
+        geofenceProxy.registeredGeofences
+
+        verify(mockGeofenceInternal).registeredGeofences
+    }
 }

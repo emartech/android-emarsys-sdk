@@ -9,6 +9,8 @@ import com.emarsys.mobileengage.geofence.model.Geofence
 import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 
 class LoggingGeofenceInternal(private val klass: Class<*>) : GeofenceInternal {
+    override val registeredGeofences: List<Geofence>
+        get() = listOf()
 
     override fun fetchGeofences(completionListener: CompletionListener?) {
         val parameters = mapOf(

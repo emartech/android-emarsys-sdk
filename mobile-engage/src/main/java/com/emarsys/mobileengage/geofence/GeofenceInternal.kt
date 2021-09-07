@@ -7,6 +7,8 @@ import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 
 interface GeofenceInternal {
 
+    val registeredGeofences: List<Geofence>
+
     fun fetchGeofences(completionListener: CompletionListener?)
     fun enable(completionListener: CompletionListener?)
     fun disable()

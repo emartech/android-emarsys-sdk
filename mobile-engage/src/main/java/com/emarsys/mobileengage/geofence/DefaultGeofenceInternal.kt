@@ -6,8 +6,6 @@ import android.content.Context
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
-import android.location.LocationListener
-import android.os.Bundle
 import android.os.Handler
 import androidx.annotation.RequiresPermission
 import com.emarsys.core.CoreCompletionHandler
@@ -52,7 +50,7 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                               coreSdkHandler: CoreSdkHandler,
                               private val uiHandler: Handler,
                               private val initialEnterTriggerEnabledStorage: Storage<Boolean?>
-) : GeofenceInternal, LocationListener {
+) : GeofenceInternal {
     private companion object {
         const val FASTEST_INTERNAL: Long = 15_000
         const val INTERVAL: Long = 30_000
@@ -62,6 +60,10 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver(coreSdkHandler)
     private var geofenceResponse: GeofenceResponse? = null
     private var nearestGeofences: MutableList<MEGeofence> = mutableListOf()
+    override val registeredGeofences: List<MEGeofence>
+        get() {
+            return nearestGeofences
+        }
     private var currentLocation: Location? = null
     private val geofencePendingIntent: PendingIntent by lazy {
         geofencePendingIntentProvider.providePendingIntent()
@@ -292,9 +294,4 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     private fun sendStatusLog(parameters: Map<String, Any?>? = mapOf(), statusMap: Map<String, Any>? = mapOf()) {
         Logger.debug(StatusLog(DefaultGeofenceInternal::class.java, SystemUtils.getCallerMethodName(), parameters, statusMap))
     }
-
-    override fun onLocationChanged(location: Location) {}
-    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-    override fun onProviderEnabled(provider: String) {}
-    override fun onProviderDisabled(provider: String) {}
 }

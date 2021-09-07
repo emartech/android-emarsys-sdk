@@ -2,8 +2,11 @@ package com.emarsys.geofence
 
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.mobileengage.geofence.model.Geofence
 
 interface GeofenceApi {
+    val registeredGeofences: List<Geofence>
+
     fun enable()
     fun enable(completionListener: CompletionListener)
     fun disable()
