@@ -1,3 +1,13 @@
-<manifest package="com.emarsys">
-
+<manifest package="com.emarsys"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+<application>
+    <receiver
+        android:name="com.emarsys.geofence.RegisterGeofencesOnBootCompletedReceiver"
+        android:enabled="true"
+        android:exported="false">
+        <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED" />
+        </intent-filter>
+    </receiver>
+</application>
 </manifest>
