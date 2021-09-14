@@ -170,10 +170,8 @@ class EmarsysE2ETests {
         val fusedLocationProviderClient = FusedLocationProviderClient(application)
         val latch = CountDownLatch(1)
         emarsys().coreSdkHandler.post {
-            var currentLocation: Location
-            fusedLocationProviderClient.lastLocation?.addOnSuccessListener {
-                currentLocation = it
-                var testAction = JSONObject(
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { currentLocation ->
+                val testAction = JSONObject(
                     mapOf<String, Any?>(
                         "id" to "geofenceActionId",
                         "type" to "MEAppEvent",
