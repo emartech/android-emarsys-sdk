@@ -1,24 +1,28 @@
 package com.emarsys
 
 import android.app.Application
+import android.location.Location
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.di.emarsys
 import com.emarsys.mobileengage.api.inbox.Message
-import com.emarsys.testUtil.E2ETestUtils
+import com.emarsys.mobileengage.geofence.model.Trigger
+import com.emarsys.mobileengage.geofence.model.TriggerType
+import com.emarsys.testUtil.*
 import com.emarsys.testUtil.E2ETestUtils.retry
-import com.emarsys.testUtil.InstrumentationRegistry
-import com.emarsys.testUtil.RetryUtils
-import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.rules.ConnectionRule
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
+import com.google.android.gms.location.FusedLocationProviderClient
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
+import org.json.JSONObject
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import com.emarsys.mobileengage.geofence.model.Geofence as MEGeofence
 
 class EmarsysE2ETests {
 
@@ -155,6 +159,53 @@ class EmarsysE2ETests {
                 updatedMessage?.tags?.contains(TEST_TAG) shouldBe false
             }
         }
+    }
+
+    @Test
+    fun testGeofence() {
+        setup(APPLICATION_CODE)
+        Emarsys.geofence.enable()
+        Emarsys.geofence.setInitialEnterTriggerEnabled(true)
+
+        val fusedLocationProviderClient = FusedLocationProviderClient(application)
+        val latch = CountDownLatch(1)
+        emarsys().coreSdkHandler.post {
+            var currentLocation: Location
+            fusedLocationProviderClient.lastLocation?.addOnSuccessListener {
+                currentLocation = it
+                var testAction = JSONObject(
+                    mapOf<String, Any?>(
+                        "id" to "geofenceActionId",
+                        "type" to "MEAppEvent",
+                        "name" to "geofence",
+                        "payload" to mapOf(
+                            "name" to "Home",
+                            "trigger_type" to "enter"
+                        )
+                    )
+                )
+                val geofence = MEGeofence(
+                    "testGeofence", currentLocation.latitude, currentLocation.longitude,
+                    400.0, 0.0, listOf(Trigger("testAction", TriggerType.ENTER, 0, testAction))
+                )
+
+                val geofenceInternal = emarsys().geofenceInternal
+                ReflectionTestUtils.setInstanceField(
+                    geofenceInternal,
+                    "nearestGeofences",
+                    listOf(geofence)
+                )
+                geofenceInternal.registerGeofences(listOf(geofence))
+            }
+        }
+        Emarsys.geofence.setEventHandler { _, name, payload ->
+            name shouldBe "geofence"
+            (payload?.get("name") ?: "") shouldBe "Home"
+            (payload?.get("trigger_type") ?: "") shouldBe "enter"
+
+            latch.countDown()
+        }
+        latch.await()
     }
 
     private fun changeApplicationCode(appCode: String?) {
