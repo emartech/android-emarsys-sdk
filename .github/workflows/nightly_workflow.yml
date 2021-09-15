@@ -3,12 +3,12 @@ name: Nightly build
 on:
   workflow_dispatch:
   schedule:
-    - cron:  '0 2 * * *'
+    - cron: '0 2 * * *'
 
 env:
-  RELEASE_KEY_PASSWORD:  ${{ secrets.ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD }}
-  RELEASE_KEY_ALIAS:  ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
-  RELEASE_STORE_PASSWORD:  ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+  RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD }}
+  RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
+  RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
   RELEASE_STORE_FILE: ${{ secrets.RELEASE_STORE_FILE }}
   DEVELOPMENT_MODE: ${{ secrets.DEVELOPMENT_MODE }}
   GOOGLE_SERVICES_API_KEY: ${{ secrets.GOOGLE_SERVICES_API_KEY }}
@@ -39,6 +39,9 @@ jobs:
           name: google-services.json
           json: ${{ secrets.GOOGLE_SERVICES_JSON }}
           dir: sample
+
+      - name: create local.properties
+        run: echo $ANDROID_HOME > local.properties
 
       - name: Create file 'FAILURE.TXT' and write 'false' into it
         run: echo 'false' > FAILURE.TXT
@@ -515,7 +518,7 @@ jobs:
   ReleaseSample:
     name: Release sample app
     runs-on: ubuntu-latest
-    needs: [Build, TestCore, TestMobileEngage, TestPredict, TestEmarsysSDK, TestEmarsys, TestCommon, TestEmarsysFirebase, TestEmarsysHuawei, CreateReleaseBundle, GradleLint]
+    needs: [ Build, TestCore, TestMobileEngage, TestPredict, TestEmarsysSDK, TestEmarsys, TestCommon, TestEmarsysFirebase, TestEmarsysHuawei, CreateReleaseBundle, GradleLint ]
     steps:
       - uses: actions/checkout@v2.3.1
         with:
@@ -556,7 +559,7 @@ jobs:
   SlackNotification:
     name: Send slack notification
     runs-on: ubuntu-latest
-    needs: [ReleaseSample]
+    needs: [ ReleaseSample ]
     steps:
       - name: Slack Notification
         uses: megamegax/slack_action@0.2.3
@@ -571,7 +574,7 @@ jobs:
   SlackNotificationOnError:
     name: Send slack on error
     runs-on: ubuntu-latest
-    needs: [ReleaseSample]
+    needs: [ ReleaseSample ]
     if: always()
     steps:
       - uses: actions/checkout@v2.3.1
