@@ -61,6 +61,7 @@ import com.emarsys.mobileengage.service.RemoteMessageMapper
 import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.util.RequestModelHelper
+import com.google.android.gms.location.FusedLocationProviderClient
 import org.mockito.kotlin.mock
 
 class FakeHuaweiDependencyConatiner(
@@ -148,5 +149,6 @@ class FakeHuaweiDependencyConatiner(
         override val requestModelRepository: Repository<RequestModel, SqlSpecification> = mock(),
         override val connectionWatchdog: ConnectionWatchDog = mock(),
         override val coreCompletionHandler: CoreCompletionHandler = mock(),
-        override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> = mock()
+        override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> = mock(),
+        override val fusedLocationProviderClient: FusedLocationProviderClient = mock()
 ) : MobileEngageComponent

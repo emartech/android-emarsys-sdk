@@ -76,6 +76,7 @@ import com.emarsys.predict.PredictRestrictedApi
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.push.PushApi
+import com.google.android.gms.location.FusedLocationProviderClient
 import org.mockito.kotlin.mock
 
 class FakeDependencyContainer(
@@ -195,5 +196,6 @@ class FakeDependencyContainer(
         override val predictRequestContext: PredictRequestContext = mock(),
         override val predictRequestModelBuilderProvider: PredictRequestModelBuilderProvider = mock(),
         override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> = mock(),
-        override val isGooglePlayServiceAvailable: Boolean = true
+        override val isGooglePlayServiceAvailable: Boolean = true,
+        override val fusedLocationProviderClient: FusedLocationProviderClient = mock()
 ) : EmarsysComponent

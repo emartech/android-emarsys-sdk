@@ -721,7 +721,9 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val geofenceEventHandlerProvider: EventHandlerProvider by lazy {
         EventHandlerProvider(null)
     }
-
+    override val fusedLocationProviderClient: FusedLocationProviderClient by lazy {
+        FusedLocationProviderClient(config.application)
+    }
     override val geofenceInternal: GeofenceInternal by lazy {
         val geofenceActionCommandFactory = ActionCommandFactory(
             config.application,
@@ -735,7 +737,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             requestManager,
             GeofenceResponseMapper(),
             PermissionChecker(config.application),
-            FusedLocationProviderClient(config.application),
+            fusedLocationProviderClient,
             GeofenceFilter(GEOFENCE_LIMIT),
             GeofencingClient(config.application),
             config.application,

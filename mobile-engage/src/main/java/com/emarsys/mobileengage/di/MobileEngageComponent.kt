@@ -37,9 +37,10 @@ import com.emarsys.mobileengage.service.RemoteMessageMapper
 import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.util.RequestModelHelper
+import com.google.android.gms.location.FusedLocationProviderClient
 
 fun mobileEngage() = MobileEngageComponent.instance
-        ?: throw IllegalStateException("DependencyContainer has to be setup first!")
+    ?: throw IllegalStateException("DependencyContainer has to be setup first!")
 
 fun setupMobileEngageComponent(mobileEngageComponent: MobileEngageComponent) {
     MobileEngageComponent.instance = mobileEngageComponent
@@ -52,8 +53,8 @@ fun tearDownMobileEngageComponent() {
 }
 
 fun isMobileEngageComponentSetup() =
-        MobileEngageComponent.instance != null &&
-                CoreComponent.instance != null
+    MobileEngageComponent.instance != null &&
+            CoreComponent.instance != null
 
 interface MobileEngageComponent : CoreComponent {
     companion object {
@@ -119,6 +120,8 @@ interface MobileEngageComponent : CoreComponent {
     val deviceEventStateStorage: Storage<String?>
 
     val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?>
+
+    val fusedLocationProviderClient: FusedLocationProviderClient
 
     val responseHandlersProcessor: ResponseHandlersProcessor
 
