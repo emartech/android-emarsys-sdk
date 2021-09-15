@@ -3,8 +3,8 @@ core-api:
   app: sample-debug-androidTest.apk
   test: core-api-debug-androidTest.apk
   device:
-    - model: Nexus7
-      version: 21
+    - model: Nexus5X
+      version: 24
       locale: 'en'
       orientation: portrait
     - model: Nexus6P
@@ -21,8 +21,8 @@ core:
   app: sample-debug-androidTest.apk
   test: core-debug-androidTest.apk
   device:
-    - model: Nexus7
-      version: 21
+    - model: Nexus5X
+      version: 24
       locale: 'en'
       orientation: portrait
     - model: Nexus6P
@@ -39,8 +39,8 @@ mobile-engage-api:
   app: sample-debug-androidTest.apk
   test: mobile-engage-api-debug-androidTest.apk
   device:
-    - model: Nexus7
-      version: 21
+    - model: Nexus5X
+      version: 24
       locale: 'en'
       orientation: portrait
     - model: Nexus6P
@@ -57,8 +57,8 @@ mobile-engage:
   app: sample-debug-androidTest.apk
   test: mobile-engage-debug-androidTest.apk
   device:
-    - model: Nexus7
-      version: 21
+    - model: Nexus5X
+      version: 24
       locale: 'en'
       orientation: portrait
     - model: Nexus6P
@@ -75,8 +75,8 @@ predict-api:
   app: sample-debug-androidTest.apk
   test: predict-api-debug-androidTest.apk
   device:
-    - model: Nexus7
-      version: 21
+    - model: Nexus5X
+      version: 24
       locale: 'en'
       orientation: portrait
     - model: Nexus6P
@@ -93,8 +93,8 @@ predict:
   app: sample-debug-androidTest.apk
   test: predict-debug-androidTest.apk
   device:
-    - model: Nexus7
-      version: 21
+    - model: Nexus5X
+      version: 24
       locale: 'en'
       orientation: portrait
     - model: Nexus6P
@@ -111,8 +111,8 @@ emarsys-sdk:
   app: sample-debug-androidTest.apk
   test: emarsys-sdk-debug-androidTest.apk
   device:
-    - model: Nexus7
-      version: 21
+    - model: Nexus5X
+      version: 24
       locale: 'en'
       orientation: portrait
     - model: Nexus6P
@@ -129,8 +129,8 @@ emarsys:
   app: sample-debug-androidTest.apk
   test: emarsys-debug-androidTest.apk
   device:
-    - model: Nexus7
-      version: 21
+    - model: Nexus5X
+      version: 24
       locale: 'en'
       orientation: portrait
     - model: Nexus6P
@@ -147,8 +147,8 @@ common:
   app: sample-debug-androidTest.apk
   test: common-debug-androidTest.apk
   device:
-    - model: Nexus7
-      version: 21
+    - model: Nexus5X
+      version: 24
       locale: 'en'
       orientation: portrait
     - model: Nexus6P
@@ -165,8 +165,8 @@ emarsys-e2e-test:
   app: sample-debug-androidTest.apk
   test: emarsys-e2e-test-debug-androidTest.apk
   device:
-    - model: Nexus7
-      version: 21
+    - model: Nexus5X
+      version: 24
       locale: 'en'
       orientation: portrait
     - model: Nexus6P
@@ -183,8 +183,8 @@ emarsys-firebase:
   app: sample-debug-androidTest.apk
   test: emarsys-firebase-debug-androidTest.apk
   device:
-    - model: Nexus7
-      version: 21
+    - model: Nexus5X
+      version: 24
       locale: 'en'
       orientation: portrait
     - model: Nexus6P
@@ -201,8 +201,8 @@ emarsys-huawei:
   app: sample-debug-androidTest.apk
   test: emarsys-huawei-debug-androidTest.apk
   device:
-    - model: Nexus7
-      version: 21
+    - model: Nexus5X
+      version: 24
       locale: 'en'
       orientation: portrait
     - model: Nexus6P
