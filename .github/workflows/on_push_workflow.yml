@@ -144,6 +144,9 @@ jobs:
           json: ${{ secrets.GOOGLE_SERVICES_JSON }}
           dir: sample
 
+      - name: create local.properties
+        run: echo $ANDROID_HOME > local.properties
+
       - name: Lint project with Gradle
         run: ./gradlew lint
 
@@ -175,6 +178,9 @@ jobs:
           name: google-services.json
           json: ${{ secrets.GOOGLE_SERVICES_JSON }}
           dir: sample
+
+      - name: create local.properties
+        run: echo $ANDROID_HOME > local.properties
 
       - name: Create release keystore file
         shell: bash
