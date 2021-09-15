@@ -1,5 +1,7 @@
 package com.emarsys.predict
 
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
 import com.emarsys.core.api.result.CompletionListener
@@ -25,6 +27,7 @@ import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.request.PredictRequestModelBuilder
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
@@ -66,6 +69,7 @@ class DefaultPredictInternalTest {
     private lateinit var mockPredictResponseMapper: PredictResponseMapper
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockResponseModel: ResponseModel
+    private lateinit var uiHandler: Handler
     private lateinit var mockLogic: Logic
     private lateinit var mockRecommendationFilter: RecommendationFilter
     private lateinit var mockRecommendationFilters: List<RecommendationFilter>
@@ -84,6 +88,7 @@ class DefaultPredictInternalTest {
         mockResponseModel = mock()
         mockKeyValueStore = mock()
         mockRequestManager = mock()
+        uiHandler = Handler(Looper.getMainLooper())
         mockPredictResponseMapper = mock()
         mockLogic = mock()
         mockRecommendationFilter = mock {
@@ -124,9 +129,19 @@ class DefaultPredictInternalTest {
 
         mockLastTrackedItemContainer = mock()
 
-        predictInternal = DefaultPredictInternal(mockRequestContext, mockRequestManager, mockRequestModelBuilderProvider, mockPredictResponseMapper)
+        predictInternal = DefaultPredictInternal(
+            mockRequestContext,
+            mockRequestManager,
+            uiHandler,
+            mockRequestModelBuilderProvider,
+            mockPredictResponseMapper
+        )
 
-        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        ReflectionTestUtils.setInstanceField(
+            predictInternal,
+            "lastTrackedContainer",
+            mockLastTrackedItemContainer
+        )
     }
 
     @Test
@@ -160,19 +175,23 @@ class DefaultPredictInternalTest {
     @Test
     fun testTrackCart_shouldCallRequestManager_withCorrectShardModel() {
         val expectedShardModel =
-                ShardModel(ID1,
-                        "predict_cart",
-                        mapOf(
-                                "cv" to 1,
-                                "ca" to "i:itemId1,p:200.0,q:100.0|i:itemId2,p:201.0,q:101.0"
-                        ),
-                        TIMESTAMP,
-                        TTL)
+            ShardModel(
+                ID1,
+                "predict_cart",
+                mapOf(
+                    "cv" to 1,
+                    "ca" to "i:itemId1,p:200.0,q:100.0|i:itemId2,p:201.0,q:101.0"
+                ),
+                TIMESTAMP,
+                TTL
+            )
 
-        predictInternal.trackCart(listOf(
+        predictInternal.trackCart(
+            listOf(
                 PredictCartItem("itemId1", 200.0, 100.0),
                 PredictCartItem("itemId2", 201.0, 101.0)
-        ))
+            )
+        )
 
         verify(mockRequestManager).submit(expectedShardModel)
     }
@@ -187,21 +206,24 @@ class DefaultPredictInternalTest {
         val orderId = "orderId"
 
         val expectedShardModel =
-                ShardModel(ID1,
-                        "predict_purchase",
-                        mapOf(
-                                "oi" to orderId,
-                                "co" to "i:itemId1,p:200.0,q:100.0|i:itemId2,p:201.0,q:101.0"
-                        ),
-                        TIMESTAMP,
-                        TTL)
+            ShardModel(
+                ID1,
+                "predict_purchase",
+                mapOf(
+                    "oi" to orderId,
+                    "co" to "i:itemId1,p:200.0,q:100.0|i:itemId2,p:201.0,q:101.0"
+                ),
+                TIMESTAMP,
+                TTL
+            )
 
         predictInternal.trackPurchase(
-                orderId,
-                listOf(
-                        PredictCartItem("itemId1", 200.0, 100.0),
-                        PredictCartItem("itemId2", 201.0, 101.0)
-                ))
+            orderId,
+            listOf(
+                PredictCartItem("itemId1", 200.0, 100.0),
+                PredictCartItem("itemId2", 201.0, 101.0)
+            )
+        )
 
         verify(mockRequestManager).submit(expectedShardModel)
     }
@@ -216,11 +238,12 @@ class DefaultPredictInternalTest {
         val itemId = "itemId"
 
         val expectedShardModel = ShardModel(
-                ID1,
-                "predict_item_view",
-                mapOf("v" to "i:$itemId"),
-                TIMESTAMP,
-                TTL)
+            ID1,
+            "predict_item_view",
+            mapOf("v" to "i:$itemId"),
+            TIMESTAMP,
+            TTL
+        )
 
         predictInternal.trackItemView(itemId)
 
@@ -237,11 +260,12 @@ class DefaultPredictInternalTest {
         val categoryPath = "categoryPath"
 
         val expectedShardModel = ShardModel(
-                ID1,
-                "predict_category_view",
-                mapOf("vc" to categoryPath),
-                TIMESTAMP,
-                TTL)
+            ID1,
+            "predict_category_view",
+            mapOf("vc" to categoryPath),
+            TIMESTAMP,
+            TTL
+        )
 
         predictInternal.trackCategoryView(categoryPath)
 
@@ -258,11 +282,12 @@ class DefaultPredictInternalTest {
         val searchTerm = "searchTerm"
 
         val expectedShardModel = ShardModel(
-                ID1,
-                "predict_search_term",
-                mapOf("q" to searchTerm),
-                TIMESTAMP,
-                TTL)
+            ID1,
+            "predict_search_term",
+            mapOf("q" to searchTerm),
+            TIMESTAMP,
+            TTL
+        )
 
         predictInternal.trackSearchTerm(searchTerm)
 
@@ -274,11 +299,12 @@ class DefaultPredictInternalTest {
         val tag = "testTag"
 
         val expectedShardModel = ShardModel(
-                ID1,
-                "predict_tag",
-                mapOf("ta" to """{"name":"$tag","attributes":{"testKey":"testValue"}}"""),
-                TIMESTAMP,
-                TTL)
+            ID1,
+            "predict_tag",
+            mapOf("ta" to """{"name":"$tag","attributes":{"testKey":"testValue"}}"""),
+            TIMESTAMP,
+            TTL
+        )
 
         predictInternal.trackTag(tag, mapOf("testKey" to "testValue"))
 
@@ -290,11 +316,12 @@ class DefaultPredictInternalTest {
         val tag = "testTag"
 
         val expectedShardModel = ShardModel(
-                ID1,
-                "predict_tag",
-                mapOf("t" to tag),
-                TIMESTAMP,
-                TTL)
+            ID1,
+            "predict_tag",
+            mapOf("t" to tag),
+            TIMESTAMP,
+            TTL
+        )
 
         predictInternal.trackTag(tag, null)
 
@@ -304,7 +331,11 @@ class DefaultPredictInternalTest {
     @Test
     fun testTrackSearchTerm_shouldSetLastTrackedItemContainersLastSearchTermField_withCorrectSearchTerm() {
         val searchTerm = "searchTerm"
-        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        ReflectionTestUtils.setInstanceField(
+            predictInternal,
+            "lastTrackedContainer",
+            mockLastTrackedItemContainer
+        )
         predictInternal.trackSearchTerm(searchTerm)
         verify(mockLastTrackedItemContainer).lastSearchTerm = searchTerm
     }
@@ -312,10 +343,14 @@ class DefaultPredictInternalTest {
     @Test
     fun testTrackCart_shouldSetLastTrackedItemContainersLastCartItemsField_withCorrectCartItemList() {
         val cartList = listOf<CartItem>(
-                PredictCartItem("testCartItem1", 1.0, 1.0),
-                PredictCartItem("testCartItem2", 2.0, 2.0)
+            PredictCartItem("testCartItem1", 1.0, 1.0),
+            PredictCartItem("testCartItem2", 2.0, 2.0)
         )
-        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        ReflectionTestUtils.setInstanceField(
+            predictInternal,
+            "lastTrackedContainer",
+            mockLastTrackedItemContainer
+        )
         predictInternal.trackCart(cartList)
         verify(mockLastTrackedItemContainer).lastCartItems = cartList
     }
@@ -323,10 +358,14 @@ class DefaultPredictInternalTest {
     @Test
     fun testTrackPurchase_shouldSetLastTrackedItemContainersLastCartItemsField_withCorrectCartItemList() {
         val cartList = listOf<CartItem>(
-                PredictCartItem("testCartItem1", 1.0, 1.0),
-                PredictCartItem("testCartItem2", 2.0, 2.0)
+            PredictCartItem("testCartItem1", 1.0, 1.0),
+            PredictCartItem("testCartItem2", 2.0, 2.0)
         )
-        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        ReflectionTestUtils.setInstanceField(
+            predictInternal,
+            "lastTrackedContainer",
+            mockLastTrackedItemContainer
+        )
         predictInternal.trackPurchase("testOrderId", cartList)
         verify(mockLastTrackedItemContainer).lastCartItems = cartList
     }
@@ -334,7 +373,11 @@ class DefaultPredictInternalTest {
     @Test
     fun testTrackItemView_shouldSetLastTrackedItemContainersLastItemViewField_withCorrectItemId() {
         val itemId = "itemId"
-        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        ReflectionTestUtils.setInstanceField(
+            predictInternal,
+            "lastTrackedContainer",
+            mockLastTrackedItemContainer
+        )
         predictInternal.trackItemView(itemId)
         verify(mockLastTrackedItemContainer).lastItemView = itemId
     }
@@ -342,14 +385,24 @@ class DefaultPredictInternalTest {
     @Test
     fun testTrackCategoryView_shouldSetLastTrackedItemContainersLastCategoryPathField_withCorrectCategoryPath() {
         val categoryPath = "categoryPath"
-        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        ReflectionTestUtils.setInstanceField(
+            predictInternal,
+            "lastTrackedContainer",
+            mockLastTrackedItemContainer
+        )
         predictInternal.trackCategoryView(categoryPath)
         verify(mockLastTrackedItemContainer).lastCategoryPath = categoryPath
     }
 
     @Test
     fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel_whenLimitUsed() {
-        predictInternal.recommendProducts(mockLogic, 10, mockRecommendationFilters, null, mockResultListener)
+        predictInternal.recommendProducts(
+            mockLogic,
+            10,
+            mockRecommendationFilters,
+            null,
+            mockResultListener
+        )
 
         verify(mockRequestModelBuilder).withLogic(mockLogic, mockLastTrackedItemContainer)
         verify(mockRequestModelBuilder).withLimit(10)
@@ -360,7 +413,13 @@ class DefaultPredictInternalTest {
 
     @Test
     fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel_whenAvailabilityZoneUsed() {
-        predictInternal.recommendProducts(mockLogic, 10, mockRecommendationFilters, "hu", mockResultListener)
+        predictInternal.recommendProducts(
+            mockLogic,
+            10,
+            mockRecommendationFilters,
+            "hu",
+            mockResultListener
+        )
 
         verify(mockRequestModelBuilder).withLogic(mockLogic, mockLastTrackedItemContainer)
         verify(mockRequestModelBuilder).withAvailabilityZone("hu")
@@ -371,7 +430,13 @@ class DefaultPredictInternalTest {
 
     @Test
     fun testRecommendProducts_shouldCallRequestManager_withCorrectRequestModel_whenFilterUsed() {
-        predictInternal.recommendProducts(mockLogic, 10, mockRecommendationFilters, null, mockResultListener)
+        predictInternal.recommendProducts(
+            mockLogic,
+            10,
+            mockRecommendationFilters,
+            null,
+            mockResultListener
+        )
 
         verify(mockRequestModelBuilder).withLogic(mockLogic, mockLastTrackedItemContainer)
         verify(mockRequestModelBuilder).withLimit(10)
@@ -398,34 +463,116 @@ class DefaultPredictInternalTest {
         whenever(mockPredictResponseMapper.map(mockResponseModel)).thenReturn(expectedResult)
 
         predictInternal = DefaultPredictInternal(
-                mockRequestContext,
-                requestManagerWithRestClient(FakeRestClient(mockResponseModel, FakeRestClient.Mode.SUCCESS)),
-                mockRequestModelBuilderProvider,
-                mockPredictResponseMapper
+            mockRequestContext,
+            requestManagerWithRestClient(
+                FakeRestClient(
+                    mockResponseModel,
+                    FakeRestClient.Mode.SUCCESS
+                )
+            ),
+            uiHandler,
+            mockRequestModelBuilderProvider,
+            mockPredictResponseMapper
         )
-        val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, resultListener = resultListener)
 
+        val mockResultListener: ResultListener<Try<List<Product>>> = mock()
+        predictInternal.recommendProducts(
+            mockLogic,
+            5,
+            mockRecommendationFilters,
+            resultListener = mockResultListener
+        )
+
+        val threadSpy: ThreadSpy<*> = ThreadSpy<Any?>()
+        whenever(mockResultListener.onResult(any())).doAnswer {
+            threadSpy.answer(it)
+            latch.countDown()
+        }
         latch.await()
-
+        argumentCaptor<Try<List<Product>>>().apply {
+            verify(mockResultListener).onResult(capture())
+            firstValue.result shouldBe expectedResult
+        }
+        threadSpy.verifyCalledOnMainThread()
         verify(mockPredictResponseMapper).map(mockResponseModel)
-        resultListener.resultStatus shouldBe expectedResult
-        resultListener.successCount shouldBe 1
+    }
+
+    @Test
+    fun testRecommendProducts_shouldCallRequestManager_failure_shouldBeCalled() {
+        predictInternal = DefaultPredictInternal(
+            mockRequestContext,
+            requestManagerWithRestClient(
+                FakeRestClient(
+                    mockResponseModel,
+                    FakeRestClient.Mode.ERROR_RESPONSE_MODEL
+                )
+            ),
+            uiHandler,
+            mockRequestModelBuilderProvider,
+            mockPredictResponseMapper
+        )
+        val resultListener =
+            FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        predictInternal.recommendProducts(
+            mockLogic,
+            5,
+            mockRecommendationFilters,
+            resultListener = resultListener
+        )
+        latch.await()
+        resultListener.errorCount shouldBe 1
     }
 
     @Test
     fun testRecommendProducts_shouldCallRequestManager_failure_shouldBeCalledOnMainThread() {
         predictInternal = DefaultPredictInternal(
-                mockRequestContext,
-                requestManagerWithRestClient(FakeRestClient(mockResponseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
-                mockRequestModelBuilderProvider,
-                mockPredictResponseMapper
+            mockRequestContext,
+            requestManagerWithRestClient(
+                FakeRestClient(
+                    mockResponseModel,
+                    FakeRestClient.Mode.ERROR_RESPONSE_MODEL
+                )
+            ),
+            uiHandler,
+            mockRequestModelBuilderProvider,
+            mockPredictResponseMapper
         )
-        val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, resultListener = resultListener)
-
+        val mockResultListener: ResultListener<Try<List<Product>>> = mock()
+        predictInternal.recommendProducts(
+            mockLogic,
+            5,
+            mockRecommendationFilters,
+            resultListener = mockResultListener
+        )
+        val threadSpy: ThreadSpy<*> = ThreadSpy<Any?>()
+        whenever(mockResultListener.onResult(any())).doAnswer {
+            threadSpy.answer(it)
+            latch.countDown()
+        }
         latch.await()
+        threadSpy.verifyCalledOnMainThread()
+    }
 
+    @Test
+    fun testRecommendProducts_shouldCallRequestManager_failureWithException_shouldBeCalled() {
+        val mockException: Exception = mock()
+
+        predictInternal = DefaultPredictInternal(
+            mockRequestContext,
+            requestManagerWithRestClient(FakeRestClient(mockException)),
+            uiHandler,
+            mockRequestModelBuilderProvider,
+            mockPredictResponseMapper
+        )
+        val resultListener =
+            FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        predictInternal.recommendProducts(
+            mockLogic,
+            5,
+            mockRecommendationFilters,
+            resultListener = resultListener
+        )
+        latch.await()
         resultListener.errorCount shouldBe 1
     }
 
@@ -434,17 +581,26 @@ class DefaultPredictInternalTest {
         val mockException: Exception = mock()
 
         predictInternal = DefaultPredictInternal(
-                mockRequestContext,
-                requestManagerWithRestClient(FakeRestClient(mockException)),
-                mockRequestModelBuilderProvider,
-                mockPredictResponseMapper
+            mockRequestContext,
+            requestManagerWithRestClient(FakeRestClient(mockException)),
+            uiHandler,
+            mockRequestModelBuilderProvider,
+            mockPredictResponseMapper
         )
-        val resultListener = FakeResultListener<List<Product>>(latch, FakeResultListener.Mode.MAIN_THREAD)
-        predictInternal.recommendProducts(mockLogic, 5, mockRecommendationFilters, resultListener = resultListener)
-
+        val mockResultListener: ResultListener<Try<List<Product>>> = mock()
+        predictInternal.recommendProducts(
+            mockLogic,
+            5,
+            mockRecommendationFilters,
+            resultListener = mockResultListener
+        )
+        val threadSpy: ThreadSpy<*> = ThreadSpy<Any?>()
+        whenever(mockResultListener.onResult(any())).doAnswer {
+            threadSpy.answer(it)
+            latch.countDown()
+        }
         latch.await()
-
-        resultListener.errorCount shouldBe 1
+        threadSpy.verifyCalledOnMainThread()
     }
 
     @Test
@@ -455,11 +611,12 @@ class DefaultPredictInternalTest {
     @Test
     fun testTrackRecommendationClick_shouldCallRequestManager_withCorrectShardModel() {
         val expectedShardModel = ShardModel(
-                ID1,
-                "predict_item_view",
-                mapOf("v" to "i:${PRODUCT.productId},t:${PRODUCT.feature},c:${PRODUCT.cohort}"),
-                TIMESTAMP,
-                TTL)
+            ID1,
+            "predict_item_view",
+            mapOf("v" to "i:${PRODUCT.productId},t:${PRODUCT.feature},c:${PRODUCT.cohort}"),
+            TIMESTAMP,
+            TTL
+        )
 
         predictInternal.trackRecommendationClick(PRODUCT)
 
@@ -468,7 +625,11 @@ class DefaultPredictInternalTest {
 
     @Test
     fun testTrackRecommendationClick_shouldSetLastTrackedItemContainersLastItemViewField_withCorrectItemId() {
-        ReflectionTestUtils.setInstanceField(predictInternal, "lastTrackedContainer", mockLastTrackedItemContainer)
+        ReflectionTestUtils.setInstanceField(
+            predictInternal,
+            "lastTrackedContainer",
+            mockLastTrackedItemContainer
+        )
         predictInternal.trackRecommendationClick(PRODUCT)
         verify(mockLastTrackedItemContainer).lastItemView = PRODUCT.productId
     }
@@ -484,14 +645,14 @@ class DefaultPredictInternalTest {
             }
         }
         return RequestManager(
-                mock(),
-                mock() as Repository<RequestModel, SqlSpecification>,
-                mock() as Repository<ShardModel, SqlSpecification>,
-                mock(),
-                restClient,
-                mock() as Registry<RequestModel, CompletionListener>,
-                mock(),
-                mockProvider
+            mock(),
+            mock() as Repository<RequestModel, SqlSpecification>,
+            mock() as Repository<ShardModel, SqlSpecification>,
+            mock(),
+            restClient,
+            mock() as Registry<RequestModel, CompletionListener>,
+            mock(),
+            mockProvider
         )
     }
 }

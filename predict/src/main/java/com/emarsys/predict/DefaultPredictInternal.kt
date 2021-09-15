@@ -1,5 +1,6 @@
 package com.emarsys.predict
 
+import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.ResultListener
@@ -26,6 +27,7 @@ import com.emarsys.predict.util.CartItemUtils
 class DefaultPredictInternal(
     requestContext: PredictRequestContext,
     private val requestManager: RequestManager,
+    private val uiHandler: Handler,
     private val requestModelBuilderProvider: PredictRequestModelBuilderProvider,
     private val responseMapper: PredictResponseMapper,
     private val lastTrackedContainer: LastTrackedItemContainer = LastTrackedItemContainer()
@@ -146,23 +148,27 @@ class DefaultPredictInternal(
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
                 val products = responseMapper.map(responseModel)
-                resultListener.onResult(success(products))
+                uiHandler.post {
+                    resultListener.onResult(success(products))
+                }
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
-                resultListener.onResult(
-                    failure(
-                        ResponseErrorException(
-                            responseModel.statusCode,
-                            responseModel.message,
-                            responseModel.body
+                uiHandler.post {
+                    resultListener.onResult(
+                        failure(
+                            ResponseErrorException(
+                                responseModel.statusCode,
+                                responseModel.message,
+                                responseModel.body
+                            )
                         )
                     )
-                )
+                }
             }
 
             override fun onError(id: String, cause: Exception) {
-                resultListener.onResult(failure(cause))
+                uiHandler.post { resultListener.onResult(failure(cause)) }
             }
         })
     }

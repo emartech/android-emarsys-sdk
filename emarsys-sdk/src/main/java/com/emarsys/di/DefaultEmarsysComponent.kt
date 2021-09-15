@@ -861,6 +861,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         DefaultPredictInternal(
             predictRequestContext,
             requestManager,
+            uiHandler,
             predictRequestModelBuilderProvider,
             PredictResponseMapper()
         )
