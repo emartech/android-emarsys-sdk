@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId "com.emarsys.sample"
         minSdkVersion 24
-        targetSdkVersion 30
+        targetSdkVersion 31
         multiDexEnabled true
         versionCode gitVersionCode
         versionName gitVersionName
@@ -87,8 +87,8 @@ buildscript {
 }
 
 repositories {
-    jcenter()
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
