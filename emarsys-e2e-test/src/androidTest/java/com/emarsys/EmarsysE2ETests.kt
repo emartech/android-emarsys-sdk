@@ -21,6 +21,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONObject
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -175,6 +176,7 @@ class EmarsysE2ETests {
     }
 
     @Test
+    @Ignore("Test is too flaky to run on pipeline")
     fun testGeofence() {
         setup(APPLICATION_CODE)
         retry {
