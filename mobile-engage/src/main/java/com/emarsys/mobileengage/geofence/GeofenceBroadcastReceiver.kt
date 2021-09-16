@@ -8,8 +8,8 @@ import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.util.SystemUtils
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.StatusLog
+import com.emarsys.mobileengage.api.geofence.TriggerType
 import com.emarsys.mobileengage.di.mobileEngage
-import com.emarsys.mobileengage.geofence.model.TriggerType
 import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 import com.google.android.gms.location.GeofencingEvent
 

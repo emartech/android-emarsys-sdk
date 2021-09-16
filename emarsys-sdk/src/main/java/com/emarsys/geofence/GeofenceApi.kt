@@ -2,7 +2,7 @@ package com.emarsys.geofence
 
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.mobileengage.api.event.EventHandler
-import com.emarsys.mobileengage.geofence.model.Geofence
+import com.emarsys.mobileengage.api.geofence.Geofence
 
 interface GeofenceApi {
     val registeredGeofences: List<Geofence>

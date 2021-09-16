@@ -22,17 +22,17 @@ import com.emarsys.core.util.SystemUtils
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.StatusLog
 import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.mobileengage.api.geofence.Trigger
+import com.emarsys.mobileengage.api.geofence.TriggerType
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
-import com.emarsys.mobileengage.geofence.model.Trigger
-import com.emarsys.mobileengage.geofence.model.TriggerType
 import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.google.android.gms.location.*
 import org.json.JSONObject
 import kotlin.math.abs
-import com.emarsys.mobileengage.geofence.model.Geofence as MEGeofence
+import com.emarsys.mobileengage.api.geofence.Geofence as MEGeofence
 
 @Mockable
 class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageRequestModelFactory,

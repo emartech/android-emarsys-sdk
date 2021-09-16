@@ -5,7 +5,7 @@ import com.emarsys.core.util.SystemUtils
 import com.emarsys.core.util.log.Logger.Companion.debug
 import com.emarsys.core.util.log.entry.MethodNotAllowed
 import com.emarsys.mobileengage.api.event.EventHandler
-import com.emarsys.mobileengage.geofence.model.Geofence
+import com.emarsys.mobileengage.api.geofence.Geofence
 import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 
 class LoggingGeofenceInternal(private val klass: Class<*>) : GeofenceInternal {

@@ -1,7 +1,11 @@
 package com.emarsys.mobileengage.geofence
 
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.mobileengage.geofence.model.*
+import com.emarsys.mobileengage.api.geofence.Geofence
+import com.emarsys.mobileengage.api.geofence.Trigger
+import com.emarsys.mobileengage.api.geofence.TriggerType
+import com.emarsys.mobileengage.geofence.model.GeofenceGroup
+import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
 import org.json.JSONArray
@@ -159,7 +163,8 @@ class GeofenceResponseMapperTest {
                         }
                     ]""")
 
-        val expected = listOf(Trigger("triggerId2", TriggerType.ENTER, 13, JSONObject("""
+        val expected = listOf(
+            Trigger("triggerId2", TriggerType.ENTER, 13, JSONObject("""
                  {
                     "id":"testActionId2",
                     "title":"Custom event",
@@ -168,7 +173,8 @@ class GeofenceResponseMapperTest {
                     "payload":{
                            "someKey":"someValue"
                         }
-                 }""")))
+                 }"""))
+        )
 
         val result = mapper.extractTriggersFromJson(triggerJsonArray)
 

@@ -3,8 +3,8 @@ package com.emarsys.geofence
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.mobileengage.api.geofence.Geofence
 import com.emarsys.mobileengage.di.mobileEngage
-import com.emarsys.mobileengage.geofence.model.Geofence
 
 @Mockable
 class Geofence(private val loggingInstance: Boolean = false) : GeofenceApi {

@@ -2,7 +2,11 @@ package com.emarsys.mobileengage.geofence
 
 import android.location.Location
 import android.location.LocationManager
-import com.emarsys.mobileengage.geofence.model.*
+import com.emarsys.mobileengage.api.geofence.Geofence
+import com.emarsys.mobileengage.api.geofence.Trigger
+import com.emarsys.mobileengage.api.geofence.TriggerType
+import com.emarsys.mobileengage.geofence.model.GeofenceGroup
+import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
 import org.json.JSONObject
@@ -47,8 +51,11 @@ class GeofenceFilterTest {
                 Geofence("geofenceId2", 47.493812, 19.058537, 10.0, null, listOf(trigger)),
                 Geofence("geofenceId4", 47.489680, 19.061230, 350.0, null, listOf(trigger)),
                 Geofence("geofenceId5", 47.492292, 19.056440, 10.0, null, listOf(trigger)),
-                Geofence("geofenceId6", 47.492292, 19.056440, 10.0, null, listOf(trigger)))
-        val geofenceResponse = GeofenceResponse(listOf(GeofenceGroup("group1", null, allGeofences), GeofenceGroup("group2", null, listOf(Geofence("geofenceId6", 47.492292, 19.056440, 10.0, null, listOf(trigger))))))
+                Geofence("geofenceId6", 47.492292, 19.056440, 10.0, null, listOf(trigger))
+        )
+        val geofenceResponse = GeofenceResponse(listOf(GeofenceGroup("group1", null, allGeofences), GeofenceGroup("group2", null, listOf(
+            Geofence("geofenceId6", 47.492292, 19.056440, 10.0, null, listOf(trigger))
+        ))))
 
         val result = geofenceFilter.findNearestGeofences(currentLocation, geofenceResponse)
 
@@ -62,7 +69,8 @@ class GeofenceFilterTest {
         val expected = listOf(
                 Geofence("geofenceId1", 47.493160, 19.058355, 10.0, null, listOf(trigger)),
                 Geofence("geofenceId2", 47.493812, 19.058537, 10.0, null, listOf(trigger)),
-                Geofence("geofenceId4", 47.489680, 19.061230, 350.0, null, listOf(trigger)))
+                Geofence("geofenceId4", 47.489680, 19.061230, 350.0, null, listOf(trigger))
+        )
 
         val geofenceResponse = GeofenceResponse(listOf(GeofenceGroup("group1", null, allGeofences)))
         val result = geofenceFilter.findNearestGeofences(currentLocation, geofenceResponse)

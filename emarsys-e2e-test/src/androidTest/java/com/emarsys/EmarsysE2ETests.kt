@@ -6,11 +6,12 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.os.SystemClock
+import androidx.test.rule.GrantPermissionRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.di.emarsys
+import com.emarsys.mobileengage.api.geofence.Trigger
+import com.emarsys.mobileengage.api.geofence.TriggerType
 import com.emarsys.mobileengage.api.inbox.Message
-import com.emarsys.mobileengage.geofence.model.Trigger
-import com.emarsys.mobileengage.geofence.model.TriggerType
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.E2ETestUtils.retry
 import com.emarsys.testUtil.rules.ConnectionRule
@@ -25,8 +26,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import com.emarsys.mobileengage.geofence.model.Geofence as MEGeofence
-import androidx.test.rule.GrantPermissionRule
+import com.emarsys.mobileengage.api.geofence.Geofence as MEGeofence
 
 
 class EmarsysE2ETests {

@@ -17,9 +17,13 @@ import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.mobileengage.api.geofence.Trigger
+import com.emarsys.mobileengage.api.geofence.TriggerType
 import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.mobileengage.fake.FakeRequestManager
-import com.emarsys.mobileengage.geofence.model.*
+import com.emarsys.mobileengage.geofence.model.GeofenceGroup
+import com.emarsys.mobileengage.geofence.model.GeofenceResponse
+import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.InstrumentationRegistry
@@ -37,7 +41,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
-import com.emarsys.mobileengage.geofence.model.Geofence as MEGeofence
+import com.emarsys.mobileengage.api.geofence.Geofence as MEGeofence
 
 class DefaultGeofenceInternalTest {
 
