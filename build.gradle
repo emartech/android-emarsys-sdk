@@ -15,7 +15,6 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$Versions.kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-allopen:$Versions.kotlin_version"
         classpath "com.github.ben-manes:gradle-versions-plugin:0.39.0"
-        classpath "com.vanniktech:gradle-dependency-graph-generator-plugin:0.6.0"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.3.5"
         classpath "io.github.gradle-nexus:publish-plugin:1.1.0"
     }
@@ -26,7 +25,6 @@ apply from: 'gradle/version.gradle'
 apply from: 'gradle/common.gradle'
 apply from: 'gradle/release.gradle'
 apply plugin: "com.github.ben-manes.versions"
-apply plugin: "com.vanniktech.dependency.graph.generator"
 
 allprojects {
     repositories {
