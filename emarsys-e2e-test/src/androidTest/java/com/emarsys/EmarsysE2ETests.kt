@@ -1,12 +1,10 @@
 package com.emarsys
 
-import android.Manifest
 import android.app.Application
 import android.location.Location
 import android.location.LocationManager
 import android.os.Build
 import android.os.SystemClock
-import androidx.test.rule.GrantPermissionRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.di.emarsys
 import com.emarsys.mobileengage.api.geofence.Trigger
@@ -43,14 +41,6 @@ class EmarsysE2ETests {
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
-
-    @Rule
-    @JvmField
-    val permissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_BACKGROUND_LOCATION
-    )
 
     @Rule
     @JvmField
