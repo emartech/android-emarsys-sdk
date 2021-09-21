@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.emarsys.core.util.Assert;
+import com.emarsys.core.util.log.Logger;
+import com.emarsys.core.util.log.entry.CrashLog;
 import com.emarsys.mobileengage.notification.LaunchActivityCommandLifecycleCallbacksFactory;
 import com.emarsys.mobileengage.service.IntentUtils;
 
@@ -38,8 +40,7 @@ public class LaunchApplicationCommand implements Runnable {
         try {
             latch.await(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Logger.error(new CrashLog(e, null));
         }
     }
-
 }
