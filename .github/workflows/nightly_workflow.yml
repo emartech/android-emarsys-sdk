@@ -608,3 +608,13 @@ jobs:
           job_status: 'failure'
           user_icon: '${{env.SLACK_ICON}}'
           actions: '[{ "type": "button", "text": "View actions", "url": "https://github.com/emartech/android-emarsys-sdk/actions" },{ "type": "button", "text": "View Firebase", "url": "https://console.firebase.google.com/project/ems-mobile-sdk/testlab/histories/" }]'
+  Blackduck:
+    name: Run Blackduck scan
+    runs-on: ubuntu-latest
+    needs: [ Build ]
+    steps:
+      - name: Trigger Sample App Build
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          event-type: security-scan
