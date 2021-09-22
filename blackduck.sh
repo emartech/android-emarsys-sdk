@@ -1,3 +1,4 @@
+curl --silent -O https://detect.synopsys.com/detect.sh
 chmod +x detect.sh
 ./detect.sh \
 --blackduck.timeout=6000 \
