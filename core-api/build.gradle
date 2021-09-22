@@ -3,8 +3,8 @@ dependencies {
     api Libs.support_appcompat
     api Libs.kotlin
     api Libs.espresso_idling_resources
-    api Libs.lifecycle_extensions
+    api Libs.lifecycle_extension_java_8
+    api Libs.lifecycle_process
     api Libs.security_crypto
-    kapt Libs.lifecycle_compiler
     androidTestImplementation project(':testUtils')
 }

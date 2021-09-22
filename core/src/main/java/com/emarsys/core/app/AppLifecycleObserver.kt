@@ -1,25 +1,24 @@
 package com.emarsys.core.app
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import com.emarsys.core.Mockable
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.session.Session
 
 @Mockable
 class AppLifecycleObserver(private val session: Session,
-                           private val coreSdkHandler: CoreSdkHandler) : LifecycleObserver {
+                           private val coreSdkHandler: CoreSdkHandler) : DefaultLifecycleObserver {
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun onEnterForeground() {
+    override fun onStart(owner: LifecycleOwner) {
+        super.onStart(owner)
         coreSdkHandler.post {
             session.startSession()
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun onEnterBackground() {
+    override fun onStop(owner: LifecycleOwner) {
+        super.onStop(owner)
         coreSdkHandler.post {
             session.endSession()
         }
