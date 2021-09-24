@@ -18,11 +18,11 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyZeroInteractions
 
-class InAppStartActionTest {
+class AppStartActionTest {
 
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockContactTokenStorage: Storage<String?>
-    private lateinit var startAction: InAppStartAction
+    private lateinit var startAction: AppStartAction
 
     @Rule
     @JvmField
@@ -35,7 +35,7 @@ class InAppStartActionTest {
 
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
 
-        startAction = InAppStartAction(mockEventServiceInternal, mockContactTokenStorage)
+        startAction = AppStartAction(mockEventServiceInternal, mockContactTokenStorage)
     }
 
     @After

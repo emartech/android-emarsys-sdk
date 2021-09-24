@@ -46,11 +46,10 @@ class PreloadedInappHandlerCommand(private val intent: Intent) : Runnable {
     private fun scheduleInAppDisplay(campaignId: String, html: String, sid: String?, url: String?) {
         val pushToInAppAction = PushToInAppAction(mobileEngage().overlayInAppPresenter, campaignId, html, sid, url,
                 mobileEngage().timestampProvider)
-        val watchdog = mobileEngage().activityLifecycleWatchdog
         val activityProvider = mobileEngage().currentActivityProvider
         val currentActivity = activityProvider.get()
         if (currentActivity == null) {
-            watchdog.addTriggerOnActivityAction(pushToInAppAction)
+            mobileEngage().activityLifecycleActionRegistry.addTriggerOnActivityAction(pushToInAppAction)
         } else {
             pushToInAppAction.execute(currentActivity)
         }

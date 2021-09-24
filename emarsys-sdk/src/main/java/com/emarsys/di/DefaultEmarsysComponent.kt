@@ -15,6 +15,7 @@ import com.emarsys.config.*
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.Mapper
 import com.emarsys.core.activity.ActivityLifecycleAction
+import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.notification.NotificationSettings
@@ -238,25 +239,19 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         )
     }
 
-    override val activityLifecycleWatchdog: ActivityLifecycleWatchdog by lazy {
-        val applicationStartActions = arrayOf<ActivityLifecycleAction>(
-            DeviceInfoStartAction(clientServiceInternal, deviceInfoPayloadStorage, deviceInfo)
-        )
-        val activityCreatedActions = arrayOf<ActivityLifecycleAction>(
-            DeepLinkAction(deepLinkInternal)
-        )
-        val initializationActions = arrayOf<ActivityLifecycleAction?>(
+    override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry by lazy {
+        val actions = mutableListOf(
+            DeviceInfoStartAction(clientServiceInternal, deviceInfoPayloadStorage, deviceInfo),
+            DeepLinkAction(deepLinkInternal),
             FetchGeofencesAction(geofenceInternal),
             FetchRemoteConfigAction(configInternal) { logInitialSetup(config) },
-            InAppStartAction(eventServiceInternal, contactTokenStorage)
+            AppStartAction(eventServiceInternal, contactTokenStorage)
         )
+        ActivityLifecycleActionRegistry(coreSdkHandler, currentActivityProvider, actions)
+    }
 
-        ActivityLifecycleWatchdog(
-            applicationStartActions,
-            activityCreatedActions,
-            initializationActions,
-            coreSdkHandler
-        )
+    override val activityLifecycleWatchdog: ActivityLifecycleWatchdog by lazy {
+        ActivityLifecycleWatchdog(activityLifecycleActionRegistry)
     }
 
     fun initializeResponseHandlers(config: EmarsysConfig) {

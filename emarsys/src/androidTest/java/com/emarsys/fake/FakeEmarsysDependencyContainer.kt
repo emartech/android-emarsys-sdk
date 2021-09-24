@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.app.AppLifecycleObserver
@@ -151,5 +152,6 @@ class FakeEmarsysDependencyContainer(
     override val connectionWatchdog: ConnectionWatchDog = mock(),
     override val coreCompletionHandler: CoreCompletionHandler = mock(),
     override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> = mock(),
-    override val fusedLocationProviderClient: FusedLocationProviderClient = mock()
+    override val fusedLocationProviderClient: FusedLocationProviderClient = mock(),
+    override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock()
 ) : MobileEngageComponent

@@ -31,7 +31,7 @@ class FetchRemoteConfigActionTest {
 
         setupMobileEngageComponent(FakeEmarsysDependencyContainer())
 
-        fetchAction = FetchRemoteConfigAction(mockConfigInternal, mockCompletionListener)
+        fetchAction = FetchRemoteConfigAction(mockConfigInternal, completionListener = mockCompletionListener)
     }
 
     @After

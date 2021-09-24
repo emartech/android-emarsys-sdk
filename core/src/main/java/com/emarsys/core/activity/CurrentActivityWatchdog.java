@@ -3,6 +3,7 @@ package com.emarsys.core.activity;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.emarsys.core.provider.Property;
 import com.emarsys.core.util.Assert;

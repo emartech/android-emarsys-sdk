@@ -6,7 +6,9 @@ import com.emarsys.core.provider.Property
 import java.lang.ref.WeakReference
 
 @Mockable
-class CurrentActivityProvider(private var activityWeakReference: WeakReference<Activity?> = WeakReference(null)) : Property<Activity?> {
+class CurrentActivityProvider(
+    private var activityWeakReference: WeakReference<Activity?> = WeakReference(null)
+) : Property<Activity?> {
 
     override fun get(): Activity? {
         return activityWeakReference.get()

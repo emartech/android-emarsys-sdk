@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.notification.command
 import android.app.Application
 import android.content.Intent
 import android.os.Bundle
+import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.handler.CoreSdkHandler
@@ -32,33 +33,29 @@ class PreloadedInappHandlerCommandTest {
     }
 
     private lateinit var mockDependencyContainer: MobileEngageComponent
-    private lateinit var mockActivityLifecycleWatchdog: ActivityLifecycleWatchdog
-    private lateinit var mockCoreSdkHandler: CoreSdkHandler
+    private lateinit var coreSdkHandler: CoreSdkHandler
+    private lateinit var mockLifecycleActionRegistry: ActivityLifecycleActionRegistry
     private lateinit var fileUrl: String
 
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    private val application: Application
-        get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
-
-
     @Before
     fun setUp() {
         fileUrl = InstrumentationRegistry.getTargetContext().applicationContext.cacheDir.absolutePath + "/test.file"
 
-        mockCoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+        mockLifecycleActionRegistry = mock()
 
-        mockActivityLifecycleWatchdog = mock()
         val mockFileDownloader: FileDownloader = mock {
             on { readFileIntoString(any()) } doReturn "html"
             on { readURLIntoString(any()) } doReturn "html"
         }
 
         mockDependencyContainer = FakeMobileEngageDependencyContainer(
-                activityLifecycleWatchdog = mockActivityLifecycleWatchdog,
-                coreSdkHandler = mockCoreSdkHandler,
+                coreSdkHandler = coreSdkHandler,
+                activityLifecycleActionRegistry = mockLifecycleActionRegistry,
                 fileDownloader = mockFileDownloader
         )
 
@@ -68,8 +65,7 @@ class PreloadedInappHandlerCommandTest {
 
     @After
     fun tearDown() {
-        application.unregisterActivityLifecycleCallbacks(mockActivityLifecycleWatchdog)
-        mockCoreSdkHandler.looper.quitSafely()
+        coreSdkHandler.looper.quitSafely()
         tearDownMobileEngageComponent()
     }
 
@@ -93,9 +89,9 @@ class PreloadedInappHandlerCommandTest {
 
         PreloadedInappHandlerCommand(intent).run()
 
-        waitForEventLoopToFinish(mockCoreSdkHandler)
+        waitForEventLoopToFinish(coreSdkHandler)
 
-        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any())
+        verify(mockLifecycleActionRegistry).addTriggerOnActivityAction(any())
     }
 
     @Test
@@ -120,9 +116,9 @@ class PreloadedInappHandlerCommandTest {
 
         PreloadedInappHandlerCommand(intent).run()
 
-        waitForEventLoopToFinish(mockCoreSdkHandler)
+        waitForEventLoopToFinish(coreSdkHandler)
 
-        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any())
+        verify(mockLifecycleActionRegistry).addTriggerOnActivityAction(any())
     }
 
     @Test
@@ -143,9 +139,9 @@ class PreloadedInappHandlerCommandTest {
 
         PreloadedInappHandlerCommand(intent).run()
 
-        waitForEventLoopToFinish(mockCoreSdkHandler)
+        waitForEventLoopToFinish(coreSdkHandler)
 
-        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any())
+        verify(mockLifecycleActionRegistry).addTriggerOnActivityAction(any())
     }
 
     @Test
@@ -170,9 +166,9 @@ class PreloadedInappHandlerCommandTest {
 
         PreloadedInappHandlerCommand(intent).run()
 
-        waitForEventLoopToFinish(mockCoreSdkHandler)
+        waitForEventLoopToFinish(coreSdkHandler)
 
-        verify(mockActivityLifecycleWatchdog).addTriggerOnActivityAction(any())
+        verify(mockLifecycleActionRegistry).addTriggerOnActivityAction(any())
 
         File(fileUrl).exists() shouldBe false
     }
@@ -189,9 +185,9 @@ class PreloadedInappHandlerCommandTest {
 
         PreloadedInappHandlerCommand(intent).run()
 
-        waitForEventLoopToFinish(mockCoreSdkHandler)
+        waitForEventLoopToFinish(coreSdkHandler)
 
-        verifyZeroInteractions(mockActivityLifecycleWatchdog)
+        verifyZeroInteractions(mockLifecycleActionRegistry)
     }
 
     private fun waitForEventLoopToFinish(handler: CoreSdkHandler) {

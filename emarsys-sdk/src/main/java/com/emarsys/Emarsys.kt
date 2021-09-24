@@ -184,10 +184,8 @@ object Emarsys {
     }
 
     private fun registerWatchDogs(config: EmarsysConfig) {
-        config.application.registerActivityLifecycleCallbacks(
-                emarsys().activityLifecycleWatchdog
-        )
         config.application.registerActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
+        config.application.registerActivityLifecycleCallbacks(emarsys().activityLifecycleWatchdog)
     }
 
     private fun registerDatabaseTriggers() {

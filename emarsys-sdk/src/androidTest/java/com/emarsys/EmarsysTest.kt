@@ -13,6 +13,7 @@ import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.config.FetchRemoteConfigAction
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.experimental.FlipperFeature
@@ -43,8 +44,10 @@ import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.deeplink.DeepLinkAction
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
+import com.emarsys.mobileengage.device.DeviceInfoStartAction
 import com.emarsys.mobileengage.event.EventServiceInternal
-import com.emarsys.mobileengage.iam.InAppStartAction
+import com.emarsys.mobileengage.geofence.FetchGeofencesAction
+import com.emarsys.mobileengage.iam.AppStartAction
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy
 import com.emarsys.mobileengage.responsehandler.*
 import com.emarsys.predict.PredictApi
@@ -90,8 +93,8 @@ class EmarsysTest {
     @JvmField
     val duplicateThreadRule = DuplicatedThreadRule("CoreSDKHandlerThread")
 
-    private lateinit var activityLifecycleWatchdog: ActivityLifecycleWatchdog
-    private lateinit var currentActivityWatchdog: CurrentActivityWatchdog
+    private lateinit var mockActivityLifecycleWatchdog: ActivityLifecycleWatchdog
+    private lateinit var mockCurrentActivityWatchdog: CurrentActivityWatchdog
     private lateinit var mockCoreSQLiteDatabase: CoreSQLiteDatabase
     private lateinit var mockLogShardTrigger: Runnable
     private lateinit var mockMobileEngageInternal: MobileEngageInternal
@@ -142,8 +145,8 @@ class EmarsysTest {
             application = spy(getTargetContext().applicationContext as Application)
             completionListener = mock()
             mockResultListener = mock()
-            activityLifecycleWatchdog = mock()
-            currentActivityWatchdog = mock()
+            mockActivityLifecycleWatchdog = mock()
+            mockCurrentActivityWatchdog = mock()
             mockCoreSQLiteDatabase = mock()
             mockMobileEngageInternal = mock()
             mockDeepLinkInternal = mock()
@@ -219,8 +222,8 @@ class EmarsysTest {
 
             setupEmarsysComponent(
                 FakeDependencyContainer(
-                    activityLifecycleWatchdog = activityLifecycleWatchdog,
-                    currentActivityWatchdog = currentActivityWatchdog,
+                    activityLifecycleWatchdog = mockActivityLifecycleWatchdog,
+                    currentActivityWatchdog = mockCurrentActivityWatchdog,
                     coreSQLiteDatabase = mockCoreSQLiteDatabase,
                     deviceInfo = deviceInfo,
                     logShardTrigger = mockLogShardTrigger,
@@ -483,7 +486,7 @@ class EmarsysTest {
     }
 
     @Test
-    fun testSetup_registers_activityLifecycleWatchdog_withInAppStartAction() {
+    fun testSetup_registers_activityLifecycleWatchdogs() {
         IntegrationTestUtils.tearDownEmarsys()
         val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
 
@@ -491,34 +494,22 @@ class EmarsysTest {
 
         runBlockingOnCoreSdkThread {
             verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
-            val actions = getElementByType(
-                captor.allValues,
-                ActivityLifecycleWatchdog::class.java
-            )?.initializationActions?.toList()
-            Assert.assertEquals(
-                1,
-                numberOfElementsIn(actions!!, InAppStartAction::class.java).toLong()
-            )
         }
     }
 
     @Test
-    fun testSetup_registers_activityLifecycleWatchdog_withDeepLinkAction() {
+    fun testSetup_registers_startActions() {
         IntegrationTestUtils.tearDownEmarsys()
-        val captor = ArgumentCaptor.forClass(ActivityLifecycleWatchdog::class.java)
-
         setup(mobileEngageConfig)
 
         runBlockingOnCoreSdkThread {
-            verify(application, times(2)).registerActivityLifecycleCallbacks(captor.capture())
-            val actions = getElementByType(
-                captor.allValues,
-                ActivityLifecycleWatchdog::class.java
-            )?.activityCreatedActions?.toList()
-            Assert.assertEquals(
-                1,
-                numberOfElementsIn(actions!!, DeepLinkAction::class.java).toLong()
-            )
+            val actions = emarsys().activityLifecycleActionRegistry.lifecycleActions
+
+            numberOfElementsIn(actions, AppStartAction::class.java).toLong() shouldBe 1
+            numberOfElementsIn(actions, DeepLinkAction::class.java).toLong() shouldBe 1
+            numberOfElementsIn(actions, DeviceInfoStartAction::class.java).toLong() shouldBe 1
+            numberOfElementsIn(actions, FetchGeofencesAction::class.java).toLong() shouldBe 1
+            numberOfElementsIn(actions, FetchRemoteConfigAction::class.java).toLong() shouldBe 1
         }
     }
 
@@ -527,7 +518,10 @@ class EmarsysTest {
         setup(mobileEngageConfig)
 
         runBlockingOnCoreSdkThread {
-            verify(application).registerActivityLifecycleCallbacks(currentActivityWatchdog)
+            inOrder(application).apply {
+            verify(application).registerActivityLifecycleCallbacks(mockCurrentActivityWatchdog)
+            verify(application).registerActivityLifecycleCallbacks(mockActivityLifecycleWatchdog)
+            }
         }
     }
 

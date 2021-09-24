@@ -3,6 +3,7 @@ package com.emarsys.core.di
 import android.content.SharedPreferences
 import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.connection.ConnectionWatchDog
@@ -55,6 +56,8 @@ interface CoreComponent {
     val activityLifecycleWatchdog: ActivityLifecycleWatchdog
 
     val currentActivityWatchdog: CurrentActivityWatchdog
+
+    val activityLifecycleActionRegistry : ActivityLifecycleActionRegistry
 
     val coreSQLiteDatabase: CoreSQLiteDatabase
 

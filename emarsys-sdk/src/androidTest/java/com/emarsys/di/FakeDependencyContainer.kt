@@ -7,6 +7,7 @@ import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.ConfigInternal
 import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.app.AppLifecycleObserver
@@ -197,5 +198,6 @@ class FakeDependencyContainer(
         override val predictRequestModelBuilderProvider: PredictRequestModelBuilderProvider = mock(),
         override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> = mock(),
         override val isGooglePlayServiceAvailable: Boolean = true,
-        override val fusedLocationProviderClient: FusedLocationProviderClient = mock()
+        override val fusedLocationProviderClient: FusedLocationProviderClient = mock(),
+        override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock()
 ) : EmarsysComponent
