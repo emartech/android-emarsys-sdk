@@ -544,7 +544,7 @@ jobs:
           json: ${{ secrets.GOOGLE_PLAY_STORE_SEVICE_ACCOUNT_JSON }}
 
       - name: Playstore upload
-        uses: r0adkll/upload-google-play@v1
+        uses: r0adkll/upload-google-play@v1.0.15
         with:
           serviceAccountJson: google-play-services.json
           packageName: com.emarsys.sample
