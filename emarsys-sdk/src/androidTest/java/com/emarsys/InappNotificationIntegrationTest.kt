@@ -3,9 +3,12 @@ package com.emarsys
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.app.AppLifecycleObserver
 import com.emarsys.core.util.FileDownloader
@@ -84,6 +87,8 @@ class InappNotificationIntegrationTest {
                 get() = mockInappPresenterOverlay
             override val activityLifecycleWatchdog: ActivityLifecycleWatchdog
                 get() = mock()
+            override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry
+                get() = mock()
             override val appLifecycleObserver: AppLifecycleObserver
                 get() = mock()
             override val eventServiceInternal: EventServiceInternal
@@ -120,6 +125,7 @@ class InappNotificationIntegrationTest {
         context.startActivity(intent)
 
         activityScenarioRule.scenario.moveToState(Lifecycle.State.CREATED)
+
 
         completionListenerLatch.await()
         verify(mockInappPresenterOverlay).present(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
