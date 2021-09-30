@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.emarsys.sample"
-    xmlns:tools="http://schemas.android.com/tools">
+    package="com.emarsys.sample">
 
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -19,10 +18,10 @@
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.huawei.hms.client.channel.androidMarket"
-            android:value="true" />
+            android:value="false" />
         <meta-data
             android:name="push_kit_auto_init_enabled"
-            android:value="true" />
+            android:value="false" />
         <activity
             android:name="com.emarsys.sample.MainActivity"
             android:exported="true">
