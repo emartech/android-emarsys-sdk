@@ -1,5 +1,6 @@
 package com.emarsys.di
 
+import android.app.Activity
 import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
@@ -200,5 +201,5 @@ class FakeDependencyContainer(
         override val isGooglePlayServiceAvailable: Boolean = true,
         override val fusedLocationProviderClient: FusedLocationProviderClient = mock(),
         override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock(),
-        override val notificationOpenedActivityClass: Class<*> = mock()
+        override val notificationOpenedActivityClass: Class<*> = Activity::class.java
 ) : EmarsysComponent

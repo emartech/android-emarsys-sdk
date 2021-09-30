@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.fake
 
+import android.app.Activity
 import android.content.SharedPreferences
 import android.os.Handler
 import android.os.Looper
@@ -153,5 +154,5 @@ class FakeMobileEngageDependencyContainer(
     override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> = mock(),
     override val fusedLocationProviderClient: FusedLocationProviderClient = mock(),
     override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock(),
-    override val notificationOpenedActivityClass: Class<*> = mock()
+    override val notificationOpenedActivityClass: Class<*> = Activity::class.java
 ) : MobileEngageComponent
