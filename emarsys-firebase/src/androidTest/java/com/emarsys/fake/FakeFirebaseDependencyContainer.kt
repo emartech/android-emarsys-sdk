@@ -152,5 +152,6 @@ class FakeFirebaseDependencyContainer(
         override val coreCompletionHandler: CoreCompletionHandler = mock(),
         override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> = mock(),
         override val fusedLocationProviderClient: FusedLocationProviderClient = mock(),
-        override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock()
+        override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock(),
+        override val notificationOpenedActivityClass: Class<*> = mock()
 ) : MobileEngageComponent

@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import com.emarsys.mobileengage.di.mobileEngage
 
 object IntentUtils {
     @JvmStatic
@@ -21,7 +22,7 @@ object IntentUtils {
             context: Context, remoteMessageData: Map<String, String?>,
             notificationId: Int,
             action: String?): Intent {
-        val intent = Intent(context, NotificationOpenedActivity::class.java)
+        val intent = Intent(context, mobileEngage().notificationOpenedActivityClass)
         if (action != null) {
             intent.action = action
         }

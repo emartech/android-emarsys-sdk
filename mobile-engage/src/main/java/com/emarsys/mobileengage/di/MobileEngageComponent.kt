@@ -61,6 +61,8 @@ interface MobileEngageComponent : CoreComponent {
         var instance: MobileEngageComponent? = null
     }
 
+    val notificationOpenedActivityClass: Class<*>
+
     val mobileEngageInternal: MobileEngageInternal
 
     val loggingMobileEngageInternal: MobileEngageInternal

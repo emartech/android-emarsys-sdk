@@ -199,5 +199,6 @@ class FakeDependencyContainer(
         override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> = mock(),
         override val isGooglePlayServiceAvailable: Boolean = true,
         override val fusedLocationProviderClient: FusedLocationProviderClient = mock(),
-        override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock()
+        override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock(),
+        override val notificationOpenedActivityClass: Class<*> = mock()
 ) : EmarsysComponent
