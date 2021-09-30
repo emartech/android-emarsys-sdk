@@ -82,13 +82,13 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.gms:google-services:4.3.10'
-        classpath 'com.huawei.agconnect:agcp:1.6.0.300'
+        classpath 'com.huawei.agconnect:agcp:1.6.1.200'
     }
 }
 
 repositories {
     mavenCentral()
-    jcenter()
+    google()
 }
 
 dependencies {
@@ -104,7 +104,7 @@ dependencies {
     // Getting a "Could not find firebase-core" error? Make sure you have
     // the latest Google Repository in the Android SDK manager
 
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.5.30"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.5.31"
 
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'com.android.support:cardview-v7:28.0.0'
@@ -112,7 +112,7 @@ dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'androidx.core:core-ktx:1.6.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
@@ -124,7 +124,7 @@ dependencies {
 
     androidTestImplementation 'androidx.test:rules:1.4.0'
     androidTestImplementation 'androidx.test:runner:1.4.0'
-    androidTestImplementation('com.schibsted.spain:barista:3.9.0') {
+    androidTestImplementation('com.adevinta.android:barista:4.2.0') {
         exclude group: 'org.jetbrains.kotlin'
     }
     androidTestImplementation 'androidx.test.espresso:espresso-web:3.4.0'

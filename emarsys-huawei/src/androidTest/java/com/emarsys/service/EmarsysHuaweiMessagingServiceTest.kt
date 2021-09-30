@@ -4,7 +4,7 @@ import android.app.Application
 import android.os.Looper
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.handler.CoreSdkHandler
-import com.emarsys.fake.FakeHuaweiDependencyConatiner
+import com.emarsys.fake.FakeHuaweiDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.push.PushInternal
@@ -30,7 +30,7 @@ class EmarsysHuaweiMessagingServiceTest {
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
 
     private lateinit var mockPushInternal: PushInternal
-    private lateinit var fakeDependencyContainer: FakeHuaweiDependencyConatiner
+    private lateinit var fakeDependencyContainer: FakeHuaweiDependencyContainer
     private lateinit var mockCoreSdkHandler: CoreSdkHandler
     private lateinit var emarsysHuaweiMessagingService: EmarsysHuaweiMessagingService
     val latch = CountDownLatch(1)
@@ -99,7 +99,7 @@ class EmarsysHuaweiMessagingServiceTest {
                 false
         )
 
-        fakeDependencyContainer = FakeHuaweiDependencyConatiner(
+        fakeDependencyContainer = FakeHuaweiDependencyContainer(
                 coreSdkHandler = mockCoreSdkHandler,
                 deviceInfo = deviceInfo,
                 pushInternal = mockPushInternal

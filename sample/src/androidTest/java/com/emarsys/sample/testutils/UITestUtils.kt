@@ -4,11 +4,11 @@ import android.os.Build
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import com.adevinta.android.barista.assertion.BaristaVisibilityAssertions
+import com.adevinta.android.barista.interaction.BaristaClickInteractions
+import com.adevinta.android.barista.interaction.BaristaEditTextInteractions
+import com.adevinta.android.barista.interaction.BaristaScrollInteractions
 import com.emarsys.sample.R
-import com.schibsted.spain.barista.assertion.BaristaVisibilityAssertions
-import com.schibsted.spain.barista.interaction.BaristaClickInteractions
-import com.schibsted.spain.barista.interaction.BaristaEditTextInteractions
-import com.schibsted.spain.barista.interaction.BaristaScrollInteractions
 
 fun setupAndLogin(uiDevice: UiDevice) {
     BaristaScrollInteractions.scrollTo(R.id.buttonSetupChange)

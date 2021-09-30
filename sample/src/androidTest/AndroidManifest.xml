@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.emarsys.sample">
 
     <application
@@ -27,18 +26,6 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="androidx.test.core.app.InstrumentationActivityInvoker$BootstrapActivity"
-            tools:node="merge"
-            android:exported="false" />
-        <activity
-            android:name="androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity"
-            tools:node="merge"
-            android:exported="false" />
-        <activity
-            android:name="androidx.test.core.app.InstrumentationActivityInvoker$EmptyFloatingActivity"
-            tools:node="merge"
-            android:exported="false" />
     </application>
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

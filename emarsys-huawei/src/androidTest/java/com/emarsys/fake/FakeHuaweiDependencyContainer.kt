@@ -65,7 +65,7 @@ import com.emarsys.mobileengage.util.RequestModelHelper
 import com.google.android.gms.location.FusedLocationProviderClient
 import org.mockito.kotlin.mock
 
-class FakeHuaweiDependencyConatiner(
+class FakeHuaweiDependencyContainer(
         override val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler(),
         override val uiHandler: Handler = Handler(Looper.getMainLooper()),
         override val mobileEngageInternal: MobileEngageInternal = mock(),

@@ -1,5 +1,5 @@
 object Versions {
-    const val kotlin_version = "1.5.30"
+    const val kotlin_version = "1.5.31"
     const val kotlin_test_version = "3.4.2"
     const val mockito_version = "3.12.4"
     const val firebase_messaging_version = "22.0.0"
@@ -16,10 +16,10 @@ object Versions {
     const val archLifecycleVersion ="2.3.1"
     const val java8LifecycleVersion ="2.3.1"
     const val securityCryptoVersion = "1.1.0-alpha03"
-    const val byte_buddy_version = "1.11.15"
+    const val byte_buddy_version = "1.11.18"
     const val google_tink_version = "1.6.1"
-    const val huawei_agconnect_core_version = "1.5.3.200"
-    const val huawei_hms_push_version = "5.3.0.304"
+    const val huawei_agconnect_core_version = "1.6.1.200"
+    const val huawei_hms_push_version = "6.1.0.300"
 }
 
 object Libs {
