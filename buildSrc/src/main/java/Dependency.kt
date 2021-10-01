@@ -28,6 +28,8 @@ object Libs {
     const val firebase_messaging = "com.google.firebase:firebase-messaging:${Versions.firebase_messaging_version}"
     const val espresso_idling_resources = "androidx.test.espresso:espresso-idling-resource:${Versions.espresso_idling_resources}"
     const val kotlin = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin_version}"
+    const val kotlin_reflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin_version}"
+    const val kotlin_stdlib_jdk7= "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin_version}"
     const val location_services = "com.google.android.gms:play-services-location:${Versions.location_services_version}"
     const val lifecycle_process = "androidx.lifecycle:lifecycle-process:${Versions.archLifecycleVersion}"
     const val lifecycle_extension_java_8 = "androidx.lifecycle:lifecycle-common-java8:${Versions.java8LifecycleVersion}"
