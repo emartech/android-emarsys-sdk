@@ -1,11 +1,14 @@
 package com.emarsys.core.connection;
 
 
-import android.net.ConnectivityManager;
+import static junit.framework.Assert.assertEquals;
+
+import android.net.NetworkCapabilities;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.testUtil.ConnectionTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
+import com.emarsys.testUtil.ReflectionTestUtils;
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Rule;
@@ -16,8 +19,6 @@ import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 import java.util.Collection;
-
-import static junit.framework.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public class Connectivity_getConnectionState_ParameterizedTest {
@@ -37,35 +38,22 @@ public class Connectivity_getConnectionState_ParameterizedTest {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {false, ConnectivityManager.TYPE_WIFI, ConnectionState.DISCONNECTED},
-                {false, ConnectivityManager.TYPE_MOBILE, ConnectionState.DISCONNECTED},
-                {false, ConnectivityManager.TYPE_MOBILE_DUN, ConnectionState.DISCONNECTED},
-                {false, ConnectivityManager.TYPE_BLUETOOTH, ConnectionState.DISCONNECTED},
-                {false, ConnectivityManager.TYPE_ETHERNET, ConnectionState.DISCONNECTED},
-                {false, ConnectivityManager.TYPE_VPN, ConnectionState.DISCONNECTED},
-                {false, ConnectivityManager.TYPE_WIMAX, ConnectionState.DISCONNECTED},
+                {false, NetworkCapabilities.TRANSPORT_WIFI, ConnectionState.DISCONNECTED},
+                {false, NetworkCapabilities.TRANSPORT_CELLULAR, ConnectionState.DISCONNECTED},
+                {false, NetworkCapabilities.TRANSPORT_ETHERNET, ConnectionState.DISCONNECTED},
+                {false, NetworkCapabilities.TRANSPORT_VPN, ConnectionState.DISCONNECTED},
 
-                {true, ConnectivityManager.TYPE_WIFI, ConnectionState.CONNECTED},
-                {true, ConnectivityManager.TYPE_MOBILE, ConnectionState.CONNECTED_MOBILE_DATA},
-                {true, ConnectivityManager.TYPE_MOBILE_DUN, ConnectionState.CONNECTED_MOBILE_DATA},
-                {true, ConnectivityManager.TYPE_BLUETOOTH, ConnectionState.CONNECTED},
-                {true, ConnectivityManager.TYPE_ETHERNET, ConnectionState.CONNECTED},
-                {true, ConnectivityManager.TYPE_VPN, ConnectionState.CONNECTED},
-                {true, ConnectivityManager.TYPE_WIMAX, ConnectionState.CONNECTED},
+                {true, NetworkCapabilities.TRANSPORT_WIFI, ConnectionState.CONNECTED},
+                {true, NetworkCapabilities.TRANSPORT_CELLULAR, ConnectionState.CONNECTED_MOBILE_DATA},
+                {true, NetworkCapabilities.TRANSPORT_ETHERNET, ConnectionState.CONNECTED},
+                {true, NetworkCapabilities.TRANSPORT_VPN, ConnectionState.CONNECTED}
         });
-    }
-
-    @Test
-    public void testGetConnectionState_connectivityUtils() {
-        ConnectivityManager connectivityManager = ConnectionTestUtils.getConnectivityManagerMock(isConnected, connectionType);
-
-        assertEquals(connectionState, ConnectivityUtils.getConnectionState(connectivityManager));
     }
 
     @Test
     public void testGetConnectionState_connectionWatchDog() {
         ConnectionWatchDog connectionWatchDog = new ConnectionWatchDog(InstrumentationRegistry.getTargetContext(), new CoreSdkHandlerProvider().provideHandler());
-        connectionWatchDog.connectivityManager = ConnectionTestUtils.getConnectivityManagerMock(isConnected, connectionType);
+        ReflectionTestUtils.setInstanceField(connectionWatchDog, "connectivityManager", ConnectionTestUtils.getConnectivityManagerMock(isConnected, connectionType));
 
         assertEquals(connectionState, connectionWatchDog.getConnectionState());
     }

@@ -20,6 +20,7 @@ object Versions {
     const val google_tink_version = "1.6.1"
     const val huawei_agconnect_core_version = "1.6.1.200"
     const val huawei_hms_push_version = "6.1.0.300"
+    const val mockkVersion = "1.11.0"
 }
 
 object Libs {
@@ -50,4 +51,5 @@ object TestLibs {
     const val support_test_extensions = "androidx.test.ext:junit:${Versions.support_test_extensions}"
     const val support_test_fragment = "androidx.fragment:fragment-testing:${Versions.support_test_fragment}"
     const val multiDex = "androidx.multidex:multidex-instrumentation:${Versions.multiDexVersion}"
+    const val mockk = "io.mockk:mockk-android:${Versions.mockkVersion}"
 }

@@ -14,7 +14,6 @@ import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.config.*
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.Mapper
-import com.emarsys.core.activity.ActivityLifecycleAction
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog

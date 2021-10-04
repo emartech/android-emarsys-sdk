@@ -2,47 +2,55 @@ package com.emarsys.testUtil
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.net.NetworkInfo
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
+import android.net.Network
+import android.net.NetworkCapabilities
+import io.mockk.every
+import io.mockk.mockk
 
 object ConnectionTestUtils {
 
     @JvmStatic
     fun getConnectivityManagerMock(isConnected: Boolean, connectionType: Int): ConnectivityManager {
-        val managerMock = mock(ConnectivityManager::class.java)
-        val networkInfoMock = mock(NetworkInfo::class.java)
-        `when`(managerMock.activeNetworkInfo).thenReturn(networkInfoMock)
-        `when`(networkInfoMock.isConnected).thenReturn(isConnected)
-        `when`(networkInfoMock.type).thenReturn(connectionType)
-        return managerMock
+        val mockManager: ConnectivityManager = mockk(relaxed = true)
+        val mockNetwork: Network = mockk(relaxed = true)
+        val mockNetworkCapabilities: NetworkCapabilities = mockk(relaxed = true)
+
+        every { mockManager.activeNetwork } returns mockNetwork
+        every { mockManager.getNetworkCapabilities(mockNetwork) } returns mockNetworkCapabilities
+        every { mockNetworkCapabilities.hasTransport(connectionType) } returns isConnected
+
+        return mockManager
     }
 
     @JvmStatic
-    fun getContextMock_withAppContext_withConnectivityManager(isConnected: Boolean, connectionType: Int): Context {
-        val contextMock = mock(Context::class.java)
-        val applicationContextMock = mock(Context::class.java)
+    fun getContextMock_withAppContext_withConnectivityManager(
+        isConnected: Boolean,
+        connectionType: Int
+    ): Context {
+        val contextMock: Context = mockk(relaxed = true)
+        val applicationContextMock: Context = mockk(relaxed = true)
         val managerMock = getConnectivityManagerMock(isConnected, connectionType)
 
-        `when`(contextMock.applicationContext).thenReturn(applicationContextMock)
-        `when`(applicationContextMock.getSystemService(Context.CONNECTIVITY_SERVICE)).thenReturn(managerMock)
-        return contextMock
-    }
-
-    @JvmStatic
-    fun getContextMock_withConnectivityManager(isConnected: Boolean, connectionType: Int): Context {
-        val contextMock = mock(Context::class.java)
-        val managerMock = getConnectivityManagerMock(isConnected, connectionType)
-
-        `when`(contextMock.getSystemService(Context.CONNECTIVITY_SERVICE)).thenReturn(managerMock)
+        every { contextMock.applicationContext} returns applicationContextMock
+        every { applicationContextMock.getSystemService(Context.CONNECTIVITY_SERVICE)} returns managerMock
         return contextMock
     }
 
     @JvmStatic
     fun checkConnection(context: Context) {
-        val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val info = manager.activeNetworkInfo
-        if (info == null || !info.isConnected) {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val networkCapabilities = connectivityManager.activeNetwork
+            ?: throw RuntimeException("Device is not connected to the Internet!")
+
+        val network = connectivityManager.getNetworkCapabilities(networkCapabilities)
+            ?: throw RuntimeException("Device is not connected to the Internet!")
+
+        if (!network.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+            && !network.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+            && !network.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+        ) {
             throw RuntimeException("Device is not connected to the Internet!")
         }
     }

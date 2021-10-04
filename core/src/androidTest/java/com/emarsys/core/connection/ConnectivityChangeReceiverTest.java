@@ -1,7 +1,13 @@
 package com.emarsys.core.connection;
 
+import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+
+import androidx.test.filters.SdkSuppress;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.fake.FakeConnectionChangeListener;
@@ -15,9 +21,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.util.concurrent.CountDownLatch;
-
-import static junit.framework.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 
 public class ConnectivityChangeReceiverTest {
 
@@ -34,12 +37,8 @@ public class ConnectivityChangeReceiverTest {
         listener = mock(ConnectionChangeListener.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_listenerCannotBeNull() {
-        receiver = new ConnectionWatchDog(context, mock(CoreSdkHandler.class)).new ConnectivityChangeReceiver(null);
-    }
-
     @Test
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
     public void testOnReceive_listenerShouldCall_onCoreSDKThread() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         FakeConnectionChangeListener fakeListener = new FakeConnectionChangeListener(latch);
