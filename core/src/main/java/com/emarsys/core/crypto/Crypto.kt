@@ -21,6 +21,8 @@ class Crypto(private val publicKey: PublicKey) {
         const val REMOTE_CONFIG_CRYPTO_ALGORITHM = "SHA256withECDSA"
         private const val CRYPTO_ALGORITHM_BELOW_26 = "AES/GCM/NoPadding"
         private const val CRYPTO_ALGORITHM_ABOVE_26 = "AES_256/GCM/NoPadding"
+        private const val ITERATION_COUNT = 131072
+        private const val OLD_ITERATION_COUNT = 65536
 
         fun getAlgorythm(): String {
             return if (AndroidVersionUtils.isBelowOreo()) CRYPTO_ALGORITHM_BELOW_26 else CRYPTO_ALGORITHM_ABOVE_26
@@ -31,6 +33,7 @@ class Crypto(private val publicKey: PublicKey) {
         fun getKeyLength(): Int {
             return if (AndroidVersionUtils.isBelowOreo()) 128 else 256
         }
+
     }
 
     fun verify(
@@ -48,7 +51,7 @@ class Crypto(private val publicKey: PublicKey) {
         }
     }
 
-    fun encrypt(value: String, secret: String): Map<String, String> {
+    fun encrypt(value: String, secret: String, iterationCount: Int = ITERATION_COUNT): Map<String, String> {
         val cipher = Cipher.getInstance(getAlgorythm())
         val random = SecureRandom()
 
@@ -57,7 +60,7 @@ class Crypto(private val publicKey: PublicKey) {
         val salt = ByteArray(16)
         random.nextBytes(salt)
 
-        cipher.init(Cipher.ENCRYPT_MODE, generateKey(secret, salt), IvParameterSpec(iv))
+        cipher.init(Cipher.ENCRYPT_MODE, generateKey(secret, salt, ITERATION_COUNT), IvParameterSpec(iv))
 
         val textBytes = value.toByteArray(Charsets.UTF_8)
         val encryptedText = cipher?.doFinal(textBytes)
@@ -73,15 +76,30 @@ class Crypto(private val publicKey: PublicKey) {
         val cipher = Cipher.getInstance(getAlgorythm())
         val ivBytes = Base64.decode(iv.toByteArray(), Base64.DEFAULT)
         val saltBytes = Base64.decode(salt.toByteArray(), Base64.DEFAULT)
-        cipher.init(Cipher.DECRYPT_MODE, generateKey(secret, saltBytes), IvParameterSpec(ivBytes))
-        val decodedText = Base64.decode(encrypted.toByteArray(), Base64.DEFAULT)
-        val decryptedText = cipher?.doFinal(decodedText)
-        return decryptedText?.toString(Charsets.UTF_8)
+        var decryptedText : ByteArray?
+        try {
+            cipher.init(
+                Cipher.DECRYPT_MODE,
+                generateKey(secret, saltBytes, ITERATION_COUNT),
+                IvParameterSpec(ivBytes)
+            )
+            val decodedText = Base64.decode(encrypted.toByteArray(), Base64.DEFAULT)
+            decryptedText = cipher?.doFinal(decodedText)
+        } catch (e: java.lang.Exception) {
+            cipher.init(
+                Cipher.DECRYPT_MODE,
+                generateKey(secret, saltBytes, OLD_ITERATION_COUNT),
+                IvParameterSpec(ivBytes)
+            )
+            val decodedText = Base64.decode(encrypted.toByteArray(), Base64.DEFAULT)
+            decryptedText = cipher?.doFinal(decodedText)
+        }
+            return decryptedText?.toString(Charsets.UTF_8)
     }
 
-    private fun generateKey(password: String, salt: ByteArray): SecretKeySpec? {
+    private fun generateKey(password: String, salt: ByteArray, iterationCount: Int): SecretKeySpec? {
         val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
-        val keySpec: KeySpec = PBEKeySpec(password.toCharArray(), salt, 65536, getKeyLength())
+        val keySpec: KeySpec = PBEKeySpec(password.toCharArray(), salt, iterationCount, getKeyLength())
         val secretKey = factory.generateSecret(keySpec)
         val encoded = secretKey.encoded
         return SecretKeySpec(encoded, "AES")

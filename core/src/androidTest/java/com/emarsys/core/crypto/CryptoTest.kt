@@ -12,6 +12,7 @@ class CryptoTest {
     private companion object {
         private const val PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELjWEUIBX9zlm1OI4gF1hMCBLzpaBwgs9HlmSIBAqP4MDGy4ibOOV3FVDrnAY0Q34LZTbPBlp3gRNZJ19UoSy2Q=="
         private const val SECRET = "testSecret"
+        private const val OLD_ITERATION_COUNT = 65536
     }
 
     @Test
@@ -39,6 +40,23 @@ class CryptoTest {
 
         val crypto = Crypto(createPublicKey())
         val encrypted = crypto.encrypt(testText, SECRET)
+        val encryptedText = encrypted["encryptedValue"]
+        val salt = encrypted["salt"]
+        val iv = encrypted["iv"]
+
+        encryptedText shouldNotBe testText
+
+        val decryptedText = crypto.decrypt(encryptedText!!, SECRET, salt!!, iv!!)
+
+        decryptedText shouldBe testText
+    }
+
+    @Test
+    fun testDecrypt_whenStoredWithDifferentIterationCount() {
+        val testText = "Test me."
+        val crypto = Crypto(createPublicKey())
+
+        val encrypted = crypto.encrypt(testText, SECRET, OLD_ITERATION_COUNT)
         val encryptedText = encrypted["encryptedValue"]
         val salt = encrypted["salt"]
         val iv = encrypted["iv"]
