@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import androidx.annotation.RequiresApi
+import androidx.test.filters.SdkSuppress
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.testUtil.ConnectionTestUtils.getContextMock_withAppContext_withConnectivityManager
@@ -18,7 +18,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 
-@RequiresApi(api = Build.VERSION_CODES.P)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 class ConnectionWatchDogTest {
     private lateinit var context: Context
     private lateinit var mockHandler: CoreSdkHandler
