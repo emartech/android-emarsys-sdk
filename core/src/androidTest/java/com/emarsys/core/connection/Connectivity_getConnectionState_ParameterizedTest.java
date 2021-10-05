@@ -4,6 +4,9 @@ package com.emarsys.core.connection;
 import static junit.framework.Assert.assertEquals;
 
 import android.net.NetworkCapabilities;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.testUtil.ConnectionTestUtils;
@@ -20,6 +23,7 @@ import org.junit.runners.Parameterized;
 import java.util.Arrays;
 import java.util.Collection;
 
+@RequiresApi(api = Build.VERSION_CODES.P)
 @RunWith(Parameterized.class)
 public class Connectivity_getConnectionState_ParameterizedTest {
 

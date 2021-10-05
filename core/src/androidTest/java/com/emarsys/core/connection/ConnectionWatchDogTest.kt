@@ -1,11 +1,10 @@
 package com.emarsys.core.connection
 
 import android.content.Context
-import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import androidx.test.filters.SdkSuppress
+import androidx.annotation.RequiresApi
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.testUtil.ConnectionTestUtils.getContextMock_withAppContext_withConnectivityManager
@@ -18,9 +17,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers
 
+@RequiresApi(api = Build.VERSION_CODES.P)
 class ConnectionWatchDogTest {
     private lateinit var context: Context
     private lateinit var mockHandler: CoreSdkHandler
@@ -44,47 +42,6 @@ class ConnectionWatchDogTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
-    fun testRegisterReceiver_shouldCallRegisterReceiver() {
-        val contextMock = getContextMock_withAppContext_withConnectivityManager(
-            true,
-            NetworkCapabilities.TRANSPORT_WIFI
-        )
-        val appContextMock = contextMock.applicationContext
-        val connectionWatchDog = ConnectionWatchDog(contextMock, mockHandler)
-        val connectionChangeListener: ConnectionChangeListener = mockk()
-
-        connectionWatchDog.registerReceiver(connectionChangeListener)
-        val captor = ArgumentCaptor.forClass(
-            IntentFilter::class.java
-        )
-
-        verify {
-            (appContextMock).registerReceiver(
-                ArgumentMatchers.any(
-                    ConnectionWatchDog.ConnectivityChangeReceiver::class.java
-                ), captor.capture()
-            )
-        }
-        Assert.assertTrue(captor.value.hasAction(ConnectivityManager.CONNECTIVITY_ACTION))
-    }
-
-    @Test(expected = IllegalStateException::class)
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
-    fun testRegisterReceiver_shouldThrowException_whenReceiverRegistrationHasAlreadyCalled() {
-        val contextMock = getContextMock_withAppContext_withConnectivityManager(
-            true,
-            NetworkCapabilities.TRANSPORT_VPN
-        )
-        val connectionWatchDog = ConnectionWatchDog(contextMock, mockHandler)
-        val connectionChangeListener: ConnectionChangeListener = mockk()
-
-        connectionWatchDog.registerReceiver(connectionChangeListener)
-        connectionWatchDog.registerReceiver(connectionChangeListener)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testRegisterReceiver_shouldRegisterNetworkCallback() {
         val contextMock = getContextMock_withAppContext_withConnectivityManager(
             true,
@@ -105,7 +62,6 @@ class ConnectionWatchDogTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testRegisterReceiver_registersCompletionListener_inOnCapabilitiesChanged() {
         val contextMock = getContextMock_withAppContext_withConnectivityManager(
             true,
@@ -125,17 +81,6 @@ class ConnectionWatchDogTest {
         verify {
             connectionChangeListener.onConnectionChanged(any(), any())
         }
-    }
-
-    @Test
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
-    fun testIsConnected_Online_belowO() {
-        val contextMock = getContextMock_withAppContext_withConnectivityManager(
-            true,
-            ConnectivityManager.TYPE_MOBILE_DUN
-        )
-        val watchDog = ConnectionWatchDog(contextMock, mockHandler)
-        Assert.assertTrue(watchDog.isConnected)
     }
 
     @Test
