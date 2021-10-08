@@ -2,8 +2,6 @@ apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
 
-apply plugin: 'kotlin-android-extensions'
-
 apply plugin: 'androidx.navigation.safeargs'
 
 group = 'com.emarsys.sample'
@@ -30,6 +28,10 @@ android {
         }
 
         buildConfigField "String", "GOOGLE_OAUTH_SERVER_CLIENT_ID", "\"${System.env.GOOGLE_OAUTH_SERVER_CLIENT_ID ?: clientId}\""
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 
     compileOptions {

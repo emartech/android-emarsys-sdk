@@ -12,25 +12,30 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.emarsys.Emarsys
 import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.sample.databinding.ActivityMainBinding
 import com.emarsys.sample.extensions.showSnackBar
 import com.emarsys.sample.fragments.MobileEngageFragmentTracking
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
 
 
 class MainActivity : FragmentActivity(), EventHandler {
 
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        val navController = Navigation.findNavController(this, R.id.nav_host_fragment)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        setupBottomNavMenu(navHostFragment.navController)
+        val view = binding.root
 
-        setupBottomNavMenu(navController)
+        setContentView(view)
     }
 
     fun checkLocationPermission(): Boolean {
@@ -87,7 +92,7 @@ class MainActivity : FragmentActivity(), EventHandler {
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
                         Emarsys.geofence.enable {
-                            nav_host_fragment.view?.showSnackBar("Geofence has been Enabled!")
+                            binding.navHostFragment.showSnackBar("Geofence has been Enabled!")
                         }
                     }
                 }
@@ -104,7 +109,7 @@ class MainActivity : FragmentActivity(), EventHandler {
     }
 
     private fun setupBottomNavMenu(navController: NavController) {
-        bottom_navigation_view?.let {
+        binding.bottomNavigationView.let {
             NavigationUI.setupWithNavController(it, navController)
         }
     }

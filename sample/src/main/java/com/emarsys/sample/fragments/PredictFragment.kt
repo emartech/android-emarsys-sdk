@@ -10,80 +10,86 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.emarsys.Emarsys
 import com.emarsys.predict.api.model.CartItem
 import com.emarsys.predict.api.model.RecommendationLogic
-import com.emarsys.sample.R
 import com.emarsys.sample.SampleCartItem
 import com.emarsys.sample.adapters.ProductsAdapter
+import com.emarsys.sample.databinding.FragmentPredictBinding
 import com.emarsys.sample.extensions.showSnackBar
-import kotlinx.android.synthetic.main.fragment_predict.*
 import kotlin.random.Random
 
 class PredictFragment : Fragment() {
 
     private var cartContent = mutableListOf<SampleCartItem>()
+    private var _binding : FragmentPredictBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
+        _binding = FragmentPredictBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        return inflater.inflate(R.layout.fragment_predict, container, false)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        productsRecycleView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        productsRecycleView.adapter = ProductsAdapter()
+        binding.productsRecycleView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        binding.productsRecycleView.adapter = ProductsAdapter()
 
-        buttonTrackItemView.setOnClickListener {
-            val itemView = itemId.text.toString()
+        binding.buttonTrackItemView.setOnClickListener {
+            val itemView = binding.itemId.text.toString()
             if (itemView.isNotEmpty()) {
                 Emarsys.predict.trackItemView(itemView)
                 view.showSnackBar("Track of:$itemView = OK")
             }
         }
 
-        buttonTrackCategoryView.setOnClickListener {
-            val categoryView = categoryView.text.toString()
+        binding.buttonTrackCategoryView.setOnClickListener {
+            val categoryView = binding.categoryView.text.toString()
             if (categoryView.isNotEmpty()) {
                 Emarsys.predict.trackCategoryView(categoryView)
                 view.showSnackBar("Track of:$categoryView = OK")
             }
         }
 
-        buttonSearchTerm.setOnClickListener {
-            val searchTerm = searchTerm.text.toString()
+        binding.buttonSearchTerm.setOnClickListener {
+            val searchTerm = binding.searchTerm.text.toString()
             if (searchTerm.isNotEmpty()) {
                 Emarsys.predict.trackSearchTerm(searchTerm)
                 view.showSnackBar("Track of:$searchTerm = OK")
             }
         }
 
-        buttonAddToCart.setOnClickListener {
+        binding.buttonAddToCart.setOnClickListener {
             val newCartItem = generateCartItem()
-            cartItems.text?.append("$newCartItem,")
+            binding.cartItems.text?.append("$newCartItem,")
             cartContent.add(newCartItem)
         }
 
-        buttonTrackCartItems.setOnClickListener {
+        binding.buttonTrackCartItems.setOnClickListener {
             if (cartContent.isNotEmpty()) {
                 Emarsys.predict.trackCart(cartContent as List<CartItem>)
                 view.showSnackBar("Tracking cart: OK")
             }
         }
 
-        buttonTrackPurchase.setOnClickListener {
-            val item = orderId.text.toString()
+        binding.buttonTrackPurchase.setOnClickListener {
+            val item = binding.orderId.text.toString()
             if (item.isNotEmpty()) {
                 Emarsys.predict.trackPurchase(item, cartContent as List<CartItem>)
                 view.showSnackBar("Track purchase of $item: OK")
             }
         }
 
-        buttonRecommend.setOnClickListener {
-            val searchTerm = searchTermForRecommend.text.toString()
+        binding.buttonRecommend.setOnClickListener {
+            val searchTerm = binding.searchTermForRecommend.text.toString()
             if (searchTerm.isNotEmpty()) {
                 Emarsys.predict.recommendProducts(RecommendationLogic.search(searchTerm)) {
                     if (it.result != null) {
                         val products = it.result ?: listOf()
-                        (productsRecycleView.adapter as ProductsAdapter).addItems(products)
+                        (binding.productsRecycleView.adapter as ProductsAdapter).addItems(products)
                     }
                 }
             }

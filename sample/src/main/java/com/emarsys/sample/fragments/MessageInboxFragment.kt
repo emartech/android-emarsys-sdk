@@ -12,41 +12,47 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.emarsys.Emarsys
 import com.emarsys.inbox.InboxTag
 import com.emarsys.mobileengage.api.inbox.Message
-import com.emarsys.sample.R
 import com.emarsys.sample.TagChangeListener
 import com.emarsys.sample.adapters.MessageInboxAdapter
+import com.emarsys.sample.databinding.FragmentMessageInboxBinding
 import com.emarsys.sample.extensions.showSnackBar
-import kotlinx.android.synthetic.main.fragment_message_inbox.*
 
 class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, TagChangeListener {
-
     private companion object {
         val TAG: String = MessageInboxFragment::class.java.simpleName
     }
+    private var _binding : FragmentMessageInboxBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_message_inbox, container, false)
+    ): View {
+        _binding = FragmentMessageInboxBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        messageInboxRecycleView.layoutManager =
+        binding.messageInboxRecycleView.layoutManager =
             LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        messageInboxRecycleView.adapter = MessageInboxAdapter(this)
+        binding.messageInboxRecycleView.adapter = MessageInboxAdapter(this)
 
         loadMessages()
 
-        swipeRefreshLayout.setOnRefreshListener {
+        binding.swipeRefreshLayout.setOnRefreshListener {
             onRefresh()
-            refreshHint.visibility = View.GONE
+            binding.refreshHint.visibility = View.GONE
         }
     }
 
     override fun onRefresh() {
-        swipeRefreshLayout.isRefreshing = true
+        binding.swipeRefreshLayout.isRefreshing = true
         loadMessages()
     }
 
@@ -58,14 +64,14 @@ class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, T
                     Log.i(TAG, "Messages: ${notification.title}")
                 }
                 markAsSeen(notificationStatus.messages)
-                (messageInboxRecycleView.adapter as MessageInboxAdapter).addItems(notificationStatus.messages)
+                (binding.messageInboxRecycleView.adapter as MessageInboxAdapter).addItems(notificationStatus.messages)
             }
 
             it.errorCause?.let { cause ->
-                inboxView.showSnackBar("Error fetching messages: ${cause.message}")
+                binding.inboxView.showSnackBar("Error fetching messages: ${cause.message}")
             }
         }
-        swipeRefreshLayout.isRefreshing = false
+        binding.swipeRefreshLayout.isRefreshing = false
     }
 
     private fun markAsSeen(messages: List<Message>) {
@@ -77,7 +83,7 @@ class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, T
     }
 
     override fun addTagClicked(messageId: String) {
-        val tag = tagEditText.text.toString()
+        val tag = binding.tagEditText.text.toString()
         if (tag.isNotEmpty()) {
             Emarsys.messageInbox.addTag(tag, messageId)
             loadMessages()
@@ -85,7 +91,7 @@ class MessageInboxFragment : Fragment(), SwipeRefreshLayout.OnRefreshListener, T
     }
 
     override fun removeTagClicked(messageId: String) {
-        val tag = tagEditText.text.toString()
+        val tag = binding.tagEditText.text.toString()
         if (tag.isNotEmpty()) {
             Emarsys.messageInbox.removeTag(tag, messageId)
             loadMessages()

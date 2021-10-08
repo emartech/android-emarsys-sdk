@@ -10,7 +10,7 @@ import coil.load
 import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.sample.R
 import com.emarsys.sample.TagChangeListener
-import kotlinx.android.synthetic.main.notification_view_with_labels.view.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MessageInboxAdapter(private val tagChangeListener: TagChangeListener) :
     RecyclerView.Adapter<MessageInboxAdapter.NotificationViewHolder>() {
@@ -55,12 +55,12 @@ class MessageInboxAdapter(private val tagChangeListener: TagChangeListener) :
 
     class NotificationViewHolder(view: View) :
         RecyclerView.ViewHolder(view) {
-        val title: TextView = view.notification_title
-        val body: TextView = view.notification_body
-        val image: ImageView = view.notification_image
-        val addButton = view.add_label_button
-        val removeButton = view.remove_label_button
-        val messageLabels: TextView = view.message_labels
-        val messageActions: TextView = view.message_actions
+        val title: TextView = view.findViewById(R.id.notification_title)
+        val body: TextView = view.findViewById(R.id.notification_body)
+        val image: ImageView = view.findViewById(R.id.notification_image)
+        val addButton = view.findViewById<FloatingActionButton>(R.id.add_label_button)
+        val removeButton = view.findViewById<FloatingActionButton>(R.id.remove_label_button)
+        val messageLabels: TextView = view.findViewById(R.id.message_labels)
+        val messageActions: TextView = view.findViewById(R.id.message_actions)
     }
 }

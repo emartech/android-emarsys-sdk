@@ -8,45 +8,52 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.inapp.ui.InlineInAppView
-import com.emarsys.sample.R
+import com.emarsys.sample.databinding.FragmentInlineInAppBinding
 import com.emarsys.sample.extensions.showSnackBar
-import kotlinx.android.synthetic.main.fragment_inline_in_app.*
 
 class InlineInAppFragment : Fragment() {
     companion object {
         val TAG: String = InlineInAppFragment::class.java.simpleName
     }
+    private var _binding: FragmentInlineInAppBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_inline_in_app, container, false)
+    ): View {
+        _binding = FragmentInlineInAppBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        inlineInAppFullyFromXml.onAppEventListener = { property, json ->
+        binding.inlineInAppFullyFromXml.onAppEventListener = { property, json ->
             view.showSnackBar("AppEvent - $property, $json")
         }
-        inlineInAppFullyFromXml.onCloseListener = {
-            inlineInAppFullyFromXml.visibility = View.GONE
+        binding.inlineInAppFullyFromXml.onCloseListener = {
+            binding.inlineInAppFullyFromXml.visibility = View.GONE
         }
 
-        inlineInAppFromXmlAndCode.loadInApp("iace")
-        inlineInAppFromXmlAndCode.onCompletionListener = CompletionListener {
+        binding.inlineInAppFromXmlAndCode.loadInApp("iace")
+        binding.inlineInAppFromXmlAndCode.onCompletionListener = CompletionListener {
             Log.d(TAG, "Inline in-App has been showed")
         }
-        inlineInAppFromXmlAndCode.onCloseListener = {
-            inlineInAppFromXmlAndCode.visibility = View.GONE
+        binding.inlineInAppFromXmlAndCode.onCloseListener = {
+            binding.inlineInAppFromXmlAndCode.visibility = View.GONE
         }
 
-        inlineInAppFromXmlAndCode.onAppEventListener = { property, json ->
+        binding.inlineInAppFromXmlAndCode.onAppEventListener = { property, json ->
             view.showSnackBar("AppEvent - $property, $json")
         }
 
-        showInlineInApp.setOnClickListener {
+        binding.showInlineInApp.setOnClickListener {
             val inlineInApp = InlineInAppView(it.context)
             inlineInApp.onCloseListener = {
                 inlineInApp.visibility = View.GONE
@@ -54,10 +61,10 @@ class InlineInAppFragment : Fragment() {
             inlineInApp.onCompletionListener = CompletionListener { throwable ->
                 Log.e("InlineInApp", "error", throwable)
             }
-            inlineInAppContainer.addView(inlineInApp)
-            inlineInAppContainer.invalidate()
+            binding.inlineInAppContainer.addView(inlineInApp)
+            binding.inlineInAppContainer.invalidate()
 
-            inlineInApp.loadInApp(viewId.text.toString())
+            inlineInApp.loadInApp(binding.viewId.text.toString())
         }
     }
 }

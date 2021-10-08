@@ -12,7 +12,6 @@ import com.emarsys.Emarsys
 import com.emarsys.predict.api.model.Product
 import com.emarsys.sample.R
 import com.emarsys.sample.adapters.ProductsAdapter.ViewHolder
-import kotlinx.android.synthetic.main.product_view.view.*
 
 class ProductsAdapter : RecyclerView.Adapter<ViewHolder>() {
     private var products = mutableListOf<Product>()
@@ -47,9 +46,9 @@ class ProductsAdapter : RecyclerView.Adapter<ViewHolder>() {
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val cardView: CardView = view.card
-        val productId: TextView = view.product_id
-        val productTitle: TextView = view.product_title
-        val productImage: ImageView = view.product_image
+        val cardView: CardView = view.findViewById(R.id.card)
+        val productId: TextView = view.findViewById(R.id.product_id)
+        val productTitle: TextView = view.findViewById(R.id.product_title)
+        val productImage: ImageView = view.findViewById(R.id.product_image)
     }
 }
