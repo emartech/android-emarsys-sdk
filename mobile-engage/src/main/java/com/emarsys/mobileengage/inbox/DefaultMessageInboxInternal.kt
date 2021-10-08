@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.inbox
 
+import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
@@ -11,9 +12,12 @@ import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import java.util.*
 
-class DefaultMessageInboxInternal(private val requestManager: RequestManager,
-                                  private val mobileEngageRequestModelFactory: MobileEngageRequestModelFactory,
-                                  private val messageInboxResponseMapper: MessageInboxResponseMapper) : MessageInboxInternal {
+class DefaultMessageInboxInternal(
+    private val uiHandler: Handler,
+    private val requestManager: RequestManager,
+    private val mobileEngageRequestModelFactory: MobileEngageRequestModelFactory,
+    private val messageInboxResponseMapper: MessageInboxResponseMapper
+) : MessageInboxInternal {
 
     override fun fetchMessages(resultListener: ResultListener<Try<InboxResult>>) {
         handleFetchRequest(resultListener)
@@ -44,19 +48,29 @@ class DefaultMessageInboxInternal(private val requestManager: RequestManager,
 
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
-                resultListener.onResult(Try.success(messageInboxResponseMapper.map(responseModel)))
+                uiHandler.post {
+                    resultListener.onResult(Try.success(messageInboxResponseMapper.map(responseModel)))
+                }
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
-                resultListener.onResult(Try.failure(ResponseErrorException(
-                        responseModel.statusCode,
-                        responseModel.message,
-                        responseModel.body
-                )))
+                uiHandler.post {
+                    resultListener.onResult(
+                        Try.failure(
+                            ResponseErrorException(
+                                responseModel.statusCode,
+                                responseModel.message,
+                                responseModel.body
+                            )
+                        )
+                    )
+                }
             }
 
             override fun onError(id: String, cause: Exception) {
-                resultListener.onResult(Try.failure(cause))
+                uiHandler.post {
+                    resultListener.onResult(Try.failure(cause))
+                }
             }
         })
     }

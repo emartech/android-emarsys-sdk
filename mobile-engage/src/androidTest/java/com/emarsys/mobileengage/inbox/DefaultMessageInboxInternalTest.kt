@@ -1,10 +1,13 @@
 package com.emarsys.mobileengage.inbox
 
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
@@ -38,6 +41,8 @@ class DefaultMessageInboxInternalTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var messageInboxInternal: DefaultMessageInboxInternal
     private lateinit var latch: CountDownLatch
+    private val coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+    private lateinit var uiHandler : Handler
 
     @Rule
     @JvmField
@@ -45,6 +50,7 @@ class DefaultMessageInboxInternalTest {
 
     @Before
     fun setUp() {
+        uiHandler = Handler(Looper.getMainLooper())
         latch = CountDownLatch(1)
         mockMessageInboxResponseMapper = mock {
             on { map(any()) } doReturn InboxResult(listOf())
@@ -59,9 +65,10 @@ class DefaultMessageInboxInternalTest {
 
 
         messageInboxInternal = DefaultMessageInboxInternal(
-                mockRequestManager,
-                mockRequestModelFactory,
-                mockMessageInboxResponseMapper
+            uiHandler,
+            mockRequestManager,
+            mockRequestModelFactory,
+            mockMessageInboxResponseMapper
         )
     }
 
@@ -82,9 +89,10 @@ class DefaultMessageInboxInternalTest {
             on { message } doReturn "OK"
         }
         val messageInboxInternal = DefaultMessageInboxInternal(
-                requestManagerWithRestClient(FakeRestClient(mockResponse, FakeRestClient.Mode.SUCCESS)),
-                mockRequestModelFactory,
-                mockMessageInboxResponseMapper
+            uiHandler,
+            requestManagerWithRestClient(FakeRestClient(mockResponse, FakeRestClient.Mode.SUCCESS, coreSdkHandler.handler)),
+            mockRequestModelFactory,
+            mockMessageInboxResponseMapper
         )
 
         val fakeResultListener = FakeResultListener<InboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
@@ -106,9 +114,10 @@ class DefaultMessageInboxInternalTest {
             on { body } doReturn "Error happened"
         }
         val messageInboxInternal = DefaultMessageInboxInternal(
-                requestManagerWithRestClient(FakeRestClient(errorResponse, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)),
-                mockRequestModelFactory,
-                mockMessageInboxResponseMapper
+            uiHandler,
+            requestManagerWithRestClient(FakeRestClient(errorResponse, FakeRestClient.Mode.ERROR_RESPONSE_MODEL, coreSdkHandler.handler)),
+            mockRequestModelFactory,
+            mockMessageInboxResponseMapper
         )
 
         val fakeResultListener = FakeResultListener<InboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
@@ -131,9 +140,10 @@ class DefaultMessageInboxInternalTest {
         val expectedException = Exception("TestException")
 
         val messageInboxInternal = DefaultMessageInboxInternal(
-                requestManagerWithRestClient(FakeRestClient(expectedException)),
-                mockRequestModelFactory,
-                mockMessageInboxResponseMapper
+            uiHandler,
+            requestManagerWithRestClient(FakeRestClient(expectedException, coreSdkHandler.handler)),
+            mockRequestModelFactory,
+            mockMessageInboxResponseMapper
         )
 
         val fakeResultListener = FakeResultListener<InboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
