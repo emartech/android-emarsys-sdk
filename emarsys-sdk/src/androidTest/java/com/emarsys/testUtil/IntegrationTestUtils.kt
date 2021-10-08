@@ -34,6 +34,7 @@ object IntegrationTestUtils {
         errorCause shouldBe null
     }
 
+    @Synchronized
     fun tearDownEmarsys(application: Application? = null) {
         var latch = CountDownLatch(1)
         emarsys().coreSdkHandler.post {
