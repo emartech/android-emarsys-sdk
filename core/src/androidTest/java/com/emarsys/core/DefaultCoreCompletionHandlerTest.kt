@@ -11,7 +11,9 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.Mockito
 import org.mockito.Mockito.*
+import org.mockito.kotlin.mock
 
 class DefaultCoreCompletionHandlerTest {
 
@@ -34,15 +36,10 @@ class DefaultCoreCompletionHandlerTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun init() {
-        mockMap = mock(MutableMap::class.java) as MutableMap<String, CompletionListener>
+        mockMap = mock()
         mockRequestModel = createRequestModelMock(REQUEST_ID)
         coreCompletionHandler = DefaultCoreCompletionHandler(mutableMapOf())
         responseErrorException = ResponseErrorException(429, "Some Errors", "body")
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_completionListenerMapShouldNotBeNull() {
-        DefaultCoreCompletionHandler(null)
     }
 
     @Test
@@ -53,11 +50,6 @@ class DefaultCoreCompletionHandlerTest {
         coreCompletionHandler.register(mockRequestModel, callback)
 
         completionListenerMap[REQUEST_ID] shouldBe callback
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testRegisterCompletionListener_requestModel_shouldNotBeNull() {
-        coreCompletionHandler.register(null, mock(CompletionListener::class.java))
     }
 
     @Test
@@ -72,7 +64,7 @@ class DefaultCoreCompletionHandlerTest {
         val listener = mock(CompletionListener::class.java)
         coreCompletionHandler.register(mockRequestModel, listener)
 
-        coreCompletionHandler.onSuccess(REQUEST_ID, null)
+        coreCompletionHandler.onSuccess(REQUEST_ID, mock())
 
         verify(listener).onCompleted(null)
     }
@@ -81,7 +73,7 @@ class DefaultCoreCompletionHandlerTest {
     fun testOnSuccess_should_call_nothing_whenNotRegistered() {
         val coreCompletionHandler = DefaultCoreCompletionHandler(mockMap)
 
-        coreCompletionHandler.onSuccess(REQUEST_ID, null)
+        coreCompletionHandler.onSuccess(REQUEST_ID, mock())
 
         verify(mockMap)[REQUEST_ID]
         verifyNoMoreInteractions(mockMap)
@@ -98,10 +90,10 @@ class DefaultCoreCompletionHandlerTest {
         coreCompletionHandler.register(requestModel1, listener1)
         coreCompletionHandler.register(requestModel2, listener2)
 
-        coreCompletionHandler.onSuccess("id1", null)
+        coreCompletionHandler.onSuccess("id1", mock())
 
         verify(listener1).onCompleted(null)
-        verifyZeroInteractions(listener2)
+        verify(listener2, times(0))
     }
 
     @Test

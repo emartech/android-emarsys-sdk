@@ -59,15 +59,15 @@ class RequestTaskTest {
         coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
         fakeCoreCompletionHandler =
                 object : CoreCompletionHandler {
-                    override fun onSuccess(id: String?, responseModel: ResponseModel?) {
+                    override fun onSuccess(id: String, responseModel: ResponseModel) {
                         Thread.currentThread().name.startsWith("CoreSDKHandlerThread") shouldBe true
                     }
 
-                    override fun onError(id: String?, responseModel: ResponseModel?) {
+                    override fun onError(id: String, responseModel: ResponseModel) {
                         Thread.currentThread().name.startsWith("CoreSDKHandlerThread") shouldBe true
                     }
 
-                    override fun onError(id: String?, cause: Exception?) {
+                    override fun onError(id: String, cause: Exception) {
                         Thread.currentThread().name.startsWith("CoreSDKHandlerThread") shouldBe true
                     }
                 }
@@ -76,7 +76,6 @@ class RequestTaskTest {
     }
 
     @Test
-    @Throws(IOException::class)
     fun testDoInBackground_shouldBeResilientToRuntimeExceptions() {
         val requestModel: RequestModel = mock {
             on { url } doReturn URL(WRONG_URL)
@@ -99,7 +98,6 @@ class RequestTaskTest {
     }
 
     @Test
-    @Throws(IOException::class)
     fun testDoInBackground_mappersHaveBeenCalled() {
         connectionProvider = mock()
         val requestModel: RequestModel = mock {

@@ -64,13 +64,13 @@ open class RequestTask(
     override fun onPostExecute(result: Void?) {
         coreSdkHandler.post {
             if (exception != null) {
-                coreCompletionHandler.onError(requestModel.id, exception)
+                coreCompletionHandler.onError(requestModel.id, exception!!)
             } else if (responseModel != null) {
                 responseHandlersProcessor.process(responseModel)
                 if (isStatusCodeOK(responseModel!!.statusCode)) {
-                    coreCompletionHandler.onSuccess(requestModel.id, responseModel)
+                    coreCompletionHandler.onSuccess(requestModel.id, responseModel!!)
                 } else {
-                    coreCompletionHandler.onError(requestModel.id, responseModel)
+                    coreCompletionHandler.onError(requestModel.id, responseModel!!)
                 }
             }
         }

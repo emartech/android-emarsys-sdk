@@ -328,7 +328,7 @@ class CoreCompletionHandlerMiddlewareTest {
                 ids)
     }
 
-    private fun createResponseModel(requestModel: RequestModel): ResponseModel? {
+    private fun createResponseModel(requestModel: RequestModel): ResponseModel {
         return ResponseModel.Builder()
                 .statusCode(200)
                 .message("OK")
