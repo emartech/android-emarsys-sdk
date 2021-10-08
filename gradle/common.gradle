@@ -23,9 +23,6 @@ modules.each {
                 buildConfigField "int", "VERSION_CODE", "$gitVersionCode"
                 buildConfigField "String", "VERSION_NAME", "\"$gitVersionName\""
                 testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-                dexOptions {
-                    javaMaxHeapSize "4g"
-                }
             }
             lintOptions {
                 checkDependencies true
