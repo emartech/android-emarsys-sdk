@@ -17,22 +17,20 @@ import org.json.JSONObject
 @Mockable
 class GeofenceResponseMapper : Mapper<ResponseModel, GeofenceResponse> {
 
-    override fun map(responseModel: ResponseModel?): GeofenceResponse {
+    override fun map(responseModel: ResponseModel): GeofenceResponse {
         val geofenceGroups = mutableListOf<GeofenceGroup>()
         var refreshRadiusRatio: Double = GeofenceResponse.DEFAULT_REFRESH_RADIUS_RATIO
-        if (responseModel != null) {
-            try {
-                val jsonResponse = JSONObject(responseModel.body)
-                refreshRadiusRatio = jsonResponse.optDouble("refreshRadiusRatio", GeofenceResponse.DEFAULT_REFRESH_RADIUS_RATIO)
-                val groupJsonArray = jsonResponse.getJSONArray("groups")
+        try {
+            val jsonResponse = JSONObject(responseModel.body)
+            refreshRadiusRatio = jsonResponse.optDouble("refreshRadiusRatio", GeofenceResponse.DEFAULT_REFRESH_RADIUS_RATIO)
+            val groupJsonArray = jsonResponse.getJSONArray("groups")
 
-                geofenceGroups.addAll(extractGroupsFromJsonArray(groupJsonArray))
-            } catch (exception: Exception) {
-                when (exception) {
-                    is JSONException -> {
-                    }
-                    else -> Logger.error(CrashLog(exception))
+            geofenceGroups.addAll(extractGroupsFromJsonArray(groupJsonArray))
+        } catch (exception: Exception) {
+            when (exception) {
+                is JSONException -> {
                 }
+                else -> Logger.error(CrashLog(exception))
             }
         }
         return GeofenceResponse(geofenceGroups, refreshRadiusRatio)

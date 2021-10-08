@@ -79,17 +79,15 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         }
         val requestModel = requestModelFactory.createFetchGeofenceRequest()
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
-            override fun onSuccess(id: String?, responseModel: ResponseModel?) {
-                if (responseModel != null) {
-                    geofenceResponse = geofenceResponseMapper.map(responseModel)
-                    enable(completionListener)
-                }
+            override fun onSuccess(id: String, responseModel: ResponseModel) {
+                geofenceResponse = geofenceResponseMapper.map(responseModel)
+                enable(completionListener)
             }
 
-            override fun onError(id: String?, responseModel: ResponseModel?) {
+            override fun onError(id: String, responseModel: ResponseModel) {
             }
 
-            override fun onError(id: String?, cause: Exception?) {
+            override fun onError(id: String, cause: Exception) {
             }
 
         })

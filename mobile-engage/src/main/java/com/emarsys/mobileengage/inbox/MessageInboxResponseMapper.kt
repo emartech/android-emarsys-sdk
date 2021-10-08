@@ -17,10 +17,10 @@ import java.net.URL
 @Mockable
 class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
 
-    override fun map(responseModel: ResponseModel?): InboxResult {
+    override fun map(responseModel: ResponseModel): InboxResult {
         val inboxMessages = mutableListOf<Message>()
 
-        val messageInboxResult = responseModel?.parsedBody
+        val messageInboxResult = responseModel.parsedBody
         val notificationsResponse = messageInboxResult?.optJSONArray("messages")
         if (notificationsResponse != null) {
             for (i in 0 until notificationsResponse.length()) {

@@ -94,7 +94,7 @@ class PredictIntegrationTest {
             false
         }
         completionHandler = object : DefaultCoreCompletionHandler(mutableMapOf()) {
-            override fun onSuccess(id: String?, responseModel: ResponseModel) {
+            override fun onSuccess(id: String, responseModel: ResponseModel) {
                 super.onSuccess(id, responseModel)
                 if (responseModel.isPredictRequest and this@PredictIntegrationTest.responseModelMatches(responseModel)) {
                     this@PredictIntegrationTest.responseModel = responseModel
@@ -102,13 +102,13 @@ class PredictIntegrationTest {
                 }
             }
 
-            override fun onError(id: String?, cause: Exception) {
+            override fun onError(id: String, cause: Exception) {
                 super.onError(id, cause)
                 this@PredictIntegrationTest.errorCause = cause
                 latch.countDown()
             }
 
-            override fun onError(id: String?, responseModel: ResponseModel) {
+            override fun onError(id: String, responseModel: ResponseModel) {
                 super.onError(id, responseModel)
                 this@PredictIntegrationTest.responseModel = responseModel
                 latch.countDown()

@@ -25,8 +25,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
 import java.net.UnknownHostException
 import java.util.concurrent.CountDownLatch
 
@@ -52,14 +52,14 @@ class RestClientTest {
     fun setup() {
         ConnectionTestUtils.checkConnection(InstrumentationRegistry.getTargetContext())
 
-        mockTimestampProvider = mock(TimestampProvider::class.java)
+        mockTimestampProvider = mock()
         connectionProvider = ConnectionProvider()
-        mockResponseHandlersProcessor = mock(ResponseHandlersProcessor::class.java)
-        mockRequestModelMapper = mock(Mapper::class.java) as Mapper<RequestModel, RequestModel>
+        mockResponseHandlersProcessor = mock()
+        mockRequestModelMapper = mock() as Mapper<RequestModel, RequestModel>
         uiHandler = Handler(Looper.getMainLooper())
         coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
 
-        whenever(mockRequestModelMapper.map(any<RequestModel>(RequestModel::class.java))).thenAnswer { invocation ->
+        whenever(mockRequestModelMapper.map(any())).thenAnswer { invocation ->
             val args = invocation.arguments
             args[0]
         }

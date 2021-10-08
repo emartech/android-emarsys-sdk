@@ -22,26 +22,24 @@ import java.util.*
 @Mockable
 class RemoteConfigResponseMapper(private val randomProvider: RandomProvider,
                                  private val hardwareIdProvider: HardwareIdProvider) : Mapper<ResponseModel, RemoteConfig> {
-    override fun map(responseModel: ResponseModel?): RemoteConfig {
+    override fun map(responseModel: ResponseModel): RemoteConfig {
         var remoteConfig = RemoteConfig()
-        if (responseModel != null) {
-            try {
-                var remoteConfigJson = JSONObject(responseModel.body)
+        try {
+            var remoteConfigJson = JSONObject(responseModel.body)
 
-                extractOverrideJson(remoteConfigJson)?.let {
-                    val remoteConfigServiceUrlJson = JsonUtils.merge(remoteConfigJson.optJSONObject("serviceUrls"), it.optJSONObject("serviceUrls"))
-                    val remoteConfigLuckyJson = JsonUtils.merge(remoteConfigJson.optJSONObject("luckyLogger"), it.optJSONObject("luckyLogger"))
-                    val remoteConfigFeatureJson = JsonUtils.merge(remoteConfigJson.optJSONObject("features"), it.optJSONObject("features"))
+            extractOverrideJson(remoteConfigJson)?.let {
+                val remoteConfigServiceUrlJson = JsonUtils.merge(remoteConfigJson.optJSONObject("serviceUrls"), it.optJSONObject("serviceUrls"))
+                val remoteConfigLuckyJson = JsonUtils.merge(remoteConfigJson.optJSONObject("luckyLogger"), it.optJSONObject("luckyLogger"))
+                val remoteConfigFeatureJson = JsonUtils.merge(remoteConfigJson.optJSONObject("features"), it.optJSONObject("features"))
 
-                    remoteConfigJson = JsonUtils.merge(remoteConfigJson, it)
-                    remoteConfigJson.put("serviceUrls", remoteConfigServiceUrlJson)
-                    remoteConfigJson.put("luckyLogger", remoteConfigLuckyJson)
-                    remoteConfigJson.put("features", remoteConfigFeatureJson)
-                }
-                remoteConfig = mapJsonToRemoteConfig(remoteConfigJson)
-            } catch (jsonException: JSONException) {
-                Logger.error(CrashLog(jsonException))
+                remoteConfigJson = JsonUtils.merge(remoteConfigJson, it)
+                remoteConfigJson.put("serviceUrls", remoteConfigServiceUrlJson)
+                remoteConfigJson.put("luckyLogger", remoteConfigLuckyJson)
+                remoteConfigJson.put("features", remoteConfigFeatureJson)
             }
+            remoteConfig = mapJsonToRemoteConfig(remoteConfigJson)
+        } catch (jsonException: JSONException) {
+            Logger.error(CrashLog(jsonException))
         }
         return remoteConfig
     }

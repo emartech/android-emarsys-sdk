@@ -287,20 +287,20 @@ class MobileEngageIntegrationTest {
 
     private fun createDefaultCoreCompletionHandler(): DefaultCoreCompletionHandler {
         return object : DefaultCoreCompletionHandler(mutableMapOf()) {
-            override fun onSuccess(id: String?, responseModel: ResponseModel) {
+            override fun onSuccess(id: String, responseModel: ResponseModel) {
                 super.onSuccess(id, responseModel)
                 this@MobileEngageIntegrationTest.responseModel = responseModel
                 completionHandlerLatch?.countDown()
 
             }
 
-            override fun onError(id: String?, cause: Exception) {
+            override fun onError(id: String, cause: Exception) {
                 super.onError(id, cause)
                 this@MobileEngageIntegrationTest.errorCause = cause
                 completionHandlerLatch?.countDown()
             }
 
-            override fun onError(id: String?, responseModel: ResponseModel) {
+            override fun onError(id: String, responseModel: ResponseModel) {
                 super.onError(id, responseModel)
                 this@MobileEngageIntegrationTest.responseModel = responseModel
                 completionHandlerLatch?.countDown()

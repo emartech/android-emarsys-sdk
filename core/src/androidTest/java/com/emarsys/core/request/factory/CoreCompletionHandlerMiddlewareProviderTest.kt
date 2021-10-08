@@ -18,7 +18,10 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 
 class CoreCompletionHandlerMiddlewareProviderTest {
@@ -43,19 +46,19 @@ class CoreCompletionHandlerMiddlewareProviderTest {
     fun setUp() {
         latch = CountDownLatch(1)
 
-        mockRequestModel = mock(RequestModel::class.java).also {
+        mockRequestModel = mock {
             whenever(it.id).thenReturn("requestId")
         }
-        mockResponseModel = mock(ResponseModel::class.java).also {
+        mockResponseModel = mock {
             whenever(it.requestModel).thenReturn(mockRequestModel)
         }
-        mockRequestRepository = (mock(Repository::class.java) as Repository<RequestModel, SqlSpecification>)
+        mockRequestRepository = (mock())
         mockUiHandler = Handler(Looper.getMainLooper())
         mockCoreSdkHandler = CoreSdkHandler(Handler(Looper.getMainLooper()))
-        mockCoreCompletionHandler = mock(CoreCompletionHandler::class.java).also {
+        mockCoreCompletionHandler = mock {
             whenever(it.onSuccess(any(), any())).thenAnswer { latch.countDown() }
         }
-        mockWorker = mock(Worker::class.java)
+        mockWorker = mock()
 
         coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(mockRequestRepository, mockUiHandler, mockCoreSdkHandler)
     }

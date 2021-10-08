@@ -202,22 +202,22 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     fun fetchRemoteConfigSignature(resultListener: ResultListener<Try<String>>) {
         val requestModel = emarsysRequestModelFactory.createRemoteConfigSignatureRequest()
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
-            override fun onSuccess(id: String?, responseModel: ResponseModel?) {
-                val remoteConfigSignature = Try.success(responseModel!!.body)
+            override fun onSuccess(id: String, responseModel: ResponseModel) {
+                val remoteConfigSignature = Try.success(responseModel.body)
 
                 resultListener.onResult(remoteConfigSignature)
             }
 
-            override fun onError(id: String?, responseModel: ResponseModel?) {
+            override fun onError(id: String, responseModel: ResponseModel) {
                 val response = Try.failure<String>(ResponseErrorException(
-                        responseModel!!.statusCode,
+                        responseModel.statusCode,
                         responseModel.message,
                         responseModel.body))
 
                 resultListener.onResult(response)
             }
 
-            override fun onError(id: String?, cause: Exception?) {
+            override fun onError(id: String, cause: Exception) {
                 val response = Try.failure<String>(cause)
 
                 resultListener.onResult(response)
@@ -228,22 +228,22 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     fun fetchRemoteConfig(resultListener: ResultListener<Try<ResponseModel>>) {
         val requestModel = emarsysRequestModelFactory.createRemoteConfigRequest()
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
-            override fun onSuccess(id: String?, responseModel: ResponseModel?) {
-                val remoteConfig = Try.success(responseModel!!)
+            override fun onSuccess(id: String, responseModel: ResponseModel) {
+                val remoteConfig = Try.success(responseModel)
 
                 resultListener.onResult(remoteConfig)
             }
 
-            override fun onError(id: String?, responseModel: ResponseModel?) {
+            override fun onError(id: String, responseModel: ResponseModel) {
                 val response = Try.failure<ResponseModel>(ResponseErrorException(
-                        responseModel!!.statusCode,
+                        responseModel.statusCode,
                         responseModel.message,
                         responseModel.body))
 
                 resultListener.onResult(response)
             }
 
-            override fun onError(id: String?, cause: Exception?) {
+            override fun onError(id: String, cause: Exception) {
                 val response = Try.failure<ResponseModel>(cause)
 
                 resultListener.onResult(response)

@@ -126,7 +126,9 @@ class DefaultConfigInternalTest {
             }
         }
 
-        mockRequestModel = mock()
+        mockRequestModel = mock {
+            on { id } doReturn "reqId"
+        }
 
         mockEmarsysRequestModelFactory = mock {
             on { createRemoteConfigRequest() } doReturn mockRequestModel

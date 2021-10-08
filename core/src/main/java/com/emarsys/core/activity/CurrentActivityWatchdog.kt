@@ -3,9 +3,10 @@ package com.emarsys.core.activity
 import android.app.Activity
 import android.app.Application.ActivityLifecycleCallbacks
 import android.os.Bundle
+import com.emarsys.core.Mockable
 import com.emarsys.core.provider.Property
-import com.emarsys.core.util.Assert
 
+@Mockable
 class CurrentActivityWatchdog(private val currentActivityProvider: Property<Activity?>) : ActivityLifecycleCallbacks {
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
     override fun onActivityStarted(activity: Activity) {}
