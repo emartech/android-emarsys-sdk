@@ -6,6 +6,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.util.RequestModelHelper
 
+@Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
 abstract class AbstractRequestMapper(open val requestContext: MobileEngageRequestContext,
                                      open val requestModelHelper: RequestModelHelper) : Mapper<RequestModel, RequestModel> {
     override fun map(requestModel: RequestModel): RequestModel {

@@ -14,6 +14,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
+@Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
 @Mockable
 class GeofenceResponseMapper : Mapper<ResponseModel, GeofenceResponse> {
 

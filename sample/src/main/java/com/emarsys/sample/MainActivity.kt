@@ -58,7 +58,7 @@ class MainActivity : FragmentActivity(), EventHandler {
             MaterialAlertDialogBuilder(this)
                 .setTitle("Permission needed")
                 .setMessage("Emarsys SDK collects location data to enable Geofencing feature even when the app is closed or not in use.")
-                .setPositiveButton("Ok") { dialog, b ->
+                .setPositiveButton("Ok") { _, _ ->
                     ActivityCompat.requestPermissions(
                         this,
                         arrayOf(

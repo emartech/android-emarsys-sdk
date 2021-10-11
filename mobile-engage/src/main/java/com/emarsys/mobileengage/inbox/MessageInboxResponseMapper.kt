@@ -14,6 +14,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.net.URL
 
+@Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
 @Mockable
 class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
 

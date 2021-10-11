@@ -11,6 +11,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
+@Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
 @Mockable
 class PredictResponseMapper : Mapper<ResponseModel, List<Product>> {
     override fun map(responseModel: ResponseModel): List<Product> {

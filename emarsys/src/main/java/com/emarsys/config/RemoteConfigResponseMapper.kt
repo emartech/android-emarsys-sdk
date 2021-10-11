@@ -19,6 +19,7 @@ import org.json.JSONObject
 import java.net.URL
 import java.util.*
 
+@Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
 @Mockable
 class RemoteConfigResponseMapper(private val randomProvider: RandomProvider,
                                  private val hardwareIdProvider: HardwareIdProvider) : Mapper<ResponseModel, RemoteConfig> {
