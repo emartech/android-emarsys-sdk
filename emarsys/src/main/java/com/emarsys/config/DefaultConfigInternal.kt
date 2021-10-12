@@ -176,7 +176,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                 signatureResponse.result?.let { signature ->
                     fetchRemoteConfig(ResultListener {
                         it.result?.let { remoteConfigResponseModel ->
-                            if (crypto.verify(remoteConfigResponseModel.body.toByteArray(), signature)) {
+                            if (crypto.verify(remoteConfigResponseModel.body!!.toByteArray(), signature)) {
                                 applyRemoteConfig(configResponseMapper.map(remoteConfigResponseModel))
                                 completionListener?.onCompleted(null)
                             } else {
@@ -203,7 +203,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         val requestModel = emarsysRequestModelFactory.createRemoteConfigSignatureRequest()
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
-                val remoteConfigSignature = Try.success(responseModel.body)
+                val remoteConfigSignature = Try.success(responseModel.body!!)
 
                 resultListener.onResult(remoteConfigSignature)
             }

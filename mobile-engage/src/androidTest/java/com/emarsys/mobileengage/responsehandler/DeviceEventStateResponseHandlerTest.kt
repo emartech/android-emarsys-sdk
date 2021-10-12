@@ -115,7 +115,7 @@ class DeviceEventStateResponseHandlerTest {
 
         handler.handleResponse(response)
 
-        verify(mockDeviceEventStateStorage).set(response.parsedBody.getString("deviceEventState"))
+        verify(mockDeviceEventStateStorage).set(response.parsedBody!!.getString("deviceEventState"))
     }
 
     private fun buildResponseModel(requestModel: RequestModel, responseBody: String? = "{'deviceEventState': {'123': '456', '78910':'6543'}}", statusCode: Int = 200): ResponseModel {

@@ -11,27 +11,25 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 import java.net.HttpCookie
 import java.util.*
 
 class ResponseModelTest {
 
     companion object {
-        private val timestamp: Long = 4200
+        private const val timestamp: Long = 4200
     }
 
     private var statusCode: Int = Int.MIN_VALUE
     private lateinit var message: String
-    private lateinit var headers: Map<String, String>
-    private lateinit var listHeaders: Map<String, List<String>>
+    private lateinit var headers: Map<String?, String>
+    private lateinit var listHeaders: Map<String?, List<String>>
     private lateinit var cookies: Map<String, HttpCookie>
     private lateinit var body: String
-    private lateinit var bytes: ByteArray
-    private lateinit var timestampProvider: TimestampProvider
-
-    private lateinit var requestModel: RequestModel
+    private lateinit var mockTimestampProvider: TimestampProvider
+    private lateinit var mockRequestModel: RequestModel
 
     @Rule
     @JvmField
@@ -45,40 +43,10 @@ class ResponseModelTest {
         cookies = createCookies()
         listHeaders = headers.wrapValuesInList()
         body = "payload"
-        bytes = body.toByteArray()
-        timestampProvider = mock(TimestampProvider::class.java)
-        `when`(timestampProvider.provideTimestamp()).thenReturn(timestamp)
-        requestModel = mock(RequestModel::class.java)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun test_statusCodeShouldNotBeBelow200() {
-        ResponseModel(199, message, headers, cookies, body, timestamp, requestModel)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun test_statusCodeShouldNotBeOver600() {
-        ResponseModel(600, message, headers, cookies, body, timestamp, requestModel)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun test_messageShouldNotBeNull() {
-        ResponseModel(statusCode, null, headers, cookies, body, timestamp, requestModel)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun test_headersShouldNotBeNull() {
-        ResponseModel(statusCode, message, null, cookies, body, timestamp, requestModel)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun test_cookiesShouldNotBeNull() {
-        ResponseModel(statusCode, message, headers, null, body, timestamp, requestModel)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun test_requestModelShouldNotBeNull() {
-        ResponseModel(statusCode, message, headers, cookies, body, timestamp, null)
+        mockTimestampProvider = mock {
+            on { provideTimestamp() } doReturn timestamp
+        }
+        mockRequestModel = mock()
     }
 
     @Test
@@ -91,7 +59,7 @@ class ResponseModelTest {
                 mapOf(),
                 "{ 'foo': 'bar', 'a': 1, 'nested': { 'b': 'c' }}",
                 timestamp,
-                requestModel)
+                mockRequestModel)
 
         val result = responseModel.parsedBody
         val expected = JSONObject()
@@ -112,7 +80,7 @@ class ResponseModelTest {
                 mapOf(),
                 "<html>Not valid json</html>",
                 timestamp,
-                requestModel)
+                mockRequestModel)
 
         val result = responseModel.parsedBody
         assertNull(result)
@@ -128,7 +96,7 @@ class ResponseModelTest {
                 mapOf(),
                 null,
                 timestamp,
-                requestModel)
+                mockRequestModel)
 
         val result = responseModel.parsedBody
         assertNull(result)
@@ -136,25 +104,25 @@ class ResponseModelTest {
 
     @Test
     fun testBuilder_withAllArguments() {
-        val expected = ResponseModel(statusCode, message, headers, cookies, body, timestamp, requestModel)
-        val result = ResponseModel.Builder(timestampProvider)
+        val expected = ResponseModel(statusCode, message, headers, cookies, body, timestamp, mockRequestModel)
+        val result = ResponseModel.Builder(mockTimestampProvider)
                 .statusCode(statusCode)
                 .message(message)
                 .headers(listHeaders)
                 .body(body)
-                .requestModel(requestModel)
+                .requestModel(mockRequestModel)
                 .build()
         assertEquals(expected, result)
     }
 
     @Test
     fun testBuilder_withMandatoryArguments() {
-        val expected = ResponseModel(statusCode, message, mapOf(), mapOf(), body, timestamp, requestModel)
-        val result = ResponseModel.Builder(timestampProvider)
+        val expected = ResponseModel(statusCode, message, mapOf(), mapOf(), body, timestamp, mockRequestModel)
+        val result = ResponseModel.Builder(mockTimestampProvider)
                 .statusCode(statusCode)
                 .message(message)
                 .body(body)
-                .requestModel(requestModel)
+                .requestModel(mockRequestModel)
                 .build()
         assertEquals(expected, result)
     }
@@ -162,9 +130,9 @@ class ResponseModelTest {
     @Test
     fun testBuilder_joinShouldReturnConcatenatedValue() {
         val expected = "alma, korte, szilva, malna"
-        val inputList = Arrays.asList("alma", "korte", "szilva", "malna")
+        val inputList = listOf("alma", "korte", "szilva", "malna")
         val delimiter = ", "
-        val actual = ResponseModel.Builder().join(delimiter, inputList)
+        val actual = inputList.joinToString(delimiter)
         assertEquals(expected, actual)
     }
 
@@ -174,7 +142,7 @@ class ResponseModelTest {
         expected["one"] = "alma, szilva"
         expected["two"] = "korte, malna"
 
-        val inputHeaders = HashMap<String, List<String>>()
+        val inputHeaders = HashMap<String?, List<String>>()
         inputHeaders["one"] = listOf("alma", "szilva")
         inputHeaders["two"] = listOf("korte", "malna")
 
@@ -184,17 +152,17 @@ class ResponseModelTest {
 
     @Test
     fun testBuilder_cookiesShouldBeEmpty_whenNoSetCookiesArePresent() {
-        val headers = mapOf("content" to "application/x-www-form-urlencoded")
+        val headers = mapOf<String?, String>("content" to "application/x-www-form-urlencoded")
         val headersAsList = headers.wrapValuesInList()
 
-        val expected = ResponseModel(statusCode, message, headers, mapOf(), null, timestamp, requestModel)
+        val expected = ResponseModel(statusCode, message, headers, mapOf(), null, timestamp, mockRequestModel)
 
-        val result = ResponseModel.Builder(timestampProvider)
+        val result = ResponseModel.Builder(mockTimestampProvider)
                 .statusCode(statusCode)
                 .headers(headersAsList)
                 .message(message)
                 .body(null)
-                .requestModel(requestModel)
+                .requestModel(mockRequestModel)
                 .build()
 
         assertEquals(expected, result)
@@ -208,7 +176,7 @@ class ResponseModelTest {
                 "Set-Cookie" to "cdv=AAABBB;Path=/;Expires=Fri, 20-Sep-2019 14:30:24 GMT, s=ASDF1234",
                 "set-cookie" to "UserID=JohnDoe; Max-Age=3600; Version=1"
         )
-        val headersAsList = mapOf(
+        val headersAsList = mapOf<String?, List<String>>(
                 null to listOf("HTTP/1.1 200 OK"),
                 "content" to listOf("application/x-www-form-urlencoded"),
                 "Set-Cookie" to listOf(
@@ -223,20 +191,20 @@ class ResponseModelTest {
                 "UserID" to HttpCookie.parse("Set-Cookie: UserID=JohnDoe; Max-Age=3600; Version=1").first()
         )
 
-        val expected = ResponseModel(statusCode, message, headers, cookies, null, timestamp, requestModel)
+        val expected = ResponseModel(statusCode, message, headers, cookies, null, timestamp, mockRequestModel)
 
-        val result = ResponseModel.Builder(timestampProvider)
+        val result = ResponseModel.Builder(mockTimestampProvider)
                 .statusCode(statusCode)
                 .headers(headersAsList)
                 .message(message)
                 .body(null)
-                .requestModel(requestModel)
+                .requestModel(mockRequestModel)
                 .build()
 
         assertEquals(expected, result)
     }
 
-    private fun createHeaders(): Map<String, String> {
+    private fun createHeaders(): Map<String?, String> {
         return mapOf(
                 "content" to "application/x-www-form-urlencoded",
                 "set-cookie" to "UserID=JohnDoe; Max-Age=3600; Version=1"

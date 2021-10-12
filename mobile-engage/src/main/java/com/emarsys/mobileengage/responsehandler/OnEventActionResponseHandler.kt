@@ -38,7 +38,7 @@ class OnEventActionResponseHandler(private val actionCommandFactory: ActionComma
     override fun handleResponse(responseModel: ResponseModel) {
         try {
             val responseBody = responseModel.parsedBody
-            val onEventAction = responseBody.getJSONObject("onEventAction")
+            val onEventAction = responseBody!!.getJSONObject("onEventAction")
             val campaignId = onEventAction.getString("campaignId")
             onEventAction.getJSONArray("actions").toMutableList().map {
                 actionCommandFactory.createActionCommand(it)

@@ -39,7 +39,7 @@ class InAppCleanUpResponseHandler(
     }
 
     override fun handleResponse(responseModel: ResponseModel) {
-        val json = responseModel.parsedBody
+        val json = responseModel.parsedBody!!
         val oldMessages = json.optJSONArray(OLD_MESSAGES)
         if (oldMessages != null) {
             val ids = arrayOfNulls<String>(oldMessages.length())

@@ -904,12 +904,12 @@ class DefaultConfigInternalTest {
             val result: Try<ResponseModel> = Try.success(expectedResponseModel)
             (it.arguments[0] as ResultListener<Try<ResponseModel>>).onResult(result)
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfig(any())
-        whenever(mockCrypto.verify(expectedResponseModel.body.toByteArray(), "signature")).thenReturn(true)
+        whenever(mockCrypto.verify(expectedResponseModel.body!!.toByteArray(), "signature")).thenReturn(true)
 
         configInternal.refreshRemoteConfig(mockCompletionListener)
 
         verify(mockCompletionListener).onCompleted(anyOrNull())
-        verify(mockCrypto).verify(expectedResponseModel.body.toByteArray(), "signature")
+        verify(mockCrypto).verify(expectedResponseModel.body!!.toByteArray(), "signature")
         verify(mockConfigResponseMapper).map(any())
         verify((configInternal as DefaultConfigInternal)).applyRemoteConfig(expectedRemoteConfig)
     }
@@ -928,7 +928,7 @@ class DefaultConfigInternalTest {
                 .requestModel(mockRequestModel)
                 .message("responseMessage").build()
         whenever(mockConfigResponseMapper.map(expectedResponseModel)).thenReturn(expectedRemoteConfig)
-        whenever(mockCrypto.verify(expectedResponseModel.body.toByteArray(), "signature")).thenReturn(false)
+        whenever(mockCrypto.verify(expectedResponseModel.body!!.toByteArray(), "signature")).thenReturn(false)
 
         doAnswer {
             val result: Try<String> = Try.success("signature")
@@ -943,7 +943,7 @@ class DefaultConfigInternalTest {
         configInternal.refreshRemoteConfig(mockCompletionListener)
 
         verify(mockCompletionListener).onCompleted(any())
-        verify(mockCrypto).verify(expectedResponseModel.body.toByteArray(), "signature")
+        verify(mockCrypto).verify(expectedResponseModel.body!!.toByteArray(), "signature")
         verify((configInternal as DefaultConfigInternal)).resetRemoteConfig()
         verifyZeroInteractions(mockConfigResponseMapper)
         verify((configInternal as DefaultConfigInternal), times(0)).applyRemoteConfig(expectedRemoteConfig)
