@@ -89,7 +89,6 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
     fun createRefreshContactTokenRequest(): RequestModel {
         val headers: MutableMap<String, String> = HashMap()
         headers.putAll(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
-        headers.putAll(RequestHeaderUtils.createDefaultHeaders(requestContext))
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
                 .url("${clientServiceProvider.provideEndpointHost()}${Endpoint.clientBase(requestContext.applicationCode)}/contact-token")
                 .method(RequestMethod.POST)
@@ -128,7 +127,7 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
                 .method(RequestMethod.POST)
                 .payload(RequestPayloadUtils.createInlineInAppPayload(viewId, buttonClickedRepository.query(Everything())))
                 .url("${eventServiceProvider.provideEndpointHost()}${Endpoint.inlineInAppBase(requestContext.applicationCode)}")
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext) + RequestHeaderUtils.createDefaultHeaders(requestContext))
+                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .build()
     }
 }

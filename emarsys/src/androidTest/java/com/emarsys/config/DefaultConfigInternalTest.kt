@@ -986,7 +986,7 @@ class DefaultConfigInternalTest {
                 mock() as Repository<ShardModel, SqlSpecification>,
                 mock(),
                 restClient,
-                mock() as Registry<RequestModel, CompletionListener>,
+                mock() as Registry<RequestModel, CompletionListener?>,
                 mock(),
                 mockProvider
         )

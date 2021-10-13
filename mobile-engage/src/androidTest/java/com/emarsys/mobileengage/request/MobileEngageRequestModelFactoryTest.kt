@@ -319,9 +319,7 @@ class MobileEngageRequestModelFactoryTest {
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact-token",
             RequestMethod.POST,
             RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext),
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + RequestHeaderUtils.createDefaultHeaders(
-                mockRequestContext
-            ),
+            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -375,11 +373,7 @@ class MobileEngageRequestModelFactoryTest {
             .method(RequestMethod.POST)
             .payload(RequestPayloadUtils.createInlineInAppPayload(viewId, CLICKS))
             .url("https://mobile-events.eservice.emarsys.net/v4/apps/$APPLICATION_CODE/inline-messages")
-            .headers(
-                RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + RequestHeaderUtils.createDefaultHeaders(
-                    mockRequestContext
-                )
-            )
+            .headers(RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext))
             .build()
 
         val result = requestFactory.createFetchInlineInAppMessagesRequest(viewId)

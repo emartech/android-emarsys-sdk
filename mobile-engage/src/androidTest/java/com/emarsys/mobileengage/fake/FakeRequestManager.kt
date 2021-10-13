@@ -25,7 +25,7 @@ class FakeRequestManager(private val responseType: ResponseType, private val res
         Mockito.mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>,
         Mockito.mock(Worker::class.java),
         Mockito.mock(RestClient::class.java),
-        Mockito.mock(Registry::class.java) as Registry<RequestModel, CompletionListener>,
+        Mockito.mock(Registry::class.java) as Registry<RequestModel, CompletionListener?>,
         Mockito.mock(CoreCompletionHandler::class.java),
         Mockito.mock(CompletionHandlerProxyProvider::class.java)
 ) {

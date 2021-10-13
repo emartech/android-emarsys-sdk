@@ -1,19 +1,15 @@
 package com.emarsys.mobileengage.util
 
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.storage.StringStorage
-import com.emarsys.core.util.HeaderUtils
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.mock
-import java.util.*
 
 class RequestHeaderUtilsTest {
     private companion object {
@@ -59,44 +55,5 @@ class RequestHeaderUtilsTest {
 
         headers shouldBe mapOf(
                 "X-Client-Id" to HARDWARE_ID)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testCreateDefaultHeaders_configShouldNotBeNull() {
-        RequestHeaderUtils.createDefaultHeaders(null)
-    }
-
-    @Test
-    fun testCreateDefaultHeaders_returnedValueShouldNotBeNull() {
-        whenever(mockDeviceInfo.isDebugMode).thenReturn(true)
-
-        RequestHeaderUtils.createDefaultHeaders(mockRequestContext) shouldNotBe null
-    }
-
-    @Test
-    fun testCreateDefaultHeaders_debug_shouldReturnCorrectMap() {
-        whenever(mockDeviceInfo.isDebugMode).thenReturn(true)
-        val expected = mapOf(
-                "Content-Type" to "application/json",
-                "X-EMARSYS-SDK-VERSION" to SDK_VERSION,
-                "X-EMARSYS-SDK-MODE" to "debug")
-
-        val result = RequestHeaderUtils.createDefaultHeaders(mockRequestContext)
-
-        result shouldBe expected
-    }
-
-    @Test
-    fun testCreateDefaultHeaders_release_shouldReturnCorrectMap() {
-        whenever(mockDeviceInfo.isDebugMode).thenReturn(false)
-
-        val expected = mapOf(
-                "Content-Type" to "application/json",
-                "X-EMARSYS-SDK-VERSION" to SDK_VERSION,
-                "X-EMARSYS-SDK-MODE" to "production")
-
-        val result = RequestHeaderUtils.createDefaultHeaders(mockRequestContext)
-
-        result shouldBe expected
     }
 }

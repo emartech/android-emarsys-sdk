@@ -108,16 +108,12 @@ import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.*
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import com.emarsys.mobileengage.request.mapper.ContactTokenHeaderMapper
-import com.emarsys.mobileengage.request.mapper.DeviceEventStateRequestMapper
-import com.emarsys.mobileengage.request.mapper.MobileEngageHeaderMapper
-import com.emarsys.mobileengage.request.mapper.OpenIdTokenRequestMapper
+import com.emarsys.mobileengage.request.mapper.*
 import com.emarsys.mobileengage.responsehandler.*
 import com.emarsys.mobileengage.service.RemoteMessageMapper
 import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
-import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.oneventaction.OnEventAction
 import com.emarsys.oneventaction.OnEventActionApi
@@ -547,9 +543,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             coreCompletionHandler,
             coreCompletionHandler,
             coreCompletionHandlerRefreshTokenProxyProvider
-        ).apply {
-            setDefaultHeaders(RequestHeaderUtils.createDefaultHeaders(requestContext))
-        }
+        )
     }
 
     override val mobileEngageRequestModelFactory: MobileEngageRequestModelFactory by lazy {
@@ -923,6 +917,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             MobileEngageHeaderMapper(requestContext, requestModelHelper),
             OpenIdTokenRequestMapper(requestContext, requestModelHelper),
             ContactTokenHeaderMapper(requestContext, requestModelHelper),
+            DefaultRequestHeaderMapper(requestContext),
             DeviceEventStateRequestMapper(
                 requestContext,
                 requestModelHelper,

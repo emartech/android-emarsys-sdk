@@ -26,9 +26,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentCaptor
-import org.mockito.Mockito.*
-import org.mockito.kotlin.mock
+import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
 class DefaultPushInternalTest {
@@ -74,39 +72,53 @@ class DefaultPushInternalTest {
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
 
-        mockContactFieldValueStorage = mock(StringStorage::class.java)
-        mockRefreshTokenStorage = mock(StringStorage::class.java)
-        mockContactTokenStorage = mock(StringStorage::class.java)
-        mockClientStateStorage = mock(StringStorage::class.java)
-        mockPushTokenStorage = mock(StringStorage::class.java)
+        mockContactFieldValueStorage = mock()
+        mockRefreshTokenStorage = mock()
+        mockContactTokenStorage = mock()
+        mockClientStateStorage = mock()
+        mockPushTokenStorage = mock()
         mockNotificationInformationListenerProvider = mock()
         mockSilentNotificationInformationListenerProvider = mock()
-        mockUuidProvider = mock(UUIDProvider::class.java).apply {
-            whenever(provideId()).thenReturn(REQUEST_ID)
+        mockUuidProvider = mock {
+            on { provideId() } doReturn REQUEST_ID
         }
-        mockTimestampProvider = mock(TimestampProvider::class.java).apply {
-            whenever(provideTimestamp()).thenReturn(TIMESTAMP)
+        mockTimestampProvider = mock {
+            on { provideTimestamp() } doReturn TIMESTAMP
         }
 
-        mockRequestManager = mock(RequestManager::class.java)
-        mockRequestContext = mock(MobileEngageRequestContext::class.java)
+        mockRequestManager = mock()
+        mockRequestContext = mock()
 
-        mockRequestModel = mock(RequestModel::class.java)
+        mockRequestModel = mock()
 
-        mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
-            whenever(createSetPushTokenRequest(PUSH_TOKEN)).thenReturn(mockRequestModel)
-            whenever(createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
-            whenever(createRemovePushTokenRequest()).thenReturn(mockRequestModel)
+        mockRequestModelFactory = mock {
+            on { createSetPushTokenRequest(PUSH_TOKEN) } doReturn mockRequestModel
+            on {
+                createInternalCustomEventRequest(
+                    EVENT_NAME,
+                    EVENT_ATTRIBUTES
+                )
+            } doReturn mockRequestModel
+            on { createRemovePushTokenRequest() } doReturn mockRequestModel
         }
 
         uiHandler = Handler(Looper.getMainLooper())
 
-        mockCompletionListener = mock(CompletionListener::class.java)
-        mockEventServiceInternal = mock(EventServiceInternal::class.java)
+        mockCompletionListener = mock()
+        mockEventServiceInternal = mock()
         mockNotificationEventHandlerProvider = mock()
         mockSilentMessageEventHandlerProvider = mock()
-        pushInternal = DefaultPushInternal(mockRequestManager, uiHandler, mockRequestModelFactory, mockEventServiceInternal,
-                mockPushTokenStorage, mockNotificationEventHandlerProvider, mockSilentMessageEventHandlerProvider, mockNotificationInformationListenerProvider, mockSilentNotificationInformationListenerProvider)
+        pushInternal = DefaultPushInternal(
+            mockRequestManager,
+            uiHandler,
+            mockRequestModelFactory,
+            mockEventServiceInternal,
+            mockPushTokenStorage,
+            mockNotificationEventHandlerProvider,
+            mockSilentMessageEventHandlerProvider,
+            mockNotificationInformationListenerProvider,
+            mockSilentNotificationInformationListenerProvider
+        )
     }
 
     @Test
@@ -120,7 +132,7 @@ class DefaultPushInternalTest {
 
         verify(mockRequestManager).submit(eq(mockRequestModel), any())
         verify(mockPushTokenStorage).set(PUSH_TOKEN)
-        verify(mockCompletionListener).onCompleted(any())
+        verify(mockCompletionListener).onCompleted(anyOrNull())
     }
 
     @Test
@@ -152,9 +164,9 @@ class DefaultPushInternalTest {
 
     @Test
     fun testSetPushToken_shouldCallCompletionListener_onMainThread() {
-        whenever(mockPushTokenStorage.get()).thenReturn(PUSH_TOKEN)
         val threadSpy: ThreadSpy<CompletionListener> = ThreadSpy()
-        whenever(mockCompletionListener.onCompleted(any())).thenAnswer(threadSpy)
+        whenever(mockPushTokenStorage.get()).thenReturn(PUSH_TOKEN)
+        whenever(mockCompletionListener.onCompleted(anyOrNull())).doAnswer(threadSpy)
 
         pushInternal.setPushToken(PUSH_TOKEN, mockCompletionListener)
 
@@ -163,7 +175,7 @@ class DefaultPushInternalTest {
 
     @Test
     fun testGetPushToken_shouldGetPushTokenFromStorage() {
-       whenever(mockPushTokenStorage.get()).thenReturn(PUSH_TOKEN)
+        whenever(mockPushTokenStorage.get()).thenReturn(PUSH_TOKEN)
 
         val result = pushInternal.pushToken
 
@@ -249,21 +261,39 @@ class DefaultPushInternalTest {
     @Test
     fun testTrackMessageOpen() {
         val attributes = mapOf("sid" to SID, "origin" to "main")
-        whenever(mockRequestModelFactory.createInternalCustomEventRequest(MESSAGE_OPEN_EVENT_NAME, attributes)).thenReturn(mockRequestModel)
+        whenever(
+            mockRequestModelFactory.createInternalCustomEventRequest(
+                MESSAGE_OPEN_EVENT_NAME,
+                attributes
+            )
+        ).thenReturn(mockRequestModel)
 
         pushInternal.trackMessageOpen(createTestIntent(), mockCompletionListener)
 
-        verify(mockEventServiceInternal).trackInternalCustomEventAsync(MESSAGE_OPEN_EVENT_NAME, attributes, mockCompletionListener)
+        verify(mockEventServiceInternal).trackInternalCustomEventAsync(
+            MESSAGE_OPEN_EVENT_NAME,
+            attributes,
+            mockCompletionListener
+        )
     }
 
     @Test
     fun testTrackMessageOpen_completionListener_canBeNull() {
         val attributes = mapOf("sid" to SID, "origin" to "main")
-        whenever(mockRequestModelFactory.createInternalCustomEventRequest(MESSAGE_OPEN_EVENT_NAME, attributes)).thenReturn(mockRequestModel)
+        whenever(
+            mockRequestModelFactory.createInternalCustomEventRequest(
+                MESSAGE_OPEN_EVENT_NAME,
+                attributes
+            )
+        ).thenReturn(mockRequestModel)
 
         pushInternal.trackMessageOpen(createTestIntent(), null)
 
-        verify(mockEventServiceInternal).trackInternalCustomEventAsync(MESSAGE_OPEN_EVENT_NAME, attributes, null)
+        verify(mockEventServiceInternal).trackInternalCustomEventAsync(
+            MESSAGE_OPEN_EVENT_NAME,
+            attributes,
+            null
+        )
     }
 
     @Test
@@ -273,7 +303,7 @@ class DefaultPushInternalTest {
 
     @Test
     fun testTrackMessageOpen_shouldCallCompletionListenerWithError_whenMessageIdNotFound() {
-        val completionListener = mock(CompletionListener::class.java)
+        val completionListener: CompletionListener = mock()
         val countDownLatch = CountDownLatch(1)
         val fakeCompletionListener = FakeCompletionListener(countDownLatch, completionListener)
 
@@ -281,19 +311,18 @@ class DefaultPushInternalTest {
 
         countDownLatch.await()
 
-        val captor = ArgumentCaptor.forClass(IllegalArgumentException::class.java)
-
-        verify(completionListener).onCompleted(captor.capture())
-
-        captor.value.message shouldBe "No messageId found!"
-        captor.value.shouldBeTypeOf<IllegalArgumentException>()
+        argumentCaptor<IllegalArgumentException>().apply {
+            verify(completionListener).onCompleted(capture())
+            firstValue.message shouldBe "No messageId found!"
+            firstValue.shouldBeTypeOf<IllegalArgumentException>()
+        }
     }
 
     @Test
     fun testTrackMessageOpen_withEmptyIntent_shouldCallCompletionListener_onMainThread() {
-        val completionListener = mock(CompletionListener::class.java)
+        val completionListener: CompletionListener = mock()
         val threadSpy: ThreadSpy<CompletionListener> = ThreadSpy()
-        doAnswer(threadSpy).`when`(completionListener).onCompleted(any(Throwable::class.java))
+        whenever(completionListener.onCompleted(any())).doAnswer(threadSpy)
 
         pushInternal.trackMessageOpen(createBadTestIntent(), completionListener)
 
@@ -343,14 +372,18 @@ class DefaultPushInternalTest {
         val mockNotificationInformationListener: NotificationInformationListener = mock()
         pushInternal.setNotificationInformationListener(mockNotificationInformationListener)
 
-        verify(mockNotificationInformationListenerProvider).notificationInformationListener = mockNotificationInformationListener
+        verify(mockNotificationInformationListenerProvider).notificationInformationListener =
+            mockNotificationInformationListener
     }
 
     @Test
     fun testSetSilentNotificationInformationListener() {
         val mockSilentNotificationInformationListener: NotificationInformationListener = mock()
-        pushInternal.setSilentNotificationInformationListener(mockSilentNotificationInformationListener)
+        pushInternal.setSilentNotificationInformationListener(
+            mockSilentNotificationInformationListener
+        )
 
-        verify(mockSilentNotificationInformationListenerProvider).silentNotificationInformationListener = mockSilentNotificationInformationListener
+        verify(mockSilentNotificationInformationListenerProvider).silentNotificationInformationListener =
+            mockSilentNotificationInformationListener
     }
 }

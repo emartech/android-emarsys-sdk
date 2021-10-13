@@ -251,7 +251,7 @@ class RequestManagerOfflineTest {
                 shardRepository,
                 worker,
                 fakeRestClient,
-                mock(Registry::class.java) as Registry<RequestModel, CompletionListener>,
+                mock(Registry::class.java) as Registry<RequestModel, CompletionListener?>,
                 completionHandler,
                 mockProxyProvider
         )
