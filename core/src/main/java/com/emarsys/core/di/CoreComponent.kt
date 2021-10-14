@@ -26,6 +26,7 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.worker.Worker
+import kotlinx.coroutines.CoroutineScope
 
 fun core() = CoreComponent.instance
         ?: throw IllegalStateException("DependencyContainer has to be setup first!")
@@ -100,4 +101,8 @@ interface CoreComponent {
     val connectionWatchdog: ConnectionWatchDog
 
     val coreCompletionHandler: CoreCompletionHandler
+
+    val coreSdkScope: CoroutineScope
+
+    val uiScope: CoroutineScope
 }

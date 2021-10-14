@@ -10,24 +10,24 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.RequestManager
-import com.emarsys.core.request.RestClient
-import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
-import com.emarsys.core.worker.Worker
-import org.mockito.Mockito
+import kotlinx.coroutines.CoroutineScope
+import org.mockito.kotlin.mock
 
 @Mockable
 class FakeRequestManager(private val responseType: ResponseType, private val response: ResponseModel) : RequestManager(
-        CoreSdkHandler(Handler(Looper.getMainLooper())),
-        Mockito.mock(Repository::class.java) as Repository<RequestModel, SqlSpecification>,
-        Mockito.mock(Repository::class.java) as Repository<ShardModel, SqlSpecification>,
-        Mockito.mock(Worker::class.java),
-        Mockito.mock(RestClient::class.java),
-        Mockito.mock(Registry::class.java) as Registry<RequestModel, CompletionListener?>,
-        Mockito.mock(CoreCompletionHandler::class.java),
-        Mockito.mock(CompletionHandlerProxyProvider::class.java)
+    CoreSdkHandler(Handler(Looper.getMainLooper())),
+    mock() as Repository<RequestModel, SqlSpecification>,
+    mock() as Repository<ShardModel, SqlSpecification>,
+    mock(),
+    mock(),
+    mock() as Registry<RequestModel, CompletionListener?>,
+    mock(),
+    mock(),
+    mock(),
+    mock()
 ) {
 
     enum class ResponseType {
@@ -36,7 +36,7 @@ class FakeRequestManager(private val responseType: ResponseType, private val res
         EXCEPTION
     }
 
-    override fun submitNow(requestModel: RequestModel, coreCompletionHandler: CoreCompletionHandler) {
+    override fun submitNow(requestModel: RequestModel, coreCompletionHandler: CoreCompletionHandler, scope: CoroutineScope) {
         if (responseType == ResponseType.SUCCESS) {
             coreCompletionHandler.onSuccess("id", response)
         } else if (responseType == ResponseType.FAILURE) {

@@ -47,6 +47,7 @@ import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
+import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
 import com.emarsys.core.resource.MetaDataReader
@@ -131,6 +132,10 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.android.asCoroutineDispatcher
 import org.json.JSONObject
 import java.security.KeyFactory
 import java.security.PublicKey
@@ -155,6 +160,12 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         get() = com.emarsys.NotificationOpenedActivity::class.java
 
     final override val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+
+    private val coreSdkHandlerDispatcher = coreSdkHandler.handler.asCoroutineDispatcher()
+
+    override val coreSdkScope: CoroutineScope = CoroutineScope(Job() + coreSdkHandlerDispatcher)
+
+    override val uiScope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Main)
 
     override val uiHandler: Handler = Handler(config.application.mainLooper)
 
@@ -542,7 +553,9 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             restClient,
             coreCompletionHandler,
             coreCompletionHandler,
-            coreCompletionHandlerRefreshTokenProxyProvider
+            coreCompletionHandlerRefreshTokenProxyProvider,
+            ScopeDelegatorCompletionHandlerProvider(),
+            coreSdkScope
         )
     }
 

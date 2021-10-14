@@ -135,7 +135,7 @@ class DefaultGeofenceInternalTest {
     fun testFetchGeofences_shouldSendRequest_viaRequestManager_submitNow() {
         geofenceInternal.fetchGeofences(null)
 
-        verify(fakeRequestManager).submitNow(any(), any())
+        verify(fakeRequestManager).submitNow(any(), any(), anyOrNull())
     }
 
     @Test

@@ -10,9 +10,11 @@ import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.factory.DefaultRunnableFactory
 import com.emarsys.core.request.factory.RunnableFactory
+import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.worker.Worker
+import kotlinx.coroutines.CoroutineScope
 
 @Mockable
 class RequestManager(
@@ -23,7 +25,9 @@ class RequestManager(
     private val restClient: RestClient,
     private val callbackRegistry: Registry<RequestModel, CompletionListener?>,
     private val defaultCoreCompletionHandler: CoreCompletionHandler,
-    private val completionHandlerProxyProvider: CompletionHandlerProxyProvider
+    private val completionHandlerProxyProvider: CompletionHandlerProxyProvider,
+    private val scopeDelegatorCompletionHandlerProvider: ScopeDelegatorCompletionHandlerProvider,
+    private val coreSdkScope: CoroutineScope
 ) {
     var runnableFactory : RunnableFactory =  DefaultRunnableFactory()
 
@@ -45,8 +49,9 @@ class RequestManager(
         submitNow(requestModel, handler)
     }
 
-    fun submitNow(requestModel: RequestModel, completionHandler: CoreCompletionHandler) {
-        val handler = completionHandlerProxyProvider.provideProxy(null, completionHandler)
+    fun submitNow(requestModel: RequestModel, completionHandler: CoreCompletionHandler, scope: CoroutineScope = coreSdkScope) {
+        val scopedHandler = scopeDelegatorCompletionHandlerProvider.provide(completionHandler, scope)
+        val handler = completionHandlerProxyProvider.provideProxy(null, scopedHandler)
         restClient.execute(requestModel, handler)
     }
 }

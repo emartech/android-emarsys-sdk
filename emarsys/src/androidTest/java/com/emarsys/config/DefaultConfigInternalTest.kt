@@ -17,6 +17,7 @@ import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
+import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
@@ -586,9 +587,9 @@ class DefaultConfigInternalTest {
         val requestModel: RequestModel = mock()
         whenever(mockEmarsysRequestModelFactory.createRemoteConfigRequest()).thenReturn(requestModel)
 
-        (configInternal as DefaultConfigInternal).fetchRemoteConfig(ResultListener { })
+        (configInternal as DefaultConfigInternal).fetchRemoteConfig { }
 
-        verify(mockRequestManager).submitNow(eq(requestModel), any())
+        verify(mockRequestManager).submitNow(eq(requestModel), any(), anyOrNull())
     }
 
     @Test
@@ -598,7 +599,7 @@ class DefaultConfigInternalTest {
 
         configInternal.refreshRemoteConfig(null)
 
-        verify(mockRequestManager).submitNow(eq(requestModel), any())
+        verify(mockRequestManager).submitNow(eq(requestModel), any(), anyOrNull())
     }
 
     @Test
@@ -971,6 +972,14 @@ class DefaultConfigInternalTest {
 
     @Suppress("UNCHECKED_CAST")
     fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
+        val mockScopeDelegatorCompletionHandlerProvider: ScopeDelegatorCompletionHandlerProvider = mock {
+            on { provide(any(), any()) } doAnswer {
+                it.arguments[0] as CoreCompletionHandler
+            }
+            on { provide(any(), any()) } doAnswer {
+                it.arguments[0] as CoreCompletionHandler
+            }
+        }
         val mockProvider: CompletionHandlerProxyProvider = mock {
             on { provideProxy(isNull(), any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
@@ -981,14 +990,16 @@ class DefaultConfigInternalTest {
         }
 
         return RequestManager(
-                mock(),
-                mock() as Repository<RequestModel, SqlSpecification>,
-                mock() as Repository<ShardModel, SqlSpecification>,
-                mock(),
-                restClient,
-                mock() as Registry<RequestModel, CompletionListener?>,
-                mock(),
-                mockProvider
+            mock(),
+            mock() as Repository<RequestModel, SqlSpecification>,
+            mock() as Repository<ShardModel, SqlSpecification>,
+            mock(),
+            restClient,
+            mock() as Registry<RequestModel, CompletionListener?>,
+            mock(),
+            mockProvider,
+            mockScopeDelegatorCompletionHandlerProvider,
+            mock()
         )
     }
 }

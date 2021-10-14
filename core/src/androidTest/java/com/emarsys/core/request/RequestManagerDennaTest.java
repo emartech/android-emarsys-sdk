@@ -1,5 +1,12 @@
 package com.emarsys.core.request;
 
+import static com.emarsys.testUtil.TestUrls.DENNA_ECHO;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,6 +26,7 @@ import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.provider.uuid.UUIDProvider;
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider;
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider;
+import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider;
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.request.model.RequestModelRepository;
@@ -47,12 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import static com.emarsys.testUtil.TestUrls.DENNA_ECHO;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import kotlinx.coroutines.CoroutineScope;
 
 public class RequestManagerDennaTest {
 
@@ -118,7 +121,9 @@ public class RequestManagerDennaTest {
                 restClient,
                 mock(Registry.class),
                 fakeCompletionHandler,
-                mock(CompletionHandlerProxyProvider.class));
+                mock(CompletionHandlerProxyProvider.class),
+                mock(ScopeDelegatorCompletionHandlerProvider.class),
+                mock(CoroutineScope.class));
         headers = new HashMap<>();
         headers.put("Accept", "application/json");
         headers.put("Content", "application/x-www-form-urlencoded");

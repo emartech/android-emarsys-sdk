@@ -79,6 +79,7 @@ import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.push.PushApi
 import com.google.android.gms.location.FusedLocationProviderClient
+import kotlinx.coroutines.CoroutineScope
 import org.mockito.kotlin.mock
 
 class FakeDependencyContainer(
@@ -201,5 +202,7 @@ class FakeDependencyContainer(
         override val isGooglePlayServiceAvailable: Boolean = true,
         override val fusedLocationProviderClient: FusedLocationProviderClient = mock(),
         override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock(),
-        override val notificationOpenedActivityClass: Class<*> = Activity::class.java
+        override val notificationOpenedActivityClass: Class<*> = Activity::class.java,
+        override val coreSdkScope: CoroutineScope = mock(),
+        override val uiScope: CoroutineScope = mock()
 ) : EmarsysComponent

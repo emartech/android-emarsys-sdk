@@ -11,6 +11,7 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
+import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.di.FakeDependencyContainer
@@ -57,6 +58,7 @@ class InlineInAppViewTest {
     private lateinit var mockJsBridge: IamJsBridge
     private lateinit var mockButtonClickedRepository: Repository<ButtonClicked, SqlSpecification>
     private lateinit var mockInAppInternal: InAppInternal
+    private lateinit var mockScopeDelegatorCompletionHandlerProvider: ScopeDelegatorCompletionHandlerProvider
 
     @Rule
     @JvmField
@@ -94,6 +96,14 @@ class InlineInAppViewTest {
         mockResponseModel = mock {
             on { requestModel } doReturn mockRequestModel
         }
+        mockScopeDelegatorCompletionHandlerProvider = mock {
+            on { provide(any(), any()) } doAnswer {
+                it.arguments[0] as CoreCompletionHandler
+            }
+            on { provide(any(), any()) } doAnswer {
+                it.arguments[0] as CoreCompletionHandler
+            }
+        }
         mockProvider = mock {
             on { provideProxy(isNull(), any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
@@ -111,7 +121,9 @@ class InlineInAppViewTest {
                 FakeRestClient(mockResponseModel, FakeRestClient.Mode.SUCCESS),
                 mock(),
                 mock(),
-                mockProvider
+                mockProvider,
+                mockScopeDelegatorCompletionHandlerProvider,
+                mock()
             )
         )
         mockRequestModelFactory = mock {
@@ -283,7 +295,9 @@ class InlineInAppViewTest {
                 FakeRestClient(mockResponseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL),
                 mock(),
                 mock(),
-                mockProvider
+                mockProvider,
+                mockScopeDelegatorCompletionHandlerProvider,
+                mock()
             )
         )
         setupEmarsysComponent(
@@ -330,7 +344,9 @@ class InlineInAppViewTest {
                 FakeRestClient(expectedException),
                 mock(),
                 mock(),
-                mockProvider
+                mockProvider,
+                mockScopeDelegatorCompletionHandlerProvider,
+                mock()
             )
         )
         setupEmarsysComponent(

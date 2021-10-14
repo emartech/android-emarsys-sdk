@@ -37,7 +37,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.mock
+import org.mockito.kotlin.mock
 import java.io.IOException
 import java.util.concurrent.CountDownLatch
 
@@ -240,20 +240,22 @@ class RequestManagerOfflineTest {
         provider = CoreSdkHandlerProvider()
         coreSdkHandler = provider.provideHandler()
 
-        mockProxyProvider = mock(CompletionHandlerProxyProvider::class.java)
+        mockProxyProvider = mock()
 
         coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(requestRepository, uiHandler, coreSdkHandler)
         worker = DefaultWorker(requestRepository, watchDog, uiHandler, completionHandler, fakeRestClient, coreCompletionHandlerMiddlewareProvider)
 
         manager = RequestManager(
-                coreSdkHandler,
-                requestRepository,
-                shardRepository,
-                worker,
-                fakeRestClient,
-                mock(Registry::class.java) as Registry<RequestModel, CompletionListener?>,
-                completionHandler,
-                mockProxyProvider
+            coreSdkHandler,
+            requestRepository,
+            shardRepository,
+            worker,
+            fakeRestClient,
+            mock() as Registry<RequestModel, CompletionListener?>,
+            completionHandler,
+            mockProxyProvider,
+            mock(),
+            mock()
         )
 
         coreSdkHandler.post {

@@ -14,6 +14,7 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
+import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
@@ -408,7 +409,7 @@ class DefaultPredictInternalTest {
         verify(mockRequestModelBuilder).withLimit(10)
         verify(mockRequestModelBuilder).build()
 
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
+        verify(mockRequestManager).submitNow(eq(mockRequestModel), any(), anyOrNull())
     }
 
     @Test
@@ -425,7 +426,7 @@ class DefaultPredictInternalTest {
         verify(mockRequestModelBuilder).withAvailabilityZone("hu")
         verify(mockRequestModelBuilder).build()
 
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
+        verify(mockRequestManager).submitNow(eq(mockRequestModel), any(), anyOrNull())
     }
 
     @Test
@@ -443,7 +444,7 @@ class DefaultPredictInternalTest {
         verify(mockRequestModelBuilder).withFilters(listOf(mockRecommendationFilter))
         verify(mockRequestModelBuilder).build()
 
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
+        verify(mockRequestManager).submitNow(eq(mockRequestModel), any(), anyOrNull())
     }
 
     @Test
@@ -454,7 +455,7 @@ class DefaultPredictInternalTest {
         verify(mockRequestModelBuilder).withLimit(null)
         verify(mockRequestModelBuilder).build()
 
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
+        verify(mockRequestManager).submitNow(eq(mockRequestModel), any(), anyOrNull())
     }
 
     @Test
@@ -636,6 +637,14 @@ class DefaultPredictInternalTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
+        val mockScopeDelegatorCompletionHandlerProvider: ScopeDelegatorCompletionHandlerProvider = mock {
+            on { provide(any(), any()) } doAnswer {
+                it.arguments[0] as CoreCompletionHandler
+            }
+            on { provide(any(), any()) } doAnswer {
+                it.arguments[0] as CoreCompletionHandler
+            }
+        }
         val mockProvider: CompletionHandlerProxyProvider = mock {
             on { provideProxy(isNull(), any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
@@ -652,7 +661,9 @@ class DefaultPredictInternalTest {
             restClient,
             mock() as Registry<RequestModel, CompletionListener?>,
             mock(),
-            mockProvider
+            mockProvider,
+            mockScopeDelegatorCompletionHandlerProvider,
+            mock()
         )
     }
 }

@@ -64,6 +64,7 @@ import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.google.android.gms.location.FusedLocationProviderClient
+import kotlinx.coroutines.CoroutineScope
 import org.mockito.kotlin.mock
 
 class FakeFirebaseDependencyContainer(
@@ -154,5 +155,7 @@ class FakeFirebaseDependencyContainer(
         override val geofenceInitialEnterTriggerEnabledStorage: Storage<Boolean?> = mock(),
         override val fusedLocationProviderClient: FusedLocationProviderClient = mock(),
         override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock(),
-        override val notificationOpenedActivityClass: Class<*> = Activity::class.java
+        override val notificationOpenedActivityClass: Class<*> = Activity::class.java,
+        override val coreSdkScope: CoroutineScope = mock(),
+        override val uiScope: CoroutineScope = mock()
 ) : MobileEngageComponent
