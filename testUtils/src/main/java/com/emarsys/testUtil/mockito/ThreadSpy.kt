@@ -36,4 +36,8 @@ class ThreadSpy<T> @JvmOverloads constructor(private val result: T? = null) : An
     fun verifyCalledOnCoreSdkThread() {
         thread!!.name.startsWith("CoreSDKHandlerThread") shouldBe true
     }
+
+    fun verifyCalledOnThread(thread: Thread) {
+        this.thread shouldBe thread
+    }
 }

@@ -21,6 +21,7 @@ object Versions {
     const val huawei_agconnect_core_version = "1.6.1.200"
     const val huawei_hms_push_version = "6.1.0.300"
     const val mockkVersion = "1.11.0"
+    const val kotlin_coroutine_version = "1.5.2"
 }
 
 object Libs {
@@ -38,6 +39,7 @@ object Libs {
     const val google_tink = "com.google.crypto.tink:tink-android:${Versions.google_tink_version}"
     const val huawei_agconnect_core = "com.huawei.agconnect:agconnect-core:${Versions.huawei_agconnect_core_version}"
     const val huawei_hms_push = "com.huawei.hms:push:${Versions.huawei_hms_push_version}"
+    const val kotlin_coroutine = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlin_coroutine_version}"
 }
 
 object TestLibs {

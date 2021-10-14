@@ -6,5 +6,6 @@ dependencies {
     api Libs.lifecycle_extension_java_8
     api Libs.lifecycle_process
     api Libs.security_crypto
+    api Libs.kotlin_coroutine
     androidTestImplementation project(':testUtils')
 }

@@ -4,9 +4,9 @@ import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
-import java.lang.Exception
 
-open class DefaultCoreCompletionHandler(
+@Mockable
+class DefaultCoreCompletionHandler(
         private val completionListenerMap: MutableMap<String, CompletionListener>
 ) : CoreCompletionHandler, Registry<RequestModel, CompletionListener?> {
     override fun register(model: RequestModel, listener: CompletionListener?) {
