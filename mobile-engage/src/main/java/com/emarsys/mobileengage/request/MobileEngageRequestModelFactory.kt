@@ -10,7 +10,6 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
-import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createCustomEventPayload
 import com.emarsys.mobileengage.util.RequestPayloadUtils.createInternalCustomEventPayload
@@ -30,7 +29,6 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
                 .url("${clientServiceProvider.provideEndpointHost()}${Endpoint.clientBase(requestContext.applicationCode)}/push-token")
                 .method(RequestMethod.PUT)
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .payload(createSetPushTokenPayload(pushToken))
                 .build()
     }
@@ -39,7 +37,6 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
                 .url("${clientServiceProvider.provideEndpointHost()}${Endpoint.clientBase(requestContext.applicationCode)}/push-token")
                 .method(RequestMethod.DELETE)
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .build()
     }
 
@@ -47,7 +44,6 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
                 .url("${clientServiceProvider.provideEndpointHost()}${Endpoint.clientBase(requestContext.applicationCode)}")
                 .method(RequestMethod.POST)
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .payload(createTrackDeviceInfoPayload(requestContext))
                 .build()
     }
@@ -56,7 +52,6 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
         val builder = RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
                 .url("${clientServiceProvider.provideEndpointHost()}${Endpoint.clientBase(requestContext.applicationCode)}/contact")
                 .method(RequestMethod.POST)
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
 
         if (!requestContext.hasContactIdentification()) {
             val queryParams: MutableMap<String, String> = HashMap()
@@ -87,12 +82,9 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
     }
 
     fun createRefreshContactTokenRequest(): RequestModel {
-        val headers: MutableMap<String, String> = HashMap()
-        headers.putAll(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
                 .url("${clientServiceProvider.provideEndpointHost()}${Endpoint.clientBase(requestContext.applicationCode)}/contact-token")
                 .method(RequestMethod.POST)
-                .headers(headers)
                 .payload(createRefreshContactTokenPayload(requestContext))
                 .build()
     }
@@ -101,7 +93,6 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
                 .url("${eventServiceProvider.provideEndpointHost()}${Endpoint.eventBase(requestContext.applicationCode)}")
                 .method(RequestMethod.POST)
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .payload(payload)
                 .build()
     }
@@ -110,7 +101,6 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
                 .method(RequestMethod.GET)
                 .url("${messageInboxServiceProvider.provideEndpointHost()}${Endpoint.inboxBase(requestContext.applicationCode)}")
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .build()
     }
 
@@ -118,7 +108,6 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
         return RequestModel.Builder(requestContext.timestampProvider, requestContext.uuidProvider)
                 .method(RequestMethod.GET)
                 .url("${clientServiceProvider.provideEndpointHost()}${Endpoint.geofencesBase(requestContext.applicationCode)}")
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .build()
     }
 
@@ -127,7 +116,6 @@ class MobileEngageRequestModelFactory(private val requestContext: MobileEngageRe
                 .method(RequestMethod.POST)
                 .payload(RequestPayloadUtils.createInlineInAppPayload(viewId, buttonClickedRepository.query(Everything())))
                 .url("${eventServiceProvider.provideEndpointHost()}${Endpoint.inlineInAppBase(requestContext.applicationCode)}")
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(requestContext))
                 .build()
     }
 }

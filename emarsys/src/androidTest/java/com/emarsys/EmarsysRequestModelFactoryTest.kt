@@ -6,7 +6,6 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
 import org.junit.Before
@@ -64,7 +63,6 @@ class EmarsysRequestModelFactoryTest {
         val expected = RequestModel.Builder(mockMobileEngageRequestContext.timestampProvider, mockMobileEngageRequestContext.uuidProvider)
                 .method(RequestMethod.GET)
                 .url("https://mobile-sdk-config.gservice.emarsys.net/$APPLICATION_CODE")
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(mockMobileEngageRequestContext))
                 .build()
 
         val result = requestFactory.createRemoteConfigRequest()
@@ -77,7 +75,6 @@ class EmarsysRequestModelFactoryTest {
         val expected = RequestModel.Builder(mockMobileEngageRequestContext.timestampProvider, mockMobileEngageRequestContext.uuidProvider)
                 .method(RequestMethod.GET)
                 .url("https://mobile-sdk-config.gservice.emarsys.net/signature/$APPLICATION_CODE")
-                .headers(RequestHeaderUtils.createBaseHeaders_V3(mockMobileEngageRequestContext))
                 .build()
 
         val result = requestFactory.createRemoteConfigSignatureRequest()

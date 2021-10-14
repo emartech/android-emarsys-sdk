@@ -7,7 +7,6 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestModelHelper
 import io.kotlintest.shouldBe
 import org.json.JSONObject
@@ -114,7 +113,7 @@ class DeviceEventStateRequestMapperTest {
             "https://mobile-events.eservice.emarsys.net/v4/apps/${APPLICATION_CODE}/inline-messages",
             RequestMethod.POST,
             extraPayloads,
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
+            extraHeaders,
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID

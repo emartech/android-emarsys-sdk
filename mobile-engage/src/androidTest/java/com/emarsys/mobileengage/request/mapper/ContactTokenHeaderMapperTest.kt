@@ -8,7 +8,6 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.testUtil.TimeoutUtils
@@ -149,7 +148,7 @@ class ContactTokenHeaderMapperTest {
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client",
             RequestMethod.POST,
             null,
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
+            extraHeaders,
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -160,7 +159,7 @@ class ContactTokenHeaderMapperTest {
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client",
             RequestMethod.POST,
             null,
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
+            extraHeaders,
             TIMESTAMP,
             Long.MAX_VALUE,
             arrayOf(REQUEST_ID)
@@ -170,7 +169,7 @@ class ContactTokenHeaderMapperTest {
             "https://me-client.eservice.emarsys.net/v3/apps/${APPLICATION_CODE}/client/contact-token",
             RequestMethod.POST,
             RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext),
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
+            extraHeaders,
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -180,7 +179,7 @@ class ContactTokenHeaderMapperTest {
             "https://not-mobile-engage.com",
             RequestMethod.POST,
             null,
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID

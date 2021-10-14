@@ -13,7 +13,6 @@ import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
-import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestPayloadUtils
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
@@ -127,7 +126,7 @@ class MobileEngageRequestModelFactoryTest {
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/push-token",
             RequestMethod.PUT,
             RequestPayloadUtils.createSetPushTokenPayload(PUSH_TOKEN),
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -144,7 +143,7 @@ class MobileEngageRequestModelFactoryTest {
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/push-token",
             RequestMethod.DELETE,
             null,
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -161,7 +160,7 @@ class MobileEngageRequestModelFactoryTest {
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client",
             RequestMethod.POST,
             RequestPayloadUtils.createTrackDeviceInfoPayload(mockRequestContext),
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -179,7 +178,7 @@ class MobileEngageRequestModelFactoryTest {
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
             RequestMethod.POST,
             mapOf("contactFieldId" to CONTACT_FIELD_ID, "contactFieldValue" to CONTACT_FIELD_VALUE),
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -196,7 +195,7 @@ class MobileEngageRequestModelFactoryTest {
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact?anonymous=true",
             RequestMethod.POST,
             emptyMap(),
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -219,7 +218,7 @@ class MobileEngageRequestModelFactoryTest {
                 "contactFieldId" to CONTACT_FIELD_ID,
                 "contactFieldValue" to CONTACT_FIELD_VALUE
             ),
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -239,7 +238,7 @@ class MobileEngageRequestModelFactoryTest {
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact",
             RequestMethod.POST,
             mapOf(),
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -260,7 +259,7 @@ class MobileEngageRequestModelFactoryTest {
                 emptyMap(),
                 mockRequestContext
             ),
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -281,7 +280,7 @@ class MobileEngageRequestModelFactoryTest {
                 emptyMap(),
                 mockRequestContext
             ),
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -302,7 +301,7 @@ class MobileEngageRequestModelFactoryTest {
                 emptyMap(),
                 mockRequestContext
             ),
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -319,7 +318,7 @@ class MobileEngageRequestModelFactoryTest {
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/contact-token",
             RequestMethod.POST,
             RequestPayloadUtils.createRefreshContactTokenPayload(mockRequestContext),
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -336,7 +335,7 @@ class MobileEngageRequestModelFactoryTest {
             "https://me-inbox.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/inbox",
             RequestMethod.GET,
             null,
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -355,7 +354,6 @@ class MobileEngageRequestModelFactoryTest {
         )
             .method(RequestMethod.GET)
             .url("https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/geo-fences")
-            .headers(RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext))
             .build()
 
         val result = requestFactory.createFetchGeofenceRequest()
@@ -373,7 +371,6 @@ class MobileEngageRequestModelFactoryTest {
             .method(RequestMethod.POST)
             .payload(RequestPayloadUtils.createInlineInAppPayload(viewId, CLICKS))
             .url("https://mobile-events.eservice.emarsys.net/v4/apps/$APPLICATION_CODE/inline-messages")
-            .headers(RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext))
             .build()
 
         val result = requestFactory.createFetchInlineInAppMessagesRequest(viewId)

@@ -8,7 +8,6 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -83,6 +82,7 @@ MobileEngageHeaderMapperTest {
 
         val expectedRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
                 "X-Client-State" to CLIENT_STATE,
+                "X-Client-Id" to HARDWARE_ID,
                 "X-Request-Order" to TIMESTAMP.toString()
         ))
 
@@ -98,6 +98,7 @@ MobileEngageHeaderMapperTest {
 
         val expectedRequestModels = createCustomEventCompositeRequest(extraHeaders = mapOf(
                 "X-Client-State" to CLIENT_STATE,
+                "X-Client-Id" to HARDWARE_ID,
                 "X-Request-Order" to TIMESTAMP.toString()
         ))
 
@@ -109,7 +110,8 @@ MobileEngageHeaderMapperTest {
     @Test
     fun testMap_shouldLeaveOutClientStateHeader_whenValueIsMissing() {
         val originalRequestModels = createMobileEngageRequest(extraHeaders = mapOf(
-                "X-Request-Order" to TIMESTAMP.toString()
+                "X-Request-Order" to TIMESTAMP.toString(),
+                "X-Client-Id" to HARDWARE_ID,
         ))
 
         whenever(mockClientStateStorage.get()).thenReturn(null)
@@ -133,7 +135,7 @@ MobileEngageHeaderMapperTest {
             "https://me-client.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client",
             RequestMethod.POST,
             null,
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
+            extraHeaders,
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID
@@ -144,7 +146,7 @@ MobileEngageHeaderMapperTest {
             "https://mobile-events.eservice.emarsys.net/v3/apps/$APPLICATION_CODE/client/events",
             RequestMethod.POST,
             null,
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
+            extraHeaders,
             TIMESTAMP,
             Long.MAX_VALUE,
             arrayOf(REQUEST_ID)
@@ -154,7 +156,7 @@ MobileEngageHeaderMapperTest {
             "https://not-mobile-engage.com",
             RequestMethod.POST,
             null,
-            RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext),
+            mapOf(),
             TIMESTAMP,
             Long.MAX_VALUE,
             REQUEST_ID

@@ -4,7 +4,6 @@ import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.util.RequestHeaderUtils
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
@@ -89,7 +88,7 @@ class DefaultRequestHeaderMapperTest {
         "https://me-client.eservice.emarsys.net/v3/apps/${APPLICATION_CODE}/client",
         RequestMethod.POST,
         null,
-        RequestHeaderUtils.createBaseHeaders_V3(mockRequestContext) + extraHeaders,
+        extraHeaders,
         TIMESTAMP,
         Long.MAX_VALUE,
         REQUEST_ID
