@@ -142,14 +142,14 @@ class MobileEngageIntegrationTest {
             CONTACT_FIELD_ID,
             "test@test.com",
             this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
+        ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
     fun testClearContact() {
         Emarsys.clearContact(
                 this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
+        ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
@@ -158,7 +158,7 @@ class MobileEngageIntegrationTest {
                 "integrationTestCustomEvent",
                 null,
                 this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
+        ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
@@ -167,7 +167,7 @@ class MobileEngageIntegrationTest {
                 "integrationTestCustomEvent",
                 mapOf("key1" to "value1", "key2" to "value2"),
                 this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
+        ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
@@ -178,7 +178,7 @@ class MobileEngageIntegrationTest {
                 "integrationTestInternalCustomEvent",
                 null,
                 this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
+        ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
@@ -189,21 +189,21 @@ class MobileEngageIntegrationTest {
                 "integrationTestInternalCustomEvent",
                 mapOf("key1" to "value1", "key2" to "value2"),
                 this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
+        ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
     fun testSetPushToken() {
         Emarsys.push.setPushToken("integration_test_push_token",
                 this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
+        ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
     fun testRemovePushToken() {
         Emarsys.push.clearPushToken(
                 this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
+        ).apply { eventuallyAssertSuccess() }
     }
 
     @Test
@@ -220,7 +220,7 @@ class MobileEngageIntegrationTest {
                 activity,
                 intent,
                 this::eventuallyStoreResult
-        ).also(this::eventuallyAssertSuccess)
+        ).apply { eventuallyAssertSuccess() }
 
         Thread.sleep(1000)
     }
@@ -230,13 +230,13 @@ class MobileEngageIntegrationTest {
         val clientServiceInternal = emarsys().clientServiceInternal
 
         clientServiceInternal.trackDeviceInfo(this::eventuallyStoreResult)
-                .also(this::eventuallyAssertCompletionHandlerSuccess)
+                .apply{ eventuallyAssertCompletionHandlerSuccess() }
     }
 
     @Test
     fun testConfig_changeApplicationCode() {
         val originalApplicationCode = Emarsys.config.applicationCode
-        Emarsys.config.changeApplicationCode(OTHER_APP_ID, this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
+        Emarsys.config.changeApplicationCode(OTHER_APP_ID, this::eventuallyStoreResult).apply { eventuallyAssertSuccess() }
         originalApplicationCode shouldNotBe Emarsys.config.applicationCode
         Emarsys.config.applicationCode shouldBe OTHER_APP_ID
     }
@@ -273,13 +273,13 @@ class MobileEngageIntegrationTest {
         completionListenerLatch.countDown()
     }
 
-    private fun eventuallyAssertSuccess(ignored: Any) {
+    private fun eventuallyAssertSuccess() {
         completionListenerLatch.await()
         errorCause shouldBe null
         responseModel.statusCode shouldBeInRange IntRange(200, 299)
     }
 
-    private fun eventuallyAssertCompletionHandlerSuccess(ignored: Any) {
+    private fun eventuallyAssertCompletionHandlerSuccess() {
         completionHandlerLatch?.await()
         errorCause shouldBe null
         responseModel.statusCode shouldBeInRange IntRange(200, 299)

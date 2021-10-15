@@ -122,7 +122,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
         val refreshTokenInternal = emarsys().refreshTokenInternal
 
-        refreshTokenInternal.refreshContactToken(this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
+        refreshTokenInternal.refreshContactToken(this::eventuallyStoreResult).apply { eventuallyAssertSuccess() }
 
         contactTokenStorage.get() shouldNotBe null
     }
@@ -134,7 +134,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
         val eventServiceInternal = emarsys().eventServiceInternal
 
-        eventServiceInternal.trackInternalCustomEvent("integrationTest", emptyMap(), this::eventuallyStoreResult).also(this::eventuallyAssertSuccess)
+        eventServiceInternal.trackInternalCustomEvent("integrationTest", emptyMap(), this::eventuallyStoreResult).apply { eventuallyAssertSuccess() }
 
         contactTokenStorage.get() shouldNotBe "tokenForIntegrationTest"
     }
@@ -144,7 +144,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
         completionListenerLatch.countDown()
     }
 
-    private fun eventuallyAssertSuccess(ignored: Any) {
+    private fun eventuallyAssertSuccess() {
         completionListenerLatch.await()
         errorCause shouldBe null
     }
