@@ -1,5 +1,10 @@
 package com.emarsys.mobileengage.iam.model.displayediam;
 
+import static com.emarsys.core.database.DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID;
+import static com.emarsys.core.database.DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -11,8 +16,7 @@ import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,11 +25,6 @@ import org.junit.rules.TestRule;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
-import static com.emarsys.core.database.DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID;
-import static com.emarsys.core.database.DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class DisplayedIamRepositoryTest {
 

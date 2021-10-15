@@ -748,7 +748,7 @@ class MessagingServiceUtilsTest {
         "INVALID_STYLE" shouldCreateNotificationWithStyle NotificationCompat.BigPictureStyle::class.java
     }
 
-    private inline infix fun <reified T : NotificationCompat.Style> String.shouldCreateNotificationWithStyle(style: Class<T>) {
+    private inline infix fun <reified T : NotificationCompat.Style> String.shouldCreateNotificationWithStyle(ignored: Class<T>) {
         val mockBuilder: NotificationCompat.Builder = mock {
             on { setLargeIcon(org.mockito.kotlin.any()) } doReturn it
             on { setStyle(org.mockito.kotlin.any()) } doReturn it

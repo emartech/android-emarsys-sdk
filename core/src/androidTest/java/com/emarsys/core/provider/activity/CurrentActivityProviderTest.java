@@ -1,17 +1,16 @@
 package com.emarsys.core.provider.activity;
 
+import static org.mockito.Mockito.mock;
+
 import android.app.Activity;
 
 import com.emarsys.testUtil.TimeoutUtils;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-
-import static org.mockito.Mockito.mock;
 
 public class CurrentActivityProviderTest {
 

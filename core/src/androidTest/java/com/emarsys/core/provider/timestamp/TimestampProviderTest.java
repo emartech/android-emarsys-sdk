@@ -2,8 +2,7 @@ package com.emarsys.core.provider.timestamp;
 
 import com.emarsys.testUtil.TimeoutUtils;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;

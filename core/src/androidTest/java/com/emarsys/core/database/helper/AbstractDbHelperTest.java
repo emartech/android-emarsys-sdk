@@ -1,5 +1,7 @@
 package com.emarsys.core.database.helper;
 
+import static org.junit.Assert.assertEquals;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -15,8 +17,6 @@ import org.junit.rules.TestRule;
 
 import java.util.HashMap;
 import java.util.List;
-
-import static junit.framework.Assert.assertEquals;
 
 public class AbstractDbHelperTest {
 

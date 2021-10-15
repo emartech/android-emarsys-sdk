@@ -1,5 +1,7 @@
 package com.emarsys.mobileengage.iam.model;
 
+import static org.junit.Assert.assertEquals;
+
 import com.emarsys.core.util.TimestampUtils;
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked;
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
@@ -14,8 +16,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static junit.framework.Assert.assertEquals;
 
 public class IamConversionUtilsTest {
 

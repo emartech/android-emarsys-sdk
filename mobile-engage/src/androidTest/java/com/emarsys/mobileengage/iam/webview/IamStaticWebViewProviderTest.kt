@@ -10,7 +10,7 @@ import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider.Companion.webView
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import junit.framework.Assert
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

@@ -1,12 +1,12 @@
 package com.emarsys.core.provider.uuid;
 
+import static org.junit.Assert.assertNotNull;
+
 import com.emarsys.testUtil.TimeoutUtils;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-
-import static junit.framework.Assert.assertNotNull;
 
 
 public class UUIDProviderTest {

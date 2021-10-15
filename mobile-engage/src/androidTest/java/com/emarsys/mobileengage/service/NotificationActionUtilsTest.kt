@@ -12,14 +12,10 @@ import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotlintest.shouldBe
-import junit.framework.Assert
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.Mockito
 import org.mockito.kotlin.whenever

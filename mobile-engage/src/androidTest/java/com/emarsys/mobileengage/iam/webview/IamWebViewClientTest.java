@@ -1,5 +1,7 @@
 package com.emarsys.mobileengage.iam.webview;
 
+import static org.junit.Assert.assertEquals;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.webkit.WebView;
@@ -14,8 +16,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.util.concurrent.CountDownLatch;
-
-import static junit.framework.Assert.assertEquals;
 
 public class IamWebViewClientTest {
 

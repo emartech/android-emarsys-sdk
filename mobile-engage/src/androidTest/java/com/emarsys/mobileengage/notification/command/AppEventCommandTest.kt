@@ -8,9 +8,9 @@ import com.emarsys.mobileengage.event.EventHandlerProvider
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.mockito.ThreadSpy
-import junit.framework.Assert
 import org.json.JSONException
 import org.json.JSONObject
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -24,7 +24,7 @@ class AppEventCommandTest {
     val timeout: TestRule = timeoutRule
 
     private lateinit var applicationContext: Context
-    private lateinit var eventHandlerProvider: EventHandlerProvider
+    private lateinit var mockEventHandlerProvider: EventHandlerProvider
     private lateinit var uiHandler: Handler
     private lateinit var mockEventHandler: EventHandler
 
@@ -32,9 +32,9 @@ class AppEventCommandTest {
     fun setUp() {
         applicationContext = getTargetContext().applicationContext
         mockEventHandler = mock()
-        eventHandlerProvider = mock()
+        mockEventHandlerProvider = mock()
         uiHandler = Handler(Looper.getMainLooper())
-        whenever(eventHandlerProvider.eventHandler).thenReturn(mockEventHandler)
+        whenever(mockEventHandlerProvider.eventHandler).thenReturn(mockEventHandler)
     }
 
     @Test
@@ -48,7 +48,7 @@ class AppEventCommandTest {
         val threadSpy: ThreadSpy<*> = ThreadSpy<Any?>()
         whenever(mockEventHandler.handleEvent(anyOrNull(), anyOrNull(), anyOrNull())).doAnswer(threadSpy)
 
-        AppEventCommand(applicationContext, eventHandlerProvider, uiHandler, name, payload).run()
+        AppEventCommand(applicationContext, mockEventHandlerProvider, uiHandler, name, payload).run()
         uiHandler.post {
             latch.countDown()
         }
@@ -65,7 +65,7 @@ class AppEventCommandTest {
 
         val latch = CountDownLatch(1)
 
-        AppEventCommand(applicationContext, eventHandlerProvider, uiHandler, name, null).run()
+        AppEventCommand(applicationContext, mockEventHandlerProvider, uiHandler, name, null).run()
         uiHandler.post {
             latch.countDown()
         }
@@ -77,7 +77,7 @@ class AppEventCommandTest {
     @Test
     fun testRun_shouldIgnoreHandler_ifNull() {
         try {
-            AppEventCommand(applicationContext, eventHandlerProvider, uiHandler, "", null).run()
+            AppEventCommand(applicationContext, mockEventHandlerProvider, uiHandler, "", null).run()
         } catch (e: Exception) {
             Assert.fail(e.message)
         }

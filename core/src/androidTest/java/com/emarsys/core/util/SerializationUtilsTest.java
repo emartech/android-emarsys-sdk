@@ -1,5 +1,8 @@
 package com.emarsys.core.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import com.emarsys.core.request.model.RequestMethod;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.util.serialization.SerializationException;
@@ -11,9 +14,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import java.util.HashMap;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
 
 public class SerializationUtilsTest {
 

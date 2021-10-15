@@ -29,11 +29,7 @@ import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.RandomTestUtils.randomString
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import io.kotlintest.shouldBe
-import junit.framework.Assert
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.kotlin.*
 
