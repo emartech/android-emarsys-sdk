@@ -20,6 +20,7 @@ import com.emarsys.mobileengage.fake.FakeResultListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
+import kotlinx.coroutines.CoroutineScope
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -44,6 +45,7 @@ class DefaultMessageInboxInternalTest {
     private lateinit var latch: CountDownLatch
     private val coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
     private lateinit var uiHandler : Handler
+    private lateinit var mockScope : CoroutineScope
 
     @Rule
     @JvmField
@@ -52,6 +54,7 @@ class DefaultMessageInboxInternalTest {
     @Before
     fun setUp() {
         uiHandler = Handler(Looper.getMainLooper())
+        mockScope = mock()
         latch = CountDownLatch(1)
         mockMessageInboxResponseMapper = mock {
             on { map(any()) } doReturn InboxResult(listOf())
@@ -66,7 +69,7 @@ class DefaultMessageInboxInternalTest {
 
 
         messageInboxInternal = DefaultMessageInboxInternal(
-            uiHandler,
+            mockScope,
             mockRequestManager,
             mockRequestModelFactory,
             mockMessageInboxResponseMapper
@@ -79,7 +82,7 @@ class DefaultMessageInboxInternalTest {
         messageInboxInternal.fetchMessages(mockResultListener)
 
         verify(mockRequestModelFactory).createFetchInboxMessagesRequest()
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any(), anyOrNull())
+        verify(mockRequestManager).submitNow(eq(mockRequestModel), any(), eq(mockScope))
     }
 
     @Test
@@ -90,13 +93,13 @@ class DefaultMessageInboxInternalTest {
             on { message } doReturn "OK"
         }
         val messageInboxInternal = DefaultMessageInboxInternal(
-            uiHandler,
+            mockScope,
             requestManagerWithRestClient(FakeRestClient(mockResponse, FakeRestClient.Mode.SUCCESS, coreSdkHandler.handler)),
             mockRequestModelFactory,
             mockMessageInboxResponseMapper
         )
 
-        val fakeResultListener = FakeResultListener<InboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val fakeResultListener = FakeResultListener<InboxResult>(latch)
 
         messageInboxInternal.fetchMessages(fakeResultListener)
         fakeResultListener.latch.await()
@@ -115,13 +118,13 @@ class DefaultMessageInboxInternalTest {
             on { body } doReturn "Error happened"
         }
         val messageInboxInternal = DefaultMessageInboxInternal(
-            uiHandler,
+            mockScope,
             requestManagerWithRestClient(FakeRestClient(errorResponse, FakeRestClient.Mode.ERROR_RESPONSE_MODEL, coreSdkHandler.handler)),
             mockRequestModelFactory,
             mockMessageInboxResponseMapper
         )
 
-        val fakeResultListener = FakeResultListener<InboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val fakeResultListener = FakeResultListener<InboxResult>(latch)
 
         messageInboxInternal.fetchMessages(fakeResultListener)
         fakeResultListener.latch.await()
@@ -141,13 +144,13 @@ class DefaultMessageInboxInternalTest {
         val expectedException = Exception("TestException")
 
         val messageInboxInternal = DefaultMessageInboxInternal(
-            uiHandler,
+            mockScope,
             requestManagerWithRestClient(FakeRestClient(expectedException, coreSdkHandler.handler)),
             mockRequestModelFactory,
             mockMessageInboxResponseMapper
         )
 
-        val fakeResultListener = FakeResultListener<InboxResult>(latch, FakeResultListener.Mode.MAIN_THREAD)
+        val fakeResultListener = FakeResultListener<InboxResult>(latch)
 
         messageInboxInternal.fetchMessages(fakeResultListener)
         fakeResultListener.latch.await()
@@ -215,7 +218,7 @@ class DefaultMessageInboxInternalTest {
             mock(),
             mockProvider,
             mockScopeDelegatorCompletionHandlerProvider,
-            mock()
+            mockScope
         )
     }
 }

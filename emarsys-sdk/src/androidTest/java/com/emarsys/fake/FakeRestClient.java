@@ -1,5 +1,7 @@
 package com.emarsys.fake;
 
+import static org.mockito.Mockito.mock;
+
 import android.os.Handler;
 import android.os.Looper;
 
@@ -16,13 +18,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.mock;
-
 public class FakeRestClient extends RestClient {
 
     private Mode mode;
     private List<ResponseModel> responses;
     private List<Exception> exceptions;
+    private Handler handler;
 
     public enum Mode {SUCCESS, ERROR_RESPONSE_MODEL, ERROR_EXCEPTION}
 
@@ -36,6 +37,11 @@ public class FakeRestClient extends RestClient {
                 new Handler(Looper.getMainLooper()), new CoreSdkHandlerProvider().provideHandler());
         this.responses = new ArrayList<>(responses);
         this.mode = mode;
+    }
+
+    public FakeRestClient(ResponseModel returnValue, Mode mode, Handler handler) {
+        this(Collections.singletonList(returnValue), mode);
+        this.handler = handler;
     }
 
     public FakeRestClient(Exception exception) {
@@ -52,7 +58,8 @@ public class FakeRestClient extends RestClient {
 
     @Override
     public void execute(final RequestModel model, final CoreCompletionHandler completionHandler) {
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+        handler = handler == null ? new Handler(Looper.getMainLooper()) : handler;
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (mode == Mode.SUCCESS) {

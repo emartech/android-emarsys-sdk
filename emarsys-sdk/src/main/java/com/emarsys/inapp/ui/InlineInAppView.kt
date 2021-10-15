@@ -71,7 +71,6 @@ class InlineInAppView : LinearLayout {
     }
 
     fun loadInApp(viewId: String) {
-
         mobileEngage().coreSdkHandler.post {
             this.viewId = viewId
             if (webView == null) {
@@ -103,35 +102,29 @@ class InlineInAppView : LinearLayout {
 
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
-                mobileEngage().coreSdkHandler.post {
-                    val messageResponseModel = filterMessagesById(responseModel)
-                    if (messageResponseModel != null) {
-                        val html = messageResponseModel.getString("html")
+                val messageResponseModel = filterMessagesById(responseModel)
 
-                        createJSBridge(messageResponseModel)
-                        callback(html)
-                    } else {
-                        callback(null)
-                    }
+                if (messageResponseModel != null) {
+                    val html = messageResponseModel.getString("html")
+                    createJSBridge(messageResponseModel)
+                    callback(html)
+                } else {
+                    callback(null)
                 }
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
-                mobileEngage().coreSdkHandler.post {
-                    onCompletionListener?.onCompleted(
-                        ResponseErrorException(
-                            responseModel.statusCode,
-                            responseModel.message,
-                            responseModel.body
-                        )
+                onCompletionListener?.onCompleted(
+                    ResponseErrorException(
+                        responseModel.statusCode,
+                        responseModel.message,
+                        responseModel.body
                     )
-                }
+                )
             }
 
             override fun onError(id: String, cause: Exception) {
-                mobileEngage().coreSdkHandler.post {
-                    onCompletionListener?.onCompleted(cause)
-                }
+                onCompletionListener?.onCompleted(cause)
             }
         })
     }
@@ -176,7 +169,11 @@ class InlineInAppView : LinearLayout {
         val jsBridgeFactory: IamJsBridgeFactory = mobileEngage().iamJsBridgeFactory
 
         val jsBridge =
-            jsBridgeFactory.createJsBridge(jsCommandFactory, InAppMessage(campaignId!!, null, null))
+            jsBridgeFactory.createJsBridge(
+                jsCommandFactory,
+                InAppMessage(campaignId!!, null, null)
+            )
+
         val latch = CountDownLatch(1)
         mobileEngage().uiHandler.post {
             webView?.addJavascriptInterface(jsBridge, "Android")

@@ -112,13 +112,18 @@ class InlineInAppViewTest {
                 it.arguments[1] as CoreCompletionHandler
             }
         }
+
         mockRequestManager = spy(
             RequestManager(
                 CoreSdkHandlerProvider().provideHandler(),
                 mock(),
                 mock(),
                 mock(),
-                FakeRestClient(mockResponseModel, FakeRestClient.Mode.SUCCESS),
+                FakeRestClient(
+                    mockResponseModel,
+                    FakeRestClient.Mode.SUCCESS,
+                    CoreSdkHandlerProvider().provideHandler().handler
+                ),
                 mock(),
                 mock(),
                 mockProvider,

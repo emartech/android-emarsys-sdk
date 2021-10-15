@@ -27,6 +27,9 @@ import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.worker.Worker
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.android.asCoroutineDispatcher
 import org.mockito.kotlin.mock
 
 class FakeCoreDependencyContainer(override val coreSdkHandler: CoreSdkHandler = mock(),
@@ -55,6 +58,6 @@ class FakeCoreDependencyContainer(override val coreSdkHandler: CoreSdkHandler = 
                                   override val coreCompletionHandler: CoreCompletionHandler = mock(),
                                   override val logLevelStorage: Storage<String?> = mock(),
                                   override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock(),
-                                  override val coreSdkScope: CoroutineScope = mock(),
-                                  override val uiScope: CoroutineScope = mock()
+                                  override val coreSdkScope: CoroutineScope = CoroutineScope(Job() + coreSdkHandler.handler.asCoroutineDispatcher()),
+                                  override val uiScope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Main)
 ) : CoreComponent

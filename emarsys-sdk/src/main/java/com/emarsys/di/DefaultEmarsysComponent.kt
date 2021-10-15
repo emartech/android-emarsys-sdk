@@ -621,7 +621,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val messageInboxInternal: MessageInboxInternal by lazy {
         DefaultMessageInboxInternal(
-            uiHandler,
+            uiScope,
             requestManager,
             mobileEngageRequestModelFactory,
             MessageInboxResponseMapper()
