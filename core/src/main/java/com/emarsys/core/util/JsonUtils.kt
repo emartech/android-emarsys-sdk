@@ -32,6 +32,7 @@ object JsonUtils {
     }
 
     @JvmStatic
+    @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): JSONArray {
         val result = JSONArray()
         for (item in list) {

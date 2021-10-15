@@ -6,6 +6,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 
 @Mockable
+@Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
 class DefaultCoreCompletionHandler(
         private val completionListenerMap: MutableMap<String, CompletionListener>
 ) : CoreCompletionHandler, Registry<RequestModel, CompletionListener?> {
