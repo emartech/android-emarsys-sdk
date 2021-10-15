@@ -5,11 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.whenever
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.*
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyZeroInteractions
 
 class DismissNotificationCommandTest {
 
@@ -24,17 +26,18 @@ class DismissNotificationCommandTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testDismissNotification_intent_mustNotBeNull() {
-        DismissNotificationCommand(mock(Context::class.java), null)
+        DismissNotificationCommand(mock(), null)
     }
 
     @Test
     fun testDismissNotification_callsNotificationManager() {
         val notificationId = 987
 
-        val notificationManagerMock = mock(NotificationManager::class.java)
+        val notificationManagerMock: NotificationManager = mock()
 
-        val mockContext = mock(Context::class.java)
-        whenever(mockContext.getSystemService(Context.NOTIFICATION_SERVICE)).thenReturn(notificationManagerMock)
+        val mockContext: Context = mock {
+            on { getSystemService(Context.NOTIFICATION_SERVICE) } doReturn notificationManagerMock
+        }
 
         val intent = Intent()
         val bundle = Bundle()
@@ -48,10 +51,11 @@ class DismissNotificationCommandTest {
 
     @Test
     fun testDismissNotification_doesNotCallNotificationManager_ifBundleIsMissing() {
-        val notificationManagerMock = mock(NotificationManager::class.java)
+        val notificationManagerMock: NotificationManager = mock()
 
-        val mockContext = mock(Context::class.java)
-        whenever(mockContext.getSystemService(Context.NOTIFICATION_SERVICE)).thenReturn(notificationManagerMock)
+        val mockContext: Context = mock {
+            on { getSystemService(Context.NOTIFICATION_SERVICE) } doReturn notificationManagerMock
+        }
 
         val intent = Intent()
 
@@ -62,10 +66,11 @@ class DismissNotificationCommandTest {
 
     @Test
     fun testDismissNotification_doesNotCallNotificationManager_ifNotificationIdIsMissing() {
-        val notificationManagerMock = mock(NotificationManager::class.java)
+        val notificationManagerMock: NotificationManager = mock()
 
-        val mockContext = mock(Context::class.java)
-        whenever(mockContext.getSystemService(Context.NOTIFICATION_SERVICE)).thenReturn(notificationManagerMock)
+        val mockContext: Context = mock {
+            on { getSystemService(Context.NOTIFICATION_SERVICE) } doReturn notificationManagerMock
+        }
 
         val intent = Intent()
         val bundle = Bundle()

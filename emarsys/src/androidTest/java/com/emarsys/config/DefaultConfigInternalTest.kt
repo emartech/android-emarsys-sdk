@@ -32,6 +32,7 @@ import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.predict.PredictInternal
 import com.emarsys.predict.request.PredictRequestContext
+import com.emarsys.testUtil.ExtensionTestUtils.tryCast
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
@@ -871,7 +872,7 @@ class DefaultConfigInternalTest {
 
         doAnswer {
             val result: Try<String> = Try.failure(expectedException)
-            (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
+            it.arguments[0].tryCast<ResultListener<Try<String>>> { onResult(result) }
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
 
         configInternal.refreshRemoteConfig(mockCompletionListener)
@@ -898,12 +899,12 @@ class DefaultConfigInternalTest {
 
         doAnswer {
             val result: Try<String> = Try.success("signature")
-            (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
+            it.arguments[0].tryCast<ResultListener<Try<String>>> { onResult(result) }
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
 
         doAnswer {
             val result: Try<ResponseModel> = Try.success(expectedResponseModel)
-            (it.arguments[0] as ResultListener<Try<ResponseModel>>).onResult(result)
+            it.arguments[0].tryCast<ResultListener<Try<ResponseModel>>> { onResult(result) }
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfig(any())
         whenever(mockCrypto.verify(expectedResponseModel.body!!.toByteArray(), "signature")).thenReturn(true)
 
@@ -933,12 +934,12 @@ class DefaultConfigInternalTest {
 
         doAnswer {
             val result: Try<String> = Try.success("signature")
-            (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
+            it.arguments[0].tryCast<ResultListener<Try<String>>> { onResult(result) }
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
 
         doAnswer {
             val result: Try<ResponseModel> = Try.success(expectedResponseModel)
-            (it.arguments[0] as ResultListener<Try<ResponseModel>>).onResult(result)
+            it.arguments[0].tryCast<ResultListener<Try<ResponseModel>>> { onResult(result) }
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfig(any())
 
         configInternal.refreshRemoteConfig(mockCompletionListener)
@@ -956,12 +957,12 @@ class DefaultConfigInternalTest {
 
         doAnswer {
             val result: Try<String> = Try.success("signature")
-            (it.arguments[0] as ResultListener<Try<String>>).onResult(result)
+            it.arguments[0].tryCast<ResultListener<Try<String>>> { onResult(result) }
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfigSignature(any())
 
         doAnswer {
             val result = Try.failure<ResponseModel>(expectedException)
-            (it.arguments[0] as ResultListener<Try<ResponseModel>>).onResult(result)
+            it.arguments[0].tryCast<ResultListener<Try<ResponseModel>>> { onResult(result) }
         }.whenever(configInternal as DefaultConfigInternal).fetchRemoteConfig(any())
 
         configInternal.refreshRemoteConfig(mockCompletionListener)

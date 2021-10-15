@@ -36,13 +36,17 @@ class FakeRequestManager(private val responseType: ResponseType, private val res
         EXCEPTION
     }
 
-    override fun submitNow(requestModel: RequestModel, coreCompletionHandler: CoreCompletionHandler, scope: CoroutineScope) {
-        if (responseType == ResponseType.SUCCESS) {
-            coreCompletionHandler.onSuccess("id", response)
-        } else if (responseType == ResponseType.FAILURE) {
-            coreCompletionHandler.onError("id", response)
-        } else {
-            coreCompletionHandler.onError("id", Exception("Test exception"))
+    override fun submitNow(requestModel: RequestModel, completionHandler: CoreCompletionHandler, scope: CoroutineScope) {
+        when (responseType) {
+            ResponseType.SUCCESS -> {
+                completionHandler.onSuccess("id", response)
+            }
+            ResponseType.FAILURE -> {
+                completionHandler.onError("id", response)
+            }
+            else -> {
+                completionHandler.onError("id", Exception("Test exception"))
+            }
         }
     }
 }

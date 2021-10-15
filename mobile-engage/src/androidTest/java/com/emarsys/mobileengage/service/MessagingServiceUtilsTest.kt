@@ -550,7 +550,7 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testGetInAppDescriptor_shouldReturnValidDescriptor_whenThereIsInAppInPayload() {
-        val result = JSONObject(MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, createInAppInPayload()))
+        val result = JSONObject(MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, createInAppInPayload())!!)
 
         result.getString("campaignId") shouldBe "someId"
         result.getString("url") shouldBe HTML_URL
@@ -589,7 +589,7 @@ class MessagingServiceUtilsTest {
         inapp.put("url", "https://thisIsNotARealUrl")
         ems.put("inapp", inapp)
         payload["ems"] = ems.toString()
-        val result = JSONObject(MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, payload))
+        val result = JSONObject(MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, payload)!!)
 
         result.getString("campaignId") shouldBe "someId"
         result.getString("url") shouldBe "https://thisIsNotARealUrl"
@@ -602,7 +602,7 @@ class MessagingServiceUtilsTest {
         val inAppPayload = createNoInAppInPayload()
         val result = MessagingServiceUtils.createPreloadedRemoteMessageData(inAppPayload, inAppDescriptor)
 
-        JSONObject(result["ems"]).getString("inapp") shouldBe inAppDescriptor
+        JSONObject(result["ems"]!!).getString("inapp") shouldBe inAppDescriptor
     }
 
     @Test
@@ -611,7 +611,7 @@ class MessagingServiceUtilsTest {
         val inAppPayload = createNoInAppInPayload()
         val result = MessagingServiceUtils.createPreloadedRemoteMessageData(inAppPayload, inAppDescriptor)
 
-        JSONObject(result["ems"]).has("inapp") shouldBe false
+        JSONObject(result["ems"]!!).has("inapp") shouldBe false
     }
 
     @Test

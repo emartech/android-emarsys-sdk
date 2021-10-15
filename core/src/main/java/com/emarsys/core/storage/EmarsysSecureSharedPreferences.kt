@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import androidx.collection.ArraySet
+import com.emarsys.core.util.tryCastOrNull
 import com.google.crypto.tink.Aead
 import com.google.crypto.tink.DeterministicAead
 import com.google.crypto.tink.KeyTemplates
@@ -208,11 +209,11 @@ class EmarsysSecureSharedPreferences private constructor(
     }
 
     override fun getStringSet(key: String, defValues: Set<String>?): Set<String>? {
-        val returnValues: Set<String>
+        val returnValues: Set<String>?
         val value: Set<*>? = getDecryptedObject(key)
-        returnValues = value as? Set<String> ?: ArraySet()
+        returnValues = value?.tryCastOrNull<Set<String>>()
 
-        return if (returnValues.isNotEmpty()) returnValues else defValues
+        return returnValues ?: defValues
     }
 
     override fun getInt(key: String, defValue: Int): Int {
@@ -276,7 +277,7 @@ class EmarsysSecureSharedPreferences private constructor(
         }
     }
 
-    private fun <T> getDecryptedObject(key: String): T? {
+    private inline fun <reified T> getDecryptedObject(key: String): T? {
         if (isReservedKey(key)) {
             throw SecurityException("$key is a reserved key for the encryption keyset.")
         }
@@ -326,7 +327,7 @@ class EmarsysSecureSharedPreferences private constructor(
         } catch (ex: GeneralSecurityException) {
             throw SecurityException("Could not decrypt value. " + ex.message, ex)
         }
-        return returnValue as T?
+        return returnValue?.tryCastOrNull<T>()
     }
 
     fun encryptKey(key: String): String {
@@ -360,5 +361,4 @@ class EmarsysSecureSharedPreferences private constructor(
         val cipherText: ByteArray = aead.encrypt(value, encryptedKey.toByteArray(StandardCharsets.UTF_8))
         return Pair(encryptedKey, Base64.encode(cipherText))
     }
-
 }

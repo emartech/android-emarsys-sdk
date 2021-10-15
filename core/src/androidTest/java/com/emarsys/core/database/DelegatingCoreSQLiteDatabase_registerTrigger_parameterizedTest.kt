@@ -15,7 +15,9 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import org.mockito.Mockito.*
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyZeroInteractions
 
 @RunWith(Parameterized::class)
 class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
@@ -54,7 +56,7 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
 
         db.backingDatabase.execSQL(CREATE)
 
-        mockRunnable = mock(Runnable::class.java)
+        mockRunnable = mock()
     }
 
     @Test
@@ -85,7 +87,7 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
         }.let { triggerKeys ->
             HashMap<TriggerKey, Runnable>().apply {
                 triggerKeys.forEach {
-                    put(it, mock(Runnable::class.java))
+                    put(it, mock())
                 }
             }
         }

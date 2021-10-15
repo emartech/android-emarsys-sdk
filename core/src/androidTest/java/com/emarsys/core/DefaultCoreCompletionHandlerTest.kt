@@ -5,15 +5,12 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito
-import org.mockito.Mockito.*
-import org.mockito.kotlin.mock
+import org.mockito.kotlin.*
 
 class DefaultCoreCompletionHandlerTest {
 
@@ -46,7 +43,7 @@ class DefaultCoreCompletionHandlerTest {
     fun testRegisterCompletionListener_addsListenerToMap() {
         val completionListenerMap = mutableMapOf<String, CompletionListener>()
         val coreCompletionHandler = DefaultCoreCompletionHandler(completionListenerMap)
-        val callback = mock(CompletionListener::class.java)
+        val callback: CompletionListener = mock()
         coreCompletionHandler.register(mockRequestModel, callback)
 
         completionListenerMap[REQUEST_ID] shouldBe callback
@@ -61,7 +58,7 @@ class DefaultCoreCompletionHandlerTest {
 
     @Test
     fun testOnSuccess_callsRegisteredCompletionListener() {
-        val listener = mock(CompletionListener::class.java)
+        val listener: CompletionListener = mock()
         coreCompletionHandler.register(mockRequestModel, listener)
 
         coreCompletionHandler.onSuccess(REQUEST_ID, mock())
@@ -84,8 +81,8 @@ class DefaultCoreCompletionHandlerTest {
         val requestModel1 = createRequestModelMock("id1")
         val requestModel2 = createRequestModelMock("id2")
 
-        val listener1 = mock(CompletionListener::class.java)
-        val listener2 = mock(CompletionListener::class.java)
+        val listener1: CompletionListener = mock()
+        val listener2: CompletionListener = mock()
 
         coreCompletionHandler.register(requestModel1, listener1)
         coreCompletionHandler.register(requestModel2, listener2)
@@ -98,7 +95,7 @@ class DefaultCoreCompletionHandlerTest {
 
     @Test
     fun testOnSuccess_removesListener_afterCalled() {
-        val listener = mock(CompletionListener::class.java)
+        val listener: CompletionListener = mock()
         val spyMap = spy(HashMap<String, CompletionListener>().apply {
             put(REQUEST_ID, listener)
         })
@@ -115,7 +112,7 @@ class DefaultCoreCompletionHandlerTest {
 
     @Test
     fun testOnError_withException_callsRegisteredCompletionListener() {
-        val listener = mock(CompletionListener::class.java)
+        val listener: CompletionListener = mock()
 
         coreCompletionHandler.register(mockRequestModel, listener)
 
@@ -135,7 +132,7 @@ class DefaultCoreCompletionHandlerTest {
 
     @Test
     fun testOnError_withException_removesListener_afterCalled() {
-        val listener = mock(CompletionListener::class.java)
+        val listener: CompletionListener = mock()
         val spyMap = spy(HashMap<String, CompletionListener>().apply {
             put(REQUEST_ID, listener)
         })
@@ -152,7 +149,7 @@ class DefaultCoreCompletionHandlerTest {
 
     @Test
     fun testOnError_withResponseModel_callsRegisteredCompletionListener() {
-        val listener = mock(CompletionListener::class.java)
+        val listener: CompletionListener = mock()
 
         coreCompletionHandler.register(mockRequestModel, listener)
 
@@ -172,7 +169,7 @@ class DefaultCoreCompletionHandlerTest {
 
     @Test
     fun testOnError_withResponseModel_removesListener_afterCalled() {
-        val listener = mock(CompletionListener::class.java)
+        val listener: CompletionListener = mock()
         val spyMap = spy(HashMap<String, CompletionListener>().apply {
             put(REQUEST_ID, listener)
         })
@@ -190,9 +187,9 @@ class DefaultCoreCompletionHandlerTest {
 
     @Test
     fun testMultipleRequestCompletions() {
-        val listener1 = mock(CompletionListener::class.java)
-        val listener2 = mock(CompletionListener::class.java)
-        val listener3 = mock(CompletionListener::class.java)
+        val listener1: CompletionListener = mock()
+        val listener2: CompletionListener = mock()
+        val listener3: CompletionListener = mock()
 
         coreCompletionHandler.register(createRequestModelMock("id_1"), listener1)
         coreCompletionHandler.register(createRequestModelMock("id_2"), listener2)
@@ -214,14 +211,14 @@ class DefaultCoreCompletionHandlerTest {
     private fun createAnyResponseModel() = createResponseModel(200, "", "")
 
     private fun createResponseModel(statusCode: Int, message: String, body: String) =
-            mock(ResponseModel::class.java).also {
-                whenever(it.statusCode).thenReturn(statusCode)
-                whenever(it.body).thenReturn(body)
-                whenever(it.message).thenReturn(message)
-            }
+        mock<ResponseModel> {
+            on { it.statusCode } doReturn statusCode
+            on { it.body } doReturn body
+            on { it.message } doReturn message
+        }
 
     private fun createRequestModelMock(requestId: String) =
-            mock(RequestModel::class.java).also { whenever(it.id).thenReturn(requestId) }
+        mock<RequestModel> { on { id } doReturn requestId }
 
     private fun ResponseModel.toError() = ResponseErrorException(statusCode, message, body)
 

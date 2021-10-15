@@ -32,7 +32,6 @@ object JsonUtils {
     }
 
     @JvmStatic
-    @Suppress("UNCHECKED_CAST")
     fun fromList(list: List<Any?>): JSONArray {
         val result = JSONArray()
         for (item in list) {
@@ -41,7 +40,9 @@ object JsonUtils {
                     result.put(fromList(item))
                 }
                 is Map<*, *> -> {
-                    result.put(fromMap(item as Map<String, Any>))
+                    item.tryCastOrNull<Map<String, Any>>()?.let {
+                        result.put(fromMap(it))
+                    }
                 }
                 else -> {
                     result.put(item)

@@ -62,7 +62,7 @@ class FileDownloaderTest {
     @Test
     fun testDownload_downloadedAndRemoteFileShouldBeTheSame() {
         val path: String = LARGE_IMAGE
-        val filePath = fileDownloader.download(path)
+        val filePath = fileDownloader.download(path)!!
         val file = File(filePath)
         val fileInputStream: InputStream = FileInputStream(file)
         val remoteInputStream = fileDownloader.inputStreamFromUrl(path)

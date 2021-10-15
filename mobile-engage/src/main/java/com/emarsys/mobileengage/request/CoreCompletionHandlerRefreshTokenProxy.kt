@@ -19,6 +19,7 @@ class CoreCompletionHandlerRefreshTokenProxy(private val coreCompletionHandler: 
         coreCompletionHandler.onSuccess(id, responseModel)
     }
 
+    @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun onError(originalId: String, originalResponseModel: ResponseModel) {
         if (originalResponseModel.statusCode == 401
                 && requestModelHelper.isMobileEngageRequest(originalResponseModel.requestModel)) {

@@ -36,22 +36,13 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.*
-import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
+import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
 class OverlayInAppPresenterTest {
     companion object {
         private var SID = "testSid"
         private var URL = "https://www.emarsys.com"
-
-        init {
-            mock(Fragment::class.java)
-            mock(AppCompatActivity::class.java)
-        }
     }
 
     @Rule
@@ -117,7 +108,7 @@ class OverlayInAppPresenterTest {
         val fragmentManager: FragmentManager = mock()
 
         whenever(activityMock.supportFragmentManager).thenReturn(fragmentManager)
-        whenever(fragmentManager.findFragmentById(anyInt())).thenReturn(fragmentMock)
+        whenever(fragmentManager.findFragmentById(any())).thenReturn(fragmentMock)
         whenever(mockActivityProvider.get()).thenReturn(activityMock)
         whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(iamDialog)
 
@@ -149,7 +140,7 @@ class OverlayInAppPresenterTest {
         val fragmentManager: FragmentManager = mock()
 
         whenever(activityMock.supportFragmentManager).thenReturn(fragmentManager)
-        whenever(fragmentManager.findFragmentById(anyInt())).thenReturn(fragmentMock)
+        whenever(fragmentManager.findFragmentById(any())).thenReturn(fragmentMock)
         whenever(mockActivityProvider.get()).thenReturn(activityMock)
         whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(iamDialog)
 

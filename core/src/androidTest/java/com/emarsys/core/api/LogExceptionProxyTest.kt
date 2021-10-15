@@ -44,15 +44,6 @@ class LogExceptionProxyTest {
     }
 
     @Test
-    fun testProxyWithHandler() {
-        val expected: CharSequence = "test"
-
-        val result = expected.proxyWithLogExceptions()
-
-        (result is CharSequence) shouldBe true
-    }
-
-    @Test
     fun testInvoke_shouldInvokeMethod() {
         val expected: CharSequence = "test"
 
