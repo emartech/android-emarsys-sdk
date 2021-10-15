@@ -31,7 +31,7 @@ data class ResponseModel(
             var result : JSONObject? = null
             if (body != null) {
                 try {
-                    result = JSONObject(body)
+                    result = JSONObject(body!!)
                 } catch (ignored: JSONException) {
                 }
             }

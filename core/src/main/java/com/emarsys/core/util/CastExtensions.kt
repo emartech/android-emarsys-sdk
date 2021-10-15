@@ -6,3 +6,9 @@ inline fun <reified T> Any.tryCastOrNull(): T? {
     }
     return null
 }
+inline fun <reified T> Any.tryCastOrException(): T {
+    if (this is T) {
+        return this
+    }
+    throw ClassCastException()
+}

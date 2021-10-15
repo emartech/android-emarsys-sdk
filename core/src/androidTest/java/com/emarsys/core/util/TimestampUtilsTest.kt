@@ -64,7 +64,7 @@ class TimestampUtilsTest {
         val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
         parser.timeZone = TimeZone.getTimeZone(deviceTimeZone)
         val date = parser.parse(dateString)
-        val timestamp = date.time
+        val timestamp = date!!.time
         Assert.assertEquals(
                 "2017-12-07T10:46:09.100Z",
                 TimestampUtils.formatTimestampWithUTC(timestamp)

@@ -8,6 +8,7 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.AbstractSqliteRepository
 import com.emarsys.core.util.serialization.SerializationException
 import com.emarsys.core.util.serialization.SerializationUtils
+import com.emarsys.core.util.tryCastOrException
 import java.util.*
 
 @Mockable
@@ -29,7 +30,7 @@ class ShardModelRepository(coreDbHelper: CoreDbHelper) : AbstractSqliteRepositor
         var data: Map<String?, Any?> = HashMap()
         try {
             data = SerializationUtils
-                    .blobToSerializable(cursor.getBlob(cursor.getColumnIndexOrThrow(DatabaseContract.SHARD_COLUMN_DATA))) as Map<String?, Any?>
+                .blobToSerializable(cursor.getBlob(cursor.getColumnIndexOrThrow(DatabaseContract.SHARD_COLUMN_DATA))).tryCastOrException()
         } catch (ignored: SerializationException) {
         } catch (ignored: ClassCastException) {
         }
