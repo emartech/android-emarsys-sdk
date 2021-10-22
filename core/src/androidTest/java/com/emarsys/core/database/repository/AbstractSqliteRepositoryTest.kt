@@ -261,21 +261,23 @@ class AbstractSqliteRepositoryTest {
             having: String,
             orderBy: String,
             limit: String) = object : SqlSpecification {
-        override fun isDistinct() = distinct
 
-        override fun getColumns() = columns
-
-        override fun getSelection() = selection
-
-        override fun getSelectionArgs() = selectionArgs
-
-        override fun getGroupBy() = groupBy
-
-        override fun getHaving() = having
-
-        override fun getOrderBy() = orderBy
-
-        override fun getLimit() = limit
+        override val isDistinct: Boolean
+            get() = distinct
+        override val columns: Array<String>
+            get() = columns
+        override val selection: String
+            get() = selection
+        override val selectionArgs: Array<String>
+            get() = selectionArgs
+        override val groupBy: String
+            get() = groupBy
+        override val having: String
+            get() = having
+        override val orderBy: String
+            get() = orderBy
+        override val limit: String
+            get() = limit
     }
 
     private fun requestModel(url: String) = RequestModel.Builder(TimestampProvider(), UUIDProvider()).url(url).build()

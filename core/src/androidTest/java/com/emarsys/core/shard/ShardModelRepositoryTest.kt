@@ -17,8 +17,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import java.io.Serializable
 
 class ShardModelRepositoryTest {
@@ -45,7 +45,7 @@ class ShardModelRepositoryTest {
 
         context = InstrumentationRegistry.getTargetContext()
 
-        repository = ShardModelRepository(CoreDbHelper(context, mapOf()))
+        repository = ShardModelRepository(CoreDbHelper(context, mutableMapOf()))
 
         payload = mutableMapOf<String, Serializable>().apply {
             this["payload1"] = "payload_value1"
@@ -67,22 +67,22 @@ class ShardModelRepositoryTest {
 
     @Test
     fun testItemFromCursor() {
-        val cursor = mock(Cursor::class.java)
+        val cursor: Cursor = mock()
 
-        `when`(cursor.getColumnIndexOrThrow(SHARD_COLUMN_ID)).thenReturn(0)
-        `when`(cursor.getString(0)).thenReturn(SHARD_ID)
+        whenever(cursor.getColumnIndexOrThrow(SHARD_COLUMN_ID)).thenReturn(0)
+        whenever(cursor.getString(0)).thenReturn(SHARD_ID)
 
-        `when`(cursor.getColumnIndexOrThrow(SHARD_COLUMN_TYPE)).thenReturn(1)
-        `when`(cursor.getString(1)).thenReturn(TYPE)
+        whenever(cursor.getColumnIndexOrThrow(SHARD_COLUMN_TYPE)).thenReturn(1)
+        whenever(cursor.getString(1)).thenReturn(TYPE)
 
-        `when`(cursor.getColumnIndexOrThrow(SHARD_COLUMN_DATA)).thenReturn(2)
-        `when`(cursor.getBlob(2)).thenReturn(serializableToBlob(payload))
+        whenever(cursor.getColumnIndexOrThrow(SHARD_COLUMN_DATA)).thenReturn(2)
+        whenever(cursor.getBlob(2)).thenReturn(serializableToBlob(payload))
 
-        `when`(cursor.getColumnIndexOrThrow(SHARD_COLUMN_TIMESTAMP)).thenReturn(3)
-        `when`(cursor.getLong(3)).thenReturn(TIMESTAMP)
+        whenever(cursor.getColumnIndexOrThrow(SHARD_COLUMN_TIMESTAMP)).thenReturn(3)
+        whenever(cursor.getLong(3)).thenReturn(TIMESTAMP)
 
-        `when`(cursor.getColumnIndexOrThrow(SHARD_COLUMN_TTL)).thenReturn(4)
-        `when`(cursor.getLong(4)).thenReturn(TTL)
+        whenever(cursor.getColumnIndexOrThrow(SHARD_COLUMN_TTL)).thenReturn(4)
+        whenever(cursor.getLong(4)).thenReturn(TTL)
 
         Assert.assertEquals(shardModel, repository.itemFromCursor(cursor))
     }

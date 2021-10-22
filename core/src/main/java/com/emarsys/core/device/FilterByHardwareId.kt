@@ -2,13 +2,10 @@ package com.emarsys.core.device
 
 import com.emarsys.core.database.repository.AbstractSqlSpecification
 
-data class FilterByHardwareId(private val arg: String, private val selection: String = "hardware_id=?") : AbstractSqlSpecification() {
+data class FilterByHardwareId(
+        private val arg: String,
+        override val selection: String = "hardware_id=?") : AbstractSqlSpecification() {
 
-    override fun getSelection(): String {
-        return selection
-    }
-
-    override fun getSelectionArgs(): Array<String> {
-        return arrayOf(arg)
-    }
+    override val selectionArgs: Array<String>
+        get() = arrayOf(arg)
 }

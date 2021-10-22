@@ -20,7 +20,7 @@ class DelegatingCoreSQLiteDatabaseTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var db: DelegatingCoreSQLiteDatabase
-    private lateinit var triggerMap: MutableMap<TriggerKey, List<Runnable>>
+    private lateinit var triggerMap: MutableMap<TriggerKey, MutableList<Runnable>>
 
     @Before
     fun init() {
@@ -29,36 +29,6 @@ class DelegatingCoreSQLiteDatabaseTest {
         triggerMap = mutableMapOf()
 
         db = DelegatingCoreSQLiteDatabase(coreDbHelper.writableDatabase, triggerMap)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_backingDatabase_mustNotBeNull() {
-        DelegatingCoreSQLiteDatabase(null, emptyMap())
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_triggerMap_mustNotBeNull() {
-        DelegatingCoreSQLiteDatabase(db.backingDatabase, null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testRegisterTrigger_table_mustNotBeNull() {
-        db.registerTrigger(null, TriggerType.AFTER, TriggerEvent.INSERT) {}
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testRegisterTrigger_triggerType_mustNotBeNull() {
-        db.registerTrigger("table", null, TriggerEvent.INSERT) {}
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testRegisterTrigger_triggerEvent_mustNotBeNull() {
-        db.registerTrigger("table", TriggerType.AFTER, null) {}
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testRegisterTrigger_trigger_mustNotBeNull() {
-        db.registerTrigger("table", TriggerType.AFTER, TriggerEvent.INSERT, null)
     }
 
     @Test

@@ -42,7 +42,7 @@ class EverythingTest {
     @Test
     fun testQueryAll() {
         val context = InstrumentationRegistry.getTargetContext().applicationContext
-        val coreDbHelper = CoreDbHelper(context, mapOf())
+        val coreDbHelper = CoreDbHelper(context, mutableMapOf())
         val repository = ShardModelRepository(coreDbHelper)
         val expectedList = mutableListOf(
                 ShardModel("a1", "button_click", mapOf(), 0, 0),
@@ -60,7 +60,7 @@ class EverythingTest {
     @Test
     fun testDeleteAll() {
         val context = InstrumentationRegistry.getTargetContext().applicationContext
-        val coreDbHelper = CoreDbHelper(context, mapOf())
+        val coreDbHelper = CoreDbHelper(context, mutableMapOf())
         val repository = ShardModelRepository(coreDbHelper)
         mutableListOf(
                 ShardModel("a1", "button_click", mapOf(), 0, 0),

@@ -36,7 +36,7 @@ class FilterByShardIdsTest {
                 ShardModel("id4", "type4", mapOf(), 3, 30)
         )
 
-        val coreDbHelper = CoreDbHelper(context, mapOf())
+        val coreDbHelper = CoreDbHelper(context, mutableMapOf())
         shardModelRepository = ShardModelRepository(coreDbHelper)
     }
 

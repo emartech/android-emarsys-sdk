@@ -31,7 +31,7 @@ class FilterByShardTypeTest {
         DatabaseTestUtils.deleteCoreDatabase()
         specification = FilterByShardType(TYPE)
         val context = InstrumentationRegistry.getTargetContext().applicationContext
-        val coreDbHelper = CoreDbHelper(context, mapOf())
+        val coreDbHelper = CoreDbHelper(context, mutableMapOf())
         repository = ShardModelRepository(coreDbHelper)
         shardList = mutableListOf(
                 ShardModel("a1", "button_click", mapOf(), 0, 0),

@@ -12,8 +12,10 @@ class SharedHardwareIdentificationContentProvider : ContentProvider() {
     private lateinit var coreDbHelper: CoreDbHelper
 
     override fun onCreate(): Boolean {
-        coreDbHelper = CoreDbHelper(this.context, mapOf())
-        return true;
+        this.context?.let {
+            coreDbHelper = CoreDbHelper(it, mutableMapOf())
+        }
+        return true
     }
 
     override fun query(uri: Uri, projection: Array<out String>?, selection: String?, selectionArgs: Array<out String>?, sortOrder: String?): Cursor? {

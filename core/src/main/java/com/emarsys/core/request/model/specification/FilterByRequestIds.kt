@@ -6,13 +6,9 @@ import com.emarsys.core.util.DatabaseUtil
 
 class FilterByRequestIds(private val args: Array<String>) : AbstractSqlSpecification() {
 
-    private val sql: String = DatabaseUtil.generateInStatement(DatabaseContract.REQUEST_COLUMN_NAME_REQUEST_ID, args)
+    override val selection: String
+        get() = DatabaseUtil.generateInStatement(DatabaseContract.REQUEST_COLUMN_NAME_REQUEST_ID, args)
 
-    override fun getSelection(): String {
-        return sql
-    }
-
-    override fun getSelectionArgs(): Array<String> {
-        return args
-    }
+    override val selectionArgs: Array<String>
+        get() = args
 }

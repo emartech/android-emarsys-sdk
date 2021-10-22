@@ -37,7 +37,7 @@ class FilterByUrlPatternTest {
         uuidProvider = UUIDProvider()
 
         val context = InstrumentationRegistry.getTargetContext().applicationContext
-        val coreDbHelper = CoreDbHelper(context, mapOf())
+        val coreDbHelper = CoreDbHelper(context, mutableMapOf())
         repository = RequestModelRepository(coreDbHelper)
     }
 

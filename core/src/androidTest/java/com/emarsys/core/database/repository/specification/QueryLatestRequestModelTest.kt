@@ -50,7 +50,7 @@ class QueryLatestRequestModelTest {
         val uuidProvider = UUIDProvider()
 
         val context = InstrumentationRegistry.getTargetContext().applicationContext
-        val coreDbHelper = CoreDbHelper(context, mapOf())
+        val coreDbHelper = CoreDbHelper(context, mutableMapOf())
         val repository = RequestModelRepository(coreDbHelper)
 
         val expectedRequestModel = RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/1").build()

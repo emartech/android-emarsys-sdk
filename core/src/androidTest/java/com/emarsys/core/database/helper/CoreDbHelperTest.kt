@@ -32,7 +32,7 @@ class CoreDbHelperTest {
         dbHelper = CoreDbHelper(
                 InstrumentationRegistry.getTargetContext().applicationContext,
                 mutableMapOf())
-        db = dbHelper.writableCoreDatabase.backingDatabase
+        db = dbHelper.writableCoreDatabase.backingDatabase!!
         DatabaseTestUtils.dropAllTables(db)
     }
 
