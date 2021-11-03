@@ -22,6 +22,7 @@
         <meta-data
             android:name="push_kit_auto_init_enabled"
             android:value="false" />
+
         <activity
             android:name="com.emarsys.sample.MainActivity"
             android:exported="true">
@@ -75,20 +76,18 @@
             </intent-filter>
         </service>
 
-        <!--
-                    <provider
-                    android:name="com.emarsys.provider.SharedHardwareIdentificationContentProvider"
-                    android:authorities="${applicationId}"
-                    android:enabled="true"
-                    android:exported="true"
-                    android:grantUriPermissions="true" />
-        -->
+
+        <provider
+            android:name="com.emarsys.provider.SharedHardwareIdentificationContentProvider"
+            android:authorities="${applicationId}"
+            android:enabled="true"
+            android:exported="true"
+            android:grantUriPermissions="true" />
+
     </application>
 
-    <!--
-        <queries>
-            <package android:name="com.emarsys.otherapp" />
-        </queries>
-     -->
+    <queries>
+        <package android:name="com.emarsys.emarsys_sdk_example" />
+    </queries>
 
 </manifest>
