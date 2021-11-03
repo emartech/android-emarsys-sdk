@@ -12,15 +12,7 @@ class RegisterGeofencesOnBootCompletedReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action.equals(Intent.ACTION_BOOT_COMPLETED, true)) {
-            if (MobileEngageComponent.instance != null) {
-                if (Emarsys.geofence.isEnabled()) {
-                    Log.d(Logger.TAG, "Geofences registered")
-                } else {
-                    Log.d(Logger.TAG, "Geofence feature is not enabled")
-                }
-            } else {
-                Log.d(Logger.TAG, "Unsuccessful setup of Emarsys SDK")
-            }
+            Log.d(Logger.TAG, "Emarsys SDK has been started!")
         }
     }
 }
