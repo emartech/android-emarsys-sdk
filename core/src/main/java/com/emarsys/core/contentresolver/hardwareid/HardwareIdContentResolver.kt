@@ -21,7 +21,7 @@ class HardwareIdContentResolver(private val context: Context,
                                 DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT,
                                 DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV),
                         null, null, null)
-                if (cursor?.moveToFirst() != null) {
+                if (cursor != null && cursor.moveToFirst()) {
                     encryptedHardwareId = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID))
                     val salt = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT))
                     val iv = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV))

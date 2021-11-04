@@ -53,6 +53,25 @@ class HardwareIdContentResolverTest : ProviderTestCase2<FakeContentProvider>(Fak
     }
 
     @Test
+    fun testProvideHardwareId_shouldNotGetHardwareId_fromContentResolver() {
+        FakeContentProvider.numberOfInvocation = 0
+        FakeContentProvider.mockCursor = mock {
+            on { moveToFirst() } doReturn false
+            on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID) } doReturn 0
+            on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT) } doReturn 1
+            on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV) } doReturn 2
+            on { getString(0) } doReturn HardwareIdProviderTest.ENCRYPTED_HARDWARE_ID
+            on { getString(1) } doReturn HardwareIdProviderTest.SALT
+            on { getString(2) } doReturn HardwareIdProviderTest.IV
+        }
+
+        contentResolver.resolveHardwareId()
+
+        verifyZeroInteractions(mockHardwareIdentificationCrypto)
+        FakeContentProvider.numberOfInvocation shouldBe 1
+    }
+
+    @Test
     fun testProvideHardwareId_shouldReturnFalse_whenSharedPackageNamesIsMissing() {
         FakeContentProvider.numberOfInvocation = 0
         val contentResolver = HardwareIdContentResolver(mockContext, mockHardwareIdentificationCrypto, null)
@@ -68,20 +87,20 @@ class HardwareIdContentResolverTest : ProviderTestCase2<FakeContentProvider>(Fak
 open class FakeContentProvider : MockContentProvider() {
     companion object {
         var numberOfInvocation = 0
-    }
 
-    private var cursor: Cursor = mock {
-        on { moveToFirst() } doReturn true
-        on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID) } doReturn 0
-        on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT) } doReturn 1
-        on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV) } doReturn 2
-        on { getString(0) } doReturn HardwareIdProviderTest.ENCRYPTED_HARDWARE_ID
-        on { getString(1) } doReturn HardwareIdProviderTest.SALT
-        on { getString(2) } doReturn HardwareIdProviderTest.IV
+        var mockCursor: Cursor = mock {
+            on { moveToFirst() } doReturn true
+            on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_ENCRYPTED_HARDWARE_ID) } doReturn 0
+            on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_SALT) } doReturn 1
+            on { getColumnIndexOrThrow(DatabaseContract.HARDWARE_IDENTIFICATION_COLUMN_NAME_IV) } doReturn 2
+            on { getString(0) } doReturn HardwareIdProviderTest.ENCRYPTED_HARDWARE_ID
+            on { getString(1) } doReturn HardwareIdProviderTest.SALT
+            on { getString(2) } doReturn HardwareIdProviderTest.IV
+        }
     }
 
     override fun query(uri: Uri, p1: Array<out String>?, p2: String?, p3: Array<out String>?, p4: String?): Cursor? {
         numberOfInvocation++
-        return cursor
+        return mockCursor
     }
 }
