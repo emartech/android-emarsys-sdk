@@ -72,7 +72,7 @@ class AsyncProxyTest {
     @Test
     fun testInvoke_shouldHandlePrimitives_boolean() {
         val latch = CountDownLatch(1)
-        val proxiedTestClass = (TestClassWithPrimitives() as Testable).proxyWithHandler(handler, timeout = 1)
+        val proxiedTestClass = (TestClassWithPrimitives() as Proxyable).proxyWithHandler(handler, timeout = 1)
         var error: Exception? = null
         handler.post {
             try {
@@ -91,7 +91,7 @@ class AsyncProxyTest {
     @Test
     fun testInvoke_shouldHandlePrimitives_double() {
         val latch = CountDownLatch(1)
-        val proxiedTestClass = (TestClassWithPrimitives() as Testable).proxyWithHandler(handler, timeout = 1)
+        val proxiedTestClass = (TestClassWithPrimitives() as Proxyable).proxyWithHandler(handler, timeout = 1)
         var error: Exception? = null
         handler.post {
             try {
@@ -110,7 +110,7 @@ class AsyncProxyTest {
     @Test
     fun testInvoke_shouldHandlePrimitives_char() {
         val latch = CountDownLatch(1)
-        val proxiedTestClass = (TestClassWithPrimitives() as Testable).proxyWithHandler(handler, timeout = 1)
+        val proxiedTestClass = (TestClassWithPrimitives() as Proxyable).proxyWithHandler(handler, timeout = 1)
         var error: Exception? = null
         handler.post {
             try {
@@ -127,13 +127,13 @@ class AsyncProxyTest {
     }
 }
 
-interface Testable {
+interface Proxyable {
     fun testBoolean(): Boolean
     fun testDouble(): Double
     fun testChar(): Char
 }
 
-class TestClassWithPrimitives : Testable {
+class TestClassWithPrimitives : Proxyable {
     override fun testBoolean(): Boolean {
         return true
     }
