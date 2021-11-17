@@ -8,19 +8,27 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 
-inline fun <reified T : Any> T.proxyWithHandler(handler: CoreSdkHandler): T {
+inline fun <reified T : Any> T.proxyWithHandler(handler: CoreSdkHandler, timeout: Long = 10): T {
     return Proxy.newProxyInstance(javaClass.classLoader,
             javaClass.interfaces,
-            AsyncProxy(this, handler)) as T
+            AsyncProxy(this, handler, timeout)) as T
 }
 
 class AsyncProxy<T>(private val apiObject: T,
-                    private val handler: CoreSdkHandler) : InvocationHandler {
+                    private val handler: CoreSdkHandler,
+                    private val timeout: Long) : InvocationHandler {
 
     override fun invoke(proxy: Any, method: Method, args: Array<out Any>?): Any? {
         EmarsysIdlingResources.increment()
         var result: Any? = null
         val isVoid = method.returnType == Void.TYPE
+        if (method.returnType.isPrimitive) {
+            result = when (method.returnType) {
+                Boolean::class.java -> false
+                Char::class.java -> Char(0)
+                else -> 0
+            }
+        }
         val latch = CountDownLatch(1)
         handler.post {
             result = if (args != null) {
@@ -34,7 +42,7 @@ class AsyncProxy<T>(private val apiObject: T,
             EmarsysIdlingResources.decrement()
         }
         if (!isVoid) {
-            latch.await(10, TimeUnit.SECONDS)
+            latch.await(timeout, TimeUnit.SECONDS)
         }
         return result
     }

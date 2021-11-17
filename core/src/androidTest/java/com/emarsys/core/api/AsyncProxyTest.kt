@@ -68,4 +68,81 @@ class AsyncProxyTest {
         result shouldBe "test"
         threadSpy.verifyCalledOnCoreSdkThread()
     }
+
+    @Test
+    fun testInvoke_shouldHandlePrimitives_boolean() {
+        val latch = CountDownLatch(1)
+        val proxiedTestClass = (TestClassWithPrimitives() as Testable).proxyWithHandler(handler, timeout = 1)
+        var error: Exception? = null
+        handler.post {
+            try {
+                val result = proxiedTestClass.testBoolean()
+                result shouldBe false
+            } catch (e: Exception) {
+                error = e
+            } finally {
+                latch.countDown()
+            }
+        }
+        latch.await()
+        error shouldBe null
+    }
+
+    @Test
+    fun testInvoke_shouldHandlePrimitives_double() {
+        val latch = CountDownLatch(1)
+        val proxiedTestClass = (TestClassWithPrimitives() as Testable).proxyWithHandler(handler, timeout = 1)
+        var error: Exception? = null
+        handler.post {
+            try {
+                val result = proxiedTestClass.testDouble()
+                result shouldBe 0.0
+            } catch (e: Exception) {
+                error = e
+            } finally {
+                latch.countDown()
+            }
+        }
+        latch.await()
+        error shouldBe null
+    }
+
+    @Test
+    fun testInvoke_shouldHandlePrimitives_char() {
+        val latch = CountDownLatch(1)
+        val proxiedTestClass = (TestClassWithPrimitives() as Testable).proxyWithHandler(handler, timeout = 1)
+        var error: Exception? = null
+        handler.post {
+            try {
+                val result = proxiedTestClass.testChar()
+                result shouldBe Char(0)
+            } catch (e: Exception) {
+                error = e
+            } finally {
+                latch.countDown()
+            }
+        }
+        latch.await()
+        error shouldBe null
+    }
+}
+
+interface Testable {
+    fun testBoolean(): Boolean
+    fun testDouble(): Double
+    fun testChar(): Char
+}
+
+class TestClassWithPrimitives : Testable {
+    override fun testBoolean(): Boolean {
+        return true
+    }
+
+    override fun testDouble(): Double {
+        return 1.0
+    }
+
+    override fun testChar(): Char {
+        return Char(123)
+    }
 }
