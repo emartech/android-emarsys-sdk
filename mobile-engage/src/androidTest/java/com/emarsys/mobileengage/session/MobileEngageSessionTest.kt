@@ -38,7 +38,7 @@ class MobileEngageSessionTest {
 
     @Test
     fun testStartSession_createsUUIDAndTimestamp() {
-        session.startSession()
+        session.startSession {}
 
         verify(mockUUIDProvider).provideId()
         verify(mockTimestampProvider).provideTimestamp()
@@ -46,22 +46,22 @@ class MobileEngageSessionTest {
 
     @Test
     fun testStartSession_shouldSetSessionId() {
-        session.startSession()
+        session.startSession {}
 
         verify(mockSessionIdHolder).sessionId = SESSION_ID
     }
 
     @Test
     fun testStartSession_reportSessionStartToEventServiceInternal_byInternalCustomEvent() {
-        session.startSession()
+        session.startSession {}
 
         verify(mockEventServiceInternal).trackInternalCustomEventAsync(eq("session:start"), isNull(), anyOrNull())
     }
 
     @Test
     fun testEndSession_reportSessionEndToEventServiceInternal_byInternalCustomEvent() {
-        session.startSession()
-        session.endSession()
+        session.startSession {}
+        session.endSession {}
 
         verify(mockEventServiceInternal).trackInternalCustomEventAsync(eq("session:end"), eq(mapOf(
                 "duration" to "1"
@@ -70,8 +70,8 @@ class MobileEngageSessionTest {
 
     @Test
     fun testEndSession_shouldResetSessionId() {
-        session.startSession()
-        session.endSession()
+        session.startSession {}
+        session.endSession {}
 
         verify(mockSessionIdHolder).sessionId = null
     }
@@ -80,7 +80,7 @@ class MobileEngageSessionTest {
     fun testEndSession_shouldNotBeCalledWithoutStartSession() {
         whenever(mockSessionIdHolder.sessionId).thenReturn(null)
         val exception = shouldThrow<IllegalStateException> {
-            session.endSession()
+            session.endSession{}
         }
 
         exception.message shouldBe "StartSession has to be called first!"

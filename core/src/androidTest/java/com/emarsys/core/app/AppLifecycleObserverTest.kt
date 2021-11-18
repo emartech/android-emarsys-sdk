@@ -15,6 +15,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import java.util.*
@@ -59,7 +60,7 @@ class AppLifecycleObserverTest {
 
         latch.await()
 
-        verify(mockSession).startSession()
+        verify(mockSession).startSession(any())
     }
 
     @Test
@@ -80,6 +81,6 @@ class AppLifecycleObserverTest {
 
         latch.await()
 
-        verify(mockSession).endSession()
+        verify(mockSession).endSession(any())
     }
 }
