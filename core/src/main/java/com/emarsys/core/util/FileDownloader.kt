@@ -3,21 +3,48 @@ package com.emarsys.core.util
 import android.content.Context
 import android.webkit.URLUtil
 import com.emarsys.core.Mockable
+import kotlinx.coroutines.android.HandlerDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import java.io.*
+import java.lang.Exception
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
+import kotlinx.coroutines.flow.flow as flow
+
 
 @Mockable
-class FileDownloader(private val context: Context) {
+class FileDownloader(private val context: Context, private val coreSDKHandlerDispatcher: HandlerDispatcher) {
     private companion object {
         private const val BUFFER_SIZE = 4096
+        private const val DELAY_TIME = 3000L
     }
 
-    fun download(path: String): String? {
-        return if (URLUtil.isHttpsUrl(path)) {
-            val resultFile = createCacheFile()
-            inputStreamFromUrl(path)?.use { inputStream ->
+    fun download(path: String, retryCount: Long = 0): String? {
+        var result: String?
+        if (URLUtil.isHttpsUrl(path)) {
+            runBlocking {
+                result = if (retryCount > 0) {
+                    downloadToFlow(path).retry(retryCount) {
+                        delay(DELAY_TIME)
+                        it is Exception
+                    }.first()
+                } else {
+                    downloadToFlow(path).first()
+                }
+            }
+        } else {
+            result = null
+        }
+        return result
+    }
+
+    private fun downLoadFromInputStream(path: String): String? {
+        val resultFile = createCacheFile()
+        return inputStreamFromUrl(path).use { inputStream ->
+            if (inputStream != null) {
                 FileOutputStream(resultFile, false).use { outputStream ->
                     var bytesRead: Int
                     val buffer = ByteArray(BUFFER_SIZE)
@@ -26,10 +53,14 @@ class FileDownloader(private val context: Context) {
                     }
                 }
                 resultFile.toURI().toURL().path
-            }
-        } else {
-            null
+            } else null
         }
+    }
+
+    private suspend fun downloadToFlow(path: String): Flow<String?> {
+        return flow {
+            emit(downLoadFromInputStream(path))
+        }.flowOn(coreSDKHandlerDispatcher)
     }
 
     private fun createCacheFile(): File {

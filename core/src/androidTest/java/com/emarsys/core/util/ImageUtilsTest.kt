@@ -47,7 +47,7 @@ class ImageUtilsTest {
     @Before
     fun setup() {
         mockFileDownloader = mock {
-            on { download(any()) } doAnswer {
+            on { download(any(), any()) } doAnswer {
                 val fileContent = getTargetContext().resources.openRawResource(
                         getTargetContext().resources.getIdentifier("emarsys_test_image",
                                 "raw", getTargetContext().packageName))

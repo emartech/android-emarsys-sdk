@@ -7,6 +7,8 @@ import com.emarsys.core.device.DeviceInfo
 import java.io.File
 
 object ImageUtils {
+    private const val RETRY_COUNT = 3L
+
     @JvmStatic
     fun loadOptimizedBitmap(fileDownloader: FileDownloader, imageUrl: String?, deviceInfo: DeviceInfo): Bitmap? {
         var result: Bitmap? = null
@@ -35,7 +37,7 @@ object ImageUtils {
     private fun downloadImage(fileDownloader: FileDownloader, imageUrl: String?): String? {
         var fileUrl = imageUrl
         if (isRemoteUrl(imageUrl) && imageUrl != null) {
-            fileUrl = fileDownloader.download(imageUrl)
+            fileUrl = fileDownloader.download(imageUrl, RETRY_COUNT)
         }
         return fileUrl
     }

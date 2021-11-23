@@ -3,14 +3,14 @@ package com.emarsys
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.app.AppLifecycleObserver
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
@@ -20,6 +20,7 @@ import com.emarsys.mobileengage.service.IntentUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
+import kotlinx.coroutines.android.asCoroutineDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -37,6 +38,8 @@ class InappNotificationIntegrationTest {
     private lateinit var completionListenerLatch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
     private lateinit var mockInappPresenterOverlay: OverlayInAppPresenter
+    private var coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+    private var coreSdkHandlerDispatcher = coreSdkHandler.handler.asCoroutineDispatcher()
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
@@ -110,7 +113,7 @@ class InappNotificationIntegrationTest {
     @Test
     fun testInappPresent() {
         val context = InstrumentationRegistry.getTargetContext().applicationContext
-        val url = FileDownloader(context).download("https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png")
+        val url = FileDownloader(context, coreSdkHandlerDispatcher).download("https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png")
         val emsPayload = """{"inapp": {"campaignId": "222","url": "https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png","fileUrl": "$url"}}"""
         val remoteMessageData = mapOf("ems" to emsPayload)
 

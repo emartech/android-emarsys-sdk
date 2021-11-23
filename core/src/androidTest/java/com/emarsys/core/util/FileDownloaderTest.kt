@@ -1,12 +1,16 @@
 package com.emarsys.core.util
 
 import android.content.Context
+import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.RetryUtils.retryRule
 import com.emarsys.testUtil.TestUrls.LARGE_IMAGE
 import com.emarsys.testUtil.TestUrls.customResponse
 import com.emarsys.testUtil.TimeoutUtils
+import io.kotlintest.shouldBe
+import kotlinx.coroutines.android.asCoroutineDispatcher
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -34,7 +38,9 @@ class FileDownloaderTest {
     @Before
     fun setUp() {
         context = getTargetContext()
-        fileDownloader = FileDownloader(context)
+        val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+        val coreSdkHandlerDispatcher = coreSdkHandler.handler.asCoroutineDispatcher()
+        fileDownloader = FileDownloader(context, coreSdkHandlerDispatcher)
     }
 
     @Test
@@ -49,7 +55,8 @@ class FileDownloaderTest {
 
     @Test
     fun testDownload_shouldReturnNull_whenResourceDoesNotExist() {
-        assertNull(fileDownloader.download(customResponse(404)))
+        val result = fileDownloader.download(customResponse(404))
+        result shouldBe null
     }
 
     @Test
@@ -62,12 +69,17 @@ class FileDownloaderTest {
     @Test
     fun testDownload_downloadedAndRemoteFileShouldBeTheSame() {
         val path: String = LARGE_IMAGE
-        val filePath = fileDownloader.download(path)!!
+        val filePath = fileDownloader.download(path, 3)!!
         val file = File(filePath)
         val fileInputStream: InputStream = FileInputStream(file)
         val remoteInputStream = fileDownloader.inputStreamFromUrl(path)
         try {
-            assertTrue(Arrays.equals(convertToByteArray(fileInputStream), convertToByteArray(remoteInputStream!!)))
+            assertTrue(
+                Arrays.equals(
+                    convertToByteArray(fileInputStream),
+                    convertToByteArray(remoteInputStream!!)
+                )
+            )
         } finally {
             fileInputStream.close()
             remoteInputStream?.close()

@@ -79,7 +79,7 @@ class RemoteMessageMapperTest {
         val mockLanguageProvider: LanguageProvider = mock()
         val channelSettings = ChannelSettings(channelId = CHANNEL_ID)
         mockFileDownloader = mock<FileDownloader>().apply {
-            whenever(download(any())).thenAnswer {
+            whenever(download(any(), any())).thenAnswer {
                 if (it.arguments[0] == IMAGE_URL || it.arguments[0] == HTML_URL) {
                     val fileContent = InstrumentationRegistry.getTargetContext().resources.openRawResource(
                             InstrumentationRegistry.getTargetContext().resources.getIdentifier("test_image",
