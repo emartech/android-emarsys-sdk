@@ -1,6 +1,11 @@
-# What's new
-### [Huawei](https://github.com/emartech/android-emarsys-sdk#222-huawei)
-* Followed up some major Huawei dependency updates, as we always try to keep our dependencies up-to-date
-> For now Huawei Toolkit still does not support Android 12. Updates about this issue: [here](https://forums.developer.huawei.com/forumPortal/en/topic/0202672704114840029)
->
-> This crashes the application when running it on Android 12+, and Emarsys-Huawei is integrated into the application. No harm done when running on Huawei devices, or on devices below Android 12.
+# What's fixed
+### [Geofence](https://github.com/emartech/android-emarsys-sdk/wiki#8-geofence)
+* Fixed a race condition that caused a crash during device restart, when the geofence feature was disabled.
+### [Shared Hardware ID](https://github.com/emartech/android-emarsys-sdk/wiki/Shared-Hardware-Id)
+* Fixed an issue when installing two apps on the same device without starting the first app caused a problem of missing the shared hardware ID.
+### [Session Tracking](https://github.com/emartech/android-emarsys-sdk/wiki/Session-Tracking#session-tracking)
+* Fixed an issue regarding session handling.
+### [Push](https://github.com/emartech/android-emarsys-sdk/wiki#2-push)
+* Fixed a crash when internet connection was lost during image download.
+### [Inbox](https://github.com/emartech/android-emarsys-sdk/wiki#7-messageinbox)
+* Fixed an issue where the result listener was not called from the main thread.
