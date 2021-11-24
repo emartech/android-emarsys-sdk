@@ -36,7 +36,9 @@ class MobileEngageSession(private val timestampProvider: TimestampProvider,
             sessionIdHolder.sessionId = null
             sessionStart = null
         } else {
-            throw IllegalStateException("StartSession has to be called first!")
+            if (!contactTokenStorage.get().isNullOrEmpty()) {
+                throw IllegalStateException("StartSession has to be called first!")
+            }
         }
     }
 }
