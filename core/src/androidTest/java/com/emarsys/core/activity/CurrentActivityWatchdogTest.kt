@@ -13,7 +13,7 @@ import org.junit.rules.TestRule
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyZeroInteractions
+import org.mockito.kotlin.verifyNoInteractions
 import java.lang.IllegalArgumentException
 
 class CurrentActivityWatchdogTest {
@@ -68,6 +68,6 @@ class CurrentActivityWatchdogTest {
         watchdog.onActivityStopped(activity)
         watchdog.onActivitySaveInstanceState(activity, bundle)
         watchdog.onActivityDestroyed(activity)
-        verifyZeroInteractions(activityProvider)
+        verifyNoInteractions(activityProvider)
     }
 }

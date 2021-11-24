@@ -16,7 +16,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyZeroInteractions
+import org.mockito.kotlin.verifyNoInteractions
 
 class AppStartActionTest {
 
@@ -60,6 +60,6 @@ class AppStartActionTest {
         startAction.execute(null)
         waitForTask()
 
-        verifyZeroInteractions(mockEventServiceInternal)
+        verifyNoInteractions(mockEventServiceInternal)
     }
 }

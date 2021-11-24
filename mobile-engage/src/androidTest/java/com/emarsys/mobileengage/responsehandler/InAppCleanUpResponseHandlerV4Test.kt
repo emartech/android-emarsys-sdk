@@ -159,8 +159,8 @@ class InAppCleanUpResponseHandlerV4Test {
 
         handler.handleResponse(responseModel)
 
-        verifyZeroInteractions(mockButtonClickRepository)
-        verifyZeroInteractions(mockDisplayedIamRepository)
+        verifyNoInteractions(mockButtonClickRepository)
+        verifyNoInteractions(mockDisplayedIamRepository)
     }
 
     private fun buildResponseModel(requestModel: RequestModel, responseBody: String = "{'oldCampaigns': ['123', '456', '78910','6543']}", statusCode: Int = 200): ResponseModel {

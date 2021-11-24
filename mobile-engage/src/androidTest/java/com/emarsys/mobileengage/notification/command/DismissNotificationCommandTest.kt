@@ -11,7 +11,7 @@ import org.junit.rules.TestRule
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyZeroInteractions
+import org.mockito.kotlin.verifyNoInteractions
 
 class DismissNotificationCommandTest {
 
@@ -61,7 +61,7 @@ class DismissNotificationCommandTest {
 
         DismissNotificationCommand(mockContext, intent).run()
 
-        verifyZeroInteractions(notificationManagerMock)
+        verifyNoInteractions(notificationManagerMock)
     }
 
     @Test
@@ -78,7 +78,7 @@ class DismissNotificationCommandTest {
 
         DismissNotificationCommand(mockContext, intent).run()
 
-        verifyZeroInteractions(notificationManagerMock)
+        verifyNoInteractions(notificationManagerMock)
     }
 
 }

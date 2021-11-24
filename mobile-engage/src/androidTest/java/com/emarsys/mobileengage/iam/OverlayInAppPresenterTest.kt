@@ -320,6 +320,6 @@ class OverlayInAppPresenterTest {
 
         overlayPresenter.onAppEventTriggered().invoke("eventName", json)
 
-        verifyZeroInteractions(mockEventHandler)
+        verifyNoInteractions(mockEventHandler)
     }
 }

@@ -90,7 +90,7 @@ class HardwareIdProviderTest{
         val result = hardwareIdProvider.provideHardwareId()
         verify(mockRepository).add(HardwareIdentification(SHARED_HARDWARE_ID, ENCRYPTED_HARDWARE_ID, SALT, IV))
         verify(mockHardwareIdContentResolver).resolveHardwareId()
-        verifyZeroInteractions(mockUUIDProvider)
+        verifyNoInteractions(mockUUIDProvider)
 
         result shouldBe SHARED_HARDWARE_ID
     }

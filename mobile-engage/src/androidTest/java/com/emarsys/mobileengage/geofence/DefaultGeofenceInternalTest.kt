@@ -343,8 +343,8 @@ class DefaultGeofenceInternalTest {
             verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verifyZeroInteractions(mockFusedLocationProviderClient)
-        verifyZeroInteractions(mockGeofenceFilter)
+        verifyNoInteractions(mockFusedLocationProviderClient)
+        verifyNoInteractions(mockGeofenceFilter)
     }
 
     @Test
@@ -368,8 +368,8 @@ class DefaultGeofenceInternalTest {
         completionListenerHasBeenCalled shouldBe true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-            verifyZeroInteractions(mockFusedLocationProviderClient)
-            verifyZeroInteractions(mockGeofenceFilter)
+            verifyNoInteractions(mockFusedLocationProviderClient)
+            verifyNoInteractions(mockGeofenceFilter)
         }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     }
@@ -399,8 +399,8 @@ class DefaultGeofenceInternalTest {
             verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
         verify(mockPermissionChecker).checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-        verifyZeroInteractions(mockFusedLocationProviderClient)
-        verifyZeroInteractions(mockGeofenceFilter)
+        verifyNoInteractions(mockFusedLocationProviderClient)
+        verifyNoInteractions(mockGeofenceFilter)
     }
 
     @Test

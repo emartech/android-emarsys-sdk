@@ -43,7 +43,6 @@ class DefaultInboxIntegrationTest {
 
     private lateinit var latch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
-    private lateinit var triedInboxResult: Try<InboxResult>
 
     private var errorCause: Throwable? = null
 
@@ -106,37 +105,32 @@ class DefaultInboxIntegrationTest {
 
     @Test
     fun testFetchInboxMessages() {
-        Emarsys.messageInbox.fetchMessages(eventuallyStoreResultInProperty(this::triedInboxResult.setter)).eventuallyAssert {
-            triedInboxResult.errorCause shouldBe null
-            triedInboxResult.result shouldNotBe null
+        val latch = CountDownLatch(1)
+        Emarsys.messageInbox.fetchMessages  {
+            it.errorCause shouldBe null
+            it.result shouldNotBe null
+            latch.countDown()
         }
+        latch.await()
     }
 
     @Test
     fun testAddTag() {
-        Emarsys.messageInbox.addTag("TEST_TAG", MESSAGE_ID, eventuallyStoreResultInProperty(this::errorCause.setter)).eventuallyAssert {
-            errorCause shouldBe null
+        val latch = CountDownLatch(1)
+        Emarsys.messageInbox.addTag("TEST_TAG", MESSAGE_ID) {
+            it shouldBe null
+            latch.countDown()
         }
+        latch.await()
     }
 
     @Test
     fun testRemoveTag() {
-        Emarsys.messageInbox.removeTag("TEST_TAG", MESSAGE_ID, eventuallyStoreResultInProperty(this::errorCause.setter)).eventuallyAssert {
-            errorCause shouldBe null
-        }
-    }
-
-
-    private fun <T> eventuallyStoreResultInProperty(setter: KMutableProperty0.Setter<T>): (T) -> Unit {
-        return {
-            setter.isAccessible = true
-            setter(it)
+        val latch = CountDownLatch(1)
+        Emarsys.messageInbox.removeTag("TEST_TAG", MESSAGE_ID) {
             latch.countDown()
+            it shouldBe null
         }
-    }
-
-    private fun Any.eventuallyAssert(assertion: () -> Unit) {
         latch.await()
-        assertion.invoke()
     }
 }

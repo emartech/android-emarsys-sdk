@@ -17,7 +17,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyZeroInteractions
+import org.mockito.kotlin.verifyNoInteractions
 
 @RunWith(Parameterized::class)
 class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
@@ -71,7 +71,7 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
 
         action.run()
 
-        unusedTriggerMap.values.forEach { verifyZeroInteractions(it) }
+        unusedTriggerMap.values.forEach { verifyNoInteractions(it) }
         verify(mockRunnable).run()
     }
 

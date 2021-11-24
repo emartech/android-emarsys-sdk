@@ -203,7 +203,7 @@ class RequestRepositoryProxyTest {
     fun testAdd_shouldNotStoreCompositeRequestModels() {
         val requestModel: CompositeRequestModel = mock()
         compositeRepository.add(requestModel)
-        verifyZeroInteractions(mockRequestModelRepository)
+        verifyNoInteractions(mockRequestModelRepository)
     }
 
     @Test

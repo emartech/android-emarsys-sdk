@@ -187,7 +187,7 @@ class PreloadedInappHandlerCommandTest {
 
         waitForEventLoopToFinish(coreSdkHandler)
 
-        verifyZeroInteractions(mockLifecycleActionRegistry)
+        verifyNoInteractions(mockLifecycleActionRegistry)
     }
 
     private fun waitForEventLoopToFinish(handler: CoreSdkHandler) {

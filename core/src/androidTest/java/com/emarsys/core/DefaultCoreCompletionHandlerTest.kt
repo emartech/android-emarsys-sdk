@@ -53,7 +53,7 @@ class DefaultCoreCompletionHandlerTest {
     fun testRegisterCompletionListener_withNullCompletionListener() {
         val coreCompletionHandler = DefaultCoreCompletionHandler(mockMap)
         coreCompletionHandler.register(mockRequestModel, null)
-        verifyZeroInteractions(mockMap)
+        verifyNoInteractions(mockMap)
     }
 
     @Test

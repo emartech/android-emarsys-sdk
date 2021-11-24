@@ -15,7 +15,7 @@ import org.junit.rules.TestRule
 import org.mockito.Mockito
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyZeroInteractions
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 
 class DeepLinkActionTest {
@@ -65,7 +65,7 @@ class DeepLinkActionTest {
         action.execute(activity)
         waitForTask()
 
-        verifyZeroInteractions(deepLinkInternal)
+        verifyNoInteractions(deepLinkInternal)
     }
 
     @Test
@@ -73,6 +73,6 @@ class DeepLinkActionTest {
         action.execute(null)
         waitForTask()
 
-        verifyZeroInteractions(deepLinkInternal)
+        verifyNoInteractions(deepLinkInternal)
     }
 }

@@ -98,8 +98,8 @@ class JSCommandFactoryTest {
         val latch2 = CountDownLatch(1)
         coreSdkHandler.post { latch1.await() }
         jsCommandFactory.create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED, inAppMessage).invoke(PROPERTY, JSONObject(mapOf("key" to "value")))
-        verifyZeroInteractions(mockButtonClickedRepository)
-        verifyZeroInteractions(mockInAppInternal)
+        verifyNoInteractions(mockButtonClickedRepository)
+        verifyNoInteractions(mockInAppInternal)
         latch1.countDown()
         coreSdkHandler.post { latch2.countDown() }
         latch2.await()
@@ -186,7 +186,7 @@ class JSCommandFactoryTest {
         val property = "testProperty"
         meEventListener.invoke(property, JSONObject(mapOf("key" to "value", "payload" to mapOf("payloadKey" to "payloadValue"))))
 
-        verifyZeroInteractions(mockInAppInternal)
+        verifyNoInteractions(mockInAppInternal)
         latch1.countDown()
         coreSdkHandler.post { latch2.countDown() }
         latch2.await()

@@ -180,7 +180,7 @@ class LoggerTest {
 
         waitForTask()
 
-        verifyZeroInteractions(dependencyContainer)
+        verifyNoInteractions(dependencyContainer)
     }
 
     @Test

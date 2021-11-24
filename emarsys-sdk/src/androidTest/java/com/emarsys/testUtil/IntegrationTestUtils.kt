@@ -63,14 +63,16 @@ object IntegrationTestUtils {
         latch = CountDownLatch(1)
         emarsys().uiHandler.post {
             val observerMap = ReflectionTestUtils.getInstanceField<FastSafeIterableMap<Any, Any>>(
-                    ProcessLifecycleOwner.get().lifecycle,
-                    "mObserverMap")
+                ProcessLifecycleOwner.get().lifecycle,
+                "mObserverMap"
+            )
             if (observerMap != null) {
-                ReflectionTestUtils.getInstanceField<HashMap<Any, Any>>(
+                    ReflectionTestUtils.getInstanceField<HashMap<Any, Any>>(
                         observerMap,
-                        "mHashMap")?.entries?.forEach {
-                    ProcessLifecycleOwner.get().lifecycle.removeObserver(it.key as LifecycleObserver)
-                }
+                        "mHashMap"
+                    )?.entries?.toMutableList()?.forEach {
+                        ProcessLifecycleOwner.get().lifecycle.removeObserver(it.key as LifecycleObserver)
+                    }
             }
             latch.countDown()
         }

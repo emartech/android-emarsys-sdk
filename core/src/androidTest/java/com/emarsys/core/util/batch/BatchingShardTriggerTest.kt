@@ -105,9 +105,9 @@ class BatchingShardTriggerTest {
 
         verify(mockRepository).query(mockQuerySpecification)
         verifyNoMoreInteractions(mockRepository)
-        verifyZeroInteractions(mockChunker)
-        verifyZeroInteractions(mockMerger)
-        verifyZeroInteractions(mockRequestManager)
+        verifyNoInteractions(mockChunker)
+        verifyNoInteractions(mockMerger)
+        verifyNoInteractions(mockRequestManager)
     }
 
     @Test
@@ -116,7 +116,7 @@ class BatchingShardTriggerTest {
 
         anyTrigger().run()
 
-        verifyZeroInteractions(mockRepository)
+        verifyNoInteractions(mockRepository)
     }
 
     private fun setupMocks(): MockObjects {

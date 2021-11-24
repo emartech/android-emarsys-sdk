@@ -420,7 +420,7 @@ class DefaultConfigInternalTest {
         configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, completionListener)
         latch.await()
 
-        verifyZeroInteractions(mockMobileEngageInternal)
+        verifyNoInteractions(mockMobileEngageInternal)
         FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe false
         verify(mockMobileEngageRequestContext).applicationCode = null
     }
@@ -474,7 +474,7 @@ class DefaultConfigInternalTest {
         inOrder.verify(mockMobileEngageInternal).clearContact(any())
         inOrder.verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         inOrder.verify(mockClientServiceInternal).trackDeviceInfo(any())
-        verifyZeroInteractions(mockPushInternal)
+        verifyNoInteractions(mockPushInternal)
     }
 
     @Test
@@ -579,8 +579,8 @@ class DefaultConfigInternalTest {
 
         (configInternal as DefaultConfigInternal).refreshRemoteConfig(null)
 
-        verifyZeroInteractions(mockEmarsysRequestModelFactory)
-        verifyZeroInteractions(mockRequestManager)
+        verifyNoInteractions(mockEmarsysRequestModelFactory)
+        verifyNoInteractions(mockRequestManager)
     }
 
     @Test
@@ -947,7 +947,7 @@ class DefaultConfigInternalTest {
         verify(mockCompletionListener).onCompleted(any())
         verify(mockCrypto).verify(expectedResponseModel.body!!.toByteArray(), "signature")
         verify((configInternal as DefaultConfigInternal)).resetRemoteConfig()
-        verifyZeroInteractions(mockConfigResponseMapper)
+        verifyNoInteractions(mockConfigResponseMapper)
         verify((configInternal as DefaultConfigInternal), times(0)).applyRemoteConfig(expectedRemoteConfig)
     }
 

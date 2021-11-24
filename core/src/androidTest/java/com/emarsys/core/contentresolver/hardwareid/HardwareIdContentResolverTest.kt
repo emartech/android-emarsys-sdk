@@ -16,7 +16,7 @@ import org.junit.rules.TestRule
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyZeroInteractions
+import org.mockito.kotlin.verifyNoInteractions
 
 class HardwareIdContentResolverTest : ProviderTestCase2<FakeContentProvider>(FakeContentProvider::class.java, "com.emarsys.test") {
 
@@ -67,7 +67,7 @@ class HardwareIdContentResolverTest : ProviderTestCase2<FakeContentProvider>(Fak
 
         contentResolver.resolveHardwareId()
 
-        verifyZeroInteractions(mockHardwareIdentificationCrypto)
+        verifyNoInteractions(mockHardwareIdentificationCrypto)
         FakeContentProvider.numberOfInvocation shouldBe 1
     }
 
@@ -79,7 +79,7 @@ class HardwareIdContentResolverTest : ProviderTestCase2<FakeContentProvider>(Fak
         val result = contentResolver.resolveHardwareId()
 
         FakeContentProvider.numberOfInvocation = 0
-        verifyZeroInteractions(mockHardwareIdentificationCrypto)
+        verifyNoInteractions(mockHardwareIdentificationCrypto)
         result shouldBe null
     }
 }

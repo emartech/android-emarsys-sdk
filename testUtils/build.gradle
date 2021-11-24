@@ -47,4 +47,10 @@ dependencies {
     api TestLibs.support_test_rules
     api TestLibs.multiDex
     api TestLibs.mockk
+    api TestLibs.mockk_agent
+}
+configurations{
+    api {
+        exclude group: 'io.mockk',module:'mockk-agent-jvm'
+    }
 }

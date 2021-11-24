@@ -17,7 +17,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyZeroInteractions
+import org.mockito.kotlin.verifyNoInteractions
 
 class DeviceInfoStartActionTest {
 
@@ -79,7 +79,7 @@ class DeviceInfoStartActionTest {
         startAction.execute(null)
 
         waitForTask()
-        verifyZeroInteractions(mockClientServiceInternal)
+        verifyNoInteractions(mockClientServiceInternal)
     }
 
     private fun createDeviceInfoPayload(): String {

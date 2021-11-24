@@ -102,7 +102,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
         proxy.onError(REQUEST_ID, mockResponseModel)
 
-        verifyZeroInteractions(mockRefreshTokenInternal)
+        verifyNoInteractions(mockRefreshTokenInternal)
         verify(mockCoreCompletionHandler).onError(REQUEST_ID, mockResponseModel)
     }
 
@@ -112,7 +112,7 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
 
         proxy.onError(REQUEST_ID, mockResponseModel)
 
-        verifyZeroInteractions(mockRefreshTokenInternal)
+        verifyNoInteractions(mockRefreshTokenInternal)
         verify(mockCoreCompletionHandler).onError(REQUEST_ID, mockResponseModel)
 
     }

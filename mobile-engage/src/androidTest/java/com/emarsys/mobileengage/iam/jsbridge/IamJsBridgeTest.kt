@@ -146,7 +146,7 @@ class IamJsBridgeTest {
 
         verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
         verifyNoMoreInteractions(mockJsCommandFactory)
-        verifyZeroInteractions(mockOnCloseListener)
+        verifyNoInteractions(mockOnCloseListener)
         verify(mockOnOpenExternalUrlListener).invoke(anyOrNull(), any())
     }
 

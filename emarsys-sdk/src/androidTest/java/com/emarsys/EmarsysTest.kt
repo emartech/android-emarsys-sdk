@@ -531,7 +531,7 @@ class EmarsysTest {
         setup(mobileEngageConfig)
 
         runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockInApp)
+            verifyNoInteractions(mockInApp)
         }
     }
 
@@ -644,7 +644,7 @@ class EmarsysTest {
 
         runBlockingOnCoreSdkThread {
             verify(mockPredictRestricted).setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE)
-            verifyZeroInteractions(mockMobileEngageApi)
+            verifyNoInteractions(mockMobileEngageApi)
         }
     }
 
@@ -655,7 +655,7 @@ class EmarsysTest {
         setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, completionListener)
 
         runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockPredictRestricted)
+            verifyNoInteractions(mockPredictRestricted)
             verify(mockMobileEngageApi).setContact(
                     CONTACT_FIELD_ID,
                     CONTACT_FIELD_VALUE,
@@ -671,7 +671,7 @@ class EmarsysTest {
         setAuthenticatedContact(CONTACT_FIELD_ID, OPEN_ID_TOKEN, completionListener)
 
         runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockPredictRestricted)
+            verifyNoInteractions(mockPredictRestricted)
             verify(mockMobileEngageApi).setAuthenticatedContact(
                     CONTACT_FIELD_ID,
                     OPEN_ID_TOKEN,
@@ -688,7 +688,7 @@ class EmarsysTest {
 
         runBlockingOnCoreSdkThread()
 
-        verifyZeroInteractions(mockMobileEngageApi)
+        verifyNoInteractions(mockMobileEngageApi)
     }
 
     @Test
@@ -707,7 +707,7 @@ class EmarsysTest {
                 completionListener
         )
         FeatureRegistry.isFeatureEnabled(InnerFeature.PREDICT) shouldBe false
-        verifyZeroInteractions(mockPredictRestricted)
+        verifyNoInteractions(mockPredictRestricted)
     }
 
     @Test
@@ -717,7 +717,7 @@ class EmarsysTest {
         setAuthenticatedContact(CONTACT_FIELD_ID, OPEN_ID_TOKEN, completionListener)
 
         runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockPredictRestricted)
+            verifyNoInteractions(mockPredictRestricted)
             setAuthenticatedContact(CONTACT_FIELD_ID, OPEN_ID_TOKEN, completionListener)
         }
     }
@@ -729,7 +729,7 @@ class EmarsysTest {
         setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, completionListener)
 
         runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockPredictRestricted)
+            verifyNoInteractions(mockPredictRestricted)
         }
     }
 
@@ -739,7 +739,7 @@ class EmarsysTest {
 
         setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, completionListener)
 
-        verifyZeroInteractions(mockMobileEngageApi)
+        verifyNoInteractions(mockMobileEngageApi)
     }
 
     @Test
@@ -765,7 +765,7 @@ class EmarsysTest {
         setContact(CONTACT_FIELD_ID, CONTACT_FIELD_VALUE, completionListener)
 
         runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockPredictRestricted)
+            verifyNoInteractions(mockPredictRestricted)
             verify(mockLoggingMobileEngageApi).setContact(
                     CONTACT_FIELD_ID,
                     CONTACT_FIELD_VALUE,
@@ -782,7 +782,7 @@ class EmarsysTest {
         runBlockingOnCoreSdkThread()
 
         runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockMobileEngageApi)
+            verifyNoInteractions(mockMobileEngageApi)
             verify(mockPredictRestricted).clearContact()
         }
     }
@@ -795,7 +795,7 @@ class EmarsysTest {
 
         runBlockingOnCoreSdkThread {
             verify(mockMobileEngageApi).clearContact(completionListener)
-            verifyZeroInteractions(mockPredictRestricted)
+            verifyNoInteractions(mockPredictRestricted)
         }
     }
 
@@ -805,7 +805,7 @@ class EmarsysTest {
 
         clearContact(completionListener)
         runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockPredictRestricted)
+            verifyNoInteractions(mockPredictRestricted)
         }
     }
 
@@ -815,7 +815,7 @@ class EmarsysTest {
 
         clearContact(completionListener)
 
-        verifyZeroInteractions(mockMobileEngageApi)
+        verifyNoInteractions(mockMobileEngageApi)
     }
 
     @Test
@@ -837,7 +837,7 @@ class EmarsysTest {
 
         clearContact(completionListener)
         runBlockingOnCoreSdkThread {
-            verifyZeroInteractions(mockPredictRestricted)
+            verifyNoInteractions(mockPredictRestricted)
         }
         verify(mockLoggingMobileEngageApi).clearContact(completionListener)
     }
@@ -902,7 +902,7 @@ class EmarsysTest {
         FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
         Emarsys.inApp.isPaused
         verify(mockInApp).isPaused
-        verifyZeroInteractions(mockLoggingInApp)
+        verifyNoInteractions(mockLoggingInApp)
     }
 
     @Test
@@ -912,7 +912,7 @@ class EmarsysTest {
         FeatureRegistry.enableFeature(InnerFeature.PREDICT)
         Emarsys.predict.trackItemView("testItemId")
         verify(mockPredict).trackItemView("testItemId")
-        verifyZeroInteractions(mockLoggingPredict)
+        verifyNoInteractions(mockLoggingPredict)
     }
 
     private fun createConfig(vararg experimentalFeatures: FlipperFeature): EmarsysConfig.Builder {

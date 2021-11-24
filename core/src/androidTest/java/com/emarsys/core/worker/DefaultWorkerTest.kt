@@ -225,7 +225,7 @@ class DefaultWorkerTest {
         worker.run()
         verify(worker.requestRepository, times(2)).query(any())
         verify(worker.requestRepository, times(2)).remove(any())
-        verifyZeroInteractions(worker.restClient)
+        verifyNoInteractions(worker.restClient)
         Assert.assertTrue(worker.requestRepository.isEmpty())
         Assert.assertFalse(worker.isLocked)
     }

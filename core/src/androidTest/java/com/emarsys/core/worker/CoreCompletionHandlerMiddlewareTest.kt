@@ -198,8 +198,8 @@ class CoreCompletionHandlerMiddlewareTest {
 
         verify(worker).unlock()
         verifyNoMoreInteractions(worker)
-        verifyZeroInteractions(coreCompletionHandler)
-        verifyZeroInteractions(requestRepository)
+        verifyNoInteractions(coreCompletionHandler)
+        verifyNoInteractions(requestRepository)
     }
 
     @Test
@@ -213,8 +213,8 @@ class CoreCompletionHandlerMiddlewareTest {
 
         verify(worker).unlock()
         verifyNoMoreInteractions(worker)
-        verifyZeroInteractions(coreCompletionHandler)
-        verifyZeroInteractions(requestRepository)
+        verifyNoInteractions(coreCompletionHandler)
+        verifyNoInteractions(requestRepository)
     }
 
     @Test
@@ -228,8 +228,8 @@ class CoreCompletionHandlerMiddlewareTest {
 
         verify(worker).unlock()
         verifyNoMoreInteractions(worker)
-        verifyZeroInteractions(coreCompletionHandler)
-        verifyZeroInteractions(requestRepository)
+        verifyNoInteractions(coreCompletionHandler)
+        verifyNoInteractions(requestRepository)
     }
 
     @Test
@@ -313,7 +313,7 @@ class CoreCompletionHandlerMiddlewareTest {
         verifyNoMoreInteractions(worker)
         verify(coreCompletionHandler).onError(expectedId, expectedException)
         verifyNoMoreInteractions(coreCompletionHandler)
-        verifyZeroInteractions(requestRepository)
+        verifyNoInteractions(requestRepository)
     }
 
     private fun createRequestModel(ids: Array<String>): RequestModel {

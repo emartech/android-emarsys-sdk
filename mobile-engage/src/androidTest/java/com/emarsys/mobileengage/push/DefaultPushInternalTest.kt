@@ -158,8 +158,8 @@ class DefaultPushInternalTest {
 
         pushInternal.setPushToken(PUSH_TOKEN, mockCompletionListener)
 
-        verifyZeroInteractions(mockRequestModelFactory)
-        verifyZeroInteractions(mockRequestManager)
+        verifyNoInteractions(mockRequestModelFactory)
+        verifyNoInteractions(mockRequestManager)
     }
 
     @Test
