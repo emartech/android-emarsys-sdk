@@ -9,8 +9,10 @@ import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
 
 @Mockable
-class AppLifecycleObserver(private val session: Session,
-                           private val coreSdkHandler: CoreSdkHandler) : DefaultLifecycleObserver {
+class AppLifecycleObserver(
+        private val session: Session,
+        private val coreSdkHandler: CoreSdkHandler
+) : DefaultLifecycleObserver {
 
     override fun onStart(owner: LifecycleOwner) {
         super.onStart(owner)
