@@ -769,7 +769,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val fileDownloader: FileDownloader by lazy {
-        FileDownloader(config.application, coreSdkHandlerDispatcher)
+        FileDownloader(config.application)
     }
 
     override val remoteMessageMapper: RemoteMessageMapper by lazy {

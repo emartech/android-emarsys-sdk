@@ -16,7 +16,9 @@ import kotlinx.coroutines.flow.flow as flow
 
 
 @Mockable
-class FileDownloader(private val context: Context, private val coreSDKHandlerDispatcher: HandlerDispatcher) {
+class FileDownloader(
+    private val context: Context
+) {
     private companion object {
         private const val BUFFER_SIZE = 4096
         private const val DELAY_TIME = 3000L
@@ -29,10 +31,11 @@ class FileDownloader(private val context: Context, private val coreSDKHandlerDis
                 result = if (retryCount > 0) {
                     downloadToFlow(path).retry(retryCount) {
                         delay(DELAY_TIME)
+                        it.printStackTrace()
                         it is Exception
-                    }.first()
+                    }.single()
                 } else {
-                    downloadToFlow(path).first()
+                    downloadToFlow(path).singleOrNull()
                 }
             }
         } else {
@@ -59,8 +62,9 @@ class FileDownloader(private val context: Context, private val coreSDKHandlerDis
 
     private suspend fun downloadToFlow(path: String): Flow<String?> {
         return flow {
-            emit(downLoadFromInputStream(path))
-        }.flowOn(coreSDKHandlerDispatcher)
+            val downloadedFileUrl = downLoadFromInputStream(path)
+            emit(downloadedFileUrl)
+        }
     }
 
     private fun createCacheFile(): File {

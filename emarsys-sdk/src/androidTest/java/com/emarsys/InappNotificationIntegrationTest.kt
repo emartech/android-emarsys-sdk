@@ -39,7 +39,6 @@ class InappNotificationIntegrationTest {
     private lateinit var baseConfig: EmarsysConfig
     private lateinit var mockInappPresenterOverlay: OverlayInAppPresenter
     private var coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
-    private var coreSdkHandlerDispatcher = coreSdkHandler.handler.asCoroutineDispatcher()
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application
@@ -113,7 +112,7 @@ class InappNotificationIntegrationTest {
     @Test
     fun testInappPresent() {
         val context = InstrumentationRegistry.getTargetContext().applicationContext
-        val url = FileDownloader(context, coreSdkHandlerDispatcher).download("https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png")
+        val url = FileDownloader(context).download("https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png")
         val emsPayload = """{"inapp": {"campaignId": "222","url": "https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png","fileUrl": "$url"}}"""
         val remoteMessageData = mapOf("ems" to emsPayload)
 

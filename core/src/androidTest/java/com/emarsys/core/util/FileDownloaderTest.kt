@@ -2,6 +2,7 @@ package com.emarsys.core.util
 
 import android.content.Context
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.di.core
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -21,6 +22,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
 import java.util.*
+import java.util.concurrent.CountDownLatch
 
 class FileDownloaderTest {
 
@@ -38,9 +40,7 @@ class FileDownloaderTest {
     @Before
     fun setUp() {
         context = getTargetContext()
-        val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
-        val coreSdkHandlerDispatcher = coreSdkHandler.handler.asCoroutineDispatcher()
-        fileDownloader = FileDownloader(context, coreSdkHandlerDispatcher)
+        fileDownloader = FileDownloader(context)
     }
 
     @Test
@@ -68,22 +68,30 @@ class FileDownloaderTest {
 
     @Test
     fun testDownload_downloadedAndRemoteFileShouldBeTheSame() {
-        val path: String = LARGE_IMAGE
-        val filePath = fileDownloader.download(path, 3)!!
-        val file = File(filePath)
-        val fileInputStream: InputStream = FileInputStream(file)
-        val remoteInputStream = fileDownloader.inputStreamFromUrl(path)
-        try {
-            assertTrue(
-                Arrays.equals(
-                    convertToByteArray(fileInputStream),
-                    convertToByteArray(remoteInputStream!!)
+        val latch = CountDownLatch(1)
+        val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+
+        coreSdkHandler.post {
+            val path: String = LARGE_IMAGE
+
+            val filePath = fileDownloader.download(path, 3)!!
+            val file = File(filePath)
+            val fileInputStream: InputStream = FileInputStream(file)
+            val remoteInputStream = fileDownloader.inputStreamFromUrl(path)
+            try {
+                assertTrue(
+                    Arrays.equals(
+                        convertToByteArray(fileInputStream),
+                        convertToByteArray(remoteInputStream!!)
+                    )
                 )
-            )
-        } finally {
-            fileInputStream.close()
-            remoteInputStream?.close()
+            } finally {
+                fileInputStream.close()
+                remoteInputStream?.close()
+                latch.countDown()
+            }
         }
+        latch.await()
     }
 
     @Test
