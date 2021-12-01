@@ -13,7 +13,7 @@ import com.emarsys.core.storage.StringStorage
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.push.NotificationInformationListener
-import com.emarsys.mobileengage.event.EventHandlerProvider
+import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeCompletionListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
@@ -52,8 +52,8 @@ class DefaultPushInternalTest {
     private lateinit var mockCompletionListener: CompletionListener
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var mockRequestModel: RequestModel
-    private lateinit var mockNotificationEventHandlerProvider: EventHandlerProvider
-    private lateinit var mockSilentMessageEventHandlerProvider: EventHandlerProvider
+    private lateinit var mockNotificationCacheableEventHandler: CacheableEventHandler
+    private lateinit var mockSilentMessageCacheableEventHandler: CacheableEventHandler
     private lateinit var mockNotificationInformationListenerProvider: NotificationInformationListenerProvider
     private lateinit var mockSilentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider
     private lateinit var mockContactFieldValueStorage: StringStorage
@@ -106,16 +106,16 @@ class DefaultPushInternalTest {
 
         mockCompletionListener = mock()
         mockEventServiceInternal = mock()
-        mockNotificationEventHandlerProvider = mock()
-        mockSilentMessageEventHandlerProvider = mock()
+        mockNotificationCacheableEventHandler = mock()
+        mockSilentMessageCacheableEventHandler = mock()
         pushInternal = DefaultPushInternal(
             mockRequestManager,
             uiHandler,
             mockRequestModelFactory,
             mockEventServiceInternal,
             mockPushTokenStorage,
-            mockNotificationEventHandlerProvider,
-            mockSilentMessageEventHandlerProvider,
+            mockNotificationCacheableEventHandler,
+            mockSilentMessageCacheableEventHandler,
             mockNotificationInformationListenerProvider,
             mockSilentNotificationInformationListenerProvider
         )
@@ -356,7 +356,7 @@ class DefaultPushInternalTest {
         val mockEventHandler: EventHandler = mock()
         pushInternal.setNotificationEventHandler(mockEventHandler)
 
-        verify(mockNotificationEventHandlerProvider).eventHandler = mockEventHandler
+        verify(mockNotificationCacheableEventHandler).setEventHandler(mockEventHandler)
     }
 
     @Test
@@ -364,7 +364,7 @@ class DefaultPushInternalTest {
         val mockEventHandler: EventHandler = mock()
         pushInternal.setSilentMessageEventHandler(mockEventHandler)
 
-        verify(mockSilentMessageEventHandlerProvider).eventHandler = mockEventHandler
+        verify(mockSilentMessageCacheableEventHandler).setEventHandler(mockEventHandler)
     }
 
     @Test

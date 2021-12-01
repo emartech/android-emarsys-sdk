@@ -1,22 +1,24 @@
 package com.emarsys.mobileengage.event
 
 import android.content.Context
+import com.emarsys.core.Mockable
 import com.emarsys.mobileengage.api.event.EventHandler
 import org.json.JSONObject
 
+@Mockable
 class CacheableEventHandler : EventHandler {
 
     private var events: MutableList<Triple<Context, String, JSONObject?>> = mutableListOf()
-    var eventHandler: EventHandler? = null
-        set(value) {
-            if (value != null) {
-                events.forEach { event ->
-                    value.handleEvent(event.first, event.second, event.third)
-                }
-                events.clear()
+    private var eventHandler: EventHandler? = null
+    fun setEventHandler(newEventHandler: EventHandler?) {
+        if (newEventHandler != null) {
+            events.forEach { event ->
+                newEventHandler.handleEvent(event.first, event.second, event.third)
             }
-            field = value
+            events.clear()
         }
+        eventHandler = newEventHandler
+    }
 
     override fun handleEvent(context: Context, eventName: String, payload: JSONObject?) {
         if (eventHandler == null) {

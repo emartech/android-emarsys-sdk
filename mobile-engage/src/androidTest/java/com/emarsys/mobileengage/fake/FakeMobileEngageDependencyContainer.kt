@@ -39,7 +39,7 @@ import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
 import com.emarsys.mobileengage.di.MobileEngageComponent
-import com.emarsys.mobileengage.event.EventHandlerProvider
+import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.mobileengage.iam.InAppEventHandlerInternal
@@ -109,10 +109,10 @@ class FakeMobileEngageDependencyContainer(
     override val silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider = mock(),
     override val notificationActionCommandFactory: ActionCommandFactory = mock(),
     override val silentMessageActionCommandFactory: ActionCommandFactory = mock(),
-    override val notificationEventHandlerProvider: EventHandlerProvider = mock(),
-    override val silentMessageEventHandlerProvider: EventHandlerProvider = mock(),
-    override val onEventActionEventHandlerProvider: EventHandlerProvider = mock(),
-    override val geofenceEventHandlerProvider: EventHandlerProvider = mock(),
+    override val notificationCacheableEventHandler: CacheableEventHandler = mock(),
+    override val silentMessageCacheableEventHandler: CacheableEventHandler = mock(),
+    override val onEventActionCacheableEventHandler: CacheableEventHandler = mock(),
+    override val geofenceCacheableEventHandler: CacheableEventHandler = mock(),
     override val currentActivityProvider: CurrentActivityProvider = mock(),
     override val geofenceInternal: GeofenceInternal = mock(),
     override val loggingGeofenceInternal: GeofenceInternal = mock(),

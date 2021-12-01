@@ -7,22 +7,24 @@ import com.emarsys.core.request.RequestManager
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.push.NotificationInformationListener
-import com.emarsys.mobileengage.event.EventHandlerProvider
+import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
-class DefaultPushInternal(private val requestManager: RequestManager,
-                          private val uiHandler: Handler,
-                          private val requestModelFactory: MobileEngageRequestModelFactory,
-                          private val eventServiceInternal: EventServiceInternal,
-                          private val pushTokenStorage: Storage<String?>,
-                          private val notificationEventHandlerProvider: EventHandlerProvider,
-                          private val silentMessageEventHandlerProvider: EventHandlerProvider,
-                          private val notificationInformationListenerProvider: NotificationInformationListenerProvider,
-                          private val silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider) : PushInternal {
+class DefaultPushInternal(
+    private val requestManager: RequestManager,
+    private val uiHandler: Handler,
+    private val requestModelFactory: MobileEngageRequestModelFactory,
+    private val eventServiceInternal: EventServiceInternal,
+    private val pushTokenStorage: Storage<String?>,
+    private val notificationCacheableEventHandler: CacheableEventHandler,
+    private val silentMessageCacheableEventHandler: CacheableEventHandler,
+    private val notificationInformationListenerProvider: NotificationInformationListenerProvider,
+    private val silentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider
+) : PushInternal {
 
     override fun setPushToken(pushToken: String, completionListener: CompletionListener?) {
         if (pushTokenStorage.get() != pushToken) {
@@ -46,11 +48,13 @@ class DefaultPushInternal(private val requestManager: RequestManager,
     }
 
     override fun setNotificationInformationListener(notificationInformationListener: NotificationInformationListener) {
-        notificationInformationListenerProvider.notificationInformationListener = notificationInformationListener
+        notificationInformationListenerProvider.notificationInformationListener =
+            notificationInformationListener
     }
 
     override fun setSilentNotificationInformationListener(silentNotificationInformationListener: NotificationInformationListener) {
-        silentNotificationInformationListenerProvider.silentNotificationInformationListener = silentNotificationInformationListener
+        silentNotificationInformationListenerProvider.silentNotificationInformationListener =
+            silentNotificationInformationListener
     }
 
     override fun clearPushToken(completionListener: CompletionListener?) {
@@ -62,7 +66,7 @@ class DefaultPushInternal(private val requestManager: RequestManager,
     override fun trackMessageOpen(intent: Intent, completionListener: CompletionListener?) {
         val messageId = getMessageId(intent)
         messageId?.let { handleMessageOpen(completionListener, it) }
-                ?: uiHandler.post { completionListener?.onCompleted(IllegalArgumentException("No messageId found!")) }
+            ?: uiHandler.post { completionListener?.onCompleted(IllegalArgumentException("No messageId found!")) }
     }
 
     fun getMessageId(intent: Intent): String? {
@@ -84,14 +88,18 @@ class DefaultPushInternal(private val requestManager: RequestManager,
         val attributes = HashMap<String, String>()
         attributes["sid"] = messageId
         attributes["origin"] = "main"
-        eventServiceInternal.trackInternalCustomEventAsync("push:click", attributes, completionListener)
+        eventServiceInternal.trackInternalCustomEventAsync(
+            "push:click",
+            attributes,
+            completionListener
+        )
     }
 
     override fun setNotificationEventHandler(notificationEventHandler: EventHandler) {
-        notificationEventHandlerProvider.eventHandler = notificationEventHandler
+        notificationCacheableEventHandler.setEventHandler(notificationEventHandler)
     }
 
     override fun setSilentMessageEventHandler(silentMessageEventHandler: EventHandler) {
-        silentMessageEventHandlerProvider.eventHandler = silentMessageEventHandler
+        silentMessageCacheableEventHandler.setEventHandler(silentMessageEventHandler)
     }
 }

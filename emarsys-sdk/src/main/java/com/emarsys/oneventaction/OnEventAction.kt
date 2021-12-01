@@ -3,12 +3,12 @@ package com.emarsys.oneventaction
 
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.di.mobileEngage
-import com.emarsys.mobileengage.event.EventHandlerProvider
+import com.emarsys.mobileengage.event.CacheableEventHandler
 
 class OnEventAction : OnEventActionApi {
 
     override fun setOnEventActionEventHandler(eventHandler: EventHandler) {
-        val onEventActionEventHandlerProvider: EventHandlerProvider = mobileEngage().onEventActionEventHandlerProvider
-        onEventActionEventHandlerProvider.eventHandler = eventHandler
+        val onEventActionCacheableEventHandler: CacheableEventHandler = mobileEngage().onEventActionCacheableEventHandler
+        onEventActionCacheableEventHandler.setEventHandler(eventHandler)
     }
 }

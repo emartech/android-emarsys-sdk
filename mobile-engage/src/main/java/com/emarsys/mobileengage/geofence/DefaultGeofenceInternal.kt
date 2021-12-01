@@ -24,7 +24,7 @@ import com.emarsys.core.util.log.entry.StatusLog
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.api.geofence.Trigger
 import com.emarsys.mobileengage.api.geofence.TriggerType
-import com.emarsys.mobileengage.event.EventHandlerProvider
+import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.geofence.model.GeofenceResponse
 import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 import com.emarsys.mobileengage.notification.ActionCommandFactory
@@ -35,21 +35,22 @@ import kotlin.math.abs
 import com.emarsys.mobileengage.api.geofence.Geofence as MEGeofence
 
 @Mockable
-class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageRequestModelFactory,
-                              private val requestManager: RequestManager,
-                              private val geofenceResponseMapper: GeofenceResponseMapper,
-                              private val permissionChecker: PermissionChecker,
-                              private val fusedLocationProviderClient: FusedLocationProviderClient,
-                              private val geofenceFilter: GeofenceFilter,
-                              private val geofencingClient: GeofencingClient,
-                              private val context: Context,
-                              private val actionCommandFactory: ActionCommandFactory,
-                              private val geofenceEventHandlerProvider: EventHandlerProvider,
-                              private val geofenceEnabledStorage: Storage<Boolean>,
-                              private val geofencePendingIntentProvider: GeofencePendingIntentProvider,
-                              coreSdkHandler: CoreSdkHandler,
-                              private val uiHandler: Handler,
-                              private val initialEnterTriggerEnabledStorage: Storage<Boolean?>
+class DefaultGeofenceInternal(
+    private val requestModelFactory: MobileEngageRequestModelFactory,
+    private val requestManager: RequestManager,
+    private val geofenceResponseMapper: GeofenceResponseMapper,
+    private val permissionChecker: PermissionChecker,
+    private val fusedLocationProviderClient: FusedLocationProviderClient,
+    private val geofenceFilter: GeofenceFilter,
+    private val geofencingClient: GeofencingClient,
+    private val context: Context,
+    private val actionCommandFactory: ActionCommandFactory,
+    private val geofenceCacheableEventHandler: CacheableEventHandler,
+    private val geofenceEnabledStorage: Storage<Boolean>,
+    private val geofencePendingIntentProvider: GeofencePendingIntentProvider,
+    coreSdkHandler: CoreSdkHandler,
+    private val uiHandler: Handler,
+    private val initialEnterTriggerEnabledStorage: Storage<Boolean?>
 ) : GeofenceInternal {
     private companion object {
         const val FASTEST_INTERNAL: Long = 15_000
@@ -101,8 +102,8 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
                 geofenceEnabledStorage.set(true)
 
                 sendStatusLog(
-                        mapOf("completionListener" to (completionListener != null)),
-                        mapOf("geofenceEnabled" to true)
+                    mapOf("completionListener" to (completionListener != null)),
+                    mapOf("geofenceEnabled" to true)
                 )
 
                 if (geofenceResponse == null) {
@@ -123,9 +124,11 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         geofenceEnabledStorage.set(false)
         receiverRegistered = false
 
-        sendStatusLog(statusMap = mapOf(
+        sendStatusLog(
+            statusMap = mapOf(
                 "geofenceEnabled" to false
-        ))
+            )
+        )
     }
 
     override fun isEnabled(): Boolean {
@@ -135,7 +138,10 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     private fun registerBroadcastReceiver() {
         if (!receiverRegistered) {
             uiHandler.post {
-                context.registerReceiver(geofenceBroadcastReceiver, IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION"))
+                context.registerReceiver(
+                    geofenceBroadcastReceiver,
+                    IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION")
+                )
             }
             receiverRegistered = true
         }
@@ -153,26 +159,30 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         fusedLocationProviderClient.lastLocation?.addOnSuccessListener { currentLocation = it }
 
         fusedLocationProviderClient.requestLocationUpdates(
-                LocationRequest.create().apply {
-                    fastestInterval = FASTEST_INTERNAL
-                    interval = INTERVAL
-                    maxWaitTime = MAX_WAIT_TIME
-                    priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-                },
-                geofencePendingIntent)
+            LocationRequest.create().apply {
+                fastestInterval = FASTEST_INTERNAL
+                interval = INTERVAL
+                maxWaitTime = MAX_WAIT_TIME
+                priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+            },
+            geofencePendingIntent
+        )
 
         completionListener?.onCompleted(null)
 
         if (currentLocation != null && geofenceResponse != null) {
-            nearestGeofences = geofenceFilter.findNearestGeofences(currentLocation!!, geofenceResponse!!).toMutableList()
+            nearestGeofences =
+                geofenceFilter.findNearestGeofences(currentLocation!!, geofenceResponse!!)
+                    .toMutableList()
             nearestGeofences.add(createRefreshAreaGeofence(nearestGeofences))
             registerGeofences(nearestGeofences)
         }
     }
 
     private fun findMissingPermissions(): String? {
-        val locationPermissionGranted = permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val locationPermissionGranted =
+            permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    || permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
         val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ()) true else {
             permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -181,11 +191,17 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         return if (locationPermissionGranted && backgroundLocationPermissionGranted) {
             null
         } else {
-            return missingPermissionName(locationPermissionGranted, backgroundLocationPermissionGranted)
+            return missingPermissionName(
+                locationPermissionGranted,
+                backgroundLocationPermissionGranted
+            )
         }
     }
 
-    private fun missingPermissionName(locationPermissionGranted: Boolean, backgroundLocationPermissionGranted: Boolean): String {
+    private fun missingPermissionName(
+        locationPermissionGranted: Boolean,
+        backgroundLocationPermissionGranted: Boolean
+    ): String {
         return if (!locationPermissionGranted && backgroundLocationPermissionGranted) {
             "ACCESS_FINE_LOCATION or ACCESS_COARSE_LOCATION"
         } else if (!backgroundLocationPermissionGranted && locationPermissionGranted) {
@@ -198,30 +214,41 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     private fun createRefreshAreaGeofence(nearestGeofences: List<MEGeofence>): MEGeofence {
         val furthestGeofence = nearestGeofences.last()
         val result = floatArrayOf(1F)
-        Location.distanceBetween(currentLocation!!.latitude, currentLocation!!.longitude, furthestGeofence.lat, furthestGeofence.lon, result)
-        val radius = abs((result[0] - furthestGeofence.radius) * geofenceResponse!!.refreshRadiusRatio)
-        return MEGeofence("refreshArea", currentLocation!!.latitude, currentLocation!!.longitude, radius, null,
-                listOf(Trigger("refreshAreaTriggerId", TriggerType.EXIT, 0, JSONObject())))
+        Location.distanceBetween(
+            currentLocation!!.latitude,
+            currentLocation!!.longitude,
+            furthestGeofence.lat,
+            furthestGeofence.lon,
+            result
+        )
+        val radius =
+            abs((result[0] - furthestGeofence.radius) * geofenceResponse!!.refreshRadiusRatio)
+        return MEGeofence(
+            "refreshArea", currentLocation!!.latitude, currentLocation!!.longitude, radius, null,
+            listOf(Trigger("refreshAreaTriggerId", TriggerType.EXIT, 0, JSONObject()))
+        )
     }
 
     override fun registerGeofences(geofences: List<MEGeofence>) {
         val geofencesToRegister = geofences.map {
             Geofence.Builder()
-                    .setRequestId(it.id)
-                    .setCircularRegion(it.lat, it.lon, it.radius.toFloat())
-                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
-                    .build()
+                .setRequestId(it.id)
+                .setCircularRegion(it.lat, it.lon, it.radius.toFloat())
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+                .build()
         }
         val geofenceRequest = GeofencingRequest.Builder()
-                .addGeofences(geofencesToRegister)
-                .setInitialTrigger(calcInitialTrigger())
-                .build()
+            .addGeofences(geofencesToRegister)
+            .setInitialTrigger(calcInitialTrigger())
+            .build()
         geofencingClient.addGeofences(geofenceRequest, geofencePendingIntent)
 
-        sendStatusLog(statusMap = mapOf(
+        sendStatusLog(
+            statusMap = mapOf(
                 "registeredGeofences" to geofencesToRegister.size
-        ))
+            )
+        )
     }
 
     private fun calcInitialTrigger(): Int {
@@ -241,7 +268,8 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
     }
 
     private fun reRegisterNearestGeofences(triggeringEmarsysGeofences: List<TriggeringEmarsysGeofence>) {
-        val refreshAreaGeofence = triggeringEmarsysGeofences.find { it.geofenceId == "refreshArea" && it.triggerType == TriggerType.EXIT }
+        val refreshAreaGeofence =
+            triggeringEmarsysGeofences.find { it.geofenceId == "refreshArea" && it.triggerType == TriggerType.EXIT }
         if (refreshAreaGeofence != null && findMissingPermissions() == null) {
             registerNearestGeofences(null)
         }
@@ -249,13 +277,16 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
 
     private fun extractActions(triggeringGeofences: List<TriggeringEmarsysGeofence>): List<Runnable?> {
         val nearestTriggeredGeofences = triggeringGeofences
-                .flatMap { triggeringGeofence ->
-                    collectTriggeredGeofencesWithTriggerType(triggeringGeofence)
-                }
+            .flatMap { triggeringGeofence ->
+                collectTriggeredGeofencesWithTriggerType(triggeringGeofence)
+            }
         return nearestTriggeredGeofences
-                .flatMap { nearestTriggeredGeofencesWithTrigger ->
-                    createActionsFromTriggers(nearestTriggeredGeofencesWithTrigger.first, nearestTriggeredGeofencesWithTrigger.second)
-                }
+            .flatMap { nearestTriggeredGeofencesWithTrigger ->
+                createActionsFromTriggers(
+                    nearestTriggeredGeofencesWithTrigger.first,
+                    nearestTriggeredGeofencesWithTrigger.second
+                )
+            }
     }
 
     private fun executeActions(actions: List<Runnable?>) {
@@ -268,14 +299,14 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
 
     private fun collectTriggeredGeofencesWithTriggerType(triggeringGeofence: TriggeringEmarsysGeofence): List<Pair<MEGeofence, TriggerType>> {
         return nearestGeofences
-                .filter {
-                    it.id == triggeringGeofence.geofenceId
-                            && it.triggers.any { trigger -> trigger.type == triggeringGeofence.triggerType }
-                }.map { geofence -> Pair(geofence, triggeringGeofence.triggerType) }
+            .filter {
+                it.id == triggeringGeofence.geofenceId
+                        && it.triggers.any { trigger -> trigger.type == triggeringGeofence.triggerType }
+            }.map { geofence -> Pair(geofence, triggeringGeofence.triggerType) }
     }
 
     override fun setEventHandler(eventHandler: EventHandler) {
-        this.geofenceEventHandlerProvider.eventHandler = eventHandler
+        this.geofenceCacheableEventHandler.setEventHandler(eventHandler)
     }
 
     override fun setInitialEnterTriggerEnabled(enabled: Boolean) {
@@ -283,13 +314,26 @@ class DefaultGeofenceInternal(private val requestModelFactory: MobileEngageReque
         initialEnterTriggerEnabledStorage.set(enabled)
     }
 
-    private fun createActionsFromTriggers(geofence: MEGeofence, triggerType: TriggerType): List<Runnable?> {
+    private fun createActionsFromTriggers(
+        geofence: MEGeofence,
+        triggerType: TriggerType
+    ): List<Runnable?> {
         return geofence.triggers.filter { trigger ->
             trigger.type == triggerType
         }.mapNotNull { actionCommandFactory.createActionCommand(it.action) }
     }
 
-    private fun sendStatusLog(parameters: Map<String, Any?>? = mapOf(), statusMap: Map<String, Any>? = mapOf()) {
-        Logger.debug(StatusLog(DefaultGeofenceInternal::class.java, SystemUtils.getCallerMethodName(), parameters, statusMap))
+    private fun sendStatusLog(
+        parameters: Map<String, Any?>? = mapOf(),
+        statusMap: Map<String, Any>? = mapOf()
+    ) {
+        Logger.debug(
+            StatusLog(
+                DefaultGeofenceInternal::class.java,
+                SystemUtils.getCallerMethodName(),
+                parameters,
+                statusMap
+            )
+        )
     }
 }

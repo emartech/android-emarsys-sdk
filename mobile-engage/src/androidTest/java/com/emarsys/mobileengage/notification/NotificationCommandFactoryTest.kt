@@ -12,7 +12,7 @@ import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageComponent
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
-import com.emarsys.mobileengage.event.EventHandlerProvider
+import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.notification.command.*
@@ -53,9 +53,8 @@ class NotificationCommandFactoryTest {
     private lateinit var mockDependencyContainer: MobileEngageComponent
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockPushInternal: PushInternal
-    private lateinit var mockNotificationEventHandlerProvider: EventHandlerProvider
     private lateinit var mockActionCommandFactory: ActionCommandFactory
-    private lateinit var mockEventHandler: EventHandler
+    private lateinit var mockEventHandler: CacheableEventHandler
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
 
     @Before
@@ -64,11 +63,8 @@ class NotificationCommandFactoryTest {
         mockUiHandler = mock()
         mockEventServiceInternal = mock(EventServiceInternal::class.java)
         mockPushInternal = mock(PushInternal::class.java)
-        mockEventHandler = mock(EventHandler::class.java)
-        mockNotificationEventHandlerProvider = mock(EventHandlerProvider::class.java).apply {
-            whenever(eventHandler).thenReturn(mockEventHandler)
-        }
-        mockActionCommandFactory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationEventHandlerProvider, mockUiHandler)
+        mockEventHandler = mock(CacheableEventHandler::class.java)
+        mockActionCommandFactory = ActionCommandFactory(context, mockEventServiceInternal, mockEventHandler, mockUiHandler)
         mockCurrentActivityProvider = mock(CurrentActivityProvider::class.java).apply {
             whenever(get()).thenReturn(null)
         }
@@ -76,7 +72,7 @@ class NotificationCommandFactoryTest {
         mockDependencyContainer = FakeMobileEngageDependencyContainer(
                 eventServiceInternal = mockEventServiceInternal,
                 pushInternal = mockPushInternal,
-                notificationEventHandlerProvider = mockNotificationEventHandlerProvider,
+                notificationCacheableEventHandler = mockEventHandler,
                 notificationActionCommandFactory = mockActionCommandFactory,
                 currentActivityProvider = mockCurrentActivityProvider
         )

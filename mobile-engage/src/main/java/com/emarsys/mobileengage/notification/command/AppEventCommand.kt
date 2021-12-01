@@ -4,23 +4,23 @@ import android.content.Context
 import android.os.Handler
 import com.emarsys.core.Mockable
 import com.emarsys.mobileengage.api.event.EventHandler
-import com.emarsys.mobileengage.event.EventHandlerProvider
+import com.emarsys.mobileengage.event.CacheableEventHandler
 import org.json.JSONObject
 
 @Mockable
 class AppEventCommand(private val context: Context,
-                      private val eventHandlerProvider: EventHandlerProvider,
+                      private val cacheableEventHandler: CacheableEventHandler,
                       private val uiHandler: Handler,
                       val name: String,
                       val payload: JSONObject?) : Runnable {
 
     val notificationEventHandler: EventHandler?
-        get() = eventHandlerProvider.eventHandler
+        get() = cacheableEventHandler
 
     override fun run() {
-        val eventHandler = eventHandlerProvider.eventHandler
+        val eventHandler = cacheableEventHandler
         uiHandler.post {
-            eventHandler?.handleEvent(context, name, payload)
+            eventHandler.handleEvent(context, name, payload)
         }
     }
 }

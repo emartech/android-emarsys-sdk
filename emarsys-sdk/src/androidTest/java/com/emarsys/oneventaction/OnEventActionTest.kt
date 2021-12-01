@@ -4,7 +4,7 @@ import android.content.Context
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.mobileengage.api.event.EventHandler
-import com.emarsys.mobileengage.event.EventHandlerProvider
+import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import org.json.JSONObject
@@ -21,7 +21,7 @@ class OnEventActionTest {
 
     private lateinit var mockEventHandler: EventHandler
     private lateinit var onEventAction: OnEventAction
-    private lateinit var mockOnEventActionEventHandlerProvider: EventHandlerProvider
+    private lateinit var mockOnEventActionCacheableEventHandler: CacheableEventHandler
 
     @Rule
     @JvmField
@@ -30,9 +30,9 @@ class OnEventActionTest {
     @Before
     fun setUp() {
         mockEventHandler = mock()
-        mockOnEventActionEventHandlerProvider = mock()
+        mockOnEventActionCacheableEventHandler = mock()
         setupEmarsysComponent(FakeDependencyContainer(
-                onEventActionEventHandlerProvider = mockOnEventActionEventHandlerProvider)
+                onEventActionCacheableEventHandler = mockOnEventActionCacheableEventHandler)
         )
         onEventAction = OnEventAction()
     }
@@ -46,7 +46,7 @@ class OnEventActionTest {
     fun testOnEventAction_setsEventHandlerOnInternal() {
         onEventAction.setOnEventActionEventHandler(mockEventHandler)
 
-        verify(mockOnEventActionEventHandlerProvider).eventHandler = mockEventHandler
+        verify(mockOnEventActionCacheableEventHandler).setEventHandler(mockEventHandler)
     }
 
     @Test
@@ -54,6 +54,6 @@ class OnEventActionTest {
         val eventHandlerFunction: (context: Context, eventName: String, payload: JSONObject?) -> Unit = { _, _, _ -> }
         onEventAction.setOnEventActionEventHandler(eventHandlerFunction)
 
-        verify(mockOnEventActionEventHandlerProvider).eventHandler = any()
+        verify(mockOnEventActionCacheableEventHandler).setEventHandler(any())
     }
 }

@@ -11,9 +11,10 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.RefreshTokenInternal
+import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
-import com.emarsys.mobileengage.event.EventHandlerProvider
+import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.mobileengage.iam.InAppEventHandlerInternal
@@ -145,13 +146,13 @@ interface MobileEngageComponent : CoreComponent {
 
     val silentMessageActionCommandFactory: ActionCommandFactory
 
-    val notificationEventHandlerProvider: EventHandlerProvider
+    val notificationCacheableEventHandler: EventHandler
 
-    val silentMessageEventHandlerProvider: EventHandlerProvider
+    val silentMessageCacheableEventHandler: EventHandler
 
-    val onEventActionEventHandlerProvider: EventHandlerProvider
+    val onEventActionCacheableEventHandler: CacheableEventHandler
 
-    val geofenceEventHandlerProvider: EventHandlerProvider
+    val geofenceCacheableEventHandler: EventHandler
 
     val currentActivityProvider: CurrentActivityProvider
 

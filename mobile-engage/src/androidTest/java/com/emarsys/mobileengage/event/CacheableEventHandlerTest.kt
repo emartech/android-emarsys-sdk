@@ -71,7 +71,7 @@ internal class CacheableEventHandlerTest {
 
     @Test
     fun testHandleEvent_shouldNotStoreEvents_whenEventHandlerIsSet() {
-        cacheableEventHandler.eventHandler = EventHandler { _, _, _ -> }
+        cacheableEventHandler.setEventHandler { _, _, _ -> }
         val mockContext: Context = mock()
 
         val mockEventName1 = "event1"
@@ -100,7 +100,7 @@ internal class CacheableEventHandlerTest {
     @Test
     fun testHandleEvent_shouldCallEventHandler_withEvents_whenEventHandlerRegistered() {
         val triggeredEvents = mutableListOf<Triple<Context, String, JSONObject?>>()
-        cacheableEventHandler.eventHandler = EventHandler { context, name, payload ->
+        cacheableEventHandler.setEventHandler { context, name, payload ->
             triggeredEvents.add(Triple(context, name, payload))
         }
         val mockContext: Context = mock()
@@ -166,7 +166,7 @@ internal class CacheableEventHandlerTest {
         }
         triggeredEvents shouldBe emptyList()
 
-        cacheableEventHandler.eventHandler = EventHandler { context, name, payload ->
+        cacheableEventHandler.setEventHandler { context, name, payload ->
             triggeredEvents.add(Triple(context, name, payload))
         }
 
