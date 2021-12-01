@@ -3,7 +3,9 @@ package com.emarsys
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.config.ConfigLoader
+import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.mobileengage.di.isMobileEngageComponentSetup
 import com.emarsys.mobileengage.notification.NotificationCommandFactory
 import com.emarsys.mobileengage.service.NotificationActionUtils.handleAction
@@ -32,6 +34,7 @@ class NotificationOpenedActivity : Activity() {
                         "emarsys_setup_cache"
                     ).build()
                 )
+                FeatureRegistry.enableFeature(InnerFeature.APP_EVENT_CACHE)
                 handleAction(intent, NotificationCommandFactory(this))
             }
         }

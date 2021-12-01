@@ -1,7 +1,9 @@
 package com.emarsys.mobileengage.event
 
 import android.content.Context
+import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.Mockable
+import com.emarsys.core.feature.FeatureRegistry
 import com.emarsys.mobileengage.api.event.EventHandler
 import org.json.JSONObject
 
@@ -21,7 +23,7 @@ class CacheableEventHandler : EventHandler {
     }
 
     override fun handleEvent(context: Context, eventName: String, payload: JSONObject?) {
-        if (eventHandler == null) {
+        if (FeatureRegistry.isFeatureEnabled(InnerFeature.APP_EVENT_CACHE) && eventHandler == null) {
             events.add(Triple(context, eventName, payload))
         } else {
             eventHandler?.handleEvent(context, eventName, payload)

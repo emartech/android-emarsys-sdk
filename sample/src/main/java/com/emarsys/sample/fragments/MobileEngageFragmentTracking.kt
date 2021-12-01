@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.emarsys.Emarsys
 import com.emarsys.sample.MainActivity
+import com.emarsys.sample.SampleApplication
 import com.emarsys.sample.databinding.FragmentMobileEngageTrackingBinding
 import com.emarsys.sample.extensions.copyToClipboard
 import com.emarsys.sample.extensions.showSnackBar
@@ -80,6 +81,7 @@ class MobileEngageFragmentTracking : Fragment() {
         }
 
         binding.buttonTrackPushToken.setOnClickListener {
+            (activity?.application as SampleApplication).setupEventHandlers()
             if (GoogleApiAvailabilityLight.getInstance()
                     .isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS
             ) {
