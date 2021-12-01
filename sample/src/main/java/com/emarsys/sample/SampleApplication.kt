@@ -40,7 +40,7 @@ open class SampleApplication : Application(), EventHandler, NotificationInformat
         Emarsys.setup(config)
 
         if (getApplicationCode() != null) {
-            //setupEventHandlers()
+            setupEventHandlers()
         }
     }
 

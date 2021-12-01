@@ -81,7 +81,6 @@ class MobileEngageFragmentTracking : Fragment() {
         }
 
         binding.buttonTrackPushToken.setOnClickListener {
-            (activity?.application as SampleApplication).setupEventHandlers()
             if (GoogleApiAvailabilityLight.getInstance()
                     .isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS
             ) {
