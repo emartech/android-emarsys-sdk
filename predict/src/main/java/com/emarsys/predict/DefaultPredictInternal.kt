@@ -63,7 +63,6 @@ class DefaultPredictInternal(
     }
 
     override fun trackCart(items: List<CartItem>): String {
-        Assert.elementsNotNull(items, "Item elements must not be null!")
         val shard = ShardModel.Builder(timestampProvider, uuidProvider)
             .type(TYPE_CART)
             .payloadEntry("cv", 1)
@@ -75,7 +74,8 @@ class DefaultPredictInternal(
     }
 
     override fun trackPurchase(orderId: String, items: List<CartItem>): String {
-        Assert.elementsNotNull(items, "Item elements must not be null!")
+        Assert.notEmpty(items, "Items must not be empty!")
+
         val shard = ShardModel.Builder(timestampProvider, uuidProvider)
             .type(TYPE_PURCHASE)
             .payloadEntry("oi", orderId)

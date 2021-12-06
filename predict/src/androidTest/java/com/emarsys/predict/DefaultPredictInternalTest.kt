@@ -32,12 +32,14 @@ import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldThrow
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.kotlin.*
+import java.lang.IllegalArgumentException
 import java.util.concurrent.CountDownLatch
 
 class DefaultPredictInternalTest {
@@ -199,7 +201,7 @@ class DefaultPredictInternalTest {
 
     @Test
     fun testTrackPurchase_returnsShardId() {
-        Assert.assertEquals(ID1, predictInternal.trackPurchase("orderId", listOf()))
+        Assert.assertEquals(ID1, predictInternal.trackPurchase("orderId", listOf(mock())))
     }
 
     @Test
@@ -227,6 +229,14 @@ class DefaultPredictInternalTest {
         )
 
         verify(mockRequestManager).submit(expectedShardModel)
+    }
+
+    @Test
+    fun testTrackPurchase_shouldThrowException_whenItemsListIsEmpty() {
+        val expectedException = shouldThrow<IllegalArgumentException> {
+            predictInternal.trackPurchase("orderId", emptyList())
+        }
+        expectedException.message shouldBe "Items must not be empty!"
     }
 
     @Test
@@ -637,14 +647,15 @@ class DefaultPredictInternalTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
-        val mockScopeDelegatorCompletionHandlerProvider: ScopeDelegatorCompletionHandlerProvider = mock {
-            on { provide(any(), any()) } doAnswer {
-                it.arguments[0] as CoreCompletionHandler
+        val mockScopeDelegatorCompletionHandlerProvider: ScopeDelegatorCompletionHandlerProvider =
+            mock {
+                on { provide(any(), any()) } doAnswer {
+                    it.arguments[0] as CoreCompletionHandler
+                }
+                on { provide(any(), any()) } doAnswer {
+                    it.arguments[0] as CoreCompletionHandler
+                }
             }
-            on { provide(any(), any()) } doAnswer {
-                it.arguments[0] as CoreCompletionHandler
-            }
-        }
         val mockProvider: CompletionHandlerProxyProvider = mock {
             on { provideProxy(isNull(), any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
