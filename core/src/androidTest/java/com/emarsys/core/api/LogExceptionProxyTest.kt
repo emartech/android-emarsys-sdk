@@ -7,6 +7,7 @@ import com.emarsys.core.di.tearDownCoreComponent
 import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.CrashLog
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
 import org.junit.After
@@ -14,10 +15,9 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
+import org.mockito.kotlin.*
+import java.lang.RuntimeException
+import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.CountDownLatch
 
 class LogExceptionProxyTest {
@@ -33,7 +33,8 @@ class LogExceptionProxyTest {
         coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
         mockLogger = mock()
 
-        val dependencyContainer = FakeCoreDependencyContainer(coreSdkHandler = coreSdkHandler, logger = mockLogger)
+        val dependencyContainer =
+            FakeCoreDependencyContainer(coreSdkHandler = coreSdkHandler, logger = mockLogger)
 
         setupCoreComponent(dependencyContainer)
     }
@@ -66,5 +67,21 @@ class LogExceptionProxyTest {
         }
         latch.await()
         verify(mockLogger).handleLog(eq(LogLevel.ERROR), any(), eq(null))
+    }
+
+    @Test
+    fun testInvoke_shouldLogCauseWhenPossible() {
+        val expectedCause = RuntimeException("test exception")
+        val exception = InvocationTargetException(expectedCause)
+        val callback = Runnable {
+            throw exception
+        }
+
+        callback.proxyWithLogExceptions().run()
+
+        argumentCaptor<CrashLog> {
+            verify(mockLogger).handleLog(eq(LogLevel.ERROR), capture(), eq(null))
+            firstValue.throwable shouldBe expectedCause
+        }
     }
 }
