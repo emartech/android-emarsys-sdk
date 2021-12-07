@@ -21,7 +21,7 @@ import org.mockito.kotlin.mock
 import java.util.concurrent.CountDownLatch
 
 class ConnectivityChangeReceiverTest {
-    private lateinit var receiver: ConnectionWatchDog.ConnectivityChangeReceiver
+    private lateinit var receiver: ConnectivityChangeReceiver
     private lateinit var mockListener: ConnectionChangeListener
     private lateinit var context: Context
 
@@ -49,7 +49,11 @@ class ConnectivityChangeReceiverTest {
         val latch = CountDownLatch(1)
         val fakeListener = FakeConnectionChangeListener(latch)
         val expectedName = sdkHandler.looper.thread.name
-        receiver = ConnectionWatchDog(context, sdkHandler).ConnectivityChangeReceiver(fakeListener)
+        receiver = ConnectivityChangeReceiver(
+            fakeListener,
+            ConnectionWatchDog(context, sdkHandler),
+            sdkHandler
+        )
         receiver.onReceive(context, mock())
         latch.await()
 

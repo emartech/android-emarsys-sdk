@@ -17,6 +17,10 @@ class ConnectionWatchDog(
     inputContext: Context,
     private val coreSdkHandler: CoreSdkHandler
 ) : ConnectivityManager.NetworkCallback() {
+    private companion object {
+        var receiver: BroadcastReceiver? = null
+    }
+
     private val context = inputContext.applicationContext
     private val intentFilter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
     private val connectivityManager =
@@ -72,8 +76,11 @@ class ConnectionWatchDog(
                 coreSdkHandler.handler
             )
         } else {
-            val receiver = ConnectivityChangeReceiver(connectionChangeListener)
-            context.registerReceiver(receiver, intentFilter)
+            if (receiver != null) {
+                receiver =
+                    ConnectivityChangeReceiver(connectionChangeListener, this, coreSdkHandler)
+                context.registerReceiver(receiver, intentFilter)
+            }
         }
     }
 
@@ -82,18 +89,5 @@ class ConnectionWatchDog(
         val connectionState = connectionState
         val isConnected = isConnected
         connectionChangeListener.onConnectionChanged(connectionState, isConnected)
-    }
-
-
-    inner class ConnectivityChangeReceiver(private val connectionChangeListener: ConnectionChangeListener) :
-        BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            coreSdkHandler.post {
-                val connectionState: ConnectionState = connectionState
-                val isConnected: Boolean = isConnected
-                connectionChangeListener.onConnectionChanged(connectionState, isConnected)
-            }
-        }
-
     }
 }
