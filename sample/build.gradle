@@ -84,7 +84,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.gms:google-services:4.3.10'
-        classpath 'com.huawei.agconnect:agcp:1.6.2.200'
+        classpath 'com.huawei.agconnect:agcp:1.6.2.300'
     }
 }
 
@@ -106,11 +106,11 @@ dependencies {
     // Getting a "Could not find firebase-core" error? Make sure you have
     // the latest Google Repository in the Android SDK manager
 
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.6.0"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.6.10"
 
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'com.android.support:cardview-v7:28.0.0'
-    implementation 'com.google.android.gms:play-services-auth:19.2.0'
+    implementation 'com.google.android.gms:play-services-auth:20.0.0'
 
     implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation 'androidx.core:core-ktx:1.7.0'
