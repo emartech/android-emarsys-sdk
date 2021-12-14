@@ -82,7 +82,7 @@ class MobileEngageFragmentTracking : Fragment() {
 
         binding.buttonTrackPushToken.setOnClickListener {
             if (GoogleApiAvailabilityLight.getInstance()
-                    .isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS
+                    .isGooglePlayServicesAvailable(requireContext()) == ConnectionResult.SUCCESS
             ) {
                 FirebaseApp.initializeApp(view.context)
                 FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
@@ -104,6 +104,8 @@ class MobileEngageFragmentTracking : Fragment() {
 
                     activity?.runOnUiThread {
                         Emarsys.push.pushToken = pushToken
+                        view.showSnackBar("Push Token tracked")
+
                     }
                 }.start()
             }
@@ -111,7 +113,7 @@ class MobileEngageFragmentTracking : Fragment() {
 
         binding.buttonCopyPushToken.setOnClickListener {
             if (GoogleApiAvailabilityLight.getInstance()
-                    .isGooglePlayServicesAvailable(activity) == ConnectionResult.SUCCESS
+                    .isGooglePlayServicesAvailable(requireContext()) == ConnectionResult.SUCCESS
             ) {
                 FirebaseApp.initializeApp(view.context)
                 FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
