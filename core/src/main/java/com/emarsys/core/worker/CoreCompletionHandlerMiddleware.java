@@ -80,10 +80,11 @@ public class CoreCompletionHandlerMiddleware implements CoreCompletionHandler {
     private void removeRequestModel(ResponseModel responseModel) {
         String[] ids = RequestModelKt.collectRequestIds(responseModel.getRequestModel());
 
-        int noOfIterations = ids.length % 500 == 0 ? ids.length / 500 : ids.length / 500 + 1;
+        int maximumRequestCountInTransaction = 50;
+        int noOfIterations = ids.length % maximumRequestCountInTransaction == 0 ? ids.length / maximumRequestCountInTransaction : ids.length / maximumRequestCountInTransaction + 1;
         for (int i = 0; i < noOfIterations; i++) {
-            int noOfElements = Math.min(ids.length, (i + 1) * 500);
-            requestRepository.remove(new FilterByRequestIds(Arrays.copyOfRange(ids, i * 500, noOfElements)));
+            int noOfElements = Math.min(ids.length, (i + 1) * maximumRequestCountInTransaction);
+            requestRepository.remove(new FilterByRequestIds(Arrays.copyOfRange(ids, i * maximumRequestCountInTransaction, noOfElements)));
         }
     }
 
