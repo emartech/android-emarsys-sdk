@@ -26,7 +26,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import java.net.UnknownHostException
 import java.util.concurrent.CountDownLatch
 
@@ -136,4 +138,24 @@ class RestClientTest {
         handler.asRequestResult() shouldBe RequestResult.failure(model.id, UnknownHostException::class.java)
     }
 
+    @Test
+    fun testExecute_mappersHaveBeenCalled() {
+        connectionProvider = mock()
+        val requestModel: RequestModel = mock ()
+        val expectedRequestModel1: RequestModel = mock()
+        val expectedRequestModel2: RequestModel = mock()
+        val mockRequestModelMapper1: Mapper<RequestModel, RequestModel> = mock {
+            on { map(requestModel) } doReturn expectedRequestModel1
+        }
+        val mockRequestModelMapper2: Mapper<RequestModel, RequestModel> = mock {
+            on { map(expectedRequestModel1) } doReturn expectedRequestModel2
+        }
+
+        requestModelMappers = listOf(mockRequestModelMapper1, mockRequestModelMapper2)
+        client = RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, uiHandler, coreSdkHandler)
+
+        client.execute(requestModel, mock())
+        verify(mockRequestModelMapper1).map(requestModel)
+        verify(mockRequestModelMapper2).map(expectedRequestModel1)
+    }
 }

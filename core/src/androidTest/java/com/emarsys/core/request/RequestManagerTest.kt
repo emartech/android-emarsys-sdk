@@ -76,7 +76,7 @@ class RequestManagerTest {
     @Before
     fun init() {
         deleteCoreDatabase()
-        val requestModelMappers: MutableList<Mapper<RequestModel, RequestModel>?> = ArrayList()
+        val requestModelMappers: MutableList<Mapper<RequestModel, RequestModel>> = mutableListOf()
         mockRequestModelMapper = mock()
         requestModelMappers.add(mockRequestModelMapper)
         whenever(mockRequestModelMapper.map(any())).thenAnswer { invocation ->
@@ -101,7 +101,7 @@ class RequestManagerTest {
             ConnectionProvider(),
             mock(),
             mock(),
-            requestModelMappers,
+            requestModelMappers.toList(),
             Handler(Looper.getMainLooper()),
             CoreSdkHandlerProvider().provideHandler()
         )

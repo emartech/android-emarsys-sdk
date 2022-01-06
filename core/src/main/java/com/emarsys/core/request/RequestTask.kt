@@ -22,14 +22,12 @@ import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import javax.net.ssl.HttpsURLConnection
 
-open class RequestTask(
-        private val requestModel: RequestModel,
-        private val coreCompletionHandler: CoreCompletionHandler,
-        private val connectionProvider: ConnectionProvider,
-        private val timestampProvider: TimestampProvider,
-        private val responseHandlersProcessor: ResponseHandlersProcessor,
-        private val requestModelMappers: List<Mapper<RequestModel, RequestModel>>,
-        private val coreSdkHandler: CoreSdkHandler) : AsyncTask<Void, Long, Void>() {
+@Mockable
+class RequestTask(
+    private val requestModel: RequestModel,
+    private val connectionProvider: ConnectionProvider,
+    private val timestampProvider: TimestampProvider
+) {
 
     companion object {
         private const val TIMEOUT = 30000
@@ -47,7 +45,8 @@ open class RequestTask(
             initializeConnection(connection, updatedRequestModel)
             connection.connectTimeout = 20000
             connection.connect()
-            sendBody(connection, updatedRequestModel)
+
+            sendBody(connection, requestModel)
             responseModel = readResponse(connection)
 
             debug(RequestLog(responseModel!!, dbEnd, updatedRequestModel))

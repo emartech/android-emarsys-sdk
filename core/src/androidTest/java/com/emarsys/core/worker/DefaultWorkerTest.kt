@@ -60,55 +60,100 @@ class DefaultWorkerTest {
         restClient = mock()
         uiHandler = Handler(Looper.getMainLooper())
         mockProxyProvider = mock()
-        worker = DefaultWorker(requestRepository, watchDogMock, uiHandler, mockCoreCompletionHandler, restClient, mockProxyProvider)
+        worker = DefaultWorker(
+            requestRepository,
+            watchDogMock,
+            uiHandler,
+            mockCoreCompletionHandler,
+            restClient,
+            mockProxyProvider
+        )
         whenever(mockProxyProvider.provideProxy(any(), any())).thenReturn(mock())
         now = System.currentTimeMillis()
         expiredModel1 = RequestModel(
-                URL,
-                RequestMethod.GET,
-                HashMap(),
-                HashMap(),
-                now - 500, 300,
-                "id1")
+            URL,
+            RequestMethod.GET,
+            HashMap(),
+            HashMap(),
+            now - 500, 300,
+            "id1"
+        )
         expiredModel2 = RequestModel(
-                URL,
-                RequestMethod.GET,
-                HashMap(),
-                HashMap(),
-                now - 400, 150,
-                "id2")
+            URL,
+            RequestMethod.GET,
+            HashMap(),
+            HashMap(),
+            now - 400, 150,
+            "id2"
+        )
         notExpiredModel = RequestModel(
-                URL,
-                RequestMethod.GET,
-                HashMap(),
-                HashMap(),
-                now, 60000,
-                "id2")
+            URL,
+            RequestMethod.GET,
+            HashMap(),
+            HashMap(),
+            now, 60000,
+            "id2"
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_queueShouldNotBeNull() {
-        DefaultWorker(null, mock(), uiHandler, mockCoreCompletionHandler, restClient, mockProxyProvider)
+        DefaultWorker(
+            null,
+            mock(),
+            uiHandler,
+            mockCoreCompletionHandler,
+            restClient,
+            mockProxyProvider
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_watchDogShouldNotBeNull() {
-        DefaultWorker(requestRepository, null, uiHandler, mockCoreCompletionHandler, restClient, mockProxyProvider)
+        DefaultWorker(
+            requestRepository,
+            null,
+            uiHandler,
+            mockCoreCompletionHandler,
+            restClient,
+            mockProxyProvider
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_uiHandlerShouldNotBeNull() {
-        DefaultWorker(requestRepository, mock(), null, mockCoreCompletionHandler, restClient, mockProxyProvider)
+        DefaultWorker(
+            requestRepository,
+            mock(),
+            null,
+            mockCoreCompletionHandler,
+            restClient,
+            mockProxyProvider
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_restClientShouldNotBeNull() {
-        DefaultWorker(requestRepository, mock(), uiHandler, mockCoreCompletionHandler, null, mockProxyProvider)
+        DefaultWorker(
+            requestRepository,
+            mock(),
+            uiHandler,
+            mockCoreCompletionHandler,
+            null,
+            mockProxyProvider
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testConstructor_proxyProvider_mustNotBeNull() {
-        DefaultWorker(requestRepository, mock(), uiHandler, mockCoreCompletionHandler, restClient, null)
+        DefaultWorker(
+            requestRepository,
+            mock(),
+            uiHandler,
+            mockCoreCompletionHandler,
+            restClient,
+            null
+        )
     }
 
     @Test
@@ -124,14 +169,28 @@ class DefaultWorkerTest {
 
     @Test
     fun testConstructor_setRepositorySuccessfully() {
-        worker = DefaultWorker(requestRepository, mock(), uiHandler, mockCoreCompletionHandler, restClient, mockProxyProvider)
+        worker = DefaultWorker(
+            requestRepository,
+            mock(),
+            uiHandler,
+            mockCoreCompletionHandler,
+            restClient,
+            mockProxyProvider
+        )
         Assert.assertEquals(requestRepository, worker.requestRepository)
     }
 
     @Test
     fun testConstructor_setWatchDogSuccessfully() {
         val watchDog: ConnectionWatchDog = mock()
-        worker = DefaultWorker(requestRepository, watchDog, uiHandler, mockCoreCompletionHandler, restClient, mockProxyProvider)
+        worker = DefaultWorker(
+            requestRepository,
+            watchDog,
+            uiHandler,
+            mockCoreCompletionHandler,
+            restClient,
+            mockProxyProvider
+        )
         Assert.assertEquals(watchDog, worker.connectionWatchDog)
     }
 
@@ -177,20 +236,22 @@ class DefaultWorkerTest {
     fun testRun_queueIsNotEmptyThenSendRequestIsCalled() {
         worker = spy(worker)
         val expectedModel = createRequestModel(RequestMethod.GET)
-        val captor = ArgumentCaptor.forClass(RequestModel::class.java)
-        whenever(requestRepository.query(any())).thenReturn(listOf(expectedModel))
-        whenever(requestRepository.isEmpty()).thenReturn(false)
-        worker.run()
-        verify(worker.restClient).execute(captor.capture(), any())
-        val returnedModel = captor.value
-        Assert.assertEquals(expectedModel, returnedModel)
+        argumentCaptor<RequestModel> {
+            whenever(requestRepository.query(any())).thenReturn(listOf(expectedModel))
+            whenever(requestRepository.isEmpty()).thenReturn(false)
+            worker.run()
+            verify(worker.restClient).execute(capture(), any())
+            val returnedModel = firstValue
+            Assert.assertEquals(expectedModel, returnedModel)
+        }
+
     }
 
     @Test
     fun testRun_expiration_shouldPopExpiredRequestModels() {
         worker = spy(worker)
         whenever(requestRepository.query(any()))
-                .thenReturn(listOf(expiredModel1), listOf(expiredModel2), listOf(notExpiredModel))
+            .thenReturn(listOf(expiredModel1), listOf(expiredModel2), listOf(notExpiredModel))
         whenever(requestRepository.isEmpty()).thenReturn(false, false, false, false, true)
         worker.run()
         verify(requestRepository, times(3)).query(any())
@@ -205,7 +266,7 @@ class DefaultWorkerTest {
         val latch = CountDownLatch(2)
         worker.coreCompletionHandler = spy(FakeCompletionHandler(latch))
         whenever(requestRepository.query(any()))
-                .thenReturn(listOf(expiredModel1), listOf(expiredModel2), listOf(notExpiredModel))
+            .thenReturn(listOf(expiredModel1), listOf(expiredModel2), listOf(notExpiredModel))
         whenever(requestRepository.isEmpty()).thenReturn(false, false, false, false, true)
         worker.run()
         latch.await()
@@ -220,7 +281,7 @@ class DefaultWorkerTest {
     fun testRun_expiration_whenOnlyExpiredModelsWereInQueue() {
         worker = spy(worker)
         whenever(worker.requestRepository.query(any()))
-                .thenReturn(listOf(expiredModel1), listOf(expiredModel2))
+            .thenReturn(listOf(expiredModel1), listOf(expiredModel2))
         whenever(worker.requestRepository.isEmpty()).thenReturn(false, false, false, true)
         worker.run()
         verify(worker.requestRepository, times(2)).query(any())

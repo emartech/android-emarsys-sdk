@@ -245,19 +245,6 @@ class RequestManagerOfflineTest {
         coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(requestRepository, uiHandler, coreSdkHandler)
         worker = DefaultWorker(requestRepository, watchDog, uiHandler, completionHandler, fakeRestClient, coreCompletionHandlerMiddlewareProvider)
 
-        manager = RequestManager(
-            coreSdkHandler,
-            requestRepository,
-            shardRepository,
-            worker,
-            fakeRestClient,
-            mock() as Registry<RequestModel, CompletionListener?>,
-            completionHandler,
-            mockProxyProvider,
-            mock(),
-            mock()
-        )
-
         coreSdkHandler.post {
             requestModels.forEach(requestRepository::add)
             worker.run()

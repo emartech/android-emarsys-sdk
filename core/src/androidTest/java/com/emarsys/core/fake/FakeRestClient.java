@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.core.CoreCompletionHandler;
+import com.emarsys.core.api.result.Try;
 import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
@@ -11,6 +12,7 @@ import com.emarsys.core.request.RequestTask;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestModel;
 import com.emarsys.core.response.ResponseHandlersProcessor;
+import com.emarsys.core.response.ResponseModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,14 +38,21 @@ public class FakeRestClient extends RestClient {
 
     @Override
     public void execute(RequestModel model, CoreCompletionHandler completionHandler) {
-        create(model, completionHandler).execute();
+        Try<ResponseModel> result = create(model).execute();
+        if (result.getErrorCause() != null && result.getResult() != null) {
+            completionHandler.onError(model.getId(), result.getResult());
+        } else if (result.getErrorCause() != null) {
+            completionHandler.onError(model.getId(), (Exception) result.getErrorCause());
+        } else {
+            completionHandler.onSuccess(model.getId(), result.getResult());
+        }
     }
 
-    private RequestTask create(RequestModel model, CoreCompletionHandler completionHandler) {
+    private RequestTask create(RequestModel model) {
         if (fakeResults.isEmpty()) {
             throw new IllegalStateException("No more predefined fake responses!");
         } else {
-            return new FakeRequestTask(model, completionHandler, fakeResults.remove(0));
+            return new FakeRequestTask(model, fakeResults.remove(0));
         }
     }
 }

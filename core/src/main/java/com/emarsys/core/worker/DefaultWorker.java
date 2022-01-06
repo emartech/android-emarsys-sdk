@@ -1,7 +1,6 @@
 package com.emarsys.core.worker;
 
 import android.os.Handler;
-
 import com.emarsys.core.CoreCompletionHandler;
 import com.emarsys.core.connection.ConnectionChangeListener;
 import com.emarsys.core.connection.ConnectionState;
@@ -30,7 +29,7 @@ public class DefaultWorker implements ConnectionChangeListener, Worker {
     private boolean locked;
     CoreCompletionHandler coreCompletionHandler;
     RestClient restClient;
-    private Handler uiHandler;
+    private final Handler uiHandler;
 
     public DefaultWorker(Repository<RequestModel, SqlSpecification> requestRepository, ConnectionWatchDog connectionWatchDog, Handler uiHandler, CoreCompletionHandler coreCompletionHandler, RestClient restClient, CompletionHandlerProxyProvider proxyProvider) {
         Assert.notNull(requestRepository, "RequestRepository must not be null!");
