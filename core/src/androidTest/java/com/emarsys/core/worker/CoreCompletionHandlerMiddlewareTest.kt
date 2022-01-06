@@ -114,7 +114,7 @@ class CoreCompletionHandlerMiddlewareTest {
         waitForEventLoopToFinish(uiHandler)
 
         argumentCaptor<FilterByRequestIds>().apply {
-            verify(requestRepository, times(5)).remove(capture())
+            verify(requestRepository, times(41)).remove(capture())
         }
 
     }
@@ -271,7 +271,7 @@ class CoreCompletionHandlerMiddlewareTest {
         waitForEventLoopToFinish(uiHandler)
 
         argumentCaptor<FilterByRequestIds>().apply {
-            verify(requestRepository, times(4)).remove(capture())
+            verify(requestRepository, times(40)).remove(capture())
             allValues.size shouldBeLessThanOrEqual 500
         }
     }
@@ -295,7 +295,7 @@ class CoreCompletionHandlerMiddlewareTest {
         waitForEventLoopToFinish(uiHandler)
 
         argumentCaptor<FilterByRequestIds>().apply {
-            verify(requestRepository, times(5)).remove(capture())
+            verify(requestRepository, times(41)).remove(capture())
             allValues.size shouldBeLessThanOrEqual 500
         }
     }
