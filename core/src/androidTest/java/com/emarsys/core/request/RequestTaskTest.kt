@@ -53,7 +53,7 @@ class RequestTaskTest {
         val requestTask = createRequestTask(requestModel)
 
         try {
-            requestTask.doInBackground()
+            requestTask.execute()
         } catch (e: Exception) {
             Assert.fail("Request Task should handle exception: " + e.message)
         }
@@ -61,13 +61,9 @@ class RequestTaskTest {
 
     private fun createRequestTask(requestModel: RequestModel = mock()): RequestTask {
         return RequestTask(
-                requestModel,
-                fakeCoreCompletionHandler,
-                connectionProvider,
-                mockTimestampProvider,
-                mockResponseHandlersProcessor,
-                requestModelMappers,
-                coreSdkHandler
+            requestModel,
+            connectionProvider,
+            mockTimestampProvider
         )
     }
 }

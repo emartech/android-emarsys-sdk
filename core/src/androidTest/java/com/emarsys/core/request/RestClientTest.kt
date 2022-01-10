@@ -71,36 +71,6 @@ class RestClientTest {
         latch = CountDownLatch(1)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_connectionProvider_mustNotBeNull() {
-        RestClient(null, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, uiHandler, coreSdkHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_timestampProvider_mustNotBeNull() {
-        RestClient(connectionProvider, null, mockResponseHandlersProcessor, requestModelMappers, uiHandler, coreSdkHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_responseHandlersRunner_mustNotBeNull() {
-        RestClient(connectionProvider, mockTimestampProvider, null, requestModelMappers, uiHandler, coreSdkHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestModelMapper_mustNotBeNull() {
-        RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, null, uiHandler, coreSdkHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_uiHandler_mustNotBeNull() {
-        RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, null, coreSdkHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_coreSdkHandler_mustNotBeNull() {
-        RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, uiHandler, null)
-    }
-
     @Test
     fun testSendRequest_requestDoneSuccessfully() {
         val handler = FakeCompletionHandler(latch)
