@@ -13,6 +13,7 @@ import com.emarsys.core.api.result.Try
 import com.emarsys.core.crypto.Crypto
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.feature.FeatureRegistry
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
@@ -20,14 +21,15 @@ import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.push.PushInternal
-import com.emarsys.mobileengage.push.PushTokenProvider
 import com.emarsys.predict.request.PredictRequestContext
+import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 @Mockable
 class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngageRequestContext,
                             private val mobileEngageInternal: MobileEngageInternal,
                             private val pushInternal: PushInternal,
-                            private val pushTokenProvider: PushTokenProvider,
                             private val predictRequestContext: PredictRequestContext,
                             private val deviceInfo: DeviceInfo,
                             private val requestManager: RequestManager,
@@ -40,7 +42,8 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                             private val messageInboxServiceStorage: Storage<String?>,
                             private val logLevelStorage: Storage<String?>,
                             private val crypto: Crypto,
-                            private val clientServiceInternal: ClientServiceInternal) : ConfigInternal {
+                            private val clientServiceInternal: ClientServiceInternal,
+                            private val concurrentHandlerHolder: ConcurrentHandlerHolder) : ConfigInternal {
 
     override val applicationCode: String?
         get() = mobileEngageRequestContext.applicationCode
@@ -66,99 +69,80 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
     override val sdkVersion: String
         get() = deviceInfo.sdkVersion
 
-    private var originalPushToken: String? = null
-
-    private var hasContactIdentification: Boolean = false
 
     override fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?) {
-        originalPushToken = pushTokenProvider.providePushToken()
-        hasContactIdentification = mobileEngageRequestContext.hasContactIdentification()
-
-        if (mobileEngageRequestContext.applicationCode == null) {
-            handleApplicationCodeChange(applicationCode, completionListener)
-        } else {
-            clearUpPushTokenAndContact(completionListener) {
-                handleApplicationCodeChange(applicationCode, completionListener)
+        val pushToken: String? = pushInternal.pushToken
+        val hasContactIdentification = mobileEngageRequestContext.hasContactIdentification()
+        var throwable: Throwable? = null
+        concurrentHandlerHolder.coreScope?.launch { //TODO: remove question mark
+            if (pushToken != null) {
+                throwable = clearPushToken()
             }
-        }
-    }
-
-    private fun clearUpPushTokenAndContact(completionListener: CompletionListener?, onSuccess: () -> Unit) {
-        clearPushToken(completionListener) {
-            clearContact(completionListener) {
-                onSuccess()
+            if ((throwable == null) && (mobileEngageRequestContext.applicationCode != null) && hasContactIdentification) {
+                throwable = clearContact()
             }
-        }
-    }
-
-    private fun clearContactIfWasNotIdentified(completionListener: CompletionListener?, onSuccess: () -> Unit) {
-            if (hasContactIdentification) {
-                onSuccess()
-            } else {
-                clearContact(completionListener, onSuccess)
-            }
-    }
-
-    private fun clearContact(completionListener: CompletionListener?, onSuccess: () -> Unit) {
-        mobileEngageInternal.clearContact { throwable ->
             if (throwable == null) {
-                onSuccess()
-            } else {
-                handleError(throwable, completionListener)
-            }
-        }
-    }
-
-    private fun clearPushToken(completionListener: CompletionListener?, onSuccess: () -> Unit) {
-        if (originalPushToken != null) {
-            pushInternal.clearPushToken { throwable ->
-                if (throwable == null) {
-                    onSuccess()
-                } else {
-                    handleError(throwable, completionListener)
+                handleAppCodeChange(applicationCode)
+                if (applicationCode != null) {
+                    throwable = sendDeviceInfo()
+                    if (pushToken != null) {
+                        throwable = sendPushToken(pushToken)
+                    }
+                    if (throwable == null && !hasContactIdentification) {
+                        throwable = clearContact()
+                    }
                 }
             }
-        } else {
-            onSuccess()
+            if (throwable != null) {
+                handleAppCodeChange(null)
+            }
+            concurrentHandlerHolder.uiScope?.launch { //TODO: remove question mark
+                completionListener?.onCompleted(throwable)
+            }
         }
     }
 
-    private fun handleApplicationCodeChange(applicationCode: String?, completionListener: CompletionListener?) {
+    private fun handleAppCodeChange(applicationCode: String?) {
+        mobileEngageRequestContext.applicationCode = applicationCode
         if (applicationCode != null) {
             FeatureRegistry.enableFeature(InnerFeature.MOBILE_ENGAGE)
             FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
-            mobileEngageRequestContext.applicationCode = applicationCode
-            collectClientState(completionListener) {
-                clearContactIfWasNotIdentified(completionListener) {
-                    completionListener?.onCompleted(null)
-                }
-            }
         } else {
             FeatureRegistry.disableFeature(InnerFeature.MOBILE_ENGAGE)
-            completionListener?.onCompleted(null)
+            FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
         }
     }
 
-    private fun collectClientState(completionListener: CompletionListener?, onSuccess: () -> Unit) {
-        clientServiceInternal.trackDeviceInfo {
-            if (originalPushToken != null) {
-                pushInternal.setPushToken(originalPushToken) {
-                    if (it == null) {
-                        onSuccess()
-                    } else {
-                        handleError(it, completionListener)
-                    }
-                }
-            } else {
-                onSuccess()
+    private suspend fun clearPushToken(): Throwable? {
+        return suspendCoroutine { continuation ->
+            pushInternal.clearPushToken {
+                continuation.resume(it)
             }
         }
     }
 
-    private fun handleError(throwable: Throwable?, completionListener: CompletionListener?) {
-        FeatureRegistry.disableFeature(InnerFeature.MOBILE_ENGAGE)
-        mobileEngageRequestContext.applicationCode = null
-        completionListener?.onCompleted(throwable)
+    private suspend fun clearContact(): Throwable? {
+        return suspendCoroutine { continuation ->
+            mobileEngageInternal.clearContact {
+                continuation.resume(it)
+            }
+        }
+    }
+
+    private suspend fun sendPushToken(pushToken: String): Throwable? {
+        return suspendCoroutine { continuation ->
+            pushInternal.setPushToken(pushToken) {
+                continuation.resume(it)
+            }
+        }
+    }
+
+    private suspend fun sendDeviceInfo(): Throwable? {
+        return suspendCoroutine { continuation ->
+            clientServiceInternal.trackDeviceInfo {
+                continuation.resume(it)
+            }
+        }
     }
 
     override fun changeMerchantId(merchantId: String?) {
