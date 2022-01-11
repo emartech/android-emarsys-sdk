@@ -3,7 +3,7 @@ name: Last push build
 on:
   workflow_dispatch:
   push:
-    branches: [ master ]
+    branches: [ dev ]
 
 env:
   RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD }}
@@ -26,6 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.1
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
