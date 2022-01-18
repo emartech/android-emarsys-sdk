@@ -9,7 +9,7 @@ import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.di.CoreComponent
 import com.emarsys.core.di.core
 import com.emarsys.core.endpoint.Endpoint.LOG_URL
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.provider.wrapper.WrapperInfoContainer
@@ -17,16 +17,17 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.log.LogLevel.*
 import com.emarsys.core.util.log.entry.*
+import kotlinx.coroutines.runBlocking
 
 @Mockable
 class Logger(
-        private val coreSdkHandler: CoreSdkHandler,
-        private val shardRepository: Repository<ShardModel, SqlSpecification>,
-        private val timestampProvider: TimestampProvider,
-        private val uuidProvider: UUIDProvider,
-        private val logLevelStorage: Storage<String?>,
-        private val verboseConsoleLoggingEnabled: Boolean,
-        private val context: Context
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
+    private val shardRepository: Repository<ShardModel, SqlSpecification>,
+    private val timestampProvider: TimestampProvider,
+    private val uuidProvider: UUIDProvider,
+    private val logLevelStorage: Storage<String?>,
+    private val verboseConsoleLoggingEnabled: Boolean,
+    private val context: Context
 ) {
 
     companion object {
@@ -80,7 +81,7 @@ class Logger(
 
     fun handleLog(logLevel: LogLevel, logEntry: LogEntry, onCompleted: (() -> Unit)? = null) {
         val currentThreadName = Thread.currentThread().name
-        core().coreSdkHandler.post {
+        core().concurrentHandlerHolder.coreHandler.post {
             val isDebugMode: Boolean =
                 0 != context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE
             if ((verboseConsoleLoggingEnabled || logEntry is MethodNotAllowed) && isDebugMode) {
@@ -120,12 +121,20 @@ class Logger(
         if (isAppStartLog(logEntry)
             || (isNotLogLog(logEntry) && shouldLogBasedOnRemoteConfig(logLevel))
         ) {
-            coreSdkHandler.post {
+            concurrentHandlerHolder.coreHandler.post {
                 val shard = ShardModel.Builder(timestampProvider, uuidProvider)
                     .type(logEntry.topic)
-                    .payloadEntries(logEntry.toData(logLevel, currentThreadName, WrapperInfoContainer.wrapperInfo))
+                    .payloadEntries(
+                        logEntry.toData(
+                            logLevel,
+                            currentThreadName,
+                            WrapperInfoContainer.wrapperInfo
+                        )
+                    )
                     .build()
-                shardRepository.add(shard)
+                runBlocking {
+                    shardRepository.add(shard)
+                }
                 onCompleted?.invoke()
             }
         } else {

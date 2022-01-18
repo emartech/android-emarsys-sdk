@@ -3,10 +3,10 @@ package com.emarsys.core.request
 import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.Mapper
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.fake.FakeCompletionHandler
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
@@ -43,7 +43,7 @@ class RestClientTest {
     private lateinit var mockRequestModelMapper: Mapper<RequestModel, RequestModel>
     private lateinit var requestModelMappers: List<Mapper<RequestModel, RequestModel>>
     private lateinit var uiHandler: Handler
-    private lateinit var coreSdkHandler: CoreSdkHandler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -59,7 +59,7 @@ class RestClientTest {
         mockResponseHandlersProcessor = mock()
         mockRequestModelMapper = mock() as Mapper<RequestModel, RequestModel>
         uiHandler = Handler(Looper.getMainLooper())
-        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
 
         whenever(mockRequestModelMapper.map(any())).thenAnswer { invocation ->
             val args = invocation.arguments
@@ -67,7 +67,13 @@ class RestClientTest {
         }
 
         requestModelMappers = listOf(mockRequestModelMapper)
-        client = RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, uiHandler, coreSdkHandler)
+        client = RestClient(
+            connectionProvider,
+            mockTimestampProvider,
+            mockResponseHandlersProcessor,
+            requestModelMappers,
+            concurrentHandlerHolder
+        )
         latch = CountDownLatch(1)
     }
 
@@ -122,7 +128,13 @@ class RestClientTest {
         }
 
         requestModelMappers = listOf(mockRequestModelMapper1, mockRequestModelMapper2)
-        client = RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, uiHandler, coreSdkHandler)
+        client = RestClient(
+            connectionProvider,
+            mockTimestampProvider,
+            mockResponseHandlersProcessor,
+            requestModelMappers,
+            concurrentHandlerHolder
+        )
 
         client.execute(requestModel, mock())
         verify(mockRequestModelMapper1).map(requestModel)

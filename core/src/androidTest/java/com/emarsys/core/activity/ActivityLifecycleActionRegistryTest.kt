@@ -1,10 +1,12 @@
 package com.emarsys.core.activity
 
 import android.app.Activity
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.activity.ActivityLifecycleAction.ActivityLifecycle.CREATE
 import com.emarsys.core.activity.ActivityLifecycleAction.ActivityLifecycle.RESUME
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import io.kotlintest.shouldBe
 import org.junit.Before
@@ -15,16 +17,18 @@ import java.util.concurrent.CountDownLatch
 class ActivityLifecycleActionRegistryTest {
 
     private lateinit var activityLifecycleActionRegistry: ActivityLifecycleActionRegistry
-    private lateinit var coreSdkHandler: CoreSdkHandler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
     private lateinit var mockAction1: ActivityLifecycleAction
     private lateinit var mockAction2: ActivityLifecycleAction
     private lateinit var mockAction3: ActivityLifecycleAction
     private lateinit var mockActions: MutableList<ActivityLifecycleAction>
     private lateinit var mockActivity: Activity
+    private lateinit var uiHandler: Handler
 
     @Before
     fun setup() {
+        uiHandler = Handler(Looper.getMainLooper())
         mockActivity = mock()
         mockAction1 = mock {
             on { triggeringLifecycle } doReturn RESUME
@@ -39,10 +43,10 @@ class ActivityLifecycleActionRegistryTest {
             on { get() } doReturn mockActivity
         }
         mockActions = mutableListOf(mockAction1, mockAction2, mockAction3)
-        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
 
         activityLifecycleActionRegistry = ActivityLifecycleActionRegistry(
-            coreSdkHandler, mockCurrentActivityProvider, mockActions
+            concurrentHandlerHolder, mockCurrentActivityProvider, mockActions
         )
     }
 
@@ -54,7 +58,8 @@ class ActivityLifecycleActionRegistryTest {
 
     @Test
     fun testConstructor_createEmptyArraysByDefault() {
-        val emptyActivityLifecycleActionRegistry = ActivityLifecycleActionRegistry(coreSdkHandler, mockCurrentActivityProvider)
+        val emptyActivityLifecycleActionRegistry =
+            ActivityLifecycleActionRegistry(concurrentHandlerHolder, mockCurrentActivityProvider)
         emptyActivityLifecycleActionRegistry.triggerOnActivityActions.size shouldBe 0
         emptyActivityLifecycleActionRegistry.lifecycleActions.size shouldBe 0
     }
@@ -247,7 +252,7 @@ class ActivityLifecycleActionRegistryTest {
 
     private fun waitForCoreSDKThread() {
         val latch = CountDownLatch(1)
-        coreSdkHandler.post {
+        concurrentHandlerHolder.coreHandler.post {
             latch.countDown()
         }
         latch.await()

@@ -12,7 +12,7 @@ import org.json.JSONObject
 object NotificationActionUtils {
     @JvmStatic
     fun handleAction(intent: Intent, commandFactory: NotificationCommandFactory) {
-        mobileEngage().coreSdkHandler.post {
+        mobileEngage().concurrentHandlerHolder.coreHandler.post {
             val command = commandFactory.createNotificationCommand(intent)
             command.run()
         }

@@ -1,7 +1,7 @@
 package com.emarsys.service
 
 import android.content.Context
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.service.MessagingServiceUtils
 import com.emarsys.mobileengage.service.MessagingServiceUtils.handleMessage
@@ -12,16 +12,17 @@ object EmarsysFirebaseMessagingServiceUtils {
 
     @JvmStatic
     fun handleMessage(context: Context, remoteMessage: RemoteMessage): Boolean {
-        val handler: CoreSdkHandler = mobileEngage().coreSdkHandler
+        val handlerHolder: ConcurrentHandlerHolder = mobileEngage().concurrentHandlerHolder
 
-        handler.post {
+        handlerHolder.coreHandler.post {
             handleMessage(
-                    context,
-                    remoteMessage.data,
-                    mobileEngage().deviceInfo,
-                    mobileEngage().fileDownloader,
-                    mobileEngage().silentMessageActionCommandFactory,
-                    mobileEngage().remoteMessageMapper)
+                context,
+                remoteMessage.data,
+                mobileEngage().deviceInfo,
+                mobileEngage().fileDownloader,
+                mobileEngage().silentMessageActionCommandFactory,
+                mobileEngage().remoteMessageMapper
+            )
         }
 
         return isMobileEngageMessage(remoteMessage.data)

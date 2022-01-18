@@ -1,11 +1,21 @@
 package com.emarsys.mobileengage.iam.dialog.action;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import android.os.Handler;
+import android.os.Looper;
+
 import com.emarsys.core.api.result.CompletionListener;
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
-import com.emarsys.core.handler.CoreSdkHandler;
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory;
+import com.emarsys.core.handler.ConcurrentHandlerHolder;
 import com.emarsys.mobileengage.iam.InAppInternal;
 import com.emarsys.testUtil.TimeoutUtils;
 import com.emarsys.testUtil.mockito.ThreadSpy;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -16,10 +26,6 @@ import org.mockito.Mockito;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.*;
-
 public class SendDisplayedIamActionTest {
 
     private static final String CAMPAIGN_ID = "123445";
@@ -28,7 +34,7 @@ public class SendDisplayedIamActionTest {
 
     private SendDisplayedIamAction action;
 
-    private CoreSdkHandler handler;
+    private ConcurrentHandlerHolder handler;
     private InAppInternal inAppInternal;
 
     @Rule
@@ -36,7 +42,7 @@ public class SendDisplayedIamActionTest {
 
     @Before
     public void init() {
-        handler = new CoreSdkHandlerProvider().provideHandler();
+        handler = new ConcurrentHandlerHolderFactory(new Handler(Looper.getMainLooper())).create();
         inAppInternal = mock(InAppInternal.class);
         action = new SendDisplayedIamAction(handler, inAppInternal);
     }
@@ -57,7 +63,7 @@ public class SendDisplayedIamActionTest {
     @Test(expected = IllegalArgumentException.class)
     public void testConstructor_inAppInternal_mustNotBeNull() {
         new SendDisplayedIamAction(
-                mock(CoreSdkHandler.class),
+                mock(ConcurrentHandlerHolder.class),
                 null
         );
     }

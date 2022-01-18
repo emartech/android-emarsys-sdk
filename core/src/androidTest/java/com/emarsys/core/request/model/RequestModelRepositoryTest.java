@@ -1,14 +1,31 @@
 package com.emarsys.core.request.model;
 
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_HEADERS;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_METHOD;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_PAYLOAD;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_REQUEST_ID;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_TIMESTAMP;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_TTL;
+import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_URL;
+import static com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Handler;
+import android.os.Looper;
 
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory;
 import com.emarsys.core.database.CoreSQLiteDatabase;
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.CoreDbHelper;
 import com.emarsys.core.database.repository.specification.Everything;
 import com.emarsys.core.database.trigger.TriggerKey;
+import com.emarsys.core.handler.ConcurrentHandlerHolder;
 import com.emarsys.testUtil.DatabaseTestUtils;
 import com.emarsys.testUtil.InstrumentationRegistry;
 import com.emarsys.testUtil.TimeoutUtils;
@@ -22,19 +39,6 @@ import org.junit.rules.TestRule;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_HEADERS;
-import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_METHOD;
-import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_PAYLOAD;
-import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_REQUEST_ID;
-import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_TIMESTAMP;
-import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_TTL;
-import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_URL;
-import static com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class RequestModelRepositoryTest {
 
@@ -55,8 +59,10 @@ public class RequestModelRepositoryTest {
     private RequestModel request;
     private RequestModelRepository repository;
     private Context context;
+    private ConcurrentHandlerHolder concurrentHandlerHolder;
     private HashMap<String, String> headers;
     private HashMap<String, Object> payload;
+    private Handler uiHandler;
 
     @Before
     public void init() {
@@ -64,7 +70,9 @@ public class RequestModelRepositoryTest {
 
         context = InstrumentationRegistry.getTargetContext();
         CoreDbHelper coreDbHelper = new CoreDbHelper(context, new HashMap<TriggerKey, List<Runnable>>());
-        repository = new RequestModelRepository(coreDbHelper);
+        uiHandler = new Handler(Looper.getMainLooper());
+        concurrentHandlerHolder = new ConcurrentHandlerHolderFactory(uiHandler).create();
+        repository = new RequestModelRepository(coreDbHelper, concurrentHandlerHolder);
 
 
         payload = new HashMap<>();

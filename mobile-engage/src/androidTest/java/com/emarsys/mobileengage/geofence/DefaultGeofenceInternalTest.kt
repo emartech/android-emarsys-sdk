@@ -11,7 +11,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.api.MissingPermissionException
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
@@ -91,12 +91,12 @@ class DefaultGeofenceInternalTest {
     private lateinit var mockEnabledStorage: Storage<Boolean>
     private lateinit var mockInitialEnterTriggerEnabledStorage: Storage<Boolean?>
     private lateinit var mockPendingIntentProvider: GeofencePendingIntentProvider
-    private lateinit var mockHandler: CoreSdkHandler
+    private lateinit var mockHandlerHolder: ConcurrentHandlerHolder
     private lateinit var uiHandler: Handler
 
     @Before
     fun setUp() {
-        mockHandler = mock()
+        mockHandlerHolder = mock()
         mockInitialEnterTriggerEnabledStorage = mock {
             on { get() } doReturn false
         }
@@ -146,7 +146,7 @@ class DefaultGeofenceInternalTest {
             mockCacheableEventHandler,
             mockEnabledStorage,
             mockPendingIntentProvider,
-            mockHandler,
+            mockHandlerHolder,
             uiHandler,
             mockInitialEnterTriggerEnabledStorage
         )
@@ -164,7 +164,7 @@ class DefaultGeofenceInternalTest {
             mockCacheableEventHandler,
             mockEnabledStorage,
             mockPendingIntentProvider,
-            mockHandler,
+            mockHandlerHolder,
             uiHandler,
             mockInitialEnterTriggerEnabledStorage
         )

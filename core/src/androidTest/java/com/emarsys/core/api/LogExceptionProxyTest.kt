@@ -1,10 +1,12 @@
 package com.emarsys.core.api
 
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import android.os.Handler
+import android.os.Looper
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.di.FakeCoreDependencyContainer
 import com.emarsys.core.di.setupCoreComponent
 import com.emarsys.core.di.tearDownCoreComponent
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.log.LogLevel
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
@@ -16,13 +18,13 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.kotlin.*
-import java.lang.RuntimeException
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.CountDownLatch
 
 class LogExceptionProxyTest {
     private lateinit var mockLogger: Logger
-    private lateinit var coreSdkHandler: CoreSdkHandler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
+    private lateinit var uiHandler: Handler
 
     @Rule
     @JvmField
@@ -30,11 +32,15 @@ class LogExceptionProxyTest {
 
     @Before
     fun setUp() {
-        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+        uiHandler = Handler(Looper.getMainLooper())
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
         mockLogger = mock()
 
         val dependencyContainer =
-            FakeCoreDependencyContainer(coreSdkHandler = coreSdkHandler, logger = mockLogger)
+            FakeCoreDependencyContainer(
+                concurrentHandlerHolder = concurrentHandlerHolder,
+                logger = mockLogger
+            )
 
         setupCoreComponent(dependencyContainer)
     }
@@ -62,7 +68,7 @@ class LogExceptionProxyTest {
 
         callback.proxyWithLogExceptions().run()
         val latch = CountDownLatch(1)
-        coreSdkHandler.post {
+        concurrentHandlerHolder.coreHandler.post {
             latch.countDown()
         }
         latch.await()

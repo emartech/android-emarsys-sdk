@@ -6,24 +6,25 @@ import android.os.Handler
 import com.emarsys.core.Mockable
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.model.InAppMessage
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.CountDownLatch
 
 @Mockable
 class JSCommandFactory(
-        private val currentActivityProvider: CurrentActivityProvider,
-        private val uiHandler: Handler,
-        private val coreSdkHandler: CoreSdkHandler,
-        private val inAppInternal: InAppInternal,
-        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
-        private val onCloseTriggered: OnCloseListener?,
-        private val onAppEventTriggered: OnAppEventListener?,
-        private val timestampProvider: TimestampProvider
+    private val currentActivityProvider: CurrentActivityProvider,
+    private val uiHandler: Handler,
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
+    private val inAppInternal: InAppInternal,
+    private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
+    private val onCloseTriggered: OnCloseListener?,
+    private val onAppEventTriggered: OnAppEventListener?,
+    private val timestampProvider: TimestampProvider
 ) {
 
     @Throws(RuntimeException::class)
@@ -47,14 +48,16 @@ class JSCommandFactory(
             CommandType.ON_BUTTON_CLICKED -> {
                 { property, _ ->
                     if (inAppMessage != null && property != null) {
-                        coreSdkHandler.post {
-                            buttonClickedRepository.add(
-                                ButtonClicked(
-                                    inAppMessage.campaignId,
-                                    property,
-                                    timestampProvider.provideTimestamp()
+                        concurrentHandlerHolder.coreHandler.post {
+                            runBlocking {
+                                buttonClickedRepository.add(
+                                    ButtonClicked(
+                                        inAppMessage.campaignId,
+                                        property,
+                                        timestampProvider.provideTimestamp()
+                                    )
                                 )
-                            )
+                            }
                             val eventName = "inapp:click"
                             val attributes: MutableMap<String, String?> = mutableMapOf(
                                 "campaignId" to inAppMessage.campaignId,
@@ -102,9 +105,10 @@ class JSCommandFactory(
             }
             CommandType.ON_ME_EVENT -> {
                 { property, json ->
-                    coreSdkHandler.post {
+                    concurrentHandlerHolder.coreHandler.post {
                         val payload = json.optJSONObject("payload")
-                        val attributes = payload?.keys()?.asSequence()?.associateBy({ it }) { payload.getString(it) }
+                        val attributes = payload?.keys()?.asSequence()
+                            ?.associateBy({ it }) { payload.getString(it) }
                         inAppInternal.trackCustomEventAsync(property, attributes, null)
                     }
                 }

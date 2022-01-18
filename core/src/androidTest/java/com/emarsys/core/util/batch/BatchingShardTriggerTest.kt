@@ -13,6 +13,7 @@ import com.emarsys.core.util.batch.BatchingShardTrigger.RequestStrategy.TRANSIEN
 import com.emarsys.core.util.predicate.Predicate
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -84,16 +85,17 @@ class BatchingShardTriggerTest {
         val (requestModel1, requestModel2, requestModel3) = requests
 
         persistentTrigger().run()
-
-        inOrder(mockRequestManager, mockRepository).run {
-            this.verify(mockRepository).query(mockQuerySpecification)
-            this.verify(mockRequestManager, Mockito.timeout(50)).submit(requestModel1, null)
-            this.verify(mockRepository).remove(FilterByShardIds(listOf(shard1)))
-            this.verify(mockRequestManager, Mockito.timeout(50)).submit(requestModel2, null)
-            this.verify(mockRepository).remove(FilterByShardIds(listOf(shard2)))
-            this.verify(mockRequestManager, Mockito.timeout(50)).submit(requestModel3, null)
-            this.verify(mockRepository).remove(FilterByShardIds(listOf(shard3)))
-            this.verifyNoMoreInteractions()
+        runBlocking {
+            inOrder(mockRequestManager, mockRepository).run {
+                this.verify(mockRepository).query(mockQuerySpecification)
+                this.verify(mockRequestManager, Mockito.timeout(50)).submit(requestModel1, null)
+                this.verify(mockRepository).remove(FilterByShardIds(listOf(shard1)))
+                this.verify(mockRequestManager, Mockito.timeout(50)).submit(requestModel2, null)
+                this.verify(mockRepository).remove(FilterByShardIds(listOf(shard2)))
+                this.verify(mockRequestManager, Mockito.timeout(50)).submit(requestModel3, null)
+                this.verify(mockRepository).remove(FilterByShardIds(listOf(shard3)))
+                this.verifyNoMoreInteractions()
+            }
         }
     }
 
@@ -153,7 +155,8 @@ class BatchingShardTriggerTest {
 
     private fun anyTrigger() = persistentTrigger()
 
-    private fun trigger(requestStrategy: BatchingShardTrigger.RequestStrategy) = BatchingShardTrigger(
+    private fun trigger(requestStrategy: BatchingShardTrigger.RequestStrategy) =
+        BatchingShardTrigger(
             mockRepository,
             mockPredicate,
             mockQuerySpecification,
@@ -162,6 +165,6 @@ class BatchingShardTriggerTest {
             mockRequestManager,
             requestStrategy,
             mockConnectionWatchDog
-    )
+        )
 
 }

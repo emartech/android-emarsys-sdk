@@ -162,8 +162,8 @@ class DefaultConfigInternalTest {
         val mainScope = CoroutineScope(Job() + Dispatchers.Main)
 
         mockConcurrentHandlerHolder = mock {
-            on { coreScope } doReturn scope
-            on { uiScope } doReturn mainScope
+            on { it.sdkScope } doReturn scope
+            on { it.uiScope } doReturn mainScope
         }
 
         configInternal = spy(DefaultConfigInternal(mockMobileEngageRequestContext,

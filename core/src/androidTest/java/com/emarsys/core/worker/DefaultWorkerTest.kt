@@ -1,10 +1,6 @@
 package com.emarsys.core.worker
 
 import android.os.Handler
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
-import com.emarsys.core.testUtil.RequestModelTestUtils.createRequestModel
-
 import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.connection.ConnectionState
@@ -16,16 +12,16 @@ import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.core.request.model.specification.QueryLatestRequestModel
-import com.emarsys.core.response.ResponseModel
+import com.emarsys.core.testUtil.RequestModelTestUtils.createRequestModel
+import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
+import com.emarsys.testUtil.TimeoutUtils.timeoutRule
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentCaptor
 import org.mockito.kotlin.*
-import java.lang.IllegalArgumentException
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
@@ -93,66 +89,6 @@ class DefaultWorkerTest {
             HashMap(),
             now, 60000,
             "id2"
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_queueShouldNotBeNull() {
-        DefaultWorker(
-            null,
-            mock(),
-            uiHandler,
-            mockCoreCompletionHandler,
-            restClient,
-            mockProxyProvider
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_watchDogShouldNotBeNull() {
-        DefaultWorker(
-            requestRepository,
-            null,
-            uiHandler,
-            mockCoreCompletionHandler,
-            restClient,
-            mockProxyProvider
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_uiHandlerShouldNotBeNull() {
-        DefaultWorker(
-            requestRepository,
-            mock(),
-            null,
-            mockCoreCompletionHandler,
-            restClient,
-            mockProxyProvider
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_restClientShouldNotBeNull() {
-        DefaultWorker(
-            requestRepository,
-            mock(),
-            uiHandler,
-            mockCoreCompletionHandler,
-            null,
-            mockProxyProvider
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_proxyProvider_mustNotBeNull() {
-        DefaultWorker(
-            requestRepository,
-            mock(),
-            uiHandler,
-            mockCoreCompletionHandler,
-            restClient,
-            null
         )
     }
 
@@ -253,11 +189,13 @@ class DefaultWorkerTest {
         whenever(requestRepository.query(any()))
             .thenReturn(listOf(expiredModel1), listOf(expiredModel2), listOf(notExpiredModel))
         whenever(requestRepository.isEmpty()).thenReturn(false, false, false, false, true)
-        worker.run()
-        verify(requestRepository, times(3)).query(any())
-        verify(requestRepository, times(2)).remove(any())
-        verify(worker.restClient).execute(eq(notExpiredModel), any())
-        Assert.assertTrue(worker.isLocked)
+        runBlocking {
+            worker.run()
+            verify(requestRepository, times(3)).query(any())
+            verify(requestRepository, times(2)).remove(any())
+            verify(worker.restClient).execute(eq(notExpiredModel), any())
+            Assert.assertTrue(worker.isLocked)
+        }
     }
 
     @Test
@@ -283,11 +221,13 @@ class DefaultWorkerTest {
         whenever(worker.requestRepository.query(any()))
             .thenReturn(listOf(expiredModel1), listOf(expiredModel2))
         whenever(worker.requestRepository.isEmpty()).thenReturn(false, false, false, true)
-        worker.run()
-        verify(worker.requestRepository, times(2)).query(any())
-        verify(worker.requestRepository, times(2)).remove(any())
-        verifyNoInteractions(worker.restClient)
-        Assert.assertTrue(worker.requestRepository.isEmpty())
-        Assert.assertFalse(worker.isLocked)
+        runBlocking {
+            worker.run()
+            verify(worker.requestRepository, times(2)).query(any())
+            verify(worker.requestRepository, times(2)).remove(any())
+            verifyNoInteractions(worker.restClient)
+            Assert.assertTrue(worker.requestRepository.isEmpty())
+            Assert.assertFalse(worker.isLocked)
+        }
     }
 }

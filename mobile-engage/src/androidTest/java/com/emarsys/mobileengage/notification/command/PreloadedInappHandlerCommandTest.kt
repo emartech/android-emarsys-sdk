@@ -1,12 +1,12 @@
 package com.emarsys.mobileengage.notification.command
 
-import android.app.Application
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
-import com.emarsys.core.activity.ActivityLifecycleWatchdog
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.mobileengage.di.MobileEngageComponent
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
@@ -33,7 +33,7 @@ class PreloadedInappHandlerCommandTest {
     }
 
     private lateinit var mockDependencyContainer: MobileEngageComponent
-    private lateinit var coreSdkHandler: CoreSdkHandler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockLifecycleActionRegistry: ActivityLifecycleActionRegistry
     private lateinit var fileUrl: String
 
@@ -43,9 +43,10 @@ class PreloadedInappHandlerCommandTest {
 
     @Before
     fun setUp() {
-        fileUrl = InstrumentationRegistry.getTargetContext().applicationContext.cacheDir.absolutePath + "/test.file"
-
-        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+        fileUrl =
+            InstrumentationRegistry.getTargetContext().applicationContext.cacheDir.absolutePath + "/test.file"
+        val uiHandler = Handler(Looper.getMainLooper())
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
         mockLifecycleActionRegistry = mock()
 
         val mockFileDownloader: FileDownloader = mock {
@@ -54,9 +55,9 @@ class PreloadedInappHandlerCommandTest {
         }
 
         mockDependencyContainer = FakeMobileEngageDependencyContainer(
-                coreSdkHandler = coreSdkHandler,
-                activityLifecycleActionRegistry = mockLifecycleActionRegistry,
-                fileDownloader = mockFileDownloader
+            concurrentHandlerHolder = concurrentHandlerHolder,
+            activityLifecycleActionRegistry = mockLifecycleActionRegistry,
+            fileDownloader = mockFileDownloader
         )
 
         setupMobileEngageComponent(mockDependencyContainer)
@@ -65,7 +66,7 @@ class PreloadedInappHandlerCommandTest {
 
     @After
     fun tearDown() {
-        coreSdkHandler.looper.quitSafely()
+        concurrentHandlerHolder.looper.quitSafely()
         tearDownMobileEngageComponent()
     }
 
@@ -89,7 +90,7 @@ class PreloadedInappHandlerCommandTest {
 
         PreloadedInappHandlerCommand(intent).run()
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder)
 
         verify(mockLifecycleActionRegistry).addTriggerOnActivityAction(any())
     }
@@ -116,7 +117,7 @@ class PreloadedInappHandlerCommandTest {
 
         PreloadedInappHandlerCommand(intent).run()
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder)
 
         verify(mockLifecycleActionRegistry).addTriggerOnActivityAction(any())
     }
@@ -139,7 +140,7 @@ class PreloadedInappHandlerCommandTest {
 
         PreloadedInappHandlerCommand(intent).run()
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder)
 
         verify(mockLifecycleActionRegistry).addTriggerOnActivityAction(any())
     }
@@ -166,7 +167,7 @@ class PreloadedInappHandlerCommandTest {
 
         PreloadedInappHandlerCommand(intent).run()
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder)
 
         verify(mockLifecycleActionRegistry).addTriggerOnActivityAction(any())
 
@@ -185,14 +186,14 @@ class PreloadedInappHandlerCommandTest {
 
         PreloadedInappHandlerCommand(intent).run()
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder)
 
         verifyNoInteractions(mockLifecycleActionRegistry)
     }
 
-    private fun waitForEventLoopToFinish(handler: CoreSdkHandler) {
+    private fun waitForEventLoopToFinish(handlerHolder: ConcurrentHandlerHolder) {
         val latch = CountDownLatch(1)
-        handler.post { latch.countDown() }
+        handlerHolder.coreHandler.post { latch.countDown() }
 
         latch.await()
     }

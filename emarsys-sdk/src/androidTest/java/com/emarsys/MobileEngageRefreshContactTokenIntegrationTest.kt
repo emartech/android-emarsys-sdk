@@ -100,7 +100,7 @@ class MobileEngageRefreshContactTokenIntegrationTest {
 
         Emarsys.setup(baseConfig)
 
-        emarsys().coreSdkHandler.post {
+        emarsys().concurrentHandlerHolder.coreHandler.post {
             contactTokenStorage = emarsys().contactTokenStorage
             contactTokenStorage.remove()
             emarsys().pushTokenStorage.remove()

@@ -71,7 +71,7 @@ class InlineInAppView : LinearLayout {
     }
 
     fun loadInApp(viewId: String) {
-        mobileEngage().coreSdkHandler.post {
+        mobileEngage().concurrentHandlerHolder.coreHandler.post {
             this.viewId = viewId
             if (webView == null) {
                 onCompletionListener?.onCompleted(IllegalArgumentException("WebView can not be created, please try again later!"))
@@ -159,7 +159,7 @@ class InlineInAppView : LinearLayout {
         val jsCommandFactory = JSCommandFactory(
             mobileEngage().currentActivityProvider,
             mobileEngage().uiHandler,
-            mobileEngage().coreSdkHandler,
+            mobileEngage().concurrentHandlerHolder,
             inAppInternal,
             buttonClickedRepository,
             onCloseListener,

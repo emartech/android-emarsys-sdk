@@ -17,10 +17,11 @@ class AppStartAction(private val eventServiceInternal: EventServiceInternal, pri
 ) : ActivityLifecycleAction {
 
     override fun execute(activity: Activity?) {
-        val coreSdkHandler = mobileEngage().coreSdkHandler
-        coreSdkHandler.post {
+        val coreSdkHandler = mobileEngage().concurrentHandlerHolder
+        coreSdkHandler.coreHandler.post {
             if (contactTokenStorage.get() != null) {
-                eventServiceInternal.proxyApi(coreSdkHandler).trackInternalCustomEventAsync("app:start", null, null)
+                eventServiceInternal.proxyApi(coreSdkHandler)
+                    .trackInternalCustomEventAsync("app:start", null, null)
             }
             info(AppEventLog("app:start", null))
         }

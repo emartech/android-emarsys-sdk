@@ -2,6 +2,9 @@ package com.emarsys.core.database.repository
 
 import android.content.ContentValues
 import android.database.Cursor
+import android.os.Handler
+import android.os.Looper
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_HEADERS
@@ -14,6 +17,7 @@ import com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_URL
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.helper.DbHelper
 import com.emarsys.core.device.FilterByHardwareId
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
@@ -23,6 +27,7 @@ import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.anyNotNull
 import io.kotlintest.shouldBe
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -49,6 +54,7 @@ class AbstractSqliteRepositoryTest {
     private lateinit var dbHelperMock: DbHelper
     private lateinit var dbMock: CoreSQLiteDatabase
     private lateinit var dummySpecification: SqlSpecification
+    private lateinit var testConcurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -58,6 +64,8 @@ class AbstractSqliteRepositoryTest {
     @Suppress("UNCHECKED_CAST")
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
+        testConcurrentHandlerHolder =
+            ConcurrentHandlerHolderFactory(Handler(Looper.getMainLooper())).create()
 
         dummySpecification = sqlSpecification(
                 DISTINCT,
@@ -77,10 +85,10 @@ class AbstractSqliteRepositoryTest {
             on { writableCoreDatabase } doReturn dbMock
         }
 
-
         repository = (mock(defaultAnswer = Mockito.CALLS_REAL_METHODS) as AbstractSqliteRepository<Any>).apply {
             tableName = TABLE_NAME
             dbHelper = dbHelperMock
+            concurrentHandlerHolder = testConcurrentHandlerHolder
         }
     }
 
@@ -93,7 +101,9 @@ class AbstractSqliteRepositoryTest {
 
         val input = any<Any>()
 
-        repository.add(input)
+        runBlocking {
+            repository.add(input)
+        }
 
         verify(repository).contentValuesFromItem(input)
         verify(dbMock).beginTransaction()
@@ -104,21 +114,23 @@ class AbstractSqliteRepositoryTest {
 
     @Test
     fun testUpdate_shouldUpdateTheDb() {
-        val contentValues = ContentValues().apply {
-            put("key", "value")
+        runBlocking {
+            val contentValues = ContentValues().apply {
+                put("key", "value")
+            }
+            whenever(repository.contentValuesFromItem(anyNotNull())).thenReturn(contentValues)
+            whenever(dbMock.update(any(), any(), any(), any())).thenReturn(1)
+            val input = anyNotNull<Any>()
+
+            val result = repository.update(input, eq(FilterByHardwareId("id")))
+
+            verify(repository).contentValuesFromItem(input)
+            verify(dbMock).beginTransaction()
+            verify(dbMock).update(TABLE_NAME, contentValues, "hardware_id=?", arrayOf("id"))
+            verify(dbMock).setTransactionSuccessful()
+            verify(dbMock).endTransaction()
+            result shouldBe 1
         }
-        whenever(repository.contentValuesFromItem(anyNotNull())).thenReturn(contentValues)
-        whenever(dbMock.update(any(), any(), any(), any())).thenReturn(1)
-        val input = anyNotNull<Any>()
-
-        val result = repository.update(input, eq(FilterByHardwareId("id")))
-
-        verify(repository).contentValuesFromItem(input)
-        verify(dbMock).beginTransaction()
-        verify(dbMock).update(TABLE_NAME, contentValues, "hardware_id=?", arrayOf("id"))
-        verify(dbMock).setTransactionSuccessful()
-        verify(dbMock).endTransaction()
-        result shouldBe 1
     }
 
     @Test
@@ -184,10 +196,17 @@ class AbstractSqliteRepositoryTest {
 
     @Test
     fun testRemove_shouldDeleteSpecifiedRow() {
-        repository.remove(dummySpecification)
+
+        runBlocking {
+            repository.remove(dummySpecification)
+        }
 
         verify(dbMock).beginTransaction()
-        verify(dbMock).delete(TABLE_NAME, dummySpecification.selection, dummySpecification.selectionArgs)
+        verify(dbMock).delete(
+            TABLE_NAME,
+            dummySpecification.selection,
+            dummySpecification.selectionArgs
+        )
         verify(dbMock).setTransactionSuccessful()
         verify(dbMock).endTransaction()
     }

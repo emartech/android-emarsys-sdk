@@ -10,11 +10,13 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
 import com.emarsys.mobileengage.util.RequestModelHelper
+import kotlinx.coroutines.runBlocking
 
 class InAppCleanUpResponseHandler(
-        private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
-        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
-        private val requestModelHelper: RequestModelHelper) : AbstractResponseHandler() {
+    private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
+    private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
+    private val requestModelHelper: RequestModelHelper
+) : AbstractResponseHandler() {
 
     companion object {
         private const val OLD_MESSAGES = "oldCampaigns"
@@ -46,8 +48,10 @@ class InAppCleanUpResponseHandler(
             for (i in 0 until oldMessages.length()) {
                 ids[i] = oldMessages.optString(i)
             }
-            displayedIamRepository.remove(FilterByCampaignId(*ids))
-            buttonClickedRepository.remove(FilterByCampaignId(*ids))
+            runBlocking {
+                displayedIamRepository.remove(FilterByCampaignId(*ids))
+                buttonClickedRepository.remove(FilterByCampaignId(*ids))
+            }
         }
     }
 }

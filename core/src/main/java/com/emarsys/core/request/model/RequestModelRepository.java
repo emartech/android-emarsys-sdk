@@ -1,16 +1,5 @@
 package com.emarsys.core.request.model;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-
-import com.emarsys.core.database.DatabaseContract;
-import com.emarsys.core.database.helper.DbHelper;
-import com.emarsys.core.database.repository.AbstractSqliteRepository;
-import com.emarsys.core.util.serialization.SerializationException;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_HEADERS;
 import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_METHOD;
 import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_PAYLOAD;
@@ -21,10 +10,23 @@ import static com.emarsys.core.database.DatabaseContract.REQUEST_COLUMN_NAME_URL
 import static com.emarsys.core.util.serialization.SerializationUtils.blobToSerializable;
 import static com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+
+import com.emarsys.core.database.DatabaseContract;
+import com.emarsys.core.database.helper.DbHelper;
+import com.emarsys.core.database.repository.AbstractSqliteRepository;
+import com.emarsys.core.handler.ConcurrentHandlerHolder;
+import com.emarsys.core.util.serialization.SerializationException;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class RequestModelRepository extends AbstractSqliteRepository<RequestModel> {
 
-    public RequestModelRepository(DbHelper coreDbHelper) {
-        super(DatabaseContract.REQUEST_TABLE_NAME, coreDbHelper);
+    public RequestModelRepository(DbHelper coreDbHelper, ConcurrentHandlerHolder concurrentHandlerHolder) {
+        super(DatabaseContract.REQUEST_TABLE_NAME, coreDbHelper, concurrentHandlerHolder);
+
     }
 
     @Override

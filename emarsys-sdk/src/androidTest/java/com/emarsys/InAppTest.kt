@@ -48,7 +48,7 @@ class InAppTest {
                 mobileEngage().activityLifecycleWatchdog)
         application.unregisterActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
         try {
-            val looper: Looper = emarsys().coreSdkHandler.looper
+            val looper: Looper = emarsys().concurrentHandlerHolder.looper
             looper.quitSafely()
             tearDownEmarsysComponent()
         } catch (e: Exception) {

@@ -1,12 +1,14 @@
 package com.emarsys.inapp.ui
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.view.ViewGroup
 import android.webkit.WebView
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.request.RequestManager
@@ -59,6 +61,7 @@ class InlineInAppViewTest {
     private lateinit var mockButtonClickedRepository: Repository<ButtonClicked, SqlSpecification>
     private lateinit var mockInAppInternal: InAppInternal
     private lateinit var mockScopeDelegatorCompletionHandlerProvider: ScopeDelegatorCompletionHandlerProvider
+    private lateinit var uiHandler: Handler
 
     @Rule
     @JvmField
@@ -67,6 +70,7 @@ class InlineInAppViewTest {
     @Before
     fun setUp() {
         var onMessageLoadedListener: MessageLoadedListener? = null
+        uiHandler = Handler(Looper.getMainLooper())
         context = InstrumentationRegistry.getTargetContext()
         webView = mock {
             on { layoutParams } doReturn ViewGroup.LayoutParams(10, 10)
@@ -115,14 +119,14 @@ class InlineInAppViewTest {
 
         mockRequestManager = spy(
             RequestManager(
-                CoreSdkHandlerProvider().provideHandler(),
+                ConcurrentHandlerHolderFactory(uiHandler).create(),
                 mock(),
                 mock(),
                 mock(),
                 FakeRestClient(
                     mockResponseModel,
                     FakeRestClient.Mode.SUCCESS,
-                    CoreSdkHandlerProvider().provideHandler().handler
+                    ConcurrentHandlerHolderFactory(uiHandler).create().coreHandler.handler
                 ),
                 mock(),
                 mock(),
@@ -293,7 +297,7 @@ class InlineInAppViewTest {
         whenever(mockResponseModel.statusCode).thenReturn(expectedStatusCode)
         mockRequestManager = spy(
             RequestManager(
-                CoreSdkHandlerProvider().provideHandler(),
+                ConcurrentHandlerHolderFactory(uiHandler).create(),
                 mock(),
                 mock(),
                 mock(),
@@ -342,7 +346,7 @@ class InlineInAppViewTest {
         val expectedException = Exception("Error happened")
         mockRequestManager = spy(
             RequestManager(
-                CoreSdkHandlerProvider().provideHandler(),
+                ConcurrentHandlerHolderFactory(uiHandler).create(),
                 mock(),
                 mock(),
                 mock(),

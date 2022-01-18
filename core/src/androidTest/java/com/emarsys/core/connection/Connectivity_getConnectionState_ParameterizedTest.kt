@@ -1,22 +1,21 @@
 package com.emarsys.core.connection
 
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-import com.emarsys.testUtil.ReflectionTestUtils.setInstanceField
-import com.emarsys.testUtil.ConnectionTestUtils.getConnectivityManagerMock
-import androidx.test.filters.SdkSuppress
-
 import android.net.NetworkCapabilities
 import android.os.Build
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import android.os.Handler
+import android.os.Looper
+import androidx.test.filters.SdkSuppress
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.testUtil.ConnectionTestUtils.getConnectivityManagerMock
+import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
+import com.emarsys.testUtil.ReflectionTestUtils.setInstanceField
+import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import io.kotlintest.data.forall
 import io.kotlintest.shouldBe
 import io.kotlintest.tables.row
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.junit.runners.Parameterized
-import java.util.*
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 class Connectivity_getConnectionState_ParameterizedTest {
@@ -37,8 +36,16 @@ class Connectivity_getConnectionState_ParameterizedTest {
                 row(true, NetworkCapabilities.TRANSPORT_ETHERNET, ConnectionState.CONNECTED),
                 row(true, NetworkCapabilities.TRANSPORT_VPN, ConnectionState.CONNECTED)
         ) { isConnected, connectionType, expectedConnectionState ->
-            val connectionWatchDog = ConnectionWatchDog(getTargetContext(), CoreSdkHandlerProvider().provideHandler())
-            setInstanceField(connectionWatchDog, "connectivityManager", getConnectivityManagerMock(isConnected, connectionType))
+            val connectionWatchDog = ConnectionWatchDog(
+                getTargetContext(), ConcurrentHandlerHolderFactory(
+                    Handler(Looper.getMainLooper())
+                ).create()
+            )
+            setInstanceField(
+                connectionWatchDog,
+                "connectivityManager",
+                getConnectivityManagerMock(isConnected, connectionType)
+            )
 
             connectionWatchDog.connectionState shouldBe expectedConnectionState
         }

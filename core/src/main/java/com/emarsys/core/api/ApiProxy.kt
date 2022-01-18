@@ -1,8 +1,8 @@
 package com.emarsys.core.api
 
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 
 
-inline fun <reified T : Any> T.proxyApi(handler: CoreSdkHandler): T {
-    return this.proxyWithLogExceptions().proxyWithHandler(handler)
+inline fun <reified T : Any> T.proxyApi(handlerHolder: ConcurrentHandlerHolder): T {
+    return this.proxyWithLogExceptions().proxyWithHandler(handlerHolder)
 }

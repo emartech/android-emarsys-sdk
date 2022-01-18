@@ -1,16 +1,15 @@
 package com.emarsys.core.connection
 
 import android.content.Context
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
-
-import androidx.test.filters.SdkSuppress
-import com.emarsys.core.fake.FakeConnectionChangeListener
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.fake.FakeConnectionChangeListener
+import com.emarsys.core.handler.ConcurrentHandlerHolder
+import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
@@ -24,23 +23,25 @@ class ConnectivityChangeReceiverTest {
     private lateinit var receiver: ConnectivityChangeReceiver
     private lateinit var mockListener: ConnectionChangeListener
     private lateinit var context: Context
+    private lateinit var uiHandler: Handler
 
     @Rule
     @JvmField
     var timeout: TestRule = timeoutRule
-    lateinit var sdkHandler: CoreSdkHandler
+    lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Before
     fun setup() {
+        uiHandler = Handler(Looper.getMainLooper())
         context = InstrumentationRegistry.getInstrumentation().targetContext
-        sdkHandler = CoreSdkHandlerProvider().provideHandler()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
 
         mockListener = mock()
     }
 
     @After
     fun tearDown() {
-        sdkHandler.looper.quit()
+        concurrentHandlerHolder.looper.quit()
     }
 
     @Test
@@ -48,11 +49,11 @@ class ConnectivityChangeReceiverTest {
     fun testOnReceive_listenerShouldCall_onCoreSDKThread() {
         val latch = CountDownLatch(1)
         val fakeListener = FakeConnectionChangeListener(latch)
-        val expectedName = sdkHandler.looper.thread.name
+        val expectedName = concurrentHandlerHolder.looper.thread.name
         receiver = ConnectivityChangeReceiver(
             fakeListener,
-            ConnectionWatchDog(context, sdkHandler),
-            sdkHandler
+            ConnectionWatchDog(context, concurrentHandlerHolder),
+            concurrentHandlerHolder
         )
         receiver.onReceive(context, mock())
         latch.await()

@@ -1,5 +1,8 @@
 package com.emarsys.mobileengage.iam.model.requestRepositoryProxy;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.emarsys.core.database.repository.Repository;
 import com.emarsys.core.database.repository.SqlSpecification;
 import com.emarsys.core.database.repository.specification.Everything;
@@ -16,11 +19,12 @@ import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam;
 import com.emarsys.mobileengage.util.RequestModelHelper;
 import com.emarsys.mobileengage.util.RequestPayloadUtils;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import kotlin.Unit;
+import kotlin.coroutines.Continuation;
 
 
 public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpecification> {
@@ -62,16 +66,26 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         this.requestModelHelper = requestModelHelper;
     }
 
+    @Nullable
     @Override
-    public void add(RequestModel item) {
-        if (!(item instanceof CompositeRequestModel)) {
-            requestRepository.add(item);
-        }
+    public Object update(RequestModel item, @NonNull SqlSpecification specification, @NonNull Continuation<? super Integer> $completion) {
+        throw new UnsupportedOperationException("update method is not supported in RequestRepositoryProxy");
     }
 
+    @Nullable
     @Override
-    public void remove(SqlSpecification specification) {
-        requestRepository.remove(specification);
+    public Object add(RequestModel item, @NonNull Continuation<? super Unit> $completion) {
+        Object result = null;
+        if (!(item instanceof CompositeRequestModel)) {
+            result = requestRepository.add(item, $completion);
+        }
+        return result;
+    }
+
+    @Nullable
+    @Override
+    public Object remove(SqlSpecification specification, @NonNull Continuation<? super Unit> $completion) {
+        return requestRepository.remove(specification, $completion);
     }
 
     @Override
@@ -147,10 +161,5 @@ public class RequestRepositoryProxy implements Repository<RequestModel, SqlSpeci
         }
 
         return result;
-    }
-
-    @Override
-    public int update(RequestModel item, @NotNull SqlSpecification specification) {
-        throw new UnsupportedOperationException("update method is not supported in RequestRepositoryProxy");
     }
 }

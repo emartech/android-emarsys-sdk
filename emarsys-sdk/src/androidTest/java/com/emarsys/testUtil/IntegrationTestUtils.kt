@@ -37,7 +37,7 @@ object IntegrationTestUtils {
     @Synchronized
     fun tearDownEmarsys(application: Application? = null) {
         var latch = CountDownLatch(1)
-        emarsys().coreSdkHandler.post {
+        emarsys().concurrentHandlerHolder.coreHandler.post {
             if (application != null) {
                 application.unregisterActivityLifecycleCallbacks(emarsys().activityLifecycleWatchdog)
                 application.unregisterActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
@@ -57,7 +57,7 @@ object IntegrationTestUtils {
             emarsys().predictServiceStorage.remove()
             latch.countDown()
         }
-        emarsys().coreSdkHandler.looper.quitSafely()
+        emarsys().concurrentHandlerHolder.looper.quitSafely()
         latch.await()
 
         latch = CountDownLatch(1)

@@ -11,7 +11,7 @@ open class DefaultEmarsysDependencies(config: EmarsysConfig,
     init {
         setupEmarsysComponent(component)
 
-        emarsys().coreSdkHandler.post {
+        emarsys().concurrentHandlerHolder.coreHandler.post {
             component.initializeResponseHandlers(config)
         }
     }

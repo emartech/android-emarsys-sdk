@@ -7,7 +7,8 @@ import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
@@ -43,9 +44,9 @@ class DefaultMessageInboxInternalTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var messageInboxInternal: DefaultMessageInboxInternal
     private lateinit var latch: CountDownLatch
-    private val coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
     private lateinit var uiHandler : Handler
-    private lateinit var mockScope : CoroutineScope
+    private lateinit var mockScope: CoroutineScope
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -54,6 +55,7 @@ class DefaultMessageInboxInternalTest {
     @Before
     fun setUp() {
         uiHandler = Handler(Looper.getMainLooper())
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
         mockScope = mock()
         latch = CountDownLatch(1)
         mockMessageInboxResponseMapper = mock {
@@ -94,7 +96,13 @@ class DefaultMessageInboxInternalTest {
         }
         val messageInboxInternal = DefaultMessageInboxInternal(
             mockScope,
-            requestManagerWithRestClient(FakeRestClient(mockResponse, FakeRestClient.Mode.SUCCESS, coreSdkHandler.handler)),
+            requestManagerWithRestClient(
+                FakeRestClient(
+                    mockResponse,
+                    FakeRestClient.Mode.SUCCESS,
+                    concurrentHandlerHolder.coreHandler
+                )
+            ),
             mockRequestModelFactory,
             mockMessageInboxResponseMapper
         )
@@ -119,7 +127,13 @@ class DefaultMessageInboxInternalTest {
         }
         val messageInboxInternal = DefaultMessageInboxInternal(
             mockScope,
-            requestManagerWithRestClient(FakeRestClient(errorResponse, FakeRestClient.Mode.ERROR_RESPONSE_MODEL, coreSdkHandler.handler)),
+            requestManagerWithRestClient(
+                FakeRestClient(
+                    errorResponse,
+                    FakeRestClient.Mode.ERROR_RESPONSE_MODEL,
+                    concurrentHandlerHolder.coreHandler
+                )
+            ),
             mockRequestModelFactory,
             mockMessageInboxResponseMapper
         )
@@ -145,7 +159,12 @@ class DefaultMessageInboxInternalTest {
 
         val messageInboxInternal = DefaultMessageInboxInternal(
             mockScope,
-            requestManagerWithRestClient(FakeRestClient(expectedException, coreSdkHandler.handler)),
+            requestManagerWithRestClient(
+                FakeRestClient(
+                    expectedException,
+                    concurrentHandlerHolder.coreHandler
+                )
+            ),
             mockRequestModelFactory,
             mockMessageInboxResponseMapper
         )

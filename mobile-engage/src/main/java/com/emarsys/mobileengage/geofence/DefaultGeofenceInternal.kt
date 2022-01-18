@@ -12,7 +12,7 @@ import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
@@ -48,7 +48,7 @@ class DefaultGeofenceInternal(
     private val geofenceCacheableEventHandler: CacheableEventHandler,
     private val geofenceEnabledStorage: Storage<Boolean>,
     private val geofencePendingIntentProvider: GeofencePendingIntentProvider,
-    coreSdkHandler: CoreSdkHandler,
+    concurrentHandlerHolder: ConcurrentHandlerHolder,
     private val uiHandler: Handler,
     private val initialEnterTriggerEnabledStorage: Storage<Boolean?>
 ) : GeofenceInternal {
@@ -58,7 +58,7 @@ class DefaultGeofenceInternal(
         const val MAX_WAIT_TIME: Long = 60_000
     }
 
-    private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver(coreSdkHandler)
+    private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver(concurrentHandlerHolder)
     private var geofenceResponse: GeofenceResponse? = null
     private var nearestGeofences: MutableList<MEGeofence> = mutableListOf()
     override val registeredGeofences: List<MEGeofence>

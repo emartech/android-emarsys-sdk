@@ -1,29 +1,23 @@
 package com.emarsys.core.request
 
-import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mapper
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.connection.ConnectionProvider
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.response.ResponseModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.android.asCoroutineDispatcher
 
 open class RestClient(
     private val connectionProvider: ConnectionProvider,
     private val timestampProvider: TimestampProvider,
     private val responseHandlersProcessor: ResponseHandlersProcessor,
     private val requestModelMappers: List<Mapper<RequestModel, RequestModel>>,
-    private val uiHandler: Handler,
-    coreSdkHandler: CoreSdkHandler
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder
 ) {
-    private val coreSdkHandlerDispatcher = coreSdkHandler.handler.asCoroutineDispatcher()
-
-    private val sdkScope: CoroutineScope = CoroutineScope(Job() + coreSdkHandlerDispatcher)
     private val defaultScope = CoroutineScope(Job() + Dispatchers.Default)
 
     open fun execute(model: RequestModel, completionHandler: CoreCompletionHandler) {
@@ -35,11 +29,11 @@ open class RestClient(
         )
 
         defaultScope.launch {
-            val responseModel = async(context = sdkScope.coroutineContext) {
+            val responseModel = async(context = concurrentHandlerHolder.sdkScope.coroutineContext) {
                 task.execute()
             }
 
-            sdkScope.launch {
+            concurrentHandlerHolder.sdkScope.launch {
                 onPostExecute(model.id, responseModel.await(), completionHandler)
             }
         }

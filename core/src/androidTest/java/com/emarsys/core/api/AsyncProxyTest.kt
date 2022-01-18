@@ -1,8 +1,10 @@
 package com.emarsys.core.api
 
+import android.os.Handler
 import android.os.HandlerThread
-import com.emarsys.core.concurrency.CoreHandler
-import com.emarsys.core.handler.CoreSdkHandler
+import android.os.Looper
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotlintest.shouldBe
@@ -16,7 +18,8 @@ import java.util.concurrent.CountDownLatch
 
 class AsyncProxyTest {
 
-    private lateinit var handler: CoreSdkHandler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
+    private lateinit var uiHandler: Handler
 
     @Rule
     @JvmField
@@ -26,14 +29,15 @@ class AsyncProxyTest {
     fun setUp() {
         val handlerThread = HandlerThread("CoreSDKHandlerThread-" + UUID.randomUUID().toString())
         handlerThread.start()
-        handler = CoreSdkHandler(CoreHandler(handlerThread))
+        uiHandler = Handler(Looper.getMainLooper())
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
     }
 
     @Test
     fun testInvoke_shouldInvokeMethod() {
         val expected: CharSequence = "test"
 
-        val result = expected.proxyWithHandler(handler)
+        val result = expected.proxyWithHandler(concurrentHandlerHolder)
 
         result.toString() shouldBe "test"
     }
@@ -48,7 +52,7 @@ class AsyncProxyTest {
             latch.countDown()
         }
 
-        callback.proxyWithHandler(handler).run()
+        callback.proxyWithHandler(concurrentHandlerHolder).run()
 
         latch.await()
         threadSpy.verifyCalledOnCoreSdkThread()
@@ -63,7 +67,7 @@ class AsyncProxyTest {
             "test"
         }
 
-        val result = callback.proxyWithHandler(handler).call()
+        val result = callback.proxyWithHandler(concurrentHandlerHolder).call()
 
         result shouldBe "test"
         threadSpy.verifyCalledOnCoreSdkThread()
@@ -72,9 +76,12 @@ class AsyncProxyTest {
     @Test
     fun testInvoke_shouldHandlePrimitives_boolean() {
         val latch = CountDownLatch(1)
-        val proxiedTestClass = (TestClassWithPrimitives() as Proxyable).proxyWithHandler(handler, timeout = 1)
+        val proxiedTestClass = (TestClassWithPrimitives() as Proxyable).proxyWithHandler(
+            concurrentHandlerHolder,
+            timeout = 1
+        )
         var error: Exception? = null
-        handler.post {
+        concurrentHandlerHolder.coreHandler.post {
             try {
                 val result = proxiedTestClass.testBoolean()
                 result shouldBe false
@@ -91,9 +98,12 @@ class AsyncProxyTest {
     @Test
     fun testInvoke_shouldHandlePrimitives_double() {
         val latch = CountDownLatch(1)
-        val proxiedTestClass = (TestClassWithPrimitives() as Proxyable).proxyWithHandler(handler, timeout = 1)
+        val proxiedTestClass = (TestClassWithPrimitives() as Proxyable).proxyWithHandler(
+            concurrentHandlerHolder,
+            timeout = 1
+        )
         var error: Exception? = null
-        handler.post {
+        concurrentHandlerHolder.coreHandler.post {
             try {
                 val result = proxiedTestClass.testDouble()
                 result shouldBe 0.0
@@ -110,9 +120,12 @@ class AsyncProxyTest {
     @Test
     fun testInvoke_shouldHandlePrimitives_char() {
         val latch = CountDownLatch(1)
-        val proxiedTestClass = (TestClassWithPrimitives() as Proxyable).proxyWithHandler(handler, timeout = 1)
+        val proxiedTestClass = (TestClassWithPrimitives() as Proxyable).proxyWithHandler(
+            concurrentHandlerHolder,
+            timeout = 1
+        )
         var error: Exception? = null
-        handler.post {
+        concurrentHandlerHolder.coreHandler.post {
             try {
                 val result = proxiedTestClass.testChar()
                 result shouldBe Char(0)

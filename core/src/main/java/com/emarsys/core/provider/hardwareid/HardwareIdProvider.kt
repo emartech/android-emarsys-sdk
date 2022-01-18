@@ -10,20 +10,25 @@ import com.emarsys.core.device.FilterByHardwareId
 import com.emarsys.core.device.HardwareIdentification
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.storage.Storage
+import kotlinx.coroutines.runBlocking
 
 @Mockable
-class HardwareIdProvider(private val uuidProvider: UUIDProvider,
-                         private val repository: Repository<HardwareIdentification?, SqlSpecification>,
-                         private val hwIdStorage: Storage<String?>,
-                         private val hardwareIdContentResolver: HardwareIdContentResolver,
-                         private val hardwareIdentificationCrypto: HardwareIdentificationCrypto) {
+class HardwareIdProvider(
+    private val uuidProvider: UUIDProvider,
+    private val repository: Repository<HardwareIdentification?, SqlSpecification>,
+    private val hwIdStorage: Storage<String?>,
+    private val hardwareIdContentResolver: HardwareIdContentResolver,
+    private val hardwareIdentificationCrypto: HardwareIdentificationCrypto
+) {
 
     fun provideHardwareId(): String {
         val hardware = repository.query(Everything()).firstOrNull()
         return if (hardware != null) {
             if (hardware.encryptedHardwareId == null) {
                 hardwareIdentificationCrypto.encrypt(hardware).also {
-                    repository.update(it, FilterByHardwareId(it.hardwareId))
+                    runBlocking {
+                        repository.update(it, FilterByHardwareId(it.hardwareId))
+                    }
                 }
                 hardware.hardwareId
             } else {
@@ -31,15 +36,19 @@ class HardwareIdProvider(private val uuidProvider: UUIDProvider,
             }
         } else {
             getHardwareIdentification().also {
-                repository.add(it)
+                runBlocking {
+                    repository.add(
+                        it
+                    )
+                }
             }.hardwareId
         }
     }
 
     private fun getHardwareIdentification(): HardwareIdentification {
         return (hwIdStorage.get()
-                        ?: hardwareIdContentResolver.resolveHardwareId()
-                        ?: generateNewHardwareId()
+            ?: hardwareIdContentResolver.resolveHardwareId()
+            ?: generateNewHardwareId()
                 ).asEncryptedHardwareIdentification()
     }
 

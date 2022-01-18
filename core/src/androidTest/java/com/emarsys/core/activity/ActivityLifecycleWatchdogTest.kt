@@ -1,8 +1,6 @@
 package com.emarsys.core.activity
 
 import android.app.Activity
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Before
 import org.junit.Rule

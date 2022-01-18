@@ -6,19 +6,16 @@ import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mapper
 import com.emarsys.core.Registry
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.connection.ConnectionWatchDog
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.fake.FakeCompletionHandler
-import com.emarsys.core.fake.FakeRunnableFactory
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
-import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
-import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
-import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider
+import com.emarsys.core.request.factory.*
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
@@ -32,7 +29,11 @@ import com.emarsys.testUtil.RetryUtils.retryRule
 import com.emarsys.testUtil.TestUrls.DENNA_ECHO
 import com.emarsys.testUtil.TestUrls.customResponse
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
+import com.emarsys.testUtil.mockito.ThreadSpy
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.kotlin.*
@@ -49,8 +50,8 @@ class RequestManagerTest {
     private lateinit var completionHandlerLatch: CountDownLatch
     private lateinit var runnableFactoryLatch: CountDownLatch
     private lateinit var mockConnectionWatchDog: ConnectionWatchDog
-    private lateinit var coreSdkHandlerProvider: CoreSdkHandlerProvider
-    private lateinit var coreSdkHandler: CoreSdkHandler
+    private lateinit var concurrentHandlerHolderFactory: ConcurrentHandlerHolderFactory
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var uiHandler: Handler
     private lateinit var mockRequestRepository: Repository<RequestModel, SqlSpecification>
     private lateinit var mockShardRepository: Repository<ShardModel, SqlSpecification>
@@ -64,6 +65,9 @@ class RequestManagerTest {
     private lateinit var mockCompletionHandlerProxyProvider: CompletionHandlerProxyProvider
     private lateinit var mockScopeDelegatorCompletionHandlerProvider: ScopeDelegatorCompletionHandlerProvider
     private lateinit var mockScope: CoroutineScope
+    private lateinit var runnableFactory: RunnableFactory
+    private lateinit var callbackRegistryThreadSpy: ThreadSpy<Registry<RequestModel, CompletionListener?>>
+    private lateinit var shardRepositoryThreadSpy: ThreadSpy<Repository<ShardModel, SqlSpecification>>
 
     @Rule
     @JvmField
@@ -74,7 +78,7 @@ class RequestManagerTest {
     var retry: TestRule = retryRule
 
     @Before
-    fun init() {
+    fun setUp() {
         deleteCoreDatabase()
         val requestModelMappers: MutableList<Mapper<RequestModel, RequestModel>> = mutableListOf()
         mockRequestModelMapper = mock()
@@ -85,15 +89,26 @@ class RequestManagerTest {
         }
         val context = getTargetContext()
         checkConnection(context)
-        coreSdkHandlerProvider = CoreSdkHandlerProvider()
-        coreSdkHandler = coreSdkHandlerProvider.provideHandler()
+        runnableFactory = DefaultRunnableFactory()
         uiHandler = Handler(Looper.getMainLooper())
+        concurrentHandlerHolderFactory = ConcurrentHandlerHolderFactory(uiHandler)
+        concurrentHandlerHolder = concurrentHandlerHolderFactory.create()
         mockConnectionWatchDog = mock()
         mockRequestRepository = mock {
             on { isEmpty() } doReturn true
         }
+        callbackRegistryThreadSpy = ThreadSpy()
+        shardRepositoryThreadSpy = ThreadSpy()
+
         mockShardRepository = mock()
-        mockCallbackRegistry = mock()
+
+        runBlocking {
+            whenever(mockShardRepository.add(any())).thenAnswer(shardRepositoryThreadSpy)
+        }
+        mockCallbackRegistry = mock {
+            on { register(any(), isNull()) }.doAnswer(callbackRegistryThreadSpy)
+        }
+
         completionHandlerLatch = CountDownLatch(1)
         fakeCompletionHandler = FakeCompletionHandler(completionHandlerLatch)
         mockDefaultHandler = mock()
@@ -102,14 +117,14 @@ class RequestManagerTest {
             mock(),
             mock(),
             requestModelMappers.toList(),
-            Handler(Looper.getMainLooper()),
-            CoreSdkHandlerProvider().provideHandler()
+            concurrentHandlerHolder
         )
         mockRestClient = mock()
         coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(
             mockRequestRepository,
             uiHandler,
-            coreSdkHandler
+            concurrentHandlerHolder,
+            runnableFactory
         )
         worker = DefaultWorker(
             mockRequestRepository,
@@ -127,7 +142,7 @@ class RequestManagerTest {
         }
         mockScope = mock()
         manager = RequestManager(
-            coreSdkHandler,
+            concurrentHandlerHolder,
             mockRequestRepository,
             mockShardRepository,
             worker,
@@ -141,7 +156,6 @@ class RequestManagerTest {
         timestampProvider = TimestampProvider()
         uuidProvider = UUIDProvider()
         runnableFactoryLatch = CountDownLatch(1)
-        manager.runnableFactory = FakeRunnableFactory(runnableFactoryLatch)
         val headers: MutableMap<String, String> = HashMap()
         headers["accept"] = "application/json"
         headers["content"] = "application/x-www-form-urlencoded"
@@ -160,32 +174,40 @@ class RequestManagerTest {
 
     @After
     fun tearDown() {
-        coreSdkHandler.looper.quit()
+        concurrentHandlerHolder.looper.quit()
     }
 
     @Test
     fun testSubmit_shouldAddRequestModelToQueue() {
-        manager.submit(requestModel, null)
-        runnableFactoryLatch.await()
-        verify(mockRequestRepository).add(requestModel)
+        manager.submit(
+            requestModel,
+            null
+        )
+        runBlocking {
+            verify(mockRequestRepository, timeout(100)).add(requestModel)
+        }
     }
 
     @Test
     fun testSubmit_withRequestModel_shouldInvokeRunOnTheWorker() {
         val worker = mock<Worker>()
         ReflectionTestUtils.setInstanceField(manager, "worker", worker)
+
         manager.submit(requestModel, null)
-        runnableFactoryLatch.await()
-        verify(worker).run()
+
+        verify(worker, timeout(100)).run()
+
     }
 
     @Test
     fun testSubmit_withRequestModel_executesRunnableOn_CoreSDKHandlerThread() {
-        val fakeRunnableFactory = FakeRunnableFactory(runnableFactoryLatch, true)
-        manager.runnableFactory = fakeRunnableFactory
-        manager.submit(requestModel, null)
-        runnableFactoryLatch.await()
-        Assert.assertEquals(1, fakeRunnableFactory.executionCount.toLong())
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                manager.submit(requestModel, null)
+            }
+        }
+
+        callbackRegistryThreadSpy.verifyCalledOnCoreSdkThread()
     }
 
     @Test
@@ -205,23 +227,25 @@ class RequestManagerTest {
     @Test
     fun testSubmit_withRequestModel_shouldRegisterCallbackToRegistry() {
         val completionListener = mock<CompletionListener>()
-        
+
         manager.submit(requestModel, completionListener)
-        runnableFactoryLatch.await()
-        verify(mockCallbackRegistry).register(requestModel, completionListener)
+        verify(mockCallbackRegistry, timeout(100)).register(requestModel, completionListener)
+
     }
 
     @Test
     fun testSubmit_withRequestModel_shouldRegister_null_ToRegistryAsWell() {
         manager.submit(requestModel, null)
-        runnableFactoryLatch.await()
-        verify(mockCallbackRegistry).register(requestModel, null)
+
+        verify(mockCallbackRegistry, timeout(100)).register(requestModel, null)
     }
 
 
     @Test
     fun testSubmitNow_withoutCompletionHandler_shouldCallProxyProviderForCompletionHandler() {
-        whenever(mockScopeDelegatorCompletionHandlerProvider.provide(any(), any())).doReturn(mockDefaultHandler)
+        whenever(mockScopeDelegatorCompletionHandlerProvider.provide(any(), any())).doReturn(
+            mockDefaultHandler
+        )
         manager.submitNow(requestModel)
         verify(mockScopeDelegatorCompletionHandlerProvider).provide(mockDefaultHandler, mockScope)
         verify(mockCompletionHandlerProxyProvider, times(2))
@@ -232,7 +256,10 @@ class RequestManagerTest {
     @Test
     fun testSubmitNow_shouldCallProxyProviderForCompletionHandler() {
         manager.submitNow(requestModel, fakeCompletionHandler)
-        verify(mockScopeDelegatorCompletionHandlerProvider).provide(fakeCompletionHandler, mockScope)
+        verify(mockScopeDelegatorCompletionHandlerProvider).provide(
+            fakeCompletionHandler,
+            mockScope
+        )
         verify(mockCompletionHandlerProxyProvider).provideProxy(null, fakeCompletionHandler)
         verify(mockRestClient).execute(requestModel, mockDefaultHandler)
     }
@@ -241,7 +268,10 @@ class RequestManagerTest {
     fun testSubmitNow_shouldCallProxyProviderForCompletionHandler_withScope() {
         val mockOtherScope: CoroutineScope = mock()
         manager.submitNow(requestModel, fakeCompletionHandler, mockOtherScope)
-        verify(mockScopeDelegatorCompletionHandlerProvider).provide(fakeCompletionHandler, mockOtherScope)
+        verify(mockScopeDelegatorCompletionHandlerProvider).provide(
+            fakeCompletionHandler,
+            mockOtherScope
+        )
         verify(mockCompletionHandlerProxyProvider).provideProxy(null, fakeCompletionHandler)
         verify(mockRestClient).execute(requestModel, mockDefaultHandler)
     }
@@ -255,6 +285,7 @@ class RequestManagerTest {
     @Test
     fun testSubmitNow_shouldCallRestClient_withDefaultHandler() {
         manager.submitNow(requestModel)
+
         verify(mockRestClient).execute(requestModel, mockDefaultHandler)
     }
 
@@ -266,7 +297,8 @@ class RequestManagerTest {
         whenever(mockConnectionWatchDog.isConnected).thenReturn(true, false)
         whenever(mockRequestRepository.isEmpty()).thenReturn(false, false, true)
         whenever(
-            mockRequestRepository.query(any())).thenReturn(listOf(requestModel), emptyList())
+            mockRequestRepository.query(any())
+        ).thenReturn(listOf(requestModel), emptyList())
         manager.submit(requestModel, null)
         completionHandlerLatch.await()
         Assert.assertEquals(requestModel.id, fakeCompletionHandler.errorId)
@@ -296,16 +328,18 @@ class RequestManagerTest {
     @Test
     fun testSubmit_shouldAddShardModelToDatabase() {
         manager.submit(shardModel)
-        runnableFactoryLatch.await()
-        verify(mockShardRepository).add(shardModel)
+        runBlocking {
+            verify(mockShardRepository, timeout(100)).add(shardModel)
+        }
     }
 
     @Test
     fun testSubmit_withShardModel_executesRunnableOn_CoreSDKHandlerThread() {
-        val fakeRunnableFactory = FakeRunnableFactory(runnableFactoryLatch, true)
-        manager.runnableFactory = fakeRunnableFactory
-        manager.submit(shardModel)
-        runnableFactoryLatch.await()
-        Assert.assertEquals(1, fakeRunnableFactory.executionCount.toLong())
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                manager.submit(shardModel)
+            }
+        }
+        shardRepositoryThreadSpy.verifyCalledOnCoreSdkThread()
     }
 }

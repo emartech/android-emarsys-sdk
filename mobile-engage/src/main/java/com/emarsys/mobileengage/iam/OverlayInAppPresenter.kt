@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentActivity
 import com.emarsys.core.Mockable
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.log.entry.InAppLoadingTime
@@ -28,25 +28,31 @@ import org.json.JSONObject
 
 @Mockable
 class OverlayInAppPresenter(
-        private val coreSdkHandler: CoreSdkHandler,
-        private val uiHandler: Handler,
-        private val webViewProvider: IamStaticWebViewProvider,
-        private val inAppInternal: InAppInternal,
-        private val dialogProvider: IamDialogProvider,
-        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
-        private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
-        private val timestampProvider: TimestampProvider,
-        private val currentActivityProvider: CurrentActivityProvider,
-        private val jsBridgeFactory: IamJsBridgeFactory) {
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
+    private val uiHandler: Handler,
+    private val webViewProvider: IamStaticWebViewProvider,
+    private val inAppInternal: InAppInternal,
+    private val dialogProvider: IamDialogProvider,
+    private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
+    private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
+    private val timestampProvider: TimestampProvider,
+    private val currentActivityProvider: CurrentActivityProvider,
+    private val jsBridgeFactory: IamJsBridgeFactory
+) {
 
-    fun present(campaignId: String, sid: String?, url: String?, requestId: String?, startTimestamp: Long,
-                html: String, messageLoadedListener: MessageLoadedListener?) {
+    fun present(
+        campaignId: String, sid: String?, url: String?, requestId: String?, startTimestamp: Long,
+        html: String, messageLoadedListener: MessageLoadedListener?
+    ) {
         val iamDialog = dialogProvider.provideDialog(campaignId, sid, url, requestId)
         setupDialogWithActions(iamDialog)
-        val jsCommandFactory = JSCommandFactory(currentActivityProvider, uiHandler, coreSdkHandler, inAppInternal,
-                buttonClickedRepository, onCloseTriggered(), onAppEventTriggered(), timestampProvider)
+        val jsCommandFactory = JSCommandFactory(
+            currentActivityProvider, uiHandler, concurrentHandlerHolder, inAppInternal,
+            buttonClickedRepository, onCloseTriggered(), onAppEventTriggered(), timestampProvider
+        )
 
-        val jsBridge = jsBridgeFactory.createJsBridge(jsCommandFactory, InAppMessage(campaignId, sid, url))
+        val jsBridge =
+            jsBridgeFactory.createJsBridge(jsCommandFactory, InAppMessage(campaignId, sid, url))
 
         webViewProvider.loadMessageAsync(html, jsBridge) {
             val currentActivity = currentActivityProvider.get()
@@ -91,12 +97,14 @@ class OverlayInAppPresenter(
 
     private fun setupDialogWithActions(iamDialog: IamDialog) {
         val saveDisplayedIamAction: OnDialogShownAction = SaveDisplayedIamAction(
-                coreSdkHandler,
-                displayedIamRepository,
-                timestampProvider)
+            concurrentHandlerHolder,
+            displayedIamRepository,
+            timestampProvider
+        )
         val sendDisplayedIamAction: OnDialogShownAction = SendDisplayedIamAction(
-                coreSdkHandler,
-                inAppInternal)
+            concurrentHandlerHolder,
+            inAppInternal
+        )
         iamDialog.setActions(listOf(saveDisplayedIamAction, sendDisplayedIamAction))
     }
 

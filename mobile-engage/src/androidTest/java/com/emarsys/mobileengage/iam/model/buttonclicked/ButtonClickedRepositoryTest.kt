@@ -2,9 +2,13 @@ package com.emarsys.mobileengage.iam.model.buttonclicked
 
 import android.content.ContentValues
 import android.database.Cursor
+import android.os.Handler
+import android.os.Looper
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.DatabaseContract
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.helper.DbHelper
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils
@@ -25,6 +29,7 @@ class ButtonClickedRepositoryTest {
 
     private lateinit var repository: ButtonClickedRepository
     private lateinit var buttonClicked1: ButtonClicked
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -35,7 +40,9 @@ class ButtonClickedRepositoryTest {
         deleteCoreDatabase()
         val context = getTargetContext()
         val dbHelper: DbHelper = CoreDbHelper(context, HashMap())
-        repository = ButtonClickedRepository(dbHelper)
+        val uiHandler = Handler(Looper.getMainLooper())
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        repository = ButtonClickedRepository(dbHelper, concurrentHandlerHolder)
         buttonClicked1 = ButtonClicked("campaign1", "button1", Date().time)
     }
 

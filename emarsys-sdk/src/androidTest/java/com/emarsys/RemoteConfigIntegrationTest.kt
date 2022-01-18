@@ -59,14 +59,15 @@ class RemoteConfigIntegrationTest {
 
     @Test
     fun testRemoteConfig() {
-        val coreSdkHandler = emarsys().coreSdkHandler
-        coreSdkHandler.post {
-            coreSdkHandler.post {
+        val coreSdkHandler = emarsys().concurrentHandlerHolder
+        coreSdkHandler.coreHandler.post {
+            coreSdkHandler.coreHandler.post {
                 emarsys().configInternal.refreshRemoteConfig { latch.countDown() }
             }
         }
         latch.await()
-        val clientServiceEndpointHost = emarsys().clientServiceEndpointProvider.provideEndpointHost()
+        val clientServiceEndpointHost =
+            emarsys().clientServiceEndpointProvider.provideEndpointHost()
         val eventServiceEndpointHost = emarsys().eventServiceEndpointProvider.provideEndpointHost()
         clientServiceEndpointHost shouldBe "https://me-client-staging.eservice.emarsys.com"
         eventServiceEndpointHost shouldBe "https://mobile-events-staging.eservice.emarsys.com"

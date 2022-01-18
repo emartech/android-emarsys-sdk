@@ -1,9 +1,10 @@
 package com.emarsys.core.util
 
 import android.content.Context
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-import com.emarsys.core.di.core
-import com.emarsys.core.handler.CoreSdkHandler
+import android.os.Handler
+import android.os.Looper
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.RetryUtils.retryRule
@@ -11,7 +12,6 @@ import com.emarsys.testUtil.TestUrls.LARGE_IMAGE
 import com.emarsys.testUtil.TestUrls.customResponse
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
-import kotlinx.coroutines.android.asCoroutineDispatcher
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -68,10 +68,12 @@ class FileDownloaderTest {
 
     @Test
     fun testDownload_downloadedAndRemoteFileShouldBeTheSame() {
+        val uiHandler = Handler(Looper.getMainLooper())
         val latch = CountDownLatch(1)
-        val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+        val concurrentHandlerHolder: ConcurrentHandlerHolder =
+            ConcurrentHandlerHolderFactory(uiHandler).create()
 
-        coreSdkHandler.post {
+        concurrentHandlerHolder.coreHandler.post {
             val path: String = LARGE_IMAGE
 
             val filePath = fileDownloader.download(path, 3)!!

@@ -188,7 +188,7 @@ class EmarsysE2ETests {
 
 
             val latch = CountDownLatch(1)
-            emarsys().coreSdkHandler.post {
+            emarsys().concurrentHandlerHolder.coreHandler.post {
                 fusedLocationProviderClient.lastLocation.addOnSuccessListener { currentLocation ->
                     val testAction = JSONObject(
                         mapOf<String, Any?>(

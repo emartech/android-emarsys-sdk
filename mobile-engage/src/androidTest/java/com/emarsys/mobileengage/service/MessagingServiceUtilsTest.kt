@@ -123,7 +123,7 @@ class MessagingServiceUtilsTest {
 
     @After
     fun tearDown() {
-        mobileEngage().coreSdkHandler.looper.quitSafely()
+        mobileEngage().concurrentHandlerHolder.looper.quitSafely()
         tearDownMobileEngageComponent()
     }
 

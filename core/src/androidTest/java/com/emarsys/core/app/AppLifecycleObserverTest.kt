@@ -1,13 +1,12 @@
 package com.emarsys.core.app
 
 import android.os.Handler
-import android.os.HandlerThread
 import android.os.Looper
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import com.emarsys.core.concurrency.CoreHandler
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.session.Session
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -18,13 +17,12 @@ import org.junit.rules.TestRule
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import java.util.*
 import java.util.concurrent.CountDownLatch
 
 class AppLifecycleObserverTest {
     private lateinit var mockSession: Session
     private lateinit var appLifecycleObserver: AppLifecycleObserver
-    private lateinit var coreHandler: CoreSdkHandler
+    private lateinit var coreHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockLifecycleOwner: LifecycleOwner
     private lateinit var uiHandler: Handler
 
@@ -37,10 +35,8 @@ class AppLifecycleObserverTest {
         uiHandler = Handler(Looper.getMainLooper())
         mockSession = mock()
         mockLifecycleOwner = mock()
-        val handlerThread = HandlerThread("CoreSDKHandlerThread-" + UUID.randomUUID().toString())
-        handlerThread.start()
-        coreHandler = CoreSdkHandler(CoreHandler(handlerThread))
-        appLifecycleObserver = AppLifecycleObserver(mockSession, coreHandler)
+        coreHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        appLifecycleObserver = AppLifecycleObserver(mockSession, coreHandlerHolder)
     }
 
     @Test
@@ -54,7 +50,7 @@ class AppLifecycleObserverTest {
         }
 
         appLifecycleObserver.onStart(mockLifecycleOwner)
-        coreHandler.post {
+        coreHandlerHolder.coreHandler.post {
             latch.countDown()
         }
 
@@ -75,7 +71,7 @@ class AppLifecycleObserverTest {
         }
 
         appLifecycleObserver.onStop(mockLifecycleOwner)
-        coreHandler.post {
+        coreHandlerHolder.coreHandler.post {
             latch.countDown()
         }
 

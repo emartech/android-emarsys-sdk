@@ -9,8 +9,6 @@ import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.app.AppLifecycleObserver
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
@@ -20,7 +18,6 @@ import com.emarsys.mobileengage.service.IntentUtils
 import com.emarsys.testUtil.*
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
-import kotlinx.coroutines.android.asCoroutineDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -38,7 +35,6 @@ class InappNotificationIntegrationTest {
     private lateinit var completionListenerLatch: CountDownLatch
     private lateinit var baseConfig: EmarsysConfig
     private lateinit var mockInappPresenterOverlay: OverlayInAppPresenter
-    private var coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
 
     private val application: Application
         get() = InstrumentationRegistry.getTargetContext().applicationContext as Application

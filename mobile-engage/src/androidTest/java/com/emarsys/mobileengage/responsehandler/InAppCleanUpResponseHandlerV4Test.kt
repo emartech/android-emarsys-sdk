@@ -14,6 +14,7 @@ import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.data.forall
 import io.kotlintest.shouldBe
 import io.kotlintest.tables.row
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -42,13 +43,18 @@ class InAppCleanUpResponseHandlerV4Test {
         mockRequestModel = mock {
             on { url } doReturn URL(EVENT_BASE)
             on { payload } doReturn mapOf(
-                    "clicks" to listOf(
-                            mapOf("campaignId" to "123", "buttonId" to "123", "timestamp" to "1234"),
-                            mapOf("campaignId" to "456", "buttonId" to "456", "timestamp" to "5678")),
-                    "viewedMessages" to listOf(
-                            mapOf("campaignId" to "78910", "buttonId" to "123123", "timestamp" to "1233214"),
-                            mapOf("campaignId" to "6543", "buttonId" to "234", "timestamp" to "45321")
-                    )
+                "clicks" to listOf(
+                    mapOf("campaignId" to "123", "buttonId" to "123", "timestamp" to "1234"),
+                    mapOf("campaignId" to "456", "buttonId" to "456", "timestamp" to "5678")
+                ),
+                "viewedMessages" to listOf(
+                    mapOf(
+                        "campaignId" to "78910",
+                        "buttonId" to "123123",
+                        "timestamp" to "1233214"
+                    ),
+                    mapOf("campaignId" to "6543", "buttonId" to "234", "timestamp" to "45321")
+                )
             )
         }
         mockDisplayedIamRepository = mock()
@@ -57,7 +63,11 @@ class InAppCleanUpResponseHandlerV4Test {
             on { isCustomEvent(any()) } doReturn true
         }
 
-        handler = InAppCleanUpResponseHandlerV4(mockDisplayedIamRepository, mockButtonClickRepository, mockRequestModelHelper)
+        handler = InAppCleanUpResponseHandlerV4(
+            mockDisplayedIamRepository,
+            mockButtonClickRepository,
+            mockRequestModelHelper
+        )
 
         FeatureRegistry.enableFeature(InnerFeature.EVENT_SERVICE_V4)
     }
@@ -86,9 +96,9 @@ class InAppCleanUpResponseHandlerV4Test {
     @Test
     fun testShouldHandleResponse_whenResponseWasSuccessful() {
         forall(
-                row(buildResponseModel(mockRequestModel, statusCode = 200), true),
-                row(buildResponseModel(mockRequestModel, statusCode = 299), true),
-                row(buildResponseModel(mockRequestModel, statusCode = 400), false)
+            row(buildResponseModel(mockRequestModel, statusCode = 200), true),
+            row(buildResponseModel(mockRequestModel, statusCode = 299), true),
+            row(buildResponseModel(mockRequestModel, statusCode = 400), false)
         ) { input, expected ->
             val result = handler.shouldHandleResponse(input)
             result shouldBe expected
@@ -107,11 +117,14 @@ class InAppCleanUpResponseHandlerV4Test {
 
     @Test
     fun testShouldHandleResponse_shouldReturnTrue_whenRequestContainsOnlyClicksOrViewedMessages() {
-        whenever(mockRequestModel.payload).thenReturn(mapOf(
+        whenever(mockRequestModel.payload).thenReturn(
+            mapOf(
                 "clicks" to listOf(
-                        mapOf("campaignId" to "123", "buttonId" to "123", "timestamp" to "1234"),
-                        mapOf("campaignId" to "456", "buttonId" to "456", "timestamp" to "5678")),
-        ))
+                    mapOf("campaignId" to "123", "buttonId" to "123", "timestamp" to "1234"),
+                    mapOf("campaignId" to "456", "buttonId" to "456", "timestamp" to "5678")
+                ),
+            )
+        )
 
         val responseModel = buildResponseModel(mockRequestModel)
 
@@ -136,8 +149,9 @@ class InAppCleanUpResponseHandlerV4Test {
         val responseModel = buildResponseModel(mockRequestModel)
 
         handler.handleResponse(responseModel)
-
-        verify(mockButtonClickRepository).remove(FilterByCampaignId("123", "456"))
+        runBlocking {
+            verify(mockButtonClickRepository).remove(FilterByCampaignId("123", "456"))
+        }
     }
 
     @Test
@@ -145,16 +159,19 @@ class InAppCleanUpResponseHandlerV4Test {
         val responseModel = buildResponseModel(mockRequestModel)
 
         handler.handleResponse(responseModel)
-
-        verify(mockDisplayedIamRepository).remove(FilterByCampaignId("78910", "6543"))
+        runBlocking {
+            verify(mockDisplayedIamRepository).remove(FilterByCampaignId("78910", "6543"))
+        }
     }
 
     @Test
     fun testHandleResponse_shouldNotCallRepository_whenClicksOrViewedMessagesAreEmpty() {
-        whenever(mockRequestModel.payload).thenReturn(mapOf(
+        whenever(mockRequestModel.payload).thenReturn(
+            mapOf(
                 "clicks" to listOf<Map<String, Any?>>(),
                 "viewedMessages" to listOf()
-        ))
+            )
+        )
         val responseModel = buildResponseModel(mockRequestModel)
 
         handler.handleResponse(responseModel)
@@ -163,12 +180,16 @@ class InAppCleanUpResponseHandlerV4Test {
         verifyNoInteractions(mockDisplayedIamRepository)
     }
 
-    private fun buildResponseModel(requestModel: RequestModel, responseBody: String = "{'oldCampaigns': ['123', '456', '78910','6543']}", statusCode: Int = 200): ResponseModel {
+    private fun buildResponseModel(
+        requestModel: RequestModel,
+        responseBody: String = "{'oldCampaigns': ['123', '456', '78910','6543']}",
+        statusCode: Int = 200
+    ): ResponseModel {
         return ResponseModel.Builder()
-                .statusCode(statusCode)
-                .message("OK")
-                .body(responseBody)
-                .requestModel(requestModel)
-                .build()
+            .statusCode(statusCode)
+            .message("OK")
+            .body(responseBody)
+            .requestModel(requestModel)
+            .build()
     }
 }

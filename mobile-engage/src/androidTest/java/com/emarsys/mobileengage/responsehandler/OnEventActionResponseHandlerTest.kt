@@ -1,10 +1,11 @@
 package com.emarsys.mobileengage.responsehandler
 
+import android.os.Handler
 import android.os.Looper
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
@@ -17,6 +18,7 @@ import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
+import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
@@ -33,7 +35,7 @@ class OnEventActionResponseHandlerTest {
     private lateinit var mockRepository: Repository<DisplayedIam, SqlSpecification>
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockTimestampProvider: TimestampProvider
-    private lateinit var coreSdkHandler: CoreSdkHandler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -41,6 +43,7 @@ class OnEventActionResponseHandlerTest {
 
     @Before
     fun setUp() {
+        val uiHandler = Handler(Looper.getMainLooper())
         mockAppEventCommand = mock()
         mockActionCommandFactory = mock()
         mockRepository = mock()
@@ -48,14 +51,20 @@ class OnEventActionResponseHandlerTest {
         mockTimestampProvider = mock {
             on { provideTimestamp() } doReturn 1L
         }
-        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
-        responseHandler = OnEventActionResponseHandler(mockActionCommandFactory, mockRepository, mockEventServiceInternal, mockTimestampProvider, coreSdkHandler)
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        responseHandler = OnEventActionResponseHandler(
+            mockActionCommandFactory,
+            mockRepository,
+            mockEventServiceInternal,
+            mockTimestampProvider,
+            concurrentHandlerHolder
+        )
     }
 
     @After
     fun tearDown() {
         try {
-            val looper: Looper? = coreSdkHandler.looper
+            val looper: Looper? = concurrentHandlerHolder.looper
             looper?.quitSafely()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -66,12 +75,14 @@ class OnEventActionResponseHandlerTest {
     @Test
     fun testShouldHandlerResponse_whenResponseBodyIsEmpty() {
         val responseModel: ResponseModel = ResponseModel.Builder()
-                .statusCode(200)
-                .message("OK")
-                .requestModel(RequestModel.Builder(TimestampProvider(), UUIDProvider())
-                        .url("https://emarsys.com")
-                        .build())
-                .build()
+            .statusCode(200)
+            .message("OK")
+            .requestModel(
+                RequestModel.Builder(TimestampProvider(), UUIDProvider())
+                    .url("https://emarsys.com")
+                    .build()
+            )
+            .build()
 
         responseHandler.shouldHandleResponse(responseModel) shouldBe false
     }
@@ -85,27 +96,31 @@ class OnEventActionResponseHandlerTest {
 
     @Test
     fun testShouldHandleResponse_shouldReturnTrue_whenResponseHasOnEventActionWithActions() {
-        val responseModel = createResponseModel("""
+        val responseModel = createResponseModel(
+            """
             {
                 "onEventAction": {
                     "campaignId": "1234",
                     "actions": []
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         responseHandler.shouldHandleResponse(responseModel) shouldBe true
     }
 
     @Test
     fun testShouldHandleResponse_shouldReturnFalse_whenResponseHasNoActions() {
-        val responseModel = createResponseModel("""
+        val responseModel = createResponseModel(
+            """
             {
                 "onEventAction": {
                     "campaignId": "123"
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         responseHandler.shouldHandleResponse(responseModel) shouldBe false
     }
@@ -131,7 +146,9 @@ class OnEventActionResponseHandlerTest {
 
     @Test
     fun testHandleResponse_shouldRunActionCommand() {
-        whenever(mockActionCommandFactory.createActionCommand(anyNotNull())).thenReturn(mockAppEventCommand)
+        whenever(mockActionCommandFactory.createActionCommand(anyNotNull())).thenReturn(
+            mockAppEventCommand
+        )
 
         val responseModel = createTestResponseModel()
 
@@ -149,7 +166,9 @@ class OnEventActionResponseHandlerTest {
 
         responseHandler.handleResponse(responseModel)
 
-        verify(mockRepository, timeout(1000)).add(captor.capture())
+        runBlocking {
+            verify(mockRepository, timeout(1000)).add(captor.capture())
+        }
 
         captor.firstValue.campaignId shouldBe iamToSave.campaignId
         captor.firstValue.timestamp shouldBe iamToSave.timestamp
@@ -161,38 +180,50 @@ class OnEventActionResponseHandlerTest {
 
         responseHandler.handleResponse(responseModel)
 
-        verify(mockEventServiceInternal, timeout(1000)).trackInternalCustomEventAsync(eq("inapp:viewed"), eq(mapOf("campaignId" to "1234")), anyOrNull())
+        verify(
+            mockEventServiceInternal,
+            timeout(1000)
+        ).trackInternalCustomEventAsync(
+            eq("inapp:viewed"),
+            eq(mapOf("campaignId" to "1234")),
+            anyOrNull()
+        )
     }
 
     @Test
     fun testHandleResponse_shouldNotCrashWhenNoCampaignIdIsNotPresentInResponse() {
-        val responseModel = createResponseModel("""
+        val responseModel = createResponseModel(
+            """
             {
                 "onEventAction": {
                     "campaignId": "123"
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         responseHandler.handleResponse(responseModel)
     }
 
     private fun createResponseModel(body: String): ResponseModel {
         return ResponseModel.Builder()
-                .statusCode(200)
-                .message("OK")
-                .body(body)
-                .requestModel(RequestModel.Builder(TimestampProvider(), UUIDProvider())
-                        .url("https://emarsys.com")
-                        .build())
-                .build()
+            .statusCode(200)
+            .message("OK")
+            .body(body)
+            .requestModel(
+                RequestModel.Builder(TimestampProvider(), UUIDProvider())
+                    .url("https://emarsys.com")
+                    .build()
+            )
+            .build()
     }
 
     private fun createTestResponseModel(): ResponseModel {
         return ResponseModel.Builder()
-                .statusCode(200)
-                .message("OK")
-                .body("""
+            .statusCode(200)
+            .message("OK")
+            .body(
+                """
                 {
                    "onEventAction":{
                       "campaignId":"1234",
@@ -209,10 +240,12 @@ class OnEventActionResponseHandlerTest {
                    }
                 }
                 """.trimIndent()
-                )
-                .requestModel(RequestModel.Builder(TimestampProvider(), UUIDProvider())
-                        .url("https://emarsys.com")
-                        .build())
-                .build()
+            )
+            .requestModel(
+                RequestModel.Builder(TimestampProvider(), UUIDProvider())
+                    .url("https://emarsys.com")
+                    .build()
+            )
+            .build()
     }
 }

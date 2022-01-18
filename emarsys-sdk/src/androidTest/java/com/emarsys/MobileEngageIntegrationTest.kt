@@ -244,7 +244,7 @@ class MobileEngageIntegrationTest {
     @Test
     fun testConfig_changeApplicationCode_nilToSomething() {
         val setupLatch = CountDownLatch(1)
-        emarsys().coreSdkHandler.post {
+        emarsys().concurrentHandlerHolder.coreHandler.post {
             setupLatch.countDown()
         }
         setupLatch.await()

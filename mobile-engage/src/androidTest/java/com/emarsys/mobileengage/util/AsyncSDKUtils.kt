@@ -6,9 +6,9 @@ import java.util.concurrent.CountDownLatch
 
 fun waitForTask() {
     val latch = CountDownLatch(2)
-    mobileEngage().coreSdkHandler.post {
+    mobileEngage().concurrentHandlerHolder.coreHandler.post {
         latch.countDown()
-        mobileEngage().coreSdkHandler.post {
+        mobileEngage().concurrentHandlerHolder.coreHandler.post {
             latch.countDown()
         }
     }

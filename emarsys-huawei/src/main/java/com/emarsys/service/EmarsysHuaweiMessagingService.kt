@@ -7,7 +7,7 @@ import com.huawei.hms.push.RemoteMessage
 class EmarsysHuaweiMessagingService : HmsMessageService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        mobileEngage().coreSdkHandler.post {
+        mobileEngage().concurrentHandlerHolder.coreHandler.post {
             if (mobileEngage().deviceInfo.isAutomaticPushSendingEnabled) {
                 mobileEngage().pushInternal.setPushToken(token, null)
             }

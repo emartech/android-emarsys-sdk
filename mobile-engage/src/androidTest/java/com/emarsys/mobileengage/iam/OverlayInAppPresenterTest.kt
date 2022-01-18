@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.test.rule.ActivityTestRule
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.provider.activity.CurrentActivityProvider
@@ -83,20 +83,22 @@ class OverlayInAppPresenterTest {
             on { createJsBridge(anyOrNull(), anyOrNull()) } doReturn mockJsBridge
         }
 
-        val coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
         uiHandler = Handler(Looper.getMainLooper())
+        val concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
 
 
-        overlayPresenter = OverlayInAppPresenter(coreSdkHandler,
-                uiHandler,
-                iamStaticWebViewProvider,
-                mockInAppInternal,
-                mockIamDialogProvider,
-                mockButtonClickedRepository,
-                mockDisplayedIamRepository,
-                mockTimestampProvider,
-                mockActivityProvider,
-                mockIamJsBridgeFactory)
+        overlayPresenter = OverlayInAppPresenter(
+            concurrentHandlerHolder,
+            uiHandler,
+            iamStaticWebViewProvider,
+            mockInAppInternal,
+            mockIamDialogProvider,
+            mockButtonClickedRepository,
+            mockDisplayedIamRepository,
+            mockTimestampProvider,
+            mockActivityProvider,
+            mockIamJsBridgeFactory
+        )
     }
 
     @Test

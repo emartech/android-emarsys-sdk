@@ -1,10 +1,12 @@
 package com.emarsys.fake;
 
+import static org.mockito.Mockito.mock;
+
 import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.core.CoreCompletionHandler;
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory;
 import com.emarsys.core.connection.ConnectionProvider;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.RestClient;
@@ -15,8 +17,6 @@ import com.emarsys.core.response.ResponseModel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static org.mockito.Mockito.mock;
 
 public class FakeRestClient extends RestClient {
 
@@ -33,7 +33,7 @@ public class FakeRestClient extends RestClient {
     @SuppressWarnings("unchecked")
     public FakeRestClient(List<ResponseModel> responses, Mode mode) {
         super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class),
-                mock(List.class), new Handler(Looper.getMainLooper()), new CoreSdkHandlerProvider().provideHandler());
+                mock(List.class), new ConcurrentHandlerHolderFactory(new Handler(Looper.getMainLooper())).create());
         this.responses = new ArrayList<>(responses);
         this.mode = mode;
     }
@@ -45,7 +45,7 @@ public class FakeRestClient extends RestClient {
     @SuppressWarnings("unchecked")
     public FakeRestClient(List<Exception> exceptions) {
         super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class),
-                mock(List.class), new Handler(Looper.getMainLooper()), new CoreSdkHandlerProvider().provideHandler());
+                mock(List.class), new ConcurrentHandlerHolderFactory(new Handler(Looper.getMainLooper())).create());
         this.exceptions = new ArrayList<>(exceptions);
         this.mode = Mode.ERROR_EXCEPTION;
     }

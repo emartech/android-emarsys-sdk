@@ -15,7 +15,7 @@ class FetchRemoteConfigAction(private val configInternal: ConfigInternal,
 ) : ActivityLifecycleAction {
 
     override fun execute(activity: Activity?) {
-        configInternal.proxyApi(mobileEngage().coreSdkHandler)
+        configInternal.proxyApi(mobileEngage().concurrentHandlerHolder)
                 .refreshRemoteConfig(completionListener)
     }
 }

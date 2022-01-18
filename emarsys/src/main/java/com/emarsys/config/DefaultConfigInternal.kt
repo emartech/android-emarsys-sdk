@@ -74,7 +74,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         val pushToken: String? = pushInternal.pushToken
         val hasContactIdentification = mobileEngageRequestContext.hasContactIdentification()
         var throwable: Throwable? = null
-        concurrentHandlerHolder.coreScope?.launch { //TODO: remove question mark
+        concurrentHandlerHolder.sdkScope.launch {
             if (pushToken != null) {
                 throwable = clearPushToken()
             }
@@ -96,7 +96,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
             if (throwable != null) {
                 handleAppCodeChange(null)
             }
-            concurrentHandlerHolder.uiScope?.launch { //TODO: remove question mark
+            concurrentHandlerHolder.uiScope.launch {
                 completionListener?.onCompleted(throwable)
             }
         }

@@ -139,7 +139,7 @@ class PredictIntegrationTest {
                 get() = deviceInfo
         })
 
-        emarsys().coreSdkHandler.post {
+        emarsys().concurrentHandlerHolder.coreHandler.post {
             emarsys().clientStateStorage.remove()
             emarsys().contactFieldValueStorage.remove()
             emarsys().contactTokenStorage.remove()
@@ -148,7 +148,7 @@ class PredictIntegrationTest {
 
         Emarsys.setup(baseConfig)
 
-        emarsys().coreSdkHandler.post {
+        emarsys().concurrentHandlerHolder.coreHandler.post {
             emarsys().clientServiceStorage.remove()
             emarsys().eventServiceStorage.remove()
             emarsys().deepLinkServiceStorage.remove()
@@ -464,7 +464,7 @@ class PredictIntegrationTest {
 
     @Test
     fun testMultipleInvocationsWithSetContact() {
-        emarsys().coreSdkHandler.post {
+        emarsys().concurrentHandlerHolder.coreHandler.post {
             clientStateStorage = emarsys().clientStateStorage
             clientStateStorage.set("predict-integration-test")
         }

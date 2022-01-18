@@ -86,7 +86,7 @@ object Emarsys {
             }
         }
 
-        emarsys().coreSdkHandler.post {
+        emarsys().concurrentHandlerHolder.coreHandler.post {
             registerWatchDogs(emarsysConfig)
             registerDatabaseTriggers()
 
@@ -115,7 +115,7 @@ object Emarsys {
             && !FeatureRegistry.isFeatureEnabled(PREDICT)
         ) {
             EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
+                .proxyApi(mobileEngage().concurrentHandlerHolder)
                 .setAuthenticatedContact(contactFieldId, openIdToken, completionListener)
         }
 
@@ -134,12 +134,12 @@ object Emarsys {
             && !FeatureRegistry.isFeatureEnabled(PREDICT)
         ) {
             EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
+                .proxyApi(mobileEngage().concurrentHandlerHolder)
                 .setContact(contactFieldId, contactFieldValue, completionListener)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.predictRestrictedApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
+                .proxyApi(mobileEngage().concurrentHandlerHolder)
                 .setContact(contactFieldId, contactFieldValue)
         }
     }
@@ -152,12 +152,12 @@ object Emarsys {
             && !FeatureRegistry.isFeatureEnabled(PREDICT)
         ) {
             EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
+                .proxyApi(mobileEngage().concurrentHandlerHolder)
                 .clearContact(completionListener)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.predictRestrictedApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
+                .proxyApi(mobileEngage().concurrentHandlerHolder)
                 .clearContact()
         }
     }
@@ -170,7 +170,7 @@ object Emarsys {
         completionListener: CompletionListener? = null
     ) {
         EmarsysDependencyInjection.deepLinkApi()
-            .proxyApi(mobileEngage().coreSdkHandler)
+            .proxyApi(mobileEngage().concurrentHandlerHolder)
             .trackDeepLinkOpen(activity, intent, completionListener)
     }
 
@@ -182,7 +182,7 @@ object Emarsys {
         completionListener: CompletionListener? = null
     ) {
         EmarsysDependencyInjection.eventServiceApi()
-            .proxyApi(mobileEngage().coreSdkHandler)
+            .proxyApi(mobileEngage().concurrentHandlerHolder)
             .trackCustomEventAsync(eventName, eventAttributes, completionListener)
     }
 

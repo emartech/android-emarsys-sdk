@@ -6,11 +6,12 @@ import android.database.Cursor;
 import com.emarsys.core.database.DatabaseContract;
 import com.emarsys.core.database.helper.DbHelper;
 import com.emarsys.core.database.repository.AbstractSqliteRepository;
+import com.emarsys.core.handler.ConcurrentHandlerHolder;
 
 public class DisplayedIamRepository extends AbstractSqliteRepository<DisplayedIam> {
 
-    public DisplayedIamRepository(DbHelper dbHelper) {
-        super(DatabaseContract.DISPLAYED_IAM_TABLE_NAME, dbHelper);
+    public DisplayedIamRepository(DbHelper dbHelper, ConcurrentHandlerHolder concurrentHandlerHolder) {
+        super(DatabaseContract.DISPLAYED_IAM_TABLE_NAME, dbHelper, concurrentHandlerHolder);
     }
 
     @Override

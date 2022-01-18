@@ -10,6 +10,7 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -17,7 +18,7 @@ import org.junit.rules.TestRule
 import org.mockito.kotlin.*
 
 
-class HardwareIdProviderTest{
+class HardwareIdProviderTest {
 
     companion object {
         private const val HARDWARE_ID = "hw_value"
@@ -27,8 +28,14 @@ class HardwareIdProviderTest{
         internal const val IV = "testIv"
         private val HARDWARE = HardwareIdentification(HARDWARE_ID)
         private val SHARED_HARDWARE = HardwareIdentification(SHARED_HARDWARE_ID)
-        private val ENCRYPTED_HARDWARE = HardwareIdentification(HARDWARE_ID, "encrypted_hardware_id", "testSalt", "testIv")
-        private val ENCRYPTED_SHARED_HARDWARE = HardwareIdentification(SHARED_HARDWARE_ID, "encrypted_shared_hardware_id", "testSalt", "testIv")
+        private val ENCRYPTED_HARDWARE =
+            HardwareIdentification(HARDWARE_ID, "encrypted_hardware_id", "testSalt", "testIv")
+        private val ENCRYPTED_SHARED_HARDWARE = HardwareIdentification(
+            SHARED_HARDWARE_ID,
+            "encrypted_shared_hardware_id",
+            "testSalt",
+            "testIv"
+        )
     }
 
     private lateinit var mockHardwareIdentificationCrypto: HardwareIdentificationCrypto
@@ -43,7 +50,7 @@ class HardwareIdProviderTest{
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     @Before
-     fun setUp() {
+    fun setUp() {
         mockStorage = mock()
         mockUUIDProvider = mock {
             on { provideId() } doReturn HARDWARE_ID
@@ -57,7 +64,13 @@ class HardwareIdProviderTest{
         }
         mockHardwareIdContentResolver = mock()
 
-        hardwareIdProvider = HardwareIdProvider(mockUUIDProvider, mockRepository, mockStorage, mockHardwareIdContentResolver, mockHardwareIdentificationCrypto)
+        hardwareIdProvider = HardwareIdProvider(
+            mockUUIDProvider,
+            mockRepository,
+            mockStorage,
+            mockHardwareIdContentResolver,
+            mockHardwareIdentificationCrypto
+        )
     }
 
     @Test
@@ -74,25 +87,35 @@ class HardwareIdProviderTest{
         whenever(mockStorage.get()).thenReturn(HARDWARE_ID)
         whenever(mockHardwareIdentificationCrypto.encrypt(HARDWARE)).thenReturn(HARDWARE)
 
-        val result = hardwareIdProvider.provideHardwareId()
-
-        verify(mockRepository).query(any())
-        verify(mockHardwareIdentificationCrypto).encrypt(HARDWARE)
-        verify(mockStorage).get()
-        verify(mockRepository).add(HARDWARE)
-        result shouldBe HARDWARE_ID
+        runBlocking {
+            val result = hardwareIdProvider.provideHardwareId()
+            verify(mockRepository).query(any())
+            verify(mockHardwareIdentificationCrypto).encrypt(HARDWARE)
+            verify(mockStorage).get()
+            verify(mockRepository).add(HARDWARE)
+            result shouldBe HARDWARE_ID
+        }
     }
 
     @Test
     fun testProvideHardwareId_shouldGetHardwareId_fromContentResolver_andStoreInRepository_ifNotInRepositoryNorStorage() {
         whenever(mockHardwareIdContentResolver.resolveHardwareId()).thenReturn(SHARED_HARDWARE_ID)
 
-        val result = hardwareIdProvider.provideHardwareId()
-        verify(mockRepository).add(HardwareIdentification(SHARED_HARDWARE_ID, ENCRYPTED_HARDWARE_ID, SALT, IV))
-        verify(mockHardwareIdContentResolver).resolveHardwareId()
-        verifyNoInteractions(mockUUIDProvider)
+        runBlocking {
+            val result = hardwareIdProvider.provideHardwareId()
+            verify(mockRepository).add(
+                HardwareIdentification(
+                    SHARED_HARDWARE_ID,
+                    ENCRYPTED_HARDWARE_ID,
+                    SALT,
+                    IV
+                )
+            )
+            verify(mockHardwareIdContentResolver).resolveHardwareId()
+            verifyNoInteractions(mockUUIDProvider)
 
-        result shouldBe SHARED_HARDWARE_ID
+            result shouldBe SHARED_HARDWARE_ID
+        }
     }
 
     @Test
@@ -100,11 +123,12 @@ class HardwareIdProviderTest{
         whenever(mockHardwareIdContentResolver.resolveHardwareId()).thenReturn(null)
         whenever(mockHardwareIdentificationCrypto.encrypt(HARDWARE)).thenReturn(HARDWARE)
         whenever(mockUUIDProvider.provideId()).thenReturn(HARDWARE_ID)
+        runBlocking {
+            val result = hardwareIdProvider.provideHardwareId()
+            verify(mockRepository).add(HARDWARE)
+            verify(mockUUIDProvider).provideId()
 
-        val result = hardwareIdProvider.provideHardwareId()
-        verify(mockRepository).add(HARDWARE)
-        verify(mockUUIDProvider).provideId()
-
-        result shouldBe HARDWARE_ID
+            result shouldBe HARDWARE_ID
+        }
     }
 }

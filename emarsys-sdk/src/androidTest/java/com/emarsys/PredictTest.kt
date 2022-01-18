@@ -65,7 +65,7 @@ class PredictTest {
     @After
     fun tearDown() {
         try {
-            val handler = emarsys().coreSdkHandler
+            val handler = emarsys().concurrentHandlerHolder
             val looper: Looper = handler.looper
             looper.quit()
             tearDownEmarsysComponent()

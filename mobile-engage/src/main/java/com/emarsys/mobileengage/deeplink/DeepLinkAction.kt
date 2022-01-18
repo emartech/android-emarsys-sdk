@@ -14,7 +14,8 @@ class DeepLinkAction(private val deepLinkInternal: DeepLinkInternal,
 
     override fun execute(activity: Activity?) {
         if (activity != null && activity.intent != null) {
-            deepLinkInternal.proxyApi(mobileEngage().coreSdkHandler).trackDeepLinkOpen(activity, activity.intent, null)
+            deepLinkInternal.proxyApi(mobileEngage().concurrentHandlerHolder)
+                .trackDeepLinkOpen(activity, activity.intent, null)
         }
     }
 }
