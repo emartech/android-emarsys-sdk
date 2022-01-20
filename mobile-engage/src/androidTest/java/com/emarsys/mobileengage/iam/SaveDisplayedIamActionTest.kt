@@ -1,7 +1,5 @@
 package com.emarsys.mobileengage.iam
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
@@ -47,7 +45,7 @@ class SaveDisplayedIamActionTest {
             threadSpy = ThreadSpy<Any?>()
             repository = mock()
             handler =
-                ConcurrentHandlerHolderFactory(Handler(Looper.getMainLooper())).create()
+                ConcurrentHandlerHolderFactory.create()
             timestampProvider = mock {
                 on { provideTimestamp() } doReturn TIMESTAMP
             }

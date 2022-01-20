@@ -1,7 +1,5 @@
 package com.emarsys.core.shard.specification
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
@@ -40,7 +38,7 @@ class FilterByShardTypeTest {
         val context = InstrumentationRegistry.getTargetContext().applicationContext
         val coreDbHelper = CoreDbHelper(context, mutableMapOf())
         concurrentHandlerHolder =
-            ConcurrentHandlerHolderFactory(Handler(Looper.getMainLooper())).create()
+            ConcurrentHandlerHolderFactory.create()
         repository = ShardModelRepository(coreDbHelper, concurrentHandlerHolder)
         shardList = mutableListOf(
             ShardModel("a1", "button_click", mapOf(), 0, 0),

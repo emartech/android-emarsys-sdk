@@ -4,8 +4,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import androidx.test.filters.SdkSuppress
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
@@ -24,7 +22,6 @@ import org.junit.rules.TestRule
 class ConnectionWatchDogTest {
     private lateinit var context: Context
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var uiHandler: Handler
 
     @Rule
     @JvmField
@@ -33,8 +30,7 @@ class ConnectionWatchDogTest {
     @Before
     fun setup() {
         context = getTargetContext().applicationContext
-        uiHandler = Handler(Looper.getMainLooper())
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
     }
 
     @Test

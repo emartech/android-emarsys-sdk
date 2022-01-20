@@ -1,12 +1,12 @@
 package com.emarsys.predict
 
-import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.api.result.Try.Companion.failure
 import com.emarsys.core.api.result.Try.Companion.success
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
@@ -23,11 +23,12 @@ import com.emarsys.predict.model.LastTrackedItemContainer
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.util.CartItemUtils
+import kotlinx.coroutines.launch
 
 class DefaultPredictInternal(
     requestContext: PredictRequestContext,
     private val requestManager: RequestManager,
-    private val uiHandler: Handler,
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
     private val requestModelBuilderProvider: PredictRequestModelBuilderProvider,
     private val responseMapper: PredictResponseMapper,
     private val lastTrackedContainer: LastTrackedItemContainer = LastTrackedItemContainer()
@@ -148,13 +149,13 @@ class DefaultPredictInternal(
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
                 val products = responseMapper.map(responseModel)
-                uiHandler.post {
+                concurrentHandlerHolder.uiScope.launch {
                     resultListener.onResult(success(products))
                 }
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
-                uiHandler.post {
+                concurrentHandlerHolder.uiScope.launch {
                     resultListener.onResult(
                         failure(
                             ResponseErrorException(
@@ -168,7 +169,7 @@ class DefaultPredictInternal(
             }
 
             override fun onError(id: String, cause: Exception) {
-                uiHandler.post { resultListener.onResult(failure(cause)) }
+                concurrentHandlerHolder.uiScope.launch { resultListener.onResult(failure(cause)) }
             }
         })
     }

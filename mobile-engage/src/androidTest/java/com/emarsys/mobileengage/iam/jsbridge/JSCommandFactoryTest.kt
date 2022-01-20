@@ -1,8 +1,6 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
 import android.app.Activity
-import android.os.Handler
-import android.os.Looper
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
@@ -38,7 +36,6 @@ class JSCommandFactoryTest {
 
     private lateinit var jsCommandFactory: JSCommandFactory
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
-    private lateinit var uiHandler: Handler
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockInAppInternal: InAppInternal
     private lateinit var mockButtonClickedRepository: Repository<ButtonClicked, SqlSpecification>
@@ -57,8 +54,7 @@ class JSCommandFactoryTest {
         mockCurrentActivityProvider = mock() {
             on { get() } doReturn mockActivity
         }
-        uiHandler = Handler(Looper.getMainLooper())
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockInAppInternal = mock()
         mockButtonClickedRepository = mock()
         mockOnCloseListener = mock()
@@ -68,7 +64,6 @@ class JSCommandFactoryTest {
         }
         jsCommandFactory = JSCommandFactory(
             mockCurrentActivityProvider,
-            uiHandler,
             concurrentHandlerHolder,
             mockInAppInternal,
             mockButtonClickedRepository,

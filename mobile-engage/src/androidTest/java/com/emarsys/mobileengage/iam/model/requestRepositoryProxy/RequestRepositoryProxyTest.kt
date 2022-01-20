@@ -1,7 +1,5 @@
 package com.emarsys.mobileengage.iam.model.requestRepositoryProxy
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.helper.CoreDbHelper
@@ -62,8 +60,7 @@ class RequestRepositoryProxyTest {
     fun setUp() {
         deleteCoreDatabase()
         val context = getTargetContext()
-        val uiHandler = Handler(Looper.getMainLooper())
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockRequestContext = mock()
         mockRequestModelRepository = mock()
         mockDisplayedIamRepository = mock()

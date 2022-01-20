@@ -35,7 +35,7 @@ class AppLifecycleObserverTest {
         uiHandler = Handler(Looper.getMainLooper())
         mockSession = mock()
         mockLifecycleOwner = mock()
-        coreHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        coreHandlerHolder = ConcurrentHandlerHolderFactory.create()
         appLifecycleObserver = AppLifecycleObserver(mockSession, coreHandlerHolder)
     }
 

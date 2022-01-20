@@ -1,7 +1,5 @@
 package com.emarsys.core.api
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.di.FakeCoreDependencyContainer
 import com.emarsys.core.di.setupCoreComponent
@@ -24,7 +22,6 @@ import java.util.concurrent.CountDownLatch
 class LogExceptionProxyTest {
     private lateinit var mockLogger: Logger
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var uiHandler: Handler
 
     @Rule
     @JvmField
@@ -32,8 +29,7 @@ class LogExceptionProxyTest {
 
     @Before
     fun setUp() {
-        uiHandler = Handler(Looper.getMainLooper())
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockLogger = mock()
 
         val dependencyContainer =

@@ -1,7 +1,5 @@
 package com.emarsys.core.request.factory
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
@@ -32,7 +30,6 @@ class CoreCompletionHandlerMiddlewareProviderTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var mockRequestRepository: Repository<RequestModel, SqlSpecification>
-    private lateinit var uiHandler: Handler
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockCoreCompletionHandler: CoreCompletionHandler
     private lateinit var mockWorker: Worker
@@ -54,9 +51,8 @@ class CoreCompletionHandlerMiddlewareProviderTest {
         }
         mockRequestRepository = (mock())
         runnableFactory = DefaultRunnableFactory()
-        uiHandler = Handler(Looper.getMainLooper())
 
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockCoreCompletionHandler = mock {
             whenever(it.onSuccess(any(), any())).thenAnswer { latch.countDown() }
         }
@@ -64,9 +60,7 @@ class CoreCompletionHandlerMiddlewareProviderTest {
 
         coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(
             mockRequestRepository,
-            uiHandler,
-            concurrentHandlerHolder,
-            runnableFactory
+            concurrentHandlerHolder
         )
     }
 

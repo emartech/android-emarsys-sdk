@@ -1,14 +1,14 @@
 package com.emarsys.predict
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Registry
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
@@ -39,7 +39,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.kotlin.*
-import java.lang.IllegalArgumentException
 import java.util.concurrent.CountDownLatch
 
 class DefaultPredictInternalTest {
@@ -72,7 +71,7 @@ class DefaultPredictInternalTest {
     private lateinit var mockPredictResponseMapper: PredictResponseMapper
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockResponseModel: ResponseModel
-    private lateinit var uiHandler: Handler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockLogic: Logic
     private lateinit var mockRecommendationFilter: RecommendationFilter
     private lateinit var mockRecommendationFilters: List<RecommendationFilter>
@@ -91,7 +90,7 @@ class DefaultPredictInternalTest {
         mockResponseModel = mock()
         mockKeyValueStore = mock()
         mockRequestManager = mock()
-        uiHandler = Handler(Looper.getMainLooper())
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockPredictResponseMapper = mock()
         mockLogic = mock()
         mockRecommendationFilter = mock {
@@ -135,7 +134,7 @@ class DefaultPredictInternalTest {
         predictInternal = DefaultPredictInternal(
             mockRequestContext,
             mockRequestManager,
-            uiHandler,
+            concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
         )
@@ -419,7 +418,7 @@ class DefaultPredictInternalTest {
         verify(mockRequestModelBuilder).withLimit(10)
         verify(mockRequestModelBuilder).build()
 
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any(), anyOrNull())
+        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
     }
 
     @Test
@@ -436,7 +435,7 @@ class DefaultPredictInternalTest {
         verify(mockRequestModelBuilder).withAvailabilityZone("hu")
         verify(mockRequestModelBuilder).build()
 
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any(), anyOrNull())
+        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
     }
 
     @Test
@@ -454,7 +453,7 @@ class DefaultPredictInternalTest {
         verify(mockRequestModelBuilder).withFilters(listOf(mockRecommendationFilter))
         verify(mockRequestModelBuilder).build()
 
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any(), anyOrNull())
+        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
     }
 
     @Test
@@ -465,7 +464,7 @@ class DefaultPredictInternalTest {
         verify(mockRequestModelBuilder).withLimit(null)
         verify(mockRequestModelBuilder).build()
 
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any(), anyOrNull())
+        verify(mockRequestManager).submitNow(eq(mockRequestModel), any())
     }
 
     @Test
@@ -481,7 +480,7 @@ class DefaultPredictInternalTest {
                     FakeRestClient.Mode.SUCCESS
                 )
             ),
-            uiHandler,
+            concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
         )
@@ -518,7 +517,7 @@ class DefaultPredictInternalTest {
                     FakeRestClient.Mode.ERROR_RESPONSE_MODEL
                 )
             ),
-            uiHandler,
+            concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
         )
@@ -544,7 +543,7 @@ class DefaultPredictInternalTest {
                     FakeRestClient.Mode.ERROR_RESPONSE_MODEL
                 )
             ),
-            uiHandler,
+            concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
         )
@@ -571,7 +570,7 @@ class DefaultPredictInternalTest {
         predictInternal = DefaultPredictInternal(
             mockRequestContext,
             requestManagerWithRestClient(FakeRestClient(mockException)),
-            uiHandler,
+            concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
         )
@@ -594,7 +593,7 @@ class DefaultPredictInternalTest {
         predictInternal = DefaultPredictInternal(
             mockRequestContext,
             requestManagerWithRestClient(FakeRestClient(mockException)),
-            uiHandler,
+            concurrentHandlerHolder,
             mockRequestModelBuilderProvider,
             mockPredictResponseMapper
         )
@@ -649,23 +648,23 @@ class DefaultPredictInternalTest {
     private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
         val mockScopeDelegatorCompletionHandlerProvider: ScopeDelegatorCompletionHandlerProvider =
             mock {
-                on { provide(any(), any()) } doAnswer {
+                on { provide(anyOrNull(), any()) } doAnswer {
                     it.arguments[0] as CoreCompletionHandler
                 }
-                on { provide(any(), any()) } doAnswer {
+                on { provide(anyOrNull(), any()) } doAnswer {
                     it.arguments[0] as CoreCompletionHandler
                 }
             }
         val mockProvider: CompletionHandlerProxyProvider = mock {
-            on { provideProxy(isNull(), any()) } doAnswer {
+            on { provideProxy(anyOrNull(), any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
             }
-            on { provideProxy(any(), any()) } doAnswer {
+            on { provideProxy(anyOrNull(), any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
             }
         }
         return RequestManager(
-            mock(),
+            concurrentHandlerHolder,
             mock() as Repository<RequestModel, SqlSpecification>,
             mock() as Repository<ShardModel, SqlSpecification>,
             mock(),
@@ -673,8 +672,7 @@ class DefaultPredictInternalTest {
             mock() as Registry<RequestModel, CompletionListener?>,
             mock(),
             mockProvider,
-            mockScopeDelegatorCompletionHandlerProvider,
-            mock()
+            mockScopeDelegatorCompletionHandlerProvider
         )
     }
 }

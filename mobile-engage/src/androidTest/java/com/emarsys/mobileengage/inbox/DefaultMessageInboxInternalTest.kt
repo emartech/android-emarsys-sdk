@@ -1,7 +1,5 @@
 package com.emarsys.mobileengage.inbox
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
@@ -44,7 +42,6 @@ class DefaultMessageInboxInternalTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var messageInboxInternal: DefaultMessageInboxInternal
     private lateinit var latch: CountDownLatch
-    private lateinit var uiHandler : Handler
     private lateinit var mockScope: CoroutineScope
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
@@ -54,8 +51,7 @@ class DefaultMessageInboxInternalTest {
 
     @Before
     fun setUp() {
-        uiHandler = Handler(Looper.getMainLooper())
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockScope = mock()
         latch = CountDownLatch(1)
         mockMessageInboxResponseMapper = mock {
@@ -69,9 +65,8 @@ class DefaultMessageInboxInternalTest {
             on { createFetchInboxMessagesRequest() } doReturn mockRequestModel
         }
 
-
         messageInboxInternal = DefaultMessageInboxInternal(
-            mockScope,
+            concurrentHandlerHolder,
             mockRequestManager,
             mockRequestModelFactory,
             mockMessageInboxResponseMapper
@@ -84,7 +79,7 @@ class DefaultMessageInboxInternalTest {
         messageInboxInternal.fetchMessages(mockResultListener)
 
         verify(mockRequestModelFactory).createFetchInboxMessagesRequest()
-        verify(mockRequestManager).submitNow(eq(mockRequestModel), any(), eq(mockScope))
+        verify(mockRequestManager).submitNow(eq(mockRequestModel), any(), any())
     }
 
     @Test
@@ -95,7 +90,7 @@ class DefaultMessageInboxInternalTest {
             on { message } doReturn "OK"
         }
         val messageInboxInternal = DefaultMessageInboxInternal(
-            mockScope,
+            concurrentHandlerHolder,
             requestManagerWithRestClient(
                 FakeRestClient(
                     mockResponse,
@@ -126,7 +121,7 @@ class DefaultMessageInboxInternalTest {
             on { body } doReturn "Error happened"
         }
         val messageInboxInternal = DefaultMessageInboxInternal(
-            mockScope,
+            concurrentHandlerHolder,
             requestManagerWithRestClient(
                 FakeRestClient(
                     errorResponse,
@@ -144,9 +139,10 @@ class DefaultMessageInboxInternalTest {
         fakeResultListener.latch.await()
 
         val expectedException = ResponseErrorException(
-                errorResponse.statusCode,
-                errorResponse.message,
-                errorResponse.body)
+            errorResponse.statusCode,
+            errorResponse.message,
+            errorResponse.body
+        )
 
         fakeResultListener.successCount shouldBe 0
         fakeResultListener.errorCount shouldBe 1
@@ -158,7 +154,7 @@ class DefaultMessageInboxInternalTest {
         val expectedException = Exception("TestException")
 
         val messageInboxInternal = DefaultMessageInboxInternal(
-            mockScope,
+            concurrentHandlerHolder,
             requestManagerWithRestClient(
                 FakeRestClient(
                     expectedException,
@@ -183,14 +179,22 @@ class DefaultMessageInboxInternalTest {
     fun testTrackAddTag_callsRequestModelFactoryForInternalCustomEventRequest_andSubmitsToRequestManager() {
         val mockCompletionListener: CompletionListener = mock()
         val eventAttributes = mapOf(
-                "messageId" to MESSAGE_ID,
-                "tag" to LOWER_CASED_TAG
+            "messageId" to MESSAGE_ID,
+            "tag" to LOWER_CASED_TAG
         )
-        whenever(mockRequestModelFactory.createInternalCustomEventRequest(ADD_EVENT_NAME, eventAttributes)).thenReturn(mockRequestModel)
+        whenever(
+            mockRequestModelFactory.createInternalCustomEventRequest(
+                ADD_EVENT_NAME,
+                eventAttributes
+            )
+        ).thenReturn(mockRequestModel)
 
         messageInboxInternal.addTag(TAG, MESSAGE_ID, mockCompletionListener)
 
-        verify(mockRequestModelFactory).createInternalCustomEventRequest(ADD_EVENT_NAME, eventAttributes)
+        verify(mockRequestModelFactory).createInternalCustomEventRequest(
+            ADD_EVENT_NAME,
+            eventAttributes
+        )
         verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
     }
 
@@ -198,27 +202,36 @@ class DefaultMessageInboxInternalTest {
     fun testRemoveTag_callsRequestModelFactoryForInternalCustomEventRequest_andSubmitsToRequestManager() {
         val mockCompletionListener: CompletionListener = mock()
         val eventAttributes = mapOf(
-                "messageId" to MESSAGE_ID,
-                "tag" to LOWER_CASED_TAG
+            "messageId" to MESSAGE_ID,
+            "tag" to LOWER_CASED_TAG
         )
-        whenever(mockRequestModelFactory.createInternalCustomEventRequest(REMOVE_EVENT_NAME, eventAttributes)).thenReturn(mockRequestModel)
+        whenever(
+            mockRequestModelFactory.createInternalCustomEventRequest(
+                REMOVE_EVENT_NAME,
+                eventAttributes
+            )
+        ).thenReturn(mockRequestModel)
 
         messageInboxInternal.removeTag(TAG, MESSAGE_ID, mockCompletionListener)
 
-        verify(mockRequestModelFactory).createInternalCustomEventRequest(REMOVE_EVENT_NAME, eventAttributes)
+        verify(mockRequestModelFactory).createInternalCustomEventRequest(
+            REMOVE_EVENT_NAME,
+            eventAttributes
+        )
         verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
     }
 
     @Suppress("UNCHECKED_CAST")
     private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
-        val mockScopeDelegatorCompletionHandlerProvider = mock<ScopeDelegatorCompletionHandlerProvider> {
-            on { provide(any(), any()) } doAnswer {
-                it.arguments[0] as CoreCompletionHandler
+        val mockScopeDelegatorCompletionHandlerProvider =
+            mock<ScopeDelegatorCompletionHandlerProvider> {
+                on { provide(any(), any()) } doAnswer {
+                    it.arguments[0] as CoreCompletionHandler
+                }
+                on { provide(any(), any()) } doAnswer {
+                    it.arguments[0] as CoreCompletionHandler
+                }
             }
-            on { provide(any(), any()) } doAnswer {
-                it.arguments[0] as CoreCompletionHandler
-            }
-        }
         val mockProvider: CompletionHandlerProxyProvider = mock {
             on { provideProxy(isNull(), any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
@@ -236,8 +249,7 @@ class DefaultMessageInboxInternalTest {
             mock(),
             mock(),
             mockProvider,
-            mockScopeDelegatorCompletionHandlerProvider,
-            mockScope
+            mockScopeDelegatorCompletionHandlerProvider
         )
     }
 }

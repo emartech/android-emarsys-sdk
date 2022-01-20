@@ -1,6 +1,5 @@
 package com.emarsys.core.worker
 
-import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mockable
 import com.emarsys.core.connection.ConnectionChangeListener
@@ -9,6 +8,7 @@ import com.emarsys.core.connection.ConnectionWatchDog
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.database.repository.specification.Everything
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.RequestExpiredException
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
@@ -17,13 +17,14 @@ import com.emarsys.core.request.model.specification.FilterByRequestIds
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel
 import com.emarsys.core.util.log.Logger.Companion.debug
 import com.emarsys.core.util.log.entry.OfflineQueueSize
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 @Mockable
 class DefaultWorker(
     var requestRepository: Repository<RequestModel, SqlSpecification>,
     var connectionWatchDog: ConnectionWatchDog,
-    val uiHandler: Handler,
+    val concurrentHandlerHolder: ConcurrentHandlerHolder,
     var coreCompletionHandler: CoreCompletionHandler,
     var restClient: RestClient,
     val proxyProvider: CompletionHandlerProxyProvider
@@ -93,7 +94,7 @@ class DefaultWorker(
         runBlocking {
             requestRepository.remove(FilterByRequestIds(ids))
         }
-        uiHandler.post {
+        concurrentHandlerHolder.uiScope.launch {
             coreCompletionHandler.onError(
                 expiredModel.id,
                 RequestExpiredException("Request expired", expiredModel.url.path)

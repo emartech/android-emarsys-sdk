@@ -27,6 +27,7 @@ import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.oneventaction.OnEventActionApi
 import com.emarsys.predict.PredictApi
 import com.emarsys.push.PushApi
+import kotlinx.coroutines.launch
 
 object Emarsys {
 
@@ -78,7 +79,7 @@ object Emarsys {
             DefaultEmarsysDependencies(emarsysConfig)
         }
 
-        emarsys().uiHandler.post {
+        emarsys().concurrentHandlerHolder.uiScope.launch {
             try {
                 registerLifecycleObservers()
             } catch (e: Throwable) {

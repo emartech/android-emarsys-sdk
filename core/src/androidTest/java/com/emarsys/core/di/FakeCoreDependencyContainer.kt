@@ -1,8 +1,6 @@
 package com.emarsys.core.di
 
 import android.content.SharedPreferences
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -21,7 +19,6 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
-import com.emarsys.core.request.factory.RunnableFactory
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
@@ -29,17 +26,10 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.worker.Worker
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.android.asCoroutineDispatcher
 import org.mockito.kotlin.mock
 
 class FakeCoreDependencyContainer(
-    override val uiHandler: Handler = Handler(Looper.getMainLooper()),
-    override val concurrentHandlerHolder: ConcurrentHandlerHolder = ConcurrentHandlerHolderFactory(
-        uiHandler
-    ).create(),
+    override val concurrentHandlerHolder: ConcurrentHandlerHolder = ConcurrentHandlerHolderFactory.create(),
     override val activityLifecycleWatchdog: ActivityLifecycleWatchdog = mock(),
     override val currentActivityWatchdog: CurrentActivityWatchdog = mock(),
     override val coreSQLiteDatabase: CoreSQLiteDatabase = mock(),
@@ -64,7 +54,4 @@ class FakeCoreDependencyContainer(
     override val coreCompletionHandler: CoreCompletionHandler = mock(),
     override val logLevelStorage: Storage<String?> = mock(),
     override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock(),
-    override val coreSdkScope: CoroutineScope = CoroutineScope(Job() + concurrentHandlerHolder.coreHandler.handler.asCoroutineDispatcher()),
-    override val uiScope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Main),
-    override val runnableFactory: RunnableFactory = mock()
 ) : CoreComponent

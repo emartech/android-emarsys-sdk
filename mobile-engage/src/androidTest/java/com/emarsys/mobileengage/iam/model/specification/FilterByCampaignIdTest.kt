@@ -1,7 +1,5 @@
 package com.emarsys.mobileengage.iam.model.specification
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
@@ -34,8 +32,7 @@ class FilterByCampaignIdTest {
     @Before
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
-        val uiHandler = Handler(Looper.getMainLooper())
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         val context = InstrumentationRegistry.getTargetContext()
         val dbHelper = CoreDbHelper(context, HashMap())
 

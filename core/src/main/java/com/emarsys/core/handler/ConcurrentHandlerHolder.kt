@@ -7,7 +7,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.android.asCoroutineDispatcher
 
 @Mockable
-class ConcurrentHandlerHolder(final val coreHandler: SdkHandler, final val uiHandler: SdkHandler) {
+class ConcurrentHandlerHolder(final val coreHandler: SdkHandler) {
     fun post(runnable: Runnable) {
         coreHandler.post(runnable)
     }

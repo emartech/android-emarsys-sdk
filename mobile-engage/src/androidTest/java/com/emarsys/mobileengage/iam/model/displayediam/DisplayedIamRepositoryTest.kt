@@ -2,8 +2,6 @@ package com.emarsys.mobileengage.iam.model.displayediam
 
 import android.content.ContentValues
 import android.database.Cursor
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_CAMPAIGN_ID
 import com.emarsys.core.database.DatabaseContract.DISPLAYED_IAM_COLUMN_NAME_TIMESTAMP
@@ -39,7 +37,7 @@ class DisplayedIamRepositoryTest {
         val context = getTargetContext()
         val dbHelper: DbHelper = CoreDbHelper(context, mutableMapOf())
         concurrentHandlerHolder =
-            ConcurrentHandlerHolderFactory(Handler(Looper.getMainLooper())).create()
+            ConcurrentHandlerHolderFactory.create()
         iamRepository = DisplayedIamRepository(dbHelper, concurrentHandlerHolder)
         displayedIam1 = DisplayedIam("campaign1", Date().time)
     }

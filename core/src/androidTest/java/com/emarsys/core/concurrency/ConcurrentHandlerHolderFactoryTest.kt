@@ -1,7 +1,5 @@
 package com.emarsys.core.concurrency
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import io.kotlintest.shouldBe
@@ -12,10 +10,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 
-class CoreHandlerProviderTest {
-    private lateinit var holderFactory: ConcurrentHandlerHolderFactory
-    private lateinit var provided: ConcurrentHandlerHolder
-    private lateinit var uiHandler: Handler
+class ConcurrentHandlerHolderFactoryTest {
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -23,30 +19,28 @@ class CoreHandlerProviderTest {
 
     @Before
     fun setUp() {
-        uiHandler = Handler(Looper.getMainLooper())
-        holderFactory = ConcurrentHandlerHolderFactory(uiHandler)
-        provided = holderFactory.create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
     }
 
     @After
     fun tearDown() {
-        provided.looper.quit()
+        concurrentHandlerHolder.looper.quit()
     }
 
     @Test
     fun testProvideHandler_shouldNotReturnNull() {
-        provided shouldNotBe null
+        concurrentHandlerHolder shouldNotBe null
     }
 
     @Test
     fun testProvideHandler_shouldReturnConcurrentHandlerHolder() {
-        provided.javaClass shouldBe ConcurrentHandlerHolder::class.java
+        concurrentHandlerHolder.javaClass shouldBe ConcurrentHandlerHolder::class.java
     }
 
     @Test
     fun testProvideHandler_shouldReturnConcurrentHandlerHolderWithCorrectName() {
         val expectedNamePrefix = "CoreSDKHandlerThread"
-        val actualName = provided.looper.thread.name
+        val actualName = concurrentHandlerHolder.looper.thread.name
         actualName.startsWith(expectedNamePrefix) shouldBe true
     }
 }

@@ -1,8 +1,6 @@
 package com.emarsys.core.api
 
-import android.os.Handler
 import android.os.HandlerThread
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.testUtil.TimeoutUtils
@@ -19,7 +17,6 @@ import java.util.concurrent.CountDownLatch
 class AsyncProxyTest {
 
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var uiHandler: Handler
 
     @Rule
     @JvmField
@@ -29,8 +26,7 @@ class AsyncProxyTest {
     fun setUp() {
         val handlerThread = HandlerThread("CoreSDKHandlerThread-" + UUID.randomUUID().toString())
         handlerThread.start()
-        uiHandler = Handler(Looper.getMainLooper())
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
     }
 
     @Test

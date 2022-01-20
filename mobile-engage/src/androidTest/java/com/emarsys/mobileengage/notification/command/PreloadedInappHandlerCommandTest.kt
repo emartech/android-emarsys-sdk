@@ -46,7 +46,7 @@ class PreloadedInappHandlerCommandTest {
         fileUrl =
             InstrumentationRegistry.getTargetContext().applicationContext.cacheDir.absolutePath + "/test.file"
         val uiHandler = Handler(Looper.getMainLooper())
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockLifecycleActionRegistry = mock()
 
         val mockFileDownloader: FileDownloader = mock {

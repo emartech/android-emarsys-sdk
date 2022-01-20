@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.iam
 
-import android.os.Handler
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import com.emarsys.core.Mockable
@@ -24,12 +23,12 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 @Mockable
 class OverlayInAppPresenter(
     private val concurrentHandlerHolder: ConcurrentHandlerHolder,
-    private val uiHandler: Handler,
     private val webViewProvider: IamStaticWebViewProvider,
     private val inAppInternal: InAppInternal,
     private val dialogProvider: IamDialogProvider,
@@ -47,7 +46,7 @@ class OverlayInAppPresenter(
         val iamDialog = dialogProvider.provideDialog(campaignId, sid, url, requestId)
         setupDialogWithActions(iamDialog)
         val jsCommandFactory = JSCommandFactory(
-            currentActivityProvider, uiHandler, concurrentHandlerHolder, inAppInternal,
+            currentActivityProvider, concurrentHandlerHolder, inAppInternal,
             buttonClickedRepository, onCloseTriggered(), onAppEventTriggered(), timestampProvider
         )
 
@@ -73,8 +72,9 @@ class OverlayInAppPresenter(
         return {
             val currentActivity = currentActivityProvider.get()
             if (currentActivity is FragmentActivity) {
-                uiHandler.post {
-                    val fragment = currentActivity.supportFragmentManager.findFragmentByTag(IamDialog.TAG)
+                concurrentHandlerHolder.uiScope.launch {
+                    val fragment =
+                        currentActivity.supportFragmentManager.findFragmentByTag(IamDialog.TAG)
                     if (fragment is DialogFragment) {
                         fragment.dismiss()
                     }
@@ -85,7 +85,7 @@ class OverlayInAppPresenter(
 
     fun onAppEventTriggered(): OnAppEventListener {
         return { property: String?, json: JSONObject ->
-            uiHandler.post {
+            concurrentHandlerHolder.uiScope.launch {
                 val payload = json.optJSONObject("payload")
                 val currentActivity = currentActivityProvider.get()
                 if (property != null && currentActivity != null) {

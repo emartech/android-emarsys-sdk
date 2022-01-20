@@ -8,9 +8,8 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.api.MissingPermissionException
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
@@ -91,16 +90,14 @@ class DefaultGeofenceInternalTest {
     private lateinit var mockEnabledStorage: Storage<Boolean>
     private lateinit var mockInitialEnterTriggerEnabledStorage: Storage<Boolean?>
     private lateinit var mockPendingIntentProvider: GeofencePendingIntentProvider
-    private lateinit var mockHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var uiHandler: Handler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Before
     fun setUp() {
-        mockHandlerHolder = mock()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockInitialEnterTriggerEnabledStorage = mock {
             on { get() } doReturn false
         }
-        uiHandler = Handler(Looper.getMainLooper())
         context = InstrumentationRegistry.getTargetContext()
         mockResponseModel = mock()
         mockRequestModelFactory = mock {
@@ -146,8 +143,7 @@ class DefaultGeofenceInternalTest {
             mockCacheableEventHandler,
             mockEnabledStorage,
             mockPendingIntentProvider,
-            mockHandlerHolder,
-            uiHandler,
+            concurrentHandlerHolder,
             mockInitialEnterTriggerEnabledStorage
         )
 
@@ -164,8 +160,7 @@ class DefaultGeofenceInternalTest {
             mockCacheableEventHandler,
             mockEnabledStorage,
             mockPendingIntentProvider,
-            mockHandlerHolder,
-            uiHandler,
+            concurrentHandlerHolder,
             mockInitialEnterTriggerEnabledStorage
         )
     }
@@ -174,7 +169,7 @@ class DefaultGeofenceInternalTest {
     fun testFetchGeofences_shouldSendRequest_viaRequestManager_submitNow() {
         geofenceInternal.fetchGeofences(null)
 
-        verify(fakeRequestManager).submitNow(any(), any(), anyOrNull())
+        verify(fakeRequestManager).submitNow(any(), any())
     }
 
     @Test

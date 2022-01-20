@@ -51,11 +51,21 @@ class RequestManager(
 
     fun submitNow(
         requestModel: RequestModel,
+        completionHandler: CoreCompletionHandler
+    ) {
+        submitNow(requestModel, completionHandler, concurrentHandlerHolder.sdkScope)
+    }
+
+    fun submitNow(
+        requestModel: RequestModel,
         completionHandler: CoreCompletionHandler,
-        scope: CoroutineScope = concurrentHandlerHolder.sdkScope
+        scope: CoroutineScope
     ) {
         val scopedHandler =
-            scopeDelegatorCompletionHandlerProvider.provide(completionHandler, scope)
+            scopeDelegatorCompletionHandlerProvider.provide(
+                completionHandler,
+                scope
+            )
         val handler = completionHandlerProxyProvider.provideProxy(null, scopedHandler)
         restClient.execute(requestModel, handler)
     }

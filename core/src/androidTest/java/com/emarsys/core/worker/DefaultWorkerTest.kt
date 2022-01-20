@@ -1,13 +1,13 @@
 package com.emarsys.core.worker
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionState
 import com.emarsys.core.connection.ConnectionWatchDog
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.fake.FakeCompletionHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.model.RequestMethod
@@ -36,11 +36,11 @@ class DefaultWorkerTest {
     private lateinit var mockCoreCompletionHandler: CoreCompletionHandler
     private lateinit var mockProxyProvider: CompletionHandlerProxyProvider
     private lateinit var restClient: RestClient
-    private lateinit var uiHandler: Handler
     private var now: Long = 0
     private lateinit var expiredModel1: RequestModel
     private lateinit var expiredModel2: RequestModel
     private lateinit var notExpiredModel: RequestModel
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -54,12 +54,12 @@ class DefaultWorkerTest {
         requestRepository = mock()
         mockCoreCompletionHandler = mock()
         restClient = mock()
-        uiHandler = Handler(Looper.getMainLooper())
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockProxyProvider = mock()
         worker = DefaultWorker(
             requestRepository,
             watchDogMock,
-            uiHandler,
+            concurrentHandlerHolder,
             mockCoreCompletionHandler,
             restClient,
             mockProxyProvider
@@ -108,7 +108,7 @@ class DefaultWorkerTest {
         worker = DefaultWorker(
             requestRepository,
             mock(),
-            uiHandler,
+            concurrentHandlerHolder,
             mockCoreCompletionHandler,
             restClient,
             mockProxyProvider
@@ -122,7 +122,7 @@ class DefaultWorkerTest {
         worker = DefaultWorker(
             requestRepository,
             watchDog,
-            uiHandler,
+            concurrentHandlerHolder,
             mockCoreCompletionHandler,
             restClient,
             mockProxyProvider

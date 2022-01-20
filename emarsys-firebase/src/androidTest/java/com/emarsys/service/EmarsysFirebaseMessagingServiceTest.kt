@@ -1,8 +1,6 @@
 package com.emarsys.service
 
 import android.app.Application
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.handler.ConcurrentHandlerHolder
@@ -34,16 +32,14 @@ class EmarsysFirebaseMessagingServiceTest {
 
     private lateinit var mockPushInternal: PushInternal
     private lateinit var fakeDependencyContainer: FakeFirebaseDependencyContainer
-    private lateinit var concurrentHandlerHolderFactory: ConcurrentHandlerHolderFactory
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var spyCoreHandler: SdkHandler
 
     @Before
     fun setUp() {
         mockPushInternal = mock()
-        concurrentHandlerHolderFactory =
-            ConcurrentHandlerHolderFactory(Handler(Looper.getMainLooper()))
-        concurrentHandlerHolder = concurrentHandlerHolderFactory.create()
+
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         spyCoreHandler = spy(concurrentHandlerHolder.coreHandler)
         ReflectionTestUtils.setInstanceField(
             concurrentHandlerHolder,
@@ -87,19 +83,19 @@ class EmarsysFirebaseMessagingServiceTest {
 
     private fun setupEmarsys(isAutomaticPushSending: Boolean) {
         val deviceInfo = DeviceInfo(
-                application,
-                mock {
-                    on { provideHardwareId() } doReturn "hardwareId"
-                },
-                mock {
-                    on { provideSdkVersion() } doReturn "version"
-                },
-                mock {
-                    on { provideLanguage(any()) } doReturn "language"
-                },
-                mock(),
-                isAutomaticPushSending,
-                true
+            application,
+            mock {
+                on { provideHardwareId() } doReturn "hardwareId"
+            },
+            mock {
+                on { provideSdkVersion() } doReturn "version"
+            },
+            mock {
+                on { provideLanguage(any()) } doReturn "language"
+            },
+            mock(),
+            isAutomaticPushSending,
+            true
         )
 
         fakeDependencyContainer = FakeFirebaseDependencyContainer(

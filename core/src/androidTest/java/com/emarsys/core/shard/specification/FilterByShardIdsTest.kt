@@ -1,8 +1,6 @@
 package com.emarsys.core.shard.specification
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
@@ -35,7 +33,7 @@ class FilterByShardIdsTest {
         DatabaseTestUtils.deleteCoreDatabase()
         context = InstrumentationRegistry.getTargetContext().applicationContext
         concurrentHadlerHolder =
-            ConcurrentHandlerHolderFactory(Handler(Looper.getMainLooper())).create()
+            ConcurrentHandlerHolderFactory.create()
 
         originalShardList = listOf(
             ShardModel("id1", "type1", mapOf(), 0, 0),

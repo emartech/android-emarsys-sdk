@@ -2,8 +2,6 @@ package com.emarsys.core.database.repository
 
 import android.content.ContentValues
 import android.database.Cursor
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.DatabaseContract
@@ -65,7 +63,7 @@ class AbstractSqliteRepositoryTest {
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
         testConcurrentHandlerHolder =
-            ConcurrentHandlerHolderFactory(Handler(Looper.getMainLooper())).create()
+            ConcurrentHandlerHolderFactory.create()
 
         dummySpecification = sqlSpecification(
                 DISTINCT,

@@ -1,7 +1,5 @@
 package com.emarsys.core.request
 
-import android.os.Handler
-import androidx.test.platform.app.InstrumentationRegistry
 import com.emarsys.core.Mapper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionProvider
@@ -14,8 +12,6 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
-import com.emarsys.core.request.factory.DefaultRunnableFactory
-import com.emarsys.core.request.factory.RunnableFactory
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
@@ -43,14 +39,11 @@ class RequestManagerDennaTest {
     private lateinit var model: RequestModel
     private lateinit var latch: CountDownLatch
     private lateinit var fakeCompletionHandler: FakeCompletionHandler
-    private lateinit var concurrentHandlerHolderFactory: ConcurrentHandlerHolderFactory
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var uiHandler: Handler
     private lateinit var worker: Worker
     private lateinit var timestampProvider: TimestampProvider
     private lateinit var uuidProvider: UUIDProvider
     private lateinit var coreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
-    private lateinit var runnableFactory: RunnableFactory
 
     @Rule
     @JvmField
@@ -71,10 +64,7 @@ class RequestManagerDennaTest {
         requestModelMappers.add(mockRequestModelMapper)
         val context = getTargetContext()
         checkConnection(context)
-        runnableFactory = DefaultRunnableFactory()
-        uiHandler = Handler(InstrumentationRegistry.getInstrumentation().targetContext.mainLooper)
-        concurrentHandlerHolderFactory = ConcurrentHandlerHolderFactory(uiHandler)
-        concurrentHandlerHolder = concurrentHandlerHolderFactory.create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         val connectionWatchDog = ConnectionWatchDog(context, concurrentHandlerHolder)
         val coreDbHelper = CoreDbHelper(context, mutableMapOf())
         val requestRepository: Repository<RequestModel, SqlSpecification> =
@@ -92,14 +82,12 @@ class RequestManagerDennaTest {
         )
         coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(
             requestRepository,
-            uiHandler,
-            concurrentHandlerHolder,
-            runnableFactory
+            concurrentHandlerHolder
         )
         worker = DefaultWorker(
             requestRepository,
             connectionWatchDog,
-            uiHandler,
+            concurrentHandlerHolder,
             fakeCompletionHandler,
             restClient,
             coreCompletionHandlerMiddlewareProvider
@@ -114,7 +102,6 @@ class RequestManagerDennaTest {
             restClient,
             mock(),
             fakeCompletionHandler,
-            mock(),
             mock(),
             mock()
         )

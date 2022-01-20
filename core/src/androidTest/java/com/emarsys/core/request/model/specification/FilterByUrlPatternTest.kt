@@ -1,7 +1,5 @@
 package com.emarsys.core.request.model.specification
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
@@ -43,9 +41,8 @@ class FilterByUrlPatternTest {
 
         val context = InstrumentationRegistry.getTargetContext().applicationContext
         val coreDbHelper = CoreDbHelper(context, mutableMapOf())
-        val uiHandler = Handler(Looper.getMainLooper())
         val concurrentHandlerHolder: ConcurrentHandlerHolder =
-            ConcurrentHandlerHolderFactory(uiHandler).create()
+            ConcurrentHandlerHolderFactory.create()
         repository = RequestModelRepository(coreDbHelper, concurrentHandlerHolder)
     }
 

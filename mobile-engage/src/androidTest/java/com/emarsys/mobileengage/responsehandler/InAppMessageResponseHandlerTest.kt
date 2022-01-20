@@ -1,5 +1,7 @@
 package com.emarsys.mobileengage.responsehandler
 
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
@@ -30,6 +32,7 @@ class InAppMessageResponseHandlerTest {
     private lateinit var mockDialog: IamDialog
     private lateinit var mockJsBridgeFactory: IamJsBridgeFactory
     private lateinit var mockJsBridge: IamJsBridge
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -37,6 +40,7 @@ class InAppMessageResponseHandlerTest {
 
     @Before
     fun init() {
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         webViewProvider = mock()
         mockJsBridge = mock()
         mockJsBridgeFactory = mock {
@@ -55,8 +59,7 @@ class InAppMessageResponseHandlerTest {
         }
 
         presenter = OverlayInAppPresenter(
-            mock(),
-            mock(),
+            concurrentHandlerHolder,
             webViewProvider,
             mock(),
             dialogProvider,

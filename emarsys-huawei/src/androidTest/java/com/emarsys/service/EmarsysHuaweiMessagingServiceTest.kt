@@ -1,7 +1,6 @@
 package com.emarsys.service
 
 import android.app.Application
-import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.device.DeviceInfo
@@ -34,16 +33,14 @@ class EmarsysHuaweiMessagingServiceTest {
     private lateinit var mockPushInternal: PushInternal
     private lateinit var fakeDependencyContainer: FakeHuaweiDependencyContainer
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var concurrentHandlerHolderFactory: ConcurrentHandlerHolderFactory
     private lateinit var emarsysHuaweiMessagingService: EmarsysHuaweiMessagingService
     private lateinit var spyCoreHandler: SdkHandler
 
     @Before
     fun setUp() {
         mockPushInternal = mock()
-        concurrentHandlerHolderFactory =
-            ConcurrentHandlerHolderFactory(Handler(Looper.getMainLooper()))
-        concurrentHandlerHolder = concurrentHandlerHolderFactory.create()
+
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         spyCoreHandler = spy(concurrentHandlerHolder.coreHandler)
         ReflectionTestUtils.setInstanceField(
             concurrentHandlerHolder,

@@ -1,8 +1,6 @@
 package com.emarsys.core.util
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.testUtil.FileTestUtils
@@ -68,10 +66,9 @@ class FileDownloaderTest {
 
     @Test
     fun testDownload_downloadedAndRemoteFileShouldBeTheSame() {
-        val uiHandler = Handler(Looper.getMainLooper())
         val latch = CountDownLatch(1)
         val concurrentHandlerHolder: ConcurrentHandlerHolder =
-            ConcurrentHandlerHolderFactory(uiHandler).create()
+            ConcurrentHandlerHolderFactory.create()
 
         concurrentHandlerHolder.coreHandler.post {
             val path: String = LARGE_IMAGE

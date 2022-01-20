@@ -2,9 +2,9 @@ package com.emarsys.mobileengage.push
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
@@ -62,7 +62,7 @@ class DefaultPushInternalTest {
     private lateinit var mockClientStateStorage: StringStorage
     private lateinit var mockPushTokenStorage: StringStorage
 
-    private lateinit var uiHandler: Handler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -102,7 +102,7 @@ class DefaultPushInternalTest {
             on { createRemovePushTokenRequest() } doReturn mockRequestModel
         }
 
-        uiHandler = Handler(Looper.getMainLooper())
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
 
         mockCompletionListener = mock()
         mockEventServiceInternal = mock()
@@ -110,7 +110,7 @@ class DefaultPushInternalTest {
         mockSilentMessageCacheableEventHandler = mock()
         pushInternal = DefaultPushInternal(
             mockRequestManager,
-            uiHandler,
+            concurrentHandlerHolder,
             mockRequestModelFactory,
             mockEventServiceInternal,
             mockPushTokenStorage,

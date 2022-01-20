@@ -1,7 +1,5 @@
 package com.emarsys.core.request
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mapper
 import com.emarsys.core.Registry
@@ -15,7 +13,9 @@ import com.emarsys.core.fake.FakeCompletionHandler
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
-import com.emarsys.core.request.factory.*
+import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
+import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
+import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
@@ -50,9 +50,7 @@ class RequestManagerTest {
     private lateinit var completionHandlerLatch: CountDownLatch
     private lateinit var runnableFactoryLatch: CountDownLatch
     private lateinit var mockConnectionWatchDog: ConnectionWatchDog
-    private lateinit var concurrentHandlerHolderFactory: ConcurrentHandlerHolderFactory
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var uiHandler: Handler
     private lateinit var mockRequestRepository: Repository<RequestModel, SqlSpecification>
     private lateinit var mockShardRepository: Repository<ShardModel, SqlSpecification>
     private lateinit var worker: Worker
@@ -64,8 +62,6 @@ class RequestManagerTest {
     private lateinit var mockRequestModelMapper: Mapper<RequestModel, RequestModel>
     private lateinit var mockCompletionHandlerProxyProvider: CompletionHandlerProxyProvider
     private lateinit var mockScopeDelegatorCompletionHandlerProvider: ScopeDelegatorCompletionHandlerProvider
-    private lateinit var mockScope: CoroutineScope
-    private lateinit var runnableFactory: RunnableFactory
     private lateinit var callbackRegistryThreadSpy: ThreadSpy<Registry<RequestModel, CompletionListener?>>
     private lateinit var shardRepositoryThreadSpy: ThreadSpy<Repository<ShardModel, SqlSpecification>>
 
@@ -89,10 +85,7 @@ class RequestManagerTest {
         }
         val context = getTargetContext()
         checkConnection(context)
-        runnableFactory = DefaultRunnableFactory()
-        uiHandler = Handler(Looper.getMainLooper())
-        concurrentHandlerHolderFactory = ConcurrentHandlerHolderFactory(uiHandler)
-        concurrentHandlerHolder = concurrentHandlerHolderFactory.create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockConnectionWatchDog = mock()
         mockRequestRepository = mock {
             on { isEmpty() } doReturn true
@@ -122,14 +115,12 @@ class RequestManagerTest {
         mockRestClient = mock()
         coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(
             mockRequestRepository,
-            uiHandler,
-            concurrentHandlerHolder,
-            runnableFactory
+            concurrentHandlerHolder
         )
         worker = DefaultWorker(
             mockRequestRepository,
             mockConnectionWatchDog,
-            uiHandler,
+            concurrentHandlerHolder,
             fakeCompletionHandler,
             restClient,
             coreCompletionHandlerMiddlewareProvider
@@ -140,7 +131,6 @@ class RequestManagerTest {
         mockScopeDelegatorCompletionHandlerProvider = mock {
             on { provide(any(), any()) } doReturn fakeCompletionHandler
         }
-        mockScope = mock()
         manager = RequestManager(
             concurrentHandlerHolder,
             mockRequestRepository,
@@ -150,8 +140,7 @@ class RequestManagerTest {
             mockCallbackRegistry,
             mockDefaultHandler,
             mockCompletionHandlerProxyProvider,
-            mockScopeDelegatorCompletionHandlerProvider,
-            mockScope
+            mockScopeDelegatorCompletionHandlerProvider
         )
         timestampProvider = TimestampProvider()
         uuidProvider = UUIDProvider()
@@ -247,7 +236,10 @@ class RequestManagerTest {
             mockDefaultHandler
         )
         manager.submitNow(requestModel)
-        verify(mockScopeDelegatorCompletionHandlerProvider).provide(mockDefaultHandler, mockScope)
+        verify(mockScopeDelegatorCompletionHandlerProvider).provide(
+            mockDefaultHandler,
+            concurrentHandlerHolder.sdkScope
+        )
         verify(mockCompletionHandlerProxyProvider, times(2))
             .provideProxy(null, mockDefaultHandler)
         verify(mockRestClient).execute(requestModel, mockDefaultHandler)
@@ -258,7 +250,7 @@ class RequestManagerTest {
         manager.submitNow(requestModel, fakeCompletionHandler)
         verify(mockScopeDelegatorCompletionHandlerProvider).provide(
             fakeCompletionHandler,
-            mockScope
+            concurrentHandlerHolder.sdkScope
         )
         verify(mockCompletionHandlerProxyProvider).provideProxy(null, fakeCompletionHandler)
         verify(mockRestClient).execute(requestModel, mockDefaultHandler)

@@ -1,7 +1,5 @@
 package com.emarsys.core.request
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionState
 import com.emarsys.core.database.helper.CoreDbHelper
@@ -16,8 +14,6 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
-import com.emarsys.core.request.factory.DefaultRunnableFactory
-import com.emarsys.core.request.factory.RunnableFactory
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
@@ -33,6 +29,7 @@ import io.kotlintest.be
 import io.kotlintest.matchers.beEmpty
 import io.kotlintest.should
 import io.kotlintest.shouldBe
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -65,20 +62,16 @@ class RequestManagerOfflineTest {
     private lateinit var completionLatch: CountDownLatch
     private lateinit var completionHandler: FakeCompletionHandler
     private lateinit var fakeRestClient: RestClient
-    private lateinit var holderFactory: ConcurrentHandlerHolderFactory
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var uiHandler: Handler
     private lateinit var worker: Worker
     private lateinit var coreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
     private lateinit var mockProxyProvider: CompletionHandlerProxyProvider
-    private lateinit var runnableFactory: RunnableFactory
 
     @Before
     fun setup() {
         DatabaseTestUtils.deleteCoreDatabase()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
 
-        uiHandler = Handler(Looper.getMainLooper())
-        runnableFactory = DefaultRunnableFactory()
     }
 
     @After
@@ -100,7 +93,7 @@ class RequestManagerOfflineTest {
         requestRepository.isEmpty() shouldBe false
         completionHandler.latch = CountDownLatch(1)
 
-        uiHandler.post {
+        concurrentHandlerHolder.uiScope.launch {
             watchDog.connectionChangeListener.onConnectionChanged(
                 ConnectionState.CONNECTED,
                 true
@@ -238,9 +231,6 @@ class RequestManagerOfflineTest {
         watchDogLatch = CountDownLatch(watchDogCountDown)
         watchDog = FakeConnectionWatchDog(watchDogLatch, *connectionStates)
         val coreDbHelper = CoreDbHelper(InstrumentationRegistry.getTargetContext(), HashMap())
-        val uiHandler: Handler = Handler(Looper.getMainLooper())
-        holderFactory = ConcurrentHandlerHolderFactory(uiHandler)
-        val concurrentHandlerHolder = holderFactory.create()
         requestRepository = RequestModelRepository(coreDbHelper, concurrentHandlerHolder)
         shardRepository = ShardModelRepository(coreDbHelper, concurrentHandlerHolder)
 
@@ -248,26 +238,23 @@ class RequestManagerOfflineTest {
         completionHandler = FakeCompletionHandler(completionLatch)
 
         fakeRestClient = FakeRestClient(*requestResults)
-        concurrentHandlerHolder = holderFactory.create()
 
         mockProxyProvider = mock()
 
         coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(
             requestRepository,
-            uiHandler,
-            concurrentHandlerHolder,
-            runnableFactory
+            concurrentHandlerHolder
         )
         worker = DefaultWorker(
             requestRepository,
             watchDog,
-            uiHandler,
+            concurrentHandlerHolder,
             completionHandler,
             fakeRestClient,
             coreCompletionHandlerMiddlewareProvider
         )
 
-        concurrentHandlerHolder.sdkScope.launch {
+        runBlocking {
             requestModels.forEach {
                 requestRepository.add(it)
             }

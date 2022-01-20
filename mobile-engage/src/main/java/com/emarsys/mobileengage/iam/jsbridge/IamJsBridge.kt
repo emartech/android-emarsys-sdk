@@ -1,22 +1,24 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
-import android.os.Handler
 import android.os.Looper
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import com.emarsys.core.Mockable
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.JsonUtils.merge
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory.CommandType
 import com.emarsys.mobileengage.iam.model.InAppMessage
+import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 
 
 @Mockable
 class IamJsBridge(
-        private val uiHandler: Handler,
-        private val jsCommandFactory: JSCommandFactory,
-        private val inAppMessage: InAppMessage) {
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
+    private val jsCommandFactory: JSCommandFactory,
+    private val inAppMessage: InAppMessage
+) {
 
     var webView: WebView? = null
 
@@ -44,7 +46,8 @@ class IamJsBridge(
     @JavascriptInterface
     fun buttonClicked(jsonString: String) {
         handleJsBridgeEvent(jsonString, "buttonId") { property, json ->
-            jsCommandFactory.create(CommandType.ON_BUTTON_CLICKED, inAppMessage).invoke(property, json)
+            jsCommandFactory.create(CommandType.ON_BUTTON_CLICKED, inAppMessage)
+                .invoke(property, json)
             null
         }
     }
@@ -61,7 +64,11 @@ class IamJsBridge(
         }
     }
 
-    private fun handleJsBridgeEvent(jsonString: String, property: String, jsBridgeEventAction: (property: String, json: JSONObject) -> JSONObject?) {
+    private fun handleJsBridgeEvent(
+        jsonString: String,
+        property: String,
+        jsBridgeEventAction: (property: String, json: JSONObject) -> JSONObject?
+    ) {
         try {
             val json = JSONObject(jsonString)
             val id = json.getString("id")
@@ -83,8 +90,8 @@ class IamJsBridge(
     fun sendSuccess(id: String?, resultPayload: JSONObject?) {
         try {
             val message = JSONObject()
-                    .put("id", id)
-                    .put("success", true)
+                .put("id", id)
+                .put("success", true)
             val result = merge(message, resultPayload)
             sendResult(result)
         } catch (ignore: JSONException) {
@@ -93,10 +100,12 @@ class IamJsBridge(
 
     fun sendError(id: String?, error: String?) {
         try {
-            sendResult(JSONObject()
+            sendResult(
+                JSONObject()
                     .put("id", id)
                     .put("success", false)
-                    .put("error", error))
+                    .put("error", error)
+            )
         } catch (ignore: JSONException) {
         }
     }
@@ -106,7 +115,14 @@ class IamJsBridge(
         if (Looper.myLooper() == Looper.getMainLooper()) {
             webView!!.evaluateJavascript(String.format("MEIAM.handleResponse(%s);", payload), null)
         } else {
-            uiHandler.post { webView!!.evaluateJavascript(String.format("MEIAM.handleResponse(%s);", payload), null) }
+            concurrentHandlerHolder.uiScope.launch {
+                webView!!.evaluateJavascript(
+                    String.format(
+                        "MEIAM.handleResponse(%s);",
+                        payload
+                    ), null
+                )
+            }
         }
     }
 }

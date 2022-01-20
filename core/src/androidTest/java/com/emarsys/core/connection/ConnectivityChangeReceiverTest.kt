@@ -2,8 +2,6 @@ package com.emarsys.core.connection
 
 import android.content.Context
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
@@ -23,7 +21,6 @@ class ConnectivityChangeReceiverTest {
     private lateinit var receiver: ConnectivityChangeReceiver
     private lateinit var mockListener: ConnectionChangeListener
     private lateinit var context: Context
-    private lateinit var uiHandler: Handler
 
     @Rule
     @JvmField
@@ -32,9 +29,8 @@ class ConnectivityChangeReceiverTest {
 
     @Before
     fun setup() {
-        uiHandler = Handler(Looper.getMainLooper())
         context = InstrumentationRegistry.getInstrumentation().targetContext
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
 
         mockListener = mock()
     }

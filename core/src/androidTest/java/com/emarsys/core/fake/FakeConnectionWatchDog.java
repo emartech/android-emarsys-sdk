@@ -1,8 +1,5 @@
 package com.emarsys.core.fake;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory;
 import com.emarsys.core.connection.ConnectionChangeListener;
 import com.emarsys.core.connection.ConnectionWatchDog;
@@ -20,7 +17,7 @@ public class FakeConnectionWatchDog extends ConnectionWatchDog {
     public CountDownLatch latch;
 
     public FakeConnectionWatchDog(CountDownLatch latch, Boolean... isConnectedReplies) {
-        super(InstrumentationRegistry.getTargetContext(), new ConcurrentHandlerHolderFactory(new Handler(Looper.getMainLooper())).create());
+        super(InstrumentationRegistry.getTargetContext(), ConcurrentHandlerHolderFactory.INSTANCE.create());
         this.latch = latch;
         this.isConnectedReplies = new ArrayList<>(Arrays.asList(isConnectedReplies));
     }

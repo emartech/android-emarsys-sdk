@@ -2,8 +2,6 @@ package com.emarsys.core.shard
 
 import android.content.Context
 import android.database.Cursor
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_DATA
 import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_ID
@@ -31,7 +29,6 @@ class ShardModelRepositoryTest {
     private lateinit var repository: ShardModelRepository
     private lateinit var payload: Map<String, Serializable>
     private lateinit var context: Context
-    private lateinit var uiHandler: Handler
 
     @Rule
     @JvmField
@@ -47,10 +44,9 @@ class ShardModelRepositoryTest {
     @Before
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
-        uiHandler = Handler(Looper.getMainLooper())
         context = InstrumentationRegistry.getTargetContext()
         val concurrentHandlerHolder: ConcurrentHandlerHolder =
-            ConcurrentHandlerHolderFactory(uiHandler).create()
+            ConcurrentHandlerHolderFactory.create()
         repository =
             ShardModelRepository(CoreDbHelper(context, mutableMapOf()), concurrentHandlerHolder)
 

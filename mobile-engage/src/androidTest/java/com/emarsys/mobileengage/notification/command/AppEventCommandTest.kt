@@ -1,13 +1,13 @@
 package com.emarsys.mobileengage.notification.command
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
-import com.emarsys.mobileengage.api.event.EventHandler
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.mockito.ThreadSpy
+import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert
@@ -24,14 +24,14 @@ class AppEventCommandTest {
     val timeout: TestRule = timeoutRule
 
     private lateinit var applicationContext: Context
-    private lateinit var uiHandler: Handler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockEventHandler: CacheableEventHandler
 
     @Before
     fun setUp() {
         applicationContext = getTargetContext().applicationContext
         mockEventHandler = mock()
-        uiHandler = Handler(Looper.getMainLooper())
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
     }
 
     @Test
@@ -47,8 +47,14 @@ class AppEventCommandTest {
             threadSpy
         )
 
-        AppEventCommand(applicationContext, mockEventHandler, uiHandler, name, payload).run()
-        uiHandler.post {
+        AppEventCommand(
+            applicationContext,
+            mockEventHandler,
+            concurrentHandlerHolder,
+            name,
+            payload
+        ).run()
+        concurrentHandlerHolder.uiScope.launch {
             latch.countDown()
         }
         latch.await()
@@ -64,8 +70,14 @@ class AppEventCommandTest {
 
         val latch = CountDownLatch(1)
 
-        AppEventCommand(applicationContext, mockEventHandler, uiHandler, name, null).run()
-        uiHandler.post {
+        AppEventCommand(
+            applicationContext,
+            mockEventHandler,
+            concurrentHandlerHolder,
+            name,
+            null
+        ).run()
+        concurrentHandlerHolder.uiScope.launch {
             latch.countDown()
         }
         latch.await()
@@ -76,7 +88,13 @@ class AppEventCommandTest {
     @Test
     fun testRun_shouldIgnoreHandler_ifNull() {
         try {
-            AppEventCommand(applicationContext, mockEventHandler, uiHandler, "", null).run()
+            AppEventCommand(
+                applicationContext,
+                mockEventHandler,
+                concurrentHandlerHolder,
+                "",
+                null
+            ).run()
         } catch (e: Exception) {
             Assert.fail(e.message)
         }

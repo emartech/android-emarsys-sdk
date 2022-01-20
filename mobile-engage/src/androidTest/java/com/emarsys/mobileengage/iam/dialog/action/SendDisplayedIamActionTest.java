@@ -6,9 +6,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import com.emarsys.core.api.result.CompletionListener;
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory;
 import com.emarsys.core.handler.ConcurrentHandlerHolder;
@@ -42,7 +39,7 @@ public class SendDisplayedIamActionTest {
 
     @Before
     public void init() {
-        handler = new ConcurrentHandlerHolderFactory(new Handler(Looper.getMainLooper())).create();
+        handler = ConcurrentHandlerHolderFactory.INSTANCE.create();
         inAppInternal = mock(InAppInternal.class);
         action = new SendDisplayedIamAction(handler, inAppInternal);
     }

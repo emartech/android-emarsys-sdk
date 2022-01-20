@@ -1,7 +1,5 @@
 package com.emarsys.core.database.repository.specification
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.provider.timestamp.TimestampProvider
@@ -52,8 +50,7 @@ class FilterByRequestIdsTest {
                 .build()
 
         val coreDbHelper = CoreDbHelper(InstrumentationRegistry.getTargetContext(), HashMap())
-        val uiHandler = Handler(Looper.getMainLooper())
-        val concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        val concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         repository = RequestModelRepository(coreDbHelper, concurrentHandlerHolder)
         runBlocking {
             repository.add(requestModel1)

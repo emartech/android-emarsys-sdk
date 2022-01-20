@@ -1,8 +1,6 @@
 package com.emarsys.core.activity
 
 import android.app.Activity
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.activity.ActivityLifecycleAction.ActivityLifecycle.CREATE
 import com.emarsys.core.activity.ActivityLifecycleAction.ActivityLifecycle.RESUME
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
@@ -24,11 +22,9 @@ class ActivityLifecycleActionRegistryTest {
     private lateinit var mockAction3: ActivityLifecycleAction
     private lateinit var mockActions: MutableList<ActivityLifecycleAction>
     private lateinit var mockActivity: Activity
-    private lateinit var uiHandler: Handler
 
     @Before
     fun setup() {
-        uiHandler = Handler(Looper.getMainLooper())
         mockActivity = mock()
         mockAction1 = mock {
             on { triggeringLifecycle } doReturn RESUME
@@ -43,7 +39,7 @@ class ActivityLifecycleActionRegistryTest {
             on { get() } doReturn mockActivity
         }
         mockActions = mutableListOf(mockAction1, mockAction2, mockAction3)
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
 
         activityLifecycleActionRegistry = ActivityLifecycleActionRegistry(
             concurrentHandlerHolder, mockCurrentActivityProvider, mockActions

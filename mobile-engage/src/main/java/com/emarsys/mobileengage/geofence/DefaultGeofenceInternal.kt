@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
-import android.os.Handler
 import androidx.annotation.RequiresPermission
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mockable
@@ -30,6 +29,7 @@ import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.google.android.gms.location.*
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import kotlin.math.abs
 import com.emarsys.mobileengage.api.geofence.Geofence as MEGeofence
@@ -48,8 +48,7 @@ class DefaultGeofenceInternal(
     private val geofenceCacheableEventHandler: CacheableEventHandler,
     private val geofenceEnabledStorage: Storage<Boolean>,
     private val geofencePendingIntentProvider: GeofencePendingIntentProvider,
-    concurrentHandlerHolder: ConcurrentHandlerHolder,
-    private val uiHandler: Handler,
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
     private val initialEnterTriggerEnabledStorage: Storage<Boolean?>
 ) : GeofenceInternal {
     private companion object {
@@ -90,7 +89,6 @@ class DefaultGeofenceInternal(
 
             override fun onError(id: String, cause: Exception) {
             }
-
         })
     }
 
@@ -137,7 +135,7 @@ class DefaultGeofenceInternal(
 
     private fun registerBroadcastReceiver() {
         if (!receiverRegistered) {
-            uiHandler.post {
+            concurrentHandlerHolder.uiScope.launch {
                 context.registerReceiver(
                     geofenceBroadcastReceiver,
                     IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION")
@@ -291,7 +289,7 @@ class DefaultGeofenceInternal(
 
     private fun executeActions(actions: List<Runnable?>) {
         actions.forEach { action ->
-            uiHandler.post {
+            concurrentHandlerHolder.uiScope.launch {
                 action?.run()
             }
         }

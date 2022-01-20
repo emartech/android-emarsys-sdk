@@ -10,6 +10,7 @@ import com.emarsys.core.request.model.collectRequestIds
 import com.emarsys.core.request.model.specification.FilterByRequestIds
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.RequestModelUtils
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.*
 
@@ -22,7 +23,7 @@ class CoreCompletionHandlerMiddleware(
 ) : CoreCompletionHandler {
 
     override fun onSuccess(id: String, responseModel: ResponseModel) {
-        concurrentHandlerHolder.coreHandler.post {
+        concurrentHandlerHolder.sdkScope.launch {
             removeRequestModel(responseModel)
             worker?.unlock()
             worker?.run()
@@ -31,7 +32,7 @@ class CoreCompletionHandlerMiddleware(
     }
 
     override fun onError(id: String, responseModel: ResponseModel) {
-        concurrentHandlerHolder.coreHandler.post {
+        concurrentHandlerHolder.sdkScope.launch {
             if (isNonRetriableError(responseModel.statusCode)) {
                 removeRequestModel(responseModel)
                 handleError(responseModel)
@@ -65,9 +66,9 @@ class CoreCompletionHandlerMiddleware(
     }
 
     override fun onError(id: String, cause: Exception) {
-        concurrentHandlerHolder.coreHandler.post {
+        concurrentHandlerHolder.sdkScope.launch {
             worker?.unlock()
-            concurrentHandlerHolder.uiHandler.post {
+            concurrentHandlerHolder.uiScope.launch {
                 coreCompletionHandler?.onError(
                     id,
                     cause
@@ -86,7 +87,7 @@ class CoreCompletionHandlerMiddleware(
 
     private fun handleSuccess(responseModel: ResponseModel) {
         for (id in RequestModelUtils.extractIdsFromCompositeRequestModel(responseModel.requestModel)) {
-            concurrentHandlerHolder.uiHandler.post {
+            concurrentHandlerHolder.uiScope.launch {
                 coreCompletionHandler?.onSuccess(
                     id,
                     responseModel
@@ -97,7 +98,7 @@ class CoreCompletionHandlerMiddleware(
 
     private fun handleError(responseModel: ResponseModel) {
         for (id in RequestModelUtils.extractIdsFromCompositeRequestModel(responseModel.requestModel)) {
-            concurrentHandlerHolder.uiHandler.post {
+            concurrentHandlerHolder.uiScope.launch {
                 coreCompletionHandler?.onError(
                     id,
                     responseModel

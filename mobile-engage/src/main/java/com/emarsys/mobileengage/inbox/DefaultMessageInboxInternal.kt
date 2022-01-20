@@ -76,6 +76,6 @@ class DefaultMessageInboxInternal(
             override fun onError(id: String, cause: Exception) {
                 resultListener.onResult(Try.failure(cause))
             }
-        }, scope = concurrentHandlerHolder.uiScope)
+        }, concurrentHandlerHolder.uiScope)
     }
 }

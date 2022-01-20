@@ -14,8 +14,8 @@ import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.specification.FilterByRequestIds
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotlintest.matchers.numerics.shouldBeLessThanOrEqual
 import io.kotlintest.shouldBe
 import kotlinx.coroutines.runBlocking
@@ -30,13 +30,12 @@ import java.util.concurrent.CountDownLatch
 class CoreCompletionHandlerMiddlewareTest {
     private lateinit var coreCompletionHandler: CoreCompletionHandler
     private lateinit var requestRepository: Repository<RequestModel, SqlSpecification>
-    private lateinit var worker: Worker
+    private lateinit var mockWorker: Worker
     private lateinit var expectedId: String
     private lateinit var middleware: CoreCompletionHandlerMiddleware
     private lateinit var captor: ArgumentCaptor<Message>
     private lateinit var uiHandler: Handler
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var spyCoreHandler: SdkHandler
 
     @Rule
     @JvmField
@@ -45,21 +44,15 @@ class CoreCompletionHandlerMiddlewareTest {
     @Before
     fun setup() {
         expectedId = "expectedId"
-        worker = mock()
+        mockWorker = mock()
         coreCompletionHandler = mock()
         requestRepository = mock()
         uiHandler = Handler(Looper.getMainLooper())
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
-        spyCoreHandler = spy(concurrentHandlerHolder.coreHandler)
-        ReflectionTestUtils.setInstanceField(
-            concurrentHandlerHolder,
-            "coreHandler",
-            spyCoreHandler
-        )
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
+
         middleware = CoreCompletionHandlerMiddleware(
-            worker,
+            mockWorker,
             requestRepository,
-            uiHandler,
             concurrentHandlerHolder,
             coreCompletionHandler
         )
@@ -76,9 +69,9 @@ class CoreCompletionHandlerMiddlewareTest {
         waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
         runBlocking {
-            verify(worker).unlock()
-            verify(worker).run()
-            verifyNoMoreInteractions(worker)
+            verify(mockWorker).unlock()
+            verify(mockWorker).run()
+            verifyNoMoreInteractions(mockWorker)
             verify(requestRepository).remove(capture<FilterByRequestIds>(captor))
             val filter = captor.value
 
@@ -110,9 +103,11 @@ class CoreCompletionHandlerMiddlewareTest {
     @Test
     fun testOnSuccess_callsHandlerPost() {
         middleware.concurrentHandlerHolder = concurrentHandlerHolder
+        val threadSpy = ThreadSpy<Unit>()
+        whenever(mockWorker.unlock()).thenAnswer(threadSpy)
         middleware.onSuccess(expectedId, createResponseModel(200))
-        verify(spyCoreHandler).post(any())
-        verify(worker, timeout(50)).run()
+        threadSpy.verifyCalledOnCoreSdkThread()
+        verify(mockWorker, timeout(50)).run()
     }
 
     @Test
@@ -151,19 +146,20 @@ class CoreCompletionHandlerMiddlewareTest {
         }
 
         verify(coreCompletionHandler).onError(expectedId, expectedModel)
-        verify(worker).unlock()
-        verify(worker).run()
-        verifyNoMoreInteractions(worker)
+        verify(mockWorker).unlock()
+        verify(mockWorker).run()
+        verifyNoMoreInteractions(mockWorker)
     }
 
     @Test
     fun testOnError_4xx_callsHandlerPost() {
         middleware.concurrentHandlerHolder = concurrentHandlerHolder
-
+        val threadSpy = ThreadSpy<Unit>()
+        whenever(mockWorker.unlock()).thenAnswer(threadSpy)
         middleware.onError(expectedId, createResponseModel(401))
 
-        verify(spyCoreHandler).post(any())
-        verify(worker, timeout(50)).run()
+        threadSpy.verifyCalledOnCoreSdkThread()
+        verify(mockWorker, timeout(50)).run()
     }
 
     @Test
@@ -175,8 +171,8 @@ class CoreCompletionHandlerMiddlewareTest {
         waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
-        verify(worker).unlock()
-        verifyNoMoreInteractions(worker)
+        verify(mockWorker).unlock()
+        verifyNoMoreInteractions(mockWorker)
         verifyNoInteractions(coreCompletionHandler)
         verifyNoInteractions(requestRepository)
     }
@@ -190,8 +186,8 @@ class CoreCompletionHandlerMiddlewareTest {
         waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
-        verify(worker).unlock()
-        verifyNoMoreInteractions(worker)
+        verify(mockWorker).unlock()
+        verifyNoMoreInteractions(mockWorker)
         verifyNoInteractions(coreCompletionHandler)
         verifyNoInteractions(requestRepository)
     }
@@ -205,8 +201,8 @@ class CoreCompletionHandlerMiddlewareTest {
         waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
-        verify(worker).unlock()
-        verifyNoMoreInteractions(worker)
+        verify(mockWorker).unlock()
+        verifyNoMoreInteractions(mockWorker)
         verifyNoInteractions(coreCompletionHandler)
         verifyNoInteractions(requestRepository)
     }
@@ -295,8 +291,8 @@ class CoreCompletionHandlerMiddlewareTest {
         waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
-        verify(worker).unlock()
-        verifyNoMoreInteractions(worker)
+        verify(mockWorker).unlock()
+        verifyNoMoreInteractions(mockWorker)
         verify(coreCompletionHandler).onError(expectedId, expectedException)
         verifyNoMoreInteractions(coreCompletionHandler)
         verifyNoInteractions(requestRepository)

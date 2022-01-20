@@ -3,8 +3,6 @@ package com.emarsys.fake
 
 import android.app.Activity
 import android.content.SharedPreferences
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -26,7 +24,6 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
-import com.emarsys.core.request.factory.RunnableFactory
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.shard.ShardModel
@@ -66,14 +63,10 @@ import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.google.android.gms.location.FusedLocationProviderClient
-import kotlinx.coroutines.CoroutineScope
 import org.mockito.kotlin.mock
 
 class FakeEmarsysDependencyContainer(
-    override val uiHandler: Handler = Handler(Looper.getMainLooper()),
-    override val concurrentHandlerHolder: ConcurrentHandlerHolder = ConcurrentHandlerHolderFactory(
-        uiHandler
-    ).create(),
+    override val concurrentHandlerHolder: ConcurrentHandlerHolder = ConcurrentHandlerHolderFactory.create(),
     override val mobileEngageInternal: MobileEngageInternal = mock(),
     override val loggingMobileEngageInternal: MobileEngageInternal = mock(),
     override val clientServiceInternal: ClientServiceInternal = mock(),
@@ -160,7 +153,4 @@ class FakeEmarsysDependencyContainer(
     override val fusedLocationProviderClient: FusedLocationProviderClient = mock(),
     override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock(),
     override val notificationOpenedActivityClass: Class<*> = Activity::class.java,
-    override val coreSdkScope: CoroutineScope = mock(),
-    override val uiScope: CoroutineScope = mock(),
-    override val runnableFactory: RunnableFactory = mock()
 ) : MobileEngageComponent

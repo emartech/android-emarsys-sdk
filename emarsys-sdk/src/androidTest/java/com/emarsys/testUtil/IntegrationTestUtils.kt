@@ -11,6 +11,7 @@ import com.emarsys.Emarsys
 import com.emarsys.di.emarsys
 import com.emarsys.di.tearDownEmarsysComponent
 import io.kotlintest.shouldBe
+import kotlinx.coroutines.launch
 import java.util.concurrent.CountDownLatch
 
 object IntegrationTestUtils {
@@ -61,17 +62,17 @@ object IntegrationTestUtils {
         latch.await()
 
         latch = CountDownLatch(1)
-        emarsys().uiHandler.post {
+        emarsys().concurrentHandlerHolder.uiScope.launch {
             val observerMap = ReflectionTestUtils.getInstanceField<FastSafeIterableMap<Any, Any>>(
                 ProcessLifecycleOwner.get().lifecycle,
                 "mObserverMap"
             )
             if (observerMap != null) {
-                    ReflectionTestUtils.getInstanceField<HashMap<Any, Any>>(
-                        observerMap,
-                        "mHashMap"
-                    )?.entries?.toMutableList()?.forEach {
-                        ProcessLifecycleOwner.get().lifecycle.removeObserver(it.key as LifecycleObserver)
+                ReflectionTestUtils.getInstanceField<HashMap<Any, Any>>(
+                    observerMap,
+                    "mHashMap"
+                )?.entries?.toMutableList()?.forEach {
+                    ProcessLifecycleOwner.get().lifecycle.removeObserver(it.key as LifecycleObserver)
                     }
             }
             latch.countDown()

@@ -4,7 +4,6 @@ import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +12,7 @@ import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.fragment.app.DialogFragment
 import com.emarsys.core.Mockable
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.log.Logger.Companion.error
 import com.emarsys.core.util.log.Logger.Companion.metric
@@ -26,8 +26,11 @@ import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 
 @Mockable
-class IamDialog(private val uiHandler: Handler, private val timestampProvider: TimestampProvider) : DialogFragment() {
-    constructor() : this(mobileEngage().uiHandler, mobileEngage().timestampProvider)
+class IamDialog(
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
+    private val timestampProvider: TimestampProvider
+) : DialogFragment() {
+    constructor() : this(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
 
     companion object {
         const val TAG = "MOBILE_ENGAGE_IAM_DIALOG_TAG"
@@ -57,11 +60,16 @@ class IamDialog(private val uiHandler: Handler, private val timestampProvider: T
         setStyle(STYLE_NO_FRAME, android.R.style.Theme_Dialog)
     }
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val v = inflater.inflate(R.layout.mobile_engage_in_app_message, container, false)
-        webView = IamStaticWebViewProvider(requireActivity().applicationContext, uiHandler).provideWebView()
+        webView = IamStaticWebViewProvider(
+            requireActivity().applicationContext,
+            concurrentHandlerHolder
+        ).provideWebView()
         webViewContainer = v.findViewById(R.id.mobileEngageInAppMessageContainer)
         return v
     }
@@ -80,8 +88,10 @@ class IamDialog(private val uiHandler: Handler, private val timestampProvider: T
             val windowParams = window?.attributes
             windowParams?.dimAmount = 0.0f
             window?.attributes = windowParams
-            dialog?.window?.setLayout(WindowManager.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.MATCH_PARENT)
+            dialog?.window?.setLayout(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT
+            )
         } else {
             dismiss()
         }
@@ -160,16 +170,25 @@ class IamDialog(private val uiHandler: Handler, private val timestampProvider: T
         updateOnScreenTime()
         val args = arguments
         if (args != null) {
-            metric(InAppLog(
+            metric(
+                InAppLog(
                     args.getSerializable(LOADING_TIME)!! as InAppLoadingTime,
                     OnScreenTime(
-                            args.getLong(ON_SCREEN_TIME),
-                            startTime,
-                            args.getLong(END_SCREEN_TIME)),
+                        args.getLong(ON_SCREEN_TIME),
+                        startTime,
+                        args.getLong(END_SCREEN_TIME)
+                    ),
                     args.getString(CAMPAIGN_ID)!!,
-                    args.getString(REQUEST_ID)))
+                    args.getString(REQUEST_ID)
+                )
+            )
         } else {
-            error(AppEventLog("reporting iamDialog", mapOf("error" to "iamDialog - arguments has been null")))
+            error(
+                AppEventLog(
+                    "reporting iamDialog",
+                    mapOf("error" to "iamDialog - arguments has been null")
+                )
+            )
         }
         dismissed = true
     }

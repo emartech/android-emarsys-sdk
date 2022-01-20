@@ -2,8 +2,6 @@ package com.emarsys.core.connection
 
 import android.net.NetworkCapabilities
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import androidx.test.filters.SdkSuppress
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.testUtil.ConnectionTestUtils.getConnectivityManagerMock
@@ -37,9 +35,7 @@ class Connectivity_getConnectionState_ParameterizedTest {
                 row(true, NetworkCapabilities.TRANSPORT_VPN, ConnectionState.CONNECTED)
         ) { isConnected, connectionType, expectedConnectionState ->
             val connectionWatchDog = ConnectionWatchDog(
-                getTargetContext(), ConcurrentHandlerHolderFactory(
-                    Handler(Looper.getMainLooper())
-                ).create()
+                getTargetContext(), ConcurrentHandlerHolderFactory.create()
             )
             setInstanceField(
                 connectionWatchDog,

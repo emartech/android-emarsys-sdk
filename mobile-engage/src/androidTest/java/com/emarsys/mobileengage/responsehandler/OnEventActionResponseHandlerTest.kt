@@ -51,7 +51,7 @@ class OnEventActionResponseHandlerTest {
         mockTimestampProvider = mock {
             on { provideTimestamp() } doReturn 1L
         }
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         responseHandler = OnEventActionResponseHandler(
             mockActionCommandFactory,
             mockRepository,

@@ -2,19 +2,20 @@ package com.emarsys.mobileengage.iam.inline
 
 import android.graphics.Color
 import android.os.Build.VERSION_CODES.O
-import android.os.Handler
-import android.os.Looper
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.emarsys.core.Mockable
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
 import com.emarsys.testUtil.ReflectionTestUtils
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
+import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -41,13 +42,13 @@ class InlineInAppWebViewFactoryTest {
     private lateinit var mockWebViewProvider: WebViewProvider
     private lateinit var inlineWebViewFactory: InlineInAppWebViewFactory
     private lateinit var mockMessageLoadedListener: MessageLoadedListener
-    private lateinit var uiHandler: Handler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Before
     fun setUp() {
-        uiHandler = Handler(Looper.getMainLooper())
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         val setUpLatch = CountDownLatch(1)
-        uiHandler.post {
+        concurrentHandlerHolder.uiScope.launch {
             val webView = WebView(InstrumentationRegistry.getInstrumentation().targetContext)
             mockWebView = spy(webView)
 
@@ -59,7 +60,8 @@ class InlineInAppWebViewFactoryTest {
             on { provideWebView() }.doReturn(mockWebView)
         }
 
-        inlineWebViewFactory = InlineInAppWebViewFactory(mockWebViewProvider, uiHandler)
+        inlineWebViewFactory =
+            InlineInAppWebViewFactory(mockWebViewProvider, concurrentHandlerHolder)
         mockMessageLoadedListener = mock()
     }
 
@@ -70,7 +72,8 @@ class InlineInAppWebViewFactoryTest {
 
     @Test
     fun testCreateShouldReturnWebView() {
-        inlineWebViewFactory = InlineInAppWebViewFactory(mockWebViewProvider, uiHandler)
+        inlineWebViewFactory =
+            InlineInAppWebViewFactory(mockWebViewProvider, concurrentHandlerHolder)
         val response = runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
 
         response shouldBe mockWebView
@@ -79,7 +82,8 @@ class InlineInAppWebViewFactoryTest {
     @Test
     fun testCreateShouldReturnNull_whenWebViewCanNotBeCreated() {
         whenever(mockWebViewProvider.provideWebView()).thenReturn(null)
-        inlineWebViewFactory = InlineInAppWebViewFactory(mockWebViewProvider, uiHandler)
+        inlineWebViewFactory =
+            InlineInAppWebViewFactory(mockWebViewProvider, concurrentHandlerHolder)
         val response = runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
 
         response shouldBe null
@@ -98,7 +102,7 @@ class InlineInAppWebViewFactoryTest {
         val webView = runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
         var result: MessageLoadedListener? = null
         val latch = CountDownLatch(1)
-        uiHandler.post {
+        concurrentHandlerHolder.uiScope.launch {
             val webViewClient = webView!!.webViewClient
             result = ReflectionTestUtils.getInstanceField(webViewClient, "listener")
             latch.countDown()
@@ -110,9 +114,9 @@ class InlineInAppWebViewFactoryTest {
 
     @Mockable
     class TestJSInterface : IamJsBridge(
-            mock(),
-            mock(),
-            mock()
+        mock(),
+        mock(),
+        mock()
     ) {
         @JavascriptInterface
         fun onPageLoaded(json: String?) {
@@ -122,7 +126,7 @@ class InlineInAppWebViewFactoryTest {
     private fun <T> runOnUiThread(lambda: () -> T): T? {
         var result: T? = null
         val latch = CountDownLatch(1)
-        uiHandler.post {
+        concurrentHandlerHolder.uiScope.launch {
             result = lambda.invoke()
             latch.countDown()
         }

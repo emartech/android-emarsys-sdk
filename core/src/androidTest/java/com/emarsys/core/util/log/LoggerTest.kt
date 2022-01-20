@@ -1,7 +1,5 @@
 package com.emarsys.core.util.log
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
@@ -50,8 +48,7 @@ class LoggerTest {
     @Before
     @Suppress("UNCHECKED_CAST")
     fun init() {
-        val uiHandler = Handler(Looper.getMainLooper())
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         shardRepositoryMock = mock()
         timestampProviderMock = mock<TimestampProvider>().apply {
             whenever(provideTimestamp()).thenReturn(TIMESTAMP)

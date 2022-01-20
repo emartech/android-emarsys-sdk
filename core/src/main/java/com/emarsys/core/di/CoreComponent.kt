@@ -1,7 +1,6 @@
 package com.emarsys.core.di
 
 import android.content.SharedPreferences
-import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -50,8 +49,6 @@ interface CoreComponent {
     }
 
     val concurrentHandlerHolder: ConcurrentHandlerHolder
-
-    val uiHandler: Handler
 
     val activityLifecycleWatchdog: ActivityLifecycleWatchdog
 

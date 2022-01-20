@@ -1,7 +1,5 @@
 package com.emarsys.core.database.repository.specification
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.provider.timestamp.TimestampProvider
@@ -52,8 +50,7 @@ class QueryLatestRequestModelTest {
         specification = QueryLatestRequestModel()
         val timestampProvider = TimestampProvider()
         val uuidProvider = UUIDProvider()
-        val uiHandler = Handler(Looper.getMainLooper())
-        val concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        val concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
 
         val context = InstrumentationRegistry.getTargetContext().applicationContext
         val coreDbHelper = CoreDbHelper(context, mutableMapOf())

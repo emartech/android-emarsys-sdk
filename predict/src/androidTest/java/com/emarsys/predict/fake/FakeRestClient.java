@@ -33,7 +33,7 @@ public class FakeRestClient extends RestClient {
     @SuppressWarnings("unchecked")
     public FakeRestClient(List<ResponseModel> responses, Mode mode) {
         super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class),
-                mock(List.class), new ConcurrentHandlerHolderFactory(new Handler(Looper.getMainLooper())).create());
+                mock(List.class), ConcurrentHandlerHolderFactory.INSTANCE.create());
         this.responses = new ArrayList<>(responses);
         this.mode = mode;
     }
@@ -45,7 +45,7 @@ public class FakeRestClient extends RestClient {
     @SuppressWarnings("unchecked")
     public FakeRestClient(List<Exception> exceptions) {
         super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class),
-                mock(List.class), new ConcurrentHandlerHolderFactory(new Handler(Looper.getMainLooper())).create());
+                mock(List.class), ConcurrentHandlerHolderFactory.INSTANCE.create());
         this.exceptions = new ArrayList<>(exceptions);
         this.mode = Mode.ERROR_EXCEPTION;
     }

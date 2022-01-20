@@ -1,7 +1,7 @@
 package com.emarsys.mobileengage.notification
 
 import android.content.Context
-import android.os.Handler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.notification.command.AppEventCommand
@@ -27,7 +27,7 @@ class ActionCommandFactoryTest {
 
     private lateinit var factory: ActionCommandFactory
     private lateinit var context: Context
-    private lateinit var mockUiHandler: Handler
+    private lateinit var mockConcurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockNotificationCacheableEventHandler: CacheableEventHandler
 
@@ -37,8 +37,13 @@ class ActionCommandFactoryTest {
 
         mockEventServiceInternal = mock()
         mockNotificationCacheableEventHandler = mock()
-        mockUiHandler = mock()
-        factory = ActionCommandFactory(context, mockEventServiceInternal, mockNotificationCacheableEventHandler, mockUiHandler)
+        mockConcurrentHandlerHolder = mock()
+        factory = ActionCommandFactory(
+            context,
+            mockEventServiceInternal,
+            mockNotificationCacheableEventHandler,
+            mockConcurrentHandlerHolder
+        )
     }
 
     @Test

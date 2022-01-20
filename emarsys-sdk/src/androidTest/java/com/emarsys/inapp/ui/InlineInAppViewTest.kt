@@ -119,20 +119,19 @@ class InlineInAppViewTest {
 
         mockRequestManager = spy(
             RequestManager(
-                ConcurrentHandlerHolderFactory(uiHandler).create(),
+                ConcurrentHandlerHolderFactory.create(),
                 mock(),
                 mock(),
                 mock(),
                 FakeRestClient(
                     mockResponseModel,
                     FakeRestClient.Mode.SUCCESS,
-                    ConcurrentHandlerHolderFactory(uiHandler).create().coreHandler.handler
+                    ConcurrentHandlerHolderFactory.create().coreHandler.handler
                 ),
                 mock(),
                 mock(),
                 mockProvider,
-                mockScopeDelegatorCompletionHandlerProvider,
-                mock()
+                mockScopeDelegatorCompletionHandlerProvider
             )
         )
         mockRequestModelFactory = mock {
@@ -297,7 +296,7 @@ class InlineInAppViewTest {
         whenever(mockResponseModel.statusCode).thenReturn(expectedStatusCode)
         mockRequestManager = spy(
             RequestManager(
-                ConcurrentHandlerHolderFactory(uiHandler).create(),
+                ConcurrentHandlerHolderFactory.create(),
                 mock(),
                 mock(),
                 mock(),
@@ -305,8 +304,7 @@ class InlineInAppViewTest {
                 mock(),
                 mock(),
                 mockProvider,
-                mockScopeDelegatorCompletionHandlerProvider,
-                mock()
+                mockScopeDelegatorCompletionHandlerProvider
             )
         )
         setupEmarsysComponent(
@@ -346,7 +344,7 @@ class InlineInAppViewTest {
         val expectedException = Exception("Error happened")
         mockRequestManager = spy(
             RequestManager(
-                ConcurrentHandlerHolderFactory(uiHandler).create(),
+                ConcurrentHandlerHolderFactory.create(),
                 mock(),
                 mock(),
                 mock(),
@@ -354,8 +352,7 @@ class InlineInAppViewTest {
                 mock(),
                 mock(),
                 mockProvider,
-                mockScopeDelegatorCompletionHandlerProvider,
-                mock()
+                mockScopeDelegatorCompletionHandlerProvider
             )
         )
         setupEmarsysComponent(

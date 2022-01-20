@@ -2,7 +2,6 @@ package com.emarsys.mobileengage.iam.jsbridge
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Handler
 import com.emarsys.core.Mockable
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
@@ -12,13 +11,13 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.model.InAppMessage
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.CountDownLatch
 
 @Mockable
 class JSCommandFactory(
     private val currentActivityProvider: CurrentActivityProvider,
-    private val uiHandler: Handler,
     private val concurrentHandlerHolder: ConcurrentHandlerHolder,
     private val inAppInternal: InAppInternal,
     private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
@@ -32,7 +31,7 @@ class JSCommandFactory(
         return when (command) {
             CommandType.ON_APP_EVENT -> {
                 { property, json ->
-                    uiHandler.post {
+                    concurrentHandlerHolder.uiScope.launch {
                         onAppEventTriggered?.invoke(property, json)
                     }
                 }
@@ -40,7 +39,7 @@ class JSCommandFactory(
 
             CommandType.ON_CLOSE -> {
                 { _, _ ->
-                    uiHandler.post {
+                    concurrentHandlerHolder.uiScope.launch {
                         onCloseTriggered?.invoke()
                     }
                 }
@@ -85,7 +84,7 @@ class JSCommandFactory(
                     var success = true
                     if (activity != null) {
                         val latch = CountDownLatch(1)
-                        uiHandler.post {
+                        concurrentHandlerHolder.uiScope.launch {
                             try {
                                 activity.startActivity(intent)
                             } catch (exception: Exception) {

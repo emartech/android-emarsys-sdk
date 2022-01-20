@@ -3,7 +3,6 @@ package com.emarsys.di
 import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Handler
 import android.util.Base64
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
@@ -155,10 +154,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val notificationOpenedActivityClass: Class<*>
         get() = com.emarsys.NotificationOpenedActivity::class.java
 
-    override val uiHandler: Handler = Handler(config.application.mainLooper)
-
     final override val concurrentHandlerHolder: ConcurrentHandlerHolder =
-        ConcurrentHandlerHolderFactory(uiHandler).create()
+        ConcurrentHandlerHolderFactory.create()
 
     override val deepLink: DeepLinkApi =
         (DeepLink() as DeepLinkApi).proxyApi(concurrentHandlerHolder)
@@ -231,10 +228,9 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val overlayInAppPresenter: OverlayInAppPresenter by lazy {
         OverlayInAppPresenter(
             concurrentHandlerHolder,
-            uiHandler,
-            IamStaticWebViewProvider(config.application, uiHandler),
+            IamStaticWebViewProvider(config.application, concurrentHandlerHolder),
             inAppInternal,
-            IamDialogProvider(uiHandler, timestampProvider),
+            IamDialogProvider(concurrentHandlerHolder, timestampProvider),
             buttonClickedRepository,
             displayedIamRepository,
             timestampProvider,
@@ -298,7 +294,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                     config.application,
                     eventServiceInternal,
                     onEventActionCacheableEventHandler,
-                    uiHandler
+                    concurrentHandlerHolder
                 ),
                 displayedIamRepository,
                 eventServiceInternal,
@@ -530,7 +526,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         DefaultWorker(
             requestModelRepository,
             connectionWatchdog,
-            uiHandler,
+            concurrentHandlerHolder,
             coreCompletionHandler,
             restClient,
             coreCompletionHandlerRefreshTokenProxyProvider
@@ -648,7 +644,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val pushInternal: PushInternal by lazy {
         DefaultPushInternal(
             requestManager,
-            uiHandler,
+            concurrentHandlerHolder,
             mobileEngageRequestModelFactory,
             eventServiceInternal,
             pushTokenStorage,
@@ -684,7 +680,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val iamJsBridgeFactory: IamJsBridgeFactory by lazy {
-        IamJsBridgeFactory(uiHandler)
+        IamJsBridgeFactory(concurrentHandlerHolder)
     }
 
     override val deviceInfoPayloadStorage: Storage<String?> by lazy {
@@ -708,7 +704,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             config.application,
             eventServiceInternal,
             notificationCacheableEventHandler,
-            uiHandler
+            concurrentHandlerHolder
         )
     }
 
@@ -717,7 +713,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             config.application,
             eventServiceInternal,
             silentMessageCacheableEventHandler,
-            uiHandler
+            concurrentHandlerHolder
         )
     }
 
@@ -732,7 +728,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             config.application,
             eventServiceInternal,
             geofenceCacheableEventHandler,
-            uiHandler
+            concurrentHandlerHolder
         )
 
         DefaultGeofenceInternal(
@@ -749,7 +745,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             BooleanStorage(MobileEngageStorageKey.GEOFENCE_ENABLED, sharedPreferences),
             GeofencePendingIntentProvider(config.application),
             concurrentHandlerHolder,
-            uiHandler,
             geofenceInitialEnterTriggerEnabledStorage
         )
     }
@@ -763,7 +758,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val inlineInAppWebViewFactory: InlineInAppWebViewFactory by lazy {
-        InlineInAppWebViewFactory(webViewProvider, uiHandler)
+        InlineInAppWebViewFactory(webViewProvider, concurrentHandlerHolder)
     }
 
     override val fileDownloader: FileDownloader by lazy {
@@ -864,7 +859,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         DefaultPredictInternal(
             predictRequestContext,
             requestManager,
-            uiHandler,
+            concurrentHandlerHolder,
             predictRequestModelBuilderProvider,
             PredictResponseMapper()
         )

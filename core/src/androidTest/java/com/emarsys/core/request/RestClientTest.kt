@@ -1,7 +1,5 @@
 package com.emarsys.core.request
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.Mapper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionProvider
@@ -42,7 +40,6 @@ class RestClientTest {
     private lateinit var mockResponseHandlersProcessor: ResponseHandlersProcessor
     private lateinit var mockRequestModelMapper: Mapper<RequestModel, RequestModel>
     private lateinit var requestModelMappers: List<Mapper<RequestModel, RequestModel>>
-    private lateinit var uiHandler: Handler
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
@@ -58,8 +55,7 @@ class RestClientTest {
         connectionProvider = ConnectionProvider()
         mockResponseHandlersProcessor = mock()
         mockRequestModelMapper = mock() as Mapper<RequestModel, RequestModel>
-        uiHandler = Handler(Looper.getMainLooper())
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory(uiHandler).create()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
 
         whenever(mockRequestModelMapper.map(any())).thenAnswer { invocation ->
             val args = invocation.arguments

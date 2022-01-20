@@ -2,8 +2,6 @@ package com.emarsys.di
 
 import android.app.Activity
 import android.content.SharedPreferences
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.ConfigInternal
@@ -82,10 +80,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import org.mockito.kotlin.mock
 
 class FakeDependencyContainer(
-    override val uiHandler: Handler = Handler(Looper.getMainLooper()),
-    override val concurrentHandlerHolder: ConcurrentHandlerHolder = ConcurrentHandlerHolderFactory(
-        uiHandler
-    ).create(),
+    override val concurrentHandlerHolder: ConcurrentHandlerHolder = ConcurrentHandlerHolderFactory.create(),
     override val messageInbox: MessageInboxApi = mock(),
     override val loggingMessageInbox: MessageInboxApi = mock(),
     override val deepLink: DeepLinkApi = mock(),
