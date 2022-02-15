@@ -29,6 +29,7 @@ import io.kotlintest.be
 import io.kotlintest.matchers.beEmpty
 import io.kotlintest.should
 import io.kotlintest.shouldBe
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -69,14 +70,19 @@ class RequestManagerOfflineTest {
 
     @Before
     fun setup() {
+        watchDogCountDown = 0
+        completionHandlerCountDown = 0
         DatabaseTestUtils.deleteCoreDatabase()
+        requestResults = arrayOf()
+        requestModels = arrayOf()
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-
     }
 
     @After
     fun tearDown() {
         concurrentHandlerHolder.looper.quit()
+        concurrentHandlerHolder.sdkScope.coroutineContext.cancel()
+        concurrentHandlerHolder.uiScope.coroutineContext.cancel()
         DatabaseTestUtils.deleteCoreDatabase()
     }
 
@@ -212,7 +218,7 @@ class RequestManagerOfflineTest {
         val lastNormal = normal(4)
         requestModels = arrayOf(normal(1), normal(2), normal(3), lastNormal)
         watchDogCountDown = 3
-        completionHandlerCountDown = 2
+        completionHandlerCountDown = 3
 
         prepareTestCaseAndWait()
 
