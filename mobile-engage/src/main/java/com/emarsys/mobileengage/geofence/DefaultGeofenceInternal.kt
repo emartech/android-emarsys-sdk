@@ -29,6 +29,7 @@ import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.google.android.gms.location.*
+import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import kotlin.math.abs
@@ -154,7 +155,11 @@ class DefaultGeofenceInternal(
         if (!AndroidVersionUtils.isBelowQ()) {
             validateBackgroundPermission()
         }
-        fusedLocationProviderClient.lastLocation?.addOnSuccessListener { currentLocation = it }
+
+        val lastLocation = fusedLocationProviderClient.lastLocation as Task<Location?>?
+        lastLocation?.addOnSuccessListener { loc: Location? ->
+            currentLocation = loc
+        }
 
         fusedLocationProviderClient.requestLocationUpdates(
             LocationRequest.create().apply {
