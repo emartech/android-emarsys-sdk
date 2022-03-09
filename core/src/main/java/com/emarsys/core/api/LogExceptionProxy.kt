@@ -2,6 +2,7 @@ package com.emarsys.core.api
 
 import com.emarsys.core.util.log.Logger.Companion.error
 import com.emarsys.core.util.log.entry.CrashLog
+import com.emarsys.core.util.rootCause
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -35,11 +36,7 @@ class LogExceptionProxy<T>(private val apiObject: T) : InvocationHandler {
             }
         } catch (exception: Exception) {
             if (exception is InvocationTargetException && exception.cause != null) {
-                if (exception.cause!!.cause != null) {
-                    error(CrashLog(exception.cause!!.cause!!))
-                } else {
-                    error(CrashLog(exception.cause!!))
-                }
+                error(CrashLog(exception.rootCause()))
             } else {
                 error(CrashLog(exception))
             }
