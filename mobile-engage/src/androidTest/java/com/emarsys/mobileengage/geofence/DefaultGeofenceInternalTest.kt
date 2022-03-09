@@ -210,6 +210,7 @@ class DefaultGeofenceInternalTest {
 
     @Test
     fun testDisable_unregistersGeofenceBroadcastReceiver() {
+        geofenceInternalWithMockContext.enable(null)
         geofenceInternalWithMockContext.disable()
 
         verify(mockContext).unregisterReceiver(any<GeofenceBroadcastReceiver>())
@@ -284,6 +285,7 @@ class DefaultGeofenceInternalTest {
 
     @Test
     fun testDisable_shouldClearEnabledStorage() {
+        geofenceInternalWithMockContext.enable(null)
         geofenceInternalWithMockContext.disable()
 
         verify(mockEnabledStorage).set(false)
@@ -317,11 +319,10 @@ class DefaultGeofenceInternalTest {
         whenever(mockPermissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)).thenReturn(
             PackageManager.PERMISSION_GRANTED
         )
-        whenever(mockEnabledStorage.get()).thenReturn(true).thenReturn(false)
+        whenever(mockEnabledStorage.get()).thenReturn(true).thenReturn(true).thenReturn(false)
 
         geofenceInternal.isEnabled() shouldBe true
-
-        geofenceInternalWithMockContext.disable()
+        geofenceInternal.disable()
         verify(mockEnabledStorage, times(1)).set(false)
 
         geofenceInternal.isEnabled() shouldBe false
