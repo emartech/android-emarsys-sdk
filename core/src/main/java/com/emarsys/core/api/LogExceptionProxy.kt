@@ -19,8 +19,16 @@ inline fun <reified T : Any> T.proxyWithLogExceptions(): T {
 class LogExceptionProxy<T>(private val apiObject: T) : InvocationHandler {
 
     override fun invoke(proxy: Any, method: Method, args: Array<out Any>?): Any? {
+        var result: Any? = null
+        if (method.returnType.isPrimitive) {
+            result = when (method.returnType) {
+                Boolean::class.java -> false
+                Char::class.java -> Char(0)
+                else -> 0
+            }
+        }
         try {
-            return if (args != null) {
+            result = if (args != null) {
                 method.invoke(apiObject, *args)
             } else {
                 method.invoke(apiObject)
@@ -36,6 +44,6 @@ class LogExceptionProxy<T>(private val apiObject: T) : InvocationHandler {
                 error(CrashLog(exception))
             }
         }
-        return null
+        return result
     }
 }
