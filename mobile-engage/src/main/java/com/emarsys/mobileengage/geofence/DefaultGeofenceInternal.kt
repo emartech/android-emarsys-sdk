@@ -118,16 +118,18 @@ class DefaultGeofenceInternal(
     }
 
     override fun disable() {
-        context.unregisterReceiver(geofenceBroadcastReceiver)
-        fusedLocationProviderClient.removeLocationUpdates(geofencePendingIntent)
-        geofenceEnabledStorage.set(false)
-        receiverRegistered = false
+        if (receiverRegistered) {
+            context.unregisterReceiver(geofenceBroadcastReceiver)
+            fusedLocationProviderClient.removeLocationUpdates(geofencePendingIntent)
+            geofenceEnabledStorage.set(false)
+            receiverRegistered = false
 
-        sendStatusLog(
-            statusMap = mapOf(
-                "geofenceEnabled" to false
+            sendStatusLog(
+                statusMap = mapOf(
+                    "geofenceEnabled" to false
+                )
             )
-        )
+        }
     }
 
     override fun isEnabled(): Boolean {

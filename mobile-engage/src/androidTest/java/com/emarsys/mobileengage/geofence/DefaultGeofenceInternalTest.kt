@@ -217,6 +217,18 @@ class DefaultGeofenceInternalTest {
     }
 
     @Test
+    fun testDisable_shouldNotCallUnregisterReceiver_ifReceiversAreNotRegistered() {
+        geofenceInternalWithMockContext.enable(null)
+        geofenceInternalWithMockContext.disable()
+        geofenceInternalWithMockContext.disable()
+
+        verify(
+            mockContext,
+            timeout(100).times(1)
+        ).unregisterReceiver(any<GeofenceBroadcastReceiver>())
+    }
+
+    @Test
     fun testDisable() {
         geofenceInternalWithMockContext.enable(null)
         geofenceInternalWithMockContext.disable()
