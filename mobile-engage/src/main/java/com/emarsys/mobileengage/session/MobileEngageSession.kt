@@ -6,6 +6,8 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.session.Session
 import com.emarsys.core.storage.Storage
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.CrashLog
 import com.emarsys.mobileengage.event.EventServiceInternal
 
 @Mockable
@@ -37,7 +39,7 @@ class MobileEngageSession(private val timestampProvider: TimestampProvider,
             sessionStart = null
         } else {
             if (!contactTokenStorage.get().isNullOrEmpty()) {
-                throw IllegalStateException("StartSession has to be called first!")
+                Logger.info(CrashLog(IllegalStateException("StartSession has to be called first!")))
             }
         }
     }
