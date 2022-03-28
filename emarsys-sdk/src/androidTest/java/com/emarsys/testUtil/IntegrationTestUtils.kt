@@ -11,7 +11,6 @@ import com.emarsys.Emarsys
 import com.emarsys.di.emarsys
 import com.emarsys.di.tearDownEmarsysComponent
 import io.kotlintest.shouldBe
-import kotlinx.coroutines.launch
 import java.util.concurrent.CountDownLatch
 
 object IntegrationTestUtils {
@@ -58,11 +57,11 @@ object IntegrationTestUtils {
             emarsys().predictServiceStorage.remove()
             latch.countDown()
         }
-        emarsys().concurrentHandlerHolder.looper.quitSafely()
+        emarsys().concurrentHandlerHolder.coreLooper.quitSafely()
         latch.await()
 
         latch = CountDownLatch(1)
-        emarsys().concurrentHandlerHolder.uiScope.launch {
+        emarsys().concurrentHandlerHolder.postOnMain {
             val observerMap = ReflectionTestUtils.getInstanceField<FastSafeIterableMap<Any, Any>>(
                 ProcessLifecycleOwner.get().lifecycle,
                 "mObserverMap"
@@ -78,6 +77,10 @@ object IntegrationTestUtils {
             latch.countDown()
         }
         latch.await()
+
+        emarsys().concurrentHandlerHolder.backgroundLooper.quit()
+        emarsys().concurrentHandlerHolder.networkLooper.quit()
+        emarsys().concurrentHandlerHolder.coreLooper.quit()
 
         tearDownEmarsysComponent()
 

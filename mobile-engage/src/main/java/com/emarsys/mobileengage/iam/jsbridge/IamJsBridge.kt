@@ -8,7 +8,6 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.JsonUtils.merge
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory.CommandType
 import com.emarsys.mobileengage.iam.model.InAppMessage
-import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -115,7 +114,7 @@ class IamJsBridge(
         if (Looper.myLooper() == Looper.getMainLooper()) {
             webView!!.evaluateJavascript(String.format("MEIAM.handleResponse(%s);", payload), null)
         } else {
-            concurrentHandlerHolder.uiScope.launch {
+            concurrentHandlerHolder.postOnMain {
                 webView!!.evaluateJavascript(
                     String.format(
                         "MEIAM.handleResponse(%s);",

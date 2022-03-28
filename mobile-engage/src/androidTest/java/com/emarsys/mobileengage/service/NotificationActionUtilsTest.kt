@@ -19,7 +19,6 @@ import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.Mockito
 import org.mockito.kotlin.whenever
-import java.util.*
 import java.util.concurrent.CountDownLatch
 
 class NotificationActionUtilsTest {
@@ -37,7 +36,7 @@ class NotificationActionUtilsTest {
 
     @After
     fun tearDown() {
-        mobileEngage().concurrentHandlerHolder.looper.quitSafely()
+        mobileEngage().concurrentHandlerHolder.coreLooper.quitSafely()
         tearDownMobileEngageComponent()
     }
 

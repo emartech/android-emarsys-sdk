@@ -66,7 +66,7 @@ class PreloadedInappHandlerCommandTest {
 
     @After
     fun tearDown() {
-        concurrentHandlerHolder.looper.quitSafely()
+        concurrentHandlerHolder.coreLooper.quitSafely()
         tearDownMobileEngageComponent()
     }
 

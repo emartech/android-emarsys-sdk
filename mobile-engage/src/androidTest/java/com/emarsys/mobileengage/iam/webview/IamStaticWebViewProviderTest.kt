@@ -11,7 +11,6 @@ import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider.Companion.webView
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import kotlinx.coroutines.launch
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -93,7 +92,7 @@ class IamStaticWebViewProviderTest {
     @Test
     @Throws(InterruptedException::class)
     fun testProvideWebView_shouldReturnTheStaticInstance() {
-        concurrentHandlerHolder.uiScope.launch {
+        concurrentHandlerHolder.postOnMain {
             webView = WebView(getTargetContext())
             latch.countDown()
         }

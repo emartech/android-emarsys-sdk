@@ -18,7 +18,6 @@ import com.emarsys.mobileengage.api.push.NotificationInformation
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.notification.command.SilentNotificationInformationCommand
-import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -40,7 +39,7 @@ object MessagingServiceUtils {
         if (isMobileEngageMessage(remoteMessageData)) {
             if (isSilent(remoteMessageData)) {
                 createSilentPushCommands(actionCommandFactory, remoteMessageData).forEach {
-                    mobileEngage().concurrentHandlerHolder.uiScope.launch {
+                    mobileEngage().concurrentHandlerHolder.postOnMain {
                         it?.run()
                     }
                 }

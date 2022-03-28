@@ -7,10 +7,16 @@ import java.util.*
 
 object ConcurrentHandlerHolderFactory {
     fun create(): ConcurrentHandlerHolder {
-        val handlerThread = HandlerThread("CoreSDKHandlerThread-" + UUID.randomUUID().toString())
-        handlerThread.start()
+        val coreHandlerThread = HandlerThread("CoreSDKHandlerThread-" + UUID.randomUUID().toString())
+        coreHandlerThread.start()
+        val networkHandlerThread = HandlerThread("NetworkHandlerThread-" + UUID.randomUUID().toString())
+        networkHandlerThread.start()
+        val backgroundHandlerThread = HandlerThread("NetworkHandlerThread-" + UUID.randomUUID().toString())
+        backgroundHandlerThread.start()
         return ConcurrentHandlerHolder(
-            SdkHandler(CoreHandler(handlerThread))
+            SdkHandler(CoreHandler(coreHandlerThread)),
+            SdkHandler(CoreHandler(networkHandlerThread)),
+            SdkHandler(CoreHandler(backgroundHandlerThread))
         )
     }
 }

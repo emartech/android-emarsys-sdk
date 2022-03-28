@@ -11,7 +11,6 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.model.InAppMessage
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.CountDownLatch
 
@@ -31,7 +30,7 @@ class JSCommandFactory(
         return when (command) {
             CommandType.ON_APP_EVENT -> {
                 { property, json ->
-                    concurrentHandlerHolder.uiScope.launch {
+                    concurrentHandlerHolder.postOnMain {
                         onAppEventTriggered?.invoke(property, json)
                     }
                 }
@@ -39,7 +38,7 @@ class JSCommandFactory(
 
             CommandType.ON_CLOSE -> {
                 { _, _ ->
-                    concurrentHandlerHolder.uiScope.launch {
+                    concurrentHandlerHolder.postOnMain {
                         onCloseTriggered?.invoke()
                     }
                 }
@@ -84,7 +83,7 @@ class JSCommandFactory(
                     var success = true
                     if (activity != null) {
                         val latch = CountDownLatch(1)
-                        concurrentHandlerHolder.uiScope.launch {
+                        concurrentHandlerHolder.postOnMain {
                             try {
                                 activity.startActivity(intent)
                             } catch (exception: Exception) {

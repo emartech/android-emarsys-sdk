@@ -8,7 +8,6 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.CrashLog
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
-import kotlinx.coroutines.launch
 
 @Mockable
 class IamStaticWebViewProvider(
@@ -24,7 +23,7 @@ class IamStaticWebViewProvider(
         jsBridge: IamJsBridge,
         messageLoadedListener: MessageLoadedListener
     ) {
-        concurrentHandlerHolder.uiScope.launch {
+        concurrentHandlerHolder.postOnMain {
             try {
                 webView = WebView(context)
             } catch (e: Exception) {

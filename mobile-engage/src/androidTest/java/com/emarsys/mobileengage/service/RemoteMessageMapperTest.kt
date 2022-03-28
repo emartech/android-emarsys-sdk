@@ -117,7 +117,7 @@ class RemoteMessageMapperTest {
 
     @After
     fun tearDown() {
-        mobileEngage().concurrentHandlerHolder.looper.quitSafely()
+        mobileEngage().concurrentHandlerHolder.coreLooper.quitSafely()
         tearDownMobileEngageComponent()
     }
 

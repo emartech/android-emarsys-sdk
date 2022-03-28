@@ -21,7 +21,6 @@ import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
 import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.InAppMessage
-import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -78,7 +77,7 @@ class InlineInAppView : LinearLayout {
                 onCompletionListener?.onCompleted(IllegalArgumentException("WebView can not be created, please try again later!"))
             } else {
                 fetchInlineInAppMessage(viewId) { html ->
-                    mobileEngage().concurrentHandlerHolder.uiScope.launch {
+                    mobileEngage().concurrentHandlerHolder.postOnMain {
                         if (html != null) {
                             webView?.loadDataWithBaseURL(
                                 null,
@@ -175,7 +174,7 @@ class InlineInAppView : LinearLayout {
             )
 
         val latch = CountDownLatch(1)
-        mobileEngage().concurrentHandlerHolder.uiScope.launch {
+        mobileEngage().concurrentHandlerHolder.postOnMain {
             webView?.addJavascriptInterface(jsBridge, "Android")
             latch.countDown()
         }

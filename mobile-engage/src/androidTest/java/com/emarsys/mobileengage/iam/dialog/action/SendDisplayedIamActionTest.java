@@ -46,7 +46,7 @@ public class SendDisplayedIamActionTest {
 
     @After
     public void tearDown() {
-        handler.getLooper().quit();
+        handler.getCoreLooper().quit();
     }
 
     @Test(expected = IllegalArgumentException.class)

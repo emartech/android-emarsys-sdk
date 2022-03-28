@@ -5,7 +5,6 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.event.CacheableEventHandler
-import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 @Mockable
@@ -22,7 +21,7 @@ class AppEventCommand(
 
     override fun run() {
         val eventHandler = cacheableEventHandler
-        concurrentHandlerHolder.uiScope.launch {
+        concurrentHandlerHolder.postOnMain {
             eventHandler.handleEvent(context, name, payload)
         }
     }

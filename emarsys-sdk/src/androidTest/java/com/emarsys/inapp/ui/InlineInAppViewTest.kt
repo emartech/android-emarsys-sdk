@@ -13,9 +13,9 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
-import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.core.worker.DelegatorCompletionHandlerProvider
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
 import com.emarsys.di.tearDownEmarsysComponent
@@ -60,7 +60,7 @@ class InlineInAppViewTest {
     private lateinit var mockJsBridge: IamJsBridge
     private lateinit var mockButtonClickedRepository: Repository<ButtonClicked, SqlSpecification>
     private lateinit var mockInAppInternal: InAppInternal
-    private lateinit var mockScopeDelegatorCompletionHandlerProvider: ScopeDelegatorCompletionHandlerProvider
+    private lateinit var mockDelegatorCompletionHandlerProvider: DelegatorCompletionHandlerProvider
     private lateinit var uiHandler: Handler
 
     @Rule
@@ -100,19 +100,13 @@ class InlineInAppViewTest {
         mockResponseModel = mock {
             on { requestModel } doReturn mockRequestModel
         }
-        mockScopeDelegatorCompletionHandlerProvider = mock {
+        mockDelegatorCompletionHandlerProvider = mock {
             on { provide(any(), any()) } doAnswer {
-                it.arguments[0] as CoreCompletionHandler
-            }
-            on { provide(any(), any()) } doAnswer {
-                it.arguments[0] as CoreCompletionHandler
+                it.arguments[1] as CoreCompletionHandler
             }
         }
         mockProvider = mock {
             on { provideProxy(isNull(), any()) } doAnswer {
-                it.arguments[1] as CoreCompletionHandler
-            }
-            on { provideProxy(any(), any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
             }
         }
@@ -131,7 +125,7 @@ class InlineInAppViewTest {
                 mock(),
                 mock(),
                 mockProvider,
-                mockScopeDelegatorCompletionHandlerProvider
+                mockDelegatorCompletionHandlerProvider
             )
         )
         mockRequestModelFactory = mock {
@@ -304,7 +298,7 @@ class InlineInAppViewTest {
                 mock(),
                 mock(),
                 mockProvider,
-                mockScopeDelegatorCompletionHandlerProvider
+                mockDelegatorCompletionHandlerProvider
             )
         )
         setupEmarsysComponent(
@@ -352,7 +346,7 @@ class InlineInAppViewTest {
                 mock(),
                 mock(),
                 mockProvider,
-                mockScopeDelegatorCompletionHandlerProvider
+                mockDelegatorCompletionHandlerProvider
             )
         )
         setupEmarsysComponent(

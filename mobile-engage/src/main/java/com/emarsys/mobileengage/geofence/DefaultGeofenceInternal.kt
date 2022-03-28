@@ -30,7 +30,6 @@ import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
-import kotlinx.coroutines.launch
 import org.json.JSONObject
 import kotlin.math.abs
 import com.emarsys.mobileengage.api.geofence.Geofence as MEGeofence
@@ -141,7 +140,7 @@ class DefaultGeofenceInternal(
 
     private fun registerBroadcastReceiver() {
         if (!receiverRegistered) {
-            concurrentHandlerHolder.uiScope.launch {
+            concurrentHandlerHolder.postOnMain {
                 context.registerReceiver(
                     geofenceBroadcastReceiver,
                     IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION")
@@ -299,7 +298,7 @@ class DefaultGeofenceInternal(
 
     private fun executeActions(actions: List<Runnable?>) {
         actions.forEach { action ->
-            concurrentHandlerHolder.uiScope.launch {
+            concurrentHandlerHolder.postOnMain {
                 action?.run()
             }
         }

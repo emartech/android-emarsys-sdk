@@ -37,7 +37,7 @@ class ConnectivityChangeReceiverTest {
 
     @After
     fun tearDown() {
-        concurrentHandlerHolder.looper.quit()
+        concurrentHandlerHolder.coreLooper.quit()
     }
 
     @Test
@@ -45,7 +45,7 @@ class ConnectivityChangeReceiverTest {
     fun testOnReceive_listenerShouldCall_onCoreSDKThread() {
         val latch = CountDownLatch(1)
         val fakeListener = FakeConnectionChangeListener(latch)
-        val expectedName = concurrentHandlerHolder.looper.thread.name
+        val expectedName = concurrentHandlerHolder.coreLooper.thread.name
         receiver = ConnectivityChangeReceiver(
             fakeListener,
             ConnectionWatchDog(context, concurrentHandlerHolder),

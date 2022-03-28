@@ -6,7 +6,6 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import kotlinx.coroutines.launch
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -33,7 +32,7 @@ class IamWebViewClientTest {
     fun testOnPageFinished_shouldCallListener() {
         val listener = FakeMessageLoadedListener(latch)
         val client = IamWebViewClient(listener, concurrentHandlerHolder!!)
-        concurrentHandlerHolder.uiScope.launch {
+        concurrentHandlerHolder.postOnMain {
             client.onPageFinished(
                 WebView(getTargetContext().applicationContext),
                 ""
@@ -48,7 +47,7 @@ class IamWebViewClientTest {
     fun testOnPageFinished_shouldCallListener_shouldCallOnMainThread() {
         val listener = FakeMessageLoadedListener(latch, FakeMessageLoadedListener.Mode.MAIN_THREAD)
         val client = IamWebViewClient(listener, concurrentHandlerHolder)
-        concurrentHandlerHolder.uiScope.launch {
+        concurrentHandlerHolder.postOnMain {
             val webView = WebView(getTargetContext().applicationContext)
             Thread { client.onPageFinished(webView, "") }.start()
         }

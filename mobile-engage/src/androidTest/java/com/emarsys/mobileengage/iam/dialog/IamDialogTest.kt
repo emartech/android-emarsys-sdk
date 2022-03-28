@@ -27,7 +27,6 @@ import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.fake.FakeActivity
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
-import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -499,7 +498,7 @@ class IamDialogTest {
         var result: Exception? = null
         try {
             initWebViewProvider()
-            concurrentHandlerHolder.uiScope.launch {
+            concurrentHandlerHolder.postOnMain {
                 val webView =
                     IamStaticWebViewProvider(
                         getTargetContext(),

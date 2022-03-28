@@ -27,7 +27,6 @@ import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.oneventaction.OnEventActionApi
 import com.emarsys.predict.PredictApi
 import com.emarsys.push.PushApi
-import kotlinx.coroutines.launch
 
 object Emarsys {
 
@@ -79,7 +78,7 @@ object Emarsys {
             DefaultEmarsysDependencies(emarsysConfig)
         }
 
-        emarsys().concurrentHandlerHolder.uiScope.launch {
+        emarsys().concurrentHandlerHolder.postOnMain {
             try {
                 registerLifecycleObservers()
             } catch (e: Throwable) {
@@ -188,7 +187,7 @@ object Emarsys {
     }
 
     private fun registerWatchDogs(config: EmarsysConfig) {
-        emarsys().concurrentHandlerHolder.uiScope.launch {
+        emarsys().concurrentHandlerHolder.postOnMain {
             config.application.registerActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
             config.application.registerActivityLifecycleCallbacks(emarsys().activityLifecycleWatchdog)
         }

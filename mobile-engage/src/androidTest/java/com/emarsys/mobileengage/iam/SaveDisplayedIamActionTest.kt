@@ -57,7 +57,7 @@ class SaveDisplayedIamActionTest {
 
     @After
     fun tearDown() {
-        handler.looper.quit()
+        handler.coreLooper.quit()
     }
 
     @Test

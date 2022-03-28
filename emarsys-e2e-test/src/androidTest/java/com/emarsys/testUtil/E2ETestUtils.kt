@@ -31,7 +31,7 @@ object E2ETestUtils {
             emarsys().logLevelStorage.remove()
             emarsys().predictServiceStorage.remove()
         }
-        emarsys().concurrentHandlerHolder.looper.quitSafely()
+        emarsys().concurrentHandlerHolder.coreLooper.quitSafely()
 
         tearDownEmarsysComponent()
     }

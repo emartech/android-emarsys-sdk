@@ -42,7 +42,6 @@ import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.*
 import java.io.File
 import java.util.*
-import kotlin.collections.HashMap
 
 class MessagingServiceUtilsTest {
     private companion object {
@@ -123,7 +122,7 @@ class MessagingServiceUtilsTest {
 
     @After
     fun tearDown() {
-        mobileEngage().concurrentHandlerHolder.looper.quitSafely()
+        mobileEngage().concurrentHandlerHolder.coreLooper.quitSafely()
         tearDownMobileEngageComponent()
     }
 

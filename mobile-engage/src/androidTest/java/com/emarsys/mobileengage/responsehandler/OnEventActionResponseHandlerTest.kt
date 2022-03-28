@@ -64,7 +64,7 @@ class OnEventActionResponseHandlerTest {
     @After
     fun tearDown() {
         try {
-            val looper: Looper? = concurrentHandlerHolder.looper
+            val looper: Looper? = concurrentHandlerHolder.coreLooper
             looper?.quitSafely()
         } catch (e: Exception) {
             e.printStackTrace()

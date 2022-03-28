@@ -10,10 +10,8 @@ import com.emarsys.mobileengage.api.push.NotificationInformationListener
 import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
 
 class DefaultPushInternal(
     private val requestManager: RequestManager,
@@ -38,7 +36,7 @@ class DefaultPushInternal(
                 completionListener?.onCompleted(it)
             }
         } else {
-            concurrentHandlerHolder.uiScope.launch {
+            concurrentHandlerHolder.postOnMain {
                 completionListener?.onCompleted(null)
             }
         }
@@ -67,7 +65,7 @@ class DefaultPushInternal(
     override fun trackMessageOpen(intent: Intent, completionListener: CompletionListener?) {
         val messageId = getMessageId(intent)
         messageId?.let { handleMessageOpen(completionListener, it) }
-            ?: concurrentHandlerHolder.uiScope.launch {
+            ?: concurrentHandlerHolder.postOnMain {
                 completionListener?.onCompleted(
                     IllegalArgumentException("No messageId found!")
                 )

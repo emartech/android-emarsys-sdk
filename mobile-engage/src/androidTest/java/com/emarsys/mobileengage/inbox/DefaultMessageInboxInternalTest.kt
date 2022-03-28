@@ -10,9 +10,9 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
-import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
+import com.emarsys.core.worker.DelegatorCompletionHandlerProvider
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.fake.FakeRestClient
 import com.emarsys.mobileengage.fake.FakeResultListener
@@ -109,7 +109,6 @@ class DefaultMessageInboxInternalTest {
 
         fakeResultListener.successCount shouldBe 1
         verify(mockMessageInboxResponseMapper).map(mockResponse)
-
     }
 
     @Test
@@ -223,25 +222,19 @@ class DefaultMessageInboxInternalTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
-        val mockScopeDelegatorCompletionHandlerProvider =
-            mock<ScopeDelegatorCompletionHandlerProvider> {
+        val mockDelegatorCompletionHandlerProvider =
+            mock<DelegatorCompletionHandlerProvider> {
                 on { provide(any(), any()) } doAnswer {
-                    it.arguments[0] as CoreCompletionHandler
-                }
-                on { provide(any(), any()) } doAnswer {
-                    it.arguments[0] as CoreCompletionHandler
+                    it.arguments[1] as CoreCompletionHandler
                 }
             }
         val mockProvider: CompletionHandlerProxyProvider = mock {
             on { provideProxy(isNull(), any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
             }
-            on { provideProxy(any(), any()) } doAnswer {
-                it.arguments[1] as CoreCompletionHandler
-            }
         }
         return RequestManager(
-            mock(),
+            concurrentHandlerHolder,
             mock(),
             mock(),
             mock(),
@@ -249,7 +242,7 @@ class DefaultMessageInboxInternalTest {
             mock(),
             mock(),
             mockProvider,
-            mockScopeDelegatorCompletionHandlerProvider
+            mockDelegatorCompletionHandlerProvider
         )
     }
 }

@@ -24,7 +24,7 @@ class ConcurrentHandlerHolderFactoryTest {
 
     @After
     fun tearDown() {
-        concurrentHandlerHolder.looper.quit()
+        concurrentHandlerHolder.coreLooper.quit()
     }
 
     @Test
@@ -40,7 +40,7 @@ class ConcurrentHandlerHolderFactoryTest {
     @Test
     fun testProvideHandler_shouldReturnConcurrentHandlerHolderWithCorrectName() {
         val expectedNamePrefix = "CoreSDKHandlerThread"
-        val actualName = concurrentHandlerHolder.looper.thread.name
+        val actualName = concurrentHandlerHolder.coreLooper.thread.name
         actualName.startsWith(expectedNamePrefix) shouldBe true
     }
 }

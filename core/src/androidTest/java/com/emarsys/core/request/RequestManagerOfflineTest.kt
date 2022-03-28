@@ -29,8 +29,6 @@ import io.kotlintest.be
 import io.kotlintest.matchers.beEmpty
 import io.kotlintest.should
 import io.kotlintest.shouldBe
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -80,9 +78,9 @@ class RequestManagerOfflineTest {
 
     @After
     fun tearDown() {
-        concurrentHandlerHolder.looper.quit()
-        concurrentHandlerHolder.sdkScope.coroutineContext.cancel()
-        concurrentHandlerHolder.uiScope.coroutineContext.cancel()
+        concurrentHandlerHolder.coreLooper.quit()
+        concurrentHandlerHolder.networkLooper.quit()
+        concurrentHandlerHolder.backgroundLooper.quit()
         DatabaseTestUtils.deleteCoreDatabase()
     }
 
@@ -99,7 +97,7 @@ class RequestManagerOfflineTest {
         requestRepository.isEmpty() shouldBe false
         completionHandler.latch = CountDownLatch(1)
 
-        concurrentHandlerHolder.uiScope.launch {
+        concurrentHandlerHolder.postOnMain {
             watchDog.connectionChangeListener.onConnectionChanged(
                 ConnectionState.CONNECTED,
                 true

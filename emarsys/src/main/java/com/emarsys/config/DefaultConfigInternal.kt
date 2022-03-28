@@ -22,9 +22,7 @@ import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.predict.request.PredictRequestContext
-import kotlinx.coroutines.launch
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import java.util.concurrent.CountDownLatch
 
 @Mockable
 class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngageRequestContext,
@@ -74,7 +72,7 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         val pushToken: String? = pushInternal.pushToken
         val hasContactIdentification = mobileEngageRequestContext.hasContactIdentification()
         var throwable: Throwable? = null
-        concurrentHandlerHolder.sdkScope.launch {
+        concurrentHandlerHolder.postOnBackground {
             if (pushToken != null) {
                 throwable = clearPushToken()
             }
@@ -96,10 +94,22 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
             if (throwable != null) {
                 handleAppCodeChange(null)
             }
-            concurrentHandlerHolder.uiScope.launch {
+            concurrentHandlerHolder.postOnMain {
                 completionListener?.onCompleted(throwable)
             }
         }
+    }
+
+    private fun synchronizeMethodWithRunnerCallback(runnerCallback: (CompletionListener)->(Unit)): Throwable? {
+        var result: Throwable? = null
+        val latch = CountDownLatch(1)
+        val completionListener = CompletionListener {
+            result = it
+            latch.countDown()
+        }
+        runnerCallback(completionListener)
+        latch.await()
+        return result
     }
 
     private fun handleAppCodeChange(applicationCode: String?) {
@@ -113,35 +123,27 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         }
     }
 
-    private suspend fun clearPushToken(): Throwable? {
-        return suspendCoroutine { continuation ->
-            pushInternal.clearPushToken {
-                continuation.resume(it)
-            }
+    private fun clearPushToken(): Throwable? {
+        return synchronizeMethodWithRunnerCallback {
+            pushInternal.clearPushToken(it)
         }
     }
 
-    private suspend fun clearContact(): Throwable? {
-        return suspendCoroutine { continuation ->
-            mobileEngageInternal.clearContact {
-                continuation.resume(it)
-            }
+    private fun clearContact(): Throwable? {
+        return synchronizeMethodWithRunnerCallback {
+            mobileEngageInternal.clearContact(it)
         }
     }
 
-    private suspend fun sendPushToken(pushToken: String): Throwable? {
-        return suspendCoroutine { continuation ->
-            pushInternal.setPushToken(pushToken) {
-                continuation.resume(it)
-            }
+    private fun sendPushToken(pushToken: String): Throwable? {
+        return synchronizeMethodWithRunnerCallback {
+            pushInternal.setPushToken(pushToken, it)
         }
     }
 
-    private suspend fun sendDeviceInfo(): Throwable? {
-        return suspendCoroutine { continuation ->
-            clientServiceInternal.trackDeviceInfo {
-                continuation.resume(it)
-            }
+    private fun sendDeviceInfo(): Throwable? {
+        return synchronizeMethodWithRunnerCallback {
+            clientServiceInternal.trackDeviceInfo(it)
         }
     }
 

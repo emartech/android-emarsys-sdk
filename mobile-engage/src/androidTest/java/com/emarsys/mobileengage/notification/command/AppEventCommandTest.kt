@@ -7,7 +7,6 @@ import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.mockito.ThreadSpy
-import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert
@@ -54,7 +53,7 @@ class AppEventCommandTest {
             name,
             payload
         ).run()
-        concurrentHandlerHolder.uiScope.launch {
+        concurrentHandlerHolder.postOnMain {
             latch.countDown()
         }
         latch.await()
@@ -77,7 +76,7 @@ class AppEventCommandTest {
             name,
             null
         ).run()
-        concurrentHandlerHolder.uiScope.launch {
+        concurrentHandlerHolder.postOnMain {
             latch.countDown()
         }
         latch.await()

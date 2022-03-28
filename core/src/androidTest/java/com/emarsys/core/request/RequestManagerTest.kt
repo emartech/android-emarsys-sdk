@@ -1,5 +1,6 @@
 package com.emarsys.core.request
 
+import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mapper
 import com.emarsys.core.Registry
@@ -15,11 +16,11 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
-import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.worker.DefaultWorker
+import com.emarsys.core.worker.DelegatorCompletionHandlerProvider
 import com.emarsys.core.worker.Worker
 import com.emarsys.testUtil.ConnectionTestUtils.checkConnection
 import com.emarsys.testUtil.DatabaseTestUtils.deleteCoreDatabase
@@ -30,7 +31,6 @@ import com.emarsys.testUtil.TestUrls.DENNA_ECHO
 import com.emarsys.testUtil.TestUrls.customResponse
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.mockito.ThreadSpy
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -38,7 +38,6 @@ import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.kotlin.*
 import java.net.UnknownHostException
-import java.util.*
 import java.util.concurrent.CountDownLatch
 
 class RequestManagerTest {
@@ -61,7 +60,7 @@ class RequestManagerTest {
     private lateinit var coreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
     private lateinit var mockRequestModelMapper: Mapper<RequestModel, RequestModel>
     private lateinit var mockCompletionHandlerProxyProvider: CompletionHandlerProxyProvider
-    private lateinit var mockScopeDelegatorCompletionHandlerProvider: ScopeDelegatorCompletionHandlerProvider
+    private lateinit var mockDelegatorCompletionHandlerProvider: DelegatorCompletionHandlerProvider
     private lateinit var callbackRegistryThreadSpy: ThreadSpy<Registry<RequestModel, CompletionListener?>>
     private lateinit var shardRepositoryThreadSpy: ThreadSpy<Repository<ShardModel, SqlSpecification>>
 
@@ -128,7 +127,7 @@ class RequestManagerTest {
         mockCompletionHandlerProxyProvider = mock {
             on { provideProxy(isNull(), any()) } doReturn mockDefaultHandler
         }
-        mockScopeDelegatorCompletionHandlerProvider = mock {
+        mockDelegatorCompletionHandlerProvider = mock {
             on { provide(any(), any()) } doReturn fakeCompletionHandler
         }
         manager = RequestManager(
@@ -140,7 +139,7 @@ class RequestManagerTest {
             mockCallbackRegistry,
             mockDefaultHandler,
             mockCompletionHandlerProxyProvider,
-            mockScopeDelegatorCompletionHandlerProvider
+            mockDelegatorCompletionHandlerProvider
         )
         timestampProvider = TimestampProvider()
         uuidProvider = UUIDProvider()
@@ -163,7 +162,7 @@ class RequestManagerTest {
 
     @After
     fun tearDown() {
-        concurrentHandlerHolder.looper.quit()
+        concurrentHandlerHolder.coreLooper.quit()
     }
 
     @Test
@@ -232,13 +231,13 @@ class RequestManagerTest {
 
     @Test
     fun testSubmitNow_withoutCompletionHandler_shouldCallProxyProviderForCompletionHandler() {
-        whenever(mockScopeDelegatorCompletionHandlerProvider.provide(any(), any())).doReturn(
+        whenever(mockDelegatorCompletionHandlerProvider.provide(any(), any())).doReturn(
             mockDefaultHandler
         )
         manager.submitNow(requestModel)
-        verify(mockScopeDelegatorCompletionHandlerProvider).provide(
-            mockDefaultHandler,
-            concurrentHandlerHolder.sdkScope
+        verify(mockDelegatorCompletionHandlerProvider).provide(
+            concurrentHandlerHolder.coreHandler.handler,
+            mockDefaultHandler
         )
         verify(mockCompletionHandlerProxyProvider, times(2))
             .provideProxy(null, mockDefaultHandler)
@@ -248,9 +247,9 @@ class RequestManagerTest {
     @Test
     fun testSubmitNow_shouldCallProxyProviderForCompletionHandler() {
         manager.submitNow(requestModel, fakeCompletionHandler)
-        verify(mockScopeDelegatorCompletionHandlerProvider).provide(
-            fakeCompletionHandler,
-            concurrentHandlerHolder.sdkScope
+        verify(mockDelegatorCompletionHandlerProvider).provide(
+            concurrentHandlerHolder.coreHandler.handler,
+            fakeCompletionHandler
         )
         verify(mockCompletionHandlerProxyProvider).provideProxy(null, fakeCompletionHandler)
         verify(mockRestClient).execute(requestModel, mockDefaultHandler)
@@ -258,11 +257,11 @@ class RequestManagerTest {
 
     @Test
     fun testSubmitNow_shouldCallProxyProviderForCompletionHandler_withScope() {
-        val mockOtherScope: CoroutineScope = mock()
-        manager.submitNow(requestModel, fakeCompletionHandler, mockOtherScope)
-        verify(mockScopeDelegatorCompletionHandlerProvider).provide(
-            fakeCompletionHandler,
-            mockOtherScope
+        val mockOtherHandler: Handler = mock()
+        manager.submitNow(requestModel, fakeCompletionHandler, mockOtherHandler)
+        verify(mockDelegatorCompletionHandlerProvider).provide(
+            mockOtherHandler,
+            fakeCompletionHandler
         )
         verify(mockCompletionHandlerProxyProvider).provideProxy(null, fakeCompletionHandler)
         verify(mockRestClient).execute(requestModel, mockDefaultHandler)

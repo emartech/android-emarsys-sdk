@@ -15,7 +15,6 @@ import com.emarsys.mobileengage.iam.webview.WebViewProvider
 import com.emarsys.testUtil.ReflectionTestUtils
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
-import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -48,7 +47,7 @@ class InlineInAppWebViewFactoryTest {
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         val setUpLatch = CountDownLatch(1)
-        concurrentHandlerHolder.uiScope.launch {
+        concurrentHandlerHolder.postOnMain {
             val webView = WebView(InstrumentationRegistry.getInstrumentation().targetContext)
             mockWebView = spy(webView)
 
@@ -102,7 +101,7 @@ class InlineInAppWebViewFactoryTest {
         val webView = runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
         var result: MessageLoadedListener? = null
         val latch = CountDownLatch(1)
-        concurrentHandlerHolder.uiScope.launch {
+        concurrentHandlerHolder.postOnMain {
             val webViewClient = webView!!.webViewClient
             result = ReflectionTestUtils.getInstanceField(webViewClient, "listener")
             latch.countDown()
@@ -126,7 +125,7 @@ class InlineInAppWebViewFactoryTest {
     private fun <T> runOnUiThread(lambda: () -> T): T? {
         var result: T? = null
         val latch = CountDownLatch(1)
-        concurrentHandlerHolder.uiScope.launch {
+        concurrentHandlerHolder.postOnMain {
             result = lambda.invoke()
             latch.countDown()
         }

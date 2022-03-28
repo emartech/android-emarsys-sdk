@@ -46,7 +46,6 @@ import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
-import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
 import com.emarsys.core.resource.MetaDataReader
@@ -63,6 +62,7 @@ import com.emarsys.core.util.log.LogShardListMerger
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.predicate.ListSizeAtLeast
 import com.emarsys.core.worker.DefaultWorker
+import com.emarsys.core.worker.DelegatorCompletionHandlerProvider
 import com.emarsys.core.worker.Worker
 import com.emarsys.deeplink.DeepLink
 import com.emarsys.deeplink.DeepLinkApi
@@ -543,7 +543,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             coreCompletionHandler,
             coreCompletionHandler,
             coreCompletionHandlerRefreshTokenProxyProvider,
-            ScopeDelegatorCompletionHandlerProvider()
+            DelegatorCompletionHandlerProvider()
         )
     }
 

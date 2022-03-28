@@ -30,7 +30,6 @@ import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
-import kotlinx.coroutines.launch
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
@@ -273,7 +272,7 @@ class OverlayInAppPresenterTest {
 
         overlayPresenter.onCloseTriggered().invoke()
         val latch = CountDownLatch(1)
-        concurrentHandlerHolder.uiScope.launch { latch.countDown() }
+        concurrentHandlerHolder.postOnMain { latch.countDown() }
         latch.await()
 
         verify(fragment).dismiss()

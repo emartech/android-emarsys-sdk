@@ -17,7 +17,6 @@ import com.emarsys.core.request.model.specification.FilterByRequestIds
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel
 import com.emarsys.core.util.log.Logger.Companion.debug
 import com.emarsys.core.util.log.entry.OfflineQueueSize
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 @Mockable
@@ -94,7 +93,7 @@ class DefaultWorker(
         runBlocking {
             requestRepository.remove(FilterByRequestIds(ids))
         }
-        concurrentHandlerHolder.uiScope.launch {
+        concurrentHandlerHolder.postOnMain {
             coreCompletionHandler.onError(
                 expiredModel.id,
                 RequestExpiredException("Request expired", expiredModel.url.path)

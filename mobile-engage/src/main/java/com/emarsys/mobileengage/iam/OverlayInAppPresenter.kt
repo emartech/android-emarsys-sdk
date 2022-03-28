@@ -23,7 +23,6 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
-import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 @Mockable
@@ -72,7 +71,7 @@ class OverlayInAppPresenter(
         return {
             val currentActivity = currentActivityProvider.get()
             if (currentActivity is FragmentActivity) {
-                concurrentHandlerHolder.uiScope.launch {
+                concurrentHandlerHolder.postOnMain {
                     val fragment =
                         currentActivity.supportFragmentManager.findFragmentByTag(IamDialog.TAG)
                     if (fragment is DialogFragment) {
@@ -85,7 +84,7 @@ class OverlayInAppPresenter(
 
     fun onAppEventTriggered(): OnAppEventListener {
         return { property: String?, json: JSONObject ->
-            concurrentHandlerHolder.uiScope.launch {
+            concurrentHandlerHolder.postOnMain {
                 val payload = json.optJSONObject("payload")
                 val currentActivity = currentActivityProvider.get()
                 if (property != null && currentActivity != null) {

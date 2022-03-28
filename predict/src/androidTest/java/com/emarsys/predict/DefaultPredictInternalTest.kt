@@ -14,11 +14,11 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
-import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.KeyValueStore
+import com.emarsys.core.worker.DelegatorCompletionHandlerProvider
 import com.emarsys.predict.api.model.*
 import com.emarsys.predict.fake.FakeRestClient
 import com.emarsys.predict.fake.FakeResultListener
@@ -646,19 +646,13 @@ class DefaultPredictInternalTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun requestManagerWithRestClient(restClient: RestClient): RequestManager {
-        val mockScopeDelegatorCompletionHandlerProvider: ScopeDelegatorCompletionHandlerProvider =
+        val mockDelegatorCompletionHandlerProvider: DelegatorCompletionHandlerProvider =
             mock {
                 on { provide(anyOrNull(), any()) } doAnswer {
-                    it.arguments[0] as CoreCompletionHandler
-                }
-                on { provide(anyOrNull(), any()) } doAnswer {
-                    it.arguments[0] as CoreCompletionHandler
+                    it.arguments[1] as CoreCompletionHandler
                 }
             }
         val mockProvider: CompletionHandlerProxyProvider = mock {
-            on { provideProxy(anyOrNull(), any()) } doAnswer {
-                it.arguments[1] as CoreCompletionHandler
-            }
             on { provideProxy(anyOrNull(), any()) } doAnswer {
                 it.arguments[1] as CoreCompletionHandler
             }
@@ -672,7 +666,7 @@ class DefaultPredictInternalTest {
             mock() as Registry<RequestModel, CompletionListener?>,
             mock(),
             mockProvider,
-            mockScopeDelegatorCompletionHandlerProvider
+            mockDelegatorCompletionHandlerProvider
         )
     }
 }

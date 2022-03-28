@@ -4,7 +4,6 @@ import android.os.Bundle
 import com.emarsys.core.Mockable
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
-import kotlinx.coroutines.launch
 import java.util.concurrent.CountDownLatch
 
 @Mockable
@@ -20,7 +19,7 @@ class IamDialogProvider(
     ): IamDialog {
         var dialog: IamDialog? = null
         val latch = CountDownLatch(1)
-        concurrentHandlerHolder.uiScope.launch {
+        concurrentHandlerHolder.postOnMain {
             dialog = IamDialog(concurrentHandlerHolder, timestampProvider)
             val bundle = Bundle()
             bundle.putString(IamDialog.CAMPAIGN_ID, campaignId)

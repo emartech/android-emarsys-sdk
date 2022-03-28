@@ -9,7 +9,6 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.response.ResponseModel
-import kotlinx.coroutines.*
 
 open class RestClient(
     private val connectionProvider: ConnectionProvider,
@@ -18,8 +17,6 @@ open class RestClient(
     private val requestModelMappers: List<Mapper<RequestModel, RequestModel>>,
     private val concurrentHandlerHolder: ConcurrentHandlerHolder
 ) {
-    private val defaultScope = CoroutineScope(Job() + Dispatchers.Default)
-
     open fun execute(model: RequestModel, completionHandler: CoreCompletionHandler) {
         val updatedRequestModel = mapRequestModel(model)
         val task = RequestTask(
@@ -27,14 +24,10 @@ open class RestClient(
             connectionProvider,
             timestampProvider
         )
-
-        defaultScope.launch {
-            val responseModel = async(context = concurrentHandlerHolder.sdkScope.coroutineContext) {
-                task.execute()
-            }
-
-            concurrentHandlerHolder.sdkScope.launch {
-                onPostExecute(model.id, responseModel.await(), completionHandler)
+        concurrentHandlerHolder.postOnNetwork {
+            val responseModel = task.execute()
+            concurrentHandlerHolder.postOnMain {
+                onPostExecute(model.id, responseModel, completionHandler)
             }
         }
     }

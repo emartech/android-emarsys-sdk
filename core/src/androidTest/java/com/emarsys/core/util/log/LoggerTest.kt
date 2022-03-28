@@ -82,7 +82,7 @@ class LoggerTest {
     @After
     fun tearDown() {
         if (CoreComponent.isSetup()) {
-            core().concurrentHandlerHolder.looper.quitSafely()
+            core().concurrentHandlerHolder.coreLooper.quitSafely()
             tearDownCoreComponent()
         }
     }

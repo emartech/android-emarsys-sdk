@@ -23,7 +23,6 @@ import com.emarsys.predict.model.LastTrackedItemContainer
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictRequestContext
 import com.emarsys.predict.util.CartItemUtils
-import kotlinx.coroutines.launch
 
 class DefaultPredictInternal(
     requestContext: PredictRequestContext,
@@ -149,13 +148,13 @@ class DefaultPredictInternal(
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
                 val products = responseMapper.map(responseModel)
-                concurrentHandlerHolder.uiScope.launch {
+                concurrentHandlerHolder.postOnMain {
                     resultListener.onResult(success(products))
                 }
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
-                concurrentHandlerHolder.uiScope.launch {
+                concurrentHandlerHolder.postOnMain {
                     resultListener.onResult(
                         failure(
                             ResponseErrorException(
@@ -169,7 +168,7 @@ class DefaultPredictInternal(
             }
 
             override fun onError(id: String, cause: Exception) {
-                concurrentHandlerHolder.uiScope.launch { resultListener.onResult(failure(cause)) }
+                concurrentHandlerHolder.postOnMain { resultListener.onResult(failure(cause)) }
             }
         })
     }

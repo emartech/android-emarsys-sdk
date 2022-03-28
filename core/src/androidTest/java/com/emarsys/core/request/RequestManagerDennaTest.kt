@@ -30,7 +30,6 @@ import org.junit.rules.TestRule
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.mock
-import java.util.*
 import java.util.concurrent.CountDownLatch
 
 class RequestManagerDennaTest {
@@ -114,7 +113,7 @@ class RequestManagerDennaTest {
 
     @After
     fun tearDown() {
-        concurrentHandlerHolder.looper.quit()
+        concurrentHandlerHolder.coreLooper.quit()
     }
 
     @Test

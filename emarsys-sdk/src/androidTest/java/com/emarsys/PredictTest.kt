@@ -28,7 +28,6 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import java.util.*
 
 class PredictTest {
     companion object {
@@ -66,7 +65,7 @@ class PredictTest {
     fun tearDown() {
         try {
             val handler = emarsys().concurrentHandlerHolder
-            val looper: Looper = handler.looper
+            val looper: Looper = handler.coreLooper
             looper.quit()
             tearDownEmarsysComponent()
         } catch (e: Exception) {

@@ -28,7 +28,7 @@ abstract class AbstractSqliteRepository<T>(
     abstract fun contentValuesFromItem(item: T): ContentValues
     abstract fun itemFromCursor(cursor: Cursor): T
 
-    override suspend fun add(item: T) {
+    override fun add(item: T) {
         val contentValues = contentValuesFromItem(item)
         val database = dbHelper.writableCoreDatabase
         database.inTransaction {
@@ -36,7 +36,7 @@ abstract class AbstractSqliteRepository<T>(
         }
     }
 
-    override suspend fun update(item: T, specification: SqlSpecification): Int {
+    override fun update(item: T, specification: SqlSpecification): Int {
         val values = contentValuesFromItem(item)
         val database = dbHelper.writableCoreDatabase
         var result = 0
@@ -72,7 +72,7 @@ abstract class AbstractSqliteRepository<T>(
 
     }
 
-    override suspend fun remove(specification: SqlSpecification) {
+    override fun remove(specification: SqlSpecification) {
         val database = dbHelper.writableCoreDatabase
 
         return database.inTransaction {
