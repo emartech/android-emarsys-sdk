@@ -11,7 +11,6 @@ import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.model.InAppMessage
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
-import kotlinx.coroutines.runBlocking
 import java.util.concurrent.CountDownLatch
 
 @Mockable
@@ -47,15 +46,13 @@ class JSCommandFactory(
                 { property, _ ->
                     if (inAppMessage != null && property != null) {
                         concurrentHandlerHolder.coreHandler.post {
-                            runBlocking {
-                                buttonClickedRepository.add(
-                                    ButtonClicked(
-                                        inAppMessage.campaignId,
-                                        property,
-                                        timestampProvider.provideTimestamp()
-                                    )
+                            buttonClickedRepository.add(
+                                ButtonClicked(
+                                    inAppMessage.campaignId,
+                                    property,
+                                    timestampProvider.provideTimestamp()
                                 )
-                            }
+                            )
                             val eventName = "inapp:click"
                             val attributes: MutableMap<String, String?> = mutableMapOf(
                                 "campaignId" to inAppMessage.campaignId,

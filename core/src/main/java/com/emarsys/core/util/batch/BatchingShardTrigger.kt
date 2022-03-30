@@ -9,7 +9,6 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.specification.FilterByShardIds
 import com.emarsys.core.util.predicate.Predicate
-import kotlinx.coroutines.runBlocking
 
 class BatchingShardTrigger(
     private val repository: Repository<ShardModel, SqlSpecification>,
@@ -33,9 +32,7 @@ class BatchingShardTrigger(
                 val chunks = chunker.map(shards)
                 chunks.forEach {
                     submit(merger.map(it))
-                    runBlocking {
-                        repository.remove(FilterByShardIds(it))
-                    }
+                    repository.remove(FilterByShardIds(it))
                 }
             }
         }

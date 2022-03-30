@@ -10,8 +10,7 @@ import com.emarsys.core.request.model.collectRequestIds
 import com.emarsys.core.request.model.specification.FilterByRequestIds
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.RequestModelUtils
-import kotlinx.coroutines.runBlocking
-import java.util.*
+import kotlin.math.min
 
 @Mockable
 class CoreCompletionHandlerMiddleware(
@@ -49,18 +48,12 @@ class CoreCompletionHandlerMiddleware(
         val noOfIterations =
             if (ids.size % maximumRequestCountInTransaction == 0) ids.size / maximumRequestCountInTransaction else ids.size / maximumRequestCountInTransaction + 1
         for (i in 0 until noOfIterations) {
-            val noOfElements = Math.min(ids.size, (i + 1) * maximumRequestCountInTransaction)
-            runBlocking {
-                requestRepository.remove(
-                    FilterByRequestIds(
-                        Arrays.copyOfRange(
-                            ids,
-                            i * maximumRequestCountInTransaction,
-                            noOfElements
-                        )
-                    )
+            val noOfElements = min(ids.size, (i + 1) * maximumRequestCountInTransaction)
+            requestRepository.remove(
+                FilterByRequestIds(
+                    ids.copyOfRange(i * maximumRequestCountInTransaction, noOfElements)
                 )
-            }
+            )
         }
     }
 

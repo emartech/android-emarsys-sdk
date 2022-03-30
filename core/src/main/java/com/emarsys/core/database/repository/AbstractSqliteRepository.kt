@@ -48,7 +48,6 @@ abstract class AbstractSqliteRepository<T>(
                 specification.selection,
                 specification.selectionArgs
             )
-
         }
 
         return result

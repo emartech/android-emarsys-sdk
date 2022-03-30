@@ -26,7 +26,7 @@ open class RestClient(
         )
         concurrentHandlerHolder.postOnNetwork {
             val responseModel = task.execute()
-            concurrentHandlerHolder.postOnMain {
+            concurrentHandlerHolder.post {
                 onPostExecute(model.id, responseModel, completionHandler)
             }
         }
@@ -37,7 +37,6 @@ open class RestClient(
         result: Try<ResponseModel>,
         completionHandler: CoreCompletionHandler
     ) {
-
         if (result.errorCause != null) {
             completionHandler.onError(requestId, result.errorCause as Exception)
         } else {

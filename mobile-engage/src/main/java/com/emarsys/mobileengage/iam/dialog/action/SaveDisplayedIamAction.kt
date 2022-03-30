@@ -5,7 +5,6 @@ import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
-import kotlinx.coroutines.runBlocking
 
 class SaveDisplayedIamAction(
     var concurrentHandlerHolder: ConcurrentHandlerHolder,
@@ -15,10 +14,8 @@ class SaveDisplayedIamAction(
 
     override fun execute(campaignId: String, sid: String?, url: String?) {
         concurrentHandlerHolder.coreHandler.post {
-            runBlocking {
-                val iam = DisplayedIam(campaignId, timestampProvider.provideTimestamp())
-                repository.add(iam)
-            }
+            val iam = DisplayedIam(campaignId, timestampProvider.provideTimestamp())
+            repository.add(iam)
         }
     }
 }

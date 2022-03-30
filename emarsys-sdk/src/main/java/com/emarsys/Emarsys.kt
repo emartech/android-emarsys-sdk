@@ -2,7 +2,6 @@ package com.emarsys
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Looper
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.emarsys.common.feature.InnerFeature.*
 import com.emarsys.config.ConfigApi
@@ -86,8 +85,9 @@ object Emarsys {
             }
         }
 
+        registerWatchDogs(emarsysConfig)
+
         emarsys().concurrentHandlerHolder.coreHandler.post {
-            registerWatchDogs(emarsysConfig)
             registerDatabaseTriggers()
 
             if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)) {
@@ -97,10 +97,8 @@ object Emarsys {
     }
 
     private fun registerLifecycleObservers() {
-        if (Looper.getMainLooper().isCurrentThread) {
-            val appLifecycleObserver = emarsys().appLifecycleObserver
-            ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
-        }
+        val appLifecycleObserver = emarsys().appLifecycleObserver
+        ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
     }
 
     @JvmStatic
@@ -187,10 +185,8 @@ object Emarsys {
     }
 
     private fun registerWatchDogs(config: EmarsysConfig) {
-        emarsys().concurrentHandlerHolder.postOnMain {
-            config.application.registerActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
-            config.application.registerActivityLifecycleCallbacks(emarsys().activityLifecycleWatchdog)
-        }
+        config.application.registerActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
+        config.application.registerActivityLifecycleCallbacks(emarsys().activityLifecycleWatchdog)
     }
 
     private fun registerDatabaseTriggers() {

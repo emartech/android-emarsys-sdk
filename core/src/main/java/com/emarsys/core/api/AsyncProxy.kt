@@ -37,6 +37,7 @@ class AsyncProxy<T>(
                 else -> 0
             }
         }
+
         if (isOnCoreSdkThread()) {
             result = invokeMethod(method, args)
         } else {
@@ -54,7 +55,6 @@ class AsyncProxy<T>(
 
         EmarsysIdlingResources.decrement()
         return result
-
     }
 
     private fun isOnCoreSdkThread() =

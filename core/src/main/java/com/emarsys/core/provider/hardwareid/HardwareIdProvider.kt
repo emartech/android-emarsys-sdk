@@ -10,7 +10,6 @@ import com.emarsys.core.device.FilterByHardwareId
 import com.emarsys.core.device.HardwareIdentification
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.storage.Storage
-import kotlinx.coroutines.runBlocking
 
 @Mockable
 class HardwareIdProvider(
@@ -26,9 +25,7 @@ class HardwareIdProvider(
         return if (hardware != null) {
             if (hardware.encryptedHardwareId == null) {
                 hardwareIdentificationCrypto.encrypt(hardware).also {
-                    runBlocking {
-                        repository.update(it, FilterByHardwareId(it.hardwareId))
-                    }
+                    repository.update(it, FilterByHardwareId(it.hardwareId))
                 }
                 hardware.hardwareId
             } else {
@@ -36,20 +33,14 @@ class HardwareIdProvider(
             }
         } else {
             getHardwareIdentification().also {
-                runBlocking {
-                    repository.add(
-                        it
-                    )
-                }
+                repository.add(it)
             }.hardwareId
         }
     }
 
     private fun getHardwareIdentification(): HardwareIdentification {
-        return (hwIdStorage.get()
-            ?: hardwareIdContentResolver.resolveHardwareId()
-            ?: generateNewHardwareId()
-                ).asEncryptedHardwareIdentification()
+        return (hwIdStorage.get() ?: hardwareIdContentResolver.resolveHardwareId()
+        ?: generateNewHardwareId()).asEncryptedHardwareIdentification()
     }
 
     private fun generateNewHardwareId(): String {

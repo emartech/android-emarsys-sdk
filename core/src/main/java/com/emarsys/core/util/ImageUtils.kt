@@ -7,7 +7,7 @@ import com.emarsys.core.device.DeviceInfo
 import java.io.File
 
 object ImageUtils {
-    private const val RETRY_COUNT = 3L
+    private const val RETRY_COUNT = 3
 
     @JvmStatic
     fun loadOptimizedBitmap(fileDownloader: FileDownloader, imageUrl: String?, deviceInfo: DeviceInfo): Bitmap? {

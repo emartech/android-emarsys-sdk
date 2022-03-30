@@ -17,7 +17,6 @@ import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.log.LogLevel.*
 import com.emarsys.core.util.log.entry.*
-import kotlinx.coroutines.runBlocking
 
 @Mockable
 class Logger(
@@ -132,9 +131,7 @@ class Logger(
                         )
                     )
                     .build()
-                runBlocking {
-                    shardRepository.add(shard)
-                }
+                shardRepository.add(shard)
                 onCompleted?.invoke()
             }
         } else {

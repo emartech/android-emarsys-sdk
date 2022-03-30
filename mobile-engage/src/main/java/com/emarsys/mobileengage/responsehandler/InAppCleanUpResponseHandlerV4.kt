@@ -11,12 +11,12 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
 import com.emarsys.mobileengage.util.RequestModelHelper
-import kotlinx.coroutines.runBlocking
 
 class InAppCleanUpResponseHandlerV4(
-        private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
-        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
-        private val requestModelHelper: RequestModelHelper) : AbstractResponseHandler() {
+    private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
+    private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
+    private val requestModelHelper: RequestModelHelper
+) : AbstractResponseHandler() {
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
         val requestModel = responseModel.requestModel
@@ -33,18 +33,14 @@ class InAppCleanUpResponseHandlerV4(
             val campaignIdsToRemove: Array<String> =
                 collectCampaignIds(payload["clicks"] as List<Map<String, Any?>>)
             if (campaignIdsToRemove.isNotEmpty()) {
-                runBlocking {
-                    buttonClickedRepository.remove(FilterByCampaignId(*campaignIdsToRemove))
-                }
+                buttonClickedRepository.remove(FilterByCampaignId(*campaignIdsToRemove))
             }
         }
         if (payload != null && payload.containsKey("viewedMessages")) {
             val campaignIdsToRemove: Array<String> =
                 collectCampaignIds(payload["viewedMessages"] as List<Map<String, Any?>>)
             if (campaignIdsToRemove.isNotEmpty()) {
-                runBlocking {
-                    displayedIamRepository.remove(FilterByCampaignId(*campaignIdsToRemove))
-                }
+                displayedIamRepository.remove(FilterByCampaignId(*campaignIdsToRemove))
             }
         }
     }

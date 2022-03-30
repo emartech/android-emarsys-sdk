@@ -17,7 +17,6 @@ import com.emarsys.core.request.model.specification.FilterByRequestIds
 import com.emarsys.core.request.model.specification.QueryLatestRequestModel
 import com.emarsys.core.util.log.Logger.Companion.debug
 import com.emarsys.core.util.log.entry.OfflineQueueSize
-import kotlinx.coroutines.runBlocking
 
 @Mockable
 class DefaultWorker(
@@ -69,7 +68,7 @@ class DefaultWorker(
     private fun findFirstNonExpiredModel(): RequestModel? {
         while (!requestRepository.isEmpty()) {
             val result = requestRepository.query(QueryLatestRequestModel())
-            if (!result.isEmpty()) {
+            if (result.isNotEmpty()) {
                 val model = result[0]
                 if (isExpired(model)) {
                     handleExpiration(model)
@@ -90,9 +89,7 @@ class DefaultWorker(
 
     private fun handleExpiration(expiredModel: RequestModel) {
         val ids = arrayOf(expiredModel.id)
-        runBlocking {
-            requestRepository.remove(FilterByRequestIds(ids))
-        }
+        requestRepository.remove(FilterByRequestIds(ids))
         concurrentHandlerHolder.postOnMain {
             coreCompletionHandler.onError(
                 expiredModel.id,

@@ -1,65 +1,60 @@
-package com.emarsys.core.provider.activity;
+package com.emarsys.core.provider.activity
 
-import static org.mockito.Mockito.mock;
+import android.app.Activity
+import androidx.lifecycle.Lifecycle
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+import com.emarsys.testUtil.TimeoutUtils.timeoutRule
+import com.emarsys.testUtil.fake.FakeActivity
+import io.kotlintest.shouldBe
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.TestRule
+import org.mockito.kotlin.mock
 
-import android.app.Activity;
-
-import com.emarsys.testUtil.TimeoutUtils;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-
-public class CurrentActivityProviderTest {
-
-    static {
-        mock(Activity.class);
+class CurrentActivityProviderTest {
+    init {
+        mock<Activity>()
     }
 
-    private CurrentActivityProvider provider;
+    private lateinit var provider: CurrentActivityProvider
 
     @Rule
-    public TestRule timeout = TimeoutUtils.getTimeoutRule();
+    @JvmField
+    var timeout: TestRule = timeoutRule
 
+    @Rule
+    @JvmField
+    var activityScenarioRule: ActivityScenarioRule<FakeActivity> = ActivityScenarioRule(FakeActivity::class.java)
 
     @Before
-    public void init() {
-        provider = new CurrentActivityProvider();
+    fun init() {
+        provider = CurrentActivityProvider()
     }
 
     @Test
-    public void testGet_returnsNullByDefault() {
-        Assert.assertEquals(null, provider.get());
+    fun testGet_returnsSetValue() {
+        val activity: Activity = mock()
+        provider.set(activity)
+        provider.get() shouldBe activity
     }
 
     @Test
-    public void testGet_returnsSetValue() {
-        Activity activity = mock(Activity.class);
-
-        provider.set(activity);
-
-        Assert.assertSame(activity, provider.get());
+    fun testSet_overridesPreviousValue() {
+        val activity1: Activity = mock()
+        val activity2: Activity = mock()
+        provider.set(activity1)
+        provider.set(activity2)
+        provider.get() shouldBe activity2
     }
 
     @Test
-    public void testSet_overridesPreviousValue() {
-        Activity activity1 = mock(Activity.class);
-        Activity activity2 = mock(Activity.class);
+    fun testGet_getsActivityWithReflection_whenValueIsNotSet() {
+        provider.set(null)
 
-        provider.set(activity1);
-        provider.set(activity2);
+        activityScenarioRule.scenario.moveToState(Lifecycle.State.RESUMED)
 
-        Assert.assertSame(activity2, provider.get());
+        val result = provider.get()
+        (result is FakeActivity) shouldBe true
     }
-
-    @Test
-    public void testSet_null_clearsPreviousValue() {
-        provider.set(mock(Activity.class));
-        provider.set(null);
-
-        Assert.assertEquals(null, provider.get());
-    }
-
 }
