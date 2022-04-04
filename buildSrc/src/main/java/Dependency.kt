@@ -1,8 +1,8 @@
 object Versions {
-    const val kotlin_version = "1.6.10"
+    const val kotlin_version = "1.6.20"
     const val kotlin_test_version = "3.4.2"
-    const val mockito_version = "4.3.1"
-    const val firebase_messaging_version = "23.0.0"
+    const val mockito_version = "4.4.0"
+    const val firebase_messaging_version = "23.0.2"
     const val support_test_version = "1.4.0"
     const val support_library = "1.4.1"
     const val support_test_extensions= "1.1.3"
@@ -19,7 +19,7 @@ object Versions {
     const val byte_buddy_version = "1.12.8"
     const val google_tink_version = "1.6.1"
     const val huawei_agconnect_core_version = "1.6.4.300"
-    const val huawei_hms_push_version = "6.3.0.302"
+    const val huawei_hms_push_version = "6.3.0.304"
     const val mockkVersion = "1.12.3"
 }
 
