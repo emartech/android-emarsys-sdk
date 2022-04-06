@@ -2,19 +2,19 @@ package com.emarsys.core.activity
 
 import android.app.Activity
 import com.emarsys.core.Mockable
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 
 @Mockable
 class ActivityLifecycleActionRegistry(
-    val coreSdkHandler: CoreSdkHandler,
+    val concurrentHandlerHolder: ConcurrentHandlerHolder,
     val currentActivityProvider: CurrentActivityProvider,
     val lifecycleActions: MutableList<ActivityLifecycleAction> = mutableListOf()
 ) {
     val triggerOnActivityActions: MutableList<ActivityLifecycleAction> = mutableListOf()
 
     fun execute(activity: Activity?, lifecycles: List<ActivityLifecycleAction.ActivityLifecycle>) {
-        coreSdkHandler.post {
+        concurrentHandlerHolder.coreHandler.post {
             (lifecycleActions + triggerOnActivityActions)
                 .filter {
                     lifecycles.contains(it.triggeringLifecycle)
@@ -33,7 +33,7 @@ class ActivityLifecycleActionRegistry(
     }
 
     fun addTriggerOnActivityAction(activityLifecycleAction: ActivityLifecycleAction) {
-        coreSdkHandler.post {
+        concurrentHandlerHolder.coreHandler.post {
             val currentActivity = currentActivityProvider.get()
             triggerOnActivityActions.add(activityLifecycleAction)
             if (currentActivity != null) {

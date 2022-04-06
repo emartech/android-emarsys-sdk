@@ -26,45 +26,57 @@ object MessagingServiceUtils {
     const val MESSAGE_FILTER = "ems_msg"
 
     @JvmStatic
-    fun handleMessage(context: Context,
-                      remoteMessageData: Map<String, String>,
-                      deviceInfo: DeviceInfo,
-                      fileDownloader: FileDownloader,
-                      actionCommandFactory: ActionCommandFactory,
-                      remoteMessageMapper: RemoteMessageMapper): Boolean {
+    fun handleMessage(
+        context: Context,
+        remoteMessageData: Map<String, String>,
+        deviceInfo: DeviceInfo,
+        fileDownloader: FileDownloader,
+        actionCommandFactory: ActionCommandFactory,
+        remoteMessageMapper: RemoteMessageMapper
+    ): Boolean {
 
         var handled = false
         if (isMobileEngageMessage(remoteMessageData)) {
             if (isSilent(remoteMessageData)) {
                 createSilentPushCommands(actionCommandFactory, remoteMessageData).forEach {
-                    mobileEngage().uiHandler.post {
+                    mobileEngage().concurrentHandlerHolder.postOnMain {
                         it?.run()
                     }
                 }
             } else {
                 val notificationId = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
                 val notification = createNotification(
-                        notificationId,
-                        context.applicationContext,
-                        remoteMessageData,
-                        deviceInfo,
-                        remoteMessageMapper,
-                        fileDownloader)
+                    notificationId,
+                    context.applicationContext,
+                    remoteMessageData,
+                    deviceInfo,
+                    remoteMessageMapper,
+                    fileDownloader
+                )
                 (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                        .notify(notificationId, notification)
+                    .notify(notificationId, notification)
             }
             handled = true
         }
         return handled
     }
 
-    fun createSilentPushCommands(actionCommandFactory: ActionCommandFactory, remoteMessageData: Map<String, String?>): List<Runnable?> {
+    fun createSilentPushCommands(
+        actionCommandFactory: ActionCommandFactory,
+        remoteMessageData: Map<String, String?>
+    ): List<Runnable?> {
         val actionsJsonArray = JSONObject(remoteMessageData["ems"]).optJSONArray("actions")
         val actions: MutableList<Runnable?> = mutableListOf()
         val campaignId = JSONObject(remoteMessageData["ems"]).optString("multichannelId")
         if (campaignId.isNotEmpty()) {
-            val silentNotificationInformationListenerProvider = mobileEngage().silentNotificationInformationListenerProvider
-            actions.add(SilentNotificationInformationCommand(silentNotificationInformationListenerProvider, NotificationInformation(campaignId)))
+            val silentNotificationInformationListenerProvider =
+                mobileEngage().silentNotificationInformationListenerProvider
+            actions.add(
+                SilentNotificationInformationCommand(
+                    silentNotificationInformationListenerProvider,
+                    NotificationInformation(campaignId)
+                )
+            )
         }
         if (actionsJsonArray != null) {
             for (i in 0 until actionsJsonArray.length()) {
@@ -89,23 +101,33 @@ object MessagingServiceUtils {
     }
 
     fun createNotification(
-            notificationId: Int,
-            context: Context,
-            remoteMessageData: Map<String, String>,
-            deviceInfo: DeviceInfo,
-            remoteMessageMapper: RemoteMessageMapper,
-            fileDownloader: FileDownloader): Notification {
+        notificationId: Int,
+        context: Context,
+        remoteMessageData: Map<String, String>,
+        deviceInfo: DeviceInfo,
+        remoteMessageMapper: RemoteMessageMapper,
+        fileDownloader: FileDownloader
+    ): Notification {
         var notificationData = remoteMessageMapper.map(remoteMessageData)
 
         notificationData = handleChannelIdMismatch(deviceInfo, notificationData, context)
 
         return createNotificationBuilder(notificationData, context)
-                .setupBuilder(context, remoteMessageData, notificationId, fileDownloader, notificationData)
-                .styleNotification(notificationData)
-                .build()
+            .setupBuilder(
+                context,
+                remoteMessageData,
+                notificationId,
+                fileDownloader,
+                notificationData
+            )
+            .styleNotification(notificationData)
+            .build()
     }
 
-    private fun createNotificationBuilder(notificationData: NotificationData, context: Context): NotificationCompat.Builder {
+    private fun createNotificationBuilder(
+        notificationData: NotificationData,
+        context: Context
+    ): NotificationCompat.Builder {
         return if (notificationData.channelId == null) {
             NotificationCompat.Builder(context)
         } else {
@@ -113,34 +135,51 @@ object MessagingServiceUtils {
         }
     }
 
-    private fun handleChannelIdMismatch(deviceInfo: DeviceInfo, notificationData: NotificationData, context: Context): NotificationData {
-        return if (AndroidVersionUtils.isOreoOrAbove() && deviceInfo.isDebugMode && !isValidChannel(deviceInfo.notificationSettings, notificationData.channelId)) {
+    private fun handleChannelIdMismatch(
+        deviceInfo: DeviceInfo,
+        notificationData: NotificationData,
+        context: Context
+    ): NotificationData {
+        return if (AndroidVersionUtils.isOreoOrAbove() && deviceInfo.isDebugMode && !isValidChannel(
+                deviceInfo.notificationSettings,
+                notificationData.channelId
+            )
+        ) {
             notificationData.copy(
-                    body = "DEBUG - channel_id mismatch: ${notificationData.channelId} not found!",
-                    channelId = createDebugChannel(context),
-                    title = "Emarsys SDK")
+                body = "DEBUG - channel_id mismatch: ${notificationData.channelId} not found!",
+                channelId = createDebugChannel(context),
+                title = "Emarsys SDK"
+            )
         } else {
             notificationData
         }
     }
 
     private fun NotificationCompat.Builder.setupBuilder(
-            context: Context,
-            remoteMessageData: Map<String, String>,
-            notificationId: Int,
-            fileDownloader: FileDownloader,
-            notificationData: NotificationData
+        context: Context,
+        remoteMessageData: Map<String, String>,
+        notificationId: Int,
+        fileDownloader: FileDownloader,
+        notificationData: NotificationData
     ): NotificationCompat.Builder {
-        val actions = NotificationActionUtils.createActions(context, remoteMessageData, notificationId)
-        val preloadedRemoteMessageData = createPreloadedRemoteMessageData(remoteMessageData, getInAppDescriptor(fileDownloader, remoteMessageData))
-        val resultPendingIntent = IntentUtils.createNotificationHandlerServicePendingIntent(context, preloadedRemoteMessageData, notificationId)
+        val actions =
+            NotificationActionUtils.createActions(context, remoteMessageData, notificationId)
+        val preloadedRemoteMessageData = createPreloadedRemoteMessageData(
+            remoteMessageData,
+            getInAppDescriptor(fileDownloader, remoteMessageData)
+        )
+        val resultPendingIntent = IntentUtils.createNotificationHandlerServicePendingIntent(
+            context,
+            preloadedRemoteMessageData,
+            notificationId
+        )
 
         this
-                .setContentTitle(notificationData.title)
-                .setContentText(notificationData.body)
-                .setSmallIcon(notificationData.smallIconResourceId)
-                .setAutoCancel(false)
-                .setContentIntent(resultPendingIntent)
+            .setContentTitle(notificationData.title)
+            .setContentText(notificationData.body)
+            .setSmallIcon(notificationData.smallIconResourceId)
+            .setAutoCancel(false)
+            .setContentIntent(resultPendingIntent)
         for (i in actions.indices) {
             this.addAction(actions[i])
         }
@@ -160,7 +199,10 @@ object MessagingServiceUtils {
         }
     }
 
-    fun getInAppDescriptor(fileDownloader: FileDownloader, remoteMessageData: Map<String, String?>?): String? {
+    fun getInAppDescriptor(
+        fileDownloader: FileDownloader,
+        remoteMessageData: Map<String, String?>?
+    ): String? {
         var result: String? = null
         try {
             if (remoteMessageData != null) {
@@ -168,10 +210,10 @@ object MessagingServiceUtils {
                 if (emsPayload != null) {
                     val inAppPayload = JSONObject(emsPayload).getJSONObject("inapp")
                     val errors = JsonObjectValidator
-                            .from(inAppPayload)
-                            .hasFieldWithType("campaign_id", String::class.java)
-                            .hasFieldWithType("url", String::class.java)
-                            .validate()
+                        .from(inAppPayload)
+                        .hasFieldWithType("campaign_id", String::class.java)
+                        .hasFieldWithType("url", String::class.java)
+                        .validate()
                     if (errors.isEmpty()) {
                         val inAppUrl: String = inAppPayload.getString("url")
                         val inAppDescriptor = JSONObject()
@@ -187,7 +229,10 @@ object MessagingServiceUtils {
         return result
     }
 
-    fun createPreloadedRemoteMessageData(remoteMessageData: Map<String, String?>, inAppDescriptor: String?): Map<String, String?> {
+    fun createPreloadedRemoteMessageData(
+        remoteMessageData: Map<String, String?>,
+        inAppDescriptor: String?
+    ): Map<String, String?> {
         val preloadedRemoteMessageData = mutableMapOf<String, String?>()
         val keys = remoteMessageData.keys
         for (key in keys) {
@@ -204,14 +249,22 @@ object MessagingServiceUtils {
         return preloadedRemoteMessageData
     }
 
-    private fun isValidChannel(notificationSettings: NotificationSettings, channelId: String?): Boolean {
+    private fun isValidChannel(
+        notificationSettings: NotificationSettings,
+        channelId: String?
+    ): Boolean {
         return notificationSettings.channelSettings.any { it.channelId == channelId }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private fun createDebugChannel(context: Context): String {
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notificationChannel = NotificationChannel("ems_debug", "Emarsys SDK Debug Messages", NotificationManager.IMPORTANCE_HIGH)
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationChannel = NotificationChannel(
+            "ems_debug",
+            "Emarsys SDK Debug Messages",
+            NotificationManager.IMPORTANCE_HIGH
+        )
         notificationManager.createNotificationChannel(notificationChannel)
         return notificationChannel.id
     }

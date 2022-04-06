@@ -1,8 +1,7 @@
 package com.emarsys.mobileengage.iam.dialog
 
-import android.os.Handler
-import android.os.Looper
 import androidx.test.rule.ActivityTestRule
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.testUtil.fake.FakeActivity
 import org.junit.Before
 import org.junit.Rule
@@ -21,7 +20,7 @@ class IamDialogProviderTest {
 
     @Before
     fun setUp() {
-        iamDialogProvider = IamDialogProvider(Handler(Looper.getMainLooper()), mock())
+        iamDialogProvider = IamDialogProvider(ConcurrentHandlerHolderFactory.create(), mock())
     }
 
     @Test
@@ -29,7 +28,8 @@ class IamDialogProviderTest {
         val latch = CountDownLatch(1)
         thread(start = true) {
             iamDialogProvider.provideDialog(
-                    "campaignId", "id", "https://www.example.com", "reqId")
+                "campaignId", "id", "https://www.example.com", "reqId"
+            )
             latch.countDown()
         }
         latch.await()

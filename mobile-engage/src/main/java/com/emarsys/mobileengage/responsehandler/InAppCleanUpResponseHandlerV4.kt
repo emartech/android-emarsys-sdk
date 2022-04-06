@@ -13,9 +13,10 @@ import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
 import com.emarsys.mobileengage.util.RequestModelHelper
 
 class InAppCleanUpResponseHandlerV4(
-        private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
-        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
-        private val requestModelHelper: RequestModelHelper) : AbstractResponseHandler() {
+    private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
+    private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
+    private val requestModelHelper: RequestModelHelper
+) : AbstractResponseHandler() {
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
         val requestModel = responseModel.requestModel
@@ -29,13 +30,15 @@ class InAppCleanUpResponseHandlerV4(
     override fun handleResponse(responseModel: ResponseModel) {
         val payload = responseModel.requestModel.payload
         if (payload != null && payload.containsKey("clicks")) {
-            val campaignIdsToRemove: Array<String> = collectCampaignIds(payload["clicks"] as List<Map<String, Any?>>)
+            val campaignIdsToRemove: Array<String> =
+                collectCampaignIds(payload["clicks"] as List<Map<String, Any?>>)
             if (campaignIdsToRemove.isNotEmpty()) {
                 buttonClickedRepository.remove(FilterByCampaignId(*campaignIdsToRemove))
             }
         }
         if (payload != null && payload.containsKey("viewedMessages")) {
-            val campaignIdsToRemove: Array<String> = collectCampaignIds(payload["viewedMessages"] as List<Map<String, Any?>>)
+            val campaignIdsToRemove: Array<String> =
+                collectCampaignIds(payload["viewedMessages"] as List<Map<String, Any?>>)
             if (campaignIdsToRemove.isNotEmpty()) {
                 displayedIamRepository.remove(FilterByCampaignId(*campaignIdsToRemove))
             }

@@ -1,13 +1,11 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
 import android.app.Activity
-import android.os.Handler
-import android.os.Looper
 import androidx.test.rule.ActivityTestRule
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
@@ -17,6 +15,7 @@ import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
+import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
@@ -37,8 +36,7 @@ class JSCommandFactoryTest {
 
     private lateinit var jsCommandFactory: JSCommandFactory
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
-    private lateinit var uiHandler: Handler
-    private lateinit var coreSdkHandler: CoreSdkHandler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockInAppInternal: InAppInternal
     private lateinit var mockButtonClickedRepository: Repository<ButtonClicked, SqlSpecification>
     private lateinit var mockOnCloseListener: OnCloseListener
@@ -56,8 +54,7 @@ class JSCommandFactoryTest {
         mockCurrentActivityProvider = mock() {
             on { get() } doReturn mockActivity
         }
-        uiHandler = Handler(Looper.getMainLooper())
-        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockInAppInternal = mock()
         mockButtonClickedRepository = mock()
         mockOnCloseListener = mock()
@@ -65,7 +62,15 @@ class JSCommandFactoryTest {
         mockTimestampProvider = mock {
             on { provideTimestamp() } doReturn TIMESTAMP
         }
-        jsCommandFactory = JSCommandFactory(mockCurrentActivityProvider, uiHandler, coreSdkHandler, mockInAppInternal, mockButtonClickedRepository, mockOnCloseListener, mockOnAppEventListener, mockTimestampProvider)
+        jsCommandFactory = JSCommandFactory(
+            mockCurrentActivityProvider,
+            concurrentHandlerHolder,
+            mockInAppInternal,
+            mockButtonClickedRepository,
+            mockOnCloseListener,
+            mockOnAppEventListener,
+            mockTimestampProvider
+        )
     }
 
     @Test
@@ -85,7 +90,8 @@ class JSCommandFactoryTest {
         val expectedJson = JSONObject(mapOf("testKey" to "testValue"))
         whenever(mockOnAppEventListener.invoke(anyOrNull(), any())).doAnswer(threadSpy)
 
-        jsCommandFactory.create(JSCommandFactory.CommandType.ON_APP_EVENT).invoke("test", expectedJson)
+        jsCommandFactory.create(JSCommandFactory.CommandType.ON_APP_EVENT)
+            .invoke("test", expectedJson)
 
         threadSpy.verifyCalledOnMainThread()
         verify(mockOnAppEventListener).invoke("test", expectedJson)
@@ -96,20 +102,30 @@ class JSCommandFactoryTest {
         val inAppMessage = InAppMessage(CAMPAIGN_ID, SID, URL)
         val latch1 = CountDownLatch(1)
         val latch2 = CountDownLatch(1)
-        coreSdkHandler.post { latch1.await() }
-        jsCommandFactory.create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED, inAppMessage).invoke(PROPERTY, JSONObject(mapOf("key" to "value")))
+        concurrentHandlerHolder.coreHandler.post { latch1.await() }
+        jsCommandFactory.create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED, inAppMessage)
+            .invoke(PROPERTY, JSONObject(mapOf("key" to "value")))
         verifyNoInteractions(mockButtonClickedRepository)
         verifyNoInteractions(mockInAppInternal)
         latch1.countDown()
-        coreSdkHandler.post { latch2.countDown() }
+        concurrentHandlerHolder.coreHandler.post { latch2.countDown() }
         latch2.await()
-        verify(mockButtonClickedRepository).add(ButtonClicked(inAppMessage.campaignId, PROPERTY, TIMESTAMP))
+        runBlocking {
+            verify(mockButtonClickedRepository).add(
+                ButtonClicked(
+                    inAppMessage.campaignId,
+                    PROPERTY,
+                    TIMESTAMP
+                )
+            )
+        }
         val expectedEventName = "inapp:click"
         val attributes = mapOf(
-                "campaignId" to CAMPAIGN_ID,
-                "buttonId" to PROPERTY,
-                "sid" to SID,
-                "url" to URL)
+            "campaignId" to CAMPAIGN_ID,
+            "buttonId" to PROPERTY,
+            "sid" to SID,
+            "url" to URL
+        )
 
         verify(mockInAppInternal).trackInternalCustomEvent(expectedEventName, attributes, null)
     }
@@ -118,15 +134,25 @@ class JSCommandFactoryTest {
     fun testCreate_shouldTriggerInAPpInternalWithAttributes_whenSIDANDURL_areNulls() {
         val inAppMessage = InAppMessage(CAMPAIGN_ID, null, null)
         val latch = CountDownLatch(1)
-        jsCommandFactory.create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED, inAppMessage).invoke(PROPERTY, JSONObject())
+        jsCommandFactory.create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED, inAppMessage)
+            .invoke(PROPERTY, JSONObject())
 
-        coreSdkHandler.post { latch.countDown() }
+        concurrentHandlerHolder.coreHandler.post { latch.countDown() }
         latch.await()
-        verify(mockButtonClickedRepository).add(ButtonClicked(inAppMessage.campaignId, PROPERTY, TIMESTAMP))
+        runBlocking {
+            verify(mockButtonClickedRepository).add(
+                ButtonClicked(
+                    inAppMessage.campaignId,
+                    PROPERTY,
+                    TIMESTAMP
+                )
+            )
+        }
         val expectedEventName = "inapp:click"
         val attributes = mapOf(
-                "campaignId" to CAMPAIGN_ID,
-                "buttonId" to PROPERTY)
+            "campaignId" to CAMPAIGN_ID,
+            "buttonId" to PROPERTY
+        )
 
         verify(mockInAppInternal).trackInternalCustomEvent(expectedEventName, attributes, null)
     }
@@ -139,7 +165,7 @@ class JSCommandFactoryTest {
         whenever(mockActivity.startActivity(any())).doAnswer(threadSpy)
 
         jsCommandFactory.create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
-                .invoke(property, JSONObject())
+            .invoke(property, JSONObject())
 
         verify(mockCurrentActivityProvider).get()
 
@@ -155,7 +181,8 @@ class JSCommandFactoryTest {
             throw Exception()
         }
 
-        val openExternalUrlListener = jsCommandFactory.create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
+        val openExternalUrlListener =
+            jsCommandFactory.create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
 
         val exception = shouldThrow<Exception> {
             openExternalUrlListener.invoke(property, JSONObject())
@@ -168,7 +195,8 @@ class JSCommandFactoryTest {
         val property = TEST_URL
         whenever(mockCurrentActivityProvider.get()) doReturn null
 
-        val openExternalUrlListener = jsCommandFactory.create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
+        val openExternalUrlListener =
+            jsCommandFactory.create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
 
         val exception = shouldThrow<Exception> {
             openExternalUrlListener.invoke(property, JSONObject())
@@ -181,16 +209,23 @@ class JSCommandFactoryTest {
         val latch1 = CountDownLatch(1)
         val latch2 = CountDownLatch(1)
 
-        coreSdkHandler.post { latch1.await() }
+        concurrentHandlerHolder.coreHandler.post { latch1.await() }
         val meEventListener = jsCommandFactory.create(JSCommandFactory.CommandType.ON_ME_EVENT)
         val property = "testProperty"
-        meEventListener.invoke(property, JSONObject(mapOf("key" to "value", "payload" to mapOf("payloadKey" to "payloadValue"))))
+        meEventListener.invoke(
+            property,
+            JSONObject(mapOf("key" to "value", "payload" to mapOf("payloadKey" to "payloadValue")))
+        )
 
         verifyNoInteractions(mockInAppInternal)
         latch1.countDown()
-        coreSdkHandler.post { latch2.countDown() }
+        concurrentHandlerHolder.coreHandler.post { latch2.countDown() }
         latch2.await()
 
-        verify(mockInAppInternal).trackCustomEventAsync(property, mapOf("payloadKey" to "payloadValue"), null)
+        verify(mockInAppInternal).trackCustomEventAsync(
+            property,
+            mapOf("payloadKey" to "payloadValue"),
+            null
+        )
     }
 }

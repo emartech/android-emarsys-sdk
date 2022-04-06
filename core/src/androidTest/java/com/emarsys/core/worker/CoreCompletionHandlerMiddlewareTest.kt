@@ -4,19 +4,21 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import com.emarsys.core.CoreCompletionHandler
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
+import com.emarsys.core.handler.SdkHandler
 import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.specification.FilterByRequestIds
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.mockito.ThreadSpy
 import io.kotlintest.matchers.numerics.shouldBeLessThanOrEqual
 import io.kotlintest.shouldBe
-import org.junit.Assert
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -28,12 +30,12 @@ import java.util.concurrent.CountDownLatch
 class CoreCompletionHandlerMiddlewareTest {
     private lateinit var coreCompletionHandler: CoreCompletionHandler
     private lateinit var requestRepository: Repository<RequestModel, SqlSpecification>
-    private lateinit var worker: Worker
+    private lateinit var mockWorker: Worker
     private lateinit var expectedId: String
     private lateinit var middleware: CoreCompletionHandlerMiddleware
     private lateinit var captor: ArgumentCaptor<Message>
     private lateinit var uiHandler: Handler
-    private lateinit var coreSdkHandler: CoreSdkHandler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -42,43 +44,19 @@ class CoreCompletionHandlerMiddlewareTest {
     @Before
     fun setup() {
         expectedId = "expectedId"
-        worker = mock()
+        mockWorker = mock()
         coreCompletionHandler = mock()
         requestRepository = mock()
         uiHandler = Handler(Looper.getMainLooper())
-        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
-        middleware = CoreCompletionHandlerMiddleware(worker, requestRepository, uiHandler, coreSdkHandler, coreCompletionHandler)
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
+
+        middleware = CoreCompletionHandlerMiddleware(
+            mockWorker,
+            requestRepository,
+            concurrentHandlerHolder,
+            coreCompletionHandler
+        )
         captor = ArgumentCaptor.forClass(Message::class.java)
-    }
-
-    @Test
-    fun testConstructor_handlerShouldNotBeNull() {
-        Assert.assertNotNull(middleware.coreSDKHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_workerShouldNotBeNull() {
-        CoreCompletionHandlerMiddleware(null, requestRepository, uiHandler, coreSdkHandler, coreCompletionHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_queueShouldNotBeNull() {
-        CoreCompletionHandlerMiddleware(worker, null, uiHandler, coreSdkHandler, coreCompletionHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_coreCompletionHandlerShouldNotBeNull() {
-        CoreCompletionHandlerMiddleware(worker, requestRepository, uiHandler, coreSdkHandler, null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_uiHandlerShouldNotBeNull() {
-        CoreCompletionHandlerMiddleware(worker, requestRepository, null, coreSdkHandler, coreCompletionHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_coreHandlerShouldNotBeNull() {
-        CoreCompletionHandlerMiddleware(worker, requestRepository, uiHandler, null, coreCompletionHandler)
     }
 
     @Test
@@ -88,18 +66,19 @@ class CoreCompletionHandlerMiddlewareTest {
 
         middleware.onSuccess(expectedId, expectedModel)
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
+        runBlocking {
+            verify(mockWorker).unlock()
+            verify(mockWorker).run()
+            verifyNoMoreInteractions(mockWorker)
+            verify(requestRepository).remove(capture<FilterByRequestIds>(captor))
+            val filter = captor.value
 
-        verify(worker).unlock()
-        verify(worker).run()
-        verifyNoMoreInteractions(worker)
-        verify(requestRepository).remove(capture<FilterByRequestIds>(captor))
-        val filter = captor.value
+            filter.selectionArgs[0] shouldBe expectedModel.requestModel.id
 
-        filter.selectionArgs[0] shouldBe expectedModel.requestModel.id
-
-        verify(coreCompletionHandler).onSuccess(expectedId, expectedModel)
+            verify(coreCompletionHandler).onSuccess(expectedId, expectedModel)
+        }
     }
 
     @Test
@@ -110,28 +89,25 @@ class CoreCompletionHandlerMiddlewareTest {
 
         middleware.onSuccess("0", responseModel)
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
         argumentCaptor<FilterByRequestIds>().apply {
-            verify(requestRepository, times(41)).remove(capture())
+            runBlocking {
+                verify(requestRepository, times(41)).remove(capture())
+            }
         }
 
     }
 
     @Test
     fun testOnSuccess_callsHandlerPost() {
-        val handler: CoreSdkHandler = mock()
-
-        middleware.coreSDKHandler = handler
+        middleware.concurrentHandlerHolder = concurrentHandlerHolder
+        val threadSpy = ThreadSpy<Unit>()
+        whenever(mockWorker.unlock()).thenAnswer(threadSpy)
         middleware.onSuccess(expectedId, createResponseModel(200))
-        argumentCaptor<Runnable> {
-            verify(handler).post(capture())
-            val runnable = this.firstValue
-            runnable.run()
-        }
-
-        verify(worker).run()
+        threadSpy.verifyCalledOnCoreSdkThread()
+        verify(mockWorker, timeout(50)).run()
     }
 
     @Test
@@ -141,11 +117,14 @@ class CoreCompletionHandlerMiddlewareTest {
 
         middleware.onSuccess("0", responseModel)
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
         argumentCaptor<String>().apply {
-            verify(middleware.coreCompletionHandler, times(2040)).onSuccess(capture(), eq(responseModel))
+            verify(middleware.coreCompletionHandler, times(2040))!!.onSuccess(
+                capture(),
+                eq(responseModel)
+            )
             allValues shouldBe ids.toList()
         }
     }
@@ -156,35 +135,31 @@ class CoreCompletionHandlerMiddlewareTest {
 
         middleware.onError(expectedId, expectedModel)
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
         argumentCaptor<FilterByRequestIds>().apply {
-            verify(requestRepository).remove(capture())
-            firstValue.selectionArgs shouldBe arrayOf(expectedModel.requestModel.id)
+            runBlocking {
+                verify(requestRepository).remove(capture())
+                firstValue.selectionArgs shouldBe arrayOf(expectedModel.requestModel.id)
+            }
         }
 
         verify(coreCompletionHandler).onError(expectedId, expectedModel)
-        verify(worker).unlock()
-        verify(worker).run()
-        verifyNoMoreInteractions(worker)
+        verify(mockWorker).unlock()
+        verify(mockWorker).run()
+        verifyNoMoreInteractions(mockWorker)
     }
 
     @Test
     fun testOnError_4xx_callsHandlerPost() {
-        val handler: CoreSdkHandler = mock()
-
-        middleware.coreSDKHandler = handler
-
+        middleware.concurrentHandlerHolder = concurrentHandlerHolder
+        val threadSpy = ThreadSpy<Unit>()
+        whenever(mockWorker.unlock()).thenAnswer(threadSpy)
         middleware.onError(expectedId, createResponseModel(401))
 
-        argumentCaptor<Runnable> {
-            verify(handler).post(capture())
-            val runnable = this.firstValue
-            runnable.run()
-        }
-
-        verify(worker).run()
+        threadSpy.verifyCalledOnCoreSdkThread()
+        verify(mockWorker, timeout(50)).run()
     }
 
     @Test
@@ -193,11 +168,11 @@ class CoreCompletionHandlerMiddlewareTest {
 
         middleware.onError(expectedId, expectedModel)
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
-        verify(worker).unlock()
-        verifyNoMoreInteractions(worker)
+        verify(mockWorker).unlock()
+        verifyNoMoreInteractions(mockWorker)
         verifyNoInteractions(coreCompletionHandler)
         verifyNoInteractions(requestRepository)
     }
@@ -208,11 +183,11 @@ class CoreCompletionHandlerMiddlewareTest {
 
         middleware.onError(expectedId, expectedModel)
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
-        verify(worker).unlock()
-        verifyNoMoreInteractions(worker)
+        verify(mockWorker).unlock()
+        verifyNoMoreInteractions(mockWorker)
         verifyNoInteractions(coreCompletionHandler)
         verifyNoInteractions(requestRepository)
     }
@@ -223,11 +198,11 @@ class CoreCompletionHandlerMiddlewareTest {
 
         middleware.onError(expectedId, expectedModel)
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
-        verify(worker).unlock()
-        verifyNoMoreInteractions(worker)
+        verify(mockWorker).unlock()
+        verifyNoMoreInteractions(mockWorker)
         verifyNoInteractions(coreCompletionHandler)
         verifyNoInteractions(requestRepository)
     }
@@ -236,20 +211,23 @@ class CoreCompletionHandlerMiddlewareTest {
     fun testOnError_4xx_withCompositeModel() {
         val ids = Array(2040) { i -> "id$i" }
         val responseModel = ResponseModel.Builder()
-                .statusCode(400)
-                .message("Bad Request")
-                .headers(HashMap())
-                .body("{'key': 'value'}")
-                .requestModel(createRequestModel(ids))
-                .build()
+            .statusCode(400)
+            .message("Bad Request")
+            .headers(HashMap())
+            .body("{'key': 'value'}")
+            .requestModel(createRequestModel(ids))
+            .build()
 
         middleware.onError("0", responseModel)
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
         argumentCaptor<String>().apply {
-            verify(middleware.coreCompletionHandler, times(2040)).onError(capture(), eq(responseModel))
+            verify(middleware.coreCompletionHandler, times(2040))!!.onError(
+                capture(),
+                eq(responseModel)
+            )
             allValues shouldBe ids.toList()
         }
     }
@@ -259,20 +237,22 @@ class CoreCompletionHandlerMiddlewareTest {
         val ids = Array(2000) { i -> "id$i" }
 
         val responseModel = ResponseModel.Builder()
-                .statusCode(400)
-                .message("Bad Request")
-                .headers(HashMap())
-                .body("{'key': 'value'}")
-                .requestModel(createRequestModel(ids))
-                .build()
+            .statusCode(400)
+            .message("Bad Request")
+            .headers(HashMap())
+            .body("{'key': 'value'}")
+            .requestModel(createRequestModel(ids))
+            .build()
         middleware.onError("0", responseModel)
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
         argumentCaptor<FilterByRequestIds>().apply {
-            verify(requestRepository, times(40)).remove(capture())
-            allValues.size shouldBeLessThanOrEqual 500
+            runBlocking {
+                verify(requestRepository, times(40)).remove(capture())
+                allValues.size shouldBeLessThanOrEqual 500
+            }
         }
     }
 
@@ -282,21 +262,23 @@ class CoreCompletionHandlerMiddlewareTest {
         val ids = Array(2040) { i -> "id$i" }
 
         val responseModel = ResponseModel.Builder()
-                .statusCode(400)
-                .message("Bad Request")
-                .headers(HashMap())
-                .body("{'key': 'value'}")
-                .requestModel(createRequestModel(ids))
-                .build()
+            .statusCode(400)
+            .message("Bad Request")
+            .headers(HashMap())
+            .body("{'key': 'value'}")
+            .requestModel(createRequestModel(ids))
+            .build()
 
         middleware.onError("0", responseModel)
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
         argumentCaptor<FilterByRequestIds>().apply {
-            verify(requestRepository, times(41)).remove(capture())
-            allValues.size shouldBeLessThanOrEqual 500
+            runBlocking {
+                verify(requestRepository, times(41)).remove(capture())
+                allValues.size shouldBeLessThanOrEqual 500
+            }
         }
     }
 
@@ -306,11 +288,11 @@ class CoreCompletionHandlerMiddlewareTest {
 
         middleware.onError(expectedId, expectedException)
 
-        waitForEventLoopToFinish(coreSdkHandler)
+        waitForEventLoopToFinish(concurrentHandlerHolder.coreHandler)
         waitForEventLoopToFinish(uiHandler)
 
-        verify(worker).unlock()
-        verifyNoMoreInteractions(worker)
+        verify(mockWorker).unlock()
+        verifyNoMoreInteractions(mockWorker)
         verify(coreCompletionHandler).onError(expectedId, expectedException)
         verifyNoMoreInteractions(coreCompletionHandler)
         verifyNoInteractions(requestRepository)
@@ -318,38 +300,39 @@ class CoreCompletionHandlerMiddlewareTest {
 
     private fun createRequestModel(ids: Array<String>): RequestModel {
         return CompositeRequestModel(
-                "0",
-                "https://emarsys.com",
-                RequestMethod.POST,
-                null,
-                HashMap(),
-                100,
-                900000,
-                ids)
+            "0",
+            "https://emarsys.com",
+            RequestMethod.POST,
+            null,
+            HashMap(),
+            100,
+            900000,
+            ids
+        )
     }
 
     private fun createResponseModel(requestModel: RequestModel): ResponseModel {
         return ResponseModel.Builder()
-                .statusCode(200)
-                .message("OK")
-                .headers(HashMap())
-                .body("{'key': 'value'}")
-                .requestModel(requestModel)
-                .build()
+            .statusCode(200)
+            .message("OK")
+            .headers(HashMap())
+            .body("{'key': 'value'}")
+            .requestModel(requestModel)
+            .build()
     }
 
     private fun createResponseModel(statusCode: Int): ResponseModel {
         val requestModel = mock<RequestModel>()
         whenever(requestModel.id).thenReturn(expectedId)
         return ResponseModel.Builder()
-                .statusCode(statusCode)
-                .body("body")
-                .message("message")
-                .requestModel(requestModel)
-                .build()
+            .statusCode(statusCode)
+            .body("body")
+            .message("message")
+            .requestModel(requestModel)
+            .build()
     }
 
-    private fun waitForEventLoopToFinish(handler: CoreSdkHandler) {
+    private fun waitForEventLoopToFinish(handler: SdkHandler) {
         val latch = CountDownLatch(1)
         handler.post { latch.countDown() }
         latch.await()

@@ -1,7 +1,5 @@
 package com.emarsys.mobileengage
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.timestamp.TimestampProvider
@@ -20,7 +18,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.kotlin.*
-import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -69,8 +66,6 @@ class DefaultMobileEngageInternalTest {
     private lateinit var mockPushTokenStorage: StringStorage
     private lateinit var mockSession: MobileEngageSession
     private lateinit var mockSessionIdHolder: SessionIdHolder
-
-    private lateinit var uiHandler: Handler
 
     @Rule
     @JvmField
@@ -143,8 +138,6 @@ class DefaultMobileEngageInternalTest {
             on { createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES) }.thenReturn(mockRequestModel)
             on { createRemovePushTokenRequest() }.thenReturn(mockRequestModel)
         }
-
-        uiHandler = Handler(Looper.getMainLooper())
 
         mockCompletionListener = mock()
 

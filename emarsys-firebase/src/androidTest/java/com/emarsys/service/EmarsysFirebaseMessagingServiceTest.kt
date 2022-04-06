@@ -1,14 +1,17 @@
 package com.emarsys.service
 
 import android.app.Application
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
+import com.emarsys.core.handler.SdkHandler
 import com.emarsys.fake.FakeFirebaseDependencyContainer
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
 import org.junit.After
 import org.junit.Before
@@ -16,8 +19,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.kotlin.*
-import org.mockito.stubbing.Answer
-import java.util.concurrent.CountDownLatch
 
 
 class EmarsysFirebaseMessagingServiceTest {
@@ -31,19 +32,20 @@ class EmarsysFirebaseMessagingServiceTest {
 
     private lateinit var mockPushInternal: PushInternal
     private lateinit var fakeDependencyContainer: FakeFirebaseDependencyContainer
-    private lateinit var mockCoreSdkHandler: CoreSdkHandler
-    val latch = CountDownLatch(1)
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
+    private lateinit var spyCoreHandler: SdkHandler
 
     @Before
     fun setUp() {
         mockPushInternal = mock()
 
-        mockCoreSdkHandler = mock {
-            on { post(any()) } doAnswer Answer<Any?> { invocation ->
-                invocation.getArgument<Runnable>(0).run()
-                null
-            }
-        }
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
+        spyCoreHandler = spy(concurrentHandlerHolder.coreHandler)
+        ReflectionTestUtils.setInstanceField(
+            concurrentHandlerHolder,
+            "coreHandler",
+            spyCoreHandler
+        )
     }
 
     @After
@@ -67,7 +69,7 @@ class EmarsysFirebaseMessagingServiceTest {
 
         EmarsysFirebaseMessagingService().onNewToken("testToken")
 
-        verify(mockCoreSdkHandler, timeout(1000).times(1)).post(any())
+        verify(spyCoreHandler, timeout(1000).times(1)).post(any())
     }
 
     @Test
@@ -81,23 +83,23 @@ class EmarsysFirebaseMessagingServiceTest {
 
     private fun setupEmarsys(isAutomaticPushSending: Boolean) {
         val deviceInfo = DeviceInfo(
-                application,
-                mock {
-                    on { provideHardwareId() } doReturn "hardwareId"
-                },
-                mock {
-                    on { provideSdkVersion() } doReturn "version"
-                },
-                mock {
-                    on { provideLanguage(any()) } doReturn "language"
-                },
-                mock(),
-                isAutomaticPushSending,
-                true
+            application,
+            mock {
+                on { provideHardwareId() } doReturn "hardwareId"
+            },
+            mock {
+                on { provideSdkVersion() } doReturn "version"
+            },
+            mock {
+                on { provideLanguage(any()) } doReturn "language"
+            },
+            mock(),
+            isAutomaticPushSending,
+            true
         )
 
         fakeDependencyContainer = FakeFirebaseDependencyContainer(
-            coreSdkHandler = mockCoreSdkHandler,
+            concurrentHandlerHolder = concurrentHandlerHolder,
             deviceInfo = deviceInfo,
             pushInternal = mockPushInternal
         )

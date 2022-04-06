@@ -6,12 +6,12 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.SystemClock
 import com.emarsys.config.EmarsysConfig
+import com.emarsys.core.util.RetryUtil
 import com.emarsys.di.emarsys
 import com.emarsys.mobileengage.api.geofence.Trigger
 import com.emarsys.mobileengage.api.geofence.TriggerType
 import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.testUtil.*
-import com.emarsys.testUtil.E2ETestUtils.retry
 import com.emarsys.testUtil.rules.ConnectionRule
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
@@ -75,7 +75,7 @@ class EmarsysE2ETests {
         val timestamp = System.currentTimeMillis()
 
         trackCustomEvent(title, timestamp)
-        retry(10, 2000) {
+        RetryUtil.retry(10, 2000) {
             val message = fetchMessage(title, timestamp)
             message shouldNotBe null
         }
@@ -93,7 +93,7 @@ class EmarsysE2ETests {
         val timestamp = System.currentTimeMillis()
         trackCustomEvent(title, timestamp)
 
-        retry(10, 2000) {
+        RetryUtil.retry(10, 2000) {
             val message = fetchMessage(title, timestamp)
             message shouldNotBe null
         }
@@ -132,7 +132,7 @@ class EmarsysE2ETests {
         val timestamp = System.currentTimeMillis()
         trackCustomEvent(title, timestamp)
         var message: Message? = null
-        retry(10, 2000) {
+        RetryUtil.retry(10, 2000) {
             message = fetchMessage(title, timestamp)
             message shouldNotBe null
         }
@@ -145,7 +145,7 @@ class EmarsysE2ETests {
             }
             addMessageTagLatch.await()
 
-            retry(10, 2000) {
+            RetryUtil.retry(10, 2000) {
                 val updatedMessage = fetchMessage(title, timestamp)
                 updatedMessage shouldNotBe null
                 if (updatedMessage != null) {
@@ -157,7 +157,7 @@ class EmarsysE2ETests {
                 removeMessageTagLatch.countDown()
             }
             removeMessageTagLatch.await()
-            retry(10, 2000) {
+            RetryUtil.retry(10, 2000) {
                 val updatedMessage = fetchMessage(title, timestamp)
                 updatedMessage shouldNotBe null
                 updatedMessage?.tags?.contains(TEST_TAG) shouldBe false
@@ -169,7 +169,7 @@ class EmarsysE2ETests {
     @Ignore("Test is too flaky to run on pipeline")
     fun testGeofence() {
         setup(APPLICATION_CODE)
-        retry {
+        RetryUtil.retry {
             val fusedLocationProviderClient = emarsys().fusedLocationProviderClient
             fusedLocationProviderClient.setMockMode(true)
             val mockLocation = Location(LocationManager.GPS_PROVIDER).apply {
@@ -188,7 +188,7 @@ class EmarsysE2ETests {
 
 
             val latch = CountDownLatch(1)
-            emarsys().coreSdkHandler.post {
+            emarsys().concurrentHandlerHolder.coreHandler.post {
                 fusedLocationProviderClient.lastLocation.addOnSuccessListener { currentLocation ->
                     val testAction = JSONObject(
                         mapOf<String, Any?>(

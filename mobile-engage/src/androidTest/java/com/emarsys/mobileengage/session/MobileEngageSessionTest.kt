@@ -91,14 +91,4 @@ class MobileEngageSessionTest {
 
         verify(mockSessionIdHolder).sessionId = null
     }
-
-    @Test
-    fun testEndSession_shouldNotBeCalledWithoutStartSession() {
-        whenever(mockSessionIdHolder.sessionId).thenReturn(null)
-        val exception = shouldThrow<IllegalStateException> {
-            session.endSession {}
-        }
-
-        exception.message shouldBe "StartSession has to be called first!"
-    }
 }

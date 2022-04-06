@@ -1,10 +1,6 @@
 package com.emarsys.core.request
 
-import android.os.Handler
-import android.os.Looper
-import com.emarsys.core.Registry
-import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionState
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.Repository
@@ -13,7 +9,7 @@ import com.emarsys.core.database.repository.specification.Everything
 import com.emarsys.core.fake.FakeCompletionHandler
 import com.emarsys.core.fake.FakeConnectionWatchDog
 import com.emarsys.core.fake.FakeRestClient
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
@@ -29,9 +25,11 @@ import com.emarsys.core.worker.Worker
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
+import io.kotlintest.be
 import io.kotlintest.matchers.beEmpty
 import io.kotlintest.should
 import io.kotlintest.shouldBe
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -62,25 +60,27 @@ class RequestManagerOfflineTest {
     private lateinit var shardRepository: Repository<ShardModel, SqlSpecification>
     private lateinit var completionLatch: CountDownLatch
     private lateinit var completionHandler: FakeCompletionHandler
-    private lateinit var manager: RequestManager
     private lateinit var fakeRestClient: RestClient
-    private lateinit var provider: CoreSdkHandlerProvider
-    private lateinit var coreSdkHandler: CoreSdkHandler
-    private lateinit var uiHandler: Handler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var worker: Worker
     private lateinit var coreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
     private lateinit var mockProxyProvider: CompletionHandlerProxyProvider
 
     @Before
     fun setup() {
+        watchDogCountDown = 0
+        completionHandlerCountDown = 0
         DatabaseTestUtils.deleteCoreDatabase()
-
-        uiHandler = Handler(Looper.getMainLooper())
+        requestResults = arrayOf()
+        requestModels = arrayOf()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
     }
 
     @After
     fun tearDown() {
-        coreSdkHandler.looper.quit()
+        concurrentHandlerHolder.coreLooper.quit()
+        concurrentHandlerHolder.networkLooper.quit()
+        concurrentHandlerHolder.backgroundLooper.quit()
         DatabaseTestUtils.deleteCoreDatabase()
     }
 
@@ -97,7 +97,12 @@ class RequestManagerOfflineTest {
         requestRepository.isEmpty() shouldBe false
         completionHandler.latch = CountDownLatch(1)
 
-        uiHandler.post { watchDog.connectionChangeListener.onConnectionChanged(ConnectionState.CONNECTED, true) }
+        concurrentHandlerHolder.postOnMain {
+            watchDog.connectionChangeListener.onConnectionChanged(
+                ConnectionState.CONNECTED,
+                true
+            )
+        }
 
         completionHandler.latch.await()
 
@@ -123,7 +128,8 @@ class RequestManagerOfflineTest {
     fun test_alwaysOnline_withExpiredRequests() {
         connectionStates = arrayOf(true)
         requestResults = arrayOf(200, 200, 200)
-        requestModels = arrayOf(normal(1), expired(1), normal(2), expired(2), expired(3), expired(4), normal(3))
+        requestModels =
+            arrayOf(normal(1), expired(1), normal(2), expired(2), expired(3), expired(4), normal(3))
         watchDogCountDown = 3
         completionHandlerCountDown = 7
 
@@ -206,60 +212,57 @@ class RequestManagerOfflineTest {
     @Test
     fun test_exception_stopsQueue() {
         connectionStates = arrayOf(true)
-        requestResults = arrayOf(200, 300, 200, IOException())
+        requestResults = arrayOf(200, 300, IOException(), 200)
         val lastNormal = normal(4)
         requestModels = arrayOf(normal(1), normal(2), normal(3), lastNormal)
-        watchDogCountDown = 4
+        watchDogCountDown = 3
         completionHandlerCountDown = 3
 
         prepareTestCaseAndWait()
 
-        completionHandler.onSuccessCount shouldBe 3
-        completionHandler.onErrorCount shouldBe 0
+        completionHandler.onSuccessCount shouldBe 2
+        completionHandler.onErrorCount shouldBe 1
         requestRepository.isEmpty() shouldBe false
+        runBlocking {
+            requestRepository.remove(FilterByRequestIds(arrayOf(lastNormal.id)))
+        }
 
-        requestRepository.remove(FilterByRequestIds(arrayOf(lastNormal.id)))
-
-        requestRepository.query(Everything()) should beEmpty()
+        requestRepository.query(Everything()).size should be(1)
     }
 
     @Suppress("UNCHECKED_CAST")
     private fun prepareTestCaseAndWait() {
         watchDogLatch = CountDownLatch(watchDogCountDown)
         watchDog = FakeConnectionWatchDog(watchDogLatch, *connectionStates)
-
         val coreDbHelper = CoreDbHelper(InstrumentationRegistry.getTargetContext(), HashMap())
-        requestRepository = RequestModelRepository(coreDbHelper)
-        shardRepository = ShardModelRepository(coreDbHelper)
+        requestRepository = RequestModelRepository(coreDbHelper, concurrentHandlerHolder)
+        shardRepository = ShardModelRepository(coreDbHelper, concurrentHandlerHolder)
 
         completionLatch = CountDownLatch(completionHandlerCountDown)
         completionHandler = FakeCompletionHandler(completionLatch)
 
         fakeRestClient = FakeRestClient(*requestResults)
 
-        provider = CoreSdkHandlerProvider()
-        coreSdkHandler = provider.provideHandler()
-
         mockProxyProvider = mock()
 
-        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(requestRepository, uiHandler, coreSdkHandler)
-        worker = DefaultWorker(requestRepository, watchDog, uiHandler, completionHandler, fakeRestClient, coreCompletionHandlerMiddlewareProvider)
-
-        manager = RequestManager(
-            coreSdkHandler,
+        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(
             requestRepository,
-            shardRepository,
-            worker,
-            fakeRestClient,
-            mock() as Registry<RequestModel, CompletionListener?>,
+            concurrentHandlerHolder
+        )
+        worker = DefaultWorker(
+            requestRepository,
+            watchDog,
+            concurrentHandlerHolder,
             completionHandler,
-            mockProxyProvider,
-            mock(),
-            mock()
+            fakeRestClient,
+            coreCompletionHandlerMiddlewareProvider
         )
 
-        coreSdkHandler.post {
-            requestModels.forEach(requestRepository::add)
+        runBlocking {
+            requestModels.forEach {
+                requestRepository.add(it)
+            }
+
             worker.run()
         }
 
@@ -270,17 +273,19 @@ class RequestManagerOfflineTest {
     private fun normal(orderId: Int): RequestModel {
         val timestampProvider = TimestampProvider()
         val uuidProvider = UUIDProvider()
-        return RequestModel.Builder(timestampProvider, uuidProvider).url(URL + "normal/" + orderId).method(RequestMethod.GET).ttl(60000).build()
+        return RequestModel.Builder(timestampProvider, uuidProvider).url(URL + "normal/" + orderId)
+            .method(RequestMethod.GET).ttl(60000).build()
     }
 
     private fun expired(orderId: Int): RequestModel {
         return RequestModel(
-                URL + "expired/" + orderId,
-                RequestMethod.GET,
-                HashMap(),
-                HashMap(),
-                System.currentTimeMillis() - 5000,
-                100,
-                UUIDProvider().provideId())
+            URL + "expired/" + orderId,
+            RequestMethod.GET,
+            HashMap(),
+            HashMap(),
+            System.currentTimeMillis() - 5000,
+            100,
+            UUIDProvider().provideId()
+        )
     }
 }

@@ -2,12 +2,14 @@ package com.emarsys.core.shard
 
 import android.content.Context
 import android.database.Cursor
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_DATA
 import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_ID
 import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TIMESTAMP
 import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TTL
 import com.emarsys.core.database.DatabaseContract.SHARD_COLUMN_TYPE
 import com.emarsys.core.database.helper.CoreDbHelper
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.serialization.SerializationUtils.serializableToBlob
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
@@ -42,10 +44,11 @@ class ShardModelRepositoryTest {
     @Before
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
-
         context = InstrumentationRegistry.getTargetContext()
-
-        repository = ShardModelRepository(CoreDbHelper(context, mutableMapOf()))
+        val concurrentHandlerHolder: ConcurrentHandlerHolder =
+            ConcurrentHandlerHolderFactory.create()
+        repository =
+            ShardModelRepository(CoreDbHelper(context, mutableMapOf()), concurrentHandlerHolder)
 
         payload = mutableMapOf<String, Serializable>().apply {
             this["payload1"] = "payload_value1"

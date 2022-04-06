@@ -15,11 +15,11 @@ core-api:
       version: 27
       locale: 'en'
       orientation: portrait
-    - model: tulip
+    - model: phoenix_sprout
       version: 28
       locale: 'en'
       orientation: portrait
-    - model: flame
+    - model: a10
       version: 29
       locale: 'en'
       orientation: portrait

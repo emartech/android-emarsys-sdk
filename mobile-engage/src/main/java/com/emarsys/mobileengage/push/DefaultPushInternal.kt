@@ -1,8 +1,8 @@
 package com.emarsys.mobileengage.push
 
 import android.content.Intent
-import android.os.Handler
 import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.api.event.EventHandler
@@ -12,11 +12,10 @@ import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
 
 class DefaultPushInternal(
     private val requestManager: RequestManager,
-    private val uiHandler: Handler,
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
     private val requestModelFactory: MobileEngageRequestModelFactory,
     private val eventServiceInternal: EventServiceInternal,
     private val pushTokenStorage: Storage<String?>,
@@ -37,7 +36,7 @@ class DefaultPushInternal(
                 completionListener?.onCompleted(it)
             }
         } else {
-            uiHandler.post {
+            concurrentHandlerHolder.postOnMain {
                 completionListener?.onCompleted(null)
             }
         }
@@ -66,7 +65,11 @@ class DefaultPushInternal(
     override fun trackMessageOpen(intent: Intent, completionListener: CompletionListener?) {
         val messageId = getMessageId(intent)
         messageId?.let { handleMessageOpen(completionListener, it) }
-            ?: uiHandler.post { completionListener?.onCompleted(IllegalArgumentException("No messageId found!")) }
+            ?: concurrentHandlerHolder.postOnMain {
+                completionListener?.onCompleted(
+                    IllegalArgumentException("No messageId found!")
+                )
+            }
     }
 
     fun getMessageId(intent: Intent): String? {

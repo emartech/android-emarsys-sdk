@@ -3,16 +3,10 @@ package com.emarsys.core.util
 import android.content.Context
 import android.webkit.URLUtil
 import com.emarsys.core.Mockable
-import kotlinx.coroutines.android.HandlerDispatcher
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
 import java.io.*
-import java.lang.Exception
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
-import kotlinx.coroutines.flow.flow as flow
 
 
 @Mockable
@@ -24,23 +18,15 @@ class FileDownloader(
         private const val DELAY_TIME = 3000L
     }
 
-    fun download(path: String, retryCount: Long = 0): String? {
-        var result: String?
+    fun download(path: String, retryCount: Int = 0): String? {
+        var result: String? = null
+
         if (URLUtil.isHttpsUrl(path)) {
-            runBlocking {
-                result = if (retryCount > 0) {
-                    downloadToFlow(path).retry(retryCount) {
-                        delay(DELAY_TIME)
-                        it.printStackTrace()
-                        it is Exception
-                    }.single()
-                } else {
-                    downloadToFlow(path).singleOrNull()
-                }
+            RetryUtil.retry(retryCount, DELAY_TIME) {
+                result = downLoadFromInputStream(path)
             }
-        } else {
-            result = null
         }
+
         return result
     }
 
@@ -57,13 +43,6 @@ class FileDownloader(
                 }
                 resultFile.toURI().toURL().path
             } else null
-        }
-    }
-
-    private suspend fun downloadToFlow(path: String): Flow<String?> {
-        return flow {
-            val downloadedFileUrl = downLoadFromInputStream(path)
-            emit(downloadedFileUrl)
         }
     }
 

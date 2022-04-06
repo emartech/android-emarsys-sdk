@@ -1,7 +1,9 @@
 package com.emarsys.mobileengage.iam.model.specification
 
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
@@ -10,6 +12,7 @@ import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -21,19 +24,20 @@ class FilterByCampaignIdTest {
     @Rule
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
-    
+
     private lateinit var displayedIamRepository: DisplayedIamRepository
     private lateinit var buttonClickedRepository: ButtonClickedRepository
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Before
     fun init() {
         DatabaseTestUtils.deleteCoreDatabase()
-
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         val context = InstrumentationRegistry.getTargetContext()
         val dbHelper = CoreDbHelper(context, HashMap())
 
-        displayedIamRepository = DisplayedIamRepository(dbHelper)
-        buttonClickedRepository = ButtonClickedRepository(dbHelper)
+        displayedIamRepository = DisplayedIamRepository(dbHelper, concurrentHandlerHolder)
+        buttonClickedRepository = ButtonClickedRepository(dbHelper, concurrentHandlerHolder)
     }
 
     @Test
@@ -41,10 +45,11 @@ class FilterByCampaignIdTest {
         val iam1 = DisplayedIam("campaign1", 10L)
         val iam2 = DisplayedIam("campaign2", 20L)
         val iam3 = DisplayedIam("campaign3", 30L)
-
-        displayedIamRepository.add(iam1)
-        displayedIamRepository.add(iam2)
-        displayedIamRepository.add(iam3)
+        runBlocking {
+            displayedIamRepository.add(iam1)
+            displayedIamRepository.add(iam2)
+            displayedIamRepository.add(iam3)
+        }
 
         val result = displayedIamRepository.query(FilterByCampaignId("campaign2", "campaign3"))
         val expected = listOf(iam2, iam3)
@@ -58,16 +63,18 @@ class FilterByCampaignIdTest {
         val iam2 = DisplayedIam("campaign2", 20L)
         val iam3 = DisplayedIam("campaign3", 30L)
 
-        displayedIamRepository.add(iam1)
-        displayedIamRepository.add(iam2)
-        displayedIamRepository.add(iam3)
+        runBlocking {
+            displayedIamRepository.add(iam1)
+            displayedIamRepository.add(iam2)
+            displayedIamRepository.add(iam3)
 
-        displayedIamRepository.remove(FilterByCampaignId("campaign2"))
+            displayedIamRepository.remove(FilterByCampaignId("campaign2"))
 
-        val result = displayedIamRepository.query(Everything())
-        val expected = listOf(iam1, iam3)
+            val result = displayedIamRepository.query(Everything())
+            val expected = listOf(iam1, iam3)
 
-        result shouldBe expected
+            result shouldBe expected
+        }
     }
 
     @Test
@@ -77,17 +84,19 @@ class FilterByCampaignIdTest {
         val iam3 = DisplayedIam("campaign3", 30L)
         val iam4 = DisplayedIam("campaign4", 40L)
 
-        displayedIamRepository.add(iam1)
-        displayedIamRepository.add(iam2)
-        displayedIamRepository.add(iam3)
-        displayedIamRepository.add(iam4)
+        runBlocking {
+            displayedIamRepository.add(iam1)
+            displayedIamRepository.add(iam2)
+            displayedIamRepository.add(iam3)
+            displayedIamRepository.add(iam4)
 
-        displayedIamRepository.remove(FilterByCampaignId("campaign1", "campaign2"))
+            displayedIamRepository.remove(FilterByCampaignId("campaign1", "campaign2"))
 
-        val result = displayedIamRepository.query(Everything())
-        val expected = listOf(iam3, iam4)
+            val result = displayedIamRepository.query(Everything())
+            val expected = listOf(iam3, iam4)
 
-        result shouldBe expected
+            result shouldBe expected
+        }
     }
 
     @Test
@@ -97,17 +106,19 @@ class FilterByCampaignIdTest {
         val iam3 = DisplayedIam("campaign3", 30L)
         val iam4 = DisplayedIam("campaign4", 40L)
 
-        displayedIamRepository.add(iam1)
-        displayedIamRepository.add(iam2)
-        displayedIamRepository.add(iam3)
-        displayedIamRepository.add(iam4)
+        runBlocking {
+            displayedIamRepository.add(iam1)
+            displayedIamRepository.add(iam2)
+            displayedIamRepository.add(iam3)
+            displayedIamRepository.add(iam4)
 
-        displayedIamRepository.remove(FilterByCampaignId())
+            displayedIamRepository.remove(FilterByCampaignId())
 
-        val result = displayedIamRepository.query(Everything())
-        val expected = listOf(iam1, iam2, iam3, iam4)
+            val result = displayedIamRepository.query(Everything())
+            val expected = listOf(iam1, iam2, iam3, iam4)
 
-        result shouldBe expected
+            result shouldBe expected
+        }
     }
 
     @Test
@@ -116,9 +127,11 @@ class FilterByCampaignIdTest {
         val btn2 = ButtonClicked("campaign1", "button3", 10L)
         val btn3 = ButtonClicked("campaign2", "button10", 10L)
 
-        buttonClickedRepository.add(btn1)
-        buttonClickedRepository.add(btn2)
-        buttonClickedRepository.add(btn3)
+        runBlocking {
+            buttonClickedRepository.add(btn1)
+            buttonClickedRepository.add(btn2)
+            buttonClickedRepository.add(btn3)
+        }
 
         val result = buttonClickedRepository.query(FilterByCampaignId("campaign1"))
         val expected = listOf(btn1, btn2)
@@ -132,16 +145,18 @@ class FilterByCampaignIdTest {
         val btn2 = ButtonClicked("campaign1", "button3", 10L)
         val btn3 = ButtonClicked("campaign2", "button10", 10L)
 
-        buttonClickedRepository.add(btn1)
-        buttonClickedRepository.add(btn2)
-        buttonClickedRepository.add(btn3)
+        runBlocking {
+            buttonClickedRepository.add(btn1)
+            buttonClickedRepository.add(btn2)
+            buttonClickedRepository.add(btn3)
 
-        buttonClickedRepository.remove(FilterByCampaignId("campaign2"))
+            buttonClickedRepository.remove(FilterByCampaignId("campaign2"))
 
-        val result = buttonClickedRepository.query(Everything())
-        val expected = listOf(btn1, btn2)
+            val result = buttonClickedRepository.query(Everything())
+            val expected = listOf(btn1, btn2)
 
-        result shouldBe expected
+            result shouldBe expected
+        }
     }
 
     @Test
@@ -151,17 +166,19 @@ class FilterByCampaignIdTest {
         val btn3 = ButtonClicked("campaign2", "button10", 10L)
         val btn4 = ButtonClicked("campaign3", "button10", 10L)
 
-        buttonClickedRepository.add(btn1)
-        buttonClickedRepository.add(btn2)
-        buttonClickedRepository.add(btn3)
-        buttonClickedRepository.add(btn4)
+        runBlocking {
+            buttonClickedRepository.add(btn1)
+            buttonClickedRepository.add(btn2)
+            buttonClickedRepository.add(btn3)
+            buttonClickedRepository.add(btn4)
 
-        buttonClickedRepository.remove(FilterByCampaignId("campaign1", "campaign2"))
+            buttonClickedRepository.remove(FilterByCampaignId("campaign1", "campaign2"))
 
-        val result = buttonClickedRepository.query(Everything())
-        val expected = listOf(btn4)
+            val result = buttonClickedRepository.query(Everything())
+            val expected = listOf(btn4)
 
-        result shouldBe expected
+            result shouldBe expected
+        }
     }
 
     @Test
@@ -170,16 +187,18 @@ class FilterByCampaignIdTest {
         val btn2 = ButtonClicked("campaign1", "button3", 10L)
         val btn3 = ButtonClicked("campaign2", "button10", 10L)
 
-        buttonClickedRepository.add(btn1)
-        buttonClickedRepository.add(btn2)
-        buttonClickedRepository.add(btn3)
+        runBlocking {
+            buttonClickedRepository.add(btn1)
+            buttonClickedRepository.add(btn2)
+            buttonClickedRepository.add(btn3)
 
-        buttonClickedRepository.remove(FilterByCampaignId())
+            buttonClickedRepository.remove(FilterByCampaignId())
 
-        val result = buttonClickedRepository.query(Everything())
-        val expected = listOf(btn1, btn2, btn3)
+            val result = buttonClickedRepository.query(Everything())
+            val expected = listOf(btn1, btn2, btn3)
 
-        result shouldBe expected
+            result shouldBe expected
+        }
     }
 
 }

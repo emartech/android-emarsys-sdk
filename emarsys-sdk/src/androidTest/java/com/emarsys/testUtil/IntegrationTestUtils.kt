@@ -37,7 +37,7 @@ object IntegrationTestUtils {
     @Synchronized
     fun tearDownEmarsys(application: Application? = null) {
         var latch = CountDownLatch(1)
-        emarsys().coreSdkHandler.post {
+        emarsys().concurrentHandlerHolder.coreHandler.post {
             if (application != null) {
                 application.unregisterActivityLifecycleCallbacks(emarsys().activityLifecycleWatchdog)
                 application.unregisterActivityLifecycleCallbacks(emarsys().currentActivityWatchdog)
@@ -57,26 +57,30 @@ object IntegrationTestUtils {
             emarsys().predictServiceStorage.remove()
             latch.countDown()
         }
-        emarsys().coreSdkHandler.looper.quitSafely()
+        emarsys().concurrentHandlerHolder.coreLooper.quitSafely()
         latch.await()
 
         latch = CountDownLatch(1)
-        emarsys().uiHandler.post {
+        emarsys().concurrentHandlerHolder.postOnMain {
             val observerMap = ReflectionTestUtils.getInstanceField<FastSafeIterableMap<Any, Any>>(
                 ProcessLifecycleOwner.get().lifecycle,
                 "mObserverMap"
             )
             if (observerMap != null) {
-                    ReflectionTestUtils.getInstanceField<HashMap<Any, Any>>(
-                        observerMap,
-                        "mHashMap"
-                    )?.entries?.toMutableList()?.forEach {
-                        ProcessLifecycleOwner.get().lifecycle.removeObserver(it.key as LifecycleObserver)
+                ReflectionTestUtils.getInstanceField<HashMap<Any, Any>>(
+                    observerMap,
+                    "mHashMap"
+                )?.entries?.toMutableList()?.forEach {
+                    ProcessLifecycleOwner.get().lifecycle.removeObserver(it.key as LifecycleObserver)
                     }
             }
             latch.countDown()
         }
         latch.await()
+
+        emarsys().concurrentHandlerHolder.backgroundLooper.quit()
+        emarsys().concurrentHandlerHolder.networkLooper.quit()
+        emarsys().concurrentHandlerHolder.coreLooper.quit()
 
         tearDownEmarsysComponent()
 

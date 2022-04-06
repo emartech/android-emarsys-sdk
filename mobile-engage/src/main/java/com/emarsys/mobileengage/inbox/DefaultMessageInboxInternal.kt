@@ -5,15 +5,15 @@ import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import kotlinx.coroutines.CoroutineScope
 import java.util.*
 
 class DefaultMessageInboxInternal(
-    private val uiScope: CoroutineScope,
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
     private val requestManager: RequestManager,
     private val mobileEngageRequestModelFactory: MobileEngageRequestModelFactory,
     private val messageInboxResponseMapper: MessageInboxResponseMapper
@@ -25,20 +25,30 @@ class DefaultMessageInboxInternal(
 
     override fun addTag(tag: String, messageId: String, completionListener: CompletionListener?) {
         val eventAttributes = mapOf(
-                "messageId" to messageId,
-                "tag" to tag.lowercase(Locale.ENGLISH)
+            "messageId" to messageId,
+            "tag" to tag.lowercase(Locale.ENGLISH)
         )
-        val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest("inbox:tag:add", eventAttributes)
+        val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest(
+            "inbox:tag:add",
+            eventAttributes
+        )
 
         requestManager.submit(requestModel, completionListener)
     }
 
-    override fun removeTag(tag: String, messageId: String, completionListener: CompletionListener?) {
+    override fun removeTag(
+        tag: String,
+        messageId: String,
+        completionListener: CompletionListener?
+    ) {
         val eventAttributes = mapOf(
-                "messageId" to messageId,
-                "tag" to tag.lowercase(Locale.ENGLISH)
+            "messageId" to messageId,
+            "tag" to tag.lowercase(Locale.ENGLISH)
         )
-        val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest("inbox:tag:remove", eventAttributes)
+        val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest(
+            "inbox:tag:remove",
+            eventAttributes
+        )
 
         requestManager.submit(requestModel, completionListener)
     }
@@ -66,6 +76,6 @@ class DefaultMessageInboxInternal(
             override fun onError(id: String, cause: Exception) {
                 resultListener.onResult(Try.failure(cause))
             }
-        }, scope = uiScope)
+        }, concurrentHandlerHolder.uiHandler)
     }
 }

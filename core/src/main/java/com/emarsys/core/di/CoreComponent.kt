@@ -1,7 +1,6 @@
 package com.emarsys.core.di
 
 import android.content.SharedPreferences
-import android.os.Handler
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
@@ -13,7 +12,7 @@ import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -26,10 +25,9 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.worker.Worker
-import kotlinx.coroutines.CoroutineScope
 
 fun core() = CoreComponent.instance
-        ?: throw IllegalStateException("DependencyContainer has to be setup first!")
+    ?: throw IllegalStateException("DependencyContainer has to be setup first!")
 
 fun setupCoreComponent(coreComponent: CoreComponent) {
     CoreComponent.instance = coreComponent
@@ -40,7 +38,7 @@ fun tearDownCoreComponent() {
 }
 
 fun isCoreComponentSetup() =
-        CoreComponent.instance != null
+    CoreComponent.instance != null
 
 
 interface CoreComponent {
@@ -50,15 +48,13 @@ interface CoreComponent {
         fun isSetup() = instance != null
     }
 
-    val coreSdkHandler: CoreSdkHandler
-
-    val uiHandler: Handler
+    val concurrentHandlerHolder: ConcurrentHandlerHolder
 
     val activityLifecycleWatchdog: ActivityLifecycleWatchdog
 
     val currentActivityWatchdog: CurrentActivityWatchdog
 
-    val activityLifecycleActionRegistry : ActivityLifecycleActionRegistry
+    val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry
 
     val coreSQLiteDatabase: CoreSQLiteDatabase
 
@@ -101,8 +97,4 @@ interface CoreComponent {
     val connectionWatchdog: ConnectionWatchDog
 
     val coreCompletionHandler: CoreCompletionHandler
-
-    val coreSdkScope: CoroutineScope
-
-    val uiScope: CoroutineScope
 }

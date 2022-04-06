@@ -6,13 +6,12 @@ import android.content.Context
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
-import android.os.Handler
 import androidx.annotation.RequiresPermission
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.Mockable
 import com.emarsys.core.api.MissingPermissionException
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.response.ResponseModel
@@ -30,6 +29,7 @@ import com.emarsys.mobileengage.geofence.model.TriggeringEmarsysGeofence
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.google.android.gms.location.*
+import com.google.android.gms.tasks.Task
 import org.json.JSONObject
 import kotlin.math.abs
 import com.emarsys.mobileengage.api.geofence.Geofence as MEGeofence
@@ -48,8 +48,7 @@ class DefaultGeofenceInternal(
     private val geofenceCacheableEventHandler: CacheableEventHandler,
     private val geofenceEnabledStorage: Storage<Boolean>,
     private val geofencePendingIntentProvider: GeofencePendingIntentProvider,
-    coreSdkHandler: CoreSdkHandler,
-    private val uiHandler: Handler,
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
     private val initialEnterTriggerEnabledStorage: Storage<Boolean?>
 ) : GeofenceInternal {
     private companion object {
@@ -58,7 +57,7 @@ class DefaultGeofenceInternal(
         const val MAX_WAIT_TIME: Long = 60_000
     }
 
-    private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver(coreSdkHandler)
+    private val geofenceBroadcastReceiver = GeofenceBroadcastReceiver(concurrentHandlerHolder)
     private var geofenceResponse: GeofenceResponse? = null
     private var nearestGeofences: MutableList<MEGeofence> = mutableListOf()
     override val registeredGeofences: List<MEGeofence>
@@ -90,7 +89,6 @@ class DefaultGeofenceInternal(
 
             override fun onError(id: String, cause: Exception) {
             }
-
         })
     }
 
@@ -119,16 +117,21 @@ class DefaultGeofenceInternal(
     }
 
     override fun disable() {
-        context.unregisterReceiver(geofenceBroadcastReceiver)
-        fusedLocationProviderClient.removeLocationUpdates(geofencePendingIntent)
-        geofenceEnabledStorage.set(false)
-        receiverRegistered = false
+        if (geofenceEnabledStorage.get()) {
+            if (receiverRegistered) {
+                context.unregisterReceiver(geofenceBroadcastReceiver)
+                receiverRegistered = false
+                fusedLocationProviderClient.removeLocationUpdates(geofencePendingIntent)
+            }
 
-        sendStatusLog(
-            statusMap = mapOf(
-                "geofenceEnabled" to false
+            geofenceEnabledStorage.set(false)
+
+            sendStatusLog(
+                statusMap = mapOf(
+                    "geofenceEnabled" to false
+                )
             )
-        )
+        }
     }
 
     override fun isEnabled(): Boolean {
@@ -137,7 +140,7 @@ class DefaultGeofenceInternal(
 
     private fun registerBroadcastReceiver() {
         if (!receiverRegistered) {
-            uiHandler.post {
+            concurrentHandlerHolder.postOnMain {
                 context.registerReceiver(
                     geofenceBroadcastReceiver,
                     IntentFilter("com.emarsys.sdk.GEOFENCE_ACTION")
@@ -156,7 +159,11 @@ class DefaultGeofenceInternal(
         if (!AndroidVersionUtils.isBelowQ()) {
             validateBackgroundPermission()
         }
-        fusedLocationProviderClient.lastLocation?.addOnSuccessListener { currentLocation = it }
+
+        val lastLocation = fusedLocationProviderClient.lastLocation as Task<Location?>?
+        lastLocation?.addOnSuccessListener { loc: Location? ->
+            currentLocation = loc
+        }
 
         fusedLocationProviderClient.requestLocationUpdates(
             LocationRequest.create().apply {
@@ -291,7 +298,7 @@ class DefaultGeofenceInternal(
 
     private fun executeActions(actions: List<Runnable?>) {
         actions.forEach { action ->
-            uiHandler.post {
+            concurrentHandlerHolder.postOnMain {
                 action?.run()
             }
         }

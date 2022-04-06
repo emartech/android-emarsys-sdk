@@ -1,13 +1,16 @@
 package com.emarsys.core.shard.specification
 
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.database.repository.specification.Everything
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -26,20 +29,28 @@ class FilterByShardTypeTest {
     private lateinit var specification: FilterByShardType
     private lateinit var shardList: MutableList<ShardModel>
     private lateinit var repository: ShardModelRepository
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
+
     @Before
     fun setUp() {
         DatabaseTestUtils.deleteCoreDatabase()
         specification = FilterByShardType(TYPE)
         val context = InstrumentationRegistry.getTargetContext().applicationContext
         val coreDbHelper = CoreDbHelper(context, mutableMapOf())
-        repository = ShardModelRepository(coreDbHelper)
+        concurrentHandlerHolder =
+            ConcurrentHandlerHolderFactory.create()
+        repository = ShardModelRepository(coreDbHelper, concurrentHandlerHolder)
         shardList = mutableListOf(
-                ShardModel("a1", "button_click", mapOf(), 0, 0),
-                ShardModel("a2", "button_click", mapOf(), 0, 0),
-                ShardModel("a2", "button_click", mapOf("key" to 22, "key2" to "value"), 0, 0),
-                ShardModel("a4", "not_button_click", mapOf("key" to 11, "key2" to "asdasd"), 0, 0)
+            ShardModel("a1", "button_click", mapOf(), 0, 0),
+            ShardModel("a2", "button_click", mapOf(), 0, 0),
+            ShardModel("a2", "button_click", mapOf("key" to 22, "key2" to "value"), 0, 0),
+            ShardModel("a4", "not_button_click", mapOf("key" to 11, "key2" to "asdasd"), 0, 0)
         )
-        shardList.forEach(repository::add)
+        runBlocking {
+            shardList.forEach {
+                repository.add(it)
+            }
+        }
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -73,8 +84,9 @@ class FilterByShardTypeTest {
     @Test
     fun testDeleteUsingFilterByShardType() {
         val expectedList = shardList.filterNot { x -> (x.type == "button_click") }
-
-        repository.remove(FilterByShardType("button_click"))
+        runBlocking {
+            repository.remove(FilterByShardType("button_click"))
+        }
 
         val resultList = repository.query(Everything())
 

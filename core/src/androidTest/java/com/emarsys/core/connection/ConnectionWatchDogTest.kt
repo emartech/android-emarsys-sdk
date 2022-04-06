@@ -5,8 +5,8 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.test.filters.SdkSuppress
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.testUtil.ConnectionTestUtils.getContextMock_withAppContext_withConnectivityManager
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils
@@ -21,7 +21,7 @@ import org.junit.rules.TestRule
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 class ConnectionWatchDogTest {
     private lateinit var context: Context
-    private lateinit var mockHandler: CoreSdkHandler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -30,12 +30,12 @@ class ConnectionWatchDogTest {
     @Before
     fun setup() {
         context = getTargetContext().applicationContext
-        mockHandler = CoreSdkHandlerProvider().provideHandler()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
     }
 
     @Test
     fun testConstructor_connectivityManagerShouldBeSet() {
-        val watchDog = ConnectionWatchDog(context, mockHandler)
+        val watchDog = ConnectionWatchDog(context, concurrentHandlerHolder)
         val manager: ConnectivityManager =
             ReflectionTestUtils.getInstanceField(watchDog, "connectivityManager")!!
         Assert.assertNotNull(manager)
@@ -47,7 +47,7 @@ class ConnectionWatchDogTest {
             true,
             NetworkCapabilities.TRANSPORT_VPN
         )
-        val connectionWatchDog = ConnectionWatchDog(contextMock, mockHandler)
+        val connectionWatchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
         val connectionChangeListener: ConnectionChangeListener = mockk()
 
         connectionWatchDog.registerReceiver(connectionChangeListener)
@@ -67,7 +67,7 @@ class ConnectionWatchDogTest {
             true,
             NetworkCapabilities.TRANSPORT_VPN
         )
-        val connectionWatchDog = ConnectionWatchDog(contextMock, mockHandler)
+        val connectionWatchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
         val connectionChangeListener: ConnectionChangeListener = mockk()
         every { connectionChangeListener.onConnectionChanged(any(), any()) } just Runs
         val manager =
@@ -89,14 +89,14 @@ class ConnectionWatchDogTest {
             true,
             NetworkCapabilities.TRANSPORT_WIFI
         )
-        val watchDog = ConnectionWatchDog(contextMock, mockHandler)
+        val watchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
         Assert.assertTrue(watchDog.isConnected)
     }
 
     @Test
     fun testIsConnected_Offline() {
         val contextMock = getContextMock_withAppContext_withConnectivityManager(false, -1)
-        val watchDog = ConnectionWatchDog(contextMock, mockHandler)
+        val watchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
         Assert.assertFalse(watchDog.isConnected)
     }
 }

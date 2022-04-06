@@ -1,5 +1,6 @@
 package com.emarsys.core.database.repository.specification
 
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.helper.CoreDbHelper
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
@@ -10,6 +11,7 @@ import com.emarsys.testUtil.DatabaseTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import io.kotlintest.shouldBe
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -48,18 +50,27 @@ class QueryLatestRequestModelTest {
         specification = QueryLatestRequestModel()
         val timestampProvider = TimestampProvider()
         val uuidProvider = UUIDProvider()
+        val concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
 
         val context = InstrumentationRegistry.getTargetContext().applicationContext
         val coreDbHelper = CoreDbHelper(context, mutableMapOf())
-        val repository = RequestModelRepository(coreDbHelper)
+        val repository = RequestModelRepository(coreDbHelper, concurrentHandlerHolder)
 
-        val expectedRequestModel = RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/1").build()
-        val requestModel1 = RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/2").build()
-        val requestModel2 = RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/3").build()
+        val expectedRequestModel =
+            RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/1")
+                .build()
+        val requestModel1 =
+            RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/2")
+                .build()
+        val requestModel2 =
+            RequestModel.Builder(timestampProvider, uuidProvider).url("https://emarsys.com/3")
+                .build()
 
-        repository.add(expectedRequestModel)
-        repository.add(requestModel1)
-        repository.add(requestModel2)
+        runBlocking {
+            repository.add(expectedRequestModel)
+            repository.add(requestModel1)
+            repository.add(requestModel2)
+        }
 
         val resultList = repository.query(specification)
 

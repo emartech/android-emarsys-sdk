@@ -1,9 +1,9 @@
 package com.emarsys.mobileengage.iam.inline
 
 import android.graphics.Color
-import android.os.Handler
 import android.webkit.WebView
 import com.emarsys.core.Mockable
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.iam.webview.IamWebViewClient
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
@@ -11,7 +11,7 @@ import com.emarsys.mobileengage.iam.webview.WebViewProvider
 @Mockable
 class InlineInAppWebViewFactory(
     private val webViewProvider: WebViewProvider,
-    private val uiHandler: Handler
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder
 ) {
 
     fun create(messageLoadedListener: MessageLoadedListener): WebView? {
@@ -19,7 +19,7 @@ class InlineInAppWebViewFactory(
         webView?.let {
             webView.settings.javaScriptEnabled = true
             webView.setBackgroundColor(Color.TRANSPARENT)
-            webView.webViewClient = IamWebViewClient(messageLoadedListener, uiHandler)
+            webView.webViewClient = IamWebViewClient(messageLoadedListener, concurrentHandlerHolder)
         }
 
         return webView

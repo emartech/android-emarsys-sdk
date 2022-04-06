@@ -1,6 +1,6 @@
 package com.emarsys.core.fake;
 
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory;
 import com.emarsys.core.connection.ConnectionChangeListener;
 import com.emarsys.core.connection.ConnectionWatchDog;
 import com.emarsys.testUtil.InstrumentationRegistry;
@@ -17,7 +17,7 @@ public class FakeConnectionWatchDog extends ConnectionWatchDog {
     public CountDownLatch latch;
 
     public FakeConnectionWatchDog(CountDownLatch latch, Boolean... isConnectedReplies) {
-        super(InstrumentationRegistry.getTargetContext(), new CoreSdkHandlerProvider().provideHandler());
+        super(InstrumentationRegistry.getTargetContext(), ConcurrentHandlerHolderFactory.INSTANCE.create());
         this.latch = latch;
         this.isConnectedReplies = new ArrayList<>(Arrays.asList(isConnectedReplies));
     }

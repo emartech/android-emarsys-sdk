@@ -1,11 +1,10 @@
 package com.emarsys.core.request.factory
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
@@ -31,21 +30,19 @@ class CoreCompletionHandlerMiddlewareProviderTest {
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
     private lateinit var mockRequestRepository: Repository<RequestModel, SqlSpecification>
-    private lateinit var mockUiHandler: Handler
-    private lateinit var mockCoreSdkHandler: CoreSdkHandler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockCoreCompletionHandler: CoreCompletionHandler
     private lateinit var mockWorker: Worker
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockResponseModel: ResponseModel
-
     private lateinit var coreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
     private lateinit var latch: CountDownLatch
+    private lateinit var runnableFactory: RunnableFactory
 
     @Before
     @Suppress("UNCHECKED_CAST")
     fun setUp() {
         latch = CountDownLatch(1)
-
         mockRequestModel = mock {
             whenever(it.id).thenReturn("requestId")
         }
@@ -53,19 +50,26 @@ class CoreCompletionHandlerMiddlewareProviderTest {
             whenever(it.requestModel).thenReturn(mockRequestModel)
         }
         mockRequestRepository = (mock())
-        mockUiHandler = Handler(Looper.getMainLooper())
-        mockCoreSdkHandler = CoreSdkHandler(Handler(Looper.getMainLooper()))
+        runnableFactory = DefaultRunnableFactory()
+
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockCoreCompletionHandler = mock {
             whenever(it.onSuccess(any(), any())).thenAnswer { latch.countDown() }
         }
         mockWorker = mock()
 
-        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(mockRequestRepository, mockUiHandler, mockCoreSdkHandler)
+        coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(
+            mockRequestRepository,
+            concurrentHandlerHolder
+        )
     }
 
     @Test
     fun testCreateCompletionHandler_shouldReturnWithMiddleware_whenWorkerIsPresent() {
-        val result = coreCompletionHandlerMiddlewareProvider.provideProxy(mockWorker, mockCoreCompletionHandler)
+        val result = coreCompletionHandlerMiddlewareProvider.provideProxy(
+            mockWorker,
+            mockCoreCompletionHandler
+        )
 
         result should beInstanceOf(CoreCompletionHandlerMiddleware::class)
 

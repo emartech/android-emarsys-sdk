@@ -2,11 +2,10 @@ package com.emarsys.mobileengage.iam.jsbridge
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Handler
 import com.emarsys.core.Mockable
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
@@ -16,14 +15,13 @@ import java.util.concurrent.CountDownLatch
 
 @Mockable
 class JSCommandFactory(
-        private val currentActivityProvider: CurrentActivityProvider,
-        private val uiHandler: Handler,
-        private val coreSdkHandler: CoreSdkHandler,
-        private val inAppInternal: InAppInternal,
-        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
-        private val onCloseTriggered: OnCloseListener?,
-        private val onAppEventTriggered: OnAppEventListener?,
-        private val timestampProvider: TimestampProvider
+    private val currentActivityProvider: CurrentActivityProvider,
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
+    private val inAppInternal: InAppInternal,
+    private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
+    private val onCloseTriggered: OnCloseListener?,
+    private val onAppEventTriggered: OnAppEventListener?,
+    private val timestampProvider: TimestampProvider
 ) {
 
     @Throws(RuntimeException::class)
@@ -31,7 +29,7 @@ class JSCommandFactory(
         return when (command) {
             CommandType.ON_APP_EVENT -> {
                 { property, json ->
-                    uiHandler.post {
+                    concurrentHandlerHolder.postOnMain {
                         onAppEventTriggered?.invoke(property, json)
                     }
                 }
@@ -39,7 +37,7 @@ class JSCommandFactory(
 
             CommandType.ON_CLOSE -> {
                 { _, _ ->
-                    uiHandler.post {
+                    concurrentHandlerHolder.postOnMain {
                         onCloseTriggered?.invoke()
                     }
                 }
@@ -47,7 +45,7 @@ class JSCommandFactory(
             CommandType.ON_BUTTON_CLICKED -> {
                 { property, _ ->
                     if (inAppMessage != null && property != null) {
-                        coreSdkHandler.post {
+                        concurrentHandlerHolder.coreHandler.post {
                             buttonClickedRepository.add(
                                 ButtonClicked(
                                     inAppMessage.campaignId,
@@ -82,7 +80,7 @@ class JSCommandFactory(
                     var success = true
                     if (activity != null) {
                         val latch = CountDownLatch(1)
-                        uiHandler.post {
+                        concurrentHandlerHolder.postOnMain {
                             try {
                                 activity.startActivity(intent)
                             } catch (exception: Exception) {
@@ -102,9 +100,10 @@ class JSCommandFactory(
             }
             CommandType.ON_ME_EVENT -> {
                 { property, json ->
-                    coreSdkHandler.post {
+                    concurrentHandlerHolder.coreHandler.post {
                         val payload = json.optJSONObject("payload")
-                        val attributes = payload?.keys()?.asSequence()?.associateBy({ it }) { payload.getString(it) }
+                        val attributes = payload?.keys()?.asSequence()
+                            ?.associateBy({ it }) { payload.getString(it) }
                         inAppInternal.trackCustomEventAsync(property, attributes, null)
                     }
                 }

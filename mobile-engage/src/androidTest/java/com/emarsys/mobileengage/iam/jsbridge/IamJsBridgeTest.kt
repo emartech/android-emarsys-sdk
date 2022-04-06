@@ -1,9 +1,9 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
-import android.os.Handler
-import android.os.Looper
 import android.webkit.WebView
 import androidx.test.rule.ActivityTestRule
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.iam.model.InAppMessage
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
@@ -18,15 +18,18 @@ import org.mockito.kotlin.*
 
 class IamJsBridgeTest {
 
-    private val jsonObject = JSONObject(mapOf(
+    private val jsonObject = JSONObject(
+        mapOf(
             "id" to "testId",
             "buttonId" to "testButtonId",
-            "name" to "testName"))
+            "name" to "testName"
+        )
+    )
 
     private lateinit var jsBridge: IamJsBridge
     private lateinit var mockWebView: WebView
     private lateinit var mockEventHandler: EventHandler
-    private lateinit var uiHandler: Handler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var inAppMessage: InAppMessage
     private lateinit var mockJsCommandFactory: JSCommandFactory
     private lateinit var mockOnCloseListener: JSCommand
@@ -47,26 +50,31 @@ class IamJsBridgeTest {
     @Before
     fun setUp() {
         inAppMessage = InAppMessage("campaignId", "sid", "url")
-        uiHandler = Handler(Looper.getMainLooper())
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
 
         mockOnCloseListener = mock()
         mockOnAppEventListener = mock()
         mockOnButtonClickedListener = mock()
         mockOnOpenExternalUrlListener = mock()
         mockOnMEEventListener = mock()
-        mockJsCommandFactory = mock() {
+        mockJsCommandFactory = mock {
             on { create(JSCommandFactory.CommandType.ON_CLOSE) } doReturn (mockOnCloseListener)
             on { create(JSCommandFactory.CommandType.ON_ME_EVENT) } doReturn (mockOnMEEventListener)
             on { create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL) } doReturn (mockOnOpenExternalUrlListener)
             on { create(JSCommandFactory.CommandType.ON_APP_EVENT) } doReturn (mockOnAppEventListener)
-            on { create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED, inAppMessage) } doReturn (mockOnButtonClickedListener)
+            on {
+                create(
+                    JSCommandFactory.CommandType.ON_BUTTON_CLICKED,
+                    inAppMessage
+                )
+            } doReturn (mockOnButtonClickedListener)
         }
         mockEventHandler = mock()
         mockWebView = mock()
         jsBridge = IamJsBridge(
-                uiHandler,
-                mockJsCommandFactory,
-                inAppMessage
+            concurrentHandlerHolder,
+            mockJsCommandFactory,
+            inAppMessage
         )
         jsBridge.webView = mockWebView
     }
@@ -91,7 +99,10 @@ class IamJsBridgeTest {
     fun testOnButtonClickedEvent_shouldInvokeOnAppEventListener_createdByFactory() {
         jsBridge.buttonClicked(jsonObject.toString())
 
-        verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED, inAppMessage)
+        verify(mockJsCommandFactory).create(
+            JSCommandFactory.CommandType.ON_BUTTON_CLICKED,
+            inAppMessage
+        )
         verify(mockOnButtonClickedListener, timeout(2500)).invoke(anyOrNull(), any())
     }
 
@@ -105,12 +116,15 @@ class IamJsBridgeTest {
 
     @Test
     fun testOnOpenExternalUrlEvent_shouldCreateOnCloseAndOpenExternalUrlCommands_then_InvokeOnExternalUrlListenerAndOnCloseListener() {
-        val json = JSONObject(mapOf(
+        val json = JSONObject(
+            mapOf(
                 "id" to "testId",
                 "buttonId" to "testButtonId",
                 "name" to "testName",
                 "url" to "https://emarsys.com",
-                "keepInAppOpen" to false))
+                "keepInAppOpen" to false
+            )
+        )
         jsBridge.openExternalLink(json.toString())
 
         verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_CLOSE)
@@ -121,11 +135,14 @@ class IamJsBridgeTest {
 
     @Test
     fun testOnOpenExternalUrlEvent_shouldCreateOnCloseCommand_whenNokeepInAppOpenIsInJson() {
-        val json = JSONObject(mapOf(
+        val json = JSONObject(
+            mapOf(
                 "id" to "testId",
                 "buttonId" to "testButtonId",
                 "name" to "testName",
-                "url" to "https://emarsys.com"))
+                "url" to "https://emarsys.com"
+            )
+        )
         jsBridge.openExternalLink(json.toString())
 
         verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_CLOSE)
@@ -136,12 +153,15 @@ class IamJsBridgeTest {
 
     @Test
     fun testOnOpenExternalUrlEvent_shouldNotCreateAndInvokeCloseCommand_whenkeepInAppOpenIsTrueInJson() {
-        val json = JSONObject(mapOf(
+        val json = JSONObject(
+            mapOf(
                 "id" to "testId",
                 "buttonId" to "testButtonId",
                 "name" to "testName",
                 "url" to "https://emarsys.com",
-                "keepInAppOpen" to true))
+                "keepInAppOpen" to true
+            )
+        )
         jsBridge.openExternalLink(json.toString())
 
         verify(mockJsCommandFactory).create(JSCommandFactory.CommandType.ON_OPEN_EXTERNAL_URL)
@@ -158,7 +178,10 @@ class IamJsBridgeTest {
         jsBridge.triggerAppEvent(json.toString())
 
         val result = JSONObject().put("id", id).put("success", true)
-        verify(mockWebView, timeout(1000)).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+        verify(
+            mockWebView,
+            timeout(1000)
+        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
     }
 
     @Test
@@ -169,7 +192,10 @@ class IamJsBridgeTest {
         jsBridge.triggerMEEvent(json.toString())
 
         val result = JSONObject().put("id", id).put("success", true)
-        verify(mockWebView, timeout(1000)).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+        verify(
+            mockWebView,
+            timeout(1000)
+        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
     }
 
     @Test
@@ -179,9 +205,12 @@ class IamJsBridgeTest {
         val json = JSONObject().put("id", id).put("buttonId", buttonId)
         jsBridge.buttonClicked(json.toString())
         val result = JSONObject()
-                .put("id", id)
-                .put("success", true)
-        verify(mockWebView, timeout(1000)).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+            .put("id", id)
+            .put("success", true)
+        verify(
+            mockWebView,
+            timeout(1000)
+        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
     }
 
     @Test
@@ -191,10 +220,13 @@ class IamJsBridgeTest {
         val json = JSONObject().put("id", id).put("url", url).put("keepInAppOpen", false)
         jsBridge.openExternalLink(json.toString())
         val result = JSONObject()
-                .put("id", id)
-                .put("success", true)
+            .put("id", id)
+            .put("success", true)
 
-        verify(mockWebView, timeout(1000)).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+        verify(
+            mockWebView,
+            timeout(1000)
+        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
     }
 
     @Test
@@ -202,13 +234,16 @@ class IamJsBridgeTest {
         val id = "123456789"
         val json = JSONObject().put("id", id)
         val result = JSONObject()
-                .put("id", id)
-                .put("success", false)
-                .put("error", "Missing name!")
+            .put("id", id)
+            .put("success", false)
+            .put("error", "Missing name!")
 
         jsBridge.triggerAppEvent(json.toString())
 
-        verify(mockWebView, timeout(1000)).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+        verify(
+            mockWebView,
+            timeout(1000)
+        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
     }
 
     @Test
@@ -216,13 +251,16 @@ class IamJsBridgeTest {
         val id = "123456789"
         val json = JSONObject().put("id", id)
         val result = JSONObject()
-                .put("id", id)
-                .put("success", false)
-                .put("error", "Missing name!")
+            .put("id", id)
+            .put("success", false)
+            .put("error", "Missing name!")
 
         jsBridge.triggerMEEvent(json.toString())
 
-        verify(mockWebView, timeout(1000)).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+        verify(
+            mockWebView,
+            timeout(1000)
+        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
     }
 
     @Test
@@ -231,10 +269,13 @@ class IamJsBridgeTest {
         val json = JSONObject().put("id", id)
         jsBridge.buttonClicked(json.toString())
         val result = JSONObject()
-                .put("id", id)
-                .put("success", false)
-                .put("error", "Missing buttonId!")
-        verify(mockWebView, timeout(1000)).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+            .put("id", id)
+            .put("success", false)
+            .put("error", "Missing buttonId!")
+        verify(
+            mockWebView,
+            timeout(1000)
+        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
     }
 
 
@@ -244,10 +285,13 @@ class IamJsBridgeTest {
         val json = JSONObject().put("id", id).put("keepInAppOpen", false)
         jsBridge.openExternalLink(json.toString())
         val result = JSONObject()
-                .put("id", id)
-                .put("success", false)
-                .put("error", "Missing url!")
-        verify(mockWebView, timeout(1000)).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+            .put("id", id)
+            .put("success", false)
+            .put("error", "Missing url!")
+        verify(
+            mockWebView,
+            timeout(1000)
+        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -259,6 +303,9 @@ class IamJsBridgeTest {
     fun testSendResult_shouldInvokeEvaluateJavascript_onWebView() {
         val json = JSONObject().put("id", "123456789").put("key", "value")
         jsBridge.sendResult(json)
-        verify(mockWebView, timeout(1000)).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", json), null)
+        verify(
+            mockWebView,
+            timeout(1000)
+        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", json), null)
     }
 }

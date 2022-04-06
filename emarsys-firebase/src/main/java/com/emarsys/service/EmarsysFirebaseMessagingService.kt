@@ -7,7 +7,7 @@ import com.google.firebase.messaging.RemoteMessage
 class EmarsysFirebaseMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        mobileEngage().coreSdkHandler.post {
+        mobileEngage().concurrentHandlerHolder.coreHandler.post {
             if (mobileEngage().deviceInfo.isAutomaticPushSendingEnabled) {
                 mobileEngage().pushInternal.setPushToken(token, null)
             }

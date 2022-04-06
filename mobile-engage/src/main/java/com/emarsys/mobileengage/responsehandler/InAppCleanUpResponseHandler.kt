@@ -12,9 +12,10 @@ import com.emarsys.mobileengage.iam.model.specification.FilterByCampaignId
 import com.emarsys.mobileengage.util.RequestModelHelper
 
 class InAppCleanUpResponseHandler(
-        private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
-        private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
-        private val requestModelHelper: RequestModelHelper) : AbstractResponseHandler() {
+    private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
+    private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
+    private val requestModelHelper: RequestModelHelper
+) : AbstractResponseHandler() {
 
     companion object {
         private const val OLD_MESSAGES = "oldCampaigns"

@@ -39,7 +39,7 @@ class PredictRestrictedTest {
     @After
     fun tearDown() {
         try {
-            emarsys().coreSdkHandler.looper.quit()
+            emarsys().concurrentHandlerHolder.coreLooper.quit()
             tearDownEmarsysComponent()
         } catch (e: Exception) {
             e.printStackTrace()

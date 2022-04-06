@@ -71,13 +71,13 @@ class InlineInAppView : LinearLayout {
     }
 
     fun loadInApp(viewId: String) {
-        mobileEngage().coreSdkHandler.post {
+        mobileEngage().concurrentHandlerHolder.coreHandler.post {
             this.viewId = viewId
             if (webView == null) {
                 onCompletionListener?.onCompleted(IllegalArgumentException("WebView can not be created, please try again later!"))
             } else {
                 fetchInlineInAppMessage(viewId) { html ->
-                    mobileEngage().uiHandler.post {
+                    mobileEngage().concurrentHandlerHolder.postOnMain {
                         if (html != null) {
                             webView?.loadDataWithBaseURL(
                                 null,
@@ -158,8 +158,7 @@ class InlineInAppView : LinearLayout {
 
         val jsCommandFactory = JSCommandFactory(
             mobileEngage().currentActivityProvider,
-            mobileEngage().uiHandler,
-            mobileEngage().coreSdkHandler,
+            mobileEngage().concurrentHandlerHolder,
             inAppInternal,
             buttonClickedRepository,
             onCloseListener,
@@ -175,7 +174,7 @@ class InlineInAppView : LinearLayout {
             )
 
         val latch = CountDownLatch(1)
-        mobileEngage().uiHandler.post {
+        mobileEngage().concurrentHandlerHolder.postOnMain {
             webView?.addJavascriptInterface(jsBridge, "Android")
             latch.countDown()
         }

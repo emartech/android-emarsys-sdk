@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage
 
-import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.request.RestClient
@@ -10,14 +9,11 @@ import com.emarsys.mobileengage.fake.FakeRestClient
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.mockito.whenever
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.*
+import org.mockito.kotlin.*
 import java.util.concurrent.CountDownLatch
 
 class MobileEngageRefreshTokenInternalTest {
@@ -30,6 +26,7 @@ class MobileEngageRefreshTokenInternalTest {
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
     private lateinit var mockResponseHandler: MobileEngageTokenResponseHandler
+    private lateinit var mockCompletionListener: CompletionListener
 
     @Rule
     @JvmField
@@ -37,16 +34,21 @@ class MobileEngageRefreshTokenInternalTest {
 
     @Before
     fun setUp() {
-        mockRestClient = mock(RestClient::class.java)
-        mockResponseHandler = mock(MobileEngageTokenResponseHandler::class.java)
-        mockRequestModel = mock(RequestModel::class.java).apply {
-            whenever(id).thenReturn(REQUEST_ID)
+        mockRestClient = mock()
+        mockResponseHandler = mock()
+        mockCompletionListener = mock()
+        mockRequestModel = mock {
+            on { id } doReturn REQUEST_ID
         }
-        mockRequestModelFactory = mock(MobileEngageRequestModelFactory::class.java).apply {
-            whenever(createRefreshContactTokenRequest()).thenReturn(mockRequestModel)
+        mockRequestModelFactory = mock {
+            on { createRefreshContactTokenRequest() } doReturn (mockRequestModel)
         }
 
-        refreshTokenInternal = MobileEngageRefreshTokenInternal(mockResponseHandler, mockRestClient, mockRequestModelFactory)
+        refreshTokenInternal = MobileEngageRefreshTokenInternal(
+            mockResponseHandler,
+            mockRestClient,
+            mockRequestModelFactory
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -66,22 +68,24 @@ class MobileEngageRefreshTokenInternalTest {
 
     @Test
     fun testRefreshContactToken_shouldCallSubmitNow() {
-        val mockCompletionListener = mock(CompletionListener::class.java)
         refreshTokenInternal.refreshContactToken(mockCompletionListener)
 
-        verify(mockRestClient).execute(eq(mockRequestModel), any(CoreCompletionHandler::class.java))
+        verify(mockRestClient).execute(eq(mockRequestModel), any())
     }
 
     @Test
     fun testRefreshContactToken_shouldProcessResponseHandler_andCallCompletionListener_whenSuccess() {
-        val mockResponseModel = mock(ResponseModel::class.java).apply {
-            whenever(requestModel).thenReturn(mockRequestModel)
+        val mockResponseModel: ResponseModel = mock {
+            on { requestModel } doReturn (mockRequestModel)
         }
         val fakeRestClient = FakeRestClient(mockResponseModel, FakeRestClient.Mode.SUCCESS)
-        val mockCompletionListener = mock(CompletionListener::class.java)
         val latch = CountDownLatch(1)
 
-        refreshTokenInternal = MobileEngageRefreshTokenInternal(mockResponseHandler, fakeRestClient, mockRequestModelFactory)
+        refreshTokenInternal = MobileEngageRefreshTokenInternal(
+            mockResponseHandler,
+            fakeRestClient,
+            mockRequestModelFactory
+        )
 
         refreshTokenInternal.refreshContactToken(mockCompletionListener)
         refreshTokenInternal.refreshContactToken {
@@ -93,20 +97,24 @@ class MobileEngageRefreshTokenInternalTest {
 
         inOrder.verify(mockResponseHandler).processResponse(mockResponseModel)
         inOrder.verify(mockCompletionListener).onCompleted(null)
-
     }
 
     @Test
     fun testRefreshContactToken_shouldCallCompletionListener_whenFailure() {
-        val mockResponseModel = mock(ResponseModel::class.java).apply {
-            whenever(requestModel).thenReturn(mockRequestModel)
+        val mockResponseModel: ResponseModel = mock {
+            on { requestModel } doReturn (mockRequestModel)
         }
 
-        val fakeRestClient = FakeRestClient(mockResponseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)
-        val mockCompletionListener = mock(CompletionListener::class.java)
+        val fakeRestClient =
+            FakeRestClient(mockResponseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL)
+        val mockCompletionListener: CompletionListener = mock()
         val latch = CountDownLatch(1)
 
-        refreshTokenInternal = MobileEngageRefreshTokenInternal(mockResponseHandler, fakeRestClient, mockRequestModelFactory)
+        refreshTokenInternal = MobileEngageRefreshTokenInternal(
+            mockResponseHandler,
+            fakeRestClient,
+            mockRequestModelFactory
+        )
 
         refreshTokenInternal.refreshContactToken(mockCompletionListener)
         refreshTokenInternal.refreshContactToken {
@@ -114,15 +122,19 @@ class MobileEngageRefreshTokenInternalTest {
         }
 
         latch.await()
-        verify(mockCompletionListener).onCompleted(any(ResponseErrorException::class.java))
+        verify(mockCompletionListener).onCompleted(any<ResponseErrorException>())
     }
 
     @Test
     fun testRefreshContactToken_shouldCallCompletionListener_whenException() {
         val fakeRestClient = FakeRestClient(Exception())
-        val mockCompletionListener = mock(CompletionListener::class.java)
+        val mockCompletionListener: CompletionListener = mock()
         val latch = CountDownLatch(1)
-        refreshTokenInternal = MobileEngageRefreshTokenInternal(mockResponseHandler, fakeRestClient, mockRequestModelFactory)
+        refreshTokenInternal = MobileEngageRefreshTokenInternal(
+            mockResponseHandler,
+            fakeRestClient,
+            mockRequestModelFactory
+        )
 
         refreshTokenInternal.refreshContactToken(mockCompletionListener)
         refreshTokenInternal.refreshContactToken {
@@ -130,6 +142,6 @@ class MobileEngageRefreshTokenInternalTest {
         }
 
         latch.await()
-        verify(mockCompletionListener).onCompleted(any(Exception::class.java))
+        verify(mockCompletionListener).onCompleted(any<Exception>())
     }
 }

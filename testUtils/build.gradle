@@ -17,14 +17,14 @@ android {
             multiDexEnabled true
         }
     }
-    lintOptions {
-        abortOnError false
+    packagingOptions {
+        resources {
+            excludes += ['README.txt', 'META-INF/LICENSE.md', 'META-INF/LICENSE-notice.md']
+        }
     }
 
-    packagingOptions {
-        exclude 'README.txt'
-        exclude 'META-INF/LICENSE.md'
-        exclude 'META-INF/LICENSE-notice.md'
+    lint {
+        abortOnError false
     }
 }
 

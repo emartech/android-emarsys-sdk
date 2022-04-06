@@ -3,8 +3,8 @@ package com.emarsys.mobileengage.notification
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Handler
 import com.emarsys.core.Mockable
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.JsonUtils
 import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
@@ -16,10 +16,12 @@ import org.json.JSONException
 import org.json.JSONObject
 
 @Mockable
-class ActionCommandFactory(private val context: Context,
-                           private val eventServiceInternal: EventServiceInternal,
-                           private val cacheableEventHandler: CacheableEventHandler,
-                           private val uiHandler: Handler) {
+class ActionCommandFactory(
+    private val context: Context,
+    private val eventServiceInternal: EventServiceInternal,
+    private val cacheableEventHandler: CacheableEventHandler,
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder
+) {
 
     fun createActionCommand(action: JSONObject): Runnable? {
         var result: Runnable? = null
@@ -54,11 +56,11 @@ class ActionCommandFactory(private val context: Context,
     @Throws(JSONException::class)
     private fun createAppEventCommand(action: JSONObject): Runnable? {
         return AppEventCommand(
-                context,
-                cacheableEventHandler,
-                uiHandler,
-                action.getString("name"),
-                action.optJSONObject("payload")
+            context,
+            cacheableEventHandler,
+            concurrentHandlerHolder,
+            action.getString("name"),
+            action.optJSONObject("payload")
         )
     }
 

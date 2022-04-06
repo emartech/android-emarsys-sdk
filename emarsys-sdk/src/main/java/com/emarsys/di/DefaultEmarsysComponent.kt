@@ -3,7 +3,6 @@ package com.emarsys.di
 import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Handler
 import android.util.Base64
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
@@ -20,7 +19,7 @@ import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.api.proxyApi
 import com.emarsys.core.app.AppLifecycleObserver
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.connection.ConnectionWatchDog
 import com.emarsys.core.contentresolver.hardwareid.HardwareIdContentResolver
@@ -34,7 +33,7 @@ import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.HardwareRepository
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.endpoint.ServiceEndpointProvider
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.notification.NotificationManagerProxy
 import com.emarsys.core.permission.PermissionChecker
@@ -47,7 +46,6 @@ import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.RestClient
 import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
-import com.emarsys.core.request.factory.ScopeDelegatorCompletionHandlerProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.request.model.RequestModelRepository
 import com.emarsys.core.resource.MetaDataReader
@@ -64,6 +62,7 @@ import com.emarsys.core.util.log.LogShardListMerger
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.predicate.ListSizeAtLeast
 import com.emarsys.core.worker.DefaultWorker
+import com.emarsys.core.worker.DelegatorCompletionHandlerProvider
 import com.emarsys.core.worker.Worker
 import com.emarsys.deeplink.DeepLink
 import com.emarsys.deeplink.DeepLinkApi
@@ -85,7 +84,10 @@ import com.emarsys.mobileengage.deeplink.DefaultDeepLinkInternal
 import com.emarsys.mobileengage.deeplink.LoggingDeepLinkInternal
 import com.emarsys.mobileengage.device.DeviceInfoStartAction
 import com.emarsys.mobileengage.endpoint.Endpoint
-import com.emarsys.mobileengage.event.*
+import com.emarsys.mobileengage.event.CacheableEventHandler
+import com.emarsys.mobileengage.event.DefaultEventServiceInternal
+import com.emarsys.mobileengage.event.EventServiceInternal
+import com.emarsys.mobileengage.event.LoggingEventServiceInternal
 import com.emarsys.mobileengage.geofence.*
 import com.emarsys.mobileengage.iam.*
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
@@ -129,10 +131,6 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.android.asCoroutineDispatcher
 import org.json.JSONObject
 import java.security.KeyFactory
 import java.security.PublicKey
@@ -156,75 +154,72 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val notificationOpenedActivityClass: Class<*>
         get() = com.emarsys.NotificationOpenedActivity::class.java
 
-    final override val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+    final override val concurrentHandlerHolder: ConcurrentHandlerHolder =
+        ConcurrentHandlerHolderFactory.create()
 
-    private val coreSdkHandlerDispatcher = coreSdkHandler.handler.asCoroutineDispatcher()
-
-    override val coreSdkScope: CoroutineScope = CoroutineScope(Job() + coreSdkHandlerDispatcher)
-
-    override val uiScope: CoroutineScope = CoroutineScope(Job() + Dispatchers.Main)
-
-    override val uiHandler: Handler = Handler(config.application.mainLooper)
-
-    override val deepLink: DeepLinkApi = (DeepLink() as DeepLinkApi).proxyApi(coreSdkHandler)
+    override val deepLink: DeepLinkApi =
+        (DeepLink() as DeepLinkApi).proxyApi(concurrentHandlerHolder)
 
     override val loggingDeepLink: DeepLinkApi =
-        (DeepLink(true) as DeepLinkApi).proxyApi(coreSdkHandler)
+        (DeepLink(true) as DeepLinkApi).proxyApi(concurrentHandlerHolder)
 
     override val messageInbox: MessageInboxApi =
-        (MessageInbox() as MessageInboxApi).proxyApi(coreSdkHandler)
+        (MessageInbox() as MessageInboxApi).proxyApi(concurrentHandlerHolder)
 
     override val loggingMessageInbox: MessageInboxApi =
-        (MessageInbox(true) as MessageInboxApi).proxyApi(coreSdkHandler)
+        (MessageInbox(true) as MessageInboxApi).proxyApi(concurrentHandlerHolder)
 
-    override val inApp: InAppApi = (InApp() as InAppApi).proxyApi(coreSdkHandler)
+    override val inApp: InAppApi = (InApp() as InAppApi).proxyApi(concurrentHandlerHolder)
 
-    override val loggingInApp: InAppApi = (InApp(true) as InAppApi).proxyApi(coreSdkHandler)
+    override val loggingInApp: InAppApi =
+        (InApp(true) as InAppApi).proxyApi(concurrentHandlerHolder)
 
     override val onEventAction: OnEventActionApi =
-        (OnEventAction() as OnEventActionApi).proxyApi(coreSdkHandler)
+        (OnEventAction() as OnEventActionApi).proxyApi(concurrentHandlerHolder)
 
     override val loggingOnEventAction: OnEventActionApi =
-        (OnEventAction() as OnEventActionApi).proxyApi(coreSdkHandler)
+        (OnEventAction() as OnEventActionApi).proxyApi(concurrentHandlerHolder)
 
-    override val push: PushApi = (Push() as PushApi).proxyApi(coreSdkHandler)
+    override val push: PushApi = (Push() as PushApi).proxyApi(concurrentHandlerHolder)
 
-    override val loggingPush: PushApi = (Push(true) as PushApi).proxyApi(coreSdkHandler)
+    override val loggingPush: PushApi = (Push(true) as PushApi).proxyApi(concurrentHandlerHolder)
 
-    override val predict: PredictApi = (Predict() as PredictApi).proxyApi(coreSdkHandler)
+    override val predict: PredictApi = (Predict() as PredictApi).proxyApi(concurrentHandlerHolder)
 
-    override val loggingPredict: PredictApi = (Predict(true) as PredictApi).proxyApi(coreSdkHandler)
+    override val loggingPredict: PredictApi =
+        (Predict(true) as PredictApi).proxyApi(concurrentHandlerHolder)
 
-    override val config: ConfigApi = (Config() as ConfigApi).proxyApi(coreSdkHandler)
+    override val config: ConfigApi = (Config() as ConfigApi).proxyApi(concurrentHandlerHolder)
 
-    override val geofence: GeofenceApi = (Geofence() as GeofenceApi).proxyApi(coreSdkHandler)
+    override val geofence: GeofenceApi =
+        (Geofence() as GeofenceApi).proxyApi(concurrentHandlerHolder)
 
     override val loggingGeofence: GeofenceApi =
-        (Geofence(true) as GeofenceApi).proxyApi(coreSdkHandler)
+        (Geofence(true) as GeofenceApi).proxyApi(concurrentHandlerHolder)
 
     override val mobileEngage: MobileEngageApi =
-        (MobileEngage() as MobileEngageApi).proxyApi(coreSdkHandler)
+        (MobileEngage() as MobileEngageApi).proxyApi(concurrentHandlerHolder)
 
     override val loggingMobileEngage: MobileEngageApi =
-        (MobileEngage(true) as MobileEngageApi).proxyApi(coreSdkHandler)
+        (MobileEngage(true) as MobileEngageApi).proxyApi(concurrentHandlerHolder)
 
     override val predictRestricted: PredictRestrictedApi =
-        (PredictRestricted() as PredictRestrictedApi).proxyApi(coreSdkHandler)
+        (PredictRestricted() as PredictRestrictedApi).proxyApi(concurrentHandlerHolder)
 
     override val loggingPredictRestricted: PredictRestrictedApi =
-        (PredictRestricted(true) as PredictRestrictedApi).proxyApi(coreSdkHandler)
+        (PredictRestricted(true) as PredictRestrictedApi).proxyApi(concurrentHandlerHolder)
 
     override val clientService: ClientServiceApi =
-        (ClientService() as ClientServiceApi).proxyApi(coreSdkHandler)
+        (ClientService() as ClientServiceApi).proxyApi(concurrentHandlerHolder)
 
     override val loggingClientService: ClientServiceApi =
-        (ClientService(true) as ClientServiceApi).proxyApi(coreSdkHandler)
+        (ClientService(true) as ClientServiceApi).proxyApi(concurrentHandlerHolder)
 
     override val eventService: EventServiceApi =
-        (EventService() as EventServiceApi).proxyApi(coreSdkHandler)
+        (EventService() as EventServiceApi).proxyApi(concurrentHandlerHolder)
 
     override val loggingEventService: EventServiceApi =
-        (EventService(true) as EventServiceApi).proxyApi(coreSdkHandler)
+        (EventService(true) as EventServiceApi).proxyApi(concurrentHandlerHolder)
 
     override val responseHandlersProcessor: ResponseHandlersProcessor by lazy {
         ResponseHandlersProcessor(mutableListOf())
@@ -232,11 +227,10 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val overlayInAppPresenter: OverlayInAppPresenter by lazy {
         OverlayInAppPresenter(
-            coreSdkHandler,
-            uiHandler,
-            IamStaticWebViewProvider(config.application, uiHandler),
+            concurrentHandlerHolder,
+            IamStaticWebViewProvider(config.application, concurrentHandlerHolder),
             inAppInternal,
-            IamDialogProvider(uiHandler, timestampProvider),
+            IamDialogProvider(concurrentHandlerHolder, timestampProvider),
             buttonClickedRepository,
             displayedIamRepository,
             timestampProvider,
@@ -253,7 +247,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             FetchRemoteConfigAction(configInternal) { logInitialSetup(config) },
             AppStartAction(eventServiceInternal, contactTokenStorage)
         )
-        ActivityLifecycleActionRegistry(coreSdkHandler, currentActivityProvider, actions)
+        ActivityLifecycleActionRegistry(concurrentHandlerHolder, currentActivityProvider, actions)
     }
 
     override val activityLifecycleWatchdog: ActivityLifecycleWatchdog by lazy {
@@ -300,12 +294,12 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                     config.application,
                     eventServiceInternal,
                     onEventActionCacheableEventHandler,
-                    uiHandler
+                    concurrentHandlerHolder
                 ),
                 displayedIamRepository,
                 eventServiceInternal,
                 timestampProvider,
-                coreSdkHandler
+                concurrentHandlerHolder
             )
         )
         responseHandlers.add(
@@ -323,8 +317,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             timestampProvider,
             responseHandlersProcessor,
             createRequestModelMappers(),
-            uiHandler,
-            coreSdkHandler
+            concurrentHandlerHolder
         )
     }
 
@@ -369,7 +362,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val hardwareIdProvider: HardwareIdProvider by lazy {
-        val hardwareRepository = HardwareRepository(coreDbHelper)
+        val hardwareRepository = HardwareRepository(coreDbHelper, concurrentHandlerHolder)
         val hardwareIdentificationCrypto = HardwareIdentificationCrypto(config.sharedSecret, crypto)
         val hardwareIdContentResolver = HardwareIdContentResolver(
             config.application,
@@ -442,15 +435,15 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val shardRepository: Repository<ShardModel, SqlSpecification> by lazy {
-        ShardModelRepository(coreDbHelper)
+        ShardModelRepository(coreDbHelper, concurrentHandlerHolder)
     }
 
     override val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification> by lazy {
-        ButtonClickedRepository(coreDbHelper)
+        ButtonClickedRepository(coreDbHelper, concurrentHandlerHolder)
     }
 
     override val displayedIamRepository: Repository<DisplayedIam, SqlSpecification> by lazy {
-        DisplayedIamRepository(coreDbHelper)
+        DisplayedIamRepository(coreDbHelper, concurrentHandlerHolder)
     }
 
     override val requestModelRepository: Repository<RequestModel, SqlSpecification> by lazy {
@@ -458,7 +451,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val connectionWatchdog: ConnectionWatchDog by lazy {
-        ConnectionWatchDog(config.application, coreSdkHandler)
+        ConnectionWatchDog(config.application, concurrentHandlerHolder)
     }
 
     override val coreCompletionHandler: DefaultCoreCompletionHandler by lazy {
@@ -516,8 +509,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val coreCompletionHandlerRefreshTokenProxyProvider: CoreCompletionHandlerRefreshTokenProxyProvider by lazy {
         val coreCompletionHandlerMiddlewareProvider = CoreCompletionHandlerMiddlewareProvider(
             requestModelRepository,
-            uiHandler,
-            coreSdkHandler
+            concurrentHandlerHolder
         )
         CoreCompletionHandlerRefreshTokenProxyProvider(
             coreCompletionHandlerMiddlewareProvider,
@@ -534,7 +526,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         DefaultWorker(
             requestModelRepository,
             connectionWatchdog,
-            uiHandler,
+            concurrentHandlerHolder,
             coreCompletionHandler,
             restClient,
             coreCompletionHandlerRefreshTokenProxyProvider
@@ -543,7 +535,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val requestManager: RequestManager by lazy {
         RequestManager(
-            coreSdkHandler,
+            concurrentHandlerHolder,
             requestModelRepository,
             shardRepository,
             worker,
@@ -551,8 +543,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             coreCompletionHandler,
             coreCompletionHandler,
             coreCompletionHandlerRefreshTokenProxyProvider,
-            ScopeDelegatorCompletionHandlerProvider(),
-            coreSdkScope
+            DelegatorCompletionHandlerProvider()
         )
     }
 
@@ -624,7 +615,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val messageInboxInternal: MessageInboxInternal by lazy {
         DefaultMessageInboxInternal(
-            uiScope,
+            concurrentHandlerHolder,
             requestManager,
             mobileEngageRequestModelFactory,
             MessageInboxResponseMapper()
@@ -653,7 +644,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val pushInternal: PushInternal by lazy {
         DefaultPushInternal(
             requestManager,
-            uiHandler,
+            concurrentHandlerHolder,
             mobileEngageRequestModelFactory,
             eventServiceInternal,
             pushTokenStorage,
@@ -689,7 +680,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val iamJsBridgeFactory: IamJsBridgeFactory by lazy {
-        IamJsBridgeFactory(uiHandler)
+        IamJsBridgeFactory(concurrentHandlerHolder)
     }
 
     override val deviceInfoPayloadStorage: Storage<String?> by lazy {
@@ -713,7 +704,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             config.application,
             eventServiceInternal,
             notificationCacheableEventHandler,
-            uiHandler
+            concurrentHandlerHolder
         )
     }
 
@@ -722,7 +713,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             config.application,
             eventServiceInternal,
             silentMessageCacheableEventHandler,
-            uiHandler
+            concurrentHandlerHolder
         )
     }
 
@@ -737,7 +728,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             config.application,
             eventServiceInternal,
             geofenceCacheableEventHandler,
-            uiHandler
+            concurrentHandlerHolder
         )
 
         DefaultGeofenceInternal(
@@ -753,8 +744,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             geofenceCacheableEventHandler,
             BooleanStorage(MobileEngageStorageKey.GEOFENCE_ENABLED, sharedPreferences),
             GeofencePendingIntentProvider(config.application),
-            coreSdkHandler,
-            uiHandler,
+            concurrentHandlerHolder,
             geofenceInitialEnterTriggerEnabledStorage
         )
     }
@@ -768,7 +758,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val inlineInAppWebViewFactory: InlineInAppWebViewFactory by lazy {
-        InlineInAppWebViewFactory(webViewProvider, uiHandler)
+        InlineInAppWebViewFactory(webViewProvider, concurrentHandlerHolder)
     }
 
     override val fileDownloader: FileDownloader by lazy {
@@ -780,7 +770,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val appLifecycleObserver: AppLifecycleObserver by lazy {
-        AppLifecycleObserver(mobileEngageSession, coreSdkHandler)
+        AppLifecycleObserver(mobileEngageSession, concurrentHandlerHolder)
     }
 
     override val keyValueStore: KeyValueStore by lazy {
@@ -804,7 +794,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             requestContext,
             mobileEngageInternal,
             pushInternal,
-            pushTokenProvider,
             predictRequestContext,
             deviceInfo,
             requestManager,
@@ -817,7 +806,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             messageInboxServiceStorage,
             logLevelStorage,
             crypto,
-            clientServiceInternal
+            clientServiceInternal,
+            concurrentHandlerHolder
         )
     }
 
@@ -847,7 +837,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val logger: Logger by lazy {
         Logger(
-            coreSdkHandler,
+            concurrentHandlerHolder,
             shardRepository,
             timestampProvider,
             uuidProvider,
@@ -869,7 +859,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         DefaultPredictInternal(
             predictRequestContext,
             requestManager,
-            uiHandler,
+            concurrentHandlerHolder,
             predictRequestModelBuilderProvider,
             PredictResponseMapper()
         )
@@ -907,7 +897,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         coreDbHelper: CoreDbHelper,
         inAppEventHandler: InAppEventHandlerInternal
     ): Repository<RequestModel, SqlSpecification> {
-        val requestModelRepository = RequestModelRepository(coreDbHelper)
+        val requestModelRepository = RequestModelRepository(coreDbHelper, concurrentHandlerHolder)
         return RequestRepositoryProxy(
             requestModelRepository,
             displayedIamRepository,

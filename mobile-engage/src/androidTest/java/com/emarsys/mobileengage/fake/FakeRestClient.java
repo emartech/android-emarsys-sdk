@@ -6,8 +6,9 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.emarsys.core.CoreCompletionHandler;
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider;
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory;
 import com.emarsys.core.connection.ConnectionProvider;
+import com.emarsys.core.handler.SdkHandler;
 import com.emarsys.core.provider.timestamp.TimestampProvider;
 import com.emarsys.core.request.RestClient;
 import com.emarsys.core.request.model.RequestModel;
@@ -23,7 +24,7 @@ public class FakeRestClient extends RestClient {
     private Mode mode;
     private List<ResponseModel> responses;
     private List<Exception> exceptions;
-    private Handler handler;
+    private SdkHandler handler;
 
     public enum Mode {SUCCESS, ERROR_RESPONSE_MODEL, ERROR_EXCEPTION}
 
@@ -34,7 +35,7 @@ public class FakeRestClient extends RestClient {
     @SuppressWarnings("unchecked")
     public FakeRestClient(List<ResponseModel> responses, Mode mode) {
         super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), mock(List.class),
-                new Handler(Looper.getMainLooper()), new CoreSdkHandlerProvider().provideHandler());
+                ConcurrentHandlerHolderFactory.INSTANCE.create());
         this.responses = new ArrayList<>(responses);
         this.mode = mode;
     }
@@ -43,7 +44,7 @@ public class FakeRestClient extends RestClient {
         this(Collections.singletonList(exception));
     }
 
-    public FakeRestClient(Exception exception, Handler handler) {
+    public FakeRestClient(Exception exception, SdkHandler handler) {
         this(Collections.singletonList(exception));
         this.handler = handler;
     }
@@ -51,19 +52,19 @@ public class FakeRestClient extends RestClient {
     @SuppressWarnings("unchecked")
     public FakeRestClient(List<Exception> exceptions) {
         super(mock(ConnectionProvider.class), mock(TimestampProvider.class), mock(ResponseHandlersProcessor.class), mock(List.class),
-                new Handler(Looper.getMainLooper()), new CoreSdkHandlerProvider().provideHandler());
+                ConcurrentHandlerHolderFactory.INSTANCE.create());
         this.exceptions = new ArrayList<>(exceptions);
         this.mode = Mode.ERROR_EXCEPTION;
     }
 
-    public FakeRestClient(ResponseModel returnValue, Mode mode, Handler handler){
+    public FakeRestClient(ResponseModel returnValue, Mode mode, SdkHandler handler) {
         this(returnValue, mode);
         this.handler = handler;
     }
 
     @Override
     public void execute(final RequestModel model, final CoreCompletionHandler completionHandler) {
-        handler = handler == null ? new Handler(Looper.getMainLooper()) : handler;
+        handler = handler == null ? new SdkHandler(new Handler(Looper.getMainLooper())) : handler;
         handler.postDelayed(() -> {
             if (mode == Mode.SUCCESS) {
                 completionHandler.onSuccess(model.getId(), getCurrentItem(responses));

@@ -1,17 +1,16 @@
 package com.emarsys.mobileengage.iam
 
 import android.app.Activity
-import android.os.Handler
-import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.test.rule.ActivityTestRule
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.MobileEngageInternal
@@ -65,11 +64,15 @@ class OverlayInAppPresenterTest {
     private lateinit var mockIamJsBridgeFactory: IamJsBridgeFactory
     private lateinit var mockJsBridge: IamJsBridge
     private lateinit var mockJSCommandFactory: JSCommandFactory
-    private lateinit var uiHandler: Handler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Before
     fun setUp() {
-        iamStaticWebViewProvider = IamStaticWebViewProvider(InstrumentationRegistry.getTargetContext(), Handler(Looper.getMainLooper()))
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
+        iamStaticWebViewProvider = IamStaticWebViewProvider(
+            InstrumentationRegistry.getTargetContext(),
+            concurrentHandlerHolder
+        )
         mockInAppInternal = mock()
         mockIamDialogProvider = mock()
         mockButtonClickedRepository = mock()
@@ -83,20 +86,19 @@ class OverlayInAppPresenterTest {
             on { createJsBridge(anyOrNull(), anyOrNull()) } doReturn mockJsBridge
         }
 
-        val coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
-        uiHandler = Handler(Looper.getMainLooper())
 
 
-        overlayPresenter = OverlayInAppPresenter(coreSdkHandler,
-                uiHandler,
-                iamStaticWebViewProvider,
-                mockInAppInternal,
-                mockIamDialogProvider,
-                mockButtonClickedRepository,
-                mockDisplayedIamRepository,
-                mockTimestampProvider,
-                mockActivityProvider,
-                mockIamJsBridgeFactory)
+        overlayPresenter = OverlayInAppPresenter(
+            concurrentHandlerHolder,
+            iamStaticWebViewProvider,
+            mockInAppInternal,
+            mockIamDialogProvider,
+            mockButtonClickedRepository,
+            mockDisplayedIamRepository,
+            mockTimestampProvider,
+            mockActivityProvider,
+            mockIamJsBridgeFactory
+        )
     }
 
     @Test
@@ -110,20 +112,22 @@ class OverlayInAppPresenterTest {
         whenever(activityMock.supportFragmentManager).thenReturn(fragmentManager)
         whenever(fragmentManager.findFragmentById(any())).thenReturn(fragmentMock)
         whenever(mockActivityProvider.get()).thenReturn(activityMock)
-        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(iamDialog)
+        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(
+            iamDialog
+        )
 
         val countDownLatch = CountDownLatch(1)
 
         overlayPresenter.present(
-                "1",
-                SID,
-                URL,
-                "requestId",
-                0L,
-                "<html><body><p>Hello</p></body></html>",
-                MessageLoadedListener {
-                    countDownLatch.countDown()
-                }
+            "1",
+            SID,
+            URL,
+            "requestId",
+            0L,
+            "<html><body><p>Hello</p></body></html>",
+            MessageLoadedListener {
+                countDownLatch.countDown()
+            }
         )
 
         countDownLatch.await()
@@ -142,20 +146,22 @@ class OverlayInAppPresenterTest {
         whenever(activityMock.supportFragmentManager).thenReturn(fragmentManager)
         whenever(fragmentManager.findFragmentById(any())).thenReturn(fragmentMock)
         whenever(mockActivityProvider.get()).thenReturn(activityMock)
-        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(iamDialog)
+        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(
+            iamDialog
+        )
 
         val countDownLatch = CountDownLatch(1)
 
         overlayPresenter.present(
-                "1",
-                SID,
-                URL,
-                "requestId",
-                0L,
-                "<html><body><p>Hello</p></body></html>",
-                MessageLoadedListener {
-                    countDownLatch.countDown()
-                }
+            "1",
+            SID,
+            URL,
+            "requestId",
+            0L,
+            "<html><body><p>Hello</p></body></html>",
+            MessageLoadedListener {
+                countDownLatch.countDown()
+            }
         )
 
         countDownLatch.await()
@@ -169,20 +175,22 @@ class OverlayInAppPresenterTest {
         val activity: Activity = mock()
 
         whenever(mockActivityProvider.get()).thenReturn(activity)
-        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(iamDialog)
+        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(
+            iamDialog
+        )
 
         val countDownLatch = CountDownLatch(1)
 
         overlayPresenter.present(
-                "1",
-                SID,
-                URL,
-                "requestId",
-                0L,
-                "<html><body><p>Hello</p></body></html>",
-                MessageLoadedListener {
-                    countDownLatch.countDown()
-                }
+            "1",
+            SID,
+            URL,
+            "requestId",
+            0L,
+            "<html><body><p>Hello</p></body></html>",
+            MessageLoadedListener {
+                countDownLatch.countDown()
+            }
         )
 
         countDownLatch.await()
@@ -195,20 +203,22 @@ class OverlayInAppPresenterTest {
         val iamDialog: IamDialog = mock()
 
         whenever(mockActivityProvider.get()).thenReturn(null)
-        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(iamDialog)
+        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(
+            iamDialog
+        )
 
         val countDownLatch = CountDownLatch(1)
 
         overlayPresenter.present(
-                "1",
-                SID,
-                URL,
-                "requestId",
-                0L,
-                "<html><body><p>Hello</p></body></html>",
-                MessageLoadedListener {
-                    countDownLatch.countDown()
-                }
+            "1",
+            SID,
+            URL,
+            "requestId",
+            0L,
+            "<html><body><p>Hello</p></body></html>",
+            MessageLoadedListener {
+                countDownLatch.countDown()
+            }
         )
 
         countDownLatch.await()
@@ -223,23 +233,27 @@ class OverlayInAppPresenterTest {
         val fragmentManager: FragmentManager = mock()
         val fragment: Fragment = mock()
 
-        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(iamDialog)
+        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(
+            iamDialog
+        )
         whenever(mockActivityProvider.get()).thenReturn(activity)
         whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
-        whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(fragment)
+        whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(
+            fragment
+        )
 
         val countDownLatch = CountDownLatch(1)
 
         overlayPresenter.present(
-                "1",
-                SID,
-                URL,
-                "requestId",
-                0L,
-                "<html><body><p>Hello</p></body></html>",
-                MessageLoadedListener {
-                    countDownLatch.countDown()
-                }
+            "1",
+            SID,
+            URL,
+            "requestId",
+            0L,
+            "<html><body><p>Hello</p></body></html>",
+            MessageLoadedListener {
+                countDownLatch.countDown()
+            }
         )
 
         countDownLatch.await()
@@ -258,7 +272,7 @@ class OverlayInAppPresenterTest {
 
         overlayPresenter.onCloseTriggered().invoke()
         val latch = CountDownLatch(1)
-        uiHandler.post { latch.countDown() }
+        concurrentHandlerHolder.postOnMain { latch.countDown() }
         latch.await()
 
         verify(fragment).dismiss()
@@ -272,13 +286,15 @@ class OverlayInAppPresenterTest {
         whenever(mockInAppInternal.eventHandler).thenReturn(mockEventHandler)
 
         val payload = JSONObject()
-                .put("payloadKey1",
-                        JSONObject()
-                                .put("payloadKey2", "payloadValue1"))
+            .put(
+                "payloadKey1",
+                JSONObject()
+                    .put("payloadKey2", "payloadValue1")
+            )
         val json = JSONObject()
-                .put("name", "eventName")
-                .put("id", "123456789")
-                .put("payload", payload)
+            .put("name", "eventName")
+            .put("id", "123456789")
+            .put("payload", payload)
 
         overlayPresenter.onAppEventTriggered().invoke("eventName", json)
 
@@ -293,13 +309,19 @@ class OverlayInAppPresenterTest {
         whenever(mockInAppInternal.eventHandler).thenReturn(mockEventHandler)
 
         val threadSpy: ThreadSpy<*> = ThreadSpy<Any?>()
-        whenever(mockInAppInternal.eventHandler?.handleEvent(anyOrNull(), anyOrNull(), anyOrNull())).doAnswer(threadSpy)
+        whenever(
+            mockInAppInternal.eventHandler?.handleEvent(
+                anyOrNull(),
+                anyOrNull(),
+                anyOrNull()
+            )
+        ).doAnswer(threadSpy)
 
         val id = "12346789"
         val eventName = "eventName"
         val json = JSONObject()
-                .put("id", id)
-                .put("name", eventName)
+            .put("id", id)
+            .put("name", eventName)
 
         overlayPresenter.onAppEventTriggered().invoke("eventName", json)
 
@@ -315,8 +337,8 @@ class OverlayInAppPresenterTest {
         val id = "12346789"
         val eventName = "eventName"
         val json = JSONObject()
-                .put("id", id)
-                .put("name", eventName)
+            .put("id", id)
+            .put("name", eventName)
 
         overlayPresenter.onAppEventTriggered().invoke("eventName", json)
 

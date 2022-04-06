@@ -13,6 +13,6 @@ class FetchGeofencesAction(private val geofenceInternal: GeofenceInternal,
 ) : ActivityLifecycleAction {
 
     override fun execute(activity: Activity?) {
-        geofenceInternal.proxyApi(mobileEngage().coreSdkHandler).fetchGeofences(null)
+        geofenceInternal.proxyApi(mobileEngage().concurrentHandlerHolder).fetchGeofences(null)
     }
 }

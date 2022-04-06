@@ -12,11 +12,13 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.storage.Storage
 
 @Mockable
-class HardwareIdProvider(private val uuidProvider: UUIDProvider,
-                         private val repository: Repository<HardwareIdentification?, SqlSpecification>,
-                         private val hwIdStorage: Storage<String?>,
-                         private val hardwareIdContentResolver: HardwareIdContentResolver,
-                         private val hardwareIdentificationCrypto: HardwareIdentificationCrypto) {
+class HardwareIdProvider(
+    private val uuidProvider: UUIDProvider,
+    private val repository: Repository<HardwareIdentification?, SqlSpecification>,
+    private val hwIdStorage: Storage<String?>,
+    private val hardwareIdContentResolver: HardwareIdContentResolver,
+    private val hardwareIdentificationCrypto: HardwareIdentificationCrypto
+) {
 
     fun provideHardwareId(): String {
         val hardware = repository.query(Everything()).firstOrNull()
@@ -37,10 +39,8 @@ class HardwareIdProvider(private val uuidProvider: UUIDProvider,
     }
 
     private fun getHardwareIdentification(): HardwareIdentification {
-        return (hwIdStorage.get()
-                        ?: hardwareIdContentResolver.resolveHardwareId()
-                        ?: generateNewHardwareId()
-                ).asEncryptedHardwareIdentification()
+        return (hwIdStorage.get() ?: hardwareIdContentResolver.resolveHardwareId()
+        ?: generateNewHardwareId()).asEncryptedHardwareIdentification()
     }
 
     private fun generateNewHardwareId(): String {

@@ -10,6 +10,8 @@ import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragment
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.util.log.entry.InAppLoadingTime
@@ -44,7 +46,7 @@ class IamDialogTest {
     }
 
     private lateinit var mockTimestampProvider: TimestampProvider
-    private lateinit var uiHandler: Handler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -52,18 +54,19 @@ class IamDialogTest {
 
     @Rule
     @JvmField
-    var activityScenarioRule: ActivityScenarioRule<FakeActivity> = ActivityScenarioRule(FakeActivity::class.java)
+    var activityScenarioRule: ActivityScenarioRule<FakeActivity> =
+        ActivityScenarioRule(FakeActivity::class.java)
 
     @Before
     fun setUp() {
-        uiHandler = Handler(Looper.getMainLooper())
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockTimestampProvider = mock()
         val mockUuidProvider: UUIDProvider = mock {
             on { provideId() } doReturn "uuid"
         }
         setupMobileEngageComponent(
             FakeMobileEngageDependencyContainer(
-                uiHandler = uiHandler,
+                concurrentHandlerHolder = concurrentHandlerHolder,
                 timestampProvider = mockTimestampProvider,
                 uuidProvider = mockUuidProvider
             )
@@ -81,17 +84,27 @@ class IamDialogTest {
     fun testDefaultConstructor() {
         val dialog = IamDialog()
 
-        val dialogUiHandler = ReflectionTestUtils.getInstanceField<Handler>(dialog, "uiHandler")
+        val dialogUiHandler =
+            ReflectionTestUtils.getInstanceField<ConcurrentHandlerHolder>(
+                dialog,
+                "concurrentHandlerHolder"
+            )
         val dialogTimestampProvider =
             ReflectionTestUtils.getInstanceField<TimestampProvider>(dialog, "timestampProvider")
 
-        dialogUiHandler shouldBe uiHandler
+        dialogUiHandler shouldBe concurrentHandlerHolder
         dialogTimestampProvider shouldBe mockTimestampProvider
     }
 
     @Test
     fun testCreate_shouldReturnImageDialogInstance() {
-        val fragmentScenario = launchFragment { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        val fragmentScenario =
+            launchFragment {
+                IamDialog(
+                    mobileEngage().concurrentHandlerHolder,
+                    mobileEngage().timestampProvider
+                )
+            }
         fragmentScenario.onFragment { fragment ->
             fragment shouldNotBe null
         }
@@ -105,7 +118,12 @@ class IamDialogTest {
         bundle.putString(IamDialog.SID, null)
         bundle.putString(IamDialog.URL, null)
         bundle.putString(IamDialog.REQUEST_ID, null)
-        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        val fragmentScenario = launchFragment(bundle) {
+            IamDialog(
+                mobileEngage().concurrentHandlerHolder,
+                mobileEngage().timestampProvider
+            )
+        }
         fragmentScenario.onFragment { fragment ->
             val result = fragment.arguments
 
@@ -123,7 +141,12 @@ class IamDialogTest {
         bundle.putString(IamDialog.SID, null)
         bundle.putString(IamDialog.URL, null)
         bundle.putString(IamDialog.REQUEST_ID, requestId)
-        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        val fragmentScenario = launchFragment(bundle) {
+            IamDialog(
+                mobileEngage().concurrentHandlerHolder,
+                mobileEngage().timestampProvider
+            )
+        }
         fragmentScenario.onFragment { fragment ->
             val result = fragment.arguments
 
@@ -142,7 +165,12 @@ class IamDialogTest {
         bundle.putString(IamDialog.URL, null)
         bundle.putString(IamDialog.REQUEST_ID, requestId)
 
-        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        val fragmentScenario = launchFragment(bundle) {
+            IamDialog(
+                mobileEngage().concurrentHandlerHolder,
+                mobileEngage().timestampProvider
+            )
+        }
         fragmentScenario.onFragment { fragment ->
             val result = fragment.arguments
 
@@ -161,7 +189,12 @@ class IamDialogTest {
         bundle.putString(IamDialog.URL, URL)
         bundle.putString(IamDialog.REQUEST_ID, requestId)
 
-        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        val fragmentScenario = launchFragment(bundle) {
+            IamDialog(
+                mobileEngage().concurrentHandlerHolder,
+                mobileEngage().timestampProvider
+            )
+        }
         fragmentScenario.onFragment { fragment ->
             val result = fragment.arguments
 
@@ -178,7 +211,12 @@ class IamDialogTest {
         bundle.putString(IamDialog.SID, SID)
         bundle.putString(IamDialog.URL, URL)
         bundle.putString(IamDialog.REQUEST_ID, null)
-        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        val fragmentScenario = launchFragment(bundle) {
+            IamDialog(
+                mobileEngage().concurrentHandlerHolder,
+                mobileEngage().timestampProvider
+            )
+        }
         fragmentScenario.onFragment { fragment ->
             val result = fragment.arguments
 
@@ -195,7 +233,12 @@ class IamDialogTest {
         bundle.putString(IamDialog.SID, SID)
         bundle.putString(IamDialog.URL, URL)
         bundle.putString(IamDialog.REQUEST_ID, null)
-        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        val fragmentScenario = launchFragment(bundle) {
+            IamDialog(
+                mobileEngage().concurrentHandlerHolder,
+                mobileEngage().timestampProvider
+            )
+        }
         displayDialog(fragmentScenario)
         fragmentScenario.onFragment {
             val expected = 0.0f
@@ -213,7 +256,7 @@ class IamDialogTest {
         bundle.putString(IamDialog.REQUEST_ID, null)
 
         val fragmentScenario = launchFragment(bundle) {
-            IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider)
+            IamDialog(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
         }
 
         displayDialog(fragmentScenario)
@@ -240,7 +283,12 @@ class IamDialogTest {
         bundle.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
         bundle.putSerializable("loading_time", InAppLoadingTime(0, 0))
 
-        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        val fragmentScenario = launchFragment(bundle) {
+            IamDialog(
+                mobileEngage().concurrentHandlerHolder,
+                mobileEngage().timestampProvider
+            )
+        }
 
         displayDialog(fragmentScenario)
 
@@ -271,7 +319,8 @@ class IamDialogTest {
         bundle.putString(IamDialog.URL, URL)
         bundle.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
 
-        val fragmentScenario = launchFragment(bundle) { IamDialog(uiHandler, mockTimestampProvider) }
+        val fragmentScenario =
+            launchFragment(bundle) { IamDialog(concurrentHandlerHolder, mockTimestampProvider) }
         val fragmentLatch = CountDownLatch(1)
 
         displayDialog(fragmentScenario)
@@ -300,7 +349,12 @@ class IamDialogTest {
         bundle.putString(IamDialog.URL, URL)
         bundle.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
 
-        val fragmentScenario = launchFragment(bundle) { IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider) }
+        val fragmentScenario = launchFragment(bundle) {
+            IamDialog(
+                mobileEngage().concurrentHandlerHolder,
+                mobileEngage().timestampProvider
+            )
+        }
         val fragmentLatch = CountDownLatch(1)
 
         displayDialog(fragmentScenario)
@@ -327,7 +381,10 @@ class IamDialogTest {
         args.putString(CAMPAIGN_ID_KEY, "123456789")
         val actions: List<OnDialogShownAction> = listOf(mock(), mock(), mock())
         val fragmentScenario = launchFragment(args) {
-            IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider).apply {
+            IamDialog(
+                mobileEngage().concurrentHandlerHolder,
+                mobileEngage().timestampProvider
+            ).apply {
                 setActions(actions)
             }
         }
@@ -349,7 +406,10 @@ class IamDialogTest {
         args.putString(IamDialog.SID, SID)
         args.putString(IamDialog.URL, URL)
         val fragmentScenario = launchFragment(args) {
-            IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider).apply {
+            IamDialog(
+                mobileEngage().concurrentHandlerHolder,
+                mobileEngage().timestampProvider
+            ).apply {
                 setActions(actions)
             }
         }
@@ -372,7 +432,7 @@ class IamDialogTest {
         args.putString(IamDialog.SID, SID)
         args.putString(IamDialog.URL, URL)
         val fragmentScenario = launchFragment(args) {
-            IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider)
+            IamDialog(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
         }
 
         fragmentScenario.onFragment {
@@ -396,7 +456,7 @@ class IamDialogTest {
         args.putString(IamDialog.SID, SID)
         args.putString(IamDialog.URL, URL)
         val fragmentScenario = launchFragment(args) {
-            IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider)
+            IamDialog(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
         }
         fragmentScenario.onFragment {
             it.activity?.runOnUiThread {
@@ -419,7 +479,7 @@ class IamDialogTest {
         var result: Exception? = null
         try {
             val fragmentScenario = launchFragment {
-                IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider)
+                IamDialog(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
             }
             displayDialog(fragmentScenario)
             fragmentScenario.onFragment {
@@ -438,12 +498,16 @@ class IamDialogTest {
         var result: Exception? = null
         try {
             initWebViewProvider()
-            uiHandler.post {
-                val webView = IamStaticWebViewProvider(getTargetContext(), uiHandler).provideWebView()
+            concurrentHandlerHolder.postOnMain {
+                val webView =
+                    IamStaticWebViewProvider(
+                        getTargetContext(),
+                        concurrentHandlerHolder
+                    ).provideWebView()
                 LinearLayout(getTargetContext()).addView(webView)
             }
             val fragmentScenario = launchFragment {
-                IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider)
+                IamDialog(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
             }
             displayDialog(fragmentScenario)
             fragmentScenario.onFragment {
@@ -465,7 +529,7 @@ class IamDialogTest {
         args.putSerializable("loading_time", InAppLoadingTime(0, 0))
         try {
             val fragmentScenario = launchFragment(args) {
-                IamDialog(mobileEngage().uiHandler, mobileEngage().timestampProvider)
+                IamDialog(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
             }
             displayDialog(fragmentScenario)
         } catch (exception: IllegalArgumentException) {

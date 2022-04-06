@@ -4,6 +4,8 @@ import android.content.ContentValues
 import android.database.Cursor
 import com.emarsys.core.database.CoreSQLiteDatabase
 import com.emarsys.core.database.helper.DbHelper
+import com.emarsys.core.handler.ConcurrentHandlerHolder
+
 
 private inline fun <T> CoreSQLiteDatabase.inTransaction(statement: CoreSQLiteDatabase.() -> T): T {
     this.beginTransaction()
@@ -17,7 +19,12 @@ private inline fun <T> CoreSQLiteDatabase.inTransaction(statement: CoreSQLiteDat
     return result
 }
 
-abstract class AbstractSqliteRepository<T>(var tableName: String, var dbHelper: DbHelper) : Repository<T, SqlSpecification> {
+abstract class AbstractSqliteRepository<T>(
+    var tableName: String,
+    var dbHelper: DbHelper,
+    var concurrentHandlerHolder: ConcurrentHandlerHolder
+) : Repository<T, SqlSpecification> {
+
     abstract fun contentValuesFromItem(item: T): ContentValues
     abstract fun itemFromCursor(cursor: Cursor): T
 
@@ -32,38 +39,56 @@ abstract class AbstractSqliteRepository<T>(var tableName: String, var dbHelper: 
     override fun update(item: T, specification: SqlSpecification): Int {
         val values = contentValuesFromItem(item)
         val database = dbHelper.writableCoreDatabase
-        return database.inTransaction {
-            update(tableName, values, specification.selection, specification.selectionArgs)
+        var result = 0
+
+        database.inTransaction {
+            result = update(
+                tableName,
+                values,
+                specification.selection,
+                specification.selectionArgs
+            )
         }
+
+        return result
     }
 
     override fun query(specification: SqlSpecification): List<T> {
         val database = dbHelper.readableCoreDatabase
-        database.query(specification.isDistinct,
-                tableName,
-                specification.columns,
-                specification.selection,
-                specification.selectionArgs,
-                specification.groupBy,
-                specification.having,
-                specification.orderBy,
-                specification.limit).use { cursor -> return mapCursorToResultList(cursor) }
+
+        database.query(
+            specification.isDistinct,
+            tableName,
+            specification.columns,
+            specification.selection,
+            specification.selectionArgs,
+            specification.groupBy,
+            specification.having,
+            specification.orderBy,
+            specification.limit
+        ).use { cursor -> return mapCursorToResultList(cursor) }
+
+
     }
 
     override fun remove(specification: SqlSpecification) {
         val database = dbHelper.writableCoreDatabase
-        database.inTransaction {
+
+        return database.inTransaction {
             delete(
-                    tableName,
-                    specification.selection,
-                    specification.selectionArgs)
+                tableName,
+                specification.selection,
+                specification.selectionArgs
+            )
         }
     }
 
     override fun isEmpty(): Boolean {
         val database = dbHelper.readableCoreDatabase
-        database.rawQuery("SELECT COUNT(*) FROM $tableName;",
-                null).use { cursor ->
+        database.rawQuery(
+            "SELECT COUNT(*) FROM $tableName;",
+            null
+        ).use { cursor ->
             cursor.moveToFirst()
             val count = cursor.getInt(cursor.getColumnIndexOrThrow("COUNT(*)"))
             return count == 0

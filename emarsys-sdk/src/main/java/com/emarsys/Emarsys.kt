@@ -2,7 +2,6 @@ package com.emarsys
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Looper
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.emarsys.common.feature.InnerFeature.*
 import com.emarsys.config.ConfigApi
@@ -78,7 +77,7 @@ object Emarsys {
             DefaultEmarsysDependencies(emarsysConfig)
         }
 
-        emarsys().uiHandler.post {
+        emarsys().concurrentHandlerHolder.postOnMain {
             try {
                 registerLifecycleObservers()
             } catch (e: Throwable) {
@@ -86,8 +85,9 @@ object Emarsys {
             }
         }
 
-        emarsys().coreSdkHandler.post {
-            registerWatchDogs(emarsysConfig)
+        registerWatchDogs(emarsysConfig)
+
+        emarsys().concurrentHandlerHolder.coreHandler.post {
             registerDatabaseTriggers()
 
             if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)) {
@@ -97,10 +97,8 @@ object Emarsys {
     }
 
     private fun registerLifecycleObservers() {
-        if (Looper.getMainLooper().isCurrentThread) {
-            val appLifecycleObserver = emarsys().appLifecycleObserver
-            ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
-        }
+        val appLifecycleObserver = emarsys().appLifecycleObserver
+        ProcessLifecycleOwner.get().lifecycle.addObserver(appLifecycleObserver)
     }
 
     @JvmStatic
@@ -115,7 +113,7 @@ object Emarsys {
             && !FeatureRegistry.isFeatureEnabled(PREDICT)
         ) {
             EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
+                .proxyApi(mobileEngage().concurrentHandlerHolder)
                 .setAuthenticatedContact(contactFieldId, openIdToken, completionListener)
         }
 
@@ -134,12 +132,12 @@ object Emarsys {
             && !FeatureRegistry.isFeatureEnabled(PREDICT)
         ) {
             EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
+                .proxyApi(mobileEngage().concurrentHandlerHolder)
                 .setContact(contactFieldId, contactFieldValue, completionListener)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.predictRestrictedApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
+                .proxyApi(mobileEngage().concurrentHandlerHolder)
                 .setContact(contactFieldId, contactFieldValue)
         }
     }
@@ -152,12 +150,12 @@ object Emarsys {
             && !FeatureRegistry.isFeatureEnabled(PREDICT)
         ) {
             EmarsysDependencyInjection.mobileEngageApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
+                .proxyApi(mobileEngage().concurrentHandlerHolder)
                 .clearContact(completionListener)
         }
         if (FeatureRegistry.isFeatureEnabled(PREDICT)) {
             EmarsysDependencyInjection.predictRestrictedApi()
-                .proxyApi(mobileEngage().coreSdkHandler)
+                .proxyApi(mobileEngage().concurrentHandlerHolder)
                 .clearContact()
         }
     }
@@ -170,7 +168,7 @@ object Emarsys {
         completionListener: CompletionListener? = null
     ) {
         EmarsysDependencyInjection.deepLinkApi()
-            .proxyApi(mobileEngage().coreSdkHandler)
+            .proxyApi(mobileEngage().concurrentHandlerHolder)
             .trackDeepLinkOpen(activity, intent, completionListener)
     }
 
@@ -182,7 +180,7 @@ object Emarsys {
         completionListener: CompletionListener? = null
     ) {
         EmarsysDependencyInjection.eventServiceApi()
-            .proxyApi(mobileEngage().coreSdkHandler)
+            .proxyApi(mobileEngage().concurrentHandlerHolder)
             .trackCustomEventAsync(eventName, eventAttributes, completionListener)
     }
 

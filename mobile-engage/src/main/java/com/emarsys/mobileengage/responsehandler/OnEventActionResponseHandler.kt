@@ -2,7 +2,7 @@ package com.emarsys.mobileengage.responsehandler
 
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.response.AbstractResponseHandler
 import com.emarsys.core.response.ResponseModel
@@ -17,17 +17,20 @@ import com.emarsys.mobileengage.notification.ActionCommandFactory
 import org.json.JSONException
 import org.json.JSONObject
 
-class OnEventActionResponseHandler(private val actionCommandFactory: ActionCommandFactory,
-                                   private val repository: Repository<DisplayedIam, SqlSpecification>,
-                                   private val eventServiceInternal: EventServiceInternal,
-                                   private val timestampProvider: TimestampProvider,
-                                   private val coreSdkHandler: CoreSdkHandler) : AbstractResponseHandler() {
+class OnEventActionResponseHandler(
+    private val actionCommandFactory: ActionCommandFactory,
+    private val repository: Repository<DisplayedIam, SqlSpecification>,
+    private val eventServiceInternal: EventServiceInternal,
+    private val timestampProvider: TimestampProvider,
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder
+) : AbstractResponseHandler() {
 
     override fun shouldHandleResponse(responseModel: ResponseModel): Boolean {
         var shouldHandle = false
 
         try {
-            val onEventAction: JSONObject? = responseModel.parsedBody?.getJSONObject("onEventAction")
+            val onEventAction: JSONObject? =
+                responseModel.parsedBody?.getJSONObject("onEventAction")
             shouldHandle = onEventAction?.has("actions") ?: false
         } catch (ignored: JSONException) {
         }
@@ -46,8 +49,15 @@ class OnEventActionResponseHandler(private val actionCommandFactory: ActionComma
                 it?.run()
             }
 
-            SaveDisplayedIamAction(coreSdkHandler, repository, timestampProvider).execute(campaignId, null, null)
-            SendDisplayedIamAction(coreSdkHandler, eventServiceInternal).execute(campaignId, null, null)
+            SaveDisplayedIamAction(concurrentHandlerHolder, repository, timestampProvider).execute(
+                campaignId,
+                null,
+                null
+            )
+            SendDisplayedIamAction(
+                concurrentHandlerHolder,
+                eventServiceInternal
+            ).execute(campaignId, null, null)
 
         } catch (exception: JSONException) {
             Logger.error(CrashLog(exception))

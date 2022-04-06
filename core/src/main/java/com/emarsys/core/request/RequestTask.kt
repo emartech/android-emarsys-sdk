@@ -1,14 +1,11 @@
 package com.emarsys.core.request
 
-import android.os.AsyncTask
-import com.emarsys.core.CoreCompletionHandler
-import com.emarsys.core.Mapper
+import com.emarsys.core.Mockable
+import com.emarsys.core.api.result.Try
 import com.emarsys.core.connection.ConnectionProvider
-import com.emarsys.core.handler.CoreSdkHandler
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
-import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.util.JsonUtils.fromMap
 import com.emarsys.core.util.filterNotNull
@@ -22,58 +19,40 @@ import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import javax.net.ssl.HttpsURLConnection
 
-open class RequestTask(
-        private val requestModel: RequestModel,
-        private val coreCompletionHandler: CoreCompletionHandler,
-        private val connectionProvider: ConnectionProvider,
-        private val timestampProvider: TimestampProvider,
-        private val responseHandlersProcessor: ResponseHandlersProcessor,
-        private val requestModelMappers: List<Mapper<RequestModel, RequestModel>>,
-        private val coreSdkHandler: CoreSdkHandler) : AsyncTask<Void, Long, Void>() {
+@Mockable
+class RequestTask(
+    private val requestModel: RequestModel,
+    private val connectionProvider: ConnectionProvider,
+    private val timestampProvider: TimestampProvider
+) {
 
     companion object {
         private const val TIMEOUT = 30000
     }
 
-    private var responseModel: ResponseModel? = null
-    private var exception: Exception? = null
-
-    public override fun doInBackground(vararg params: Void?): Void? {
+    fun execute(): Try<ResponseModel> {
+        var responseModel: ResponseModel? = null
+        var exception: Exception? = null
         val dbEnd = timestampProvider.provideTimestamp()
         var connection: HttpsURLConnection? = null
         try {
-            val updatedRequestModel = mapRequestModel(requestModel)
-            connection = connectionProvider.provideConnection(updatedRequestModel)
-            initializeConnection(connection, updatedRequestModel)
+            connection = connectionProvider.provideConnection(requestModel)
+            initializeConnection(connection, requestModel)
             connection.connectTimeout = 20000
             connection.connect()
-            sendBody(connection, updatedRequestModel)
+
+            sendBody(connection, requestModel)
             responseModel = readResponse(connection)
 
-            debug(RequestLog(responseModel!!, dbEnd, updatedRequestModel))
-            info(RequestLog(responseModel!!, dbEnd), strict = true)
+            debug(RequestLog(responseModel, dbEnd, requestModel))
+            info(RequestLog(responseModel, dbEnd), strict = true)
 
         } catch (e: Exception) {
             exception = e
         } finally {
             connection?.disconnect()
         }
-        return null
-    }
-
-    override fun onPostExecute(result: Void?) {
-        coreSdkHandler.post {
-            if (exception != null) {
-                coreCompletionHandler.onError(requestModel.id, exception!!)
-            } else if (responseModel != null) {
-                responseHandlersProcessor.process(responseModel)
-                if (isStatusCodeOK(responseModel!!.statusCode)) {
-                    coreCompletionHandler.onSuccess(requestModel.id, responseModel!!)
-                } else {
-                    coreCompletionHandler.onError(requestModel.id, responseModel!!)
-                }
-            }
-        }
+        return Try(responseModel, exception)
     }
 
     private fun initializeConnection(connection: HttpsURLConnection, model: RequestModel) {
@@ -93,7 +72,8 @@ open class RequestTask(
 
     private fun sendBody(connection: HttpsURLConnection, model: RequestModel) {
         if (model.payload != null) {
-            val payload = fromMap(model.payload!!.filterNotNull()).toString().toByteArray(StandardCharsets.UTF_8)
+            val payload = fromMap(model.payload!!.filterNotNull()).toString()
+                .toByteArray(StandardCharsets.UTF_8)
             val writer = BufferedOutputStream(connection.outputStream)
             writer.write(payload)
             writer.close()
@@ -106,18 +86,17 @@ open class RequestTask(
         val headers = connection.headerFields
         val body = readBody(connection)
         return ResponseModel.Builder(timestampProvider)
-                .statusCode(statusCode)
-                .message(message)
-                .headers(headers)
-                .body(body)
-                .requestModel(requestModel)
-                .build()
+            .statusCode(statusCode)
+            .message(message)
+            .headers(headers)
+            .body(body)
+            .requestModel(requestModel)
+            .build()
     }
 
     private fun readBody(connection: HttpsURLConnection?): String {
         val responseCode = connection!!.responseCode
-        val inputStream: InputStream
-        inputStream = if (isStatusCodeOK(responseCode)) {
+        val inputStream: InputStream = if (isStatusCodeOK(responseCode)) {
             connection.inputStream
         } else {
             connection.errorStream
@@ -134,13 +113,5 @@ open class RequestTask(
 
     private fun isStatusCodeOK(responseCode: Int): Boolean {
         return responseCode in 200..299
-    }
-
-    private fun mapRequestModel(requestModel: RequestModel): RequestModel {
-        var updatedRequestModel = requestModel
-        for (mapper in requestModelMappers) {
-            updatedRequestModel = mapper.map(updatedRequestModel)
-        }
-        return updatedRequestModel
     }
 }

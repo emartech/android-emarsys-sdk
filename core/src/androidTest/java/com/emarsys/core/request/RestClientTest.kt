@@ -1,12 +1,10 @@
 package com.emarsys.core.request
 
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.Mapper
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionProvider
 import com.emarsys.core.fake.FakeCompletionHandler
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestMethod
@@ -26,7 +24,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import java.net.UnknownHostException
 import java.util.concurrent.CountDownLatch
 
@@ -40,8 +40,7 @@ class RestClientTest {
     private lateinit var mockResponseHandlersProcessor: ResponseHandlersProcessor
     private lateinit var mockRequestModelMapper: Mapper<RequestModel, RequestModel>
     private lateinit var requestModelMappers: List<Mapper<RequestModel, RequestModel>>
-    private lateinit var uiHandler: Handler
-    private lateinit var coreSdkHandler: CoreSdkHandler
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -56,8 +55,7 @@ class RestClientTest {
         connectionProvider = ConnectionProvider()
         mockResponseHandlersProcessor = mock()
         mockRequestModelMapper = mock() as Mapper<RequestModel, RequestModel>
-        uiHandler = Handler(Looper.getMainLooper())
-        coreSdkHandler = CoreSdkHandlerProvider().provideHandler()
+        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
 
         whenever(mockRequestModelMapper.map(any())).thenAnswer { invocation ->
             val args = invocation.arguments
@@ -65,38 +63,14 @@ class RestClientTest {
         }
 
         requestModelMappers = listOf(mockRequestModelMapper)
-        client = RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, uiHandler, coreSdkHandler)
+        client = RestClient(
+            connectionProvider,
+            mockTimestampProvider,
+            mockResponseHandlersProcessor,
+            requestModelMappers,
+            concurrentHandlerHolder
+        )
         latch = CountDownLatch(1)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_connectionProvider_mustNotBeNull() {
-        RestClient(null, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, uiHandler, coreSdkHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_timestampProvider_mustNotBeNull() {
-        RestClient(connectionProvider, null, mockResponseHandlersProcessor, requestModelMappers, uiHandler, coreSdkHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_responseHandlersRunner_mustNotBeNull() {
-        RestClient(connectionProvider, mockTimestampProvider, null, requestModelMappers, uiHandler, coreSdkHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestModelMapper_mustNotBeNull() {
-        RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, null, uiHandler, coreSdkHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_uiHandler_mustNotBeNull() {
-        RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, null, coreSdkHandler)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_coreSdkHandler_mustNotBeNull() {
-        RestClient(connectionProvider, mockTimestampProvider, mockResponseHandlersProcessor, requestModelMappers, uiHandler, null)
     }
 
     @Test
@@ -136,4 +110,30 @@ class RestClientTest {
         handler.asRequestResult() shouldBe RequestResult.failure(model.id, UnknownHostException::class.java)
     }
 
+    @Test
+    fun testExecute_mappersHaveBeenCalled() {
+        connectionProvider = mock()
+        val requestModel: RequestModel = mock ()
+        val expectedRequestModel1: RequestModel = mock()
+        val expectedRequestModel2: RequestModel = mock()
+        val mockRequestModelMapper1: Mapper<RequestModel, RequestModel> = mock {
+            on { map(requestModel) } doReturn expectedRequestModel1
+        }
+        val mockRequestModelMapper2: Mapper<RequestModel, RequestModel> = mock {
+            on { map(expectedRequestModel1) } doReturn expectedRequestModel2
+        }
+
+        requestModelMappers = listOf(mockRequestModelMapper1, mockRequestModelMapper2)
+        client = RestClient(
+            connectionProvider,
+            mockTimestampProvider,
+            mockResponseHandlersProcessor,
+            requestModelMappers,
+            concurrentHandlerHolder
+        )
+
+        client.execute(requestModel, mock())
+        verify(mockRequestModelMapper1).map(requestModel)
+        verify(mockRequestModelMapper2).map(expectedRequestModel1)
+    }
 }

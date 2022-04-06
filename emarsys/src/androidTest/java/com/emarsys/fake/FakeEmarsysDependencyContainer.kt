@@ -3,14 +3,12 @@ package com.emarsys.fake
 
 import android.app.Activity
 import android.content.SharedPreferences
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.activity.ActivityLifecycleWatchdog
 import com.emarsys.core.activity.CurrentActivityWatchdog
 import com.emarsys.core.app.AppLifecycleObserver
-import com.emarsys.core.concurrency.CoreSdkHandlerProvider
+import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.connection.ConnectionWatchDog
 import com.emarsys.core.crypto.Crypto
 import com.emarsys.core.database.CoreSQLiteDatabase
@@ -19,7 +17,7 @@ import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.endpoint.ServiceEndpointProvider
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
@@ -65,12 +63,10 @@ import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.google.android.gms.location.FusedLocationProviderClient
-import kotlinx.coroutines.CoroutineScope
 import org.mockito.kotlin.mock
 
 class FakeEmarsysDependencyContainer(
-    override val coreSdkHandler: CoreSdkHandler = CoreSdkHandlerProvider().provideHandler(),
-    override val uiHandler: Handler = Handler(Looper.getMainLooper()),
+    override val concurrentHandlerHolder: ConcurrentHandlerHolder = ConcurrentHandlerHolderFactory.create(),
     override val mobileEngageInternal: MobileEngageInternal = mock(),
     override val loggingMobileEngageInternal: MobileEngageInternal = mock(),
     override val clientServiceInternal: ClientServiceInternal = mock(),
@@ -157,6 +153,4 @@ class FakeEmarsysDependencyContainer(
     override val fusedLocationProviderClient: FusedLocationProviderClient = mock(),
     override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock(),
     override val notificationOpenedActivityClass: Class<*> = Activity::class.java,
-    override val coreSdkScope: CoroutineScope = mock(),
-    override val uiScope: CoroutineScope = mock()
 ) : MobileEngageComponent

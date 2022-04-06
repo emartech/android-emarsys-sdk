@@ -5,10 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.util.JsonUtils
-import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.di.MobileEngageComponent
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
@@ -49,7 +48,7 @@ class NotificationCommandFactoryTest {
 
     private lateinit var factory: NotificationCommandFactory
     private lateinit var context: Context
-    private lateinit var mockUiHandler: Handler
+    private lateinit var mockConcurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockDependencyContainer: MobileEngageComponent
     private lateinit var mockEventServiceInternal: EventServiceInternal
     private lateinit var mockPushInternal: PushInternal
@@ -60,11 +59,16 @@ class NotificationCommandFactoryTest {
     @Before
     fun setUp() {
         context = InstrumentationRegistry.getTargetContext().applicationContext
-        mockUiHandler = mock()
+        mockConcurrentHandlerHolder = mock()
         mockEventServiceInternal = mock(EventServiceInternal::class.java)
         mockPushInternal = mock(PushInternal::class.java)
         mockEventHandler = mock(CacheableEventHandler::class.java)
-        mockActionCommandFactory = ActionCommandFactory(context, mockEventServiceInternal, mockEventHandler, mockUiHandler)
+        mockActionCommandFactory = ActionCommandFactory(
+            context,
+            mockEventServiceInternal,
+            mockEventHandler,
+            mockConcurrentHandlerHolder
+        )
         mockCurrentActivityProvider = mock(CurrentActivityProvider::class.java).apply {
             whenever(get()).thenReturn(null)
         }

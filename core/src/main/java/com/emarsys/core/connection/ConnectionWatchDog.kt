@@ -2,20 +2,19 @@ package com.emarsys.core.connection
 
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import com.emarsys.core.Mockable
-import com.emarsys.core.handler.CoreSdkHandler
+import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.AndroidVersionUtils
 
 @Mockable
 class ConnectionWatchDog(
     inputContext: Context,
-    private val coreSdkHandler: CoreSdkHandler
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder
 ) : ConnectivityManager.NetworkCallback() {
     private companion object {
         var receiver: BroadcastReceiver? = null
@@ -73,12 +72,16 @@ class ConnectionWatchDog(
             connectivityManager.registerNetworkCallback(
                 networkRequest,
                 this,
-                coreSdkHandler.handler
+                concurrentHandlerHolder.coreHandler.handler
             )
         } else {
             if (receiver != null) {
                 receiver =
-                    ConnectivityChangeReceiver(connectionChangeListener, this, coreSdkHandler)
+                    ConnectivityChangeReceiver(
+                        connectionChangeListener,
+                        this,
+                        concurrentHandlerHolder
+                    )
                 context.registerReceiver(receiver, intentFilter)
             }
         }

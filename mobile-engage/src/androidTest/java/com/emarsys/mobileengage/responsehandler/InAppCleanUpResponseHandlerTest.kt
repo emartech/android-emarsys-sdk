@@ -13,6 +13,7 @@ import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.shouldBe
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +51,11 @@ class InAppCleanUpResponseHandlerTest {
             on { isCustomEvent(any()) } doReturn true
         }
 
-        handler = InAppCleanUpResponseHandler(mockDisplayedIamRepository, mockButtonClickRepository, mockRequestModelHelper)
+        handler = InAppCleanUpResponseHandler(
+            mockDisplayedIamRepository,
+            mockButtonClickRepository,
+            mockRequestModelHelper
+        )
 
         FeatureRegistry.disableFeature(InnerFeature.EVENT_SERVICE_V4)
     }
@@ -120,36 +125,47 @@ class InAppCleanUpResponseHandlerTest {
     fun testHandleResponse_shouldDelete_oldInApp() {
         val response = buildResponseModel(mockRequestModel, "{'oldCampaigns': ['123']}")
         handler.handleResponse(response)
-        verify(mockDisplayedIamRepository).remove(FilterByCampaignId("123"))
+        runBlocking {
+            verify(mockDisplayedIamRepository).remove(FilterByCampaignId("123"))
+        }
     }
 
     @Test
     fun testHandleResponse_shouldDelete_multiple_oldInApps() {
         val response = buildResponseModel(mockRequestModel)
         handler.handleResponse(response)
-        verify(mockDisplayedIamRepository).remove(FilterByCampaignId("123", "456", "78910"))
+        runBlocking {
+            verify(mockDisplayedIamRepository).remove(FilterByCampaignId("123", "456", "78910"))
+        }
     }
 
     @Test
     fun testHandleResponse_shouldDelete_oldButtonClick() {
         val response = buildResponseModel(mockRequestModel, "{'oldCampaigns': ['123']}")
         handler.handleResponse(response)
-        verify(mockButtonClickRepository).remove(FilterByCampaignId("123"))
+        runBlocking {
+            verify(mockButtonClickRepository).remove(FilterByCampaignId("123"))
+        }
     }
 
     @Test
     fun testHandleResponse_shouldDelete_multiple_oldButtonClicks() {
         val response = buildResponseModel(mockRequestModel)
         handler.handleResponse(response)
-        verify(mockButtonClickRepository).remove(FilterByCampaignId("123", "456", "78910"))
+        runBlocking {
+            verify(mockButtonClickRepository).remove(FilterByCampaignId("123", "456", "78910"))
+        }
     }
 
-    private fun buildResponseModel(requestModel: RequestModel, responseBody: String = "{'oldCampaigns': ['123', '456', '78910']}"): ResponseModel {
+    private fun buildResponseModel(
+        requestModel: RequestModel,
+        responseBody: String = "{'oldCampaigns': ['123', '456', '78910']}"
+    ): ResponseModel {
         return ResponseModel.Builder()
-                .statusCode(200)
-                .message("OK")
-                .body(responseBody)
-                .requestModel(requestModel)
-                .build()
+            .statusCode(200)
+            .message("OK")
+            .body(responseBody)
+            .requestModel(requestModel)
+            .build()
     }
 }

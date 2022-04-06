@@ -924,7 +924,7 @@ class EmarsysTest {
     private fun runBlockingOnCoreSdkThread(callback: (() -> Unit)? = null) {
         val latch = CountDownLatch(1)
         var exception: Exception? = null
-        emarsys().coreSdkHandler.post {
+        emarsys().concurrentHandlerHolder.coreHandler.post {
             try {
                 callback?.invoke()
             } catch (e: Exception) {
