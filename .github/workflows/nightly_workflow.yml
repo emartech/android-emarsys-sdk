@@ -133,6 +133,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.1
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
@@ -168,6 +169,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.1
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
@@ -214,6 +216,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.1
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
@@ -253,6 +256,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.1
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
@@ -292,6 +296,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.1
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
@@ -331,6 +336,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.1
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
@@ -373,6 +379,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.1
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
@@ -412,6 +419,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.1
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
@@ -451,6 +459,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.1
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
@@ -490,6 +499,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.1
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
@@ -529,6 +539,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.1
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
@@ -586,6 +597,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.1
         with:
+          ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
