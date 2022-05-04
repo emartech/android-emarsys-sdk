@@ -7,6 +7,8 @@ import com.emarsys.mobileengage.service.MessagingServiceUtils
 import com.huawei.hms.push.RemoteMessage
 
 object EmarsysHuaweiMessagingServiceUtils {
+    
+    @JvmStatic
     fun handleMessage(context: Context, remoteMessage: RemoteMessage): Boolean {
         val handlerHolder: ConcurrentHandlerHolder = mobileEngage().concurrentHandlerHolder
 

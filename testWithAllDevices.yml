@@ -11,7 +11,7 @@ core-api:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: HWCOR
+    - model: walleye
       version: 27
       locale: 'en'
       orientation: portrait
@@ -41,7 +41,7 @@ core:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: HWCOR
+    - model: walleye
       version: 27
       locale: 'en'
       orientation: portrait
@@ -71,7 +71,7 @@ mobile-engage-api:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: HWCOR
+    - model: walleye
       version: 27
       locale: 'en'
       orientation: portrait
@@ -101,7 +101,7 @@ mobile-engage:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: HWCOR
+    - model: walleye
       version: 27
       locale: 'en'
       orientation: portrait
@@ -131,7 +131,7 @@ predict-api:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: HWCOR
+    - model: walleye
       version: 27
       locale: 'en'
       orientation: portrait
@@ -161,7 +161,7 @@ predict:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: HWCOR
+    - model: walleye
       version: 27
       locale: 'en'
       orientation: portrait
@@ -191,7 +191,7 @@ emarsys-sdk:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: HWCOR
+    - model: walleye
       version: 27
       locale: 'en'
       orientation: portrait
@@ -221,7 +221,7 @@ emarsys:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: HWCOR
+    - model: walleye
       version: 27
       locale: 'en'
       orientation: portrait
@@ -251,7 +251,7 @@ common:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: HWCOR
+    - model: walleye
       version: 27
       locale: 'en'
       orientation: portrait
@@ -281,7 +281,7 @@ emarsys-firebase:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: HWCOR
+    - model: walleye
       version: 27
       locale: 'en'
       orientation: portrait
@@ -311,7 +311,7 @@ emarsys-huawei:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: HWCOR
+    - model: walleye
       version: 27
       locale: 'en'
       orientation: portrait
