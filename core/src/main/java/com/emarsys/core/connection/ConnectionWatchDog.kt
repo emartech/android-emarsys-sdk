@@ -37,53 +37,64 @@ class ConnectionWatchDog(
 
     val connectionState: ConnectionState
         get() {
-            val activeNetwork =
-                connectivityManager.activeNetwork ?: return ConnectionState.DISCONNECTED
-            val networkCapabilities =
-                connectivityManager.getNetworkCapabilities(activeNetwork)
-                    ?: return ConnectionState.DISCONNECTED
-            return when {
-                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> ConnectionState.CONNECTED
-                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) -> ConnectionState.CONNECTED
-                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> ConnectionState.CONNECTED
-                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> ConnectionState.CONNECTED_MOBILE_DATA
+            return try {
+                val activeNetwork =
+                    connectivityManager.activeNetwork ?: return ConnectionState.DISCONNECTED
+                val networkCapabilities =
+                    connectivityManager.getNetworkCapabilities(activeNetwork)
+                        ?: return ConnectionState.DISCONNECTED
+                when {
+                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> ConnectionState.CONNECTED
+                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) -> ConnectionState.CONNECTED
+                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> ConnectionState.CONNECTED
+                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> ConnectionState.CONNECTED_MOBILE_DATA
 
-                else -> ConnectionState.DISCONNECTED
+                    else -> ConnectionState.DISCONNECTED
+                }
+            } catch (ignored: Exception) {
+                ConnectionState.DISCONNECTED
             }
         }
     val isConnected: Boolean
         get() {
-            val network = connectivityManager.activeNetwork ?: return false
-            val networkCapabilities =
-                connectivityManager.getNetworkCapabilities(network) ?: return false
-            return when {
-                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) -> true
-                networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                else -> false
+            return try {
+                val network = connectivityManager.activeNetwork ?: return false
+                val networkCapabilities =
+                    connectivityManager.getNetworkCapabilities(network) ?: return false
+                return when {
+                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) -> true
+                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                    else -> false
+                }
+            } catch (ignored: Exception) {
+                false
             }
         }
 
 
     fun registerReceiver(connectionChangeListener: ConnectionChangeListener) {
-        if (AndroidVersionUtils.isOreoOrAbove()) {
-            this.connectionChangeListener = connectionChangeListener
-            connectivityManager.registerNetworkCallback(
-                networkRequest,
-                this,
-                concurrentHandlerHolder.coreHandler.handler
-            )
-        } else {
-            if (receiver != null) {
-                receiver =
-                    ConnectivityChangeReceiver(
-                        connectionChangeListener,
-                        this,
-                        concurrentHandlerHolder
-                    )
-                context.registerReceiver(receiver, intentFilter)
+        try {
+            if (AndroidVersionUtils.isOreoOrAbove()) {
+                this.connectionChangeListener = connectionChangeListener
+                connectivityManager.registerNetworkCallback(
+                    networkRequest,
+                    this,
+                    concurrentHandlerHolder.coreHandler.handler
+                )
+            } else {
+                if (receiver != null) {
+                    receiver =
+                        ConnectivityChangeReceiver(
+                            connectionChangeListener,
+                            this,
+                            concurrentHandlerHolder
+                        )
+                    context.registerReceiver(receiver, intentFilter)
+                }
             }
+        } catch (ignored: Exception) {
         }
     }
 
