@@ -1,5 +1,7 @@
 # What's fixed
-### [Config](https://github.com/emartech/android-emarsys-sdk/wiki/Config#changeapplicationcode)
-* Fixed an issue when changing appcode would not clear the push token.
-### [Geofence](https://github.com/emartech/android-emarsys-sdk/wiki#8-geofence)
-* Fixed an issue when enabling the feature without last known location could cause a crash.
+### [EmarsysSDK](https://github.com/emartech/android-emarsys-sdk/wiki)
+* Fixed an issue what potentially can happen on Android 11 when apps could crash due to a known Android issue what could happen during network connection change
+
+# What's changed
+### [Push](https://github.com/emartech/android-emarsys-sdk/wiki#2-push)
+* HuaweiMessagingServiceUtils was made more easily available from Java
