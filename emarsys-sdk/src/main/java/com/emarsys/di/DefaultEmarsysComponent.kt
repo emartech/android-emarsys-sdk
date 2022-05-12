@@ -127,8 +127,6 @@ import com.emarsys.predict.shard.PredictShardListMerger
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.push.Push
 import com.emarsys.push.PushApi
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
 import org.json.JSONObject
@@ -148,8 +146,14 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val isGooglePlayServiceAvailable =
-        GoogleApiAvailabilityLight.getInstance()
-            .isGooglePlayServicesAvailable(config.application) == ConnectionResult.SUCCESS
+        try {
+            val firebaseMessagingServiceClass =
+                Class.forName("FirebaseMessagingService", false, config.application.classLoader)
+            true
+        } catch (e: ClassNotFoundException) {
+            e.printStackTrace()
+            false
+        }
 
     override val notificationOpenedActivityClass: Class<*>
         get() = com.emarsys.NotificationOpenedActivity::class.java
