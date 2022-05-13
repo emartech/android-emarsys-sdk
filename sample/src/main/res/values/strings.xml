@@ -1,76 +1,91 @@
 <resources>
+<!--    Dashboard strings   -->
     <string name="app_name">Emarsys SDK Samples</string>
-    <string name="menu_title_mobile_engage">Mobile engage</string>
-    <string name="menu_title_mobile_engage_tracking">Tracking</string>
-    <string name="menu_title_inline_in_app">Inline In-App</string>
-    <string name="menu_title_message_inbox">Message Inbox</string>
-    <string name="menu_title_predict">Predict</string>
-    <string name="menu_title_dashboard">Dashboard</string>
-    <string name="emarsys_app">Emarsys SDK:</string>
-
-    <!-- Mobile Engage String Resources -->
-    <string name="login_button_label">Login</string>
-    <string name="logout_button_label">Logout</string>
-    <string name="contactField_hint">contactFieldValue</string>
-    <string name="buttonTrackMessageLabel">Track message open</string>
-    <string name="buttonLogoutLabel">Logout</string>
-    <string name="contact_identification_card_title">Contact identification</string>
-    <string name="messageId">messageId</string>
-    <string name="track_message_open">Track Message Open</string>
-    <string name="track_custom_event">Track Custom Event</string>
-    <string name="event_name">eventName</string>
-    <string name="track_push_token_button_label">Track Push Token</string>
-    <string name="copy_push_token_button_label">Copy Push Token</string>
-    <string name="do_not_disturb">Do not disturb</string>
-    <string name="get_push_token_title">Push Token</string>
-    <string name="event_attributes_hint">eventAttributes</string>
-    <string name="logged_in">Logged in as:</string>
-    <string name="logged_in_anonymous">Anonymous</string>
+    <string name="sdk_config_title">Change SDK config</string>
+    <string name="app_code_label">AppCode</string>
+    <string name="app_code_button_label">Change appcode</string>
+    <string name="app_code_change_success">Application code has been changed!</string>
+    <string name="change_env">Change environment</string>
+    <string name="merchant_id_label">MerchantId</string>
+    <string name="merchant_id_button_label">Change merchant Id</string>
+    <string name="merchant_id_change_success">Merchant ID changed!</string>
+    <string name="push_token_title">Push token</string>
     <string name="geofence_title">Geofence</string>
-    <string name="button_enable_geofence">Enable</string>
-    <string name="button_disable_geofence">Disable</string>
+    <string name="geofence_enabled">Geofence enabled</string>
+    <string name="geofence_disabled">Geofence disabled</string>
+    <string name="contact_identification_title">Contact identification</string>
+    <string name="contact_field_id">ContactFieldId</string>
+    <string name="contact_field_value">ContactFieldValue</string>
+    <string name="google_sign_in">Sign in with Google</string>
+    <string name="google_sign_in_fail">Google sign in failed</string>
+    <string name="log_out_fail">Logout failed!</string>
+    <string name="log_out_success">Logout successful!</string>
+    <string name="log_in_success">Login successful!</string>
 
-    <!-- Predict String Resources -->
-    <string name="item_view_card_title">Item View</string>
-    <string name="itemId_hint">itemId</string>
-    <string name="track_item_view_label">Track Item View</string>
-    <string name="category_view_card_title">Category View</string>
-    <string name="search_term_card_title">Search Term</string>
-    <string name="searchTerm_hint">searchTerm</string>
-    <string name="track_search_term_button_label">Track Search Term</string>
-    <string name="cart_and_purchase">Cart and Purchase</string>
-    <string name="track_cart_items_button_label">Track Cart Items</string>
-    <string name="track_purchase_button_label">Track Purchase</string>
-    <string name="orderId">orderId</string>
-    <string name="orderId_hint">oderId</string>
-    <string name="categoryView_hint">categoryView</string>
-    <string name="track_category_view_button_label">Track Category View</string>
-    <string name="recommend_title">Recommend Product</string>
+    <!--    Inapp strings   -->
+    <string name="dnd_switch_label">Do not disturb</string>
+    <string name="inapp_enabled">Inapps are Enabled</string>
+    <string name="inapp_paused">Inapps are Paused</string>
+    <string name="event_track_success">Custom Event Track successful</string>
+    <string name="inapp_title">In-app</string>
+    <string name="custom_event_label">customEvent</string>
+    <string name="inline_inapp_title">Inline InApp</string>
+    <string name="inline_inapp_label">inlineInApp</string>
+    <string name="inline_inapp_button_label">Show inline inapp</string>
+
+    <!--    Inbox strings   -->
+    <string name="inbox_title">Inbox</string>
+    <string name="pull_down">Pull down to refresh</string>
+    <string name="title">Title</string>
+    <string name="tags">Tags</string>
+    <string name="tag">Tag</string>
+    <string name="add_tag">Add tag</string>
+    <string name="remove_tag">Remove tag</string>
+    <string name="campaign_id">Campaign ID</string>
+    <string name="tag_added">Tag added</string>
+    <string name="tag_removed">Tag removed</string>
+
+    <!--    Mobile-engage strings   -->
+    <string name="me_title">Mobile engage</string>
+    <string name="custom_event">customEvent</string>
+    <string name="custom_event_payload">customEventPayload</string>
+
+    <!--    Predict strings   -->
+    <string name="product">Product</string>
+    <string name="add_item_to_cart">Add item to cart</string>
+    <string name="track_cart">Track cart items</string>
+    <string name="items_in_cart">Items in cart</string>
+    <string name="recommend_text">Recommend products based on last track…</string>
+    <string name="track_success">Tracking success</string>
     <string name="recommend_button_label">Recommend</string>
+    <string name="recommendation_title">Recommendations</string>
+    <string name="track_order_title">Track order</string>
+    <string name="track_order_label">orderId</string>
+    <string name="track_search_title">Track search</string>
+    <string name="track_search_label">searchTerm</string>
+    <string name="track_category_title">Track category</string>
+    <string name="track_category_label">categoryView</string>
+    <string name="track_item_title">Track item</string>
+    <string name="track_item_label">itemView</string>
+    <string name="track_information_needed">Tracking information is required!</string>
 
-    <!-- Inbox String Resources -->
-    <string name="pull_down_to_refresh">Pull down to refresh</string>
+    <!--    General strings   -->
+    <string name="something_went_wrong">Something went wrong…</string>
+    <string name="enable">Enable</string>
+    <string name="disable">Disable</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="track">Track</string>
 
-    <!-- Inbox String Resources -->
-    <string name="inline_in_app_view_id">viewId</string>
-    <string name="button_show">show</string>
+    <!--    Huawei strings   -->
+    <string name="copy_push_token_button_label">Copy push token</string>
+    <string name="push_token_copied">Push Token copied: </string>
+    <string name="track_push_token_button_label">Track push token</string>
+    <string name="track_push_token_success">Push token track successful</string>
+    <string name="track_push_token_failed">Push token track failed</string>
 
-    <!-- Dashboard String Resources -->
-    <string name="change_setup_title">Change SDK Setup</string>
-    <string name="not_set">not set</string>
-    <string name="force">force</string>
-    <string name="current_application_code">ApplicationCode: <b>%1$s</b></string>
-    <string name="current_contact_field_id">ContactFieldId: <b>%1$d</b></string>
-    <string name="change_application_code_hint">an other Application Code</string>
-    <string name="change_application_code_button">change</string>
-    <string name="current_merchant_id">MerchantId: <b>%1$s</b></string>
-    <string name="config_information"> NotificationsEnabled: <b>%1$b</b>\nImportance: <b>%2$d</b>\nChannelSettings: <b>%3$s</b></string>
-    <string name="change_merchant_id_hint">an other Merchant ID</string>
-    <string name="change_merchant_id_button">change</string>
-    <string name="change_contact_field_id_hint">contactFieldId</string>
-    <string name="inbox_message_image_description">Inbox message image</string>
-    <string name="current_hardware_id">HardwareId:</string>
-    <string name="current_language_code">LanguageCode:</string>
-    <string name="current_push_settings">PushSettings:</string>
+    <!--    Huawei strings   -->
+    <string name="app_id">104446913</string>
+    <string name="push_scope">com.emarsys.sample</string>
 
 </resources>

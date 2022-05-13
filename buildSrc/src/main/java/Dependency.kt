@@ -1,5 +1,5 @@
 object Versions {
-    const val kotlin_version = "1.6.20"
+    const val kotlin_version = "1.6.10"
     const val kotlin_test_version = "3.4.2"
     const val mockito_version = "4.4.0"
     const val firebase_messaging_version = "23.0.2"
