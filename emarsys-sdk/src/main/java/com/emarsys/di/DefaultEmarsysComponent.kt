@@ -127,9 +127,12 @@ import com.emarsys.predict.shard.PredictShardListMerger
 import com.emarsys.predict.storage.PredictStorageKey
 import com.emarsys.push.Push
 import com.emarsys.push.PushApi
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
 import org.json.JSONObject
+import java.lang.reflect.Method
 import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
@@ -145,14 +148,34 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELjWEUIBX9zlm1OI4gF1hMCBLzpaBwgs9HlmSIBAqP4MDGy4ibOOV3FVDrnAY0Q34LZTbPBlp3gRNZJ19UoSy2Q=="
     }
 
-    override val isGooglePlayServiceAvailable =
+    private val isHuaweiServiceAvailable: Boolean =
         try {
-            val firebaseMessagingServiceClass =
-                Class.forName("FirebaseMessagingService", false, config.application.classLoader)
-            true
-        } catch (e: ClassNotFoundException) {
-            e.printStackTrace()
+            val huaweiServiceCheckerClass =
+                Class.forName(
+                    "com.emarsys.HuaweiServiceChecker",
+                    true,
+                    config.application.classLoader
+                )
+            val huaweiServiceChecker = huaweiServiceCheckerClass.newInstance()
+
+            val types = listOf<Class<*>>(Context::class.java).toTypedArray()
+            val method: Method = huaweiServiceCheckerClass.getDeclaredMethod("check", *types)
+            method.isAccessible = true
+
+            method.invoke(huaweiServiceChecker, config.application.applicationContext) as Boolean
+        } catch (ignored: Exception) {
             false
+        }
+
+    private val isGoogleAvailable = GoogleApiAvailabilityLight.getInstance()
+        .isGooglePlayServicesAvailable(config.application) == ConnectionResult.SUCCESS
+
+    override val isGooglePlayServiceAvailable =
+        if (!isGoogleAvailable && !isHuaweiServiceAvailable) {
+            true
+        } else {
+            (GoogleApiAvailabilityLight.getInstance()
+                .isGooglePlayServicesAvailable(config.application) == ConnectionResult.SUCCESS) && !isHuaweiServiceAvailable
         }
 
     override val notificationOpenedActivityClass: Class<*>
