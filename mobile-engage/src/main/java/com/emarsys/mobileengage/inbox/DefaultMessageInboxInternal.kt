@@ -7,6 +7,7 @@ import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.RequestManager
+import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.api.inbox.Message
@@ -27,26 +28,16 @@ class DefaultMessageInboxInternal(
     }
 
     override fun addTag(tag: String, messageId: String, completionListener: CompletionListener?) {
-        updateTag(
-            conditionCallback = {
-                it.id.lowercase() == messageId.lowercase() && it.tags != null && !it.tags!!.contains(tag.lowercase())
-            },
-            requestUnnecessaryCallback = {
-                completionListener?.onCompleted(null)
-            },
-            runnerCallback = {
-                val eventAttributes = mapOf(
-                    "messageId" to messageId,
-                    "tag" to tag.lowercase(Locale.ENGLISH)
-                )
-                val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest(
-                    "inbox:tag:add",
-                    eventAttributes
-                )
-
-                requestManager.submit(requestModel, completionListener)
-            }
-        )
+        updateTag(completionListener, { shouldAdd(it, messageId, tag) }) {
+            val eventAttributes = mapOf(
+                "messageId" to messageId,
+                "tag" to tag.lowercase(Locale.ENGLISH)
+            )
+            mobileEngageRequestModelFactory.createInternalCustomEventRequest(
+                "inbox:tag:add",
+                eventAttributes
+            )
+        }
     }
 
     override fun removeTag(
@@ -54,46 +45,44 @@ class DefaultMessageInboxInternal(
         messageId: String,
         completionListener: CompletionListener?
     ) {
-        updateTag(
-            conditionCallback = {
-                it.id.lowercase() == messageId.lowercase() && it.tags != null && it.tags!!.contains(tag.lowercase())
-            },
-            requestUnnecessaryCallback = {
-                completionListener?.onCompleted(null)
-            },
-            runnerCallback = {
-                val eventAttributes = mapOf(
-                    "messageId" to messageId,
-                    "tag" to tag.lowercase(Locale.ENGLISH)
-                )
-                val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest(
-                    "inbox:tag:remove",
-                    eventAttributes
-                )
-                requestManager.submit(requestModel, completionListener)
-            }
-        )
+        updateTag(completionListener, { shouldRemove(it, messageId, tag) }) {
+            val eventAttributes = mapOf(
+                "messageId" to messageId,
+                "tag" to tag.lowercase(Locale.ENGLISH)
+            )
+            mobileEngageRequestModelFactory.createInternalCustomEventRequest(
+                "inbox:tag:remove",
+                eventAttributes
+            )
+        }
     }
 
     private fun updateTag(
-        conditionCallback: (Message) -> (Boolean),
-        runnerCallback: () -> Unit,
-        requestUnnecessaryCallback: () -> Unit
+        completionListener: CompletionListener?,
+        predicate: (Message) -> Boolean,
+        updateRequest: () -> RequestModel
     ) {
-        if (messages != null) {
-            val triggeredCount = messages!!.count {
-                val result = conditionCallback(it)
-                if (result) {
-                    runnerCallback()
-                }
-                result
+        (messages?.any {
+            predicate(it)
+        } ?: true).let { shouldUpdateTag ->
+            if (shouldUpdateTag) {
+                requestManager.submit(updateRequest(), completionListener)
+            } else {
+                completionListener?.onCompleted(null)
             }
-            if (triggeredCount == 0) {
-                requestUnnecessaryCallback()
-            }
-        } else {
-            runnerCallback()
         }
+    }
+
+    private fun shouldAdd(message: Message, messageId: String, tag: String): Boolean {
+        return (message.id.lowercase() == messageId.lowercase()
+                && message.tags != null
+                && !message.tags!!.contains(tag.lowercase()))
+    }
+
+    private fun shouldRemove(message: Message, messageId: String, tag: String): Boolean {
+        return (message.id.lowercase() == messageId.lowercase()
+                && message.tags != null
+                && message.tags!!.contains(tag.lowercase()))
     }
 
     private fun handleFetchRequest(resultListener: ResultListener<Try<InboxResult>>) {
