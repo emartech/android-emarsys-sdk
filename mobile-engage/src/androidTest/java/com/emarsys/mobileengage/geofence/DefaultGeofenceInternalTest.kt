@@ -230,6 +230,14 @@ class DefaultGeofenceInternalTest {
     }
 
     @Test
+    fun testDisable_shouldNotCrash_whenUnregisterReceiverCalled_multipleTimes() {
+        geofenceInternal.enable(null)
+        geofenceInternal.disable()
+        ReflectionTestUtils.setInstanceField(geofenceInternalWithMockContext, "receiverRegistered", true)
+        geofenceInternal.disable()
+    }
+
+    @Test
     fun testDisable() {
         geofenceInternalWithMockContext.enable(null)
         geofenceInternalWithMockContext.disable()

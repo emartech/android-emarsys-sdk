@@ -15,7 +15,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Theme.AppTheme"
+        android:windowSoftInputMode="adjustResize">
         <meta-data
             android:name="com.huawei.hms.client.channel.androidMarket"
             android:value="false" />
@@ -24,11 +25,10 @@
             android:value="false" />
 
         <activity
-            android:name="com.emarsys.sample.MainActivity"
+            android:name="com.emarsys.sample.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
@@ -43,6 +43,7 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="com.emarsys.mobileengage.small_notification_icon"
             android:resource="@drawable/mobile_engage_logo_icon" />
@@ -76,7 +77,6 @@
             </intent-filter>
         </service>
 
-
         <provider
             android:name="com.emarsys.provider.SharedHardwareIdentificationContentProvider"
             android:authorities="${applicationId}"
@@ -89,5 +89,4 @@
     <queries>
         <package android:name="com.emarsys.emarsys_sdk_example" />
     </queries>
-
 </manifest>

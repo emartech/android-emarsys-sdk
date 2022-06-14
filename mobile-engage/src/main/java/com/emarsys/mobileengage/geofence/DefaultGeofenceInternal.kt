@@ -119,9 +119,12 @@ class DefaultGeofenceInternal(
     override fun disable() {
         if (geofenceEnabledStorage.get()) {
             if (receiverRegistered) {
-                context.unregisterReceiver(geofenceBroadcastReceiver)
-                receiverRegistered = false
-                fusedLocationProviderClient.removeLocationUpdates(geofencePendingIntent)
+                try {
+                    context.unregisterReceiver(geofenceBroadcastReceiver)
+                    receiverRegistered = false
+                    fusedLocationProviderClient.removeLocationUpdates(geofencePendingIntent)
+                } catch (ignored: IllegalArgumentException) {
+                }
             }
 
             geofenceEnabledStorage.set(false)

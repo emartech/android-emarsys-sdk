@@ -1,7 +1,7 @@
 dependencies {
     implementation project(':core-api')
     implementation Libs.google_tink
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.2'
 
 
     androidTestImplementation project(':testUtils')

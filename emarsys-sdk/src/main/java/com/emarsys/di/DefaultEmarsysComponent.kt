@@ -132,6 +132,7 @@ import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
 import org.json.JSONObject
+import java.lang.reflect.Method
 import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
@@ -147,9 +148,35 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELjWEUIBX9zlm1OI4gF1hMCBLzpaBwgs9HlmSIBAqP4MDGy4ibOOV3FVDrnAY0Q34LZTbPBlp3gRNZJ19UoSy2Q=="
     }
 
+    private val isHuaweiServiceAvailable: Boolean =
+        try {
+            val huaweiServiceCheckerClass =
+                Class.forName(
+                    "com.emarsys.HuaweiServiceChecker",
+                    true,
+                    config.application.classLoader
+                )
+            val huaweiServiceChecker = huaweiServiceCheckerClass.newInstance()
+
+            val types = listOf<Class<*>>(Context::class.java).toTypedArray()
+            val method: Method = huaweiServiceCheckerClass.getDeclaredMethod("check", *types)
+            method.isAccessible = true
+
+            method.invoke(huaweiServiceChecker, config.application.applicationContext) as Boolean
+        } catch (ignored: Exception) {
+            false
+        }
+
+    private val isGoogleAvailable = GoogleApiAvailabilityLight.getInstance()
+        .isGooglePlayServicesAvailable(config.application) == ConnectionResult.SUCCESS
+
     override val isGooglePlayServiceAvailable =
-        GoogleApiAvailabilityLight.getInstance()
-            .isGooglePlayServicesAvailable(config.application) == ConnectionResult.SUCCESS
+        if (!isGoogleAvailable && !isHuaweiServiceAvailable) {
+            true
+        } else {
+            (GoogleApiAvailabilityLight.getInstance()
+                .isGooglePlayServicesAvailable(config.application) == ConnectionResult.SUCCESS) && !isHuaweiServiceAvailable
+        }
 
     override val notificationOpenedActivityClass: Class<*>
         get() = com.emarsys.NotificationOpenedActivity::class.java

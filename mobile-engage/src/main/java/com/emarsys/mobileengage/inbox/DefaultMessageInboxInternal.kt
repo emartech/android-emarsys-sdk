@@ -7,8 +7,10 @@ import com.emarsys.core.api.result.ResultListener
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.RequestManager
+import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.api.inbox.InboxResult
+import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import java.util.*
 
@@ -19,21 +21,23 @@ class DefaultMessageInboxInternal(
     private val messageInboxResponseMapper: MessageInboxResponseMapper
 ) : MessageInboxInternal {
 
+    var messages: List<Message>? = null
+
     override fun fetchMessages(resultListener: ResultListener<Try<InboxResult>>) {
         handleFetchRequest(resultListener)
     }
 
     override fun addTag(tag: String, messageId: String, completionListener: CompletionListener?) {
-        val eventAttributes = mapOf(
-            "messageId" to messageId,
-            "tag" to tag.lowercase(Locale.ENGLISH)
-        )
-        val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest(
-            "inbox:tag:add",
-            eventAttributes
-        )
-
-        requestManager.submit(requestModel, completionListener)
+        updateTag(completionListener, { shouldAdd(it, messageId, tag) }) {
+            val eventAttributes = mapOf(
+                "messageId" to messageId,
+                "tag" to tag.lowercase(Locale.ENGLISH)
+            )
+            mobileEngageRequestModelFactory.createInternalCustomEventRequest(
+                "inbox:tag:add",
+                eventAttributes
+            )
+        }
     }
 
     override fun removeTag(
@@ -41,16 +45,44 @@ class DefaultMessageInboxInternal(
         messageId: String,
         completionListener: CompletionListener?
     ) {
-        val eventAttributes = mapOf(
-            "messageId" to messageId,
-            "tag" to tag.lowercase(Locale.ENGLISH)
-        )
-        val requestModel = mobileEngageRequestModelFactory.createInternalCustomEventRequest(
-            "inbox:tag:remove",
-            eventAttributes
-        )
+        updateTag(completionListener, { shouldRemove(it, messageId, tag) }) {
+            val eventAttributes = mapOf(
+                "messageId" to messageId,
+                "tag" to tag.lowercase(Locale.ENGLISH)
+            )
+            mobileEngageRequestModelFactory.createInternalCustomEventRequest(
+                "inbox:tag:remove",
+                eventAttributes
+            )
+        }
+    }
 
-        requestManager.submit(requestModel, completionListener)
+    private fun updateTag(
+        completionListener: CompletionListener?,
+        predicate: (Message) -> Boolean,
+        updateRequest: () -> RequestModel
+    ) {
+        (messages?.any {
+            predicate(it)
+        } ?: true).let { shouldUpdateTag ->
+            if (shouldUpdateTag) {
+                requestManager.submit(updateRequest(), completionListener)
+            } else {
+                completionListener?.onCompleted(null)
+            }
+        }
+    }
+
+    private fun shouldAdd(message: Message, messageId: String, tag: String): Boolean {
+        return (message.id.lowercase() == messageId.lowercase()
+                && message.tags != null
+                && !message.tags!!.contains(tag.lowercase()))
+    }
+
+    private fun shouldRemove(message: Message, messageId: String, tag: String): Boolean {
+        return (message.id.lowercase() == messageId.lowercase()
+                && message.tags != null
+                && message.tags!!.contains(tag.lowercase()))
     }
 
     private fun handleFetchRequest(resultListener: ResultListener<Try<InboxResult>>) {
@@ -58,10 +90,13 @@ class DefaultMessageInboxInternal(
 
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
-                resultListener.onResult(Try.success(messageInboxResponseMapper.map(responseModel)))
+                val result = messageInboxResponseMapper.map(responseModel)
+                messages = result.messages
+                resultListener.onResult(Try.success(result))
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
+                messages = null
                 resultListener.onResult(
                     Try.failure(
                         ResponseErrorException(
@@ -74,6 +109,7 @@ class DefaultMessageInboxInternal(
             }
 
             override fun onError(id: String, cause: Exception) {
+                messages = null
                 resultListener.onResult(Try.failure(cause))
             }
         }, concurrentHandlerHolder.uiHandler)

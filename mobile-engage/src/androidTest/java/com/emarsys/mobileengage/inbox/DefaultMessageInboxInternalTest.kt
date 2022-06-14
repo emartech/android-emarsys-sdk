@@ -14,6 +14,7 @@ import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.worker.DelegatorCompletionHandlerProvider
 import com.emarsys.mobileengage.api.inbox.InboxResult
+import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.mobileengage.fake.FakeRestClient
 import com.emarsys.mobileengage.fake.FakeResultListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
@@ -44,6 +45,8 @@ class DefaultMessageInboxInternalTest {
     private lateinit var latch: CountDownLatch
     private lateinit var mockScope: CoroutineScope
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
+    private lateinit var messages: List<Message>
+    private lateinit var message: Message
 
     @Rule
     @JvmField
@@ -51,11 +54,26 @@ class DefaultMessageInboxInternalTest {
 
     @Before
     fun setUp() {
+        message = Message(
+            "testMessageId",
+            "testCampaignId",
+            collapseId = "testCollapseId",
+            title = "testTitle",
+            body = "testBody",
+            imageUrl = null,
+            receivedAt = 12345,
+            updatedAt = null,
+            expiresAt = null,
+            tags = listOf("testtag1", "testtag2"),
+            properties = null,
+            actions = null
+        )
+        messages = listOf(message)
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockScope = mock()
         latch = CountDownLatch(1)
         mockMessageInboxResponseMapper = mock {
-            on { map(any()) } doReturn InboxResult(listOf())
+            on { map(any()) } doReturn InboxResult(messages)
         }
         mockRequestManager = mock()
         mockRequestModel = mock {
@@ -63,6 +81,7 @@ class DefaultMessageInboxInternalTest {
         }
         mockRequestModelFactory = mock {
             on { createFetchInboxMessagesRequest() } doReturn mockRequestModel
+            on { createInternalCustomEventRequest(any(), any()) } doReturn mockRequestModel
         }
 
         messageInboxInternal = DefaultMessageInboxInternal(
@@ -109,6 +128,65 @@ class DefaultMessageInboxInternalTest {
 
         fakeResultListener.successCount shouldBe 1
         verify(mockMessageInboxResponseMapper).map(mockResponse)
+    }
+
+    @Test
+    fun testFetchInboxMessages_shouldStoreMessages() {
+        val mockResponse: ResponseModel = mock()
+        whenever(mockRequestManager.submitNow(any(), any(), any())).doAnswer { invocation ->
+            invocation.arguments[1]?.let {
+                (it as CoreCompletionHandler).onSuccess("testId", mockResponse)
+            }
+        }
+
+        messageInboxInternal.messages = null
+
+        messageInboxInternal.fetchMessages({
+            latch.countDown()
+        })
+        latch.await()
+
+        messageInboxInternal.messages shouldBe messages
+    }
+
+    @Test
+    fun testFetchInboxMessages_shouldClearMessages_withResponseError() {
+        val mockResponse: ResponseModel = mock()
+        whenever(mockRequestManager.submitNow(any(), any(), any())).doAnswer { invocation ->
+            invocation.arguments[1]?.let {
+                (it as CoreCompletionHandler).onError("testId", mockResponse)
+            }
+        }
+
+        messageInboxInternal.messages = messages
+
+        messageInboxInternal.fetchMessages({
+            latch.countDown()
+        })
+        latch.await()
+
+        messageInboxInternal.messages shouldBe null
+    }
+
+    @Test
+    fun testFetchInboxMessages_shouldClearMessages_withExceptionError() {
+        whenever(mockRequestManager.submitNow(any(), any(), any())).doAnswer { invocation ->
+            invocation.arguments[1]?.let {
+                (it as CoreCompletionHandler).onError(
+                    "testId",
+                    java.lang.Exception("testException")
+                )
+            }
+        }
+
+        messageInboxInternal.messages = messages
+
+        messageInboxInternal.fetchMessages({
+            latch.countDown()
+        })
+        latch.await()
+
+        messageInboxInternal.messages shouldBe null
     }
 
     @Test
@@ -195,6 +273,162 @@ class DefaultMessageInboxInternalTest {
             eventAttributes
         )
         verify(mockRequestManager).submit(mockRequestModel, mockCompletionListener)
+    }
+
+    @Test
+    fun addTag_shouldSendRequest_when_messageAvailable_tagNotAvailable() {
+        whenever(mockRequestManager.submit(any(), any())).doAnswer { invocation ->
+            invocation.arguments[1]?.let {
+                (it as CompletionListener).onCompleted(null)
+            }
+        }
+
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+
+        messageInboxInternal.messages = messages
+
+        messageInboxInternal.addTag(
+            "testTag3",
+            "testMessageId",
+            completionListener
+        )
+
+        latch.await()
+
+        verify(
+            mockRequestModelFactory
+        ).createInternalCustomEventRequest(
+            "inbox:tag:add", mapOf(
+                "messageId" to "testMessageId",
+                "tag" to "testtag3"
+            )
+        )
+        verify(
+            mockRequestManager
+        ).submit(
+            mockRequestModel,
+            completionListener
+        )
+    }
+
+    @Test
+    fun addTag_shouldNotSendRequest_when_messageAvailable_tagAvailable() {
+        messageInboxInternal.messages = messages
+
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+
+        messageInboxInternal.addTag(
+            "testTag2",
+            "testMessageId",
+            completionListener
+        )
+
+        latch.await()
+
+        verifyNoInteractions(mockRequestModelFactory)
+        verifyNoInteractions(mockRequestManager)
+    }
+
+    @Test
+    fun addTag_shouldNotSendRequest_when_messageNotAvailable_tagNotAvailable() {
+        messageInboxInternal.messages = messages
+
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+
+        messageInboxInternal.addTag(
+            "testTag3",
+            "notTestMessageId",
+            completionListener
+        )
+
+        latch.await()
+
+        verifyNoInteractions(mockRequestModelFactory)
+        verifyNoInteractions(mockRequestManager)
+    }
+
+    @Test
+    fun removeTag_shouldSendRequest_when_messageAvailable_tagAvailable() {
+        whenever(mockRequestManager.submit(any(), any())).doAnswer { invocation ->
+            invocation.arguments[1]?.let {
+                (it as CompletionListener).onCompleted(Exception("testException"))
+            }
+        }
+
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+
+        messageInboxInternal.messages = messages
+
+        messageInboxInternal.removeTag(
+            "testTag2",
+            "testMessageId",
+            completionListener
+        )
+
+        latch.await()
+
+        verify(
+            mockRequestModelFactory
+        ).createInternalCustomEventRequest(
+            "inbox:tag:remove", mapOf(
+                "messageId" to "testMessageId",
+                "tag" to "testtag2"
+            )
+        )
+        verify(
+            mockRequestManager
+        ).submit(
+            mockRequestModel,
+            completionListener
+        )
+    }
+
+    @Test
+    fun removeTag_shouldNotSendRequest_when_messageAvailable_tagNotAvailable() {
+        messageInboxInternal.messages = messages
+
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+
+        messageInboxInternal.removeTag(
+            "testTag3",
+            "testMessageId",
+            completionListener
+        )
+
+        latch.await()
+
+        verifyNoInteractions(mockRequestModelFactory)
+        verifyNoInteractions(mockRequestManager)
+    }
+
+    @Test
+    fun addTag_shouldNotSendRequest_when_messageNotAvailable_tagAvailable() {
+        messageInboxInternal.messages = messages
+
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+
+        messageInboxInternal.removeTag(
+            "testTag2",
+            "notTestMessageId",
+            completionListener
+        )
+
+        latch.await()
+
+        verifyNoInteractions(mockRequestModelFactory)
+        verifyNoInteractions(mockRequestManager)
     }
 
     @Test
