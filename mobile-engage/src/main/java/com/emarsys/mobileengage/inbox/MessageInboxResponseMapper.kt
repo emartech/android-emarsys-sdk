@@ -46,12 +46,12 @@ class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
             if (inboxMessageResponse.isNull("collapseId")) null else inboxMessageResponse.getString(
                 "collapseId"
             ),
-                inboxMessageResponse.getString("title"),
-                inboxMessageResponse.getString("body"),
-                inboxMessageResponse.getNullableString("imageUrl"),
-                inboxMessageResponse.getLong("receivedAt"),
-                inboxMessageResponse.getLong("updatedAt"),
-                inboxMessageResponse.getNullableLong("expiresAt"),
+            inboxMessageResponse.getString("title"),
+            inboxMessageResponse.getString("body"),
+            inboxMessageResponse.getNullableString("imageUrl"),
+            inboxMessageResponse.getLong("receivedAt"),
+            inboxMessageResponse.getLong("updatedAt"),
+            inboxMessageResponse.getNullableLong("expiresAt"),
             if (inboxMessageResponse.isNull("tags")) null else tags,
             if (inboxMessageResponse.isNull("properties")) null else JsonUtils.toFlatMap(
                 inboxMessageResponse.getJSONObject("properties")
@@ -83,7 +83,11 @@ class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
                 actionJson.getString("title"),
                 actionJson.getString("type"),
                 actionJson.getString("name"),
-                JsonUtils.toMap(actionJson.getJSONObject("payload"))
+                JsonUtils.toMap(
+                    if (actionJson.has("payload") && !actionJson.isNull("payload")) actionJson.getJSONObject(
+                        "payload"
+                    ) else JSONObject()
+                )
             )
             "OpenExternalUrl" -> OpenExternalUrlActionModel(
                 actionJson.getString("id"),

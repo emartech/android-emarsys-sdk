@@ -174,7 +174,7 @@ jobs:
           tag_name: ${{ env.RELEASE_VERSION }}
           release_name: ${{ github.ref }}
           body_path: changelog.md
-          draft: true
+          draft: false
           prerelease: false
 
       - name: Create file 'FAILURE.TXT' and write 'true' into it
@@ -239,6 +239,8 @@ jobs:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+      - name: setup RELEASE_VERSION
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Create a ticket
         id: create
         uses: atlassian/gajira-create@master
