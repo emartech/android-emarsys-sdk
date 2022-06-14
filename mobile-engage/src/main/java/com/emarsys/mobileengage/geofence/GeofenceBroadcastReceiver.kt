@@ -19,7 +19,7 @@ class GeofenceBroadcastReceiver(val concurrentHandlerHolder: ConcurrentHandlerHo
 
     override fun onReceive(context: Context, intent: Intent) {
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
-        if (geofencingEvent.triggeringGeofences != null) {
+        if (geofencingEvent?.triggeringGeofences != null) {
             concurrentHandlerHolder.coreHandler.post {
                 val geofenceInternal = mobileEngage().geofenceInternal
 
@@ -33,9 +33,12 @@ class GeofenceBroadcastReceiver(val concurrentHandlerHolder: ConcurrentHandlerHo
     }
 
     private fun GeofencingEvent.convertToTriggeringEmarsysGeofences(): List<TriggeringEmarsysGeofence> {
-        return this.triggeringGeofences.map {
-            TriggeringEmarsysGeofence(it.requestId, convertTransitionToTriggerType(this.geofenceTransition))
-        }
+        return this.triggeringGeofences?.map {
+            TriggeringEmarsysGeofence(
+                it.requestId,
+                convertTransitionToTriggerType(this.geofenceTransition)
+            )
+        } ?: emptyList()
     }
 
     private fun convertTransitionToTriggerType(transition: Int): TriggerType {
