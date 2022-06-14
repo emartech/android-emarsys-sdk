@@ -58,6 +58,12 @@ class MessageInboxResponseMapperTest {
                                 "testKey1" to "testValue1",
                                 "testKey2" to "testValue2",
                             )
+                        ), AppEventActionModel(
+                            "testId3",
+                            "testTitle3",
+                            "MEAppEvent",
+                            "testName3",
+                            emptyMap()
                         ),
                         OpenExternalUrlActionModel(
                             "testId2",
@@ -164,6 +170,13 @@ class MessageInboxResponseMapperTest {
                         "testKey1": "testValue1",
                         "testKey2": "testValue2"
                     }
+                },
+                {
+                    "id": "testId3",
+                    "title": "testTitle3",
+                    "type": "MEAppEvent",
+                    "name": "testName3",
+                    "payload": null
                 },
                 {
                     "id": "testId2",
