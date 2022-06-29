@@ -13,6 +13,10 @@ import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
+import com.google.firebase.messaging.RemoteMessage
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkAll
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -34,10 +38,14 @@ class EmarsysFirebaseMessagingServiceTest {
     private lateinit var fakeDependencyContainer: FakeFirebaseDependencyContainer
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var spyCoreHandler: SdkHandler
+    private lateinit var mockRemoteMessage: RemoteMessage
+    private lateinit var emarsysFirebaseMessagingService: EmarsysFirebaseMessagingService
 
     @Before
     fun setUp() {
+        emarsysFirebaseMessagingService = EmarsysFirebaseMessagingService()
         mockPushInternal = mock()
+        mockRemoteMessage = mockk(relaxed = true)
 
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         spyCoreHandler = spy(concurrentHandlerHolder.coreHandler)
@@ -52,36 +60,76 @@ class EmarsysFirebaseMessagingServiceTest {
     fun tearDown() {
         tearDownMobileEngageComponent()
         FeatureTestUtils.resetFeatures()
+        unmockkAll()
     }
 
     @Test
     fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsTrue_callsSetPushToken() {
-        setupEmarsys(true)
+        setupEmarsys(isAutomaticPushSending = true, isGooglePlayAvailable = true)
 
-        EmarsysFirebaseMessagingService().onNewToken("testToken")
+        emarsysFirebaseMessagingService.onNewToken("testToken")
 
         verify(mockPushInternal, timeout(100)).setPushToken("testToken", null)
     }
 
     @Test
     fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsTrue_callsSetPushToken_onCoreSdkThread() {
-        setupEmarsys(true)
+        setupEmarsys(isAutomaticPushSending = true, isGooglePlayAvailable = true)
 
-        EmarsysFirebaseMessagingService().onNewToken("testToken")
+        emarsysFirebaseMessagingService.onNewToken("testToken")
 
         verify(spyCoreHandler, timeout(1000).times(1)).post(any())
     }
 
     @Test
-    fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsFalse_doesNotCallSetPushToken() {
-        setupEmarsys(false)
+    fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsTrue_andGooglePlayIsUnavailable_doesNotCallSetPushToken() {
+        setupEmarsys(isAutomaticPushSending = true, isGooglePlayAvailable = false)
 
-        EmarsysFirebaseMessagingService().onNewToken("testToken")
+        emarsysFirebaseMessagingService.onNewToken("testToken")
 
         verify(mockPushInternal, times(0)).setPushToken("testToken", null)
     }
 
-    private fun setupEmarsys(isAutomaticPushSending: Boolean) {
+    @Test
+    fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsFalse_doesNotCallSetPushToken() {
+        setupEmarsys(isAutomaticPushSending = false, isGooglePlayAvailable = true)
+
+        emarsysFirebaseMessagingService.onNewToken("testToken")
+
+        verify(mockPushInternal, times(0)).setPushToken("testToken", null)
+    }
+
+    @Test
+    fun testOnMessageReceived_whenGooglePlayIsAvailable_callsHandleMessage() {
+        mockkStatic("com.emarsys.service.EmarsysFirebaseMessagingServiceUtils")
+        setupEmarsys(isAutomaticPushSending = true, isGooglePlayAvailable = true)
+
+        emarsysFirebaseMessagingService.onMessageReceived(mockRemoteMessage)
+
+        verify(times(1)) {
+            EmarsysFirebaseMessagingServiceUtils.handleMessage(
+                emarsysFirebaseMessagingService,
+                mockRemoteMessage
+            )
+        }
+    }
+
+    @Test
+    fun testOnMessageReceived_whenGooglePlayIsUnavailable_doesNotCallHandleMessage() {
+        mockkStatic("com.emarsys.service.EmarsysFirebaseMessagingServiceUtils")
+        setupEmarsys(isAutomaticPushSending = true, isGooglePlayAvailable = false)
+
+        emarsysFirebaseMessagingService.onMessageReceived(mockRemoteMessage)
+
+        verify(times(0)) {
+            EmarsysFirebaseMessagingServiceUtils.handleMessage(
+                emarsysFirebaseMessagingService,
+                mockRemoteMessage
+            )
+        }
+    }
+
+    private fun setupEmarsys(isAutomaticPushSending: Boolean, isGooglePlayAvailable: Boolean) {
         val deviceInfo = DeviceInfo(
             application,
             mock {
@@ -95,7 +143,7 @@ class EmarsysFirebaseMessagingServiceTest {
             },
             mock(),
             isAutomaticPushSending,
-            true
+            isGooglePlayAvailable
         )
 
         fakeDependencyContainer = FakeFirebaseDependencyContainer(

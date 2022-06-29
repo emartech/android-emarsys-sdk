@@ -14,6 +14,10 @@ import com.emarsys.testUtil.FeatureTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
+import com.huawei.hms.push.RemoteMessage
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkAll
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -35,10 +39,12 @@ class EmarsysHuaweiMessagingServiceTest {
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var emarsysHuaweiMessagingService: EmarsysHuaweiMessagingService
     private lateinit var spyCoreHandler: SdkHandler
+    private lateinit var mockRemoteMessage: RemoteMessage
 
     @Before
     fun setUp() {
         mockPushInternal = mock()
+        mockRemoteMessage = mockk(relaxed = true)
 
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         spyCoreHandler = spy(concurrentHandlerHolder.coreHandler)
@@ -55,11 +61,12 @@ class EmarsysHuaweiMessagingServiceTest {
     fun tearDown() {
         tearDownMobileEngageComponent()
         FeatureTestUtils.resetFeatures()
+        unmockkAll()
     }
 
     @Test
     fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsTrue_callsSetPushToken() {
-        setupEmarsys(true)
+        setupEmarsys(isAutomaticPushSending = true, isGooglePlayAvailable = false)
 
         emarsysHuaweiMessagingService.onNewToken("testToken")
 
@@ -68,22 +75,60 @@ class EmarsysHuaweiMessagingServiceTest {
 
     @Test
     fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsTrue_callsSetPushToken_onCoreSdkThread() {
-        setupEmarsys(true)
+        setupEmarsys(isAutomaticPushSending = true, isGooglePlayAvailable = false)
         emarsysHuaweiMessagingService.onNewToken("testToken")
 
         verify(spyCoreHandler, timeout(1000).times(1)).post(any())
     }
 
     @Test
+    fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsTrue_andGooglePlayIsAvailable_doesNotCallSetPushToken() {
+        setupEmarsys(isAutomaticPushSending = true, isGooglePlayAvailable = true)
+        emarsysHuaweiMessagingService.onNewToken("testToken")
+
+        verify(mockPushInternal, times(0)).setPushToken("testToken", null)
+    }
+
+    @Test
     fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsFalse_doesNotCallSetPushToken() {
-        setupEmarsys(false)
+        setupEmarsys(isAutomaticPushSending = false, isGooglePlayAvailable = false)
 
         emarsysHuaweiMessagingService.onNewToken("testToken")
 
         verify(mockPushInternal, times(0)).setPushToken("testToken", null)
     }
 
-    private fun setupEmarsys(isAutomaticPushSending: Boolean) {
+    @Test
+    fun testOnMessageReceived_whenGooglePlayIsUnavailable_callsHandleMessage() {
+        mockkStatic("com.emarsys.service.EmarsysHuaweiMessagingServiceUtils")
+        setupEmarsys(isAutomaticPushSending = true, isGooglePlayAvailable = false)
+
+        emarsysHuaweiMessagingService.onMessageReceived(mockRemoteMessage)
+
+        verify(times(1)) {
+            EmarsysHuaweiMessagingServiceUtils.handleMessage(
+                emarsysHuaweiMessagingService,
+                mockRemoteMessage
+            )
+        }
+    }
+
+    @Test
+    fun testOnMessageReceived_whenGooglePlayIsAvailable_doesNotCallHandleMessage() {
+        mockkStatic("com.emarsys.service.EmarsysHuaweiMessagingServiceUtils")
+        setupEmarsys(isAutomaticPushSending = true, isGooglePlayAvailable = true)
+
+        emarsysHuaweiMessagingService.onMessageReceived(mockRemoteMessage)
+
+        verify(times(0)) {
+            EmarsysHuaweiMessagingServiceUtils.handleMessage(
+                emarsysHuaweiMessagingService,
+                mockRemoteMessage
+            )
+        }
+    }
+
+    private fun setupEmarsys(isAutomaticPushSending: Boolean, isGooglePlayAvailable: Boolean) {
         val deviceInfo = DeviceInfo(
             application,
             mock {
@@ -97,7 +142,7 @@ class EmarsysHuaweiMessagingServiceTest {
             },
             mock(),
             isAutomaticPushSending,
-            false
+            isGooglePlayAvailable
         )
 
         fakeDependencyContainer = FakeHuaweiDependencyContainer(

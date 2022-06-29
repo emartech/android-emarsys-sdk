@@ -174,8 +174,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         if (!isGoogleAvailable && !isHuaweiServiceAvailable) {
             true
         } else {
-            (GoogleApiAvailabilityLight.getInstance()
-                .isGooglePlayServicesAvailable(config.application) == ConnectionResult.SUCCESS) && !isHuaweiServiceAvailable
+            isGoogleAvailable && !isHuaweiServiceAvailable
         }
 
     override val notificationOpenedActivityClass: Class<*>
