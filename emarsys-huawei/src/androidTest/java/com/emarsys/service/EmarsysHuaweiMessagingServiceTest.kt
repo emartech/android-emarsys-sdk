@@ -59,7 +59,7 @@ class EmarsysHuaweiMessagingServiceTest {
 
     @Test
     fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsTrue_callsSetPushToken() {
-        setupEmarsys(true)
+        setupEmarsys(isAutomaticPushSending = true, isGooglePlayAvailable = false)
 
         emarsysHuaweiMessagingService.onNewToken("testToken")
 
@@ -68,22 +68,30 @@ class EmarsysHuaweiMessagingServiceTest {
 
     @Test
     fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsTrue_callsSetPushToken_onCoreSdkThread() {
-        setupEmarsys(true)
+        setupEmarsys(isAutomaticPushSending = true, isGooglePlayAvailable = false)
         emarsysHuaweiMessagingService.onNewToken("testToken")
 
         verify(spyCoreHandler, timeout(1000).times(1)).post(any())
     }
 
     @Test
+    fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsTrue_andGooglePlayIsAvailable_doesNotCallSetPushToken() {
+        setupEmarsys(isAutomaticPushSending = true, isGooglePlayAvailable = true)
+        emarsysHuaweiMessagingService.onNewToken("testToken")
+
+        verify(mockPushInternal, times(0)).setPushToken("testToken", null)
+    }
+
+    @Test
     fun testOnNewToken_whenIsAutomaticPushSendingEnabledIsFalse_doesNotCallSetPushToken() {
-        setupEmarsys(false)
+        setupEmarsys(isAutomaticPushSending = false, isGooglePlayAvailable = false)
 
         emarsysHuaweiMessagingService.onNewToken("testToken")
 
         verify(mockPushInternal, times(0)).setPushToken("testToken", null)
     }
 
-    private fun setupEmarsys(isAutomaticPushSending: Boolean) {
+    private fun setupEmarsys(isAutomaticPushSending: Boolean, isGooglePlayAvailable: Boolean) {
         val deviceInfo = DeviceInfo(
             application,
             mock {
@@ -97,7 +105,7 @@ class EmarsysHuaweiMessagingServiceTest {
             },
             mock(),
             isAutomaticPushSending,
-            false
+            isGooglePlayAvailable
         )
 
         fakeDependencyContainer = FakeHuaweiDependencyContainer(
