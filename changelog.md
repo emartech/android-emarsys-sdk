@@ -1,6 +1,6 @@
 # What's fixed
 
-### [Inbox](https://github.com/emartech/android-emarsys-sdk/wiki#7-messageinbox)
+### [Push](https://github.com/emartech/android-emarsys-sdk/wiki#2-push)
 
-* Fixed an issue that could cause Inbox messages with empty AppEvent payload not to be parsed
-  correctly.
+* Fixed an issue when both Huawei and Firebase were used as Push providers, push messages might have
+  failed to arrive.
