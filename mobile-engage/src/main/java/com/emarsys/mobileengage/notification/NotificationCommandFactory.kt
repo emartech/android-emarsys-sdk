@@ -13,9 +13,13 @@ import java.util.*
 
 @Mockable
 class NotificationCommandFactory(private val context: Context) {
+    private companion object {
+        const val SDK_ACTIVITY_NAME = "com.emarsys.NotificationOpenedActivity"
+    }
+
     private val eventServiceInternal by lazy { mobileEngage().eventServiceInternal }
     private val pushInternal by lazy { mobileEngage().pushInternal }
-    private val actionCommandFactory by lazy { mobileEngage().notificationActionCommandFactory}
+    private val actionCommandFactory by lazy { mobileEngage().notificationActionCommandFactory }
     private val notificationInformationListenerProvider by lazy { mobileEngage().notificationInformationListenerProvider }
 
     fun createNotificationCommand(intent: Intent): Runnable {
@@ -25,8 +29,17 @@ class NotificationCommandFactory(private val context: Context) {
 
         val commands = createMandatoryCommands(intent, bundle)
         if (action == null || action.optString("type") != "Dismiss") {
-            if (mobileEngage().currentActivityProvider.get() == null) {
-                commands.add(LaunchApplicationCommand(intent, context, LaunchActivityCommandLifecycleCallbacksFactory()))
+            val currentActivity = mobileEngage().currentActivityProvider.get()
+            if (currentActivity == null ||
+                currentActivity.toString().startsWith(SDK_ACTIVITY_NAME)
+            ) {
+                commands.add(
+                    LaunchApplicationCommand(
+                        intent,
+                        context,
+                        LaunchActivityCommandLifecycleCallbacksFactory()
+                    )
+                )
             }
         }
         val inappCommand = handleInapp(intent, bundle)
@@ -51,7 +64,10 @@ class NotificationCommandFactory(private val context: Context) {
                 val emsJson = JSONObject(ems)
                 val campaignId = emsJson.optString("multichannelId")
                 if (campaignId.isNotEmpty()) {
-                    return NotificationInformationCommand(notificationInformationListenerProvider, NotificationInformation(emsJson.getString("multichannelId")))
+                    return NotificationInformationCommand(
+                        notificationInformationListenerProvider,
+                        NotificationInformation(emsJson.getString("multichannelId"))
+                    )
                 }
             }
         }
@@ -78,7 +94,12 @@ class NotificationCommandFactory(private val context: Context) {
         return result
     }
 
-    private fun handleTracking(intent: Intent, actionId: String?, bundle: Bundle?, action: JSONObject?): Runnable {
+    private fun handleTracking(
+        intent: Intent,
+        actionId: String?,
+        bundle: Bundle?,
+        action: JSONObject?
+    ): Runnable {
         return if (action != null && actionId != null) {
             TrackActionClickCommand(eventServiceInternal, actionId, extractSid(bundle))
         } else {

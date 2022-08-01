@@ -55,6 +55,7 @@ class NotificationCommandFactoryTest {
     private lateinit var mockActionCommandFactory: ActionCommandFactory
     private lateinit var mockEventHandler: CacheableEventHandler
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
+    private lateinit var mockActivity: Activity
 
     @Before
     fun setUp() {
@@ -71,6 +72,9 @@ class NotificationCommandFactoryTest {
         )
         mockCurrentActivityProvider = mock(CurrentActivityProvider::class.java).apply {
             whenever(get()).thenReturn(null)
+        }
+        mockActivity = mock(Activity::class.java).apply {
+            whenever(toString()).thenReturn("com.emarsys.NotificationOpenedActivity")
         }
 
         mockDependencyContainer = FakeMobileEngageDependencyContainer(
@@ -104,6 +108,25 @@ class NotificationCommandFactoryTest {
     @Test
     fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_whenTypeIsNotSupported() {
         val command = factory.createNotificationCommand(createUnknownCommandIntent()) as CompositeCommand
+
+        contains<LaunchApplicationCommand>(command) shouldBe true
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<TrackActionClickCommand>(command) shouldBe true
+    }
+
+    @Test
+    fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_whenCurrentActivityIsNull() {
+        val command = factory.createNotificationCommand(createAppEventIntent()) as CompositeCommand
+
+        contains<LaunchApplicationCommand>(command) shouldBe true
+        contains<DismissNotificationCommand>(command) shouldBe true
+        contains<TrackActionClickCommand>(command) shouldBe true
+    }
+
+    @Test
+    fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_whenCurrentActivityIsNotificationOpenedActivity() {
+        whenever(mockCurrentActivityProvider.get()).thenReturn(mockActivity)
+        val command = factory.createNotificationCommand(createAppEventIntent()) as CompositeCommand
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
