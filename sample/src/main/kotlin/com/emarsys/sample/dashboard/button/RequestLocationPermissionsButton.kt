@@ -1,4 +1,4 @@
-package com.emarsys.sample.ui.component.button
+package com.emarsys.sample.dashboard.button
 
 import android.Manifest.permission.*
 import android.content.Context
@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.core.content.ContextCompat.checkSelfPermission
+import com.emarsys.sample.ui.component.button.StyledTextButton
 
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
