@@ -71,6 +71,8 @@ android.enableJetifier: When set to true, the Android plugin automatically migra
 
 ### 2.2 Push Notifications
 
+Starting from Android 13 (API level 33) the `POST_NOTIFICATIONS` runtime permission is required. In order to receive push notifications this permission must be granted by the user. [Android Dev](https://developer.android.com/about/versions/13/changes/notification-permission)
+
 Emarsys SDK supports multiple push providers([Firebase](https://firebase.google.com/docs/cloud-messaging), [Huawei](https://developer.huawei.com/consumer/en/hms/huawei-pushkit/)). Integrating both, or one of them is necessary for using the Mobile Engage Push feature.
 
 If you want to support both providers, you can include both of them in your application.
