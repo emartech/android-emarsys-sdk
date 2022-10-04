@@ -34,7 +34,7 @@ class InboxScreen(
 ) : DetailScreen() {
 
     private val viewModel = InboxViewModel()
-    private val messagePresenter = MessagePresenter(context)
+    private val messagePresenter = MessagePresenter(context, viewModel)
 
     @ExperimentalCoilApi
     @ExperimentalComposeUiApi

@@ -9,9 +9,9 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.Scaffold
 import androidx.fragment.app.FragmentActivity
-import com.emarsys.sample.ui.component.navbar.BottomNavigationBar
 import com.emarsys.sample.main.navigation.NavigationControllerProvider
 import com.emarsys.sample.main.sdkinfo.TopExpandableCard
+import com.emarsys.sample.ui.component.navbar.BottomNavigationBar
 import com.emarsys.sample.ui.theme.AndroidSampleAppTheme
 
 class MainActivity : FragmentActivity() {

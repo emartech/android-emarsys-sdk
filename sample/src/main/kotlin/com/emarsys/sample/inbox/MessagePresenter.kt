@@ -2,7 +2,6 @@ package com.emarsys.sample.inbox
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +16,8 @@ import coil.annotation.ExperimentalCoilApi
 import com.emarsys.Emarsys
 import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.sample.R
+import com.emarsys.sample.inbox.component.InboxButton
+import com.emarsys.sample.inbox.event.InboxAppEventHandler
 import com.emarsys.sample.ui.component.button.StyledTextButton
 import com.emarsys.sample.ui.component.divider.DividerWithBackgroundColor
 import com.emarsys.sample.ui.component.row.RowWithCenteredContent
@@ -29,14 +30,15 @@ import com.emarsys.sample.ui.style.cardWithFullWidth
 import com.emarsys.sample.ui.style.columnWithMaxWidth
 import com.emarsys.sample.ui.style.rowWithMaxWidth
 
-class MessagePresenter(private val context: Context) {
+class MessagePresenter(private val context: Context, private val viewModel: InboxViewModel) {
+
+    private val inboxAppEventHandler = InboxAppEventHandler()
 
     private companion object {
         const val DEFAULT_ELEVATION = 10
         const val ON_CLICK_ELEVATION = 50
     }
 
-    @OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
     @ExperimentalCoilApi
     @Composable
     fun MessageCard(message: Message) {
@@ -88,7 +90,7 @@ class MessagePresenter(private val context: Context) {
             ) {
                 TextWithFullWidthLine(text = "${stringResource(id = R.string.title)}: ${message.title}")
                 CommonMessageDetails(message = message)
-                if (!messageTags.isNullOrEmpty()) {
+                if (!messageTags.isEmpty()) {
                     TextFromTags(tags = messageTags)
                 }
             }
@@ -113,7 +115,7 @@ class MessagePresenter(private val context: Context) {
             }
             RowWithCenteredContent { TitleText(titleText = "${stringResource(id = R.string.title)}: ${message.title}") }
             CommonMessageDetails(message)
-            if (!messageTags.isNullOrEmpty()) {
+            if (!messageTags.isEmpty()) {
                 TextFromTags(tags = messageTags)
             }
             RowWithCenteredContent(
@@ -158,7 +160,13 @@ class MessagePresenter(private val context: Context) {
     private fun CommonMessageDetails(message: Message) {
         TextWithFullWidthLine(text = "ID: ${message.id}")
         TextWithFullWidthLine(text = "${stringResource(id = R.string.campaign_id)}: ${message.campaignId}")
-        message.actions?.let { TextFromActionList(actionModels = it) }
+        message.actions?.let {
+            InboxButton(
+                context,
+                actionModels = it,
+                inboxAppEventHandler
+            )
+        }
     }
 
     private fun onAddTagClicked(
