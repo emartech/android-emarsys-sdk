@@ -21,6 +21,7 @@ object Versions {
     const val huawei_agconnect_core_version = "1.6.6.200"
     const val huawei_hms_push_version = "6.3.0.304"
     const val mockkVersion = "1.12.3"
+    const val webkit = "1.5.0"
 }
 
 object Libs {
@@ -36,7 +37,9 @@ object Libs {
     const val lifecycle_extension_java_8 = "androidx.lifecycle:lifecycle-common-java8:${Versions.java8LifecycleVersion}"
     const val security_crypto = "androidx.security:security-crypto:${Versions.securityCryptoVersion}"
     const val google_tink = "com.google.crypto.tink:tink-android:${Versions.google_tink_version}"
-    const val huawei_agconnect_core = "com.huawei.agconnect:agconnect-core:${Versions.huawei_agconnect_core_version}"
+    const val webkit = "androidx.webkit:webkit:${Versions.webkit}"
+    const val huawei_agconnect_core =
+        "com.huawei.agconnect:agconnect-core:${Versions.huawei_agconnect_core_version}"
     const val huawei_hms_push = "com.huawei.hms:push:${Versions.huawei_hms_push_version}"
 }
 

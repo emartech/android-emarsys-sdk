@@ -4,5 +4,7 @@ dependencies {
     implementation project(':core-api')
     implementation project(':mobile-engage-api')
 
+    implementation Libs.webkit
+
     androidTestImplementation project(':testUtils')
 }

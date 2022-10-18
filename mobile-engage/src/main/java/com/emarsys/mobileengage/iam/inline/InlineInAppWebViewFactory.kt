@@ -7,6 +7,7 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.iam.webview.IamWebViewClient
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
+import com.emarsys.mobileengage.iam.webview.setUiModeAutomatically
 
 @Mockable
 class InlineInAppWebViewFactory(
@@ -19,6 +20,7 @@ class InlineInAppWebViewFactory(
         webView?.let {
             webView.settings.javaScriptEnabled = true
             webView.setBackgroundColor(Color.TRANSPARENT)
+            webView.setUiModeAutomatically()
             webView.webViewClient = IamWebViewClient(messageLoadedListener, concurrentHandlerHolder)
         }
 
