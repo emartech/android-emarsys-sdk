@@ -78,16 +78,16 @@ data class DeviceInfo(
         ).toString()
 
     private fun parseChannelSettings(): Pair<String, Any> {
-        return if (AndroidVersionUtils.isOreoOrAbove()) {
+        return if (AndroidVersionUtils.isOreoOrAbove) {
             "channelSettings" to notificationSettings.channelSettings.map {
                 JSONObject(
-                        mapOf(
-                                "channelId" to it.channelId,
-                                "importance" to it.importance,
-                                "isCanBypassDnd" to it.isCanBypassDnd,
-                                "isCanShowBadge" to it.isCanShowBadge,
-                                "isShouldVibrate" to it.isShouldVibrate
-                        )
+                    mapOf(
+                        "channelId" to it.channelId,
+                        "importance" to it.importance,
+                        "isCanBypassDnd" to it.isCanBypassDnd,
+                        "isCanShowBadge" to it.isCanShowBadge,
+                        "isShouldVibrate" to it.isShouldVibrate
+                    )
                 )
             }
         } else {

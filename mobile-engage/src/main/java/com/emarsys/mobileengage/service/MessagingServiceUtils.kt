@@ -140,7 +140,7 @@ object MessagingServiceUtils {
         notificationData: NotificationData,
         context: Context
     ): NotificationData {
-        return if (AndroidVersionUtils.isOreoOrAbove() && deviceInfo.isDebugMode && !isValidChannel(
+        return if (AndroidVersionUtils.isOreoOrAbove && deviceInfo.isDebugMode && !isValidChannel(
                 deviceInfo.notificationSettings,
                 notificationData.channelId
             )

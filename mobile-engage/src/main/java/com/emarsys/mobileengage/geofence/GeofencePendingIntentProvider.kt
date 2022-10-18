@@ -10,14 +10,14 @@ import com.emarsys.core.util.AndroidVersionUtils
 class GeofencePendingIntentProvider(private val context: Context) {
     fun providePendingIntent(): PendingIntent {
         val intent = Intent("com.emarsys.sdk.GEOFENCE_ACTION")
-        if(AndroidVersionUtils.isBelowS()){
+        if (AndroidVersionUtils.isBelowS) {
             return PendingIntent.getBroadcast(
                 context,
                 0,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT
             )
-        }else {
+        } else {
             return PendingIntent.getBroadcast(
                 context,
                 0,

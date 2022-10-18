@@ -221,7 +221,7 @@ class DeviceInfoTest {
             }
         ]"""
 
-        if (!AndroidVersionUtils.isOreoOrAbove()) {
+        if (!AndroidVersionUtils.isOreoOrAbove) {
             channelSettings = "channelSettings: [{}]"
         }
         val expectedPayload = JSONObject("""{

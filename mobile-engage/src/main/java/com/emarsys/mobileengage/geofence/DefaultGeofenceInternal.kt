@@ -159,7 +159,7 @@ class DefaultGeofenceInternal(
 
     @RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun registerNearestGeofences(completionListener: CompletionListener?) {
-        if (!AndroidVersionUtils.isBelowQ()) {
+        if (!AndroidVersionUtils.isBelowQ) {
             validateBackgroundPermission()
         }
 
@@ -194,7 +194,7 @@ class DefaultGeofenceInternal(
             permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     || permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
-        val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ()) true else {
+        val backgroundLocationPermissionGranted = if (AndroidVersionUtils.isBelowQ) true else {
             permissionChecker.checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
         }
 
