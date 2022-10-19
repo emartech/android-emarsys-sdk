@@ -316,12 +316,14 @@ class EmarsysSecureSharedPreferences private constructor(
                             buffer.position(buffer.position() + subStringLength)
                             stringSet.add(StandardCharsets.UTF_8.decode(subStringSlice).toString())
                         }
-                        returnValue = if (stringSet.size == 1 && NULL_VALUE == stringSet.valueAt(0)) {
-                            null
-                        } else {
-                            stringSet
-                        }
+                        returnValue =
+                            if (stringSet.size == 1 && NULL_VALUE == stringSet.valueAt(0)) {
+                                null
+                            } else {
+                                stringSet
+                            }
                     }
+                    else -> {}
                 }
             }
         } catch (ex: GeneralSecurityException) {

@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.responsehandler
 
-import android.os.Handler
 import android.os.Looper
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
@@ -43,7 +42,6 @@ class OnEventActionResponseHandlerTest {
 
     @Before
     fun setUp() {
-        val uiHandler = Handler(Looper.getMainLooper())
         mockAppEventCommand = mock()
         mockActionCommandFactory = mock()
         mockRepository = mock()

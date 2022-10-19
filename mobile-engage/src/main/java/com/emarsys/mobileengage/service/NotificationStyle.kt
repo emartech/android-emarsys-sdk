@@ -22,8 +22,8 @@ object ThumbnailStyle : NotificationStyle() {
 object MessageStyle : NotificationStyle() {
     override fun apply(builder: NotificationCompat.Builder, notificationData: NotificationData): NotificationCompat.Builder {
         val user = Person.Builder()
-                .setName(notificationData.title)
-                .setIcon(IconCompat.createWithAdaptiveBitmap(notificationData.image)).build()
+            .setName(notificationData.title)
+            .setIcon(IconCompat.createWithAdaptiveBitmap(notificationData.image!!)).build()
         return builder.setStyle(NotificationCompat.MessagingStyle(user)
                 .addMessage(notificationData.body, System.currentTimeMillis(), user)
                 .setGroupConversation(false))

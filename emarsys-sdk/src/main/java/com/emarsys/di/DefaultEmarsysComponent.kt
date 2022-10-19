@@ -130,7 +130,7 @@ import com.emarsys.push.PushApi
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.LocationServices
 import org.json.JSONObject
 import java.lang.reflect.Method
 import java.security.KeyFactory
@@ -747,7 +747,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         CacheableEventHandler()
     }
     override val fusedLocationProviderClient: FusedLocationProviderClient by lazy {
-        FusedLocationProviderClient(config.application)
+        LocationServices.getFusedLocationProviderClient(config.application)
     }
     override val geofenceInternal: GeofenceInternal by lazy {
         val geofenceActionCommandFactory = ActionCommandFactory(
@@ -764,7 +764,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             PermissionChecker(config.application),
             fusedLocationProviderClient,
             GeofenceFilter(GEOFENCE_LIMIT),
-            GeofencingClient(config.application),
+            LocationServices.getGeofencingClient(config.application),
             config.application,
             geofenceActionCommandFactory,
             geofenceCacheableEventHandler,
