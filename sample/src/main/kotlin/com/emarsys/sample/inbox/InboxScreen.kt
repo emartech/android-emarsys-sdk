@@ -53,6 +53,7 @@ class InboxScreen(
                 TitleText(titleText = stringResource(id = R.string.inbox_title))
             })
         {
+            it.calculateBottomPadding()
             var refreshing by remember { mutableStateOf(false) }
             LaunchedEffect(key1 = refreshing) {
                 if (refreshing) {
@@ -60,7 +61,8 @@ class InboxScreen(
                     refreshing = false
                 }
             }
-            SwipeRefresh(state = rememberSwipeRefreshState(isRefreshing = refreshing),
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isRefreshing = refreshing),
                 onRefresh = {
                     refreshing = true
                     viewModel.onSwipeFetchMessages()
