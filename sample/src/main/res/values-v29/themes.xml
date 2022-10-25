@@ -3,7 +3,6 @@
 
     <style name="Theme.AppTheme" parent="Theme.AppCompat.DayNight">
         <item name="android:forceDarkAllowed">true</item>
-        <item name="android:isLightTheme">false</item>
         <!-- Primary brand color. -->
         <item name="colorPrimary">#2196F3</item>
         <item name="colorPrimaryVariant">#1976D2</item>

@@ -217,7 +217,12 @@ class DashboardScreen(
         Emarsys.config.changeApplicationCode(
             applicationCode = viewModel.getTfAppCodeValue(),
             completionListener = { changeError ->
-                if (changeError != null) {
+                if (viewModel.shouldChangeEnv()) {
+                    if (changeError != null) {
+                        customTextToast(context, somethingWentWrong)
+                    }
+                    exitProcess(0)
+                } else if (changeError != null) {
                     customTextToast(context, somethingWentWrong)
                 } else {
                     if (viewModel.hasLogin()) {
@@ -228,10 +233,6 @@ class DashboardScreen(
                         customTextToast(context, appCodeChangeSuccess)
                     }
                     viewModel.resetContactInfo()
-                    if (viewModel.shouldChangeEnv()) {
-                        Thread.sleep(500)
-                        exitProcess(0)
-                    }
                 }
             }
         )
