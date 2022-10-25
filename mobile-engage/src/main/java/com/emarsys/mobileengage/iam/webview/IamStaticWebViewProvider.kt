@@ -15,7 +15,6 @@ import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 
 @Mockable
 class IamStaticWebViewProvider(
-    private val context: Context,
     private val concurrentHandlerHolder: ConcurrentHandlerHolder
 ) {
     companion object {
@@ -25,6 +24,7 @@ class IamStaticWebViewProvider(
     fun loadMessageAsync(
         html: String,
         jsBridge: IamJsBridge,
+        context: Context,
         messageLoadedListener: MessageLoadedListener
     ) {
         concurrentHandlerHolder.postOnMain {

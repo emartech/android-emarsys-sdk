@@ -1,8 +1,10 @@
 package com.emarsys.mobileengage.iam.webview
 
+import android.content.Context
 import android.os.Handler
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
+import androidx.test.platform.app.InstrumentationRegistry
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.fake.FakeMessageLoadedListener
@@ -41,6 +43,7 @@ class IamStaticWebViewProviderTest {
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var latch: CountDownLatch
     private lateinit var dummyJsBridge: IamJsBridge
+    private lateinit var context: Context
     var html = String.format(
         """<!DOCTYPE html>
 <html lang="en">
@@ -65,17 +68,18 @@ class IamStaticWebViewProviderTest {
         webView = null
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         provider =
-            IamStaticWebViewProvider(getTargetContext().applicationContext, concurrentHandlerHolder)
+            IamStaticWebViewProvider(concurrentHandlerHolder)
         listener = Mockito.mock(MessageLoadedListener::class.java)
         latch = CountDownLatch(1)
         dummyJsBridge = TestJSInterface()
+        context = InstrumentationRegistry.getInstrumentation().targetContext
     }
 
     @Test
     @Throws(InterruptedException::class)
     fun testLoadMessageAsync_shouldInvokeJsBridge_whenPageIsLoaded() {
         val jsInterface = Mockito.mock(TestJSInterface::class.java)
-        provider.loadMessageAsync(html, jsInterface, FakeMessageLoadedListener(latch))
+        provider.loadMessageAsync(html, jsInterface, context, FakeMessageLoadedListener(latch))
         latch.await()
         Mockito.verify(jsInterface).onPageLoaded("{success:true}")
     }
@@ -84,7 +88,7 @@ class IamStaticWebViewProviderTest {
     @Throws(InterruptedException::class)
     fun testLoadMessageAsync_shouldEventuallySetWebViewOnJSBridge() {
         val jsInterface = Mockito.mock(TestJSInterface::class.java)
-        provider.loadMessageAsync(html, jsInterface, FakeMessageLoadedListener(latch))
+        provider.loadMessageAsync(html, jsInterface, context, FakeMessageLoadedListener(latch))
         latch.await()
         Mockito.verify(jsInterface).webView = provider.provideWebView()
     }

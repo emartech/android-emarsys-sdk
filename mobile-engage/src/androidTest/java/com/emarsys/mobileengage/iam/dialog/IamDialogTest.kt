@@ -501,7 +501,6 @@ class IamDialogTest {
             concurrentHandlerHolder.postOnMain {
                 val webView =
                     IamStaticWebViewProvider(
-                        getTargetContext(),
                         concurrentHandlerHolder
                     ).provideWebView()
                 LinearLayout(getTargetContext()).addView(webView)

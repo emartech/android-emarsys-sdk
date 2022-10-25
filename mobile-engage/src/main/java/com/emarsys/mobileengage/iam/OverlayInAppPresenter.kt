@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.iam
 
+import android.content.Context
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import com.emarsys.core.Mockable
@@ -51,18 +52,23 @@ class OverlayInAppPresenter(
 
         val jsBridge =
             jsBridgeFactory.createJsBridge(jsCommandFactory, InAppMessage(campaignId, sid, url))
+        val context = currentActivityProvider.get() as Context?
 
-        webViewProvider.loadMessageAsync(html, jsBridge) {
-            val currentActivity = currentActivityProvider.get()
-            val endTimestamp = timestampProvider.provideTimestamp()
-            iamDialog.setInAppLoadingTime(InAppLoadingTime(startTimestamp, endTimestamp))
-            if (currentActivity is FragmentActivity) {
-                val fragmentManager = currentActivity.supportFragmentManager
-                val fragment = fragmentManager.findFragmentByTag(IamDialog.TAG)
-                if (fragment == null) {
-                    iamDialog.show(fragmentManager, IamDialog.TAG)
+        if (context != null) {
+            webViewProvider.loadMessageAsync(html, jsBridge, context) {
+                val currentActivity = currentActivityProvider.get()
+                val endTimestamp = timestampProvider.provideTimestamp()
+                iamDialog.setInAppLoadingTime(InAppLoadingTime(startTimestamp, endTimestamp))
+                if (currentActivity is FragmentActivity) {
+                    val fragmentManager = currentActivity.supportFragmentManager
+                    val fragment = fragmentManager.findFragmentByTag(IamDialog.TAG)
+                    if (fragment == null) {
+                        iamDialog.show(fragmentManager, IamDialog.TAG)
+                    }
                 }
+                messageLoadedListener?.onMessageLoaded()
             }
+        } else {
             messageLoadedListener?.onMessageLoaded()
         }
     }
@@ -106,5 +112,4 @@ class OverlayInAppPresenter(
         )
         iamDialog.setActions(listOf(saveDisplayedIamAction, sendDisplayedIamAction))
     }
-
 }

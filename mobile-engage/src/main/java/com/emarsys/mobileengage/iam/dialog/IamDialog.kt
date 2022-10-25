@@ -67,7 +67,6 @@ class IamDialog(
     ): View? {
         val v = inflater.inflate(R.layout.mobile_engage_in_app_message, container, false)
         webView = IamStaticWebViewProvider(
-            requireActivity().applicationContext,
             concurrentHandlerHolder
         ).provideWebView()
         webViewContainer = v.findViewById(R.id.mobileEngageInAppMessageContainer)

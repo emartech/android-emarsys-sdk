@@ -254,7 +254,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val overlayInAppPresenter: OverlayInAppPresenter by lazy {
         OverlayInAppPresenter(
             concurrentHandlerHolder,
-            IamStaticWebViewProvider(config.application, concurrentHandlerHolder),
+            IamStaticWebViewProvider(concurrentHandlerHolder),
             inAppInternal,
             IamDialogProvider(concurrentHandlerHolder, timestampProvider),
             buttonClickedRepository,
@@ -694,7 +694,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val webViewProvider: WebViewProvider by lazy {
-        WebViewProvider(config.application)
+        WebViewProvider()
     }
 
     override val currentActivityProvider: CurrentActivityProvider by lazy {
