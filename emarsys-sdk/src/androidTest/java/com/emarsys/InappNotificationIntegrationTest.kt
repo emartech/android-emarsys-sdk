@@ -107,23 +107,22 @@ class InappNotificationIntegrationTest {
 
     @Test
     fun testInappPresent() {
-        val context = InstrumentationRegistry.getTargetContext().applicationContext
-        val url = FileDownloader(context).download("https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png")
+        val url = FileDownloader(application).download("https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png")
         val emsPayload = """{"inapp": {"campaignId": "222","url": "https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png","fileUrl": "$url"}}"""
         val remoteMessageData = mapOf("ems" to emsPayload)
 
         val intent = IntentUtils.createNotificationHandlerServiceIntent(
-                context,
+                application,
                 remoteMessageData,
                 0,
                 null
         )
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-        context.startActivity(intent)
+        application.startActivity(intent)
 
         activityScenarioRule.scenario.moveToState(Lifecycle.State.CREATED)
-
+        activityScenarioRule.scenario.moveToState(Lifecycle.State.RESUMED)
 
         completionListenerLatch.await()
         verify(mockInappPresenterOverlay).present(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
