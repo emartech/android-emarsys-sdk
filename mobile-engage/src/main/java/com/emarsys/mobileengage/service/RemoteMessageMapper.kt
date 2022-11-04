@@ -11,27 +11,64 @@ import org.json.JSONObject
 
 @Mockable
 class RemoteMessageMapper(
-        private val metaDataReader: MetaDataReader,
-        private val context: Context,
-        private val fileDownloader: FileDownloader,
-        private val deviceInfo: DeviceInfo) {
+    private val metaDataReader: MetaDataReader,
+    private val context: Context,
+    private val fileDownloader: FileDownloader,
+    private val deviceInfo: DeviceInfo
+) {
 
     private companion object {
-        const val METADATA_SMALL_NOTIFICATION_ICON_KEY = "com.emarsys.mobileengage.small_notification_icon"
+        const val METADATA_SMALL_NOTIFICATION_ICON_KEY =
+            "com.emarsys.mobileengage.small_notification_icon"
         const val METADATA_NOTIFICATION_COLOR = "com.emarsys.mobileengage.notification_color"
         val DEFAULT_SMALL_NOTIFICATION_ICON = R.drawable.default_small_notification_icon
     }
 
     fun map(remoteMessageData: Map<String, String?>): NotificationData {
-        val smallIconResourceId = metaDataReader.getInt(context, METADATA_SMALL_NOTIFICATION_ICON_KEY, DEFAULT_SMALL_NOTIFICATION_ICON)
+        val smallIconResourceId = metaDataReader.getInt(
+            context,
+            METADATA_SMALL_NOTIFICATION_ICON_KEY,
+            DEFAULT_SMALL_NOTIFICATION_ICON
+        )
         val colorResourceId = metaDataReader.getInt(context, METADATA_NOTIFICATION_COLOR)
-        val image = ImageUtils.loadOptimizedBitmap(fileDownloader, remoteMessageData["image_url"], deviceInfo)
-        val iconImage = ImageUtils.loadOptimizedBitmap(fileDownloader, remoteMessageData["icon_url"], deviceInfo)
+        val image = ImageUtils.loadOptimizedBitmap(
+            fileDownloader,
+            remoteMessageData["image_url"],
+            deviceInfo
+        )
+        val iconImage = ImageUtils.loadOptimizedBitmap(
+            fileDownloader,
+            remoteMessageData["icon_url"],
+            deviceInfo
+        )
         val title = remoteMessageData["title"]
-        val style = JSONObject(remoteMessageData["ems"] ?: "{}").optString("style")
+        val ems = extractEms(remoteMessageData)
+        val style = ems.optString("style")
         val body = remoteMessageData["body"]
         val channelId = remoteMessageData["channel_id"]
+        var notificationMethod: NotificationMethod? = null
+        ems.optJSONObject("notificationMethod")?.let {
+            try {
+                val notificationId = it.getInt("notificationId")
+                val operation = NotificationOperation.valueOf(it.getString("operation").uppercase())
+                notificationMethod = NotificationMethod(notificationId, operation)
+            } catch (ignored: Exception) {
+            }
+        }
 
-        return NotificationData(image, iconImage, style, title, body, channelId, smallIconResourceId, colorResourceId)
+        return NotificationData(
+            image,
+            iconImage,
+            style,
+            title,
+            body,
+            channelId,
+            smallIconResourceId,
+            colorResourceId,
+            notificationMethod
+        )
     }
+
+    private fun extractEms(remoteMessageData: Map<String, String?>) =
+        JSONObject(remoteMessageData["ems"] ?: "{}")
 }

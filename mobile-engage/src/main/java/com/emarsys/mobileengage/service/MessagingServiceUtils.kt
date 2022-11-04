@@ -44,17 +44,39 @@ object MessagingServiceUtils {
                     }
                 }
             } else {
-                val notificationId = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
-                val notification = createNotification(
-                    notificationId,
-                    context.applicationContext,
-                    remoteMessageData,
-                    deviceInfo,
-                    remoteMessageMapper,
-                    fileDownloader
-                )
-                (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                    .notify(notificationId, notification)
+                val notificationData = remoteMessageMapper.map(remoteMessageData)
+                val notificationManager =
+                    (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                if (notificationData.notificationMethod == null) {
+                    val notificationId = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
+                    val notification = createNotification(
+                        notificationId,
+                        context.applicationContext,
+                        remoteMessageData,
+                        deviceInfo,
+                        fileDownloader,
+                        notificationData
+                    )
+                    notificationManager.notify(notificationId, notification)
+                } else {
+                    val notificationId = notificationData.notificationMethod.notificationId
+                    val notification = createNotification(
+                        notificationId,
+                        context.applicationContext,
+                        remoteMessageData,
+                        deviceInfo,
+                        fileDownloader,
+                        notificationData
+                    )
+                    when (notificationData.notificationMethod.operation) {
+                        NotificationOperation.UPDATE -> {
+                            notificationManager.notify(notificationId, notification)
+                        }
+                        NotificationOperation.DELETE -> {
+                            notificationManager.cancel(notificationId)
+                        }
+                    }
+                }
             }
             handled = true
         }
@@ -105,22 +127,20 @@ object MessagingServiceUtils {
         context: Context,
         remoteMessageData: Map<String, String>,
         deviceInfo: DeviceInfo,
-        remoteMessageMapper: RemoteMessageMapper,
-        fileDownloader: FileDownloader
+        fileDownloader: FileDownloader,
+        notificationData: NotificationData
     ): Notification {
-        var notificationData = remoteMessageMapper.map(remoteMessageData)
+        val notifData = handleChannelIdMismatch(deviceInfo, notificationData, context)
 
-        notificationData = handleChannelIdMismatch(deviceInfo, notificationData, context)
-
-        return createNotificationBuilder(notificationData, context)
+        return createNotificationBuilder(notifData, context)
             .setupBuilder(
                 context,
                 remoteMessageData,
                 notificationId,
                 fileDownloader,
-                notificationData
+                notifData
             )
-            .styleNotification(notificationData)
+            .styleNotification(notifData)
             .build()
     }
 
