@@ -6,9 +6,13 @@ import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.mobileengage.di.mobileEngage
 
 class DeepLink(private val loggingInstance: Boolean = false) : DeepLinkApi {
-    override fun trackDeepLinkOpen(activity: Activity?, intent: Intent?, completionListener: CompletionListener?) {
-        (if (loggingInstance) mobileEngage().loggingDeepLinkInternal else mobileEngage().deepLinkInternal)
-                .trackDeepLinkOpen(activity, intent, completionListener)
+    override fun trackDeepLinkOpen(
+        activity: Activity?,
+        intent: Intent?,
+        completionListener: CompletionListener?
+    ) {
+        mobileEngage().deepLinkInternal
+            .trackDeepLinkOpen(activity, intent, completionListener)
     }
 
 }

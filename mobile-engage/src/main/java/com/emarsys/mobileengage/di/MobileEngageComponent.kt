@@ -82,8 +82,6 @@ interface MobileEngageComponent : CoreComponent {
 
     val deepLinkInternal: DeepLinkInternal
 
-    val loggingDeepLinkInternal: DeepLinkInternal
-
     val pushInternal: PushInternal
 
     val loggingPushInternal: PushInternal

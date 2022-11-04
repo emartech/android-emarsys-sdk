@@ -54,11 +54,7 @@ object EmarsysDependencyInjection {
 
     @JvmStatic
     fun deepLinkApi(): DeepLinkApi {
-        return if (isMobileEngageEnabled()) {
-            emarsys().deepLink
-        } else {
-            emarsys().loggingDeepLink
-        }
+        return emarsys().deepLink
     }
 
     @JvmStatic

@@ -81,7 +81,6 @@ import com.emarsys.mobileengage.client.LoggingClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkAction
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
 import com.emarsys.mobileengage.deeplink.DefaultDeepLinkInternal
-import com.emarsys.mobileengage.deeplink.LoggingDeepLinkInternal
 import com.emarsys.mobileengage.device.DeviceInfoStartAction
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.event.CacheableEventHandler
@@ -185,9 +184,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val deepLink: DeepLinkApi =
         (DeepLink() as DeepLinkApi).proxyApi(concurrentHandlerHolder)
-
-    override val loggingDeepLink: DeepLinkApi =
-        (DeepLink(true) as DeepLinkApi).proxyApi(concurrentHandlerHolder)
 
     override val messageInbox: MessageInboxApi =
         (MessageInbox() as MessageInboxApi).proxyApi(concurrentHandlerHolder)
@@ -661,10 +657,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
     override val deepLinkInternal: DeepLinkInternal by lazy {
         DefaultDeepLinkInternal(requestManager, requestContext, deepLinkServiceProvider)
-    }
-
-    override val loggingDeepLinkInternal: DeepLinkInternal by lazy {
-        LoggingDeepLinkInternal(Emarsys::class.java)
     }
 
     override val pushInternal: PushInternal by lazy {

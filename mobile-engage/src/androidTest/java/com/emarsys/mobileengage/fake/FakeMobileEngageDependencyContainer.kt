@@ -75,7 +75,6 @@ class FakeMobileEngageDependencyContainer(
     override val inAppInternal: InAppInternal = mock(),
     override val loggingInAppInternal: InAppInternal = mock(),
     override val deepLinkInternal: DeepLinkInternal = mock(),
-    override val loggingDeepLinkInternal: DeepLinkInternal = mock(),
     override val pushInternal: PushInternal = mock(),
     override val loggingPushInternal: PushInternal = mock(),
     override val eventServiceInternal: EventServiceInternal = mock(),

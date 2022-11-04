@@ -50,9 +50,7 @@ interface EmarsysComponent : MobileEngageComponent, PredictComponent {
     val loggingMessageInbox: MessageInboxApi
 
     val deepLink: DeepLinkApi
-
-    val loggingDeepLink: DeepLinkApi
-
+    
     val inApp: InAppApi
 
     val loggingInApp: InAppApi
