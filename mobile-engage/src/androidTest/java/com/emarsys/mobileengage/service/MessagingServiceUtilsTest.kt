@@ -52,10 +52,13 @@ class MessagingServiceUtilsTest {
         const val LANGUAGE = "en-US"
         const val IMAGE_URL = "https://emarsys.com/image"
         const val HTML_URL = "https://hu.wikipedia.org/wiki/Mont_Blanc"
+        const val COLLAPSE_ID = 123
 
         val IMAGE: Bitmap = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
-        val SMALL_NOTIFICATION_ICON = com.emarsys.mobileengage.R.drawable.default_small_notification_icon
+        val SMALL_NOTIFICATION_ICON =
+            com.emarsys.mobileengage.R.drawable.default_small_notification_icon
         val COLOR = com.emarsys.mobileengage.R.color.common_google_signin_btn_text_light
+        val NOTIFICATION_METHOD = NotificationMethod(COLLAPSE_ID, NotificationOperation.INIT)
         val EMPTY_NOTIFICATION_DATA: NotificationData = NotificationData(
             null,
             null,
@@ -65,7 +68,7 @@ class MessagingServiceUtilsTest {
             null,
             SMALL_NOTIFICATION_ICON,
             COLOR,
-            null
+            NOTIFICATION_METHOD
         )
     }
 
@@ -96,9 +99,13 @@ class MessagingServiceUtilsTest {
             whenever(download(any(), any())).thenAnswer {
                 if (it.arguments[0] == IMAGE_URL || it.arguments[0] == HTML_URL) {
                     val fileContent = getTargetContext().resources.openRawResource(
-                            getTargetContext().resources.getIdentifier("test_image",
-                                    "raw", getTargetContext().packageName))
-                    val file = File(getTargetContext().cacheDir.toURI().toURL().path + "/testFile.tmp")
+                        getTargetContext().resources.getIdentifier(
+                            "test_image",
+                            "raw", getTargetContext().packageName
+                        )
+                    )
+                    val file =
+                        File(getTargetContext().cacheDir.toURI().toURL().path + "/testFile.tmp")
                     file.copyInputStreamToFile(fileContent)
                     file.toURI().toURL().path
                 } else {
@@ -111,22 +118,29 @@ class MessagingServiceUtilsTest {
 
         whenever(mockNotificationSettings.channelSettings).thenReturn(listOf(channelSettings))
         whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
-        whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::
-        class.java))).thenReturn(LANGUAGE)
+        whenever(
+            mockLanguageProvider.provideLanguage(
+                ArgumentMatchers.any(
+                    Locale::
+                    class.java
+                )
+            )
+        ).thenReturn(LANGUAGE)
         whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
         deviceInfo = DeviceInfo(
-                context,
-                mockHardwareIdProvider,
-                mockVersionProvider,
-                mockLanguageProvider,
-                mockNotificationSettings,
-                isAutomaticPushSendingEnabled = true,
-                isGooglePlayAvailable = true
+            context,
+            mockHardwareIdProvider,
+            mockVersionProvider,
+            mockLanguageProvider,
+            mockNotificationSettings,
+            isAutomaticPushSendingEnabled = true,
+            isGooglePlayAvailable = true
         )
         mockRemoteMessageMapper = mock()
 
         setupMobileEngageComponent(
-                FakeMobileEngageDependencyContainer(silentNotificationInformationListenerProvider = mockSilentNotificationInformationListenerProvider))
+            FakeMobileEngageDependencyContainer(silentNotificationInformationListenerProvider = mockSilentNotificationInformationListenerProvider)
+        )
     }
 
     @After
@@ -138,22 +152,38 @@ class MessagingServiceUtilsTest {
     @Test
     fun testHandleMessage_shouldReturnFalse_ifMessageIsNotHandled() {
         whenever(mockRemoteMessageMapper.map(any())).thenReturn(EMPTY_NOTIFICATION_DATA)
-        MessagingServiceUtils.handleMessage(context, createRemoteMessageData(), deviceInfo, mockFileDownloader, mockActionCommandFactory, mockRemoteMessageMapper) shouldBe false
+        MessagingServiceUtils.handleMessage(
+            context,
+            createRemoteMessageData(),
+            deviceInfo,
+            mockFileDownloader,
+            mockActionCommandFactory,
+            mockRemoteMessageMapper
+        ) shouldBe false
     }
 
     @Test
     fun testHandleMessage_shouldReturnTrue_ifMessageIsHandled() {
         whenever(mockRemoteMessageMapper.map(any())).thenReturn(EMPTY_NOTIFICATION_DATA)
-        MessagingServiceUtils.handleMessage(context, createEMSRemoteMessageData(), deviceInfo, mockFileDownloader, mockActionCommandFactory, mockRemoteMessageMapper) shouldBe true
+        MessagingServiceUtils.handleMessage(
+            context,
+            createEMSRemoteMessageData(),
+            deviceInfo,
+            mockFileDownloader,
+            mockActionCommandFactory,
+            mockRemoteMessageMapper
+        ) shouldBe true
     }
 
     @Test
     fun testHandleMessage_shouldReturnTrue_whenSilent() {
         val message = mapOf(
-                "ems_msg" to "value",
-                "ems" to JSONObject(mapOf(
-                        "silent" to true
-                )).toString()
+            "ems_msg" to "value",
+            "ems" to JSONObject(
+                mapOf(
+                    "silent" to true
+                )
+            ).toString()
         )
         MessagingServiceUtils.isSilent(message) shouldBe true
     }
@@ -161,10 +191,12 @@ class MessagingServiceUtilsTest {
     @Test
     fun testHandleMessage_shouldReturnFalse_whenNotSilent() {
         val message = mapOf(
-                "ems_msg" to "value",
-                "ems" to JSONObject(mapOf(
-                        "silent" to false
-                )).toString()
+            "ems_msg" to "value",
+            "ems" to JSONObject(
+                mapOf(
+                    "silent" to false
+                )
+            ).toString()
         )
         MessagingServiceUtils.isSilent(message) shouldBe false
     }
@@ -172,8 +204,8 @@ class MessagingServiceUtilsTest {
     @Test
     fun testHandleMessage_shouldReturnFalse_whenSilentIsNotDefined() {
         val message = mapOf(
-                "ems_msg" to "value",
-                "ems" to JSONObject().toString()
+            "ems_msg" to "value",
+            "ems" to JSONObject().toString()
         )
         MessagingServiceUtils.isSilent(message) shouldBe false
     }
@@ -192,18 +224,21 @@ class MessagingServiceUtilsTest {
             NotificationMethod(123, NotificationOperation.UPDATE)
         )
 
-        val notificationMethodJson = JSONObject()
-        notificationMethodJson.put("notificationId", 123)
-        notificationMethodJson.put("operation", "UPDATE")
         val ems = JSONObject()
-        ems.put("notificationMethod", notificationMethodJson)
         val message = mapOf(
             "ems_msg" to "value",
             "ems" to ems.toString()
         )
         whenever(mockRemoteMessageMapper.map(message)).thenReturn(notificationData)
 
-        MessagingServiceUtils.handleMessage(context, message, deviceInfo, mockFileDownloader, mockActionCommandFactory, mockRemoteMessageMapper)
+        MessagingServiceUtils.handleMessage(
+            context,
+            message,
+            deviceInfo,
+            mockFileDownloader,
+            mockActionCommandFactory,
+            mockRemoteMessageMapper
+        ) shouldBe true
     }
 
     @Test
@@ -238,7 +273,7 @@ class MessagingServiceUtilsTest {
             null,
             SMALL_NOTIFICATION_ICON,
             COLOR,
-            null
+            NOTIFICATION_METHOD
         )
 
         val input: MutableMap<String, String> = HashMap()
@@ -263,7 +298,7 @@ class MessagingServiceUtilsTest {
             CHANNEL_ID,
             SMALL_NOTIFICATION_ICON,
             COLOR,
-            null
+            NOTIFICATION_METHOD
         )
 
         val input: MutableMap<String, String> = HashMap()
@@ -297,7 +332,7 @@ class MessagingServiceUtilsTest {
             CHANNEL_ID,
             SMALL_NOTIFICATION_ICON,
             COLOR,
-            null
+            NOTIFICATION_METHOD
         )
 
         val input: MutableMap<String, String> = HashMap()
@@ -330,11 +365,12 @@ class MessagingServiceUtilsTest {
             CHANNEL_ID,
             SMALL_NOTIFICATION_ICON,
             COLOR,
-            null
+            NOTIFICATION_METHOD
         )
         val input: MutableMap<String, String> = HashMap()
         input["body"] = BODY
-        input["u"] = "{\"test_field\":\"\",\"image\":\"https:\\/\\/media.giphy.com\\/media\\/ktvFa67wmjDEI\\/giphy.gif\",\"deep_link\":\"lifestylelabels.com\\/mobile\\/product\\/3245678\",\"sid\":\"sid_here\"}"
+        input["u"] =
+            "{\"test_field\":\"\",\"image\":\"https:\\/\\/media.giphy.com\\/media\\/ktvFa67wmjDEI\\/giphy.gif\",\"deep_link\":\"lifestylelabels.com\\/mobile\\/product\\/3245678\",\"sid\":\"sid_here\"}"
         input["channel_id"] = CHANNEL_ID
 
         val result = MessagingServiceUtils.createNotification(
@@ -362,7 +398,7 @@ class MessagingServiceUtilsTest {
             CHANNEL_ID,
             SMALL_NOTIFICATION_ICON,
             COLOR,
-            null
+            NOTIFICATION_METHOD
         )
 
         val result = MessagingServiceUtils.createNotification(
@@ -393,7 +429,7 @@ class MessagingServiceUtilsTest {
             CHANNEL_ID,
             SMALL_NOTIFICATION_ICON,
             COLOR,
-            null
+            NOTIFICATION_METHOD
         )
 
         val result = MessagingServiceUtils.createNotification(
@@ -424,7 +460,7 @@ class MessagingServiceUtilsTest {
             CHANNEL_ID,
             SMALL_NOTIFICATION_ICON,
             colorResourceId,
-            null
+            NOTIFICATION_METHOD
         )
 
         val expectedColor = ContextCompat.getColor(context, colorResourceId)
@@ -454,7 +490,7 @@ class MessagingServiceUtilsTest {
             CHANNEL_ID,
             SMALL_NOTIFICATION_ICON,
             0,
-            null
+            NOTIFICATION_METHOD
         )
 
         val input: MutableMap<String, String> = HashMap()
@@ -484,7 +520,7 @@ class MessagingServiceUtilsTest {
             CHANNEL_ID,
             SMALL_NOTIFICATION_ICON,
             COLOR,
-            null
+            NOTIFICATION_METHOD
         )
 
         val input: MutableMap<String, String> = HashMap()
@@ -516,7 +552,7 @@ class MessagingServiceUtilsTest {
             null,
             SMALL_NOTIFICATION_ICON,
             COLOR,
-            null
+            NOTIFICATION_METHOD
         )
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
@@ -551,7 +587,7 @@ class MessagingServiceUtilsTest {
             null,
             SMALL_NOTIFICATION_ICON,
             COLOR,
-            null
+            NOTIFICATION_METHOD
         )
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
@@ -576,21 +612,27 @@ class MessagingServiceUtilsTest {
     @Test
     fun testCreateNotification_setsActionsIfAvailable() {
         val ems = JSONObject()
-                .put("actions", JSONArray()
-                        .put(JSONObject()
-                                .put("id", "uniqueActionId1")
-                                .put("title", "title1")
-                                .put("type", "MEAppEvent")
-                                .put("name", "event1")
-                        )
-                        .put(JSONObject()
-                                .put("id", "uniqueActionId2")
-                                .put("title", "title2")
-                                .put("type", "MEAppEvent")
-                                .put("name", "event2")
-                                .put("payload", JSONObject()
-                                        .put("payloadKey", "payloadValue"))
-                        ))
+            .put(
+                "actions", JSONArray()
+                    .put(
+                        JSONObject()
+                            .put("id", "uniqueActionId1")
+                            .put("title", "title1")
+                            .put("type", "MEAppEvent")
+                            .put("name", "event1")
+                    )
+                    .put(
+                        JSONObject()
+                            .put("id", "uniqueActionId2")
+                            .put("title", "title2")
+                            .put("type", "MEAppEvent")
+                            .put("name", "event2")
+                            .put(
+                                "payload", JSONObject()
+                                    .put("payloadKey", "payloadValue")
+                            )
+                    )
+            )
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
         input["body"] = BODY
@@ -637,7 +679,7 @@ class MessagingServiceUtilsTest {
             CHANNEL_ID,
             SMALL_NOTIFICATION_ICON,
             COLOR,
-            null
+            NOTIFICATION_METHOD
         )
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
@@ -671,7 +713,7 @@ class MessagingServiceUtilsTest {
             CHANNEL_ID,
             SMALL_NOTIFICATION_ICON,
             COLOR,
-            null
+            NOTIFICATION_METHOD
         )
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
@@ -702,17 +744,28 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testGetInAppDescriptor_shouldReturnNull_whenThereIsNoEmsInPayload() {
-        MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, createNoEmsInPayload()) shouldBe null
+        MessagingServiceUtils.getInAppDescriptor(
+            mockFileDownloader,
+            createNoEmsInPayload()
+        ) shouldBe null
     }
 
     @Test
     fun testGetInAppDescriptor_shouldReturnNull_whenThereIsNoInAppInPayload() {
-        MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, createNoInAppInPayload()) shouldBe null
+        MessagingServiceUtils.getInAppDescriptor(
+            mockFileDownloader,
+            createNoInAppInPayload()
+        ) shouldBe null
     }
 
     @Test
     fun testGetInAppDescriptor_shouldReturnValidDescriptor_whenThereIsInAppInPayload() {
-        val result = JSONObject(MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, createInAppInPayload())!!)
+        val result = JSONObject(
+            MessagingServiceUtils.getInAppDescriptor(
+                mockFileDownloader,
+                createInAppInPayload()
+            )!!
+        )
 
         result.getString("campaignId") shouldBe "someId"
         result.getString("url") shouldBe HTML_URL
@@ -751,7 +804,8 @@ class MessagingServiceUtilsTest {
         inapp.put("url", "https://thisIsNotARealUrl")
         ems.put("inapp", inapp)
         payload["ems"] = ems.toString()
-        val result = JSONObject(MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, payload)!!)
+        val result =
+            JSONObject(MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, payload)!!)
 
         result.getString("campaignId") shouldBe "someId"
         result.getString("url") shouldBe "https://thisIsNotARealUrl"
@@ -762,7 +816,8 @@ class MessagingServiceUtilsTest {
     fun testCreatePreloadedRemoteMessageData_shouldPutInAppDescriptorUnderEms_whenAvailableAndInAppIsTurnedOn() {
         val inAppDescriptor = "InAppDescriptor"
         val inAppPayload = createNoInAppInPayload()
-        val result = MessagingServiceUtils.createPreloadedRemoteMessageData(inAppPayload, inAppDescriptor)
+        val result =
+            MessagingServiceUtils.createPreloadedRemoteMessageData(inAppPayload, inAppDescriptor)
 
         JSONObject(result["ems"]!!).getString("inapp") shouldBe inAppDescriptor
     }
@@ -771,7 +826,8 @@ class MessagingServiceUtilsTest {
     fun testCreatePreloadedRemoteMessageData_shouldNotPutInAppDescriptorUnderEms_whenNotAvailable() {
         val inAppDescriptor: String? = null
         val inAppPayload = createNoInAppInPayload()
-        val result = MessagingServiceUtils.createPreloadedRemoteMessageData(inAppPayload, inAppDescriptor)
+        val result =
+            MessagingServiceUtils.createPreloadedRemoteMessageData(inAppPayload, inAppDescriptor)
 
         JSONObject(result["ems"]!!).has("inapp") shouldBe false
     }
@@ -779,87 +835,142 @@ class MessagingServiceUtilsTest {
     @Test
     fun testCreateSilentPushCommands_shouldReturnEmptyList_whenNoActionIsDefined() {
         val message = mapOf(
-                "ems_msg" to "value",
-                "ems" to JSONObject(mapOf(
-                        "silent" to true
-                )).toString()
+            "ems_msg" to "value",
+            "ems" to JSONObject(
+                mapOf(
+                    "silent" to true
+                )
+            ).toString()
         )
 
-        MessagingServiceUtils.createSilentPushCommands(mockActionCommandFactory, message) shouldBe emptyList()
+        MessagingServiceUtils.createSilentPushCommands(
+            mockActionCommandFactory,
+            message
+        ) shouldBe emptyList()
     }
 
     @Test
     fun testCreateSilentPushCommands_shouldCreateSilentNotificationCommand_whenMessageIsSilentAndContainsCampaignId() {
         val message = mapOf(
-                "ems_msg" to "value",
-                "ems" to JSONObject(mapOf(
-                        "multichannelId" to "testCampaignId",
-                        "silent" to true
-                )).toString()
+            "ems_msg" to "value",
+            "ems" to JSONObject(
+                mapOf(
+                    "multichannelId" to "testCampaignId",
+                    "silent" to true
+                )
+            ).toString()
         )
 
-        MessagingServiceUtils.createSilentPushCommands(mockActionCommandFactory, message).size shouldBe 1
-        MessagingServiceUtils.createSilentPushCommands(mockActionCommandFactory, message)[0] is SilentNotificationInformationCommand
+        MessagingServiceUtils.createSilentPushCommands(
+            mockActionCommandFactory,
+            message
+        ).size shouldBe 1
+        MessagingServiceUtils.createSilentPushCommands(
+            mockActionCommandFactory,
+            message
+        )[0] is SilentNotificationInformationCommand
     }
 
     @Test
     fun testCreateSilentPushCommands_shouldReturnListOfCommands_whenActionIsDefined() {
         val expectedCommand1 = AppEventCommand(context, mock(), mock(), "MEAppEvent", null)
-        val expectedCommand2 = AppEventCommand(context, mock(), mock(), "MEAppEvent", JSONObject(mapOf("key" to "value")))
-        whenever(mockActionCommandFactory.createActionCommand(any())).thenReturn(expectedCommand1).thenReturn(expectedCommand2)
+        val expectedCommand2 = AppEventCommand(
+            context,
+            mock(),
+            mock(),
+            "MEAppEvent",
+            JSONObject(mapOf("key" to "value"))
+        )
+        whenever(mockActionCommandFactory.createActionCommand(any())).thenReturn(expectedCommand1)
+            .thenReturn(expectedCommand2)
         val message = mapOf(
-                "ems_msg" to "value",
-                "ems" to JSONObject(mapOf(
-                        "silent" to true,
-                        "actions" to JSONArray(listOf(
-                                JSONObject(mapOf(
-                                        "type" to "MEAppEvent",
-                                        "name" to "nameOfTheAppEvent"
-                                )),
-                                JSONObject(mapOf(
-                                        "type" to "MEAppEvent",
-                                        "name" to "nameOfTheAppEvent",
-                                        "payload" to JSONObject(mapOf(
-                                                "key" to "value"
-                                        ))
-                                ))
-                        ))
-                )).toString()
+            "ems_msg" to "value",
+            "ems" to JSONObject(
+                mapOf(
+                    "silent" to true,
+                    "actions" to JSONArray(
+                        listOf(
+                            JSONObject(
+                                mapOf(
+                                    "type" to "MEAppEvent",
+                                    "name" to "nameOfTheAppEvent"
+                                )
+                            ),
+                            JSONObject(
+                                mapOf(
+                                    "type" to "MEAppEvent",
+                                    "name" to "nameOfTheAppEvent",
+                                    "payload" to JSONObject(
+                                        mapOf(
+                                            "key" to "value"
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            ).toString()
         )
 
-        MessagingServiceUtils.createSilentPushCommands(mockActionCommandFactory, message) shouldBe listOf(
-                expectedCommand1,
-                expectedCommand2)
+        MessagingServiceUtils.createSilentPushCommands(
+            mockActionCommandFactory,
+            message
+        ) shouldBe listOf(
+            expectedCommand1,
+            expectedCommand2
+        )
     }
 
     @Test
     fun testCreateSilentPushCommands_shouldReturnListOfCommands_whenListenerIsRegistered() {
         val expectedCommand1 = AppEventCommand(context, mock(), mock(), "MEAppEvent", null)
-        val expectedCommand2 = AppEventCommand(context, mock(), mock(), "MEAppEvent", JSONObject(mapOf("key" to "value")))
-        whenever(mockActionCommandFactory.createActionCommand(any())).thenReturn(expectedCommand1).thenReturn(expectedCommand2)
+        val expectedCommand2 = AppEventCommand(
+            context,
+            mock(),
+            mock(),
+            "MEAppEvent",
+            JSONObject(mapOf("key" to "value"))
+        )
+        whenever(mockActionCommandFactory.createActionCommand(any())).thenReturn(expectedCommand1)
+            .thenReturn(expectedCommand2)
         val message = mapOf(
-                "ems_msg" to "value",
-                "ems" to JSONObject(mapOf(
-                        "silent" to true,
-                        "actions" to JSONArray(listOf(
-                                JSONObject(mapOf(
-                                        "type" to "MEAppEvent",
-                                        "name" to "nameOfTheAppEvent"
-                                )),
-                                JSONObject(mapOf(
-                                        "type" to "MEAppEvent",
-                                        "name" to "nameOfTheAppEvent",
-                                        "payload" to JSONObject(mapOf(
-                                                "key" to "value"
-                                        ))
-                                ))
-                        ))
-                )).toString()
+            "ems_msg" to "value",
+            "ems" to JSONObject(
+                mapOf(
+                    "silent" to true,
+                    "actions" to JSONArray(
+                        listOf(
+                            JSONObject(
+                                mapOf(
+                                    "type" to "MEAppEvent",
+                                    "name" to "nameOfTheAppEvent"
+                                )
+                            ),
+                            JSONObject(
+                                mapOf(
+                                    "type" to "MEAppEvent",
+                                    "name" to "nameOfTheAppEvent",
+                                    "payload" to JSONObject(
+                                        mapOf(
+                                            "key" to "value"
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            ).toString()
         )
 
-        MessagingServiceUtils.createSilentPushCommands(mockActionCommandFactory, message) shouldBe listOf(
-                expectedCommand1,
-                expectedCommand2)
+        MessagingServiceUtils.createSilentPushCommands(
+            mockActionCommandFactory,
+            message
+        ) shouldBe listOf(
+            expectedCommand1,
+            expectedCommand2
+        )
     }
 
     @Test
@@ -884,17 +995,19 @@ class MessagingServiceUtilsTest {
         val body = "testBody"
         val image = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
         val icon = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
-        mockBuilder.styleNotification(NotificationData(
-            image,
-            icon,
-            "THUMBNAIL",
-            title,
-            body,
-            null,
-            123,
-            456,
-            null
-        ))
+        mockBuilder.styleNotification(
+            NotificationData(
+                image,
+                icon,
+                "THUMBNAIL",
+                title,
+                body,
+                null,
+                123,
+                456,
+                NOTIFICATION_METHOD
+            )
+        )
 
         verify(mockBuilder).setStyle(any<NotificationCompat.BigTextStyle>())
     }
@@ -910,17 +1023,19 @@ class MessagingServiceUtilsTest {
 
         val title = "testTitle"
         val body = "testBody"
-        mockBuilder.styleNotification(NotificationData(
-            null,
-            null,
-            "INVALID_STYLE",
-            title,
-            body,
-            null,
-            222,
-            333,
-            null
-        ))
+        mockBuilder.styleNotification(
+            NotificationData(
+                null,
+                null,
+                "INVALID_STYLE",
+                title,
+                body,
+                null,
+                222,
+                333,
+                NOTIFICATION_METHOD
+            )
+        )
 
         verify(mockBuilder).setStyle(any<NotificationCompat.BigTextStyle>())
     }
@@ -930,7 +1045,9 @@ class MessagingServiceUtilsTest {
         "INVALID_STYLE" shouldCreateNotificationWithStyle NotificationCompat.BigPictureStyle::class.java
     }
 
-    private inline infix fun <reified T : NotificationCompat.Style> String.shouldCreateNotificationWithStyle(ignored: Class<T>) {
+    private inline infix fun <reified T : NotificationCompat.Style> String.shouldCreateNotificationWithStyle(
+        ignored: Class<T>
+    ) {
         val mockBuilder: NotificationCompat.Builder = mock {
             on { setLargeIcon(org.mockito.kotlin.any()) } doReturn it
             on { setStyle(org.mockito.kotlin.any()) } doReturn it
@@ -939,30 +1056,36 @@ class MessagingServiceUtilsTest {
         val body = "testBody"
         val image = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
         val icon = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
-        mockBuilder.styleNotification(NotificationData(
-            image,
-            icon,
-            this,
-            title,
-            body,
-            null,
-            222,
-            444,
-            null
-        ))
+        mockBuilder.styleNotification(
+            NotificationData(
+                image,
+                icon,
+                this,
+                title,
+                body,
+                null,
+                222,
+                444,
+                NOTIFICATION_METHOD
+            )
+        )
 
         verify(mockBuilder).setStyle(any<T>())
     }
 
     private fun createRemoteMessageData(): Map<String, String> {
-        return mapOf("title" to "title",
-                "body" to "body")
+        return mapOf(
+            "title" to "title",
+            "body" to "body"
+        )
     }
 
     private fun createEMSRemoteMessageData(): Map<String, String> {
-        return mapOf("title" to "title",
-                "body" to "body",
-                "ems_msg" to "value")
+        return mapOf(
+            "title" to "title",
+            "body" to "body",
+            "ems_msg" to "value"
+        )
     }
 
     private fun createNoEmsInPayload(): Map<String, String> {
@@ -971,7 +1094,7 @@ class MessagingServiceUtilsTest {
 
     private fun createNoInAppInPayload(): Map<String, String> {
         return mapOf(
-                "ems" to "{}"
+            "ems" to "{}"
         )
     }
 

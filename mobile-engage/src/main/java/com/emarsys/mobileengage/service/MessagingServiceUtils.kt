@@ -47,34 +47,21 @@ object MessagingServiceUtils {
                 val notificationData = remoteMessageMapper.map(remoteMessageData)
                 val notificationManager =
                     (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                if (notificationData.notificationMethod == null) {
-                    val notificationId = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
-                    val notification = createNotification(
-                        notificationId,
-                        context.applicationContext,
-                        remoteMessageData,
-                        deviceInfo,
-                        fileDownloader,
-                        notificationData
-                    )
-                    notificationManager.notify(notificationId, notification)
-                } else {
-                    val notificationId = notificationData.notificationMethod.notificationId
-                    val notification = createNotification(
-                        notificationId,
-                        context.applicationContext,
-                        remoteMessageData,
-                        deviceInfo,
-                        fileDownloader,
-                        notificationData
-                    )
-                    when (notificationData.notificationMethod.operation) {
-                        NotificationOperation.UPDATE -> {
-                            notificationManager.notify(notificationId, notification)
-                        }
-                        NotificationOperation.DELETE -> {
-                            notificationManager.cancel(notificationId)
-                        }
+                val collapseId = notificationData.notificationMethod.collapseId
+                val notification = createNotification(
+                    collapseId,
+                    context.applicationContext,
+                    remoteMessageData,
+                    deviceInfo,
+                    fileDownloader,
+                    notificationData
+                )
+                when (notificationData.notificationMethod.operation) {
+                    NotificationOperation.INIT, NotificationOperation.UPDATE -> {
+                        notificationManager.notify(collapseId, notification)
+                    }
+                    NotificationOperation.DELETE -> {
+                        notificationManager.cancel(collapseId)
                     }
                 }
             }

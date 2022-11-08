@@ -46,14 +46,10 @@ class RemoteMessageMapper(
         val style = ems.optString("style")
         val body = remoteMessageData["body"]
         val channelId = remoteMessageData["channel_id"]
-        var notificationMethod: NotificationMethod? = null
-        ems.optJSONObject("notificationMethod")?.let {
-            try {
-                val notificationId = it.getInt("notificationId")
-                val operation = NotificationOperation.valueOf(it.getString("operation").uppercase())
-                notificationMethod = NotificationMethod(notificationId, operation)
-            } catch (ignored: Exception) {
-            }
+        val notificationMethod: NotificationMethod = if (ems.has("notificationMethod")) {
+            parseNotificationMethod(ems.optJSONObject("notificationMethod"))
+        } else {
+            createNotificationMethod()
         }
 
         return NotificationData(
@@ -67,6 +63,27 @@ class RemoteMessageMapper(
             colorResourceId,
             notificationMethod
         )
+    }
+
+    private fun parseNotificationMethod(notificationMethod: JSONObject): NotificationMethod {
+        return if (notificationMethod.has("collapseId")) {
+            val collapseId = notificationMethod.getInt("collapseId")
+            val operation: NotificationOperation = parseOperation(notificationMethod)
+            NotificationMethod(collapseId, operation)
+        } else {
+            createNotificationMethod()
+        }
+    }
+
+    private fun createNotificationMethod(): NotificationMethod {
+        val collapseId = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
+        return NotificationMethod(collapseId, NotificationOperation.INIT)
+    }
+
+    private fun parseOperation(notificationMethod: JSONObject): NotificationOperation {
+        return if (notificationMethod.has("operation")) {
+            NotificationOperation.valueOf(notificationMethod.getString("operation").uppercase())
+        } else NotificationOperation.INIT
     }
 
     private fun extractEms(remoteMessageData: Map<String, String?>) =

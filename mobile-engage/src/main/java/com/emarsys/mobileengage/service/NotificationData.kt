@@ -11,14 +11,14 @@ data class NotificationData(
     val channelId: String? = null,
     val smallIconResourceId: Int,
     val colorResourceId: Int,
-    val notificationMethod: NotificationMethod? = null
+    val notificationMethod: NotificationMethod
 )
 
 enum class NotificationOperation {
-    UPDATE, DELETE
+    INIT, UPDATE, DELETE
 }
 
 data class NotificationMethod(
-    val notificationId: Int,
+    val collapseId: Int,
     val operation: NotificationOperation
 )
