@@ -13,7 +13,7 @@ object Versions {
     const val buildToolsVersion = "31.0.0"
     const val multiDexVersion = "2.0.0"
     const val kotlinMockito = "4.0.0"
-    const val location_services_version = "21.0.0"
+    const val location_services_version = "21.0.1"
     const val espresso_idling_resources = "3.4.0"
     const val archLifecycleVersion = "2.5.1"
     const val java8LifecycleVersion = "2.5.1"
