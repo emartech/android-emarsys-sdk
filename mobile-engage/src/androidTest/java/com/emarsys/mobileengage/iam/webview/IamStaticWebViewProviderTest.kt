@@ -2,16 +2,12 @@ package com.emarsys.mobileengage.iam.webview
 
 import android.content.Context
 import android.os.Handler
+import android.os.Looper
 import android.webkit.JavascriptInterface
-import android.webkit.WebView
 import androidx.test.platform.app.InstrumentationRegistry
-import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
-import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.mobileengage.fake.FakeMessageLoadedListener
 import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
-import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider.Companion.webView
-import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
+import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider.Companion.emarsysWebView
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import org.junit.Assert
 import org.junit.Before
@@ -40,24 +36,8 @@ class IamStaticWebViewProviderTest {
 
     private lateinit var provider: IamStaticWebViewProvider
     private lateinit var listener: MessageLoadedListener
-    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var latch: CountDownLatch
-    private lateinit var dummyJsBridge: IamJsBridge
     private lateinit var context: Context
-    var html = String.format(
-        """<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <script>
-      window.onload = function() {
-      };
-        Android.%s("{success:true}");
-    </script>
-  </head>
-  <body style="background: transparent;">
-  </body>
-</html>""", "onPageLoaded"
-    )
 
     @Rule
     @JvmField
@@ -65,42 +45,24 @@ class IamStaticWebViewProviderTest {
 
     @Before
     fun init() {
-        webView = null
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
+        emarsysWebView = null
         provider =
-            IamStaticWebViewProvider(concurrentHandlerHolder)
+            IamStaticWebViewProvider()
         listener = Mockito.mock(MessageLoadedListener::class.java)
         latch = CountDownLatch(1)
-        dummyJsBridge = TestJSInterface()
         context = InstrumentationRegistry.getInstrumentation().targetContext
     }
 
     @Test
     @Throws(InterruptedException::class)
-    fun testLoadMessageAsync_shouldInvokeJsBridge_whenPageIsLoaded() {
-        val jsInterface = Mockito.mock(TestJSInterface::class.java)
-        provider.loadMessageAsync(html, jsInterface, context, FakeMessageLoadedListener(latch))
-        latch.await()
-        Mockito.verify(jsInterface).onPageLoaded("{success:true}")
-    }
-
-    @Test
-    @Throws(InterruptedException::class)
-    fun testLoadMessageAsync_shouldEventuallySetWebViewOnJSBridge() {
-        val jsInterface = Mockito.mock(TestJSInterface::class.java)
-        provider.loadMessageAsync(html, jsInterface, context, FakeMessageLoadedListener(latch))
-        latch.await()
-        Mockito.verify(jsInterface).webView = provider.provideWebView()
-    }
-
-    @Test
-    @Throws(InterruptedException::class)
     fun testProvideWebView_shouldReturnTheStaticInstance() {
-        concurrentHandlerHolder.postOnMain {
-            webView = WebView(getTargetContext())
+        val uiHandler = Handler(Looper.getMainLooper())
+        var testWebView: EmarsysWebView? = null
+        uiHandler.post {
+            testWebView = provider.provideWebView()
             latch.countDown()
         }
         latch.await()
-        Assert.assertEquals(webView, provider.provideWebView())
+        Assert.assertEquals(testWebView, IamStaticWebViewProvider.emarsysWebView)
     }
 }

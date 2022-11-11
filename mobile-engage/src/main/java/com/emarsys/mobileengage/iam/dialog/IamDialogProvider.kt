@@ -20,7 +20,7 @@ class IamDialogProvider(
         var dialog: IamDialog? = null
         val latch = CountDownLatch(1)
         concurrentHandlerHolder.postOnMain {
-            dialog = IamDialog(concurrentHandlerHolder, timestampProvider)
+            dialog = IamDialog(timestampProvider)
             val bundle = Bundle()
             bundle.putString(IamDialog.CAMPAIGN_ID, campaignId)
             bundle.putString(IamDialog.SID, sid)

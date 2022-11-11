@@ -20,6 +20,7 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
+import com.emarsys.mobileengage.iam.webview.EmarsysWebView
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils
@@ -101,7 +102,6 @@ class IamDialogTest {
         val fragmentScenario =
             launchFragment {
                 IamDialog(
-                    mobileEngage().concurrentHandlerHolder,
                     mobileEngage().timestampProvider
                 )
             }
@@ -120,7 +120,6 @@ class IamDialogTest {
         bundle.putString(IamDialog.REQUEST_ID, null)
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
-                mobileEngage().concurrentHandlerHolder,
                 mobileEngage().timestampProvider
             )
         }
@@ -143,7 +142,6 @@ class IamDialogTest {
         bundle.putString(IamDialog.REQUEST_ID, requestId)
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
-                mobileEngage().concurrentHandlerHolder,
                 mobileEngage().timestampProvider
             )
         }
@@ -167,7 +165,6 @@ class IamDialogTest {
 
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
-                mobileEngage().concurrentHandlerHolder,
                 mobileEngage().timestampProvider
             )
         }
@@ -191,7 +188,6 @@ class IamDialogTest {
 
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
-                mobileEngage().concurrentHandlerHolder,
                 mobileEngage().timestampProvider
             )
         }
@@ -213,7 +209,6 @@ class IamDialogTest {
         bundle.putString(IamDialog.REQUEST_ID, null)
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
-                mobileEngage().concurrentHandlerHolder,
                 mobileEngage().timestampProvider
             )
         }
@@ -235,7 +230,6 @@ class IamDialogTest {
         bundle.putString(IamDialog.REQUEST_ID, null)
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
-                mobileEngage().concurrentHandlerHolder,
                 mobileEngage().timestampProvider
             )
         }
@@ -256,7 +250,7 @@ class IamDialogTest {
         bundle.putString(IamDialog.REQUEST_ID, null)
 
         val fragmentScenario = launchFragment(bundle) {
-            IamDialog(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
+            IamDialog(mobileEngage().timestampProvider)
         }
 
         displayDialog(fragmentScenario)
@@ -285,7 +279,6 @@ class IamDialogTest {
 
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
-                mobileEngage().concurrentHandlerHolder,
                 mobileEngage().timestampProvider
             )
         }
@@ -320,7 +313,7 @@ class IamDialogTest {
         bundle.putString(IamDialog.REQUEST_ID, REQUEST_ID_KEY)
 
         val fragmentScenario =
-            launchFragment(bundle) { IamDialog(concurrentHandlerHolder, mockTimestampProvider) }
+            launchFragment(bundle) { IamDialog(mockTimestampProvider) }
         val fragmentLatch = CountDownLatch(1)
 
         displayDialog(fragmentScenario)
@@ -351,7 +344,6 @@ class IamDialogTest {
 
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
-                mobileEngage().concurrentHandlerHolder,
                 mobileEngage().timestampProvider
             )
         }
@@ -382,7 +374,6 @@ class IamDialogTest {
         val actions: List<OnDialogShownAction> = listOf(mock(), mock(), mock())
         val fragmentScenario = launchFragment(args) {
             IamDialog(
-                mobileEngage().concurrentHandlerHolder,
                 mobileEngage().timestampProvider
             ).apply {
                 setActions(actions)
@@ -407,7 +398,6 @@ class IamDialogTest {
         args.putString(IamDialog.URL, URL)
         val fragmentScenario = launchFragment(args) {
             IamDialog(
-                mobileEngage().concurrentHandlerHolder,
                 mobileEngage().timestampProvider
             ).apply {
                 setActions(actions)
@@ -432,7 +422,7 @@ class IamDialogTest {
         args.putString(IamDialog.SID, SID)
         args.putString(IamDialog.URL, URL)
         val fragmentScenario = launchFragment(args) {
-            IamDialog(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
+            IamDialog(mobileEngage().timestampProvider)
         }
 
         fragmentScenario.onFragment {
@@ -456,7 +446,7 @@ class IamDialogTest {
         args.putString(IamDialog.SID, SID)
         args.putString(IamDialog.URL, URL)
         val fragmentScenario = launchFragment(args) {
-            IamDialog(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
+            IamDialog(mobileEngage().timestampProvider)
         }
         fragmentScenario.onFragment {
             it.activity?.runOnUiThread {
@@ -479,7 +469,7 @@ class IamDialogTest {
         var result: Exception? = null
         try {
             val fragmentScenario = launchFragment {
-                IamDialog(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
+                IamDialog(mobileEngage().timestampProvider)
             }
             displayDialog(fragmentScenario)
             fragmentScenario.onFragment {
@@ -492,21 +482,18 @@ class IamDialogTest {
         result shouldBe null
     }
 
-
     @Test
     fun testOnStart_shouldNotThrowTheSpecifiedWebViewAlreadyHasAParent_exception() {
         var result: Exception? = null
         try {
-            initWebViewProvider()
-            concurrentHandlerHolder.postOnMain {
-                val webView =
-                    IamStaticWebViewProvider(
-                        concurrentHandlerHolder
-                    ).provideWebView()
+            val webView = runOnMain {
+                val webView = WebView(getTargetContext())
                 LinearLayout(getTargetContext()).addView(webView)
+                webView
             }
+            initWebViewProvider(webView)
             val fragmentScenario = launchFragment {
-                IamDialog(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
+                IamDialog(mobileEngage().timestampProvider)
             }
             displayDialog(fragmentScenario)
             fragmentScenario.onFragment {
@@ -528,7 +515,7 @@ class IamDialogTest {
         args.putSerializable("loading_time", InAppLoadingTime(0, 0))
         try {
             val fragmentScenario = launchFragment(args) {
-                IamDialog(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
+                IamDialog(mobileEngage().timestampProvider)
             }
             displayDialog(fragmentScenario)
         } catch (exception: IllegalArgumentException) {
@@ -537,16 +524,18 @@ class IamDialogTest {
     }
 
     private fun setWebViewInProvider(webView: WebView?) {
-        val webViewField = IamStaticWebViewProvider::class.java.getDeclaredField("webView")
+        val emarsysWebView = EmarsysWebView()
+        ReflectionTestUtils.setInstanceField(emarsysWebView, "webView", webView)
+        val webViewField = IamStaticWebViewProvider::class.java.getDeclaredField("emarsysWebView")
         webViewField.isAccessible = true
-        webViewField[null] = webView
+        webViewField[null] = emarsysWebView
     }
 
-    private fun initWebViewProvider() {
+    private fun initWebViewProvider(webView: WebView? = null) {
         val initLatch = CountDownLatch(1)
         Handler(Looper.getMainLooper()).post {
             try {
-                setWebViewInProvider(WebView(getTargetContext()))
+                setWebViewInProvider(webView ?: WebView(getTargetContext()))
             } catch (e: Exception) {
                 throw RuntimeException(e)
             }
@@ -562,5 +551,16 @@ class IamDialogTest {
             }
         }
         fragmentScenario.moveToState(Lifecycle.State.RESUMED)
+    }
+
+    private fun <T> runOnMain(logic: () -> T): T {
+        var result: T? = null
+        val latch = CountDownLatch(1)
+        concurrentHandlerHolder.postOnMain {
+            result = logic()
+            latch.countDown()
+        }
+        latch.await()
+        return result!!
     }
 }

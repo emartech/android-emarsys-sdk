@@ -48,7 +48,6 @@ class RemoteMessageMapperTest {
         const val HTML_URL = "https://hu.wikipedia.org/wiki/Mont_Blanc"
         const val SMALL_RESOURCE_ID = 123
         const val COLOR_RESOURCE_ID = 456
-        const val COLLAPSE_ID = 123
 
         const val METADATA_SMALL_NOTIFICATION_ICON_KEY = "com.emarsys.mobileengage.small_notification_icon"
         const val METADATA_NOTIFICATION_COLOR = "com.emarsys.mobileengage.notification_color"

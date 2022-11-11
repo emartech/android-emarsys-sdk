@@ -50,7 +50,7 @@ class InAppMessageResponseHandlerTest {
     fun init() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockCurrentActivityProvider = mock {
-            on {get() } doReturn activityRule.activity
+            on { get() } doReturn activityRule.activity
         }
         webViewProvider = mock()
         mockJsBridge = mock()
@@ -69,16 +69,18 @@ class InAppMessageResponseHandlerTest {
             } doReturn mockDialog
         }
 
-        presenter = OverlayInAppPresenter(
-            concurrentHandlerHolder,
-            webViewProvider,
-            mock(),
-            dialogProvider,
-            mock(),
-            mock(),
-            mock(),
-            mockCurrentActivityProvider,
-            mockJsBridgeFactory
+        presenter = spy(
+            OverlayInAppPresenter(
+                concurrentHandlerHolder,
+                webViewProvider,
+                mock(),
+                dialogProvider,
+                mock(),
+                mock(),
+                mock(),
+                mockCurrentActivityProvider,
+                mockJsBridgeFactory
+            )
         )
         handler = InAppMessageResponseHandler(presenter)
     }
@@ -115,12 +117,12 @@ class InAppMessageResponseHandlerTest {
     }
 
     @Test
-    fun testHandleResponse_shouldCallLoadMessageAsync_withCorrectArguments() {
+    fun testHandleResponse_shouldCallPresentOnPresenter_withCorrectArguments() {
         val html = "<p>hello</p>"
         val responseBody = String.format("{'message': {'html':'%s', 'campaignId': '123'} }", html)
         val response = buildResponseModel(responseBody)
         handler.handleResponse(response)
-        verify(webViewProvider).loadMessageAsync(eq(html), any(), any(), any())
+        verify(presenter).present("123", null, null, response.requestModel.id, response.timestamp, html, null)
     }
 
     @Test

@@ -1,11 +1,13 @@
 package com.emarsys.mobileengage.iam
 
 import android.app.Activity
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
@@ -51,7 +53,7 @@ class OverlayInAppPresenterTest {
     @JvmField
     var appcompatActivityRule = ActivityTestRule(FakeActivity::class.java)
 
-    private lateinit var iamStaticWebViewProvider: IamStaticWebViewProvider
+    private lateinit var mockIamStaticWebViewProvider: IamStaticWebViewProvider
     private lateinit var mockInAppInternal: InAppInternal
     private lateinit var mockIamDialogProvider: IamDialogProvider
     private lateinit var mockButtonClickedRepository: Repository<ButtonClicked, SqlSpecification>
@@ -65,12 +67,32 @@ class OverlayInAppPresenterTest {
     private lateinit var mockJSCommandFactory: JSCommandFactory
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var iamDialog: IamDialog
+    private lateinit var context: Context
+    private lateinit var latch: CountDownLatch
+    private lateinit var spyOverlayPresenter: OverlayInAppPresenter
+
+    var html = String.format(
+        """<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script>
+      window.onload = function() {
+      };
+        Android.%s("{success:true}");
+    </script>
+  </head>
+  <body style="background: transparent;">
+  </body>
+</html>""", "onPageLoaded"
+    )
 
     @Before
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
+        context = InstrumentationRegistry.getInstrumentation().targetContext
+        latch = CountDownLatch(1)
+        mockIamStaticWebViewProvider = mock()
         iamDialog = mock()
-        iamStaticWebViewProvider = mock()
         mockInAppInternal = mock()
         mockIamDialogProvider = mock {
             on { provideDialog(anyNotNull(), any(), any(), any()) }
@@ -86,19 +108,9 @@ class OverlayInAppPresenterTest {
         mockIamJsBridgeFactory = mock {
             on { createJsBridge(anyOrNull(), anyOrNull()) } doReturn mockJsBridge
         }
-        whenever(
-            iamStaticWebViewProvider.loadMessageAsync(
-                any(),
-                any(),
-                any(),
-                any()
-            )
-        ).thenAnswer {
-            it.getArgument<MessageLoadedListener>(3).onMessageLoaded()
-        }
         overlayPresenter = OverlayInAppPresenter(
             concurrentHandlerHolder,
-            iamStaticWebViewProvider,
+            mockIamStaticWebViewProvider,
             mockInAppInternal,
             mockIamDialogProvider,
             mockButtonClickedRepository,
@@ -107,6 +119,7 @@ class OverlayInAppPresenterTest {
             mockCurrentActivityProvider,
             mockIamJsBridgeFactory
         )
+        spyOverlayPresenter = spyOverlayPresenter()
     }
 
     @Test
@@ -115,7 +128,7 @@ class OverlayInAppPresenterTest {
 
         val countDownLatch = CountDownLatch(1)
 
-        overlayPresenter.present(
+        spyOverlayPresenter.present(
             "1",
             SID,
             URL,
@@ -138,7 +151,7 @@ class OverlayInAppPresenterTest {
 
         val countDownLatch = CountDownLatch(1)
 
-        overlayPresenter.present(
+        spyOverlayPresenter.present(
             "1",
             SID,
             URL,
@@ -166,7 +179,7 @@ class OverlayInAppPresenterTest {
 
         val countDownLatch = CountDownLatch(1)
 
-        overlayPresenter.present(
+        spyOverlayPresenter.present(
             "1",
             SID,
             URL,
@@ -192,7 +205,7 @@ class OverlayInAppPresenterTest {
 
         val countDownLatch = CountDownLatch(1)
 
-        overlayPresenter.present(
+        spyOverlayPresenter.present(
             "1",
             SID,
             URL,
@@ -226,7 +239,7 @@ class OverlayInAppPresenterTest {
 
         val countDownLatch = CountDownLatch(1)
 
-        overlayPresenter.present(
+        spyOverlayPresenter.present(
             "1",
             SID,
             URL,
@@ -325,5 +338,19 @@ class OverlayInAppPresenterTest {
         overlayPresenter.onAppEventTriggered().invoke("eventName", json)
 
         verifyNoInteractions(mockEventHandler)
+    }
+
+    private fun spyOverlayPresenter(): OverlayInAppPresenter {
+        val spyOverlayPresenter = spy(overlayPresenter)
+
+        doAnswer {
+            (it.getArgument(3) as MessageLoadedListener).onMessageLoaded()
+        }.whenever(spyOverlayPresenter).loadMessageAsync(
+            any(),
+            any(),
+            any(),
+            any()
+        )
+        return spyOverlayPresenter
     }
 }

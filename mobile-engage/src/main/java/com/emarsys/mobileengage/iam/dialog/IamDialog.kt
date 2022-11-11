@@ -8,11 +8,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.webkit.WebView
 import android.widget.FrameLayout
 import androidx.fragment.app.DialogFragment
 import com.emarsys.core.Mockable
-import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.log.Logger.Companion.error
 import com.emarsys.core.util.log.Logger.Companion.metric
@@ -23,14 +21,14 @@ import com.emarsys.core.util.log.entry.OnScreenTime
 import com.emarsys.mobileengage.R
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
+import com.emarsys.mobileengage.iam.webview.EmarsysWebView
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 
 @Mockable
 class IamDialog(
-    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
     private val timestampProvider: TimestampProvider
 ) : DialogFragment() {
-    constructor() : this(mobileEngage().concurrentHandlerHolder, mobileEngage().timestampProvider)
+    constructor() : this(mobileEngage().timestampProvider)
 
     companion object {
         const val TAG = "MOBILE_ENGAGE_IAM_DIALOG_TAG"
@@ -46,7 +44,7 @@ class IamDialog(
 
     private var actions: List<OnDialogShownAction>? = null
     private lateinit var webViewContainer: FrameLayout
-    private var webView: WebView? = null
+    private var emarsysWebView: EmarsysWebView? = null
     private var startTime: Long = 0
     private var dismissed = false
 
@@ -66,9 +64,7 @@ class IamDialog(
         savedInstanceState: Bundle?
     ): View? {
         val v = inflater.inflate(R.layout.mobile_engage_in_app_message, container, false)
-        webView = IamStaticWebViewProvider(
-            concurrentHandlerHolder
-        ).provideWebView()
+        emarsysWebView = IamStaticWebViewProvider.emarsysWebView
         webViewContainer = v.findViewById(R.id.mobileEngageInAppMessageContainer)
         return v
     }
@@ -76,9 +72,9 @@ class IamDialog(
     override fun onStart() {
         super.onStart()
         webViewContainer.removeAllViews()
-        if (webView != null) {
-            if (webView!!.parent == null) {
-                webViewContainer.addView(webView)
+        if (emarsysWebView != null && emarsysWebView!!.webView != null) {
+            if (emarsysWebView!!.webView!!.parent == null) {
+                webViewContainer.addView(emarsysWebView!!.webView)
             }
 
             val window = dialog?.window
@@ -132,16 +128,13 @@ class IamDialog(
     }
 
     override fun onStop() {
-        webViewContainer.removeView(webView)
+        webViewContainer.removeView(emarsysWebView!!.webView)
         super.onStop()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (webView != null) {
-            webView!!.removeAllViews()
-            webView!!.destroy()
-        }
+        emarsysWebView?.purge()
     }
 
     override fun onDestroyView() {

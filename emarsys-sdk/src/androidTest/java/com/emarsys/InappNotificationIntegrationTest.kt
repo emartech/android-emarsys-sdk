@@ -3,6 +3,8 @@ package com.emarsys
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emarsys.config.EmarsysConfig
@@ -45,7 +47,8 @@ class InappNotificationIntegrationTest {
 
     @Rule
     @JvmField
-    var activityScenarioRule: ActivityScenarioRule<FakeActivity> = ActivityScenarioRule(FakeActivity::class.java)
+    var activityScenarioRule: ActivityScenarioRule<FakeActivity> =
+        ActivityScenarioRule(FakeActivity::class.java)
 
     @Rule
     @JvmField
@@ -58,25 +61,28 @@ class InappNotificationIntegrationTest {
         DatabaseTestUtils.deleteCoreDatabase()
 
         application.getSharedPreferences("emarsys_secret_shared_prefs", Context.MODE_PRIVATE)
-                .edit()
-                .clear()
-                .commit()
+            .edit()
+            .clear()
+            .commit()
 
         baseConfig = EmarsysConfig.Builder()
-                .application(application)
-                .applicationCode(APP_ID)
-                .build()
+            .application(application)
+            .applicationCode(APP_ID)
+            .build()
 
         mockInappPresenterOverlay = mock()
 
-        whenever(mockInappPresenterOverlay.present(
+        whenever(
+            mockInappPresenterOverlay.present(
                 anyOrNull(),
                 eq(null),
                 anyOrNull(),
                 eq(null),
                 anyOrNull(),
                 anyOrNull(),
-                eq(null))).thenAnswer {
+                eq(null)
+            )
+        ).thenAnswer {
             completionListenerLatch.countDown()
         }
 
@@ -107,21 +113,28 @@ class InappNotificationIntegrationTest {
 
     @Test
     fun testInappPresent() {
+        val uiHandler = Handler(Looper.getMainLooper())
         val url = FileDownloader(application).download("https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png")
         val emsPayload = """{"inapp": {"campaignId": "222","url": "https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png","fileUrl": "$url"}}"""
         val remoteMessageData = mapOf("ems" to emsPayload)
 
         val intent = IntentUtils.createNotificationHandlerServiceIntent(
-                application,
-                remoteMessageData,
-                0,
-                null
+            application,
+            remoteMessageData,
+            0,
+            null
         )
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-        application.startActivity(intent)
+        val latch = CountDownLatch(1)
+        uiHandler.post {
+            application.startActivity(intent)
+            latch.countDown()
+        }
+        latch.await()
 
         activityScenarioRule.scenario.moveToState(Lifecycle.State.CREATED)
+        activityScenarioRule.scenario.moveToState(Lifecycle.State.STARTED)
         activityScenarioRule.scenario.moveToState(Lifecycle.State.RESUMED)
 
         completionListenerLatch.await()

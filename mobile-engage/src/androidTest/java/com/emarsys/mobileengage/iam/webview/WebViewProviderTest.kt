@@ -2,7 +2,6 @@ package com.emarsys.mobileengage.iam.webview
 
 import android.os.Handler
 import android.os.Looper
-import android.webkit.WebView
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
@@ -42,8 +41,8 @@ class WebViewProviderTest {
     fun testProvideWebView() {
         val latch = CountDownLatch(1)
         Handler(Looper.getMainLooper()).post {
-            val result = webViewProvider.provideWebView()
-            result?.javaClass shouldBe WebView::class.java
+            val result = webViewProvider.provideEmarsysWebView()
+            result.javaClass shouldBe EmarsysWebView::class.java
             latch.countDown()
         }
         latch.await()

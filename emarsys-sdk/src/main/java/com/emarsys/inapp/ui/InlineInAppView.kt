@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebView
 import android.widget.LinearLayout
 import com.emarsys.R
 import com.emarsys.common.feature.InnerFeature
@@ -21,6 +20,7 @@ import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
 import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.InAppMessage
+import com.emarsys.mobileengage.iam.webview.EmarsysWebView
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -29,7 +29,7 @@ import java.util.concurrent.CountDownLatch
 
 class InlineInAppView : LinearLayout {
 
-    private var webView: WebView? = null
+    private lateinit var emarsysWebView: EmarsysWebView
     private var viewId: String? = null
 
     var onCloseListener: OnCloseListener? = null
@@ -52,19 +52,21 @@ class InlineInAppView : LinearLayout {
         viewId = attributes.getString(0)
         val webViewFactory = mobileEngage().inlineInAppWebViewFactory
 
-        webView = webViewFactory.create {
+        emarsysWebView = webViewFactory.create {
             visibility = View.VISIBLE
             onCompletionListener?.onCompleted(null)
         }
-        if (webView != null) {
-            addView(webView)
-            with(webView!!.layoutParams) {
-                width = ViewGroup.LayoutParams.MATCH_PARENT
-                height = ViewGroup.LayoutParams.WRAP_CONTENT
-            }
+        if (!emarsysWebView.isNull()) {
+            mobileEngage().concurrentHandlerHolder.postOnMain {
+                addView(emarsysWebView.webView)
+                with(emarsysWebView.webView!!.layoutParams) {
+                    width = ViewGroup.LayoutParams.MATCH_PARENT
+                    height = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
 
-            if (viewId != null) {
-                loadInApp(viewId!!)
+                if (viewId != null) {
+                    loadInApp(viewId!!)
+                }
             }
         }
         attributes.recycle()
@@ -73,13 +75,13 @@ class InlineInAppView : LinearLayout {
     fun loadInApp(viewId: String) {
         mobileEngage().concurrentHandlerHolder.coreHandler.post {
             this.viewId = viewId
-            if (webView == null) {
+            if (emarsysWebView.isNull()) {
                 onCompletionListener?.onCompleted(IllegalArgumentException("WebView can not be created, please try again later!"))
             } else {
                 fetchInlineInAppMessage(viewId) { html ->
                     mobileEngage().concurrentHandlerHolder.postOnMain {
                         if (html != null) {
-                            webView?.loadDataWithBaseURL(
+                            emarsysWebView.loadDataWithBaseURL(
                                 null,
                                 html,
                                 "text/html; charset=utf-8",
@@ -99,7 +101,6 @@ class InlineInAppView : LinearLayout {
         val requestManager = mobileEngage().requestManager
         val requestModelFactory = mobileEngage().mobileEngageRequestModelFactory
         val requestModel = requestModelFactory.createFetchInlineInAppMessagesRequest(viewId)
-
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
                 val messageResponseModel = filterMessagesById(responseModel)
@@ -175,10 +176,10 @@ class InlineInAppView : LinearLayout {
 
         val latch = CountDownLatch(1)
         mobileEngage().concurrentHandlerHolder.postOnMain {
-            webView?.addJavascriptInterface(jsBridge, "Android")
+            emarsysWebView.addJavascriptInterface(jsBridge, "Android")
             latch.countDown()
         }
         latch.await()
-        jsBridge.webView = webView
+        jsBridge.emarsysWebView = emarsysWebView
     }
 }
