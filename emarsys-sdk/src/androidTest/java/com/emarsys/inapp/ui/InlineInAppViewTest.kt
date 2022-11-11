@@ -1,8 +1,6 @@
 package com.emarsys.inapp.ui
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.webkit.WebView
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
@@ -27,6 +25,7 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.webview.EmarsysWebView
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
+import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
 import com.emarsys.testUtil.ReflectionTestUtils
@@ -62,7 +61,6 @@ class InlineInAppViewTest {
     private lateinit var mockButtonClickedRepository: Repository<ButtonClicked, SqlSpecification>
     private lateinit var mockInAppInternal: InAppInternal
     private lateinit var mockDelegatorCompletionHandlerProvider: DelegatorCompletionHandlerProvider
-    private lateinit var uiHandler: Handler
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
@@ -72,7 +70,6 @@ class InlineInAppViewTest {
     @Before
     fun setUp() {
         var onMessageLoadedListener: MessageLoadedListener? = null
-        uiHandler = Handler(Looper.getMainLooper())
         context = InstrumentationRegistry.getTargetContext()
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         val webView = runOnMain {
@@ -445,16 +442,5 @@ class InlineInAppViewTest {
             )
             onAppEventListener shouldBe mockAppEventListener
         }
-    }
-
-    private fun <T> runOnMain(logic: () -> T): T {
-        var result: T? = null
-        val latch = CountDownLatch(1)
-        uiHandler.post {
-            result = logic()
-            latch.countDown()
-        }
-        latch.await()
-        return result!!
     }
 }

@@ -10,8 +10,6 @@ import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragment
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
-import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.util.log.entry.InAppLoadingTime
@@ -22,6 +20,7 @@ import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
 import com.emarsys.mobileengage.iam.webview.EmarsysWebView
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
+import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
@@ -47,7 +46,6 @@ class IamDialogTest {
     }
 
     private lateinit var mockTimestampProvider: TimestampProvider
-    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
 
     @Rule
     @JvmField
@@ -60,14 +58,12 @@ class IamDialogTest {
 
     @Before
     fun setUp() {
-        concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockTimestampProvider = mock()
         val mockUuidProvider: UUIDProvider = mock {
             on { provideId() } doReturn "uuid"
         }
         setupMobileEngageComponent(
             FakeMobileEngageDependencyContainer(
-                concurrentHandlerHolder = concurrentHandlerHolder,
                 timestampProvider = mockTimestampProvider,
                 uuidProvider = mockUuidProvider
             )
@@ -84,16 +80,9 @@ class IamDialogTest {
     @Test
     fun testDefaultConstructor() {
         val dialog = IamDialog()
-
-        val dialogUiHandler =
-            ReflectionTestUtils.getInstanceField<ConcurrentHandlerHolder>(
-                dialog,
-                "concurrentHandlerHolder"
-            )
         val dialogTimestampProvider =
             ReflectionTestUtils.getInstanceField<TimestampProvider>(dialog, "timestampProvider")
 
-        dialogUiHandler shouldBe concurrentHandlerHolder
         dialogTimestampProvider shouldBe mockTimestampProvider
     }
 
@@ -551,16 +540,5 @@ class IamDialogTest {
             }
         }
         fragmentScenario.moveToState(Lifecycle.State.RESUMED)
-    }
-
-    private fun <T> runOnMain(logic: () -> T): T {
-        var result: T? = null
-        val latch = CountDownLatch(1)
-        concurrentHandlerHolder.postOnMain {
-            result = logic()
-            latch.countDown()
-        }
-        latch.await()
-        return result!!
     }
 }
