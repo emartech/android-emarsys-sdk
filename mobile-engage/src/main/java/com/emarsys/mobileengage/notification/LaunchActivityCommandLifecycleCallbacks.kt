@@ -23,6 +23,7 @@ class LaunchActivityCommandLifecycleCallbacks(private val latch: CountDownLatch)
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+        latch.countDown()
     }
 
     override fun onActivityResumed(activity: Activity) {
