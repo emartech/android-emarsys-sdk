@@ -29,33 +29,6 @@ class LaunchActivityCommandLifecycleCallbacksTest {
     }
 
     @Test
-    fun testOnCreated_withCorrectActivity() {
-
-        val mockActivity: Activity = mock {
-            on { packageManager } doReturn mockPackageManager
-            on { packageName } doReturn "com.emarsys.testUtil.fake"
-            on { localClassName } doReturn "FakeActivity"
-        }
-
-        LaunchActivityCommandLifecycleCallbacks(latch).onActivityCreated(mockActivity, null)
-
-        latch.count shouldBe 0
-    }
-
-    @Test
-    fun testOnCreated_withWrongActivity() {
-        val mockActivity: Activity = mock {
-            on { packageManager } doReturn mockPackageManager
-            on { packageName } doReturn "com.emarsys.testUtil.fake"
-            on { localClassName } doReturn "WrongActivity"
-        }
-
-        LaunchActivityCommandLifecycleCallbacks(latch).onActivityCreated(mockActivity, null)
-
-        latch.count shouldBe 1
-    }
-
-    @Test
     fun testOnResume_withCorrectActivity() {
 
         val mockActivity: Activity = mock {
@@ -67,18 +40,5 @@ class LaunchActivityCommandLifecycleCallbacksTest {
         LaunchActivityCommandLifecycleCallbacks(latch).onActivityResumed(mockActivity)
 
         latch.count shouldBe 0
-    }
-
-    @Test
-    fun testOnResume_withWrongActivity() {
-        val mockActivity: Activity = mock {
-            on { packageManager } doReturn mockPackageManager
-            on { packageName } doReturn "com.emarsys.testUtil.fake"
-            on { localClassName } doReturn "WrongActivity"
-        }
-
-        LaunchActivityCommandLifecycleCallbacks(latch).onActivityResumed(mockActivity)
-
-        latch.count shouldBe 1
     }
 }

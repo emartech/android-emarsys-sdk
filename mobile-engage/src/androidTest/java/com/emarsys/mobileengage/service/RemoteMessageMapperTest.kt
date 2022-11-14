@@ -193,4 +193,95 @@ class RemoteMessageMapperTest {
 
         notificationData.image shouldBe  null
     }
+
+    @Test
+    fun testMap_whenNotificationMethodIsSet() {
+        val notificationMethod = NotificationMethod(123, NotificationOperation.UPDATE)
+
+        val input: MutableMap<String, String> = HashMap()
+        input["title"] = TITLE
+        input["body"] = BODY
+        input["image_url"] = IMAGE_URL
+        input["channel_id"] = CHANNEL_ID
+        val notificationMethodJson = JSONObject()
+        notificationMethodJson.put("collapseId", 123)
+        notificationMethodJson.put("operation", "UPDATE")
+        val ems = JSONObject()
+        ems.put("notificationMethod", notificationMethodJson)
+        input["ems"] = ems.toString()
+
+        val notificationData = remoteMessageMapper.map(input)
+
+        notificationData.notificationMethod shouldBe notificationMethod
+    }
+
+    @Test
+    fun testMap_whenNotificationMethodIsMissing() {
+        val input: MutableMap<String, String> = HashMap()
+        input["title"] = TITLE
+        input["body"] = BODY
+        input["image_url"] = IMAGE_URL
+        input["channel_id"] = CHANNEL_ID
+        val ems = JSONObject()
+        input["ems"] = ems.toString()
+
+        val notificationData = remoteMessageMapper.map(input)
+
+        notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
+    }
+
+    @Test
+    fun testMap_whenNotificationMethodIsSet_withoutCollapseID_shouldReturnWithInitOperation() {
+        val input: MutableMap<String, String> = HashMap()
+        input["title"] = TITLE
+        input["body"] = BODY
+        input["image_url"] = IMAGE_URL
+        input["channel_id"] = CHANNEL_ID
+        val ems = JSONObject()
+        val notificationMethodJson = JSONObject()
+        notificationMethodJson.put("operation", "UPDATE")
+        ems.put("notificationMethod", notificationMethodJson)
+        input["ems"] = ems.toString()
+
+        val notificationData = remoteMessageMapper.map(input)
+
+        notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
+    }
+
+    @Test
+    fun testMap_whenNotificationMethodIsSet_withCollapseID_shouldReturnWithSetOperation() {
+        val input: MutableMap<String, String> = HashMap()
+        input["title"] = TITLE
+        input["body"] = BODY
+        input["image_url"] = IMAGE_URL
+        input["channel_id"] = CHANNEL_ID
+        val ems = JSONObject()
+        val notificationMethodJson = JSONObject()
+        notificationMethodJson.put("collapseId", 123)
+        notificationMethodJson.put("operation", "UPDATE")
+        ems.put("notificationMethod", notificationMethodJson)
+        input["ems"] = ems.toString()
+
+        val notificationData = remoteMessageMapper.map(input)
+
+        notificationData.notificationMethod.operation shouldBe NotificationOperation.UPDATE
+    }
+
+    @Test
+    fun testMap_whenNotificationMethodIsSet_withCollapseID_shouldReturnWithInitOperation_whenOperationIsMissing() {
+        val input: MutableMap<String, String> = HashMap()
+        input["title"] = TITLE
+        input["body"] = BODY
+        input["image_url"] = IMAGE_URL
+        input["channel_id"] = CHANNEL_ID
+        val ems = JSONObject()
+        val notificationMethodJson = JSONObject()
+        notificationMethodJson.put("collapseId", 123)
+        ems.put("notificationMethod", notificationMethodJson)
+        input["ems"] = ems.toString()
+
+        val notificationData = remoteMessageMapper.map(input)
+
+        notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
+    }
 }

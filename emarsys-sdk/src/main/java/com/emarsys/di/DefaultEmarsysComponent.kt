@@ -81,7 +81,6 @@ import com.emarsys.mobileengage.client.LoggingClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkAction
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
 import com.emarsys.mobileengage.deeplink.DefaultDeepLinkInternal
-import com.emarsys.mobileengage.deeplink.LoggingDeepLinkInternal
 import com.emarsys.mobileengage.device.DeviceInfoStartAction
 import com.emarsys.mobileengage.endpoint.Endpoint
 import com.emarsys.mobileengage.event.CacheableEventHandler
@@ -130,7 +129,7 @@ import com.emarsys.push.PushApi
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.LocationServices
 import org.json.JSONObject
 import java.lang.reflect.Method
 import java.security.KeyFactory
@@ -185,9 +184,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val deepLink: DeepLinkApi =
         (DeepLink() as DeepLinkApi).proxyApi(concurrentHandlerHolder)
-
-    override val loggingDeepLink: DeepLinkApi =
-        (DeepLink(true) as DeepLinkApi).proxyApi(concurrentHandlerHolder)
 
     override val messageInbox: MessageInboxApi =
         (MessageInbox() as MessageInboxApi).proxyApi(concurrentHandlerHolder)
@@ -254,7 +250,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     override val overlayInAppPresenter: OverlayInAppPresenter by lazy {
         OverlayInAppPresenter(
             concurrentHandlerHolder,
-            IamStaticWebViewProvider(config.application, concurrentHandlerHolder),
+            IamStaticWebViewProvider(),
             inAppInternal,
             IamDialogProvider(concurrentHandlerHolder, timestampProvider),
             buttonClickedRepository,
@@ -663,10 +659,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         DefaultDeepLinkInternal(requestManager, requestContext, deepLinkServiceProvider)
     }
 
-    override val loggingDeepLinkInternal: DeepLinkInternal by lazy {
-        LoggingDeepLinkInternal(Emarsys::class.java)
-    }
-
     override val pushInternal: PushInternal by lazy {
         DefaultPushInternal(
             requestManager,
@@ -694,7 +686,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val webViewProvider: WebViewProvider by lazy {
-        WebViewProvider(config.application)
+        WebViewProvider()
     }
 
     override val currentActivityProvider: CurrentActivityProvider by lazy {
@@ -747,7 +739,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         CacheableEventHandler()
     }
     override val fusedLocationProviderClient: FusedLocationProviderClient by lazy {
-        FusedLocationProviderClient(config.application)
+        LocationServices.getFusedLocationProviderClient(config.application)
     }
     override val geofenceInternal: GeofenceInternal by lazy {
         val geofenceActionCommandFactory = ActionCommandFactory(
@@ -764,7 +756,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             PermissionChecker(config.application),
             fusedLocationProviderClient,
             GeofenceFilter(GEOFENCE_LIMIT),
-            GeofencingClient(config.application),
+            LocationServices.getGeofencingClient(config.application),
             config.application,
             geofenceActionCommandFactory,
             geofenceCacheableEventHandler,

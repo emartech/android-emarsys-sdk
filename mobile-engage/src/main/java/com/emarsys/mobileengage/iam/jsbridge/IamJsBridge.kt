@@ -2,12 +2,12 @@ package com.emarsys.mobileengage.iam.jsbridge
 
 import android.os.Looper
 import android.webkit.JavascriptInterface
-import android.webkit.WebView
 import com.emarsys.core.Mockable
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.JsonUtils.merge
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory.CommandType
 import com.emarsys.mobileengage.iam.model.InAppMessage
+import com.emarsys.mobileengage.iam.webview.EmarsysWebView
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -19,7 +19,7 @@ class IamJsBridge(
     private val inAppMessage: InAppMessage
 ) {
 
-    var webView: WebView? = null
+    var emarsysWebView: EmarsysWebView? = null
 
     @JavascriptInterface
     fun close(jsonString: String) {
@@ -112,15 +112,10 @@ class IamJsBridge(
     fun sendResult(payload: JSONObject) {
         require(payload.has("id")) { "Payload must have an id!" }
         if (Looper.myLooper() == Looper.getMainLooper()) {
-            webView!!.evaluateJavascript(String.format("MEIAM.handleResponse(%s);", payload), null)
+            emarsysWebView!!.evaluateJavascript(payload)
         } else {
             concurrentHandlerHolder.postOnMain {
-                webView!!.evaluateJavascript(
-                    String.format(
-                        "MEIAM.handleResponse(%s);",
-                        payload
-                    ), null
-                )
+                emarsysWebView!!.evaluateJavascript(payload)
             }
         }
     }

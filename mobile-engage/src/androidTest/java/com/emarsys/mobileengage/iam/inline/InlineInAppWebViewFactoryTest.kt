@@ -2,42 +2,28 @@ package com.emarsys.mobileengage.iam.inline
 
 import android.graphics.Color
 import android.os.Build.VERSION_CODES.O
-import android.webkit.JavascriptInterface
-import android.webkit.WebView
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry
-import com.emarsys.core.Mockable
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
+import com.emarsys.mobileengage.iam.webview.EmarsysWebView
+import com.emarsys.mobileengage.iam.webview.IamWebViewClient
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
 import com.emarsys.testUtil.ReflectionTestUtils
+import com.emarsys.testUtil.mockito.whenever
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.shouldBe
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.kotlin.*
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.validateMockitoUsage
+import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 
 class InlineInAppWebViewFactoryTest {
-    private companion object {
-        var html = """<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <script>
-      window.onload = function() {
-      };
-        Android.onPageLoaded("{success:true}");
-    </script>
-  </head>
-  <body style="background: transparent;">
-  </body>
-</html>"""
-    }
-
-    private lateinit var mockWebView: WebView
+    private lateinit var mockEmarsysWebView: EmarsysWebView
     private lateinit var mockWebViewProvider: WebViewProvider
     private lateinit var inlineWebViewFactory: InlineInAppWebViewFactory
     private lateinit var mockMessageLoadedListener: MessageLoadedListener
@@ -46,17 +32,10 @@ class InlineInAppWebViewFactoryTest {
     @Before
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        val setUpLatch = CountDownLatch(1)
-        concurrentHandlerHolder.postOnMain {
-            val webView = WebView(InstrumentationRegistry.getInstrumentation().targetContext)
-            mockWebView = spy(webView)
-
-            setUpLatch.countDown()
-        }
-        setUpLatch.await()
+        mockEmarsysWebView = mock()
 
         mockWebViewProvider = mock {
-            on { provideWebView() }.doReturn(mockWebView)
+            on { provideEmarsysWebView() }.doReturn(mockEmarsysWebView)
         }
 
         inlineWebViewFactory =
@@ -70,56 +49,38 @@ class InlineInAppWebViewFactoryTest {
     }
 
     @Test
-    fun testCreateShouldReturnWebView() {
-        inlineWebViewFactory =
-            InlineInAppWebViewFactory(mockWebViewProvider, concurrentHandlerHolder)
+    fun testCreateShouldReturnEmarsysWebView() {
         val response = runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
 
-        response shouldBe mockWebView
+        response shouldBe mockEmarsysWebView
     }
 
     @Test
     fun testCreateShouldReturnNull_whenWebViewCanNotBeCreated() {
-        whenever(mockWebViewProvider.provideWebView()).thenReturn(null)
-        inlineWebViewFactory =
-            InlineInAppWebViewFactory(mockWebViewProvider, concurrentHandlerHolder)
         val response = runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
 
-        response shouldBe null
+        response!!.webView shouldBe null
     }
 
     @Test
     fun testCreateShouldSetBackgroundTransparent() {
         runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
 
-        verify(mockWebView).setBackgroundColor(Color.TRANSPARENT)
+        verify(mockEmarsysWebView).setBackgroundColor(Color.TRANSPARENT)
     }
 
     @Test
     @SdkSuppress(minSdkVersion = O)
     fun testCreateShouldSetIamWebClient() {
-        val webView = runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
+        val testWebClient = IamWebViewClient(mockMessageLoadedListener, mock())
+        whenever(mockEmarsysWebView.webViewClient).thenReturn(testWebClient)
+        val emarsysWebView =
+            runOnUiThread { inlineWebViewFactory.create(mockMessageLoadedListener) }
         var result: MessageLoadedListener? = null
-        val latch = CountDownLatch(1)
-        concurrentHandlerHolder.postOnMain {
-            val webViewClient = webView!!.webViewClient
-            result = ReflectionTestUtils.getInstanceField(webViewClient, "listener")
-            latch.countDown()
-        }
-        latch.await()
+        val webViewClient = emarsysWebView!!.webViewClient
+        result = ReflectionTestUtils.getInstanceField(webViewClient!!, "listener")
 
         result!! shouldBeSameInstanceAs mockMessageLoadedListener
-    }
-
-    @Mockable
-    class TestJSInterface : IamJsBridge(
-        mock(),
-        mock(),
-        mock()
-    ) {
-        @JavascriptInterface
-        fun onPageLoaded(json: String?) {
-        }
     }
 
     private fun <T> runOnUiThread(lambda: () -> T): T? {

@@ -1,5 +1,7 @@
 package com.emarsys.mobileengage.iam
 
+import android.content.Context
+import android.graphics.Color
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import com.emarsys.core.Mockable
@@ -14,14 +16,12 @@ import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
 import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction
 import com.emarsys.mobileengage.iam.dialog.action.SendDisplayedIamAction
-import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
-import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
-import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
-import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
+import com.emarsys.mobileengage.iam.jsbridge.*
 import com.emarsys.mobileengage.iam.model.InAppMessage
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamWebViewClient
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import org.json.JSONObject
 
@@ -51,18 +51,25 @@ class OverlayInAppPresenter(
 
         val jsBridge =
             jsBridgeFactory.createJsBridge(jsCommandFactory, InAppMessage(campaignId, sid, url))
+        val context = currentActivityProvider.get() as Context?
 
-        webViewProvider.loadMessageAsync(html, jsBridge) {
-            val currentActivity = currentActivityProvider.get()
-            val endTimestamp = timestampProvider.provideTimestamp()
-            iamDialog.setInAppLoadingTime(InAppLoadingTime(startTimestamp, endTimestamp))
-            if (currentActivity is FragmentActivity) {
-                val fragmentManager = currentActivity.supportFragmentManager
-                val fragment = fragmentManager.findFragmentByTag(IamDialog.TAG)
-                if (fragment == null) {
-                    iamDialog.show(fragmentManager, IamDialog.TAG)
+        if (context != null) {
+            concurrentHandlerHolder.postOnMain {
+                loadMessageAsync(html, jsBridge, context) {
+                    val currentActivity = currentActivityProvider.get()
+                    val endTimestamp = timestampProvider.provideTimestamp()
+                    iamDialog.setInAppLoadingTime(InAppLoadingTime(startTimestamp, endTimestamp))
+                    if (currentActivity is FragmentActivity) {
+                        val fragmentManager = currentActivity.supportFragmentManager
+                        val fragment = fragmentManager.findFragmentByTag(IamDialog.TAG)
+                        if (fragment == null) {
+                            iamDialog.show(fragmentManager, IamDialog.TAG)
+                        }
+                    }
+                    messageLoadedListener?.onMessageLoaded()
                 }
             }
+        } else {
             messageLoadedListener?.onMessageLoaded()
         }
     }
@@ -107,4 +114,20 @@ class OverlayInAppPresenter(
         iamDialog.setActions(listOf(saveDisplayedIamAction, sendDisplayedIamAction))
     }
 
+    fun loadMessageAsync(
+        html: String?,
+        jsBridge: IamJsBridge?,
+        context: Context?,
+        messageLoadedListener: MessageLoadedListener?
+    ) {
+        jsBridge!!.emarsysWebView = IamStaticWebViewProvider().provideWebView()
+        IamStaticWebViewProvider.emarsysWebView?.let {
+            it.enableJavaScript()
+            it.addJavascriptInterface(jsBridge, "Android")
+            it.setBackgroundColor(Color.TRANSPARENT)
+            it.webViewClient = IamWebViewClient(messageLoadedListener!!, concurrentHandlerHolder)
+            it.setUiMode()
+            it.loadDataWithBaseURL(null, html!!, "text/html", "UTF-8", null)
+        }
+    }
 }

@@ -32,7 +32,8 @@ public class LaunchApplicationCommand implements Runnable {
     public void run() {
         final Intent launchIntent = IntentUtils.createLaunchIntent(intent, context);
         final CountDownLatch latch = new CountDownLatch(1);
-        ((Application) context.getApplicationContext()).registerActivityLifecycleCallbacks(provider.create(latch));
+        Application.ActivityLifecycleCallbacks callback = provider.create(latch);
+        ((Application) context.getApplicationContext()).registerActivityLifecycleCallbacks(callback);
 
         if (launchIntent != null) {
             context.startActivity(launchIntent);
@@ -42,5 +43,6 @@ public class LaunchApplicationCommand implements Runnable {
         } catch (InterruptedException e) {
             Logger.error(new CrashLog(e, null));
         }
+        ((Application) context.getApplicationContext()).unregisterActivityLifecycleCallbacks(callback);
     }
 }

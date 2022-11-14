@@ -23,12 +23,12 @@ import coil.annotation.ExperimentalCoilApi
 import com.emarsys.Emarsys
 import com.emarsys.sample.R
 import com.emarsys.sample.SampleApplication
+import com.emarsys.sample.dashboard.button.CheckLocationPermissionsButton
+import com.emarsys.sample.dashboard.button.CopyPushTokenButton
 import com.emarsys.sample.dashboard.button.TrackPushTokenButton
 import com.emarsys.sample.dashboard.button.trackPushToken
 import com.emarsys.sample.main.sdkinfo.SetupInfo
 import com.emarsys.sample.ui.component.ColumnWithTapGesture
-import com.emarsys.sample.ui.component.button.CheckLocationPermissionsButton
-import com.emarsys.sample.dashboard.button.CopyPushTokenButton
 import com.emarsys.sample.ui.component.button.GoogleSignInButton
 import com.emarsys.sample.ui.component.button.StyledTextButton
 import com.emarsys.sample.ui.component.divider.DividerWithBackgroundColor
@@ -134,10 +134,16 @@ class DashboardScreen(
                         if (!viewModel.isGeofenceEnabled()) {
                             Emarsys.geofence.enable {
                                 if (it != null) {
-                                    customTextToast(context, context.getString(R.string.something_went_wrong))
+                                    customTextToast(
+                                        context,
+                                        context.getString(R.string.something_went_wrong)
+                                    )
                                 } else {
                                     viewModel.geofenceEnabled.value = enabled
-                                    customTextToast(context, context.getString(R.string.geofence_enabled))
+                                    customTextToast(
+                                        context,
+                                        context.getString(R.string.geofence_enabled)
+                                    )
                                 }
                             }
                         } else {
@@ -211,7 +217,12 @@ class DashboardScreen(
         Emarsys.config.changeApplicationCode(
             applicationCode = viewModel.getTfAppCodeValue(),
             completionListener = { changeError ->
-                if (changeError != null) {
+                if (viewModel.shouldChangeEnv()) {
+                    if (changeError != null) {
+                        customTextToast(context, somethingWentWrong)
+                    }
+                    exitProcess(0)
+                } else if (changeError != null) {
                     customTextToast(context, somethingWentWrong)
                 } else {
                     if (viewModel.hasLogin()) {
@@ -222,10 +233,6 @@ class DashboardScreen(
                         customTextToast(context, appCodeChangeSuccess)
                     }
                     viewModel.resetContactInfo()
-                    if (viewModel.shouldChangeEnv()) {
-                        Thread.sleep(500)
-                        exitProcess(0)
-                    }
                 }
             }
         )

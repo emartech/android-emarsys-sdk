@@ -70,7 +70,6 @@ import io.kotlintest.shouldNotBe
 import org.junit.*
 import org.junit.rules.TestRule
 import org.mockito.kotlin.*
-import java.util.*
 import java.util.concurrent.CountDownLatch
 
 class EmarsysTest {
@@ -228,7 +227,6 @@ class EmarsysTest {
                             mobileEngageInternal = mockMobileEngageInternal,
                             loggingMobileEngageInternal = mockMobileEngageInternal,
                             deepLinkInternal = mockDeepLinkInternal,
-                            loggingDeepLinkInternal = mockDeepLinkInternal,
                             eventServiceInternal = mockEventServiceInternal,
                             loggingEventServiceInternal = mockEventServiceInternal,
                             clientService = mockClientServiceApi,
@@ -253,7 +251,6 @@ class EmarsysTest {
                             eventService = mockEventServiceApi,
                             loggingEventService = mockLoggingEventServiceApi,
                             deepLink = mockDeepLinkApi,
-                            loggingDeepLink = mockLoggingDeepLinkApi,
                             logger = mock()
                     )
             )
@@ -851,17 +848,6 @@ class EmarsysTest {
 
         runBlockingOnCoreSdkThread {
             verify(mockDeepLinkApi).trackDeepLinkOpen(mockActivity, mockIntent, null)
-        }
-    }
-
-    @Test
-    fun testTrackDeepLink_delegatesTo_loggingDeepLinkApi_whenMobileEngageIsNotEnabled() {
-        val mockActivity: Activity = mock()
-        val mockIntent: Intent = mock()
-        trackDeepLink(mockActivity, mockIntent)
-
-        runBlockingOnCoreSdkThread {
-            verify(mockLoggingDeepLinkApi).trackDeepLinkOpen(mockActivity, mockIntent, null)
         }
     }
 

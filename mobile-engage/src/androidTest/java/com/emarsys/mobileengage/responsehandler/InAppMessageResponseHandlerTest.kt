@@ -1,7 +1,9 @@
 package com.emarsys.mobileengage.responsehandler
 
+import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
+import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.request.model.RequestModel
@@ -17,6 +19,7 @@ import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 import com.emarsys.testUtil.CollectionTestUtils.numberOfElementsIn
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
+import com.emarsys.testUtil.fake.FakeActivity
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -29,18 +32,26 @@ class InAppMessageResponseHandlerTest {
     private lateinit var handler: InAppMessageResponseHandler
     private lateinit var presenter: OverlayInAppPresenter
     private lateinit var webViewProvider: IamStaticWebViewProvider
+    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockDialog: IamDialog
     private lateinit var mockJsBridgeFactory: IamJsBridgeFactory
     private lateinit var mockJsBridge: IamJsBridge
-    private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
+    private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
 
     @Rule
     @JvmField
     var timeout: TestRule = timeoutRule
 
+    @Rule
+    @JvmField
+    var activityRule = ActivityTestRule(FakeActivity::class.java)
+
     @Before
     fun init() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
+        mockCurrentActivityProvider = mock {
+            on { get() } doReturn activityRule.activity
+        }
         webViewProvider = mock()
         mockJsBridge = mock()
         mockJsBridgeFactory = mock {
@@ -58,16 +69,18 @@ class InAppMessageResponseHandlerTest {
             } doReturn mockDialog
         }
 
-        presenter = OverlayInAppPresenter(
-            concurrentHandlerHolder,
-            webViewProvider,
-            mock(),
-            dialogProvider,
-            mock(),
-            mock(),
-            mock(),
-            mock(),
-            mockJsBridgeFactory
+        presenter = spy(
+            OverlayInAppPresenter(
+                concurrentHandlerHolder,
+                webViewProvider,
+                mock(),
+                dialogProvider,
+                mock(),
+                mock(),
+                mock(),
+                mockCurrentActivityProvider,
+                mockJsBridgeFactory
+            )
         )
         handler = InAppMessageResponseHandler(presenter)
     }
@@ -104,12 +117,12 @@ class InAppMessageResponseHandlerTest {
     }
 
     @Test
-    fun testHandleResponse_shouldCallLoadMessageAsync_withCorrectArguments() {
+    fun testHandleResponse_shouldCallPresentOnPresenter_withCorrectArguments() {
         val html = "<p>hello</p>"
         val responseBody = String.format("{'message': {'html':'%s', 'campaignId': '123'} }", html)
         val response = buildResponseModel(responseBody)
         handler.handleResponse(response)
-        verify(webViewProvider).loadMessageAsync(eq(html), any(), any())
+        verify(presenter).present("123", null, null, response.requestModel.id, response.timestamp, html, null)
     }
 
     @Test

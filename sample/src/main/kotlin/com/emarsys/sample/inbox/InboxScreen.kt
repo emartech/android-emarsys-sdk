@@ -2,7 +2,6 @@ package com.emarsys.sample.inbox
 
 import android.app.Application
 import android.content.Context
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,8 +16,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import coil.annotation.ExperimentalCoilApi
-import com.emarsys.Emarsys
-import com.emarsys.inbox.InboxTag
 import com.emarsys.sample.R
 import com.emarsys.sample.ui.component.row.RowWithCenteredContent
 import com.emarsys.sample.ui.component.screen.DetailScreen
@@ -34,7 +31,7 @@ class InboxScreen(
 ) : DetailScreen() {
 
     private val viewModel = InboxViewModel()
-    private val messagePresenter = MessagePresenter(context)
+    private val messagePresenter = MessagePresenter(context, viewModel)
 
     @ExperimentalCoilApi
     @ExperimentalComposeUiApi
@@ -53,9 +50,10 @@ class InboxScreen(
             Modifier
                 .columnWithMaxWidth(),
             topBar = {
-                RowWithCenteredContent(content = { TitleText(titleText = stringResource(id = R.string.inbox_title)) })
+                TitleText(titleText = stringResource(id = R.string.inbox_title))
             })
         {
+            it.calculateBottomPadding()
             var refreshing by remember { mutableStateOf(false) }
             LaunchedEffect(key1 = refreshing) {
                 if (refreshing) {
@@ -63,10 +61,11 @@ class InboxScreen(
                     refreshing = false
                 }
             }
-            SwipeRefresh(state = rememberSwipeRefreshState(isRefreshing = refreshing),
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isRefreshing = refreshing),
                 onRefresh = {
                     refreshing = true
-                    onSwipeFetchMessages()
+                    viewModel.onSwipeFetchMessages()
                 })
             {
                 AnimatedVisibility(visible = viewModel.isFetchedMessagesEmpty()) {
@@ -80,30 +79,10 @@ class InboxScreen(
                         .padding(bottom = innerPadding.calculateBottomPadding()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    items(viewModel.fetchedMessages) { message ->
+                    items(
+                        items = viewModel.fetchedMessages.toList(),
+                        key = { message -> message.id }) { message ->
                         messagePresenter.MessageCard(message = message)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun onSwipeFetchMessages() {
-        viewModel.emptyFetchedMessages()
-        Emarsys.messageInbox.fetchMessages {
-            if (it.errorCause != null) {
-                Log.e("INBOX", "Inbox Error" + it.errorCause)
-            } else {
-                it.result?.let { inboxResult ->
-                    inboxResult.messages.forEach { message ->
-                        Log.i("INBOX", message.title)
-                        if (message.tags.isNullOrEmpty()) {
-                            Emarsys.messageInbox.addTag(
-                                InboxTag.SEEN,
-                                messageId = message.id
-                            )
-                        }
-                        viewModel.addMessageToFetched(message)
                     }
                 }
             }

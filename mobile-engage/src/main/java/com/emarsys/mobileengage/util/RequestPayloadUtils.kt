@@ -32,15 +32,16 @@ object RequestPayloadUtils {
                 "importance" to notificationSettings.importance
         )
         val channelSettings: MutableList<Map<String, Any>> = mutableListOf()
-        if (AndroidVersionUtils.isOreoOrAbove()) {
+        if (AndroidVersionUtils.isOreoOrAbove) {
             for ((channelId, importance, isCanBypassDnd, isCanShowBadge, isShouldVibrate, isShouldShowLights) in notificationSettings.channelSettings) {
                 val channelSettingMap: Map<String, Any> = mapOf(
-                        "channelId" to channelId,
-                        "importance" to importance,
-                        "canShowBadge" to isCanShowBadge,
-                        "canBypassDnd" to isCanBypassDnd,
-                        "shouldVibrate" to isShouldVibrate,
-                        "shouldShowLights" to isShouldShowLights)
+                    "channelId" to channelId,
+                    "importance" to importance,
+                    "canShowBadge" to isCanShowBadge,
+                    "canBypassDnd" to isCanBypassDnd,
+                    "shouldVibrate" to isShouldVibrate,
+                    "shouldShowLights" to isShouldShowLights
+                )
                 channelSettings.add(channelSettingMap)
             }
             notificationSettingsMap["channelSettings"] = channelSettings

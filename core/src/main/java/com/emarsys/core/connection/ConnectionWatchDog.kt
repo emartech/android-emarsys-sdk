@@ -76,7 +76,7 @@ class ConnectionWatchDog(
 
     fun registerReceiver(connectionChangeListener: ConnectionChangeListener) {
         try {
-            if (AndroidVersionUtils.isOreoOrAbove()) {
+            if (AndroidVersionUtils.isOreoOrAbove) {
                 this.connectionChangeListener = connectionChangeListener
                 connectivityManager.registerNetworkCallback(
                     networkRequest,

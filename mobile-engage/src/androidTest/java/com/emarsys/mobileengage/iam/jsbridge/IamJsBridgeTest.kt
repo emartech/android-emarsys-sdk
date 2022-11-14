@@ -1,18 +1,20 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
-import android.webkit.WebView
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.iam.model.InAppMessage
+import com.emarsys.mobileengage.iam.webview.EmarsysWebView
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.fake.FakeActivity
+import io.kotlintest.shouldBe
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
+import org.mockito.ArgumentCaptor
 import org.mockito.kotlin.*
 
 
@@ -27,7 +29,7 @@ class IamJsBridgeTest {
     )
 
     private lateinit var jsBridge: IamJsBridge
-    private lateinit var mockWebView: WebView
+    private lateinit var mockEmarsysWebView: EmarsysWebView
     private lateinit var mockEventHandler: EventHandler
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var inAppMessage: InAppMessage
@@ -37,6 +39,7 @@ class IamJsBridgeTest {
     private lateinit var mockOnButtonClickedListener: JSCommand
     private lateinit var mockOnOpenExternalUrlListener: JSCommand
     private lateinit var mockOnMEEventListener: JSCommand
+    private lateinit var captor: ArgumentCaptor<JSONObject>
 
 
     @Rule
@@ -51,7 +54,7 @@ class IamJsBridgeTest {
     fun setUp() {
         inAppMessage = InAppMessage("campaignId", "sid", "url")
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-
+        mockEmarsysWebView = mock()
         mockOnCloseListener = mock()
         mockOnAppEventListener = mock()
         mockOnButtonClickedListener = mock()
@@ -70,13 +73,13 @@ class IamJsBridgeTest {
             } doReturn (mockOnButtonClickedListener)
         }
         mockEventHandler = mock()
-        mockWebView = mock()
         jsBridge = IamJsBridge(
             concurrentHandlerHolder,
             mockJsCommandFactory,
             inAppMessage
         )
-        jsBridge.webView = mockWebView
+        jsBridge.emarsysWebView = mockEmarsysWebView
+        captor = ArgumentCaptor.forClass(JSONObject::class.java)
     }
 
     @Test
@@ -177,11 +180,13 @@ class IamJsBridgeTest {
 
         jsBridge.triggerAppEvent(json.toString())
 
-        val result = JSONObject().put("id", id).put("success", true)
         verify(
-            mockWebView,
+            mockEmarsysWebView,
             timeout(1000)
-        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+        ).evaluateJavascript(capture(captor))
+
+        captor.value["id"] shouldBe id
+        captor.value["success"] shouldBe true
     }
 
     @Test
@@ -191,11 +196,13 @@ class IamJsBridgeTest {
 
         jsBridge.triggerMEEvent(json.toString())
 
-        val result = JSONObject().put("id", id).put("success", true)
         verify(
-            mockWebView,
+            mockEmarsysWebView,
             timeout(1000)
-        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+        ).evaluateJavascript(capture(captor))
+
+        captor.value["id"] shouldBe id
+        captor.value["success"] shouldBe true
     }
 
     @Test
@@ -204,13 +211,14 @@ class IamJsBridgeTest {
         val buttonId = "987654321"
         val json = JSONObject().put("id", id).put("buttonId", buttonId)
         jsBridge.buttonClicked(json.toString())
-        val result = JSONObject()
-            .put("id", id)
-            .put("success", true)
+
         verify(
-            mockWebView,
+            mockEmarsysWebView,
             timeout(1000)
-        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+        ).evaluateJavascript(capture(captor))
+
+        captor.value["id"] shouldBe id
+        captor.value["success"] shouldBe true
     }
 
     @Test
@@ -219,48 +227,47 @@ class IamJsBridgeTest {
         val url = "https://emarsys.com"
         val json = JSONObject().put("id", id).put("url", url).put("keepInAppOpen", false)
         jsBridge.openExternalLink(json.toString())
-        val result = JSONObject()
-            .put("id", id)
-            .put("success", true)
 
         verify(
-            mockWebView,
+            mockEmarsysWebView,
             timeout(1000)
-        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+        ).evaluateJavascript(capture(captor))
+
+        captor.value["id"] shouldBe id
+        captor.value["success"] shouldBe true
     }
 
     @Test
     fun testTriggerAppEvent_shouldInvokeCallback_whenNameIsMissing() {
         val id = "123456789"
         val json = JSONObject().put("id", id)
-        val result = JSONObject()
-            .put("id", id)
-            .put("success", false)
-            .put("error", "Missing name!")
-
         jsBridge.triggerAppEvent(json.toString())
 
         verify(
-            mockWebView,
+            mockEmarsysWebView,
             timeout(1000)
-        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+        ).evaluateJavascript(capture(captor))
+
+        captor.value["id"] shouldBe id
+        captor.value["success"] shouldBe false
+        captor.value["error"] shouldBe "Missing name!"
     }
 
     @Test
     fun testTriggerMeEvent_shouldInvokeCallback_whenNameIsMissing() {
         val id = "123456789"
         val json = JSONObject().put("id", id)
-        val result = JSONObject()
-            .put("id", id)
-            .put("success", false)
-            .put("error", "Missing name!")
 
         jsBridge.triggerMEEvent(json.toString())
 
         verify(
-            mockWebView,
+            mockEmarsysWebView,
             timeout(1000)
-        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+        ).evaluateJavascript(capture(captor))
+
+        captor.value["id"] shouldBe id
+        captor.value["success"] shouldBe false
+        captor.value["error"] shouldBe "Missing name!"
     }
 
     @Test
@@ -268,14 +275,15 @@ class IamJsBridgeTest {
         val id = "12346789"
         val json = JSONObject().put("id", id)
         jsBridge.buttonClicked(json.toString())
-        val result = JSONObject()
-            .put("id", id)
-            .put("success", false)
-            .put("error", "Missing buttonId!")
+
         verify(
-            mockWebView,
+            mockEmarsysWebView,
             timeout(1000)
-        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+        ).evaluateJavascript(capture(captor))
+
+        captor.value["id"] shouldBe id
+        captor.value["success"] shouldBe false
+        captor.value["error"] shouldBe "Missing buttonId!"
     }
 
 
@@ -284,14 +292,15 @@ class IamJsBridgeTest {
         val id = "12346789"
         val json = JSONObject().put("id", id).put("keepInAppOpen", false)
         jsBridge.openExternalLink(json.toString())
-        val result = JSONObject()
-            .put("id", id)
-            .put("success", false)
-            .put("error", "Missing url!")
+
         verify(
-            mockWebView,
+            mockEmarsysWebView,
             timeout(1000)
-        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", result), null)
+        ).evaluateJavascript(capture(captor))
+
+        captor.value["id"] shouldBe id
+        captor.value["success"] shouldBe false
+        captor.value["error"] shouldBe "Missing url!"
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -300,12 +309,13 @@ class IamJsBridgeTest {
     }
 
     @Test
-    fun testSendResult_shouldInvokeEvaluateJavascript_onWebView() {
+    fun testSendResult_shouldInvokeEvaluateJavascript_onEmarsysWebviewWebView() {
         val json = JSONObject().put("id", "123456789").put("key", "value")
         jsBridge.sendResult(json)
+
         verify(
-            mockWebView,
+            mockEmarsysWebView,
             timeout(1000)
-        ).evaluateJavascript(String.format("MEIAM.handleResponse(%s);", json), null)
+        ).evaluateJavascript(json)
     }
 }

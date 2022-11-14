@@ -25,13 +25,13 @@ class Crypto(private val publicKey: PublicKey) {
         private const val OLD_ITERATION_COUNT = 65536
 
         fun getAlgorythm(): String {
-            return if (AndroidVersionUtils.isBelowOreo()) CRYPTO_ALGORITHM_BELOW_26 else CRYPTO_ALGORITHM_ABOVE_26
+            return if (AndroidVersionUtils.isBelowOreo) CRYPTO_ALGORITHM_BELOW_26 else CRYPTO_ALGORITHM_ABOVE_26
         }
         fun getIvSize(): Int {
-            return if (AndroidVersionUtils.isBelowOreo()) 16 else 12
+            return if (AndroidVersionUtils.isBelowOreo) 16 else 12
         }
         fun getKeyLength(): Int {
-            return if (AndroidVersionUtils.isBelowOreo()) 128 else 256
+            return if (AndroidVersionUtils.isBelowOreo) 128 else 256
         }
 
     }

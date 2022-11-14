@@ -1,6 +1,8 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.AndroidSampleApp" parent="Theme.AppCompat.DayNight">
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.AppTheme" parent="Theme.AppCompat.DayNight">
+        <item name="android:forceDarkAllowed">true</item>
         <!-- Primary brand color. -->
         <item name="colorPrimary">#2196F3</item>
         <item name="colorPrimaryVariant">#1976D2</item>
@@ -10,7 +12,7 @@
         <item name="colorSecondaryVariant">#212121</item>
         <item name="colorOnSecondary">#757575</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
 </resources>

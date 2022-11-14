@@ -44,17 +44,26 @@ object MessagingServiceUtils {
                     }
                 }
             } else {
-                val notificationId = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
+                val notificationData = remoteMessageMapper.map(remoteMessageData)
+                val notificationManager =
+                    (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                val collapseId = notificationData.notificationMethod.collapseId
                 val notification = createNotification(
-                    notificationId,
+                    collapseId,
                     context.applicationContext,
                     remoteMessageData,
                     deviceInfo,
-                    remoteMessageMapper,
-                    fileDownloader
+                    fileDownloader,
+                    notificationData
                 )
-                (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                    .notify(notificationId, notification)
+                when (notificationData.notificationMethod.operation) {
+                    NotificationOperation.INIT, NotificationOperation.UPDATE -> {
+                        notificationManager.notify(collapseId, notification)
+                    }
+                    NotificationOperation.DELETE -> {
+                        notificationManager.cancel(collapseId)
+                    }
+                }
             }
             handled = true
         }
@@ -105,22 +114,20 @@ object MessagingServiceUtils {
         context: Context,
         remoteMessageData: Map<String, String>,
         deviceInfo: DeviceInfo,
-        remoteMessageMapper: RemoteMessageMapper,
-        fileDownloader: FileDownloader
+        fileDownloader: FileDownloader,
+        notificationData: NotificationData
     ): Notification {
-        var notificationData = remoteMessageMapper.map(remoteMessageData)
+        val notifData = handleChannelIdMismatch(deviceInfo, notificationData, context)
 
-        notificationData = handleChannelIdMismatch(deviceInfo, notificationData, context)
-
-        return createNotificationBuilder(notificationData, context)
+        return createNotificationBuilder(notifData, context)
             .setupBuilder(
                 context,
                 remoteMessageData,
                 notificationId,
                 fileDownloader,
-                notificationData
+                notifData
             )
-            .styleNotification(notificationData)
+            .styleNotification(notifData)
             .build()
     }
 
@@ -140,7 +147,7 @@ object MessagingServiceUtils {
         notificationData: NotificationData,
         context: Context
     ): NotificationData {
-        return if (AndroidVersionUtils.isOreoOrAbove() && deviceInfo.isDebugMode && !isValidChannel(
+        return if (AndroidVersionUtils.isOreoOrAbove && deviceInfo.isDebugMode && !isValidChannel(
                 deviceInfo.notificationSettings,
                 notificationData.channelId
             )

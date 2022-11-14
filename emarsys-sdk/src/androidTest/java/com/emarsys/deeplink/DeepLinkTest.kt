@@ -28,8 +28,7 @@ class DeepLinkTest {
         deeplinkApi = DeepLink()
 
         setupEmarsysComponent(FakeDependencyContainer(
-                deepLinkInternal = mockDeepLinkInternal,
-                loggingDeepLinkInternal = mockDeepLinkInternal))
+                deepLinkInternal = mockDeepLinkInternal))
     }
     @After
     fun tearDown() {
