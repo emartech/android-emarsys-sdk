@@ -3,9 +3,6 @@ package com.emarsys
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
-import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
@@ -113,9 +110,10 @@ class InappNotificationIntegrationTest {
 
     @Test
     fun testInappPresent() {
-        val uiHandler = Handler(Looper.getMainLooper())
-        val url = FileDownloader(application).download("https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png")
-        val emsPayload = """{"inapp": {"campaignId": "222","url": "https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png","fileUrl": "$url"}}"""
+        val url =
+            FileDownloader(application).download("https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png")
+        val emsPayload =
+            """{"inapp": {"campaignId": "222","url": "https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png","fileUrl": "$url"}}"""
         val remoteMessageData = mapOf("ems" to emsPayload)
 
         val intent = IntentUtils.createNotificationHandlerServiceIntent(
@@ -126,19 +124,18 @@ class InappNotificationIntegrationTest {
         )
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-        val latch = CountDownLatch(1)
-        uiHandler.post {
-            application.startActivity(intent)
-            latch.countDown()
-        }
-        latch.await()
-
-        activityScenarioRule.scenario.moveToState(Lifecycle.State.CREATED)
-        activityScenarioRule.scenario.moveToState(Lifecycle.State.STARTED)
-        activityScenarioRule.scenario.moveToState(Lifecycle.State.RESUMED)
+        application.startActivity(intent)
 
         completionListenerLatch.await()
-        verify(mockInappPresenterOverlay).present(anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull(), anyOrNull())
+        verify(mockInappPresenterOverlay).present(
+            anyOrNull(),
+            anyOrNull(),
+            anyOrNull(),
+            anyOrNull(),
+            anyOrNull(),
+            anyOrNull(),
+            anyOrNull()
+        )
     }
 
 }
