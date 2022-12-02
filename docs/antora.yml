@@ -1,0 +1,6 @@
+name: android-emarsys-sdk
+title: Android Emarsys SDK
+version: master
+start_page: ROOT:index.adoc
+nav:
+  - modules/ROOT/nav.adoc

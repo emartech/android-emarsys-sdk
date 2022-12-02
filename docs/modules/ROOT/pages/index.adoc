@@ -1,0 +1,3 @@
+== Android Emarsys SDK
+
+https://github.com/emartech/android-emarsys-sdk/blob/master/README.adoc[README]
