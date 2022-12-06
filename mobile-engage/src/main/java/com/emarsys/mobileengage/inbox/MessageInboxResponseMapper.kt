@@ -89,12 +89,19 @@ class MessageInboxResponseMapper : Mapper<ResponseModel, InboxResult> {
                     ) else JSONObject()
                 )
             )
-            "OpenExternalUrl" -> OpenExternalUrlActionModel(
-                actionJson.getString("id"),
-                actionJson.getString("title"),
-                actionJson.getString("type"),
-                URL(actionJson.getString("url"))
-            )
+            "OpenExternalUrl" -> {
+                val url = try {
+                    URL(actionJson.getString("url"))
+                } catch (ignored: Exception) {
+                    URL("https://")
+                }
+                OpenExternalUrlActionModel(
+                    actionJson.getString("id"),
+                    actionJson.getString("title"),
+                    actionJson.getString("type"),
+                    url
+                )
+            }
             "MECustomEvent" -> CustomEventActionModel(
                 actionJson.getString("id"),
                 actionJson.getString("title"),
