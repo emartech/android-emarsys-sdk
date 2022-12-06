@@ -1,0 +1,14 @@
+name: Build Documentation
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - docs/**
+
+jobs:
+  build-docs:
+    name: Build documentation
+    uses: emartech/me-workflows/.github/workflows/build-docs.yaml@main
+    secrets: inherit

@@ -1,0 +1,234 @@
+= Push
+
+== Styles
+
+Style can be `MESSAGE` , `THUMBNAIL`, `BIG_PICTURE`, `BIG_TEXT` or just leave out the whole property for Compatibility Mode
+
+== Rich Push
+
+Rich push messages can contain images, actions.
+The maximum number of actions in a push message is 3. See examples below.
+
+.App Event
+[source,json]
+----
+{
+  "to": "{{push_token}}",
+  "data": {
+  "title":"Hello Demo!",
+  "channel_id":"ems_sample_news",
+  "u":{"sid":"asdf"},
+  "body":"This is a push message",
+  "image_url":"https://firebase.google.com/images/social.png",
+  "ems":{
+    "multichannelId":"campaignId",
+    "style":"MESSAGE",
+    "actions": [
+      {
+        "id": "id1",
+        "title": "App event",
+        "type": "MEAppEvent",
+        "name": "AppEventName",
+        "payload": {"key":"value", "key2":"vale"}
+      }
+    ]
+  },
+"ems_msg": {}
+	}
+}
+----
+
+.ExternalUrl
+[source,json]
+----
+{
+  "to": "{{push_token}}",
+  "data": {
+  "title":"Hello Demo!",
+  "channel_id":"ems_sample_news",
+  "u":{"sid":"asdf"},
+  "body":"This is a push message",
+  "image_url":"https://firebase.google.com/images/social.png",
+  "ems":{
+    "multichannelId":"campaignId",
+    "style":"MESSAGE",
+    "actions": [
+    	{
+		  "id": "id1",
+		  "title": "External Url",
+		  "type": "OpenExternalUrl",
+		  "url": "https://www.emarsys.com"
+        }
+    ]
+  },
+"ems_msg": {}
+	}
+}
+----
+
+.CustomEvent
+[source,json]
+----
+{
+  "to": "{{push_token}}",
+  "data": {
+  "title":"Hello Demo!",
+  "channel_id":"ems_sample_news",
+  "u":{"sid":"asdf"},
+  "body":"This is a push message",
+  "image_url":"https://firebase.google.com/images/social.png",
+  "ems":{
+    "multichannelId":"campaignId",
+    "style":"MESSAGE",
+    "actions": [
+      {
+        "id": "id3",
+        "title": "Custom Event",
+        "type": "MECustomEvent",
+        "name": "testCustomEvent",
+        "payload": {"key":"value", "key2":"vale"}
+      }
+    ]
+  },
+"ems_msg": {}
+	}
+}
+----
+
+.Dismiss
+[source,json]
+----
+{
+  "to": "{{push_token}}",
+  "data": {
+  "title":"Hello Demo!",
+  "channel_id":"ems_sample_news",
+  "u":{"sid":"asdf"},
+  "body":"This is a push message",
+  "image_url":"https://firebase.google.com/images/social.png",
+  "ems":{
+    "multichannelId":"campaignId",
+    "style":"MESSAGE",
+    "actions": [
+      {
+        "id": "id3",
+        "title": "Dismiss",
+        "type": "Dismiss"
+      }
+    ]
+  },
+"ems_msg": {}
+	}
+}
+----
+
+=== Update/Delete
+
+Add notificationMethod to the `ems` object.
+Operation value can be INIT, UPDATE or DELETE The SDK is going to find the push notification based on its `collapseId`
+
+.notificationMethod
+[source,json]
+----
+ "notificationMethod": {
+                "operation":"UPDATE",
+                "collapseId":12345
+            },
+----
+
+.Example
+[source,json]
+----
+{
+	"to": "{{push_token}}",
+	"data": {
+		"title": "Update - Push",
+		"channel_id": "ems_sample_news",
+		"u": {
+			"sid": "asdf"
+		},
+		"body": "Hello",
+		"image_url": "https://firebase.google.com/images/social.png",
+		"ems": {
+			"multichannelId": "campaignId",
+            "notificationMethod": {
+                "operation":"UPDATE",
+                "collapseId":12345
+            },
+			"actions": [
+				{
+					"id": "id1",
+					"title": "Custom Event",
+					"type": "MECustomEvent",
+					"name": "customEventName",
+					"payload": {
+						"key": "value",
+						"key2": "vale"
+					}
+				}
+			]
+		},
+		"ems_msg": {}
+	}
+}
+----
+
+== Silent Push
+
+No notification is going to be shown on the device but the SDK is going to trigger the app event at receive.
+
+.Example
+[source,json]
+----
+{
+   "to": "{{push_token}}",
+   "data": {
+      "ems": {
+         "multichannelId": "campaignId",
+         "silent": true,
+         "actions": [
+            {
+               "id": "id1",
+               "title": "App event",
+               "type": "MEAppEvent",
+               "name": "nameOfTheAppEvent",
+               "payload": {
+                  "key": "value",
+                  "key2": "vale"
+               }
+            }
+         ]
+      },
+      "ems_msg": {}
+   }
+}
+----
+
+== Push to in-app
+
+An in-app message is going to be shown at receive with the defined url.
+
+.Example
+[source,json]
+----
+{
+   "to": "{{push_token}}",
+   "data": {
+      "title": "ALICE - Push",
+      "channel_id": "ems_sample_news",
+      "u": {
+         "sid": "asdf"
+      },
+      "body": "Hello",
+      "image_url": "https://firebase.google.com/images/social.png",
+      "ems": {
+         "multichannelId": "campaignId",
+         "inapp": {
+            "campaign_id": "222",
+            "url": "https://www.emarsys.com/"
+         }
+      },
+      "ems_msg": {}
+   }
+}
+----

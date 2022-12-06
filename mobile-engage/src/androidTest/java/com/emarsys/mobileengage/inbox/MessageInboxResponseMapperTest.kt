@@ -70,6 +70,12 @@ class MessageInboxResponseMapperTest {
                             "testTitle2",
                             "OpenExternalUrl",
                             URL("https://www.test.com")
+                        ),
+                        OpenExternalUrlActionModel(
+                            "testId4",
+                            "testTitle2",
+                            "OpenExternalUrl",
+                            URL("https://")
                         )
                     )
                 ),
@@ -183,6 +189,12 @@ class MessageInboxResponseMapperTest {
                     "title": "testTitle2",
                     "type": "OpenExternalUrl",
                     "url": "https://www.test.com"
+                },
+                {
+                    "id": "testId4",
+                    "title": "testTitle2",
+                    "type": "OpenExternalUrl",
+                    "url": "notUrl"
                 }
               ]
           }
