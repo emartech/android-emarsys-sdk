@@ -10,5 +10,4 @@ chmod +x detect7.sh
 --detect.project.version.name=master \
 --detect.source.path=~/work/android-emarsys-sdk/android-emarsys-sdk \
 --detect.gradle.path=~/work/android-emarsys-sdk/android-emarsys-sdk/gradlew
---detect.npm.include.dev.dependencies=false \
 --detect.sbt.report.search.depth=4 \
