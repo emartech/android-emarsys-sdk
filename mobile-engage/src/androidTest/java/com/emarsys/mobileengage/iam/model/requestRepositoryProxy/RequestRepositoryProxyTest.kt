@@ -156,6 +156,20 @@ class RequestRepositoryProxyTest {
     }
 
     @Test
+    fun testQuery_shouldReturnOriginalQuery_whenThereISCustomEventInTheFirstButNoCustomEventsInTHeLastRepositoryQuery() {
+        val customEvent = customEvent(123, "testEventName")
+        val requestModel = requestModel()
+
+        whenever(mockRequestModelRepository.query(any())).doReturnConsecutively(listOf(listOf(customEvent, requestModel), listOf()))
+
+        val expected = listOf(customEvent, requestModel)
+
+        val result = compositeRepository.query(Everything())
+
+        Assert.assertEquals(expected, result)
+    }
+
+    @Test
     fun testQuery_resultShouldContainCompositeRequestModel_whenResultContainsCustomEvent() {
         runBlocking {
             compositeRepository = compositeRepositoryWithRealRepositories()
