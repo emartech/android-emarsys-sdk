@@ -11,7 +11,7 @@ object Versions {
     const val support_test_extensions = "1.1.4"
     const val support_test_fragment = "1.5.4"
     const val support_annotations = "1.5.0"
-    const val buildToolsVersion = "31.0.0"
+    const val buildToolsVersion = "33.0.1"
     const val multiDexVersion = "2.0.0"
     const val kotlinMockito = "4.1.0"
     const val location_services_version = "21.0.1"
