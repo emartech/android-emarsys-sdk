@@ -1,0 +1,16 @@
+FROM eu.gcr.io/ems-mobile-sdk/android-container:latest
+USER root
+
+RUN mkdir -p /workspace/source
+RUN chown root /workspace/source
+
+RUN git clone https://github.com/emartech/android-emarsys-sdk.git /workspace/source
+RUN export ANDROID_HOME=android
+RUN echo $ANDROID_HOME > local.properties
+RUN chmod -R 755 /workspace/source
+WORKDIR /workspace/source
+
+RUN git reset --hard
+RUN git checkout dev
+
+RUN ./gradlew build -x :sample:build -x lint
