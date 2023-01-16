@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.iam
 
+import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Color
 import androidx.fragment.app.DialogFragment
@@ -28,14 +29,14 @@ import org.json.JSONObject
 @Mockable
 class OverlayInAppPresenter(
     private val concurrentHandlerHolder: ConcurrentHandlerHolder,
-    private val webViewProvider: IamStaticWebViewProvider,
     private val inAppInternal: InAppInternal,
     private val dialogProvider: IamDialogProvider,
     private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
     private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
     private val timestampProvider: TimestampProvider,
     private val currentActivityProvider: CurrentActivityProvider,
-    private val jsBridgeFactory: IamJsBridgeFactory
+    private val jsBridgeFactory: IamJsBridgeFactory,
+    private val clipboardManager: ClipboardManager
 ) {
 
     fun present(
@@ -46,7 +47,7 @@ class OverlayInAppPresenter(
         setupDialogWithActions(iamDialog)
         val jsCommandFactory = JSCommandFactory(
             currentActivityProvider, concurrentHandlerHolder, inAppInternal,
-            buttonClickedRepository, onCloseTriggered(), onAppEventTriggered(), timestampProvider
+            buttonClickedRepository, onCloseTriggered(), onAppEventTriggered(), timestampProvider, clipboardManager
         )
 
         val jsBridge =

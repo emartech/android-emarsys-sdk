@@ -1,5 +1,7 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.net.Uri
 import com.emarsys.core.Mockable
@@ -8,6 +10,7 @@ import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
+import com.emarsys.core.util.getNullableString
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.model.InAppMessage
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
@@ -21,7 +24,8 @@ class JSCommandFactory(
     private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
     private val onCloseTriggered: OnCloseListener?,
     private val onAppEventTriggered: OnAppEventListener?,
-    private val timestampProvider: TimestampProvider
+    private val timestampProvider: TimestampProvider,
+    private val clipboardManager: ClipboardManager
 ) {
 
     @Throws(RuntimeException::class)
@@ -108,6 +112,18 @@ class JSCommandFactory(
                     }
                 }
             }
+            CommandType.ON_COPY_TO_CLIPBOARD -> {
+                { _, json ->
+                    concurrentHandlerHolder.coreHandler.post {
+                        val textToCopy = json.getNullableString("text")
+                        if(textToCopy != null) {
+                            clipboardManager.setPrimaryClip(
+                                ClipData.newPlainText("copiedFromInapp", textToCopy)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -116,6 +132,7 @@ class JSCommandFactory(
         ON_BUTTON_CLICKED,
         ON_CLOSE,
         ON_ME_EVENT,
-        ON_OPEN_EXTERNAL_URL
+        ON_OPEN_EXTERNAL_URL,
+        ON_COPY_TO_CLIPBOARD
     }
 }

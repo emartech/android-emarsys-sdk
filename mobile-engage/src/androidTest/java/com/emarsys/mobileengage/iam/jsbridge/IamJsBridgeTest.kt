@@ -38,6 +38,7 @@ class IamJsBridgeTest {
     private lateinit var mockOnAppEventListener: JSCommand
     private lateinit var mockOnButtonClickedListener: JSCommand
     private lateinit var mockOnOpenExternalUrlListener: JSCommand
+    private lateinit var mockCopyToClipboardListener: JSCommand
     private lateinit var mockOnMEEventListener: JSCommand
     private lateinit var captor: ArgumentCaptor<JSONObject>
 
@@ -60,6 +61,7 @@ class IamJsBridgeTest {
         mockOnButtonClickedListener = mock()
         mockOnOpenExternalUrlListener = mock()
         mockOnMEEventListener = mock()
+        mockCopyToClipboardListener = mock()
         mockJsCommandFactory = mock {
             on { create(JSCommandFactory.CommandType.ON_CLOSE) } doReturn (mockOnCloseListener)
             on { create(JSCommandFactory.CommandType.ON_ME_EVENT) } doReturn (mockOnMEEventListener)
@@ -71,6 +73,7 @@ class IamJsBridgeTest {
                     inAppMessage
                 )
             } doReturn (mockOnButtonClickedListener)
+            on {create(JSCommandFactory.CommandType.ON_COPY_TO_CLIPBOARD)} doReturn mockCopyToClipboardListener
         }
         mockEventHandler = mock()
         jsBridge = IamJsBridge(
@@ -301,6 +304,36 @@ class IamJsBridgeTest {
         captor.value["id"] shouldBe id
         captor.value["success"] shouldBe false
         captor.value["error"] shouldBe "Missing url!"
+    }
+
+    @Test
+    fun testCopyToClipboard_shouldInvokeCallback_onSuccess() {
+        val id = "12346789"
+        val json = JSONObject().put("id", id).put("text", "testText")
+        jsBridge.copyToClipboard(json.toString())
+
+        verify(
+            mockEmarsysWebView,
+            timeout(1000)
+        ).evaluateJavascript(capture(captor))
+
+        captor.value["id"] shouldBe id
+        captor.value["success"] shouldBe true
+    }
+
+    @Test
+    fun testCopyToClipboard_shouldInvokeCallback_onError_whenTextIsMissing() {
+        val id = "12346789"
+        val json = JSONObject().put("id", id)
+        jsBridge.copyToClipboard(json.toString())
+
+        verify(
+            mockEmarsysWebView,
+            timeout(1000)
+        ).evaluateJavascript(capture(captor))
+
+        captor.value["id"] shouldBe id
+        captor.value["success"] shouldBe false
     }
 
     @Test(expected = IllegalArgumentException::class)

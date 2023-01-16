@@ -164,7 +164,8 @@ class InlineInAppView : LinearLayout {
             buttonClickedRepository,
             onCloseListener,
             onAppEventListener,
-            timestampProvider
+            timestampProvider,
+            mobileEngage().clipboardManager
         )
         val jsBridgeFactory: IamJsBridgeFactory = mobileEngage().iamJsBridgeFactory
 
