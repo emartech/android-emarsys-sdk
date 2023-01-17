@@ -14,4 +14,4 @@
 
 ### [ChangeAppcode](https://github.com/emartech/android-emarsys-sdk/wiki#6-ApplicationCode-and-merchantId-change)
 
-* Prevent SDK from unnecessary network calls when an invalid `applicationCode` was set
+* Prevent SDK from unnecessary network calls when an invalid `applicationCode` was set.
