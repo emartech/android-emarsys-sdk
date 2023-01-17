@@ -16,7 +16,7 @@ class DuplicatedThreadRule(private val threadName: String) : TestRule {
                 base?.evaluate()
                 return
             }
-        };
+        }
     }
 
 

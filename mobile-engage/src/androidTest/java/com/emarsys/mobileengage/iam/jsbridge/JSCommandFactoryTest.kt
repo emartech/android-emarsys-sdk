@@ -53,7 +53,7 @@ class JSCommandFactoryTest {
     @Before
     fun setUp() {
         mockActivity = mock()
-        mockCurrentActivityProvider = mock() {
+        mockCurrentActivityProvider = mock {
             on { get() } doReturn mockActivity
         }
         mockClipboardManager = mock()

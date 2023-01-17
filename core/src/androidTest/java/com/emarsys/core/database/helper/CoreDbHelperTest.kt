@@ -1,4 +1,4 @@
-package com.emarsys.core.database.helper;
+package com.emarsys.core.database.helper
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase

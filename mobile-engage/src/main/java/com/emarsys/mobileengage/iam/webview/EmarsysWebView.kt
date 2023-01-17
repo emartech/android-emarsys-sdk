@@ -29,7 +29,6 @@ class EmarsysWebView {
             webView?.webViewClient = value!!
             field = value
         }
-        get() = field
 
     fun enableJavaScript() {
         webView?.settings?.javaScriptEnabled = true

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 
-class MobileEngageViewModel() : ViewModel() {
+class MobileEngageViewModel : ViewModel() {
     private val objectMapper = ObjectMapper().registerKotlinModule()
     private val customEventField = mutableStateOf("")
     private val payloadField = mutableStateOf("")

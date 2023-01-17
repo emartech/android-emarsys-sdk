@@ -1,6 +1,4 @@
 package com.emarsys.core.di
 
 
-object Container {
-
-}
+object Container

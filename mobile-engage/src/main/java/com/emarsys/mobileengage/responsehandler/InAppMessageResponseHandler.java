@@ -10,7 +10,7 @@ import org.json.JSONObject;
 
 public class InAppMessageResponseHandler extends AbstractResponseHandler {
 
-    private OverlayInAppPresenter overlayInAppPresenter;
+    private final OverlayInAppPresenter overlayInAppPresenter;
 
     public InAppMessageResponseHandler(OverlayInAppPresenter overlayInAppPresenter) {
         Assert.notNull(overlayInAppPresenter, "InAppPresenter must not be null!");

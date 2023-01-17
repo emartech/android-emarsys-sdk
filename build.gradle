@@ -7,10 +7,13 @@ buildscript {
         maven {
             url 'https://developer.huawei.com/repo/'
         }
+        maven {
+            url "https://androidx.dev/storage/compose-compiler/repository/"
+        }
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.0'
+        classpath 'com.android.tools.build:gradle:7.3.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$Versions.kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-allopen:$Versions.kotlin_version"
         classpath "com.github.ben-manes:gradle-versions-plugin:0.44.0"

@@ -42,7 +42,7 @@ class InAppLogTest {
 
     @Test
     fun testData_when_requestIsNull() {
-        val mockUuidProvider: UUIDProvider = mock() {
+        val mockUuidProvider: UUIDProvider = mock {
             on { provideId() } doReturn "test-uuid"
         }
         val dependencyContainer = FakeCoreDependencyContainer(uuidProvider = mockUuidProvider)

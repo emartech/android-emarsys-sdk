@@ -15,7 +15,7 @@ class ConnectionRule(private val application: Application) : TestRule {
                 base?.evaluate()
                 return
             }
-        };
+        }
     }
 
 

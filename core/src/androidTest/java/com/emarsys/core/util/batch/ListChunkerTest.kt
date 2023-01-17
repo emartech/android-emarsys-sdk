@@ -7,7 +7,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
 
 class ListChunkerTest {
@@ -41,9 +40,9 @@ class ListChunkerTest {
     @Test(expected = IllegalArgumentException::class)
     fun testMap_shards_mustNotContainNullElements() {
         chunker.map(listOf(
-                Mockito.mock(ShardModel::class.java),
+                mock(ShardModel::class.java),
                 null,
-                Mockito.mock(ShardModel::class.java)
+                mock(ShardModel::class.java)
         ))
     }
 

@@ -8,8 +8,8 @@ import java.util.Map;
 public class CustomEventCommand implements Runnable {
 
     private final EventServiceInternal eventServiceInternal;
-    private String eventName;
-    private Map<String, String> eventAttributes;
+    private final String eventName;
+    private final Map<String, String> eventAttributes;
 
     public CustomEventCommand(EventServiceInternal eventServiceInternal, String eventName, Map<String, String> eventAttributes) {
         Assert.notNull(eventServiceInternal, "EventServiceInternal must not be null!");

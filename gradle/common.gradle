@@ -2,6 +2,9 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url "https://androidx.dev/storage/compose-compiler/repository/"
+        }
     }
     version = gitVersionName
     group = 'com.emarsys'
@@ -38,7 +41,7 @@ modules.each {
             }
 
             dependencies {
-                coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.0'
+                coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.0'
             }
             buildTypes {
                 release {

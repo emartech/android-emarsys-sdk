@@ -10,9 +10,9 @@ class TriggerKey(val tableName: String, val triggerType: TriggerType, val trigge
     }
 
     override fun hashCode(): Int {
-        var result = tableName?.hashCode() ?: 0
-        result = 31 * result + (triggerType?.hashCode() ?: 0)
-        result = 31 * result + (triggerEvent?.hashCode() ?: 0)
+        var result = tableName.hashCode()
+        result = 31 * result + triggerType.hashCode()
+        result = 31 * result + triggerEvent.hashCode()
         return result
     }
 }

@@ -81,10 +81,10 @@ public class ShardModel {
     }
 
     public static class Builder {
-        private String id;
+        private final String id;
         private String type;
-        private Map<String, Object> payload;
-        private long timestamp;
+        private final Map<String, Object> payload;
+        private final long timestamp;
         private long ttl;
 
         public Builder(TimestampProvider timestampProvider, UUIDProvider uuidProvider) {
