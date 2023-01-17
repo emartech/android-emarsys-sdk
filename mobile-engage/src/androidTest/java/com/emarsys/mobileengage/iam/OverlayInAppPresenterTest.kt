@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.iam
 
 import android.app.Activity
+import android.content.ClipboardManager
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
@@ -24,7 +25,6 @@ import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
-import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.fake.FakeActivity
@@ -53,7 +53,6 @@ class OverlayInAppPresenterTest {
     @JvmField
     var appcompatActivityRule = ActivityTestRule(FakeActivity::class.java)
 
-    private lateinit var mockIamStaticWebViewProvider: IamStaticWebViewProvider
     private lateinit var mockInAppInternal: InAppInternal
     private lateinit var mockIamDialogProvider: IamDialogProvider
     private lateinit var mockButtonClickedRepository: Repository<ButtonClicked, SqlSpecification>
@@ -62,6 +61,7 @@ class OverlayInAppPresenterTest {
     private lateinit var mockMobileEngageInternal: MobileEngageInternal
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
     private lateinit var overlayPresenter: OverlayInAppPresenter
+    private lateinit var mockClipboardManager: ClipboardManager
     private lateinit var mockIamJsBridgeFactory: IamJsBridgeFactory
     private lateinit var mockJsBridge: IamJsBridge
     private lateinit var mockJSCommandFactory: JSCommandFactory
@@ -91,7 +91,6 @@ class OverlayInAppPresenterTest {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         context = InstrumentationRegistry.getInstrumentation().targetContext
         latch = CountDownLatch(1)
-        mockIamStaticWebViewProvider = mock()
         iamDialog = mock()
         mockInAppInternal = mock()
         mockIamDialogProvider = mock {
@@ -104,20 +103,21 @@ class OverlayInAppPresenterTest {
         mockMobileEngageInternal = mock()
         mockCurrentActivityProvider = mock()
         mockJsBridge = mock()
+        mockClipboardManager = mock()
         mockJSCommandFactory = mock()
         mockIamJsBridgeFactory = mock {
             on { createJsBridge(anyOrNull(), anyOrNull()) } doReturn mockJsBridge
         }
         overlayPresenter = OverlayInAppPresenter(
             concurrentHandlerHolder,
-            mockIamStaticWebViewProvider,
             mockInAppInternal,
             mockIamDialogProvider,
             mockButtonClickedRepository,
             mockDisplayedIamRepository,
             mockTimestampProvider,
             mockCurrentActivityProvider,
-            mockIamJsBridgeFactory
+            mockIamJsBridgeFactory,
+            mockClipboardManager
         )
         spyOverlayPresenter = spyOverlayPresenter()
     }

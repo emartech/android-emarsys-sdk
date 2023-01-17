@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.di
 
+import android.content.ClipboardManager
 import com.emarsys.core.app.AppLifecycleObserver
 import com.emarsys.core.database.repository.Repository
 import com.emarsys.core.database.repository.SqlSpecification
@@ -97,6 +98,8 @@ interface MobileEngageComponent : CoreComponent {
     val requestContext: MobileEngageRequestContext
 
     val overlayInAppPresenter: OverlayInAppPresenter
+
+    val clipboardManager: ClipboardManager
 
     val deviceInfoPayloadStorage: Storage<String?>
 

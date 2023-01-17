@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.iam.jsbridge
 
 import android.app.Activity
+import android.content.ClipboardManager
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.database.repository.Repository
@@ -43,6 +44,7 @@ class JSCommandFactoryTest {
     private lateinit var mockOnAppEventListener: OnAppEventListener
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockActivity: Activity
+    private lateinit var mockClipboardManager: ClipboardManager
 
     @Rule
     @JvmField
@@ -51,9 +53,10 @@ class JSCommandFactoryTest {
     @Before
     fun setUp() {
         mockActivity = mock()
-        mockCurrentActivityProvider = mock() {
+        mockCurrentActivityProvider = mock {
             on { get() } doReturn mockActivity
         }
+        mockClipboardManager = mock()
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockInAppInternal = mock()
         mockButtonClickedRepository = mock()
@@ -69,7 +72,8 @@ class JSCommandFactoryTest {
             mockButtonClickedRepository,
             mockOnCloseListener,
             mockOnAppEventListener,
-            mockTimestampProvider
+            mockTimestampProvider,
+            mockClipboardManager
         )
     }
 
@@ -227,5 +231,33 @@ class JSCommandFactoryTest {
             mapOf("payloadKey" to "payloadValue"),
             null
         )
+    }
+
+    @Test
+    fun testCreate_CopyToClipboard_shouldCopyTheTextToClipboard() {
+        val testJson = JSONObject(mapOf("text" to "testText"))
+        val latch = CountDownLatch(1)
+
+        jsCommandFactory.create(JSCommandFactory.CommandType.ON_COPY_TO_CLIPBOARD)
+            .invoke(null, testJson)
+
+        concurrentHandlerHolder.coreHandler.post { latch.countDown() }
+
+        latch.await()
+        verify(mockClipboardManager).setPrimaryClip(any())
+    }
+
+    @Test
+    fun testCreate_CopyToClipboard_shouldNotCopyToClipboard() {
+        val testJson = JSONObject(mapOf("text" to null))
+        val latch = CountDownLatch(1)
+
+        jsCommandFactory.create(JSCommandFactory.CommandType.ON_COPY_TO_CLIPBOARD)
+            .invoke(null, testJson)
+
+        concurrentHandlerHolder.coreHandler.post { latch.countDown() }
+
+        latch.await()
+        verify(mockClipboardManager, times(0)).setPrimaryClip(any())
     }
 }

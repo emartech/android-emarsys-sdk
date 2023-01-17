@@ -31,7 +31,7 @@ class IamWebViewClientTest {
     @Throws(InterruptedException::class)
     fun testOnPageFinished_shouldCallListener() {
         val listener = FakeMessageLoadedListener(latch)
-        val client = IamWebViewClient(listener, concurrentHandlerHolder!!)
+        val client = IamWebViewClient(listener, concurrentHandlerHolder)
         concurrentHandlerHolder.postOnMain {
             client.onPageFinished(
                 WebView(getTargetContext().applicationContext),

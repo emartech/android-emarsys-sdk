@@ -1,11 +1,13 @@
 package com.emarsys.di
 
 import android.app.NotificationManager
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.emarsys.Emarsys
 import com.emarsys.EmarsysRequestModelFactory
 import com.emarsys.clientservice.ClientService
@@ -97,7 +99,6 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy
-import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 import com.emarsys.mobileengage.iam.webview.WebViewProvider
 import com.emarsys.mobileengage.inbox.DefaultMessageInboxInternal
 import com.emarsys.mobileengage.inbox.LoggingMessageInboxInternal
@@ -247,17 +248,21 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         ResponseHandlersProcessor(mutableListOf())
     }
 
+    override val clipboardManager: ClipboardManager by lazy {
+        ContextCompat.getSystemService(config.application as Context, ClipboardManager::class.java) as ClipboardManager
+    }
+
     override val overlayInAppPresenter: OverlayInAppPresenter by lazy {
         OverlayInAppPresenter(
             concurrentHandlerHolder,
-            IamStaticWebViewProvider(),
             inAppInternal,
             IamDialogProvider(concurrentHandlerHolder, timestampProvider),
             buttonClickedRepository,
             displayedIamRepository,
             timestampProvider,
             currentActivityProvider,
-            iamJsBridgeFactory
+            iamJsBridgeFactory,
+            clipboardManager
         )
     }
 

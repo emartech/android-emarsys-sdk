@@ -43,14 +43,16 @@ class RequestRepositoryProxy(
     override fun query(specification: SqlSpecification): List<RequestModel> {
         val result = requestRepository.query(specification).toMutableList()
         val customEventsInResult = collectCustomEvents(result)
-        if (!customEventsInResult.isEmpty()) {
+        if (customEventsInResult.isNotEmpty()) {
             val customEvents =
                 requestRepository.query(FilterByUrlPattern(eventServiceProvider.provideEndpointHost() + "%"))
-            val composite: RequestModel = createCompositeCustomEvent(customEvents)
-            val firstCustomEvent = customEventsInResult[0]
-            val firstCustomEventIndex = result.indexOf(firstCustomEvent)
-            result.add(firstCustomEventIndex, composite)
-            result.removeAll(customEventsInResult)
+            if (customEvents.isNotEmpty()) {
+                val composite: RequestModel = createCompositeCustomEvent(customEvents)
+                val firstCustomEvent = customEventsInResult[0]
+                val firstCustomEventIndex = result.indexOf(firstCustomEvent)
+                result.add(firstCustomEventIndex, composite)
+                result.removeAll(customEventsInResult)
+            }
         }
         return result
     }

@@ -1,6 +1,7 @@
 package com.emarsys.di
 
 import android.app.Activity
+import android.content.ClipboardManager
 import android.content.SharedPreferences
 import com.emarsys.clientservice.ClientServiceApi
 import com.emarsys.config.ConfigApi
@@ -120,6 +121,7 @@ class FakeDependencyContainer(
     override val refreshTokenInternal: RefreshTokenInternal = mock(),
     override val inAppEventHandlerInternal: InAppEventHandlerInternal = mock(),
     override val requestContext: MobileEngageRequestContext = mock(),
+    override val clipboardManager: ClipboardManager = mock(),
     override val overlayInAppPresenter: OverlayInAppPresenter = mock(),
     override val deviceInfoPayloadStorage: Storage<String?> = mock(),
     override val contactFieldValueStorage: Storage<String?> = mock(),

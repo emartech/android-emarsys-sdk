@@ -63,6 +63,14 @@ class IamJsBridge(
         }
     }
 
+    @JavascriptInterface
+    fun copyToClipboard(jsonString: String) {
+        handleJsBridgeEvent(jsonString, "text") { property, json ->
+            jsCommandFactory.create(CommandType.ON_COPY_TO_CLIPBOARD).invoke(property, json)
+            null
+        }
+    }
+
     private fun handleJsBridgeEvent(
         jsonString: String,
         property: String,

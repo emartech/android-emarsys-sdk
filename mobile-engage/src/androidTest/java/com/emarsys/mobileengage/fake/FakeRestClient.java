@@ -21,7 +21,7 @@ import java.util.List;
 
 public class FakeRestClient extends RestClient {
 
-    private Mode mode;
+    private final Mode mode;
     private List<ResponseModel> responses;
     private List<Exception> exceptions;
     private SdkHandler handler;

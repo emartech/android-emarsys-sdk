@@ -7,6 +7,9 @@ buildscript {
         maven {
             url 'https://developer.huawei.com/repo/'
         }
+        maven {
+            url "https://androidx.dev/storage/compose-compiler/repository/"
+        }
         gradlePluginPortal()
     }
     dependencies {

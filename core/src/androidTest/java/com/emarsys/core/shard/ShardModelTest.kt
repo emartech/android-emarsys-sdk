@@ -1,4 +1,4 @@
-package com.emarsys.core.shard;
+package com.emarsys.core.shard
 
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider

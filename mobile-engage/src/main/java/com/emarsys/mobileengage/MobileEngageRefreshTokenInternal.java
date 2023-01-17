@@ -12,8 +12,8 @@ import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 
 public class MobileEngageRefreshTokenInternal implements RefreshTokenInternal {
     MobileEngageTokenResponseHandler tokenResponseHandler;
-    private RestClient restClient;
-    private MobileEngageRequestModelFactory requestModelFactory;
+    private final RestClient restClient;
+    private final MobileEngageRequestModelFactory requestModelFactory;
 
     public MobileEngageRefreshTokenInternal(MobileEngageTokenResponseHandler tokenResponseHandler, RestClient restClient, MobileEngageRequestModelFactory requestModelFactory) {
         Assert.notNull(tokenResponseHandler, "TokenResponseHandler must not be null!");

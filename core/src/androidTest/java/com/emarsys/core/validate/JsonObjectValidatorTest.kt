@@ -1,4 +1,4 @@
-package com.emarsys.core.validate;
+package com.emarsys.core.validate
 
 import com.emarsys.testUtil.TimeoutUtils
 import org.json.JSONObject

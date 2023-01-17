@@ -13,6 +13,8 @@ import org.junit.rules.TestRule
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.timeout
+import org.mockito.kotlin.times
+import org.mockito.kotlin.whenever
 
 class FetchRemoteConfigActionTest {
 
@@ -43,6 +45,15 @@ class FetchRemoteConfigActionTest {
     fun testExecute_invokesConfigInternalsRefreshRemoteConfigMethod() {
         fetchAction.execute(null)
         verify(mockConfigInternal, timeout(100)).refreshRemoteConfig(mockCompletionListener)
+    }
+
+    @Test
+    fun testExecute_shouldNotInvokeRefreshConfig_when_ApplicationCode_is_Invalid() {
+        whenever(mockConfigInternal.applicationCode).thenReturn("Nil")
+
+        fetchAction.execute(null)
+
+        verify(mockConfigInternal, times(0)).refreshRemoteConfig(mockCompletionListener)
     }
 
 }

@@ -27,6 +27,6 @@ class RetryRule(private val retryCount: Int) : TestRule {
                 Log.e("TEST", "${description.displayName}: giving up after $retryCount failures.")
                 throw caughtThrowable!!
             }
-        };
+        }
     }
 }

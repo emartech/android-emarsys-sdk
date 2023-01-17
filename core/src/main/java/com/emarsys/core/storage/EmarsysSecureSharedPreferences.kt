@@ -29,7 +29,7 @@ class EmarsysSecureSharedPreferences private constructor(
     companion object {
         private const val KEY_KEYSET_ALIAS = "__emarsys_encrypted_prefs_key_keyset__"
         private const val VALUE_KEYSET_ALIAS = "__emarsys_encrypted_prefs_value_keyset__"
-        private const val NULL_VALUE = "__NULL__";
+        private const val NULL_VALUE = "__NULL__"
 
         fun create(fileName: String,
                    context: Context): SharedPreferences {

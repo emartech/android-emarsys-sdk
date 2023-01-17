@@ -101,15 +101,15 @@ class DefaultConfigInternalTest {
 
         mockCompletionListener = mock()
 
-        mockPredictRequestContext = mock() {
+        mockPredictRequestContext = mock {
             on { merchantId } doReturn MERCHANT_ID
         }
 
-        mockMobileEngageRequestContext = mock() {
+        mockMobileEngageRequestContext = mock {
             on { applicationCode } doReturn APPLICATION_CODE
             on { contactFieldId } doReturn CONTACT_FIELD_ID
         }
-        mockMobileEngageInternal = mock() {
+        mockMobileEngageInternal = mock {
             on { clearContact(any()) } doAnswer { invocation ->
                 (invocation.getArgument(0) as CompletionListener?)?.onCompleted(null)
             }

@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.responsehandler
 
+import android.content.ClipboardManager
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
@@ -16,7 +17,6 @@ import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction
 import com.emarsys.mobileengage.iam.dialog.action.SendDisplayedIamAction
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
-import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
 import com.emarsys.testUtil.CollectionTestUtils.numberOfElementsIn
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.fake.FakeActivity
@@ -31,10 +31,10 @@ class InAppMessageResponseHandlerTest {
 
     private lateinit var handler: InAppMessageResponseHandler
     private lateinit var presenter: OverlayInAppPresenter
-    private lateinit var webViewProvider: IamStaticWebViewProvider
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockDialog: IamDialog
     private lateinit var mockJsBridgeFactory: IamJsBridgeFactory
+    private lateinit var mockClipboardManager: ClipboardManager
     private lateinit var mockJsBridge: IamJsBridge
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
 
@@ -52,8 +52,8 @@ class InAppMessageResponseHandlerTest {
         mockCurrentActivityProvider = mock {
             on { get() } doReturn activityRule.activity
         }
-        webViewProvider = mock()
         mockJsBridge = mock()
+        mockClipboardManager = mock()
         mockJsBridgeFactory = mock {
             on { createJsBridge(any(), any()) } doReturn mockJsBridge
         }
@@ -72,14 +72,14 @@ class InAppMessageResponseHandlerTest {
         presenter = spy(
             OverlayInAppPresenter(
                 concurrentHandlerHolder,
-                webViewProvider,
                 mock(),
                 dialogProvider,
                 mock(),
                 mock(),
                 mock(),
                 mockCurrentActivityProvider,
-                mockJsBridgeFactory
+                mockJsBridgeFactory,
+                mockClipboardManager
             )
         )
         handler = InAppMessageResponseHandler(presenter)

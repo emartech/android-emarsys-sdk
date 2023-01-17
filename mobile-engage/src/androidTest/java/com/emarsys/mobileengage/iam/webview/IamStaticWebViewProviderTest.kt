@@ -63,6 +63,6 @@ class IamStaticWebViewProviderTest {
             latch.countDown()
         }
         latch.await()
-        Assert.assertEquals(testWebView, IamStaticWebViewProvider.emarsysWebView)
+        Assert.assertEquals(testWebView, emarsysWebView)
     }
 }

@@ -1,4 +1,4 @@
-package com.emarsys.core.handler;
+package com.emarsys.core.handler
 
 import android.os.Handler
 import android.os.Looper
@@ -6,9 +6,9 @@ import com.emarsys.core.Mockable
 
 @Mockable
 class ConcurrentHandlerHolder(
-    final val coreHandler: SdkHandler,
-    final val networkHandler: SdkHandler,
-    final val backgroundHandler: SdkHandler
+    val coreHandler: SdkHandler,
+    val networkHandler: SdkHandler,
+    val backgroundHandler: SdkHandler
 ) {
 
     val uiHandler = Handler(Looper.getMainLooper())

@@ -1,8 +1,8 @@
 package com.emarsys.mobileengage.iam.model.displayediam;
 
 public class DisplayedIam {
-    private String campaignId;
-    private long timestamp;
+    private final String campaignId;
+    private final long timestamp;
 
     public DisplayedIam(String campaignId, long timestamp) {
         this.campaignId = campaignId;
