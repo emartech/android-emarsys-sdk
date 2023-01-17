@@ -36,7 +36,7 @@ dependencies {
     debugApi TestLibs.support_test_fragment
 
     api Libs.kotlin
-    implementation Libs.kotlin_stdlib_jdk7
+    implementation Libs.kotlin_stdlib
     implementation Libs.kotlin_reflect
     api TestLibs.kotlin_test
     api TestLibs.mockito_android
