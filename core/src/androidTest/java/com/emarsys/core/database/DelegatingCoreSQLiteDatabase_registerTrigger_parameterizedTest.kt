@@ -100,8 +100,8 @@ class DelegatingCoreSQLiteDatabase_registerTrigger_parameterizedTest {
         private const val COLUMN_2 = "column2"
         const val CREATE = "CREATE TABLE $TABLE_NAME ($COLUMN_1 TEXT, $COLUMN_2 INTEGER);"
 
-        lateinit var mockRunnable: Runnable
-        lateinit var db: DelegatingCoreSQLiteDatabase
+        private lateinit var mockRunnable: Runnable
+        private lateinit var db: DelegatingCoreSQLiteDatabase
 
         private val contentValues = ContentValues().apply {
             put(COLUMN_1, "value")
