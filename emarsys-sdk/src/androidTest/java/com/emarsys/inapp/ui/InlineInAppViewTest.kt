@@ -1,35 +1,26 @@
 package com.emarsys.inapp.ui
 
-import android.content.Context
-import android.webkit.WebView
+import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
-import com.emarsys.core.database.repository.Repository
-import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.handler.ConcurrentHandlerHolder
+import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.request.RequestManager
-import com.emarsys.core.request.factory.CompletionHandlerProxyProvider
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
-import com.emarsys.core.worker.DelegatorCompletionHandlerProvider
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
-import com.emarsys.di.tearDownEmarsysComponent
-import com.emarsys.fake.FakeRestClient
-import com.emarsys.mobileengage.iam.InAppInternal
-import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
 import com.emarsys.mobileengage.iam.jsbridge.*
-import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
-import com.emarsys.mobileengage.iam.webview.EmarsysWebView
-import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
+import com.emarsys.mobileengage.iam.model.InAppMetaData
+import com.emarsys.mobileengage.iam.webview.IamWebView
+import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
-import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.IntegrationTestUtils
-import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils
+import com.emarsys.testUtil.fake.FakeActivity
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONObject
@@ -46,22 +37,26 @@ class InlineInAppViewTest {
     private companion object {
         const val VIEW_ID = "testViewId"
         const val OTHER_VIEW_ID = "testViewId2"
+        const val REQUEST_ID = "testRequestId"
     }
 
-    private lateinit var context: Context
-    private lateinit var mockInlineInAppWebViewFactory: InlineInAppWebViewFactory
+    private lateinit var mockWebViewProvider: IamWebViewProvider
     private lateinit var mockIamJsBridgeFactory: IamJsBridgeFactory
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var mockRequestManager: RequestManager
     private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
-    private lateinit var mockEmarsysWebView: EmarsysWebView
-    private lateinit var mockProvider: CompletionHandlerProxyProvider
+    private lateinit var mockIamWebView: IamWebView
     private lateinit var mockJsBridge: IamJsBridge
-    private lateinit var mockButtonClickedRepository: Repository<ButtonClicked, SqlSpecification>
-    private lateinit var mockInAppInternal: InAppInternal
-    private lateinit var mockDelegatorCompletionHandlerProvider: DelegatorCompletionHandlerProvider
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
+    private lateinit var mockJsCommandFactory: JSCommandFactory
+    private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
+
+    private lateinit var inlineInAppView: InlineInAppView
+
+    @Rule
+    @JvmField
+    var activityTestRule = ActivityTestRule(FakeActivity::class.java)
 
     @Rule
     @JvmField
@@ -69,86 +64,47 @@ class InlineInAppViewTest {
 
     @Before
     fun setUp() {
-        var onMessageLoadedListener: MessageLoadedListener? = null
-        context = InstrumentationRegistry.getTargetContext()
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        val webView = runOnMain {
-            val webView = WebView(InstrumentationRegistry.getTargetContext())
-            webView
-        }
-        mockEmarsysWebView = mock {
-            on { this.webView }.thenReturn(webView)
-            on {
-                loadDataWithBaseURL(
-                    anyOrNull(),
-                    anyOrNull(),
-                    anyOrNull(),
-                    anyOrNull(),
-                    anyOrNull()
-                )
-            } doAnswer {
-                onMessageLoadedListener?.onMessageLoaded()
-            }
-        }
-        mockInlineInAppWebViewFactory = mock {
-            on { create(any()) } doAnswer {
-                onMessageLoadedListener = it.arguments[0] as MessageLoadedListener
-                mockEmarsysWebView
-            }
-        }
         mockJsBridge = mock()
-        mockIamJsBridgeFactory = mock { on { createJsBridge(any(), any()) } doReturn mockJsBridge }
+        mockIamJsBridgeFactory = mock { on { createJsBridge(any()) } doReturn mockJsBridge }
+        mockJsCommandFactory = mock()
+        mockCurrentActivityProvider = mock {
+            on { get() } doReturn activityTestRule.activity
+        }
+
+        mockIamWebView = spy(runOnMain {
+            IamWebView(
+                concurrentHandlerHolder,
+                mockIamJsBridgeFactory,
+                mockJsCommandFactory,
+                mockCurrentActivityProvider
+            )
+        })
+
+        mockWebViewProvider = mock {
+            on { provide() }.thenReturn(mockIamWebView)
+        }
         mockRequestModel = mock {
-            on { id } doReturn "requestId"
+            on { id } doReturn REQUEST_ID
         }
         mockResponseModel = mock {
             on { requestModel } doReturn mockRequestModel
         }
-        mockDelegatorCompletionHandlerProvider = mock {
-            on { provide(any(), any()) } doAnswer {
-                it.arguments[1] as CoreCompletionHandler
-            }
-        }
-        mockProvider = mock {
-            on { provideProxy(isNull(), any()) } doAnswer {
-                it.arguments[1] as CoreCompletionHandler
-            }
-        }
-
-        mockRequestManager = spy(
-            RequestManager(
-                ConcurrentHandlerHolderFactory.create(),
-                mock(),
-                mock(),
-                mock(),
-                FakeRestClient(
-                    mockResponseModel,
-                    FakeRestClient.Mode.SUCCESS,
-                    ConcurrentHandlerHolderFactory.create().coreHandler.handler
-                ),
-                mock(),
-                mock(),
-                mockProvider,
-                mockDelegatorCompletionHandlerProvider
-            )
-        )
+        mockRequestManager = mock()
         mockRequestModelFactory = mock {
             on { createFetchInlineInAppMessagesRequest("testViewId") }.doReturn(mockRequestModel)
         }
-        mockButtonClickedRepository = mock()
-        mockInAppInternal = mock()
 
         setupEmarsysComponent(
             FakeDependencyContainer(
-                inlineInAppWebViewFactory = mockInlineInAppWebViewFactory,
-                iamJsBridgeFactory = mockIamJsBridgeFactory,
+                webViewProvider = mockWebViewProvider,
+                concurrentHandlerHolder = concurrentHandlerHolder,
                 requestManager = mockRequestManager,
                 mobileEngageRequestModelFactory = mockRequestModelFactory,
-                inAppInternal = mockInAppInternal,
-                buttonClickedRepository = mockButtonClickedRepository,
-                concurrentHandlerHolder = concurrentHandlerHolder
             )
         )
+
+        inlineInAppView = InlineInAppView(activityTestRule.activity)
     }
 
     @After
@@ -163,26 +119,19 @@ class InlineInAppViewTest {
                                 |{"campaignId":"765","html":"<html>Hello World</html>","viewId":"$VIEW_ID"},
                                 |{"campaignId":"7625","html":"<html>Hello World2</html>","viewId":"$OTHER_VIEW_ID"}],"oldCampaigns":[]}""".trimMargin()
         )
-        whenever(mockResponseModel.parsedBody).thenReturn(expectedBody)
+        requestManagerRespond(responseBody = expectedBody)
 
         val latch = CountDownLatch(1)
-        val postOnMainLatch = CountDownLatch(1)
-        val inlineInAppView = InlineInAppView(context)
-        concurrentHandlerHolder.postOnMain {
-            postOnMainLatch.countDown()
-        }
-        postOnMainLatch.await()
         inlineInAppView.onCompletionListener = CompletionListener { latch.countDown() }
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
+
         val expectedHtml = "<html>Hello World</html>"
 
-        verify(mockEmarsysWebView).loadDataWithBaseURL(
-            null,
-            expectedHtml,
-            "text/html; charset=utf-8",
-            "UTF-8",
-            null
+        verify(mockIamWebView).load(
+            eq(expectedHtml),
+            eq(InAppMetaData("765", null, null)),
+            any()
         )
     }
 
@@ -193,194 +142,111 @@ class InlineInAppViewTest {
                                 |{"campaignId":"765","html":"<html>Hello World</html>"},
                                 |{"campaignId":"7625","html":"<html>Hello World2</html>"}],"oldCampaigns":[]}""".trimMargin()
         )
-        whenever(mockResponseModel.parsedBody).thenReturn(expectedBody)
+        requestManagerRespond(responseBody = expectedBody)
 
         val latch = CountDownLatch(1)
-        val inlineInAppView = InlineInAppView(context)
         inlineInAppView.onCompletionListener = CompletionListener { latch.countDown() }
         inlineInAppView.loadInApp(VIEW_ID)
-
         latch.await()
 
-        verify(mockEmarsysWebView, times(0)).loadDataWithBaseURL(
+        verify(mockIamWebView, times(0)).load(
             any(),
             any(),
-            eq("text/html; charset=utf-8"),
-            eq("UTF-8"),
-            isNull()
+            any()
         )
     }
 
     @Test
     fun testFilterMessagesById_whenInlineMessages_isMissing() {
         val expectedBody = JSONObject("""{}""".trimMargin())
-        whenever(mockResponseModel.parsedBody).thenReturn(expectedBody)
+
+        requestManagerRespond(responseBody = expectedBody)
+
         var error: Throwable? = null
+
         val latch = CountDownLatch(1)
-        val inlineInAppView = InlineInAppView(context)
         inlineInAppView.onCompletionListener = CompletionListener {
             error = it
             latch.countDown()
         }
         inlineInAppView.loadInApp(VIEW_ID)
-
         latch.await()
+
         error shouldNotBe null
         error!!.message shouldBe "Inline In-App HTML content must not be empty, please check your viewId!"
-        verify(mockEmarsysWebView, times(0)).loadDataWithBaseURL(
+        verify(mockIamWebView, times(0)).load(
             any(),
             any(),
-            eq("text/html; charset=utf-8"),
-            eq("UTF-8"),
-            isNull()
+            any()
         )
-
     }
 
     @Test
     fun testFilterMessagesById_whenBodyIsEmpty() {
-        val expectedBody: JSONObject? = null
-        whenever(mockResponseModel.parsedBody).thenReturn(expectedBody)
+        val expectedBody = JSONObject()
+        requestManagerRespond(responseBody = expectedBody)
 
         val latch = CountDownLatch(1)
-        val inlineInAppView = InlineInAppView(context)
         inlineInAppView.onCompletionListener = CompletionListener { latch.countDown() }
         inlineInAppView.loadInApp(VIEW_ID)
-
         latch.await()
 
-        verify(mockEmarsysWebView, times(0)).loadDataWithBaseURL(
+        verify(mockIamWebView, times(0)).load(
             any(),
             any(),
-            eq("text/html; charset=utf-8"),
-            eq("UTF-8"),
-            isNull()
-        )
-    }
-
-    @Test
-    fun testFilterMessagesById_whenWebViewCanNotBeCreated() {
-        val expectedBody = JSONObject(
-            """{"inlineMessages":[
-                                |{"campaignId":"765","html":"<html>Hello World</html>"},
-                                |{"campaignId":"7625","html":"<html>Hello World2</html>"}],"oldCampaigns":[]}""".trimMargin()
-        )
-        whenever(mockEmarsysWebView.isNull()).thenReturn(true)
-        whenever(mockEmarsysWebView.webView).thenReturn(null)
-        whenever(mockResponseModel.parsedBody).thenReturn(expectedBody)
-        var error: Throwable? = null
-        val latch = CountDownLatch(1)
-        val inlineInAppView = InlineInAppView(context)
-        inlineInAppView.onCompletionListener = CompletionListener {
-            error = it
-            latch.countDown()
-        }
-        inlineInAppView.loadInApp(VIEW_ID)
-
-        latch.await()
-        error shouldNotBe null
-        error!!.message shouldBe "WebView can not be created, please try again later!"
-        verify(mockEmarsysWebView, times(0)).loadDataWithBaseURL(
-            any(),
-            any(),
-            eq("text/html; charset=utf-8"),
-            eq("UTF-8"),
-            isNull()
+            any()
         )
     }
 
     @Test
     fun testLoadInApp_whenResponseError() {
-        tearDownEmarsysComponent()
         val expectedBody = """errorBody""".trimMargin()
         val expectedStatusCode = 500
         val expectedMessage = "Error message"
+        requestManagerRespond(false, responseBody = JSONObject())
         whenever(mockResponseModel.body).thenReturn(expectedBody)
-        whenever(mockResponseModel.message).thenReturn(expectedMessage)
         whenever(mockResponseModel.statusCode).thenReturn(expectedStatusCode)
-        mockRequestManager = spy(
-            RequestManager(
-                ConcurrentHandlerHolderFactory.create(),
-                mock(),
-                mock(),
-                mock(),
-                FakeRestClient(mockResponseModel, FakeRestClient.Mode.ERROR_RESPONSE_MODEL),
-                mock(),
-                mock(),
-                mockProvider,
-                mockDelegatorCompletionHandlerProvider
-            )
-        )
-        setupEmarsysComponent(
-            FakeDependencyContainer(
-                inlineInAppWebViewFactory = mockInlineInAppWebViewFactory,
-                iamJsBridgeFactory = mockIamJsBridgeFactory,
-                requestManager = mockRequestManager,
-                mobileEngageRequestModelFactory = mockRequestModelFactory
-            )
-        )
-        val inlineInAppView = InlineInAppView(context)
+        whenever(mockResponseModel.message).thenReturn(expectedMessage)
+
+        var error: Throwable? = null
 
         val latch = CountDownLatch(1)
-        inlineInAppView.onCompletionListener = CompletionListener { error ->
-            error shouldNotBe null
-            (error as ResponseErrorException).body shouldBe expectedBody
-            error.statusCode shouldBe expectedStatusCode
-            error.statusMessage shouldBe expectedMessage
+        inlineInAppView.onCompletionListener = CompletionListener {
+            error = it
             latch.countDown()
         }
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
 
-        verify(mockEmarsysWebView, times(0)).loadDataWithBaseURL(
+        error shouldNotBe null
+        (error as ResponseErrorException).body shouldBe expectedBody
+        (error as ResponseErrorException).statusCode shouldBe expectedStatusCode
+        (error as ResponseErrorException).statusMessage shouldBe expectedMessage
+
+        verify(mockIamWebView, times(0)).load(
             any(),
             any(),
-            eq("text/html; charset=utf-8"),
-            eq("UTF-8"),
-            isNull()
+            any()
         )
     }
 
     @Test
     fun testLoadInApp_whenException() {
-        tearDownEmarsysComponent()
         val expectedException = Exception("Error happened")
-        mockRequestManager = spy(
-            RequestManager(
-                ConcurrentHandlerHolderFactory.create(),
-                mock(),
-                mock(),
-                mock(),
-                FakeRestClient(expectedException),
-                mock(),
-                mock(),
-                mockProvider,
-                mockDelegatorCompletionHandlerProvider
-            )
-        )
-        setupEmarsysComponent(
-            FakeDependencyContainer(
-                inlineInAppWebViewFactory = mockInlineInAppWebViewFactory,
-                iamJsBridgeFactory = mockIamJsBridgeFactory,
-                requestManager = mockRequestManager,
-                mobileEngageRequestModelFactory = mockRequestModelFactory
-            )
-        )
-        val inlineInAppView = InlineInAppView(context)
+        requestManagerRespond(false, exception = expectedException)
+
         val latch = CountDownLatch(1)
-        inlineInAppView.onCompletionListener = CompletionListener { error ->
-            error shouldBe expectedException
+        inlineInAppView.onCompletionListener = CompletionListener {
+            it shouldBe expectedException
             latch.countDown()
         }
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
 
-        verify(mockEmarsysWebView, times(0)).loadDataWithBaseURL(
+        verify(mockIamWebView, times(0)).load(
             any(),
             any(),
-            eq("text/html; charset=utf-8"),
-            eq("UTF-8"),
-            isNull()
+            any()
         )
     }
 
@@ -391,11 +257,10 @@ class InlineInAppViewTest {
                                 |{"campaignId":"765","html":"<html>Hello World</html>","viewId":"$VIEW_ID"},
                                 |{"campaignId":"7625","html":"<html>Hello World2</html>","viewId":"$OTHER_VIEW_ID"}],"oldCampaigns":[]}""".trimMargin()
         )
-        whenever(mockResponseModel.parsedBody).thenReturn(expectedBody)
-        val latch = CountDownLatch(1)
-        val inlineInAppView = InlineInAppView(context)
+        requestManagerRespond(responseBody = expectedBody)
         val mockOnCloseListener: OnCloseListener = mock()
 
+        val latch = CountDownLatch(1)
         inlineInAppView.onCloseListener = mockOnCloseListener
         inlineInAppView.onCompletionListener = CompletionListener {
             latch.countDown()
@@ -403,15 +268,11 @@ class InlineInAppViewTest {
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
 
-        argumentCaptor<JSCommandFactory>().apply {
-            verify(mockIamJsBridgeFactory).createJsBridge(capture(), any())
-
-            val onCloseListener = ReflectionTestUtils.getInstanceField<OnCloseListener>(
-                firstValue,
-                "onCloseTriggered"
-            )
-            onCloseListener shouldBe mockOnCloseListener
+        whenever(mockIamWebView.onCloseTriggered).thenAnswer {
+            val closeListener = it.arguments[0]
+            closeListener shouldBe mockOnCloseListener
         }
+
     }
 
     @Test
@@ -421,11 +282,10 @@ class InlineInAppViewTest {
                                 |{"campaignId":"765","html":"<html>Hello World</html>","viewId":"$VIEW_ID"},
                                 |{"campaignId":"7625","html":"<html>Hello World2</html>","viewId":"$OTHER_VIEW_ID"}],"oldCampaigns":[]}""".trimMargin()
         )
-        whenever(mockResponseModel.parsedBody).thenReturn(expectedBody)
-        val latch = CountDownLatch(1)
-        val inlineInAppView = InlineInAppView(context)
+        requestManagerRespond(responseBody = expectedBody)
         val mockAppEventListener: OnAppEventListener = mock()
 
+        val latch = CountDownLatch(1)
         inlineInAppView.onAppEventListener = mockAppEventListener
         inlineInAppView.onCompletionListener = CompletionListener {
             latch.countDown()
@@ -433,14 +293,30 @@ class InlineInAppViewTest {
         inlineInAppView.loadInApp(VIEW_ID)
         latch.await()
 
-        argumentCaptor<JSCommandFactory>().apply {
-            verify(mockIamJsBridgeFactory).createJsBridge(capture(), any())
+        whenever(mockIamWebView.onAppEventTriggered).thenAnswer {
+            val appEventListener = it.arguments[0]
+            appEventListener shouldBe mockAppEventListener
+        }
+    }
 
-            val onAppEventListener = ReflectionTestUtils.getInstanceField<OnAppEventListener>(
-                firstValue,
-                "onAppEventTriggered"
-            )
-            onAppEventListener shouldBe mockAppEventListener
+    private fun requestManagerRespond(
+        success: Boolean = true,
+        responseBody: JSONObject? = null,
+        exception: Exception? = null
+    ) {
+        whenever(mockRequestManager.submitNow(any(), any())).thenAnswer {
+            val coreCompletionHandler: CoreCompletionHandler =
+                (it.arguments[1] as CoreCompletionHandler)
+            if (responseBody != null) {
+                whenever(mockResponseModel.parsedBody).thenReturn(responseBody)
+                if (success) {
+                    coreCompletionHandler.onSuccess(REQUEST_ID, mockResponseModel)
+                } else {
+                    coreCompletionHandler.onError(REQUEST_ID, mockResponseModel)
+                }
+            } else if (exception != null) {
+                coreCompletionHandler.onError(REQUEST_ID, exception)
+            }
         }
     }
 }

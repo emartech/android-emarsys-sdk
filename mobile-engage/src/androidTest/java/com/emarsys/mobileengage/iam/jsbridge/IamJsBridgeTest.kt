@@ -4,8 +4,8 @@ import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.mobileengage.api.event.EventHandler
-import com.emarsys.mobileengage.iam.model.InAppMessage
-import com.emarsys.mobileengage.iam.webview.EmarsysWebView
+import com.emarsys.mobileengage.iam.model.InAppMetaData
+import com.emarsys.mobileengage.iam.webview.IamWebView
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.fake.FakeActivity
 import io.kotlintest.shouldBe
@@ -29,10 +29,10 @@ class IamJsBridgeTest {
     )
 
     private lateinit var jsBridge: IamJsBridge
-    private lateinit var mockEmarsysWebView: EmarsysWebView
+    private lateinit var mockIamWebView: IamWebView
     private lateinit var mockEventHandler: EventHandler
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var inAppMessage: InAppMessage
+    private lateinit var inAppMetaData: InAppMetaData
     private lateinit var mockJsCommandFactory: JSCommandFactory
     private lateinit var mockOnCloseListener: JSCommand
     private lateinit var mockOnAppEventListener: JSCommand
@@ -53,9 +53,9 @@ class IamJsBridgeTest {
 
     @Before
     fun setUp() {
-        inAppMessage = InAppMessage("campaignId", "sid", "url")
+        inAppMetaData = InAppMetaData("campaignId", "sid", "url")
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        mockEmarsysWebView = mock()
+        mockIamWebView = mock()
         mockOnCloseListener = mock()
         mockOnAppEventListener = mock()
         mockOnButtonClickedListener = mock()
@@ -69,8 +69,7 @@ class IamJsBridgeTest {
             on { create(JSCommandFactory.CommandType.ON_APP_EVENT) } doReturn (mockOnAppEventListener)
             on {
                 create(
-                    JSCommandFactory.CommandType.ON_BUTTON_CLICKED,
-                    inAppMessage
+                    JSCommandFactory.CommandType.ON_BUTTON_CLICKED
                 )
             } doReturn (mockOnButtonClickedListener)
             on {create(JSCommandFactory.CommandType.ON_COPY_TO_CLIPBOARD)} doReturn mockCopyToClipboardListener
@@ -78,10 +77,9 @@ class IamJsBridgeTest {
         mockEventHandler = mock()
         jsBridge = IamJsBridge(
             concurrentHandlerHolder,
-            mockJsCommandFactory,
-            inAppMessage
+            mockJsCommandFactory
         )
-        jsBridge.emarsysWebView = mockEmarsysWebView
+        jsBridge.iamWebView = mockIamWebView
         captor = ArgumentCaptor.forClass(JSONObject::class.java)
     }
 
@@ -106,8 +104,7 @@ class IamJsBridgeTest {
         jsBridge.buttonClicked(jsonObject.toString())
 
         verify(mockJsCommandFactory).create(
-            JSCommandFactory.CommandType.ON_BUTTON_CLICKED,
-            inAppMessage
+            JSCommandFactory.CommandType.ON_BUTTON_CLICKED
         )
         verify(mockOnButtonClickedListener, timeout(2500)).invoke(anyOrNull(), any())
     }
@@ -184,9 +181,9 @@ class IamJsBridgeTest {
         jsBridge.triggerAppEvent(json.toString())
 
         verify(
-            mockEmarsysWebView,
+            mockIamWebView,
             timeout(1000)
-        ).evaluateJavascript(capture(captor))
+        ).respondToJS(capture(captor))
 
         captor.value["id"] shouldBe id
         captor.value["success"] shouldBe true
@@ -200,9 +197,9 @@ class IamJsBridgeTest {
         jsBridge.triggerMEEvent(json.toString())
 
         verify(
-            mockEmarsysWebView,
+            mockIamWebView,
             timeout(1000)
-        ).evaluateJavascript(capture(captor))
+        ).respondToJS(capture(captor))
 
         captor.value["id"] shouldBe id
         captor.value["success"] shouldBe true
@@ -216,9 +213,9 @@ class IamJsBridgeTest {
         jsBridge.buttonClicked(json.toString())
 
         verify(
-            mockEmarsysWebView,
+            mockIamWebView,
             timeout(1000)
-        ).evaluateJavascript(capture(captor))
+        ).respondToJS(capture(captor))
 
         captor.value["id"] shouldBe id
         captor.value["success"] shouldBe true
@@ -232,9 +229,9 @@ class IamJsBridgeTest {
         jsBridge.openExternalLink(json.toString())
 
         verify(
-            mockEmarsysWebView,
+            mockIamWebView,
             timeout(1000)
-        ).evaluateJavascript(capture(captor))
+        ).respondToJS(capture(captor))
 
         captor.value["id"] shouldBe id
         captor.value["success"] shouldBe true
@@ -247,9 +244,9 @@ class IamJsBridgeTest {
         jsBridge.triggerAppEvent(json.toString())
 
         verify(
-            mockEmarsysWebView,
+            mockIamWebView,
             timeout(1000)
-        ).evaluateJavascript(capture(captor))
+        ).respondToJS(capture(captor))
 
         captor.value["id"] shouldBe id
         captor.value["success"] shouldBe false
@@ -264,9 +261,9 @@ class IamJsBridgeTest {
         jsBridge.triggerMEEvent(json.toString())
 
         verify(
-            mockEmarsysWebView,
+            mockIamWebView,
             timeout(1000)
-        ).evaluateJavascript(capture(captor))
+        ).respondToJS(capture(captor))
 
         captor.value["id"] shouldBe id
         captor.value["success"] shouldBe false
@@ -280,9 +277,9 @@ class IamJsBridgeTest {
         jsBridge.buttonClicked(json.toString())
 
         verify(
-            mockEmarsysWebView,
+            mockIamWebView,
             timeout(1000)
-        ).evaluateJavascript(capture(captor))
+        ).respondToJS(capture(captor))
 
         captor.value["id"] shouldBe id
         captor.value["success"] shouldBe false
@@ -297,9 +294,9 @@ class IamJsBridgeTest {
         jsBridge.openExternalLink(json.toString())
 
         verify(
-            mockEmarsysWebView,
+            mockIamWebView,
             timeout(1000)
-        ).evaluateJavascript(capture(captor))
+        ).respondToJS(capture(captor))
 
         captor.value["id"] shouldBe id
         captor.value["success"] shouldBe false
@@ -313,9 +310,9 @@ class IamJsBridgeTest {
         jsBridge.copyToClipboard(json.toString())
 
         verify(
-            mockEmarsysWebView,
+            mockIamWebView,
             timeout(1000)
-        ).evaluateJavascript(capture(captor))
+        ).respondToJS(capture(captor))
 
         captor.value["id"] shouldBe id
         captor.value["success"] shouldBe true
@@ -328,9 +325,9 @@ class IamJsBridgeTest {
         jsBridge.copyToClipboard(json.toString())
 
         verify(
-            mockEmarsysWebView,
+            mockIamWebView,
             timeout(1000)
-        ).evaluateJavascript(capture(captor))
+        ).respondToJS(capture(captor))
 
         captor.value["id"] shouldBe id
         captor.value["success"] shouldBe false
@@ -347,8 +344,8 @@ class IamJsBridgeTest {
         jsBridge.sendResult(json)
 
         verify(
-            mockEmarsysWebView,
+            mockIamWebView,
             timeout(1000)
-        ).evaluateJavascript(json)
+        ).respondToJS(json)
     }
 }

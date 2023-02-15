@@ -12,12 +12,8 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.iam.OverlayInAppPresenter
 import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
-import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
-import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction
-import com.emarsys.mobileengage.iam.dialog.action.SendDisplayedIamAction
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
-import com.emarsys.testUtil.CollectionTestUtils.numberOfElementsIn
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import com.emarsys.testUtil.fake.FakeActivity
 import org.junit.Assert
@@ -55,7 +51,7 @@ class InAppMessageResponseHandlerTest {
         mockJsBridge = mock()
         mockClipboardManager = mock()
         mockJsBridgeFactory = mock {
-            on { createJsBridge(any(), any()) } doReturn mockJsBridge
+            on { createJsBridge(any()) } doReturn mockJsBridge
         }
         mockDialog = mock()
         val dialogProvider = mock<IamDialogProvider> {
@@ -72,14 +68,9 @@ class InAppMessageResponseHandlerTest {
         presenter = spy(
             OverlayInAppPresenter(
                 concurrentHandlerHolder,
-                mock(),
                 dialogProvider,
                 mock(),
-                mock(),
-                mock(),
                 mockCurrentActivityProvider,
-                mockJsBridgeFactory,
-                mockClipboardManager
             )
         )
         handler = InAppMessageResponseHandler(presenter)
@@ -123,44 +114,6 @@ class InAppMessageResponseHandlerTest {
         val response = buildResponseModel(responseBody)
         handler.handleResponse(response)
         verify(presenter).present("123", null, null, response.requestModel.id, response.timestamp, html, null)
-    }
-
-    @Test
-    fun testHandleResponse_setsSaveDisplayIamAction_onDialog() {
-        val html = "<p>hello</p>"
-        val responseBody = String.format("{'message': {'html':'%s', 'campaignId': '123'} }", html)
-        val response = buildResponseModel(responseBody)
-
-        handler.handleResponse(response)
-
-        argumentCaptor<List<OnDialogShownAction>> {
-            verify(mockDialog).setActions(capture())
-
-            val actions: List<OnDialogShownAction?> = firstValue
-            Assert.assertEquals(
-                1,
-                numberOfElementsIn(actions, SaveDisplayedIamAction::class.java).toLong()
-            )
-        }
-    }
-
-    @Test
-    fun testHandleResponse_setsSendDisplayIamAction_onDialog() {
-        val html = "<p>hello</p>"
-        val responseBody = String.format("{'message': {'html':'%s', 'campaignId': '123'} }", html)
-        val response = buildResponseModel(responseBody)
-
-        handler.handleResponse(response)
-
-        argumentCaptor<List<OnDialogShownAction>> {
-            verify(mockDialog).setActions(capture())
-
-            val actions: List<OnDialogShownAction?> = firstValue
-            Assert.assertEquals(
-                1,
-                numberOfElementsIn(actions, SendDisplayedIamAction::class.java).toLong()
-            )
-        }
     }
 
     private fun buildResponseModel(responseBody: String): ResponseModel {

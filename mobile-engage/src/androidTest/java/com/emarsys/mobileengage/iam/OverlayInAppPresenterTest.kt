@@ -1,37 +1,22 @@
 package com.emarsys.mobileengage.iam
 
 import android.app.Activity
-import android.content.ClipboardManager
-import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
-import com.emarsys.core.database.repository.Repository
-import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
-import com.emarsys.mobileengage.MobileEngageInternal
-import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
-import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
-import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
-import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
-import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
-import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.fake.FakeActivity
-import com.emarsys.testUtil.mockito.ThreadSpy
 import com.emarsys.testUtil.mockito.anyNotNull
 import com.emarsys.testUtil.mockito.whenever
-import org.json.JSONObject
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -51,84 +36,45 @@ class OverlayInAppPresenterTest {
 
     @Rule
     @JvmField
-    var appcompatActivityRule = ActivityTestRule(FakeActivity::class.java)
+    var activityRule = ActivityTestRule(FakeActivity::class.java)
 
-    private lateinit var mockInAppInternal: InAppInternal
-    private lateinit var mockIamDialogProvider: IamDialogProvider
-    private lateinit var mockButtonClickedRepository: Repository<ButtonClicked, SqlSpecification>
-    private lateinit var mockDisplayedIamRepository: Repository<DisplayedIam, SqlSpecification>
-    private lateinit var mockTimestampProvider: TimestampProvider
-    private lateinit var mockMobileEngageInternal: MobileEngageInternal
-    private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
-    private lateinit var overlayPresenter: OverlayInAppPresenter
-    private lateinit var mockClipboardManager: ClipboardManager
-    private lateinit var mockIamJsBridgeFactory: IamJsBridgeFactory
-    private lateinit var mockJsBridge: IamJsBridge
-    private lateinit var mockJSCommandFactory: JSCommandFactory
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
-    private lateinit var iamDialog: IamDialog
-    private lateinit var context: Context
-    private lateinit var latch: CountDownLatch
-    private lateinit var spyOverlayPresenter: OverlayInAppPresenter
+    private lateinit var mockIamDialogProvider: IamDialogProvider
+    private lateinit var mockTimestampProvider: TimestampProvider
+    private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
+    private lateinit var mockIamDialog: IamDialog
 
-    var html = String.format(
-        """<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <script>
-      window.onload = function() {
-      };
-        Android.%s("{success:true}");
-    </script>
-  </head>
-  <body style="background: transparent;">
-  </body>
-</html>""", "onPageLoaded"
-    )
+    private lateinit var inAppPresenter: OverlayInAppPresenter
 
     @Before
     fun setUp() {
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
-        context = InstrumentationRegistry.getInstrumentation().targetContext
-        latch = CountDownLatch(1)
-        iamDialog = mock()
-        mockInAppInternal = mock()
+        mockIamDialog = mock()
         mockIamDialogProvider = mock {
-            on { provideDialog(anyNotNull(), any(), any(), any()) }
-                .thenReturn(iamDialog)
+            on { provideDialog(any(), any(), any(), any()) } doReturn mockIamDialog
         }
-        mockButtonClickedRepository = mock()
-        mockDisplayedIamRepository = mock()
         mockTimestampProvider = mock()
-        mockMobileEngageInternal = mock()
         mockCurrentActivityProvider = mock()
-        mockJsBridge = mock()
-        mockClipboardManager = mock()
-        mockJSCommandFactory = mock()
-        mockIamJsBridgeFactory = mock {
-            on { createJsBridge(anyOrNull(), anyOrNull()) } doReturn mockJsBridge
+
+        whenever(mockIamDialog.loadInApp(any(), any(), any())).thenAnswer {
+            (it.getArgument(2) as MessageLoadedListener).onMessageLoaded()
         }
-        overlayPresenter = OverlayInAppPresenter(
+
+        inAppPresenter = OverlayInAppPresenter(
             concurrentHandlerHolder,
-            mockInAppInternal,
             mockIamDialogProvider,
-            mockButtonClickedRepository,
-            mockDisplayedIamRepository,
             mockTimestampProvider,
-            mockCurrentActivityProvider,
-            mockIamJsBridgeFactory,
-            mockClipboardManager
+            mockCurrentActivityProvider
         )
-        spyOverlayPresenter = spyOverlayPresenter()
     }
 
     @Test
     fun testPresent_shouldShowDialog_whenFragmentActivity_isUsed() {
-        whenever(mockCurrentActivityProvider.get()).thenReturn(appcompatActivityRule.activity as FragmentActivity)
+        whenever(mockCurrentActivityProvider.get()).thenReturn(activityRule.activity as FragmentActivity)
 
         val countDownLatch = CountDownLatch(1)
 
-        spyOverlayPresenter.present(
+        inAppPresenter.present(
             "1",
             SID,
             URL,
@@ -142,16 +88,16 @@ class OverlayInAppPresenterTest {
 
         countDownLatch.await()
 
-        verify(iamDialog).show(any<FragmentManager>(), any())
+        verify(mockIamDialog).show(any<FragmentManager>(), any())
     }
 
     @Test
     fun testPresent_shouldShowDialog_whenAppCompatActivity_isUsed() {
-        whenever(mockCurrentActivityProvider.get()).thenReturn(appcompatActivityRule.activity)
+        whenever(mockCurrentActivityProvider.get()).thenReturn(activityRule.activity)
 
         val countDownLatch = CountDownLatch(1)
 
-        spyOverlayPresenter.present(
+        inAppPresenter.present(
             "1",
             SID,
             URL,
@@ -165,7 +111,7 @@ class OverlayInAppPresenterTest {
 
         countDownLatch.await()
 
-        verify(iamDialog).show(any<FragmentManager>(), any())
+        verify(mockIamDialog).show(any<FragmentManager>(), any())
     }
 
     @Test
@@ -173,13 +119,10 @@ class OverlayInAppPresenterTest {
         val activity: Activity = mock()
 
         whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
-        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(
-            iamDialog
-        )
 
         val countDownLatch = CountDownLatch(1)
 
-        spyOverlayPresenter.present(
+        inAppPresenter.present(
             "1",
             SID,
             URL,
@@ -193,19 +136,16 @@ class OverlayInAppPresenterTest {
 
         countDownLatch.await()
 
-        verify(iamDialog, times(0)).show(any<FragmentManager>(), any())
+        verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
     }
 
     @Test
     fun testPresent_shouldNotShowDialog_whenActivity_isNull() {
         whenever(mockCurrentActivityProvider.get()).thenReturn(null)
-        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(
-            iamDialog
-        )
 
         val countDownLatch = CountDownLatch(1)
 
-        spyOverlayPresenter.present(
+        inAppPresenter.present(
             "1",
             SID,
             URL,
@@ -219,7 +159,7 @@ class OverlayInAppPresenterTest {
 
         countDownLatch.await()
 
-        verify(iamDialog, times(0)).show(any<FragmentManager>(), any())
+        verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
     }
 
     @Test
@@ -229,7 +169,7 @@ class OverlayInAppPresenterTest {
         val fragment: Fragment = mock()
 
         whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(
-            iamDialog
+            mockIamDialog
         )
         whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
         whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
@@ -239,7 +179,7 @@ class OverlayInAppPresenterTest {
 
         val countDownLatch = CountDownLatch(1)
 
-        spyOverlayPresenter.present(
+        inAppPresenter.present(
             "1",
             SID,
             URL,
@@ -253,104 +193,6 @@ class OverlayInAppPresenterTest {
 
         countDownLatch.await()
 
-        verify(iamDialog, times(0)).show(any<FragmentManager>(), any())
-    }
-
-    @Test
-    fun testOnClose_shouldCallDismissOnFragment() {
-        val fragment: DialogFragment = mock()
-        val supportManager: FragmentManager = mock()
-        val activity: AppCompatActivity = mock()
-        whenever(activity.supportFragmentManager).thenReturn(supportManager)
-        whenever(supportManager.findFragmentByTag(any())).thenReturn(fragment)
-        whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
-
-        overlayPresenter.onCloseTriggered().invoke()
-        val latch = CountDownLatch(1)
-        concurrentHandlerHolder.postOnMain { latch.countDown() }
-        latch.await()
-
-        verify(fragment).dismiss()
-    }
-
-    @Test
-    fun testPresent_OnInAppEventListenerTriggered_shouldCallHandleApplicationEventMethodOnInAppMessageHandler() {
-        val activity: Activity = mock()
-        val mockEventHandler: EventHandler = mock()
-        whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
-        whenever(mockInAppInternal.eventHandler).thenReturn(mockEventHandler)
-
-        val payload = JSONObject()
-            .put(
-                "payloadKey1",
-                JSONObject()
-                    .put("payloadKey2", "payloadValue1")
-            )
-        val json = JSONObject()
-            .put("name", "eventName")
-            .put("id", "123456789")
-            .put("payload", payload)
-
-        overlayPresenter.onAppEventTriggered().invoke("eventName", json)
-
-        verify(mockEventHandler, timeout(1000)).handleEvent(activity, "eventName", payload)
-    }
-
-    @Test
-    fun testTriggerAppEvent_inAppMessageHandler_calledOnMainThread() {
-        val activity: Activity = mock()
-        val mockEventHandler: EventHandler = mock()
-        whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
-        whenever(mockInAppInternal.eventHandler).thenReturn(mockEventHandler)
-
-        val threadSpy: ThreadSpy<*> = ThreadSpy<Any?>()
-        whenever(
-            mockInAppInternal.eventHandler?.handleEvent(
-                anyOrNull(),
-                anyOrNull(),
-                anyOrNull()
-            )
-        ).doAnswer(threadSpy)
-
-        val id = "12346789"
-        val eventName = "eventName"
-        val json = JSONObject()
-            .put("id", id)
-            .put("name", eventName)
-
-        overlayPresenter.onAppEventTriggered().invoke("eventName", json)
-
-        threadSpy.verifyCalledOnMainThread()
-    }
-
-    @Test
-    fun testTriggerAppEvent_inAppMessageHandler_shouldNotBeCalledWhenActivityIsNull() {
-        val mockEventHandler: EventHandler = mock()
-        whenever(mockCurrentActivityProvider.get()).thenReturn(null)
-        whenever(mockInAppInternal.eventHandler).thenReturn(mockEventHandler)
-
-        val id = "12346789"
-        val eventName = "eventName"
-        val json = JSONObject()
-            .put("id", id)
-            .put("name", eventName)
-
-        overlayPresenter.onAppEventTriggered().invoke("eventName", json)
-
-        verifyNoInteractions(mockEventHandler)
-    }
-
-    private fun spyOverlayPresenter(): OverlayInAppPresenter {
-        val spyOverlayPresenter = spy(overlayPresenter)
-
-        doAnswer {
-            (it.getArgument(3) as MessageLoadedListener).onMessageLoaded()
-        }.whenever(spyOverlayPresenter).loadMessageAsync(
-            any(),
-            any(),
-            any(),
-            any()
-        )
-        return spyOverlayPresenter
+        verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
     }
 }

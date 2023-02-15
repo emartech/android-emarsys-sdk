@@ -8,6 +8,8 @@ import android.util.Base64
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentActivity
 import com.emarsys.Emarsys
 import com.emarsys.EmarsysRequestModelFactory
 import com.emarsys.clientservice.ClientService
@@ -91,15 +93,18 @@ import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.event.LoggingEventServiceInternal
 import com.emarsys.mobileengage.geofence.*
 import com.emarsys.mobileengage.iam.*
+import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
-import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
+import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactoryProvider
+import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
+import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy
-import com.emarsys.mobileengage.iam.webview.WebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
 import com.emarsys.mobileengage.inbox.DefaultMessageInboxInternal
 import com.emarsys.mobileengage.inbox.LoggingMessageInboxInternal
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
@@ -136,7 +141,6 @@ import java.lang.reflect.Method
 import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
-
 
 open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     companion object {
@@ -249,20 +253,24 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val clipboardManager: ClipboardManager by lazy {
-        ContextCompat.getSystemService(config.application as Context, ClipboardManager::class.java) as ClipboardManager
+        ContextCompat.getSystemService(
+            config.application as Context,
+            ClipboardManager::class.java
+        ) as ClipboardManager
     }
 
     override val overlayInAppPresenter: OverlayInAppPresenter by lazy {
         OverlayInAppPresenter(
             concurrentHandlerHolder,
-            inAppInternal,
-            IamDialogProvider(concurrentHandlerHolder, timestampProvider),
-            buttonClickedRepository,
-            displayedIamRepository,
+            IamDialogProvider(
+                concurrentHandlerHolder,
+                timestampProvider,
+                inAppInternal,
+                displayedIamRepository,
+                webViewProvider
+            ),
             timestampProvider,
-            currentActivityProvider,
-            iamJsBridgeFactory,
-            clipboardManager
+            currentActivityProvider
         )
     }
 
@@ -690,8 +698,13 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         )
     }
 
-    override val webViewProvider: WebViewProvider by lazy {
-        WebViewProvider()
+    override val webViewProvider: IamWebViewProvider by lazy {
+        IamWebViewProvider(
+            iamJsBridgeFactory,
+            jsCommandFactoryProvider,
+            concurrentHandlerHolder,
+            currentActivityProvider
+        )
     }
 
     override val currentActivityProvider: CurrentActivityProvider by lazy {
@@ -704,6 +717,42 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val iamJsBridgeFactory: IamJsBridgeFactory by lazy {
         IamJsBridgeFactory(concurrentHandlerHolder)
+    }
+
+    override val jsCommandFactoryProvider: JSCommandFactoryProvider by lazy {
+        JSCommandFactoryProvider(
+            currentActivityProvider,
+            concurrentHandlerHolder,
+            inAppInternal,
+            buttonClickedRepository,
+            jsOnCloseListener,
+            jsOnAppEventListener,
+            timestampProvider,
+            clipboardManager
+        )
+    }
+
+    override val jsOnCloseListener: OnCloseListener = {
+        val currentActivity = currentActivityProvider.get()
+        if (currentActivity is FragmentActivity) {
+            concurrentHandlerHolder.postOnMain {
+                val fragment =
+                    currentActivity.supportFragmentManager.findFragmentByTag(IamDialog.TAG)
+                if (fragment is DialogFragment) {
+                    fragment.dismiss()
+                }
+            }
+        }
+    }
+
+    override val jsOnAppEventListener: OnAppEventListener = { property: String?, json: JSONObject ->
+        concurrentHandlerHolder.postOnMain {
+            val payload = json.optJSONObject("payload")
+            val currentActivity = currentActivityProvider.get()
+            if (property != null && currentActivity != null) {
+                inAppInternal.eventHandler?.handleEvent(currentActivity, property, payload)
+            }
+        }
     }
 
     override val deviceInfoPayloadStorage: Storage<String?> by lazy {
@@ -778,10 +827,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val contactTokenResponseHandler: MobileEngageTokenResponseHandler by lazy {
         MobileEngageTokenResponseHandler("contactToken", contactTokenStorage, requestModelHelper)
-    }
-
-    override val inlineInAppWebViewFactory: InlineInAppWebViewFactory by lazy {
-        InlineInAppWebViewFactory(webViewProvider, concurrentHandlerHolder)
     }
 
     override val fileDownloader: FileDownloader by lazy {

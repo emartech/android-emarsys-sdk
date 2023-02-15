@@ -21,11 +21,13 @@ import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.mobileengage.iam.InAppEventHandlerInternal
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.OverlayInAppPresenter
-import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
+import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactoryProvider
+import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
+import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
-import com.emarsys.mobileengage.iam.webview.WebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
@@ -167,11 +169,15 @@ interface MobileEngageComponent : CoreComponent {
 
     val contactTokenResponseHandler: MobileEngageTokenResponseHandler
 
-    val webViewProvider: WebViewProvider
-
-    val inlineInAppWebViewFactory: InlineInAppWebViewFactory
+    val webViewProvider: IamWebViewProvider
 
     val iamJsBridgeFactory: IamJsBridgeFactory
+
+    val jsCommandFactoryProvider: JSCommandFactoryProvider
+
+    val jsOnCloseListener: OnCloseListener
+
+    val jsOnAppEventListener: OnAppEventListener
 
     val remoteMessageMapper: RemoteMessageMapper
 

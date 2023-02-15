@@ -12,7 +12,7 @@ import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.util.getNullableString
 import com.emarsys.mobileengage.iam.InAppInternal
-import com.emarsys.mobileengage.iam.model.InAppMessage
+import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import java.util.concurrent.CountDownLatch
 
@@ -22,14 +22,15 @@ class JSCommandFactory(
     private val concurrentHandlerHolder: ConcurrentHandlerHolder,
     private val inAppInternal: InAppInternal,
     private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
-    private val onCloseTriggered: OnCloseListener?,
-    private val onAppEventTriggered: OnAppEventListener?,
+    var onCloseTriggered: OnCloseListener?,
+    var onAppEventTriggered: OnAppEventListener?,
     private val timestampProvider: TimestampProvider,
     private val clipboardManager: ClipboardManager
 ) {
 
+    var inAppMetaData: InAppMetaData? = null
     @Throws(RuntimeException::class)
-    fun create(command: CommandType, inAppMessage: InAppMessage? = null): JSCommand {
+    fun create(command: CommandType): JSCommand {
         return when (command) {
             CommandType.ON_APP_EVENT -> {
                 { property, json ->
@@ -48,26 +49,26 @@ class JSCommandFactory(
             }
             CommandType.ON_BUTTON_CLICKED -> {
                 { property, _ ->
-                    if (inAppMessage != null && property != null) {
+                    if (inAppMetaData != null && property != null) {
                         concurrentHandlerHolder.coreHandler.post {
                             buttonClickedRepository.add(
                                 ButtonClicked(
-                                    inAppMessage.campaignId,
+                                    inAppMetaData!!.campaignId,
                                     property,
                                     timestampProvider.provideTimestamp()
                                 )
                             )
                             val eventName = "inapp:click"
                             val attributes: MutableMap<String, String?> = mutableMapOf(
-                                "campaignId" to inAppMessage.campaignId,
+                                "campaignId" to inAppMetaData!!.campaignId,
                                 "buttonId" to property
                             )
 
-                            if (inAppMessage.sid != null) {
-                                attributes["sid"] = inAppMessage.sid
+                            if (inAppMetaData!!.sid != null) {
+                                attributes["sid"] = inAppMetaData!!.sid
                             }
-                            if (inAppMessage.url != null) {
-                                attributes["url"] = inAppMessage.url
+                            if (inAppMetaData!!.url != null) {
+                                attributes["url"] = inAppMetaData!!.url
                             }
 
                             inAppInternal.trackInternalCustomEvent(eventName, attributes, null)
