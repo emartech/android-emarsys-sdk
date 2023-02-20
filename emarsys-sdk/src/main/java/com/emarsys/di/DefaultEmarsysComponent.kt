@@ -834,7 +834,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val remoteMessageMapper: RemoteMessageMapper by lazy {
-        RemoteMessageMapper(MetaDataReader(), config.application, fileDownloader, deviceInfo)
+        RemoteMessageMapper(MetaDataReader(), config.application, fileDownloader, deviceInfo, uuidProvider)
     }
 
     override val appLifecycleObserver: AppLifecycleObserver by lazy {

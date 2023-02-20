@@ -400,7 +400,7 @@ class NotificationCommandFactoryTest {
         val intent = IntentUtils.createNotificationHandlerServiceIntent(
                 InstrumentationRegistry.getTargetContext().applicationContext,
                 remoteMessageData,
-                0,
+                "testNotificationId",
                 "actionId"
         )
 

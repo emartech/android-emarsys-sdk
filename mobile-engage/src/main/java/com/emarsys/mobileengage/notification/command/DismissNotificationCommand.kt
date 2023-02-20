@@ -1,33 +1,19 @@
-package com.emarsys.mobileengage.notification.command;
+package com.emarsys.mobileengage.notification.command
 
-import android.app.NotificationManager;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Intent
 
-import com.emarsys.core.util.Assert;
+class DismissNotificationCommand(
+    private val context: Context,
+    private val intent: Intent): Runnable {
 
-public class DismissNotificationCommand implements Runnable {
-
-    private final Context context;
-    private final Intent intent;
-
-    public DismissNotificationCommand(Context context, Intent intent) {
-        Assert.notNull(context, "Context must not be null!");
-        Assert.notNull(intent, "Intent must not be null!");
-
-        this.context = context;
-        this.intent = intent;
-    }
-
-    @Override
-    public void run() {
-        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        Bundle bundle = intent.getBundleExtra("payload");
+    override fun run() {
+        val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val bundle = intent.getBundleExtra("payload")
         if (bundle != null) {
-            int notificationId = bundle.getInt("notification_id", Integer.MIN_VALUE);
-            if (notificationId != Integer.MIN_VALUE) {
-                manager.cancel(notificationId);
+            bundle.getString("notification_id")?.let {
+                manager.cancel(it, it.hashCode())
             }
         }
     }

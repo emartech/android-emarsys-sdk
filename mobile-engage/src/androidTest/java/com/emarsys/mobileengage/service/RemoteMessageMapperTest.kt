@@ -7,6 +7,7 @@ import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
+import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.resource.MetaDataReader
 import com.emarsys.core.util.FileDownloader
@@ -112,7 +113,17 @@ class RemoteMessageMapperTest {
 
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
 
-        remoteMessageMapper = RemoteMessageMapper(mockMetaDataReader, context, mockFileDownloader, deviceInfo)
+        val uuidProvider: UUIDProvider = mock {
+            on { provideId() }.thenReturn("testUUID")
+        }
+
+        remoteMessageMapper = RemoteMessageMapper(
+            mockMetaDataReader,
+            context,
+            mockFileDownloader,
+            deviceInfo,
+            uuidProvider
+        )
     }
 
     @After
@@ -196,7 +207,7 @@ class RemoteMessageMapperTest {
 
     @Test
     fun testMap_whenNotificationMethodIsSet() {
-        val notificationMethod = NotificationMethod(123, NotificationOperation.UPDATE)
+        val notificationMethod = NotificationMethod("testNotificationId", NotificationOperation.UPDATE)
 
         val input: MutableMap<String, String> = HashMap()
         input["title"] = TITLE
@@ -204,7 +215,7 @@ class RemoteMessageMapperTest {
         input["image_url"] = IMAGE_URL
         input["channel_id"] = CHANNEL_ID
         val notificationMethodJson = JSONObject()
-        notificationMethodJson.put("collapseId", 123)
+        notificationMethodJson.put("collapseId", "testNotificationId")
         notificationMethodJson.put("operation", "UPDATE")
         val ems = JSONObject()
         ems.put("notificationMethod", notificationMethodJson)

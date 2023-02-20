@@ -3,6 +3,7 @@ package com.emarsys.mobileengage.service
 import android.content.Context
 import com.emarsys.core.Mockable
 import com.emarsys.core.device.DeviceInfo
+import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.resource.MetaDataReader
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.ImageUtils
@@ -14,7 +15,8 @@ class RemoteMessageMapper(
     private val metaDataReader: MetaDataReader,
     private val context: Context,
     private val fileDownloader: FileDownloader,
-    private val deviceInfo: DeviceInfo
+    private val deviceInfo: DeviceInfo,
+    private val uuidProvider: UUIDProvider
 ) {
 
     private companion object {
@@ -67,7 +69,7 @@ class RemoteMessageMapper(
 
     private fun parseNotificationMethod(notificationMethod: JSONObject): NotificationMethod {
         return if (notificationMethod.has("collapseId")) {
-            val collapseId = notificationMethod.getInt("collapseId")
+            val collapseId = notificationMethod.getString("collapseId")
             val operation: NotificationOperation = parseOperation(notificationMethod)
             NotificationMethod(collapseId, operation)
         } else {
@@ -76,8 +78,7 @@ class RemoteMessageMapper(
     }
 
     private fun createNotificationMethod(): NotificationMethod {
-        val collapseId = (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
-        return NotificationMethod(collapseId, NotificationOperation.INIT)
+        return NotificationMethod(uuidProvider.provideId(), NotificationOperation.INIT)
     }
 
     private fun parseOperation(notificationMethod: JSONObject): NotificationOperation {

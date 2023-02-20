@@ -119,7 +119,7 @@ class InappNotificationIntegrationTest {
         val intent = IntentUtils.createNotificationHandlerServiceIntent(
             application,
             remoteMessageData,
-            0,
+            "testNotificationId",
             null
         )
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

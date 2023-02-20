@@ -19,6 +19,6 @@ enum class NotificationOperation {
 }
 
 data class NotificationMethod(
-    val collapseId: Int,
+    val collapseId: String,
     val operation: NotificationOperation
 )

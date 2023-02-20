@@ -20,9 +20,10 @@ object NotificationActionUtils {
     }
 
     fun createActions(
-            context: Context,
-            remoteMessageData: Map<String, String>,
-            notificationId: Int): List<NotificationCompat.Action> {
+        context: Context,
+        remoteMessageData: Map<String, String>,
+        notificationId: String
+    ): List<NotificationCompat.Action> {
         val result: MutableList<NotificationCompat.Action> = ArrayList()
         val emsPayload = remoteMessageData["ems"]
         if (emsPayload != null) {
@@ -45,10 +46,11 @@ object NotificationActionUtils {
     }
 
     private fun createAction(
-            action: JSONObject,
-            context: Context,
-            remoteMessageData: Map<String, String>,
-            notificationId: Int): NotificationCompat.Action? {
+        action: JSONObject,
+        context: Context,
+        remoteMessageData: Map<String, String>,
+        notificationId: String
+    ): NotificationCompat.Action? {
         var result: NotificationCompat.Action? = null
         try {
             val actionId = action.getString("id")

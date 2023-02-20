@@ -19,7 +19,6 @@ import org.junit.rules.TestRule
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import java.util.*
 
 class IntentUtilsTest {
     private lateinit var context: Context
@@ -85,7 +84,7 @@ class IntentUtilsTest {
 
     @Test
     fun createNotificationHandlerServiceIntent() {
-        val notificationId = 987
+        val notificationId = "testNotificationId"
         val remoteMessageData: MutableMap<String, String?> = HashMap()
         remoteMessageData["key1"] = "value1"
         remoteMessageData["key2"] = "value2"
@@ -99,12 +98,12 @@ class IntentUtilsTest {
         val payload = resultIntent.getBundleExtra("payload")
         payload!!.getString("key1") shouldBe "value1"
         payload.getString("key2") shouldBe "value2"
-        payload.getInt("notification_id") shouldBe notificationId
+        payload.getString("notification_id") shouldBe notificationId
     }
 
     @Test
     fun createNotificationHandlerServiceIntent_withoutAction() {
-        val resultIntent = createNotificationHandlerServiceIntent(context, HashMap(), 0, null)
+        val resultIntent = createNotificationHandlerServiceIntent(context, HashMap(), "testNotificationId", null)
         resultIntent.action shouldBe null
     }
 }

@@ -19,19 +19,9 @@ class DismissNotificationCommandTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testDismissNotification_context_mustNotBeNull() {
-        DismissNotificationCommand(null, Intent())
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testDismissNotification_intent_mustNotBeNull() {
-        DismissNotificationCommand(mock(), null)
-    }
-
     @Test
     fun testDismissNotification_callsNotificationManager() {
-        val notificationId = 987
+        val notificationId = "testNotificationId"
 
         val notificationManagerMock: NotificationManager = mock()
 
@@ -41,12 +31,12 @@ class DismissNotificationCommandTest {
 
         val intent = Intent()
         val bundle = Bundle()
-        bundle.putInt("notification_id", notificationId)
+        bundle.putString("notification_id", notificationId)
         intent.putExtra("payload", bundle)
 
         DismissNotificationCommand(mockContext, intent).run()
 
-        verify(notificationManagerMock).cancel(notificationId)
+        verify(notificationManagerMock).cancel(notificationId, notificationId.hashCode())
     }
 
     @Test
