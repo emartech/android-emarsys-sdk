@@ -12,7 +12,6 @@ import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction
 import com.emarsys.mobileengage.iam.dialog.action.SendDisplayedIamAction
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
-import java.util.concurrent.CountDownLatch
 
 @Mockable
 class IamDialogProvider(
@@ -28,19 +27,13 @@ class IamDialogProvider(
         url: String?,
         requestId: String?
     ): IamDialog {
-        lateinit var dialog: IamDialog
-        val latch = CountDownLatch(1)
-        concurrentHandlerHolder.postOnMain {
-            dialog = IamDialog(timestampProvider, webViewProvider)
-            val bundle = Bundle()
-            bundle.putString(IamDialog.CAMPAIGN_ID, campaignId)
-            bundle.putString(IamDialog.SID, sid)
-            bundle.putString(IamDialog.URL, url)
-            bundle.putString(IamDialog.REQUEST_ID, requestId)
-            dialog.arguments = bundle
-            latch.countDown()
-        }
-        latch.await()
+        val dialog = IamDialog(timestampProvider, webViewProvider)
+        val bundle = Bundle()
+        bundle.putString(IamDialog.CAMPAIGN_ID, campaignId)
+        bundle.putString(IamDialog.SID, sid)
+        bundle.putString(IamDialog.URL, url)
+        bundle.putString(IamDialog.REQUEST_ID, requestId)
+        dialog.arguments = bundle
         dialog.setActions(dialogActions())
         return dialog
     }

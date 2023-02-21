@@ -741,6 +741,9 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                 if (fragment is DialogFragment) {
                     fragment.dismiss()
                 }
+                fragment?.let {
+                    currentActivity.supportFragmentManager.beginTransaction().remove(it).commitNow()
+                }
             }
         }
     }

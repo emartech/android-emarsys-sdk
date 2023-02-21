@@ -76,13 +76,6 @@ class InAppMessageResponseHandlerTest {
         handler = InAppMessageResponseHandler(presenter)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_inAppPresenter_shouldNotBeNull() {
-        InAppMessageResponseHandler(
-            null
-        )
-    }
-
     @Test
     fun testShouldHandleResponse_shouldReturnTrueWhenTheResponseHasHtmlAttribute() {
         val response = buildResponseModel("{'message': {'html':'some html'}}")

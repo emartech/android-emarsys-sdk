@@ -21,28 +21,36 @@ class OverlayInAppPresenter(
     private val timestampProvider: TimestampProvider,
     private val currentActivityProvider: CurrentActivityProvider
 ) {
-
+    private var showingInProgress = false
     fun present(
         campaignId: String, sid: String?, url: String?, requestId: String?, startTimestamp: Long,
         html: String, messageLoadedListener: MessageLoadedListener?
     ) {
-        lateinit var dialog: IamDialog
         try {
-            dialog = dialogProvider.provideDialog(campaignId, sid, url, requestId)
-            concurrentHandlerHolder.postOnMain {
-                dialog.loadInApp(html, InAppMetaData(campaignId, sid, url)) {
-                    currentActivityProvider.get()?.fragmentManager()?.let {
-                        if (it.findFragmentByTag(IamDialog.TAG) == null) {
-                            val endTimestamp = timestampProvider.provideTimestamp()
-                            dialog.setInAppLoadingTime(InAppLoadingTime(startTimestamp, endTimestamp))
-
-                            dialog.show(it, IamDialog.TAG)
+            val shownDialog = currentActivityProvider.get()?.fragmentManager()?.findFragmentByTag(IamDialog.TAG)
+            if (shownDialog == null && !showingInProgress) {
+                showingInProgress = true
+                concurrentHandlerHolder.postOnMain {
+                    val iamDialog = dialogProvider.provideDialog(campaignId, sid, url, requestId)
+                    iamDialog.loadInApp(html, InAppMetaData(campaignId, sid, url)) {
+                        currentActivityProvider.get()?.fragmentManager()?.let {
+                            if (it.findFragmentByTag(IamDialog.TAG) == null) {
+                                val endTimestamp = timestampProvider.provideTimestamp()
+                                iamDialog.setInAppLoadingTime(InAppLoadingTime(startTimestamp, endTimestamp))
+                                iamDialog.show(it, IamDialog.TAG)
+                            }
+                        }
+                        concurrentHandlerHolder.coreHandler.post {
+                            messageLoadedListener?.onMessageLoaded()
+                            showingInProgress = false
                         }
                     }
-                    messageLoadedListener?.onMessageLoaded()
                 }
+            } else {
+                messageLoadedListener?.onMessageLoaded()
             }
         } catch (e: IamWebViewCreationFailedException) {
+            showingInProgress = false
             Logger.error(CrashLog(e))
             messageLoadedListener?.onMessageLoaded()
         }

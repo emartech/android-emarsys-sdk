@@ -10,10 +10,7 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.util.AndroidVersionUtils
-import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
-import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
-import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
-import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
+import com.emarsys.mobileengage.iam.jsbridge.*
 import com.emarsys.mobileengage.iam.model.InAppMetaData
 import org.json.JSONObject
 
@@ -37,11 +34,13 @@ class IamWebView(
             field = value
         }
 
+    final var jsBridge: IamJsBridge
+
     init {
         val context = currentActivityProvider.get() ?: throw IamWebViewCreationFailedException()
         webView = WebView(context)
 
-        val jsBridge = jsBridgeFactory.createJsBridge(commandFactory)
+        jsBridge = jsBridgeFactory.createJsBridge(commandFactory)
         jsBridge.iamWebView = this
 
         webView.settings.javaScriptEnabled = true
@@ -61,6 +60,8 @@ class IamWebView(
     }
 
     fun purge() {
+        jsBridge.iamWebView = null
+        webView.removeJavascriptInterface("Android")
         webView.removeAllViews()
         webView.destroy()
     }

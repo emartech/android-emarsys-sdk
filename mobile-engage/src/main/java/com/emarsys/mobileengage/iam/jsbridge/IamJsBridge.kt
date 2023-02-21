@@ -118,10 +118,10 @@ class IamJsBridge(
     fun sendResult(payload: JSONObject) {
         require(payload.has("id")) { "Payload must have an id!" }
         if (Looper.myLooper() == Looper.getMainLooper()) {
-            iamWebView!!.respondToJS(payload)
+            iamWebView?.respondToJS(payload)
         } else {
             concurrentHandlerHolder.postOnMain {
-                iamWebView!!.respondToJS(payload)
+                iamWebView?.respondToJS(payload)
             }
         }
     }
