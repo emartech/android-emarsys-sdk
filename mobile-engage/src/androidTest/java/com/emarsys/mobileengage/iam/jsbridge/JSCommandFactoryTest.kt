@@ -10,7 +10,7 @@ import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.mobileengage.iam.InAppInternal
-import com.emarsys.mobileengage.iam.model.InAppMessage
+import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.mockito.ThreadSpy
@@ -103,11 +103,12 @@ class JSCommandFactoryTest {
 
     @Test
     fun testCreate_shouldTriggerOnButtonClickedCommand_onCoreSDKThread() {
-        val inAppMessage = InAppMessage(CAMPAIGN_ID, SID, URL)
+        val inAppMetaData = InAppMetaData(CAMPAIGN_ID, SID, URL)
+        jsCommandFactory.inAppMetaData = inAppMetaData
         val latch1 = CountDownLatch(1)
         val latch2 = CountDownLatch(1)
         concurrentHandlerHolder.coreHandler.post { latch1.await() }
-        jsCommandFactory.create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED, inAppMessage)
+        jsCommandFactory.create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED)
             .invoke(PROPERTY, JSONObject(mapOf("key" to "value")))
         verifyNoInteractions(mockButtonClickedRepository)
         verifyNoInteractions(mockInAppInternal)
@@ -117,7 +118,7 @@ class JSCommandFactoryTest {
         runBlocking {
             verify(mockButtonClickedRepository).add(
                 ButtonClicked(
-                    inAppMessage.campaignId,
+                    inAppMetaData.campaignId,
                     PROPERTY,
                     TIMESTAMP
                 )
@@ -135,10 +136,11 @@ class JSCommandFactoryTest {
     }
 
     @Test
-    fun testCreate_shouldTriggerInAPpInternalWithAttributes_whenSIDANDURL_areNulls() {
-        val inAppMessage = InAppMessage(CAMPAIGN_ID, null, null)
+    fun testCreate_shouldTriggerInAppInternalWithAttributes_whenSIDANDURL_areNulls() {
+        val inAppMetaData = InAppMetaData(CAMPAIGN_ID, null, null)
+        jsCommandFactory.inAppMetaData = inAppMetaData
         val latch = CountDownLatch(1)
-        jsCommandFactory.create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED, inAppMessage)
+        jsCommandFactory.create(JSCommandFactory.CommandType.ON_BUTTON_CLICKED)
             .invoke(PROPERTY, JSONObject())
 
         concurrentHandlerHolder.coreHandler.post { latch.countDown() }
@@ -146,7 +148,7 @@ class JSCommandFactoryTest {
         runBlocking {
             verify(mockButtonClickedRepository).add(
                 ButtonClicked(
-                    inAppMessage.campaignId,
+                    inAppMetaData.campaignId,
                     PROPERTY,
                     TIMESTAMP
                 )

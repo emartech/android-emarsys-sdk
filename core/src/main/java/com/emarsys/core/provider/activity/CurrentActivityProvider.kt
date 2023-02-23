@@ -2,6 +2,8 @@ package com.emarsys.core.provider.activity
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import com.emarsys.core.Mockable
 import com.emarsys.core.provider.Property
 import java.lang.ref.WeakReference
@@ -48,4 +50,12 @@ class CurrentActivityProvider(
 
         return result
     }
+}
+
+fun Activity.fragmentManager(): FragmentManager? {
+    var fragmentManager: FragmentManager? = null
+    if (this is FragmentActivity) {
+        fragmentManager = this.supportFragmentManager
+    }
+    return fragmentManager
 }

@@ -6,36 +6,41 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.emarsys.R
-import com.emarsys.common.feature.InnerFeature
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
-import com.emarsys.core.feature.FeatureRegistry
-import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.di.mobileEngage
-import com.emarsys.mobileengage.iam.InAppInternal
-import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
-import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
 import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
-import com.emarsys.mobileengage.iam.model.InAppMessage
-import com.emarsys.mobileengage.iam.webview.EmarsysWebView
+import com.emarsys.mobileengage.iam.model.InAppMetaData
+import com.emarsys.mobileengage.iam.webview.IamWebView
+import com.emarsys.mobileengage.iam.webview.IamWebViewCreationFailedException
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
-import java.util.concurrent.CountDownLatch
-
 
 class InlineInAppView : LinearLayout {
 
-    private lateinit var emarsysWebView: EmarsysWebView
+    private var iamWebView: IamWebView? = null
     private var viewId: String? = null
 
     var onCloseListener: OnCloseListener? = null
+        set(value) {
+            iamWebView?.onCloseTriggered = value
+            field = value
+        }
     var onAppEventListener: OnAppEventListener? = null
+        set(value) {
+            iamWebView?.onAppEventTriggered = value
+            field = value
+        }
     var onCompletionListener: CompletionListener? = null
 
+    private val webViewProvider = mobileEngage().webViewProvider
+    private val concurrentHandlerHolder = mobileEngage().concurrentHandlerHolder
+    private val requestManager = mobileEngage().requestManager
+    private val requestModelFactory = mobileEngage().mobileEngageRequestModelFactory
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         commonConstructor(attrs)
@@ -50,46 +55,43 @@ class InlineInAppView : LinearLayout {
         val intArray = IntArray(1).apply { this[0] = R.attr.view_id }
         val attributes = context.obtainStyledAttributes(attrs, intArray)
         viewId = attributes.getString(0)
-        val webViewFactory = mobileEngage().inlineInAppWebViewFactory
 
-        emarsysWebView = webViewFactory.create {
-            visibility = View.VISIBLE
-            onCompletionListener?.onCompleted(null)
+        try {
+            iamWebView = webViewProvider.provide()
+        } catch (e: IamWebViewCreationFailedException) {
+            onCompletionListener?.onCompleted(IllegalArgumentException("WebView can not be created, please try again later!"))
         }
-        if (!emarsysWebView.isNull()) {
-            mobileEngage().concurrentHandlerHolder.postOnMain {
-                addView(emarsysWebView.webView)
-                with(emarsysWebView.webView!!.layoutParams) {
-                    width = ViewGroup.LayoutParams.MATCH_PARENT
-                    height = ViewGroup.LayoutParams.WRAP_CONTENT
-                }
-
-                if (viewId != null) {
-                    loadInApp(viewId!!)
-                }
+        val iamWebView = iamWebView ?: return
+        iamWebView.onAppEventTriggered = onAppEventListener
+        iamWebView.onCloseTriggered = onCloseListener
+        concurrentHandlerHolder.postOnMain {
+            setupViewHierarchy(iamWebView)
+            if (viewId != null) {
+                loadInApp(viewId!!)
             }
         }
         attributes.recycle()
     }
 
+    private fun setupViewHierarchy(iamWebView: IamWebView) {
+        addView(iamWebView.webView)
+        with(iamWebView.webView.layoutParams) {
+            width = ViewGroup.LayoutParams.MATCH_PARENT
+            height = ViewGroup.LayoutParams.WRAP_CONTENT
+        }
+    }
+
     fun loadInApp(viewId: String) {
-        mobileEngage().concurrentHandlerHolder.coreHandler.post {
+        concurrentHandlerHolder.coreHandler.post {
             this.viewId = viewId
-            if (emarsysWebView.isNull()) {
+            if (iamWebView == null) {
                 onCompletionListener?.onCompleted(IllegalArgumentException("WebView can not be created, please try again later!"))
             } else {
-                fetchInlineInAppMessage(viewId) { html ->
-                    mobileEngage().concurrentHandlerHolder.postOnMain {
-                        if (html != null) {
-                            emarsysWebView.loadDataWithBaseURL(
-                                null,
-                                html,
-                                "text/html; charset=utf-8",
-                                "UTF-8",
-                                null
-                            )
-                        } else {
-                            onCompletionListener?.onCompleted(IllegalArgumentException("Inline In-App HTML content must not be empty, please check your viewId!"))
+                fetchInlineInAppMessage(viewId) { html, campaignId ->
+                    concurrentHandlerHolder.postOnMain {
+                        iamWebView!!.load(html, InAppMetaData(campaignId, null, null)) {
+                            visibility = View.VISIBLE
+                            onCompletionListener?.onCompleted(null)
                         }
                     }
                 }
@@ -97,20 +99,20 @@ class InlineInAppView : LinearLayout {
         }
     }
 
-    private fun fetchInlineInAppMessage(viewId: String, callback: (String?) -> Unit) {
-        val requestManager = mobileEngage().requestManager
-        val requestModelFactory = mobileEngage().mobileEngageRequestModelFactory
+    private fun fetchInlineInAppMessage(
+        viewId: String,
+        callback: (html: String, campaignId: String) -> Unit
+    ) {
         val requestModel = requestModelFactory.createFetchInlineInAppMessagesRequest(viewId)
         requestManager.submitNow(requestModel, object : CoreCompletionHandler {
             override fun onSuccess(id: String, responseModel: ResponseModel) {
                 val messageResponseModel = filterMessagesById(responseModel)
-
-                if (messageResponseModel != null) {
-                    val html = messageResponseModel.getString("html")
-                    createJSBridge(messageResponseModel)
-                    callback(html)
+                val html = messageResponseModel?.optString("html")
+                val campaignId = messageResponseModel?.optString("campaignId")
+                if (!html.isNullOrEmpty() && !campaignId.isNullOrEmpty()) {
+                    callback(html, campaignId)
                 } else {
-                    callback(null)
+                    onCompletionListener?.onCompleted(IllegalArgumentException("Inline In-App HTML content must not be empty, please check your viewId!"))
                 }
             }
 
@@ -144,43 +146,4 @@ class InlineInAppView : LinearLayout {
         return null
     }
 
-    private fun createJSBridge(messageResponseModel: JSONObject?) {
-        val campaignId = messageResponseModel?.optString("campaignId")
-
-        val inAppInternal: InAppInternal =
-            if (FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE)) {
-                mobileEngage().inAppInternal
-            } else {
-                mobileEngage().loggingInAppInternal
-            }
-        val timestampProvider: TimestampProvider = mobileEngage().timestampProvider
-
-        val buttonClickedRepository = mobileEngage().buttonClickedRepository
-
-        val jsCommandFactory = JSCommandFactory(
-            mobileEngage().currentActivityProvider,
-            mobileEngage().concurrentHandlerHolder,
-            inAppInternal,
-            buttonClickedRepository,
-            onCloseListener,
-            onAppEventListener,
-            timestampProvider,
-            mobileEngage().clipboardManager
-        )
-        val jsBridgeFactory: IamJsBridgeFactory = mobileEngage().iamJsBridgeFactory
-
-        val jsBridge =
-            jsBridgeFactory.createJsBridge(
-                jsCommandFactory,
-                InAppMessage(campaignId!!, null, null)
-            )
-
-        val latch = CountDownLatch(1)
-        mobileEngage().concurrentHandlerHolder.postOnMain {
-            emarsysWebView.addJavascriptInterface(jsBridge, "Android")
-            latch.countDown()
-        }
-        latch.await()
-        jsBridge.emarsysWebView = emarsysWebView
-    }
 }

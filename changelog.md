@@ -1,17 +1,11 @@
-# What's new
-
-### [InApp](https://github.com/emartech/android-emarsys-sdk/wiki#3-inapp)
-
-* SDK now supports CopyToClipboard action in inapp messages.
-
 # What's fixed
 
-### [SDK](https://github.com/emartech/android-emarsys-sdk/wiki)
+### [In-App](https://github.com/emartech/android-emarsys-sdk/wiki#3-inapp)
 
-* Fixed an issue that could cause the SDK to crash because of rare race conditions in the database.
+* Fixed an issue that could cause the SDK to crash during In-App appearing.
 
 # What's changed
 
-### [ChangeAppcode](https://github.com/emartech/android-emarsys-sdk/wiki#6-ApplicationCode-and-merchantId-change)
+### [Push](https://github.com/emartech/android-emarsys-sdk/wiki#2-push)
 
-* Prevent SDK from unnecessary network calls when an invalid `applicationCode` was set.
+* Push Internal ID now supports strings.

@@ -45,11 +45,13 @@ import com.emarsys.mobileengage.geofence.GeofenceInternal
 import com.emarsys.mobileengage.iam.InAppEventHandlerInternal
 import com.emarsys.mobileengage.iam.InAppInternal
 import com.emarsys.mobileengage.iam.OverlayInAppPresenter
-import com.emarsys.mobileengage.iam.inline.InlineInAppWebViewFactory
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
+import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactoryProvider
+import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
+import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
-import com.emarsys.mobileengage.iam.webview.WebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
@@ -117,8 +119,7 @@ class FakeEmarsysDependencyContainer(
     override val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification> = mock(),
     override val displayedIamRepository: Repository<DisplayedIam, SqlSpecification> = mock(),
     override val contactTokenResponseHandler: MobileEngageTokenResponseHandler = mock(),
-    override val webViewProvider: WebViewProvider = mock(),
-    override val inlineInAppWebViewFactory: InlineInAppWebViewFactory = mock(),
+    override val webViewProvider: IamWebViewProvider = mock(),
     override val iamJsBridgeFactory: IamJsBridgeFactory = mock(),
     override val remoteMessageMapper: RemoteMessageMapper = mock(),
     override val appLifecycleObserver: AppLifecycleObserver = mock(),
@@ -154,4 +155,7 @@ class FakeEmarsysDependencyContainer(
     override val fusedLocationProviderClient: FusedLocationProviderClient = mock(),
     override val activityLifecycleActionRegistry: ActivityLifecycleActionRegistry = mock(),
     override val notificationOpenedActivityClass: Class<*> = Activity::class.java,
+    override val jsCommandFactoryProvider: JSCommandFactoryProvider = mock(),
+    override val jsOnCloseListener: OnCloseListener = mock(),
+    override val jsOnAppEventListener: OnAppEventListener = mock(),
 ) : MobileEngageComponent

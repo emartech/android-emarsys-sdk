@@ -58,10 +58,10 @@ object MessagingServiceUtils {
                 )
                 when (notificationData.notificationMethod.operation) {
                     NotificationOperation.INIT, NotificationOperation.UPDATE -> {
-                        notificationManager.notify(collapseId, notification)
+                        notificationManager.notify(collapseId, collapseId.hashCode(), notification)
                     }
                     NotificationOperation.DELETE -> {
-                        notificationManager.cancel(collapseId)
+                        notificationManager.cancel(collapseId, collapseId.hashCode())
                     }
                 }
             }
@@ -110,7 +110,7 @@ object MessagingServiceUtils {
     }
 
     fun createNotification(
-        notificationId: Int,
+        notificationId: String,
         context: Context,
         remoteMessageData: Map<String, String>,
         deviceInfo: DeviceInfo,
@@ -165,7 +165,7 @@ object MessagingServiceUtils {
     private fun NotificationCompat.Builder.setupBuilder(
         context: Context,
         remoteMessageData: Map<String, String>,
-        notificationId: Int,
+        notificationId: String,
         fileDownloader: FileDownloader,
         notificationData: NotificationData
     ): NotificationCompat.Builder {

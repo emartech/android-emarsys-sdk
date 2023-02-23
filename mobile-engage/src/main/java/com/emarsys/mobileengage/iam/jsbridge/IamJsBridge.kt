@@ -6,8 +6,7 @@ import com.emarsys.core.Mockable
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.util.JsonUtils.merge
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory.CommandType
-import com.emarsys.mobileengage.iam.model.InAppMessage
-import com.emarsys.mobileengage.iam.webview.EmarsysWebView
+import com.emarsys.mobileengage.iam.webview.IamWebView
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -15,11 +14,10 @@ import org.json.JSONObject
 @Mockable
 class IamJsBridge(
     private val concurrentHandlerHolder: ConcurrentHandlerHolder,
-    private val jsCommandFactory: JSCommandFactory,
-    private val inAppMessage: InAppMessage
+    private val jsCommandFactory: JSCommandFactory
 ) {
 
-    var emarsysWebView: EmarsysWebView? = null
+    var iamWebView: IamWebView? = null
 
     @JavascriptInterface
     fun close(jsonString: String) {
@@ -45,7 +43,7 @@ class IamJsBridge(
     @JavascriptInterface
     fun buttonClicked(jsonString: String) {
         handleJsBridgeEvent(jsonString, "buttonId") { property, json ->
-            jsCommandFactory.create(CommandType.ON_BUTTON_CLICKED, inAppMessage)
+            jsCommandFactory.create(CommandType.ON_BUTTON_CLICKED)
                 .invoke(property, json)
             null
         }
@@ -120,10 +118,10 @@ class IamJsBridge(
     fun sendResult(payload: JSONObject) {
         require(payload.has("id")) { "Payload must have an id!" }
         if (Looper.myLooper() == Looper.getMainLooper()) {
-            emarsysWebView!!.evaluateJavascript(payload)
+            iamWebView?.respondToJS(payload)
         } else {
             concurrentHandlerHolder.postOnMain {
-                emarsysWebView!!.evaluateJavascript(payload)
+                iamWebView?.respondToJS(payload)
             }
         }
     }

@@ -21,14 +21,16 @@ import com.emarsys.core.util.log.entry.OnScreenTime
 import com.emarsys.mobileengage.R
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
-import com.emarsys.mobileengage.iam.webview.EmarsysWebView
-import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
+import com.emarsys.mobileengage.iam.model.InAppMetaData
+import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
+import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 
 @Mockable
 class IamDialog(
-    private val timestampProvider: TimestampProvider
-) : DialogFragment() {
-    constructor() : this(mobileEngage().timestampProvider)
+    private val timestampProvider: TimestampProvider,
+    webViewProvider: IamWebViewProvider
+): DialogFragment() {
+    constructor() : this(mobileEngage().timestampProvider, mobileEngage().webViewProvider)
 
     companion object {
         const val TAG = "MOBILE_ENGAGE_IAM_DIALOG_TAG"
@@ -44,12 +46,25 @@ class IamDialog(
 
     private var actions: List<OnDialogShownAction>? = null
     private lateinit var webViewContainer: FrameLayout
-    private var emarsysWebView: EmarsysWebView? = null
     private var startTime: Long = 0
     private var dismissed = false
 
+    private val iamWebView = webViewProvider.provide()
+
+    fun loadInApp(
+        html: String,
+        inAppMetaData: InAppMetaData,
+        messageLoadedListener: MessageLoadedListener
+    ) {
+        this.iamWebView.load(html, inAppMetaData, messageLoadedListener)
+    }
+
     fun setActions(actions: List<OnDialogShownAction>?) {
         this.actions = actions
+    }
+
+    fun setInAppLoadingTime(inAppLoadingTime: InAppLoadingTime?) {
+        arguments?.putSerializable(LOADING_TIME, inAppLoadingTime)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +79,6 @@ class IamDialog(
         savedInstanceState: Bundle?
     ): View? {
         val v = inflater.inflate(R.layout.mobile_engage_in_app_message, container, false)
-        emarsysWebView = IamStaticWebViewProvider.emarsysWebView
         webViewContainer = v.findViewById(R.id.mobileEngageInAppMessageContainer)
         return v
     }
@@ -72,24 +86,20 @@ class IamDialog(
     override fun onStart() {
         super.onStart()
         webViewContainer.removeAllViews()
-        if (emarsysWebView != null && emarsysWebView!!.webView != null) {
-            if (emarsysWebView!!.webView!!.parent == null) {
-                webViewContainer.addView(emarsysWebView!!.webView)
-            }
-
-            val window = dialog?.window
-
-            dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            val windowParams = window?.attributes
-            windowParams?.dimAmount = 0.0f
-            window?.attributes = windowParams
-            dialog?.window?.setLayout(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT
-            )
-        } else {
-            dismiss()
+        if (iamWebView.webView.parent == null) {
+            webViewContainer.addView(iamWebView.webView)
         }
+
+        val window = dialog?.window
+
+        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        val windowParams = window?.attributes
+        windowParams?.dimAmount = 0.0f
+        window?.attributes = windowParams
+        dialog?.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT
+        )
     }
 
     override fun onResume() {
@@ -128,13 +138,13 @@ class IamDialog(
     }
 
     override fun onStop() {
-        webViewContainer.removeView(emarsysWebView!!.webView)
+        webViewContainer.removeView(iamWebView.webView)
         super.onStop()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        emarsysWebView?.purge()
+        iamWebView.purge()
     }
 
     override fun onDestroyView() {
@@ -142,10 +152,6 @@ class IamDialog(
             dialog!!.setDismissMessage(null)
         }
         super.onDestroyView()
-    }
-
-    fun setInAppLoadingTime(inAppLoadingTime: InAppLoadingTime?) {
-        arguments?.putSerializable(LOADING_TIME, inAppLoadingTime)
     }
 
     private fun updateOnScreenTime() {

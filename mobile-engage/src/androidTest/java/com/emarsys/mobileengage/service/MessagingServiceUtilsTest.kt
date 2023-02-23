@@ -52,7 +52,7 @@ class MessagingServiceUtilsTest {
         const val LANGUAGE = "en-US"
         const val IMAGE_URL = "https://emarsys.com/image"
         const val HTML_URL = "https://hu.wikipedia.org/wiki/Mont_Blanc"
-        const val COLLAPSE_ID = 123
+        const val COLLAPSE_ID = "testCollapseId"
 
         val IMAGE: Bitmap = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
         val SMALL_NOTIFICATION_ICON =
@@ -221,7 +221,7 @@ class MessagingServiceUtilsTest {
             CHANNEL_ID,
             SMALL_NOTIFICATION_ICON,
             COLOR,
-            NotificationMethod(123, NotificationOperation.UPDATE)
+            NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE)
         )
 
         val ems = JSONObject()
@@ -278,7 +278,7 @@ class MessagingServiceUtilsTest {
 
         val input: MutableMap<String, String> = HashMap()
         MessagingServiceUtils.createNotification(
-            0,
+            CHANNEL_ID,
             context,
             input,
             deviceInfo,
@@ -307,7 +307,7 @@ class MessagingServiceUtilsTest {
         input["channel_id"] = CHANNEL_ID
 
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             input,
             deviceInfo,
@@ -340,7 +340,7 @@ class MessagingServiceUtilsTest {
         input["channel_id"] = CHANNEL_ID
 
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             input,
             deviceInfo,
@@ -374,7 +374,7 @@ class MessagingServiceUtilsTest {
         input["channel_id"] = CHANNEL_ID
 
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             input,
             deviceInfo,
@@ -402,7 +402,7 @@ class MessagingServiceUtilsTest {
         )
 
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             mapOf(),
             deviceInfo,
@@ -433,7 +433,7 @@ class MessagingServiceUtilsTest {
         )
 
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             mapOf(),
             deviceInfo,
@@ -468,7 +468,7 @@ class MessagingServiceUtilsTest {
         input["title"] = TITLE
         input["body"] = BODY
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             input,
             deviceInfo,
@@ -497,7 +497,7 @@ class MessagingServiceUtilsTest {
         input["title"] = TITLE
         input["body"] = BODY
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             input,
             deviceInfo,
@@ -529,7 +529,7 @@ class MessagingServiceUtilsTest {
         input["channel_id"] = CHANNEL_ID
 
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             input,
             deviceInfo,
@@ -564,7 +564,7 @@ class MessagingServiceUtilsTest {
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(false)
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             input,
             deviceInfo,
@@ -599,7 +599,7 @@ class MessagingServiceUtilsTest {
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(true)
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             input,
             deviceInfo,
@@ -638,7 +638,7 @@ class MessagingServiceUtilsTest {
         input["body"] = BODY
         input["ems"] = ems.toString()
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             input,
             deviceInfo,
@@ -657,7 +657,7 @@ class MessagingServiceUtilsTest {
         input["title"] = TITLE
         input["body"] = BODY
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             input,
             deviceInfo,
@@ -692,7 +692,7 @@ class MessagingServiceUtilsTest {
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(true)
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             input,
             deviceInfo,
@@ -726,7 +726,7 @@ class MessagingServiceUtilsTest {
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(false)
         val result = MessagingServiceUtils.createNotification(
-            0,
+            COLLAPSE_ID,
             context,
             input,
             deviceInfo,

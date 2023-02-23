@@ -19,9 +19,9 @@ object IntentUtils {
 
     @JvmStatic
     fun createNotificationHandlerServiceIntent(
-            context: Context, remoteMessageData: Map<String, String?>,
-            notificationId: Int,
-            action: String?): Intent {
+        context: Context, remoteMessageData: Map<String, String?>,
+        notificationId: String,
+        action: String?): Intent {
         val intent = Intent(context, mobileEngage().notificationOpenedActivityClass)
         if (action != null) {
             intent.action = action
@@ -32,24 +32,25 @@ object IntentUtils {
             bundle.putString(key, remoteMessageData[key])
         }
 
-        bundle.putInt("notification_id", notificationId)
+        bundle.putString("notification_id", notificationId)
         intent.putExtra("payload", bundle)
         return intent
     }
 
     fun createNotificationHandlerServicePendingIntent(
-            context: Context,
-            remoteMessageData: Map<String, String?>,
-            notificationId: Int): PendingIntent {
+        context: Context,
+        remoteMessageData: Map<String, String?>,
+        notificationId: String
+    ): PendingIntent {
         return createNotificationHandlerServicePendingIntent(context, remoteMessageData, notificationId, null)
     }
 
     @JvmStatic
     fun createNotificationHandlerServicePendingIntent(
-            context: Context,
-            remoteMessageData: Map<String, String?>,
-            notificationId: Int,
-            action: String?): PendingIntent {
+        context: Context,
+        remoteMessageData: Map<String, String?>,
+        notificationId: String,
+        action: String?): PendingIntent {
         val intent = createNotificationHandlerServiceIntent(context, remoteMessageData, notificationId, action)
         return PendingIntent.getActivity(
                 context,

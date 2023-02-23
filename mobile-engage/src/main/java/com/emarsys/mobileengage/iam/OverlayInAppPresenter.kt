@@ -1,134 +1,58 @@
 package com.emarsys.mobileengage.iam
 
-import android.content.ClipboardManager
-import android.content.Context
-import android.graphics.Color
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentActivity
 import com.emarsys.core.Mockable
-import com.emarsys.core.database.repository.Repository
-import com.emarsys.core.database.repository.SqlSpecification
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
+import com.emarsys.core.provider.activity.fragmentManager
 import com.emarsys.core.provider.timestamp.TimestampProvider
+import com.emarsys.core.util.log.Logger
+import com.emarsys.core.util.log.entry.CrashLog
 import com.emarsys.core.util.log.entry.InAppLoadingTime
 import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
-import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
-import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction
-import com.emarsys.mobileengage.iam.dialog.action.SendDisplayedIamAction
-import com.emarsys.mobileengage.iam.jsbridge.*
-import com.emarsys.mobileengage.iam.model.InAppMessage
-import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
-import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
-import com.emarsys.mobileengage.iam.webview.IamStaticWebViewProvider
-import com.emarsys.mobileengage.iam.webview.IamWebViewClient
+import com.emarsys.mobileengage.iam.model.InAppMetaData
+import com.emarsys.mobileengage.iam.webview.IamWebViewCreationFailedException
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
-import org.json.JSONObject
 
 @Mockable
 class OverlayInAppPresenter(
     private val concurrentHandlerHolder: ConcurrentHandlerHolder,
-    private val inAppInternal: InAppInternal,
     private val dialogProvider: IamDialogProvider,
-    private val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification>,
-    private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
     private val timestampProvider: TimestampProvider,
-    private val currentActivityProvider: CurrentActivityProvider,
-    private val jsBridgeFactory: IamJsBridgeFactory,
-    private val clipboardManager: ClipboardManager
+    private val currentActivityProvider: CurrentActivityProvider
 ) {
-
+    private var showingInProgress = false
     fun present(
         campaignId: String, sid: String?, url: String?, requestId: String?, startTimestamp: Long,
         html: String, messageLoadedListener: MessageLoadedListener?
     ) {
-        val iamDialog = dialogProvider.provideDialog(campaignId, sid, url, requestId)
-        setupDialogWithActions(iamDialog)
-        val jsCommandFactory = JSCommandFactory(
-            currentActivityProvider, concurrentHandlerHolder, inAppInternal,
-            buttonClickedRepository, onCloseTriggered(), onAppEventTriggered(), timestampProvider, clipboardManager
-        )
-
-        val jsBridge =
-            jsBridgeFactory.createJsBridge(jsCommandFactory, InAppMessage(campaignId, sid, url))
-        val context = currentActivityProvider.get() as Context?
-
-        if (context != null) {
-            concurrentHandlerHolder.postOnMain {
-                loadMessageAsync(html, jsBridge, context) {
-                    val currentActivity = currentActivityProvider.get()
-                    val endTimestamp = timestampProvider.provideTimestamp()
-                    iamDialog.setInAppLoadingTime(InAppLoadingTime(startTimestamp, endTimestamp))
-                    if (currentActivity is FragmentActivity) {
-                        val fragmentManager = currentActivity.supportFragmentManager
-                        val fragment = fragmentManager.findFragmentByTag(IamDialog.TAG)
-                        if (fragment == null) {
-                            iamDialog.show(fragmentManager, IamDialog.TAG)
+        try {
+            val shownDialog = currentActivityProvider.get()?.fragmentManager()?.findFragmentByTag(IamDialog.TAG)
+            if (shownDialog == null && !showingInProgress) {
+                showingInProgress = true
+                concurrentHandlerHolder.postOnMain {
+                    val iamDialog = dialogProvider.provideDialog(campaignId, sid, url, requestId)
+                    iamDialog.loadInApp(html, InAppMetaData(campaignId, sid, url)) {
+                        currentActivityProvider.get()?.fragmentManager()?.let {
+                            if (it.findFragmentByTag(IamDialog.TAG) == null) {
+                                val endTimestamp = timestampProvider.provideTimestamp()
+                                iamDialog.setInAppLoadingTime(InAppLoadingTime(startTimestamp, endTimestamp))
+                                iamDialog.show(it, IamDialog.TAG)
+                            }
+                        }
+                        concurrentHandlerHolder.coreHandler.post {
+                            messageLoadedListener?.onMessageLoaded()
+                            showingInProgress = false
                         }
                     }
-                    messageLoadedListener?.onMessageLoaded()
                 }
+            } else {
+                messageLoadedListener?.onMessageLoaded()
             }
-        } else {
+        } catch (e: IamWebViewCreationFailedException) {
+            showingInProgress = false
+            Logger.error(CrashLog(e))
             messageLoadedListener?.onMessageLoaded()
-        }
-    }
-
-    fun onCloseTriggered(): OnCloseListener {
-        return {
-            val currentActivity = currentActivityProvider.get()
-            if (currentActivity is FragmentActivity) {
-                concurrentHandlerHolder.postOnMain {
-                    val fragment =
-                        currentActivity.supportFragmentManager.findFragmentByTag(IamDialog.TAG)
-                    if (fragment is DialogFragment) {
-                        fragment.dismiss()
-                    }
-                }
-            }
-        }
-    }
-
-    fun onAppEventTriggered(): OnAppEventListener {
-        return { property: String?, json: JSONObject ->
-            concurrentHandlerHolder.postOnMain {
-                val payload = json.optJSONObject("payload")
-                val currentActivity = currentActivityProvider.get()
-                if (property != null && currentActivity != null) {
-                    inAppInternal.eventHandler?.handleEvent(currentActivity, property, payload)
-                }
-            }
-        }
-    }
-
-    private fun setupDialogWithActions(iamDialog: IamDialog) {
-        val saveDisplayedIamAction: OnDialogShownAction = SaveDisplayedIamAction(
-            concurrentHandlerHolder,
-            displayedIamRepository,
-            timestampProvider
-        )
-        val sendDisplayedIamAction: OnDialogShownAction = SendDisplayedIamAction(
-            concurrentHandlerHolder,
-            inAppInternal
-        )
-        iamDialog.setActions(listOf(saveDisplayedIamAction, sendDisplayedIamAction))
-    }
-
-    fun loadMessageAsync(
-        html: String?,
-        jsBridge: IamJsBridge?,
-        context: Context?,
-        messageLoadedListener: MessageLoadedListener?
-    ) {
-        jsBridge!!.emarsysWebView = IamStaticWebViewProvider().provideWebView()
-        IamStaticWebViewProvider.emarsysWebView?.let {
-            it.enableJavaScript()
-            it.addJavascriptInterface(jsBridge, "Android")
-            it.setBackgroundColor(Color.TRANSPARENT)
-            it.webViewClient = IamWebViewClient(messageLoadedListener!!, concurrentHandlerHolder)
-            it.setUiMode()
-            it.loadDataWithBaseURL(null, html!!, "text/html", "UTF-8", null)
         }
     }
 }

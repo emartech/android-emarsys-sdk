@@ -66,7 +66,7 @@ class NotificationActionUtilsTest {
                 ))
         val input: MutableMap<String, String> = HashMap()
         input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         Assert.assertTrue(result.isEmpty())
     }
 
@@ -79,7 +79,7 @@ class NotificationActionUtilsTest {
                 ))
         val input: MutableMap<String, String> = HashMap()
         input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         Assert.assertTrue(result.isEmpty())
     }
 
@@ -92,7 +92,7 @@ class NotificationActionUtilsTest {
                 ))
         val input: MutableMap<String, String> = HashMap()
         input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         Assert.assertTrue(result.isEmpty())
     }
 
@@ -106,7 +106,7 @@ class NotificationActionUtilsTest {
                 ))
         val input: MutableMap<String, String> = HashMap()
         input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         Assert.assertTrue(result.isEmpty())
     }
 
@@ -126,7 +126,7 @@ class NotificationActionUtilsTest {
         val input: Map<String, String> = mapOf(
                 "ems" to payload.toString()
         )
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         result.size shouldBe 1
         result[0].title shouldBe "Action button title"
     }
@@ -152,7 +152,7 @@ class NotificationActionUtilsTest {
                         ))
         val input: MutableMap<String, String> = HashMap()
         input["ems"] = payload.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         result.size shouldBe 2
         result[0].title shouldBe "title1"
         result[1].title shouldBe "title2"
@@ -169,7 +169,7 @@ class NotificationActionUtilsTest {
                 ))
         val input: MutableMap<String, String> = HashMap()
         input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         result.size shouldBe 0
     }
 
@@ -187,7 +187,7 @@ class NotificationActionUtilsTest {
                 )
         val input: MutableMap<String, String> = HashMap()
         input["ems"] = payload.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         result.size shouldBe 1
         result[0].title shouldBe "Action button title"
     }
@@ -212,7 +212,7 @@ class NotificationActionUtilsTest {
                 )
         val input: MutableMap<String, String> = HashMap()
         input["ems"] = payload.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         result.size shouldBe 2
         result[0].title shouldBe "Action button title"
         result[1].title shouldBe "Second button title"
@@ -229,7 +229,7 @@ class NotificationActionUtilsTest {
                 ))
         val input: MutableMap<String, String> = HashMap()
         input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         result.size shouldBe 0
     }
 
@@ -249,7 +249,7 @@ class NotificationActionUtilsTest {
                 ))
         val input: MutableMap<String, String> = HashMap()
         input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         result.size shouldBe 1
         result[0].title shouldBe "Action button title"
     }
@@ -266,7 +266,7 @@ class NotificationActionUtilsTest {
                 ))
         val input: MutableMap<String, String> = HashMap()
         input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         result.size shouldBe 1
         result[0].title shouldBe "Action button title"
     }
@@ -291,7 +291,7 @@ class NotificationActionUtilsTest {
                         ))
         val input: MutableMap<String, String> = HashMap()
         input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
 
         result.size shouldBe 2
         result[0].title shouldBe "Action button title"
@@ -309,7 +309,7 @@ class NotificationActionUtilsTest {
                 ))
         val input: MutableMap<String, String> = HashMap()
         input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, 0)
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         result.size shouldBe 1
         result[0].title shouldBe "Action button title"
     }
