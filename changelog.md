@@ -8,4 +8,4 @@
 
 ### [Push](https://github.com/emartech/android-emarsys-sdk/wiki#2-push)
 
-* Push Internal ID now supports strings.
+* Push Internal ID now supports string.
