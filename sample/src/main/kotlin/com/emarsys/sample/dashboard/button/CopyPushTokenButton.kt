@@ -3,6 +3,8 @@ package com.emarsys.sample.dashboard.button
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
@@ -43,7 +45,6 @@ fun CopyPushTokenButton(context: Context) {
                 }
             }
         } else {
-            customTextToast(context, context.getString(R.string.something_went_wrong))
             Thread {
                 val pushToken = HmsInstanceId.getInstance(context)
                     .getToken(
@@ -52,10 +53,7 @@ fun CopyPushTokenButton(context: Context) {
                     )
                 val clip = ClipData.newPlainText("copied text", pushToken)
                 myClipboard.setPrimaryClip(clip)
-                customTextToast(
-                    context,
-                    "${context.getString(R.string.push_token_copied)} $pushToken"
-                )
+                showToast(context, pushToken)
             }.start()
         }
     }
@@ -64,4 +62,13 @@ fun CopyPushTokenButton(context: Context) {
 fun Context.copyToClipboard(clipLabel: String, text: CharSequence) {
     val clipboard = ContextCompat.getSystemService(this, ClipboardManager::class.java)
     clipboard?.setPrimaryClip(ClipData.newPlainText(clipLabel, text))
+}
+
+fun showToast(context: Context, pushToken: String) {
+    Handler(Looper.getMainLooper()).post {
+        customTextToast(
+                context,
+                "${context.getString(R.string.push_token_copied)} $pushToken"
+        )
+    }
 }
