@@ -105,6 +105,8 @@ class InlineInAppViewTest {
         )
 
         inlineInAppView = InlineInAppView(activityTestRule.activity)
+
+        runOnMain {}
     }
 
     @After
