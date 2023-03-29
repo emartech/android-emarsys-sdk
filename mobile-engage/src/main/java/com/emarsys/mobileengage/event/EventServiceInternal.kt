@@ -1,27 +1,29 @@
-package com.emarsys.mobileengage.event;
+package com.emarsys.mobileengage.event
 
-import com.emarsys.core.api.result.CompletionListener;
+import com.emarsys.core.api.result.CompletionListener
 
-import java.util.Map;
+interface EventServiceInternal {
+    fun trackCustomEvent(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?
+    ): String?
 
-public interface EventServiceInternal {
-    String trackCustomEvent(
-            String eventName,
-            Map<String, String> eventAttributes,
-            CompletionListener completionListener);
+    fun trackCustomEventAsync(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?
+    )
 
-    void trackCustomEventAsync(
-            String eventName,
-            Map<String, String> eventAttributes,
-            CompletionListener completionListener);
+    fun trackInternalCustomEvent(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?
+    ): String?
 
-    String trackInternalCustomEvent(
-            String eventName,
-            Map<String, String> eventAttributes,
-            CompletionListener completionListener);
-
-    void trackInternalCustomEventAsync(
-            String eventName,
-            Map<String, String> eventAttributes,
-            CompletionListener completionListener);
+    fun trackInternalCustomEventAsync(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?
+    )
 }

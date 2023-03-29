@@ -1,53 +1,52 @@
-package com.emarsys.mobileengage.event;
+package com.emarsys.mobileengage.event
 
-import com.emarsys.core.api.result.CompletionListener;
-import com.emarsys.core.request.RequestManager;
-import com.emarsys.core.request.model.RequestModel;
-import com.emarsys.core.util.Assert;
-import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory;
+import com.emarsys.core.Mockable
+import com.emarsys.core.api.result.CompletionListener
+import com.emarsys.core.request.RequestManager
+import com.emarsys.core.util.Assert
+import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 
-import java.util.Map;
+@Mockable
+class DefaultEventServiceInternal(
+    private val requestModelFactory: MobileEngageRequestModelFactory,
+    private val requestManager: RequestManager): EventServiceInternal {
 
-public class DefaultEventServiceInternal implements EventServiceInternal {
-    private final MobileEngageRequestModelFactory requestModelFactory;
-    private final RequestManager requestManager;
-
-    public DefaultEventServiceInternal(RequestManager requestManager, MobileEngageRequestModelFactory requestModelFactory) {
-        Assert.notNull(requestModelFactory, "RequestModelFactory must not be null!");
-        Assert.notNull(requestManager, "RequestManager must not be null!");
-
-        this.requestModelFactory = requestModelFactory;
-        this.requestManager = requestManager;
+    override fun trackCustomEvent(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?
+    ): String? {
+        Assert.notNull(eventName, "EventName must not be null!")
+        val requestModel = requestModelFactory.createCustomEventRequest(eventName, eventAttributes)
+        requestManager.submit(requestModel, completionListener)
+        return requestModel.id
     }
 
-    @Override
-    public String trackCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
-        Assert.notNull(eventName, "EventName must not be null!");
-
-        RequestModel requestModel = requestModelFactory.createCustomEventRequest(eventName, eventAttributes);
-        requestManager.submit(requestModel, completionListener);
-
-        return requestModel.getId();
+    override fun trackCustomEventAsync(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?
+    ) {
+        trackCustomEvent(eventName, eventAttributes, completionListener)
     }
 
-    @Override
-    public void trackCustomEventAsync(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
-        trackCustomEvent(eventName, eventAttributes, completionListener);
+    override fun trackInternalCustomEvent(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?
+    ): String? {
+        Assert.notNull(eventName, "EventName must not be null!")
+        val requestModel =
+            requestModelFactory.createInternalCustomEventRequest(eventName, eventAttributes)
+        requestManager.submit(requestModel, completionListener)
+        return requestModel.id
     }
 
-    @Override
-    public String trackInternalCustomEvent(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
-        Assert.notNull(eventName, "EventName must not be null!");
-
-        RequestModel requestModel = requestModelFactory.createInternalCustomEventRequest(eventName, eventAttributes);
-
-        requestManager.submit(requestModel, completionListener);
-
-        return requestModel.getId();
-    }
-
-    @Override
-    public void trackInternalCustomEventAsync(String eventName, Map<String, String> eventAttributes, CompletionListener completionListener) {
-        trackInternalCustomEvent(eventName, eventAttributes, completionListener);
+    override fun trackInternalCustomEventAsync(
+        eventName: String,
+        eventAttributes: Map<String, String>?,
+        completionListener: CompletionListener?
+    ) {
+        trackInternalCustomEvent(eventName, eventAttributes, completionListener)
     }
 }

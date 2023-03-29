@@ -1,10 +1,13 @@
-package com.emarsys.mobileengage.deeplink;
+package com.emarsys.mobileengage.deeplink
 
-import android.app.Activity;
-import android.content.Intent;
+import android.app.Activity
+import android.content.Intent
+import com.emarsys.core.api.result.CompletionListener
 
-import com.emarsys.core.api.result.CompletionListener;
-
-public interface DeepLinkInternal {
-    void trackDeepLinkOpen(Activity activity, Intent intent, CompletionListener completionListener);
+interface DeepLinkInternal {
+    fun trackDeepLinkOpen(
+        activity: Activity,
+        intent: Intent,
+        completionListener: CompletionListener?
+    )
 }

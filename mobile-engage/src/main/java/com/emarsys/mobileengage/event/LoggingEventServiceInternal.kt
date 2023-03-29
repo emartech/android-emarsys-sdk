@@ -6,7 +6,7 @@ import com.emarsys.core.util.log.Logger.Companion.debug
 import com.emarsys.core.util.log.entry.MethodNotAllowed
 
 class LoggingEventServiceInternal(private val klass: Class<*>) : EventServiceInternal {
-    override fun trackCustomEvent(eventName: String, eventAttributes: Map<String, String>, completionListener: CompletionListener?): String? {
+    override fun trackCustomEvent(eventName: String, eventAttributes: Map<String, String>?, completionListener: CompletionListener?): String? {
         val parameters = mapOf(
                 "event_name" to eventName,
                 "event_attributes" to eventAttributes,
@@ -17,7 +17,7 @@ class LoggingEventServiceInternal(private val klass: Class<*>) : EventServiceInt
         return null
     }
 
-    override fun trackInternalCustomEvent(eventName: String, eventAttributes: Map<String, String>, completionListener: CompletionListener?): String? {
+    override fun trackInternalCustomEvent(eventName: String, eventAttributes: Map<String, String>?, completionListener: CompletionListener?): String? {
         val parameters = mapOf(
                 "event_name" to eventName,
                 "event_attributes" to eventAttributes,
@@ -28,7 +28,7 @@ class LoggingEventServiceInternal(private val klass: Class<*>) : EventServiceInt
         return null
     }
 
-    override fun trackCustomEventAsync(eventName: String, eventAttributes: Map<String, String>, completionListener: CompletionListener?) {
+    override fun trackCustomEventAsync(eventName: String, eventAttributes: Map<String, String>?, completionListener: CompletionListener?) {
         val parameters = mapOf(
                 "event_name" to eventName,
                 "event_attributes" to eventAttributes,
@@ -38,7 +38,7 @@ class LoggingEventServiceInternal(private val klass: Class<*>) : EventServiceInt
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    override fun trackInternalCustomEventAsync(eventName: String, eventAttributes: Map<String, String>, completionListener: CompletionListener?) {
+    override fun trackInternalCustomEventAsync(eventName: String, eventAttributes: Map<String, String>?, completionListener: CompletionListener?) {
         val parameters = mapOf(
                 "event_name" to eventName,
                 "event_attributes" to eventAttributes,
