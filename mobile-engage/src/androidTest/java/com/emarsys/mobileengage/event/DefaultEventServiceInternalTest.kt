@@ -46,22 +46,7 @@ class DefaultEventServiceInternalTest {
             whenever(createInternalCustomEventRequest(EVENT_NAME, EVENT_ATTRIBUTES)).thenReturn(mockRequestModel)
         }
 
-        eventServiceInternal = DefaultEventServiceInternal(mockRequestManager, mockRequestModelFactory)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestModelFactory_mustNotBeNull() {
-        DefaultEventServiceInternal(mockRequestManager, null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestManager_mustNotBeNull() {
-        DefaultEventServiceInternal(null, mockRequestModelFactory)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackCustomEvent_eventName_mustNotBeNull() {
-        eventServiceInternal.trackCustomEvent(null, emptyMap(), mockCompletionListener)
+        eventServiceInternal = DefaultEventServiceInternal(mockRequestModelFactory, mockRequestManager)
     }
 
     @Test
@@ -86,11 +71,6 @@ class DefaultEventServiceInternalTest {
         eventServiceInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, null)
 
         verify(mockRequestManager).submit(mockRequestModel, null)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackInternalCustomEvent_eventName_mustNotBeNull() {
-        eventServiceInternal.trackInternalCustomEvent(null, emptyMap(), mockCompletionListener)
     }
 
     @Test

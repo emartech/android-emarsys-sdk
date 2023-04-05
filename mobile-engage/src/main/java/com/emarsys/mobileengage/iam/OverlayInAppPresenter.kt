@@ -16,21 +16,21 @@ import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 
 @Mockable
 class OverlayInAppPresenter(
-    private val concurrentHandlerHolder: ConcurrentHandlerHolder,
-    private val dialogProvider: IamDialogProvider,
-    private val timestampProvider: TimestampProvider,
-    private val currentActivityProvider: CurrentActivityProvider
+        private val concurrentHandlerHolder: ConcurrentHandlerHolder,
+        private val dialogProvider: IamDialogProvider,
+        private val timestampProvider: TimestampProvider,
+        private val currentActivityProvider: CurrentActivityProvider
 ) {
     private var showingInProgress = false
     fun present(
-        campaignId: String, sid: String?, url: String?, requestId: String?, startTimestamp: Long,
-        html: String, messageLoadedListener: MessageLoadedListener?
+            campaignId: String, sid: String?, url: String?, requestId: String?, startTimestamp: Long,
+            html: String, messageLoadedListener: MessageLoadedListener?
     ) {
-        try {
-            val shownDialog = currentActivityProvider.get()?.fragmentManager()?.findFragmentByTag(IamDialog.TAG)
-            if (shownDialog == null && !showingInProgress) {
-                showingInProgress = true
-                concurrentHandlerHolder.postOnMain {
+        val shownDialog = currentActivityProvider.get()?.fragmentManager()?.findFragmentByTag(IamDialog.TAG)
+        if (shownDialog == null && !showingInProgress) {
+            showingInProgress = true
+            concurrentHandlerHolder.postOnMain {
+                try {
                     val iamDialog = dialogProvider.provideDialog(campaignId, sid, url, requestId)
                     iamDialog.loadInApp(html, InAppMetaData(campaignId, sid, url)) {
                         currentActivityProvider.get()?.fragmentManager()?.let {
@@ -45,13 +45,15 @@ class OverlayInAppPresenter(
                             showingInProgress = false
                         }
                     }
+                } catch (e: IamWebViewCreationFailedException) {
+                    concurrentHandlerHolder.coreHandler.post {
+                        Logger.error(CrashLog(e))
+                        messageLoadedListener?.onMessageLoaded()
+                        showingInProgress = false
+                    }
                 }
-            } else {
-                messageLoadedListener?.onMessageLoaded()
             }
-        } catch (e: IamWebViewCreationFailedException) {
-            showingInProgress = false
-            Logger.error(CrashLog(e))
+        } else {
             messageLoadedListener?.onMessageLoaded()
         }
     }

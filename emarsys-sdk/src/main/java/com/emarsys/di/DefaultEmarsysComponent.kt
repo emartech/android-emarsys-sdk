@@ -597,7 +597,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val eventServiceInternal: EventServiceInternal by lazy {
-        DefaultEventServiceInternal(requestManager, mobileEngageRequestModelFactory)
+        DefaultEventServiceInternal(mobileEngageRequestModelFactory, requestManager)
     }
 
     override val loggingEventServiceInternal: EventServiceInternal by lazy {
@@ -669,7 +669,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         LoggingInAppInternal(Emarsys::class.java)
     }
     override val deepLinkInternal: DeepLinkInternal by lazy {
-        DefaultDeepLinkInternal(requestManager, requestContext, deepLinkServiceProvider)
+        DefaultDeepLinkInternal(requestContext, deepLinkServiceProvider, requestManager)
     }
 
     override val pushInternal: PushInternal by lazy {

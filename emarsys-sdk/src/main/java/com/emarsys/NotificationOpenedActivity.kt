@@ -26,7 +26,7 @@ class NotificationOpenedActivity : Activity() {
     private fun processIntent() {
         if (intent != null) {
             if (isMobileEngageComponentSetup()) {
-                handleAction(intent, NotificationCommandFactory(this))
+                handleAction(intent, NotificationCommandFactory(this.applicationContext))
             } else {
                 Emarsys.setup(
                     configLoader.loadConfigFromSharedPref(
@@ -35,7 +35,7 @@ class NotificationOpenedActivity : Activity() {
                     ).build()
                 )
                 FeatureRegistry.enableFeature(InnerFeature.APP_EVENT_CACHE)
-                handleAction(intent, NotificationCommandFactory(this))
+                handleAction(intent, NotificationCommandFactory(this.applicationContext))
             }
         }
         finish()

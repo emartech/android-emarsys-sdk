@@ -78,21 +78,11 @@ class InAppInternalTest {
     }
 
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackCustomEvent_eventName_mustNotBeNull() {
-        inAppInternal.trackCustomEvent(null, emptyMap(), mockCompletionListener)
-    }
-
     @Test
     fun testTrackCustomEvent() {
         inAppInternal.trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
 
         verify(mockEventServiceInternal).trackCustomEvent(EVENT_NAME, EVENT_ATTRIBUTES, mockCompletionListener)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testTrackInternalCustomEvent_eventName_mustNotBeNull() {
-        inAppInternal.trackInternalCustomEvent(null, emptyMap(), mockCompletionListener)
     }
 
     @Test

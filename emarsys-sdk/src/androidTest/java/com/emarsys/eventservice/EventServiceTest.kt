@@ -17,7 +17,7 @@ import org.mockito.kotlin.verify
 class EventServiceTest {
     companion object {
         private const val EVENT_NAME = "testEventName"
-        private val EVENT_ATTRIBUTES = mapOf<String, String?>(
+        private val EVENT_ATTRIBUTES = mapOf(
                 "key1" to "value1",
                 "key2" to "value2"
         )

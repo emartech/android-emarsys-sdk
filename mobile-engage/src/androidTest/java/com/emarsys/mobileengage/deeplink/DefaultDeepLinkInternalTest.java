@@ -1,5 +1,14 @@
 package com.emarsys.mobileengage.deeplink;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -26,15 +35,6 @@ import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class DefaultDeepLinkInternalTest {
 
@@ -81,22 +81,7 @@ public class DefaultDeepLinkInternalTest {
 
         mockDeepLinkServiceProvider = mock(ServiceEndpointProvider.class);
         when(mockDeepLinkServiceProvider.provideEndpointHost()).thenReturn(DEEPLINK_BASE);
-        deepLinkInternal = new DefaultDeepLinkInternal(manager, requestContext, mockDeepLinkServiceProvider);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_requestManagerMustNotBeNull() {
-        new DefaultDeepLinkInternal(null, requestContext, mockDeepLinkServiceProvider);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_requestContextMustNotBeNull() {
-        new DefaultDeepLinkInternal(manager, null, mockDeepLinkServiceProvider);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructor_deepLinkServiceProvider_mustNotBeNull() {
-        new DefaultDeepLinkInternal(manager, requestContext, null);
+        deepLinkInternal = new DefaultDeepLinkInternal(requestContext, mockDeepLinkServiceProvider, manager);
     }
 
     @Test

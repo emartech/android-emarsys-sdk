@@ -59,16 +59,16 @@ class JSCommandFactory(
                                 )
                             )
                             val eventName = "inapp:click"
-                            val attributes: MutableMap<String, String?> = mutableMapOf(
+                            val attributes: MutableMap<String, String> = mutableMapOf(
                                 "campaignId" to inAppMetaData!!.campaignId,
                                 "buttonId" to property
                             )
 
                             if (inAppMetaData!!.sid != null) {
-                                attributes["sid"] = inAppMetaData!!.sid
+                                attributes["sid"] = inAppMetaData!!.sid as String
                             }
                             if (inAppMetaData!!.url != null) {
-                                attributes["url"] = inAppMetaData!!.url
+                                attributes["url"] = inAppMetaData!!.url as String
                             }
 
                             inAppInternal.trackInternalCustomEvent(eventName, attributes, null)
@@ -109,7 +109,7 @@ class JSCommandFactory(
                         val payload = json.optJSONObject("payload")
                         val attributes = payload?.keys()?.asSequence()
                             ?.associateBy({ it }) { payload.getString(it) }
-                        inAppInternal.trackCustomEventAsync(property, attributes, null)
+                        inAppInternal.trackCustomEventAsync(property!!, attributes, null)
                     }
                 }
             }
