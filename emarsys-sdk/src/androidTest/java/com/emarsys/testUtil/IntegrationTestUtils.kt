@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.arch.core.internal.FastSafeIterableMap
 import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.emarsys.Emarsys
 import com.emarsys.di.emarsys
@@ -62,17 +63,21 @@ object IntegrationTestUtils {
 
         latch = CountDownLatch(1)
         emarsys().concurrentHandlerHolder.postOnMain {
-            val observerMap = ReflectionTestUtils.getInstanceField<FastSafeIterableMap<Any, Any>>(
-                ProcessLifecycleOwner.get().lifecycle,
-                "mObserverMap"
-            )
-            if (observerMap != null) {
-                ReflectionTestUtils.getInstanceField<HashMap<Any, Any>>(
-                    observerMap,
-                    "mHashMap"
-                )?.entries?.toMutableList()?.forEach {
-                    ProcessLifecycleOwner.get().lifecycle.removeObserver(it.key as LifecycleObserver)
+            val lifecycle = ProcessLifecycleOwner.get().lifecycle
+            if (lifecycle is LifecycleRegistry) {
+                val observerMap =
+                    ReflectionTestUtils.getInstanceField<FastSafeIterableMap<Any, Any>>(
+                        lifecycle,
+                        "observerMap"
+                    )
+                if (observerMap != null) {
+                    ReflectionTestUtils.getInstanceField<HashMap<Any, Any>>(
+                        observerMap,
+                        "mHashMap"
+                    )?.entries?.toMutableList()?.forEach {
+                        ProcessLifecycleOwner.get().lifecycle.removeObserver(it.key as LifecycleObserver)
                     }
+                }
             }
             latch.countDown()
         }
