@@ -13,4 +13,4 @@ WORKDIR /workspace/source
 RUN git reset --hard
 RUN git checkout dev
 
-RUN ./gradlew build -x :sample:build -x lint
+RUN ./gradlew build -x :sample:build -x lint --stacktrace --info
