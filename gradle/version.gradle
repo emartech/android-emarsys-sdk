@@ -16,12 +16,16 @@ import org.ajoberstar.grgit.Grgit
 ext {
     git = Grgit.open(currentDir: projectDir)
 
-    git.fetch()
+    if ((System.env.BLACKDUCK == null ? false : System.env.BLACKDUCK) == false) {
+        git.fetch()
+    }
 
     gitVersionName = System.env.RELEASE_VERSION == null ? git.describe() : System.env.RELEASE_VERSION
     gitVersionCode = gitVersionCode = (int) ((new Date().getTime() - 1602845230) / 10000)
     gitVersionCodeTime = git.head().time
+    git = Grgit.open(currentDir: projectDir)
 
+    gitVersionCodeTime = git.head().time
     if (git.describe() == null) {
         throw new RuntimeException("Couldn't get Version Name")
     }
