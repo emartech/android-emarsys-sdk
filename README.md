@@ -1,4 +1,5 @@
 ![build](https://github.com/emartech/android-emarsys-sdk/workflows/Last%20push%20build/badge.svg)
+[![REUSE status](https://api.reuse.software/badge/github.com/emartech/android-emarsys-sdk)](https://api.reuse.software/info/github.com/emartech/android-emarsys-sdk)
 
 ## Contents
 
