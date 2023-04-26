@@ -50,7 +50,7 @@ import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
 import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
-import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
@@ -118,7 +118,7 @@ class FakeFirebaseDependencyContainer(
     override val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification> = mock(),
     override val displayedIamRepository: Repository<DisplayedIam, SqlSpecification> = mock(),
     override val contactTokenResponseHandler: MobileEngageTokenResponseHandler = mock(),
-    override val webViewProvider: IamWebViewProvider = mock(),
+    override val webViewProvider: IamWebViewFactory = mock(),
     override val iamJsBridgeFactory: IamJsBridgeFactory = mock(),
     override val remoteMessageMapper: RemoteMessageMapper = mock(),
     override val appLifecycleObserver: AppLifecycleObserver = mock(),

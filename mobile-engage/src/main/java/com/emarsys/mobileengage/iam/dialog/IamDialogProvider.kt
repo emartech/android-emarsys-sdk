@@ -11,7 +11,7 @@ import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
 import com.emarsys.mobileengage.iam.dialog.action.SaveDisplayedIamAction
 import com.emarsys.mobileengage.iam.dialog.action.SendDisplayedIamAction
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
-import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 
 @Mockable
 class IamDialogProvider(
@@ -19,7 +19,7 @@ class IamDialogProvider(
     private val timestampProvider: TimestampProvider,
     private val inAppInternal: InAppInternal,
     private val displayedIamRepository: Repository<DisplayedIam, SqlSpecification>,
-    private val webViewProvider: IamWebViewProvider
+    private val webViewProvider: IamWebViewFactory
 ) {
     fun provideDialog(
         campaignId: String,

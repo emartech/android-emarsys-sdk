@@ -18,7 +18,7 @@ import com.emarsys.mobileengage.iam.webview.IamWebView
 import com.emarsys.mobileengage.iam.webview.IamWebViewCreationFailedException
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.*
+import java.util.Locale
 
 class InlineInAppView : LinearLayout {
 
@@ -37,7 +37,7 @@ class InlineInAppView : LinearLayout {
         }
     var onCompletionListener: CompletionListener? = null
 
-    private val webViewProvider = mobileEngage().webViewProvider
+    private val webViewFactory = mobileEngage().webViewProvider
     private val concurrentHandlerHolder = mobileEngage().concurrentHandlerHolder
     private val requestManager = mobileEngage().requestManager
     private val requestModelFactory = mobileEngage().mobileEngageRequestModelFactory
@@ -57,7 +57,7 @@ class InlineInAppView : LinearLayout {
         viewId = attributes.getString(0)
 
         try {
-            iamWebView = webViewProvider.provide()
+            iamWebView = webViewFactory.create(context)
         } catch (e: IamWebViewCreationFailedException) {
             onCompletionListener?.onCompleted(IllegalArgumentException("WebView can not be created, please try again later!"))
         }

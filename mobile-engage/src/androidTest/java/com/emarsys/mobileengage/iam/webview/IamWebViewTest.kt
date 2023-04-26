@@ -5,7 +5,11 @@ import androidx.test.rule.ActivityTestRule
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
-import com.emarsys.mobileengage.iam.jsbridge.*
+import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
+import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
+import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
+import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
+import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.fake.FakeActivity
@@ -52,7 +56,7 @@ class IamWebViewTest {
                 concurrentHandlerHolder,
                 mockJSBridgeFactory,
                 mockCommandFactory,
-                mockCurrentActivityProvider
+                mockCurrentActivityProvider.get()
             )
         }
     }

@@ -27,7 +27,7 @@ import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
 import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClicked
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
-import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
@@ -169,7 +169,7 @@ interface MobileEngageComponent : CoreComponent {
 
     val contactTokenResponseHandler: MobileEngageTokenResponseHandler
 
-    val webViewProvider: IamWebViewProvider
+    val webViewProvider: IamWebViewFactory
 
     val iamJsBridgeFactory: IamJsBridgeFactory
 

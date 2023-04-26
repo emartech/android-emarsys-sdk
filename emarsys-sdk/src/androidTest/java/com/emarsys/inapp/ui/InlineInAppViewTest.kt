@@ -6,16 +6,19 @@ import com.emarsys.core.api.ResponseErrorException
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.request.RequestManager
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.di.FakeDependencyContainer
 import com.emarsys.di.setupEmarsysComponent
-import com.emarsys.mobileengage.iam.jsbridge.*
+import com.emarsys.mobileengage.iam.jsbridge.IamJsBridge
+import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
+import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
+import com.emarsys.mobileengage.iam.jsbridge.OnAppEventListener
+import com.emarsys.mobileengage.iam.jsbridge.OnCloseListener
 import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
-import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.IntegrationTestUtils
@@ -30,7 +33,13 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.Mockito.spy
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 class InlineInAppViewTest {
@@ -40,7 +49,7 @@ class InlineInAppViewTest {
         const val REQUEST_ID = "testRequestId"
     }
 
-    private lateinit var mockWebViewProvider: IamWebViewProvider
+    private lateinit var mockWebViewFactory: IamWebViewFactory
     private lateinit var mockIamJsBridgeFactory: IamJsBridgeFactory
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockResponseModel: ResponseModel
@@ -50,7 +59,6 @@ class InlineInAppViewTest {
     private lateinit var mockJsBridge: IamJsBridge
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockJsCommandFactory: JSCommandFactory
-    private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
 
     private lateinit var inlineInAppView: InlineInAppView
 
@@ -68,21 +76,18 @@ class InlineInAppViewTest {
         mockJsBridge = mock()
         mockIamJsBridgeFactory = mock { on { createJsBridge(any()) } doReturn mockJsBridge }
         mockJsCommandFactory = mock()
-        mockCurrentActivityProvider = mock {
-            on { get() } doReturn activityTestRule.activity
-        }
 
         mockIamWebView = spy(runOnMain {
             IamWebView(
                 concurrentHandlerHolder,
                 mockIamJsBridgeFactory,
                 mockJsCommandFactory,
-                mockCurrentActivityProvider
+                activityTestRule.activity
             )
         })
 
-        mockWebViewProvider = mock {
-            on { provide() }.thenReturn(mockIamWebView)
+        mockWebViewFactory = mock {
+            on { create(activityTestRule.activity) }.thenReturn(mockIamWebView)
         }
         mockRequestModel = mock {
             on { id } doReturn REQUEST_ID
@@ -97,7 +102,7 @@ class InlineInAppViewTest {
 
         setupEmarsysComponent(
             FakeDependencyContainer(
-                webViewProvider = mockWebViewProvider,
+                webViewProvider = mockWebViewFactory,
                 concurrentHandlerHolder = concurrentHandlerHolder,
                 requestManager = mockRequestManager,
                 mobileEngageRequestModelFactory = mockRequestModelFactory,

@@ -22,13 +22,13 @@ import com.emarsys.mobileengage.R
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
 import com.emarsys.mobileengage.iam.model.InAppMetaData
-import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 
 @Mockable
 class IamDialog(
     private val timestampProvider: TimestampProvider,
-    webViewProvider: IamWebViewProvider
+    webViewFactory: IamWebViewFactory
 ): DialogFragment() {
     constructor() : this(mobileEngage().timestampProvider, mobileEngage().webViewProvider)
 
@@ -49,7 +49,7 @@ class IamDialog(
     private var startTime: Long = 0
     private var dismissed = false
 
-    private val iamWebView = webViewProvider.provide()
+    private val iamWebView = webViewFactory.create(activity)
 
     fun loadInApp(
         html: String,

@@ -21,7 +21,11 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import java.util.concurrent.CountDownLatch
 
 class OverlayInAppPresenterTest {
@@ -80,11 +84,10 @@ class OverlayInAppPresenterTest {
             URL,
             "requestId",
             0L,
-            "<html><body><p>Hello</p></body></html>",
-            MessageLoadedListener {
-                countDownLatch.countDown()
-            }
-        )
+            "<html><body><p>Hello</p></body></html>"
+        ) {
+            countDownLatch.countDown()
+        }
 
         countDownLatch.await()
 
@@ -128,11 +131,10 @@ class OverlayInAppPresenterTest {
             URL,
             "requestId",
             0L,
-            "<html><body><p>Hello</p></body></html>",
-            MessageLoadedListener {
-                countDownLatch.countDown()
-            }
-        )
+            "<html><body><p>Hello</p></body></html>"
+        ) {
+            countDownLatch.countDown()
+        }
 
         countDownLatch.await()
 
@@ -151,11 +153,10 @@ class OverlayInAppPresenterTest {
             URL,
             "requestId",
             0L,
-            "<html><body><p>Hello</p></body></html>",
-            MessageLoadedListener {
-                countDownLatch.countDown()
-            }
-        )
+            "<html><body><p>Hello</p></body></html>"
+        ) {
+            countDownLatch.countDown()
+        }
 
         countDownLatch.await()
 
@@ -185,11 +186,10 @@ class OverlayInAppPresenterTest {
             URL,
             "requestId",
             0L,
-            "<html><body><p>Hello</p></body></html>",
-            MessageLoadedListener {
-                countDownLatch.countDown()
-            }
-        )
+            "<html><body><p>Hello</p></body></html>"
+        ) {
+            countDownLatch.countDown()
+        }
 
         countDownLatch.await()
 
