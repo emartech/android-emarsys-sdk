@@ -1,6 +1,7 @@
 package com.emarsys.mobileengage.iam.webview
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
 import android.webkit.WebView
@@ -8,7 +9,6 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import com.emarsys.core.Mockable
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.mobileengage.iam.jsbridge.*
 import com.emarsys.mobileengage.iam.model.InAppMetaData
@@ -20,7 +20,8 @@ class IamWebView(
     private val concurrentHandlerHolder: ConcurrentHandlerHolder,
     jsBridgeFactory: IamJsBridgeFactory,
     private val commandFactory: JSCommandFactory,
-    currentActivityProvider: CurrentActivityProvider) {
+    activity: Context?
+) {
 
     final var webView: WebView
     var onCloseTriggered: OnCloseListener? = null
@@ -37,7 +38,7 @@ class IamWebView(
     final var jsBridge: IamJsBridge
 
     init {
-        val context = currentActivityProvider.get() ?: throw IamWebViewCreationFailedException()
+        val context = activity ?: throw IamWebViewCreationFailedException()
         webView = WebView(context)
 
         jsBridge = jsBridgeFactory.createJsBridge(commandFactory)
@@ -49,7 +50,11 @@ class IamWebView(
         webView.setUiModeAutomatically()
     }
 
-    fun load(html: String, inAppMetaData: InAppMetaData, messageLoadedListener: MessageLoadedListener) {
+    fun load(
+        html: String,
+        inAppMetaData: InAppMetaData,
+        messageLoadedListener: MessageLoadedListener
+    ) {
         webView.webViewClient = IamWebViewClient(messageLoadedListener, concurrentHandlerHolder)
         commandFactory.inAppMetaData = inAppMetaData
         webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
@@ -77,6 +82,7 @@ fun WebView.setUiModeAutomatically() {
                         WebSettingsCompat.FORCE_DARK_ON
                     )
                 }
+
                 Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_UNDEFINED -> {
                     WebSettingsCompat.setForceDark(
                         settings,

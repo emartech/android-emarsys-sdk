@@ -24,7 +24,7 @@ import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactory
 import com.emarsys.mobileengage.iam.jsbridge.JSCommandFactoryProvider
 import com.emarsys.mobileengage.iam.model.InAppMetaData
 import com.emarsys.mobileengage.iam.webview.IamWebView
-import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 import com.emarsys.testUtil.ExtensionTestUtils.runOnMain
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
@@ -38,7 +38,12 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 class IamDialogTest {
@@ -52,7 +57,7 @@ class IamDialogTest {
     }
 
     private lateinit var mockTimestampProvider: TimestampProvider
-    private lateinit var mockWebViewProvider: IamWebViewProvider
+    private lateinit var mockWebViewFactory: IamWebViewFactory
     private lateinit var mockJSCommandFactoryProvider: JSCommandFactoryProvider
     private lateinit var mockJSCommandFactory: JSCommandFactory
     private lateinit var mockJsBridgeFactory: IamJsBridgeFactory
@@ -93,22 +98,22 @@ class IamDialogTest {
         }
 
         val iamWebView = createWebView()
-        mockWebViewProvider = mock {
-            on { provide() } doReturn iamWebView
+        mockWebViewFactory = mock {
+            on { create(null) } doReturn iamWebView
         }
 
         setupMobileEngageComponent(
             FakeMobileEngageDependencyContainer(
                 timestampProvider = mockTimestampProvider,
                 uuidProvider = mockUuidProvider,
-                webViewProvider = mockWebViewProvider,
+                webViewProvider = mockWebViewFactory,
                 jsCommandFactoryProvider = mockJSCommandFactoryProvider,
                 iamJsBridgeFactory = mockJsBridgeFactory,
                 concurrentHandlerHolder = mockConcurrentHandlerHolder,
                 currentActivityProvider = mockCurrentActivityProvider
             )
         )
-        iamDialog = IamDialog(mockTimestampProvider, mockWebViewProvider)
+        iamDialog = IamDialog(mockTimestampProvider, mockWebViewFactory)
     }
 
     @After
@@ -525,7 +530,7 @@ class IamDialogTest {
             val iamWebView = createWebView()
             iamWebView.webView = webView
 
-            whenever(mockWebViewProvider.provide()).thenReturn(iamWebView)
+            whenever(mockWebViewFactory.create(null)).thenReturn(iamWebView)
 
             val fragmentScenario = launchFragment {
                 IamDialog(
@@ -550,11 +555,11 @@ class IamDialogTest {
         val messageLoadedListener: MessageLoadedListener = MessageLoadedListener {  }
 
         val mockIamWebView: IamWebView = mock()
-        whenever(mockWebViewProvider.provide()).thenReturn(mockIamWebView)
+        whenever(mockWebViewFactory.create(null)).thenReturn(mockIamWebView)
 
         val dialog = IamDialog(
             mobileEngage().timestampProvider,
-            mockWebViewProvider
+            mockWebViewFactory
         )
 
         dialog.loadInApp(html, inAppMetaData, messageLoadedListener)
@@ -568,7 +573,7 @@ class IamDialogTest {
                 mockConcurrentHandlerHolder,
                 mockJsBridgeFactory,
                 mockJSCommandFactory,
-                mockCurrentActivityProvider
+                mockCurrentActivityProvider.get()
             )
         }
         return webView

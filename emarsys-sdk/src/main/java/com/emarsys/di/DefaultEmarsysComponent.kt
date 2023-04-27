@@ -14,7 +14,13 @@ import com.emarsys.Emarsys
 import com.emarsys.EmarsysRequestModelFactory
 import com.emarsys.clientservice.ClientService
 import com.emarsys.clientservice.ClientServiceApi
-import com.emarsys.config.*
+import com.emarsys.config.Config
+import com.emarsys.config.ConfigApi
+import com.emarsys.config.ConfigInternal
+import com.emarsys.config.DefaultConfigInternal
+import com.emarsys.config.EmarsysConfig
+import com.emarsys.config.FetchRemoteConfigAction
+import com.emarsys.config.RemoteConfigResponseMapper
 import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.Mapper
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
@@ -58,7 +64,13 @@ import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.shard.ShardModel
 import com.emarsys.core.shard.ShardModelRepository
 import com.emarsys.core.shard.specification.FilterByShardType
-import com.emarsys.core.storage.*
+import com.emarsys.core.storage.BooleanStorage
+import com.emarsys.core.storage.CoreStorageKey
+import com.emarsys.core.storage.DefaultKeyValueStore
+import com.emarsys.core.storage.KeyValueStore
+import com.emarsys.core.storage.SecureSharedPreferencesProvider
+import com.emarsys.core.storage.Storage
+import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.batch.BatchingShardTrigger
 import com.emarsys.core.util.batch.ListChunker
@@ -78,7 +90,14 @@ import com.emarsys.inapp.InApp
 import com.emarsys.inapp.InAppApi
 import com.emarsys.inbox.MessageInbox
 import com.emarsys.inbox.MessageInboxApi
-import com.emarsys.mobileengage.*
+import com.emarsys.mobileengage.DefaultMobileEngageInternal
+import com.emarsys.mobileengage.LoggingMobileEngageInternal
+import com.emarsys.mobileengage.MobileEngage
+import com.emarsys.mobileengage.MobileEngageApi
+import com.emarsys.mobileengage.MobileEngageInternal
+import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal
+import com.emarsys.mobileengage.MobileEngageRequestContext
+import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.client.DefaultClientServiceInternal
 import com.emarsys.mobileengage.client.LoggingClientServiceInternal
@@ -91,8 +110,19 @@ import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.event.DefaultEventServiceInternal
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.event.LoggingEventServiceInternal
-import com.emarsys.mobileengage.geofence.*
-import com.emarsys.mobileengage.iam.*
+import com.emarsys.mobileengage.geofence.DefaultGeofenceInternal
+import com.emarsys.mobileengage.geofence.FetchGeofencesAction
+import com.emarsys.mobileengage.geofence.GeofenceFilter
+import com.emarsys.mobileengage.geofence.GeofenceInternal
+import com.emarsys.mobileengage.geofence.GeofencePendingIntentProvider
+import com.emarsys.mobileengage.geofence.GeofenceResponseMapper
+import com.emarsys.mobileengage.geofence.LoggingGeofenceInternal
+import com.emarsys.mobileengage.iam.AppStartAction
+import com.emarsys.mobileengage.iam.DefaultInAppInternal
+import com.emarsys.mobileengage.iam.InAppEventHandlerInternal
+import com.emarsys.mobileengage.iam.InAppInternal
+import com.emarsys.mobileengage.iam.LoggingInAppInternal
+import com.emarsys.mobileengage.iam.OverlayInAppPresenter
 import com.emarsys.mobileengage.iam.dialog.IamDialog
 import com.emarsys.mobileengage.iam.dialog.IamDialogProvider
 import com.emarsys.mobileengage.iam.jsbridge.IamJsBridgeFactory
@@ -104,17 +134,34 @@ import com.emarsys.mobileengage.iam.model.buttonclicked.ButtonClickedRepository
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIam
 import com.emarsys.mobileengage.iam.model.displayediam.DisplayedIamRepository
 import com.emarsys.mobileengage.iam.model.requestRepositoryProxy.RequestRepositoryProxy
-import com.emarsys.mobileengage.iam.webview.IamWebViewProvider
+import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.inbox.DefaultMessageInboxInternal
 import com.emarsys.mobileengage.inbox.LoggingMessageInboxInternal
 import com.emarsys.mobileengage.inbox.MessageInboxInternal
 import com.emarsys.mobileengage.inbox.MessageInboxResponseMapper
 import com.emarsys.mobileengage.notification.ActionCommandFactory
-import com.emarsys.mobileengage.push.*
+import com.emarsys.mobileengage.push.DefaultPushInternal
+import com.emarsys.mobileengage.push.DefaultPushTokenProvider
+import com.emarsys.mobileengage.push.LoggingPushInternal
+import com.emarsys.mobileengage.push.NotificationInformationListenerProvider
+import com.emarsys.mobileengage.push.PushInternal
+import com.emarsys.mobileengage.push.PushTokenProvider
+import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import com.emarsys.mobileengage.request.mapper.*
-import com.emarsys.mobileengage.responsehandler.*
+import com.emarsys.mobileengage.request.mapper.ContactTokenHeaderMapper
+import com.emarsys.mobileengage.request.mapper.DefaultRequestHeaderMapper
+import com.emarsys.mobileengage.request.mapper.DeviceEventStateRequestMapper
+import com.emarsys.mobileengage.request.mapper.MobileEngageHeaderMapper
+import com.emarsys.mobileengage.request.mapper.OpenIdTokenRequestMapper
+import com.emarsys.mobileengage.responsehandler.ClientInfoResponseHandler
+import com.emarsys.mobileengage.responsehandler.DeviceEventStateResponseHandler
+import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandler
+import com.emarsys.mobileengage.responsehandler.InAppCleanUpResponseHandlerV4
+import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler
+import com.emarsys.mobileengage.responsehandler.MobileEngageClientStateResponseHandler
+import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
+import com.emarsys.mobileengage.responsehandler.OnEventActionResponseHandler
 import com.emarsys.mobileengage.service.RemoteMessageMapper
 import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
@@ -122,7 +169,14 @@ import com.emarsys.mobileengage.storage.MobileEngageStorageKey
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.oneventaction.OnEventAction
 import com.emarsys.oneventaction.OnEventActionApi
-import com.emarsys.predict.*
+import com.emarsys.predict.DefaultPredictInternal
+import com.emarsys.predict.LoggingPredictInternal
+import com.emarsys.predict.Predict
+import com.emarsys.predict.PredictApi
+import com.emarsys.predict.PredictInternal
+import com.emarsys.predict.PredictResponseMapper
+import com.emarsys.predict.PredictRestricted
+import com.emarsys.predict.PredictRestrictedApi
 import com.emarsys.predict.provider.PredictRequestModelBuilderProvider
 import com.emarsys.predict.request.PredictHeaderFactory
 import com.emarsys.predict.request.PredictRequestContext
@@ -698,8 +752,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         )
     }
 
-    override val webViewProvider: IamWebViewProvider by lazy {
-        IamWebViewProvider(
+    override val webViewProvider: IamWebViewFactory by lazy {
+        IamWebViewFactory(
             iamJsBridgeFactory,
             jsCommandFactoryProvider,
             concurrentHandlerHolder,

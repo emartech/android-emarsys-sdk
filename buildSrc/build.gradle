@@ -5,12 +5,12 @@ buildscript {
     }
 
     dependencies {
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.20"
     }
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.8.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.8.20'
 }
 
 repositories {

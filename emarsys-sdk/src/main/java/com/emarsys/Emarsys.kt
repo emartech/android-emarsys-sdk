@@ -3,7 +3,9 @@ package com.emarsys
 import android.app.Activity
 import android.content.Intent
 import androidx.lifecycle.ProcessLifecycleOwner
-import com.emarsys.common.feature.InnerFeature.*
+import com.emarsys.common.feature.InnerFeature.EVENT_SERVICE_V4
+import com.emarsys.common.feature.InnerFeature.MOBILE_ENGAGE
+import com.emarsys.common.feature.InnerFeature.PREDICT
 import com.emarsys.config.ConfigApi
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.api.proxyApi
@@ -71,7 +73,6 @@ object Emarsys {
         if (emarsysConfig.merchantId != null) {
             FeatureRegistry.enableFeature(PREDICT)
         }
-
 
         if (!isEmarsysComponentSetup()) {
             DefaultEmarsysDependencies(emarsysConfig)

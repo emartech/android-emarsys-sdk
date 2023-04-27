@@ -20,7 +20,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-class IamWebViewProviderTest {
+class IamWebViewFactoryTest {
 
     private lateinit var mockJSCommandFactoryProvider: JSCommandFactoryProvider
     private lateinit var mockJSCommandFactory: JSCommandFactory
@@ -29,7 +29,7 @@ class IamWebViewProviderTest {
     private lateinit var concurrentHandlerHolder: ConcurrentHandlerHolder
     private lateinit var mockCurrentActivityProvider: CurrentActivityProvider
 
-    private lateinit var webViewProvider: IamWebViewProvider
+    private lateinit var webViewFactory: IamWebViewFactory
 
     @Rule
     @JvmField
@@ -56,13 +56,26 @@ class IamWebViewProviderTest {
             on { get() } doReturn activityTestRule.activity
         }
 
-        webViewProvider = IamWebViewProvider(mockJsBridgeFactory, mockJSCommandFactoryProvider, concurrentHandlerHolder, mockCurrentActivityProvider)
+        webViewFactory = IamWebViewFactory(
+            mockJsBridgeFactory,
+            mockJSCommandFactoryProvider,
+            concurrentHandlerHolder,
+            mockCurrentActivityProvider
+        )
     }
 
     @Test
-    fun testProvideWebView() {
+    fun testCreateWithNull() {
         val iamWebView = runOnMain {
-            webViewProvider.provide()
+            webViewFactory.create(null)
+        }
+        iamWebView::class.java shouldBe IamWebView::class.java
+    }
+
+    @Test
+    fun testCreateWithActivity() {
+        val iamWebView = runOnMain {
+            webViewFactory.create(activityTestRule.activity)
         }
         iamWebView::class.java shouldBe IamWebView::class.java
     }
