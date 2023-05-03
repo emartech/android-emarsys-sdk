@@ -163,30 +163,45 @@ class DefaultGeofenceInternal(
             validateBackgroundPermission()
         }
 
-        val lastLocation = fusedLocationProviderClient.lastLocation as Task<Location?>?
-        lastLocation?.addOnSuccessListener { loc: Location? ->
-            currentLocation = loc
+        val requestLocationUpdateTask = requestLocationUpdate()
+        requestLocationUpdateTask.addOnCompleteListener {
+            val lastLocation = fusedLocationProviderClient.lastLocation as Task<Location?>?
+            lastLocation?.addOnSuccessListener { loc: Location? ->
+                currentLocation = loc
+
+                if (currentLocation != null && geofenceResponse != null) {
+                    nearestGeofences =
+                        geofenceFilter.findNearestGeofences(currentLocation!!, geofenceResponse!!)
+                            .toMutableList()
+                    nearestGeofences.add(createRefreshAreaGeofence(nearestGeofences))
+                    registerGeofences(nearestGeofences)
+                }
+
+                completionListener?.onCompleted(null)
+            }
+
+            lastLocation?.addOnFailureListener {
+                completionListener?.onCompleted(it)
+            }
         }
 
-        fusedLocationProviderClient.requestLocationUpdates(
-            LocationRequest.create().apply {
-                fastestInterval = FASTEST_INTERNAL
-                interval = INTERVAL
-                maxWaitTime = MAX_WAIT_TIME
-                priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-            },
+        requestLocationUpdateTask.addOnFailureListener {
+            completionListener?.onCompleted(it)
+        }
+    }
+
+    private fun requestLocationUpdate(): Task<Void> {
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, FASTEST_INTERNAL)
+            .setMaxUpdateAgeMillis(MAX_WAIT_TIME)
+            .setIntervalMillis(INTERVAL)
+            .setMinUpdateDistanceMeters(5f)
+            .setGranularity(Granularity.GRANULARITY_FINE)
+            .setWaitForAccurateLocation(true)
+            .build()
+        return fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest,
             geofencePendingIntent
         )
-
-        completionListener?.onCompleted(null)
-
-        if (currentLocation != null && geofenceResponse != null) {
-            nearestGeofences =
-                geofenceFilter.findNearestGeofences(currentLocation!!, geofenceResponse!!)
-                    .toMutableList()
-            nearestGeofences.add(createRefreshAreaGeofence(nearestGeofences))
-            registerGeofences(nearestGeofences)
-        }
     }
 
     private fun findMissingPermissions(): String? {
