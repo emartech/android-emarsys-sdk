@@ -1,5 +1,5 @@
-# What's fixed
+# What's changed
 
-### [In-App](https://github.com/emartech/android-emarsys-sdk/wiki#3-inapp)
+### [Geofence](https://github.com/emartech/android-emarsys-sdk/wiki#8-geofence)
 
-* Fixed an issue that could cause the SDK to crash during In-App appearing.
+* Modified internal functionality of Geofence to ensure the SDK gets a more stable location update
