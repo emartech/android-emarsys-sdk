@@ -15,10 +15,10 @@ class IamWebViewFactory(
     private val currentActivityProvider: CurrentActivityProvider
 ) {
 
-    fun create(activity: Context?): IamWebView {
+    fun create(context: Context?): IamWebView {
         return IamWebView(
             concurrentHandlerHolder, jsBridgeFactory,
-            jsCommandFactoryProvider.provide(), activity ?: currentActivityProvider.get()
+            jsCommandFactoryProvider.provide(), context ?: currentActivityProvider.get()
         )
     }
 

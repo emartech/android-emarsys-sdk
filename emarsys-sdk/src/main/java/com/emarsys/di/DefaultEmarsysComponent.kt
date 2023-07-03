@@ -321,7 +321,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                 timestampProvider,
                 inAppInternal,
                 displayedIamRepository,
-                webViewProvider
+                webViewFactory
             ),
             timestampProvider,
             currentActivityProvider
@@ -752,7 +752,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         )
     }
 
-    override val webViewProvider: IamWebViewFactory by lazy {
+    override val webViewFactory: IamWebViewFactory by lazy {
         IamWebViewFactory(
             iamJsBridgeFactory,
             jsCommandFactoryProvider,

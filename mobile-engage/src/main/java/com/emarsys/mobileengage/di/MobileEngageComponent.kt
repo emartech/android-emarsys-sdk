@@ -169,7 +169,7 @@ interface MobileEngageComponent : CoreComponent {
 
     val contactTokenResponseHandler: MobileEngageTokenResponseHandler
 
-    val webViewProvider: IamWebViewFactory
+    val webViewFactory: IamWebViewFactory
 
     val iamJsBridgeFactory: IamJsBridgeFactory
 

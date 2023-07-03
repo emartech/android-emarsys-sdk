@@ -106,7 +106,7 @@ class IamDialogTest {
             FakeMobileEngageDependencyContainer(
                 timestampProvider = mockTimestampProvider,
                 uuidProvider = mockUuidProvider,
-                webViewProvider = mockWebViewFactory,
+                webViewFactory = mockWebViewFactory,
                 jsCommandFactoryProvider = mockJSCommandFactoryProvider,
                 iamJsBridgeFactory = mockJsBridgeFactory,
                 concurrentHandlerHolder = mockConcurrentHandlerHolder,
@@ -135,7 +135,7 @@ class IamDialogTest {
             launchFragment {
                 IamDialog(
                     mobileEngage().timestampProvider,
-                    mobileEngage().webViewProvider
+                    mobileEngage().webViewFactory
                 )
             }
         fragmentScenario.onFragment { fragment ->
@@ -154,7 +154,7 @@ class IamDialogTest {
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
                 mobileEngage().timestampProvider,
-                mobileEngage().webViewProvider
+                mobileEngage().webViewFactory
             )
         }
         fragmentScenario.onFragment { fragment ->
@@ -177,7 +177,7 @@ class IamDialogTest {
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
                 mobileEngage().timestampProvider,
-                mobileEngage().webViewProvider
+                mobileEngage().webViewFactory
             )
         }
         fragmentScenario.onFragment { fragment ->
@@ -201,7 +201,7 @@ class IamDialogTest {
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
                 mobileEngage().timestampProvider,
-                mobileEngage().webViewProvider
+                mobileEngage().webViewFactory
             )
         }
         fragmentScenario.onFragment { fragment ->
@@ -225,7 +225,7 @@ class IamDialogTest {
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
                 mobileEngage().timestampProvider,
-                mobileEngage().webViewProvider
+                mobileEngage().webViewFactory
             )
         }
         fragmentScenario.onFragment { fragment ->
@@ -247,7 +247,7 @@ class IamDialogTest {
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
                 mobileEngage().timestampProvider,
-                mobileEngage().webViewProvider
+                mobileEngage().webViewFactory
             )
         }
         fragmentScenario.onFragment { fragment ->
@@ -269,7 +269,7 @@ class IamDialogTest {
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
                 mobileEngage().timestampProvider,
-                mobileEngage().webViewProvider
+                mobileEngage().webViewFactory
             )
         }
         displayDialog(fragmentScenario)
@@ -291,7 +291,7 @@ class IamDialogTest {
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
                 mobileEngage().timestampProvider,
-                mobileEngage().webViewProvider
+                mobileEngage().webViewFactory
             )
         }
 
@@ -320,7 +320,7 @@ class IamDialogTest {
         val fragmentScenario = launchFragment(bundle) {
             IamDialog(
                 mobileEngage().timestampProvider,
-                mobileEngage().webViewProvider
+                mobileEngage().webViewFactory
             )
         }
 
@@ -535,7 +535,7 @@ class IamDialogTest {
             val fragmentScenario = launchFragment {
                 IamDialog(
                     mobileEngage().timestampProvider,
-                    mobileEngage().webViewProvider
+                    mobileEngage().webViewFactory
                 )
             }
             displayDialog(fragmentScenario)
@@ -552,7 +552,7 @@ class IamDialogTest {
     fun testLoadInApp() {
         val html = "<html></html>"
         val inAppMetaData = InAppMetaData(CAMPAIGN_ID, null, null)
-        val messageLoadedListener: MessageLoadedListener = MessageLoadedListener {  }
+        val messageLoadedListener = MessageLoadedListener { }
 
         val mockIamWebView: IamWebView = mock()
         whenever(mockWebViewFactory.create(null)).thenReturn(mockIamWebView)
@@ -561,6 +561,8 @@ class IamDialogTest {
             mobileEngage().timestampProvider,
             mockWebViewFactory
         )
+
+        ReflectionTestUtils.setInstanceField(dialog, "iamWebView", mockIamWebView)
 
         dialog.loadInApp(html, inAppMetaData, messageLoadedListener)
 
