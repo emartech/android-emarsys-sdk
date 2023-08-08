@@ -3,3 +3,6 @@ dependencies {
     api project(':core-api')
     androidTestImplementation project(':testUtils')
 }
+android {
+    namespace "com.emarsys.predict.api"
+}

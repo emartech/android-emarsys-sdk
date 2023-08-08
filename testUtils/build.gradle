@@ -2,7 +2,8 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion Config.targetApiLevel
+    namespace = "com.emarsys.testUtil"
+    compileSdk Config.targetApiLevel
     defaultConfig {
         minSdkVersion Config.minApiLevel
         targetSdkVersion Config.targetApiLevel
@@ -25,6 +26,9 @@ android {
 
     lint {
         abortOnError false
+    }
+    kotlin {
+        jvmToolchain(17)
     }
 }
 

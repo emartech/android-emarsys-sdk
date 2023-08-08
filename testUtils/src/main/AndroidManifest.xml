@@ -1,10 +1,9 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.emarsys.testUtil">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application>
         <activity
-            android:name=".fake.FakeActivity"
+            android:name="com.emarsys.testUtil.fake.FakeActivity"
             android:exported="true"
             android:theme="@style/Base.Theme.AppCompat.Light" />
     </application>

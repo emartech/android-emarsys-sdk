@@ -38,9 +38,13 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import java.io.File
-import java.util.*
+import java.util.Locale
 
 class MessagingServiceUtilsTest {
     private companion object {
@@ -57,7 +61,7 @@ class MessagingServiceUtilsTest {
         val IMAGE: Bitmap = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
         val SMALL_NOTIFICATION_ICON =
             com.emarsys.mobileengage.R.drawable.default_small_notification_icon
-        val COLOR = com.emarsys.mobileengage.R.color.common_google_signin_btn_text_light
+        val COLOR = R.color.darker_gray
         val NOTIFICATION_METHOD = NotificationMethod(COLLAPSE_ID, NotificationOperation.INIT)
         val EMPTY_NOTIFICATION_DATA: NotificationData = NotificationData(
             null,
