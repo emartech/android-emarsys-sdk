@@ -1,5 +1,7 @@
 # What's changed
 
-### [Geofence](https://github.com/emartech/android-emarsys-sdk/wiki#8-geofence)
+### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk)
 
-* Modified internal functionality of Geofence to ensure the SDK gets a more stable location update
+* Kotlin updated to 1.9.0
+* jvmToolchain updated to Java 17
+* targetApi level updated to 34

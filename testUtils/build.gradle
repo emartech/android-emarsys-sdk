@@ -28,7 +28,7 @@ android {
         abortOnError false
     }
     kotlin {
-        jvmToolchain(11)
+        jvmToolchain(17)
     }
 }
 
