@@ -15,7 +15,6 @@ dependencyResolutionManagement {
         mavenCentral()
         maven(url = "https://maven.google.com")
         maven(url = "https://developer.huawei.com/repo/")
-
     }
 }
 
