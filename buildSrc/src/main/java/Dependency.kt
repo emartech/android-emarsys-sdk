@@ -23,7 +23,7 @@ object Versions {
     const val google_tink_version = "1.9.0"
     const val huawei_agconnect_core_version = "1.9.1.300"
     const val huawei_hms_push_version = "6.11.0.300"
-    const val mockkVersion = "1.13.5"
+    const val mockkVersion = "1.13.3"
     const val webkit = "1.7.0"
 }
 
