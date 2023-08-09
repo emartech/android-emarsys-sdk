@@ -7,11 +7,16 @@ import android.os.Build
 import androidx.test.filters.SdkSuppress
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
-import com.emarsys.testUtil.ConnectionTestUtils.getContextMock_withAppContext_withConnectivityManager
+import com.emarsys.core.worker.DefaultWorker
+import com.emarsys.testUtil.ConnectionTestUtils.getContextMockWithAppContextWithConnectivityManager
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.ReflectionTestUtils
 import com.emarsys.testUtil.TimeoutUtils.timeoutRule
-import io.mockk.*
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -43,12 +48,12 @@ class ConnectionWatchDogTest {
 
     @Test
     fun testRegisterReceiver_shouldRegisterNetworkCallback() {
-        val contextMock = getContextMock_withAppContext_withConnectivityManager(
+        val contextMock = getContextMockWithAppContextWithConnectivityManager(
             true,
             NetworkCapabilities.TRANSPORT_VPN
         )
         val connectionWatchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
-        val connectionChangeListener: ConnectionChangeListener = mockk()
+        val connectionChangeListener: DefaultWorker = mockk()
 
         connectionWatchDog.registerReceiver(connectionChangeListener)
         val manager =
@@ -63,12 +68,12 @@ class ConnectionWatchDogTest {
 
     @Test
     fun testRegisterReceiver_registersCompletionListener_inOnCapabilitiesChanged() {
-        val contextMock = getContextMock_withAppContext_withConnectivityManager(
+        val contextMock = getContextMockWithAppContextWithConnectivityManager(
             true,
             NetworkCapabilities.TRANSPORT_VPN
         )
         val connectionWatchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
-        val connectionChangeListener: ConnectionChangeListener = mockk()
+        val connectionChangeListener: DefaultWorker = mockk()
         every { connectionChangeListener.onConnectionChanged(any(), any()) } just Runs
         val manager =
             contextMock.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -85,7 +90,7 @@ class ConnectionWatchDogTest {
 
     @Test
     fun testIsConnected_Online() {
-        val contextMock = getContextMock_withAppContext_withConnectivityManager(
+        val contextMock = getContextMockWithAppContextWithConnectivityManager(
             true,
             NetworkCapabilities.TRANSPORT_WIFI
         )
@@ -95,7 +100,7 @@ class ConnectionWatchDogTest {
 
     @Test
     fun testIsConnected_Offline() {
-        val contextMock = getContextMock_withAppContext_withConnectivityManager(false, -1)
+        val contextMock = getContextMockWithAppContextWithConnectivityManager(false, -1)
         val watchDog = ConnectionWatchDog(contextMock, concurrentHandlerHolder)
         Assert.assertFalse(watchDog.isConnected)
     }

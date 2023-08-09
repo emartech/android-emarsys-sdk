@@ -1,5 +1,7 @@
 package com.emarsys.testUtil
 
+import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
@@ -23,16 +25,16 @@ object ConnectionTestUtils {
     }
 
     @JvmStatic
-    fun getContextMock_withAppContext_withConnectivityManager(
+    fun getContextMockWithAppContextWithConnectivityManager(
         isConnected: Boolean,
         connectionType: Int
     ): Context {
-        val contextMock: Context = mockk(relaxed = true)
-        val applicationContextMock: Context = mockk(relaxed = true)
+        val contextMock: Activity = mockk(relaxed = true)
+        val applicationContextMock: Application = mockk(relaxed = true)
         val managerMock = getConnectivityManagerMock(isConnected, connectionType)
 
-        every { contextMock.applicationContext} returns applicationContextMock
-        every { applicationContextMock.getSystemService(Context.CONNECTIVITY_SERVICE)} returns managerMock
+        every { contextMock.applicationContext } returns applicationContextMock
+        every { applicationContextMock.getSystemService(Context.CONNECTIVITY_SERVICE) } returns managerMock
         return contextMock
     }
 
