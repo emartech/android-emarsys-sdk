@@ -13,10 +13,6 @@ import org.junit.rules.TestRule
 import org.mockito.kotlin.mock
 
 class CurrentActivityProviderTest {
-    init {
-        mock<Activity>()
-    }
-
     private lateinit var provider: CurrentActivityProvider
 
     @Rule
@@ -25,7 +21,8 @@ class CurrentActivityProviderTest {
 
     @Rule
     @JvmField
-    var activityScenarioRule: ActivityScenarioRule<FakeActivity> = ActivityScenarioRule(FakeActivity::class.java)
+    var activityScenarioRule: ActivityScenarioRule<FakeActivity> =
+        ActivityScenarioRule(FakeActivity::class.java)
 
     @Before
     fun init() {
