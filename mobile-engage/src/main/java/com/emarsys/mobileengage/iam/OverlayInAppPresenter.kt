@@ -34,8 +34,10 @@ class OverlayInAppPresenter(
                 try {
                     val iamDialog =
                         dialogProvider.provideDialog(campaignId, sid, url, requestId)
+
                     iamDialog.loadInApp(html, InAppMetaData(campaignId, sid, url)) {
-                        currentActivityProvider.get()?.fragmentManager()?.let {
+                        val activity = currentActivityProvider.get()
+                        activity?.fragmentManager()?.let {
                             if (it.findFragmentByTag(IamDialog.TAG) == null) {
                                 val endTimestamp = timestampProvider.provideTimestamp()
                                 iamDialog.setInAppLoadingTime(

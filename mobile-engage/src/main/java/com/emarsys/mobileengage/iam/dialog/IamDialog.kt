@@ -57,6 +57,9 @@ class IamDialog(
         inAppMetaData: InAppMetaData,
         messageLoadedListener: MessageLoadedListener
     ) {
+        if (iamWebView == null) {
+            iamWebView = webViewFactory.create(activity ?: context)
+        }
         this.iamWebView?.load(html, inAppMetaData, messageLoadedListener)
     }
 
@@ -72,7 +75,9 @@ class IamDialog(
         super.onCreate(savedInstanceState)
         retainInstance = true
         setStyle(STYLE_NO_FRAME, android.R.style.Theme_Dialog)
-        iamWebView = webViewFactory.create(activity ?: context)
+        if (iamWebView == null) {
+            iamWebView = webViewFactory.create(activity ?: context)
+        }
     }
 
     override fun onCreateView(
