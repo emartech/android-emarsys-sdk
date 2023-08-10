@@ -1,10 +1,11 @@
 package com.emarsys.core.activity
 
-import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import android.app.Activity
 import android.os.Bundle
 import com.emarsys.core.provider.Property
 import com.emarsys.core.provider.activity.CurrentActivityProvider
+import com.emarsys.core.provider.activity.FallbackActivityProvider
+import com.emarsys.testUtil.TimeoutUtils.timeoutRule
 import io.kotlintest.shouldBe
 import org.junit.Before
 import org.junit.Rule
@@ -14,7 +15,6 @@ import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
-import java.lang.IllegalArgumentException
 
 class CurrentActivityWatchdogTest {
     private lateinit var watchdog: CurrentActivityWatchdog
@@ -53,7 +53,8 @@ class CurrentActivityWatchdogTest {
 
     @Test
     fun testGetCurrentActivity_shouldReturnNull_whenCurrentActivityPauses_andThereIsNoNextActivity() {
-        activityProvider = CurrentActivityProvider()
+        activityProvider =
+            CurrentActivityProvider(fallbackActivityProvider = FallbackActivityProvider())
         watchdog = CurrentActivityWatchdog(activityProvider)
         watchdog.onActivityResumed(activity)
         watchdog.onActivityPaused(activity)
