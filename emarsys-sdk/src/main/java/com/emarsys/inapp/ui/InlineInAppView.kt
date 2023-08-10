@@ -37,7 +37,7 @@ class InlineInAppView : LinearLayout {
         }
     var onCompletionListener: CompletionListener? = null
 
-    private val webViewFactory = mobileEngage().webViewProvider
+    private val webViewFactory = mobileEngage().webViewFactory
     private val concurrentHandlerHolder = mobileEngage().concurrentHandlerHolder
     private val requestManager = mobileEngage().requestManager
     private val requestModelFactory = mobileEngage().mobileEngageRequestModelFactory

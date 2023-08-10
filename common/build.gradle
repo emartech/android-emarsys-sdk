@@ -2,3 +2,6 @@ dependencies {
     implementation project(':core-api')
     androidTestImplementation project(':testUtils')
 }
+android {
+    namespace "com.emarsys.common"
+}

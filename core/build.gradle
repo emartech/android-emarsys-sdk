@@ -5,3 +5,6 @@ dependencies {
 
     androidTestImplementation project(':testUtils')
 }
+android {
+    namespace "com.emarsys.core"
+}

@@ -24,17 +24,17 @@ jobs:
     runs-on: ubuntu-latest
     name: Build job
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v3
         with:
           ref: dev
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
-      - name: set up JDK 1.11
-        uses: actions/setup-java@v2
+      - name: set up JDK 1.17
+        uses: actions/setup-java@v3
         with:
-          distribution: 'zulu'
-          java-version: 11
+          distribution: 'temurin'
+          java-version: 17
       - name: create-google services json
         uses: jsdaniell/create-json@1.1.2
         with:
@@ -132,12 +132,16 @@ jobs:
     name: Run lint on project
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
-
+      - name: set up JDK 1.17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
       - name: create-google services json
         uses: jsdaniell/create-json@1.1.2
         with:
@@ -167,12 +171,16 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
-
+      - name: set up JDK 1.17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
       - name: create-google services json
         uses: jsdaniell/create-json@1.1.2
         with:
@@ -213,7 +221,7 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
@@ -252,7 +260,7 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
@@ -291,7 +299,7 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
@@ -330,7 +338,7 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
@@ -372,7 +380,7 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
@@ -411,7 +419,7 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
@@ -450,7 +458,7 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
@@ -489,7 +497,7 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
@@ -528,7 +536,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ Build, TestCore, TestMobileEngage, TestPredict, TestEmarsysSDK, TestEmarsys, TestCommon, TestEmarsysFirebase, TestEmarsysHuawei, CreateReleaseBundle, GradleLint ]
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history
@@ -586,7 +594,7 @@ jobs:
     needs: [ ReleaseSample ]
     if: always()
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0 # 0 indicates all history

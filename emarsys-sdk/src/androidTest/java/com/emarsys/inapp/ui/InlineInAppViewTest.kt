@@ -102,7 +102,7 @@ class InlineInAppViewTest {
 
         setupEmarsysComponent(
             FakeDependencyContainer(
-                webViewProvider = mockWebViewFactory,
+                webViewFactory = mockWebViewFactory,
                 concurrentHandlerHolder = concurrentHandlerHolder,
                 requestManager = mockRequestManager,
                 mobileEngageRequestModelFactory = mockRequestModelFactory,

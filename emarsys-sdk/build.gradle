@@ -13,6 +13,8 @@ dependencies {
 }
 
 android {
+    namespace "com.emarsys"
+
     defaultConfig {
         def api_key = null
         def localConfigPropertiesFile = rootProject.file('localConfig.properties')

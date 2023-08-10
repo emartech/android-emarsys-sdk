@@ -6,7 +6,9 @@ dependencies {
 
     androidTestImplementation project(':testUtils')
 }
-
+android {
+    namespace "com.emarsys.test.e2e"
+}
 
 //task enableMockLocationForTestsOnDevice(type: Exec, dependsOn: 'installDebugAndroidTest') {
 //    Properties properties = new Properties()

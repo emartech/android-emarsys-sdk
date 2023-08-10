@@ -48,6 +48,7 @@ import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.notification.NotificationManagerProxy
 import com.emarsys.core.permission.PermissionChecker
 import com.emarsys.core.provider.activity.CurrentActivityProvider
+import com.emarsys.core.provider.activity.FallbackActivityProvider
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.random.RandomProvider
 import com.emarsys.core.provider.timestamp.TimestampProvider
@@ -321,7 +322,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
                 timestampProvider,
                 inAppInternal,
                 displayedIamRepository,
-                webViewProvider
+                webViewFactory
             ),
             timestampProvider,
             currentActivityProvider
@@ -752,7 +753,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         )
     }
 
-    override val webViewProvider: IamWebViewFactory by lazy {
+    override val webViewFactory: IamWebViewFactory by lazy {
         IamWebViewFactory(
             iamJsBridgeFactory,
             jsCommandFactoryProvider,
@@ -762,7 +763,7 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val currentActivityProvider: CurrentActivityProvider by lazy {
-        CurrentActivityProvider()
+        CurrentActivityProvider(fallbackActivityProvider = FallbackActivityProvider())
     }
 
     override val currentActivityWatchdog: CurrentActivityWatchdog by lazy {
@@ -891,7 +892,13 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
     }
 
     override val remoteMessageMapper: RemoteMessageMapper by lazy {
-        RemoteMessageMapper(MetaDataReader(), config.application, fileDownloader, deviceInfo, uuidProvider)
+        RemoteMessageMapper(
+            MetaDataReader(),
+            config.application,
+            fileDownloader,
+            deviceInfo,
+            uuidProvider
+        )
     }
 
     override val appLifecycleObserver: AppLifecycleObserver by lazy {

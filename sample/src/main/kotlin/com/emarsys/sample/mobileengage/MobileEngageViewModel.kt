@@ -3,13 +3,12 @@ package com.emarsys.sample.mobileengage
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.fasterxml.jackson.core.JsonParseException
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.lang.reflect.Type
+
 
 class MobileEngageViewModel : ViewModel() {
-    private val objectMapper = ObjectMapper().registerKotlinModule()
     private val customEventField = mutableStateOf("")
     private val payloadField = mutableStateOf("")
     private val errorVisible = mutableStateOf(false)
@@ -26,14 +25,10 @@ class MobileEngageViewModel : ViewModel() {
     fun getPayloadMap(): Map<String, String>? {
         var payload: Map<String, String>? = null
         if (payloadField.value.isNotEmpty()) {
-            payload = try {
-                objectMapper.readValue<Map<String, String>>(this.payloadField.value)
-            } catch (error: JsonParseException) {
-                errorMessage.value = "JSON parsing error!"
-                errorVisible.value = true
-                null
-            }
+            val mapType: Type = object : TypeToken<Map<String, String>?>() {}.type
+            payload = Gson().fromJson(payloadField.value, mapType)
         }
+
         return payload
     }
 
@@ -41,7 +36,7 @@ class MobileEngageViewModel : ViewModel() {
         return this.payloadField
     }
 
-    fun isEventPresent():Boolean {
+    fun isEventPresent(): Boolean {
         return if (customEventField.value.isNotEmpty()) {
             true
         } else {

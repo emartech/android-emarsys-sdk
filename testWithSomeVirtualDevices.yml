@@ -11,7 +11,7 @@ core-api:
       version: 26
       locale: 'en'
       orientation: portrait
-    - model: Pixel2
+    - model: redfin
       version: 30
       locale: 'en'
       orientation: portrait

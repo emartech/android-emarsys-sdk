@@ -118,7 +118,7 @@ class FakeHuaweiDependencyContainer(
     override val buttonClickedRepository: Repository<ButtonClicked, SqlSpecification> = mock(),
     override val displayedIamRepository: Repository<DisplayedIam, SqlSpecification> = mock(),
     override val contactTokenResponseHandler: MobileEngageTokenResponseHandler = mock(),
-    override val webViewProvider: IamWebViewFactory = mock(),
+    override val webViewFactory: IamWebViewFactory = mock(),
     override val iamJsBridgeFactory: IamJsBridgeFactory = mock(),
     override val remoteMessageMapper: RemoteMessageMapper = mock(),
     override val appLifecycleObserver: AppLifecycleObserver = mock(),

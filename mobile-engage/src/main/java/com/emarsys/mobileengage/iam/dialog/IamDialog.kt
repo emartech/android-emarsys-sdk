@@ -22,15 +22,16 @@ import com.emarsys.mobileengage.R
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.iam.dialog.action.OnDialogShownAction
 import com.emarsys.mobileengage.iam.model.InAppMetaData
+import com.emarsys.mobileengage.iam.webview.IamWebView
 import com.emarsys.mobileengage.iam.webview.IamWebViewFactory
 import com.emarsys.mobileengage.iam.webview.MessageLoadedListener
 
 @Mockable
 class IamDialog(
     private val timestampProvider: TimestampProvider,
-    webViewFactory: IamWebViewFactory
-): DialogFragment() {
-    constructor() : this(mobileEngage().timestampProvider, mobileEngage().webViewProvider)
+    private val webViewFactory: IamWebViewFactory
+) : DialogFragment() {
+    constructor() : this(mobileEngage().timestampProvider, mobileEngage().webViewFactory)
 
     companion object {
         const val TAG = "MOBILE_ENGAGE_IAM_DIALOG_TAG"
@@ -49,14 +50,17 @@ class IamDialog(
     private var startTime: Long = 0
     private var dismissed = false
 
-    private val iamWebView = webViewFactory.create(activity)
+    private var iamWebView: IamWebView? = null
 
     fun loadInApp(
         html: String,
         inAppMetaData: InAppMetaData,
         messageLoadedListener: MessageLoadedListener
     ) {
-        this.iamWebView.load(html, inAppMetaData, messageLoadedListener)
+        if (iamWebView == null) {
+            iamWebView = webViewFactory.create(activity ?: context)
+        }
+        this.iamWebView?.load(html, inAppMetaData, messageLoadedListener)
     }
 
     fun setActions(actions: List<OnDialogShownAction>?) {
@@ -71,6 +75,9 @@ class IamDialog(
         super.onCreate(savedInstanceState)
         retainInstance = true
         setStyle(STYLE_NO_FRAME, android.R.style.Theme_Dialog)
+        if (iamWebView == null) {
+            iamWebView = webViewFactory.create(activity ?: context)
+        }
     }
 
     override fun onCreateView(
@@ -86,8 +93,10 @@ class IamDialog(
     override fun onStart() {
         super.onStart()
         webViewContainer.removeAllViews()
-        if (iamWebView.webView.parent == null) {
-            webViewContainer.addView(iamWebView.webView)
+        iamWebView?.let {
+            if (it.webView.parent == null) {
+                webViewContainer.addView(it.webView)
+            }
         }
 
         val window = dialog?.window
@@ -138,13 +147,15 @@ class IamDialog(
     }
 
     override fun onStop() {
-        webViewContainer.removeView(iamWebView.webView)
+        iamWebView?.let {
+            webViewContainer.removeView(it.webView)
+        }
         super.onStop()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        iamWebView.purge()
+        iamWebView?.purge()
     }
 
     override fun onDestroyView() {
