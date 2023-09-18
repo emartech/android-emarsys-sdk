@@ -46,9 +46,9 @@ class MobileEngageRequestModelFactory(
             throw IllegalArgumentException(
                 "Application Code must not be null!"
             )
-        } else ({
-            requestContext.applicationCode
-        })!!
+        } else {
+            requestContext.applicationCode!!
+        }
     }
 
     fun createRemovePushTokenRequest(): RequestModel {
