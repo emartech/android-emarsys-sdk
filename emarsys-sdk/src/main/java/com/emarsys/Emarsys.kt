@@ -110,8 +110,8 @@ object Emarsys {
         completionListener: CompletionListener? = null
     ) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            && !FeatureRegistry.isFeatureEnabled(PREDICT)
+            || (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
+                    && !FeatureRegistry.isFeatureEnabled(PREDICT))
         ) {
             EmarsysDependencyInjection.mobileEngageApi()
                 .proxyApi(mobileEngage().concurrentHandlerHolder)
@@ -129,8 +129,8 @@ object Emarsys {
         completionListener: CompletionListener? = null
     ) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            && !FeatureRegistry.isFeatureEnabled(PREDICT)
+            || (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
+                    && !FeatureRegistry.isFeatureEnabled(PREDICT))
         ) {
             EmarsysDependencyInjection.mobileEngageApi()
                 .proxyApi(mobileEngage().concurrentHandlerHolder)
@@ -147,8 +147,8 @@ object Emarsys {
     @JvmOverloads
     fun clearContact(completionListener: CompletionListener? = null) {
         if (FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            || !FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
-            && !FeatureRegistry.isFeatureEnabled(PREDICT)
+            || (!FeatureRegistry.isFeatureEnabled(MOBILE_ENGAGE)
+                    && !FeatureRegistry.isFeatureEnabled(PREDICT))
         ) {
             EmarsysDependencyInjection.mobileEngageApi()
                 .proxyApi(mobileEngage().concurrentHandlerHolder)

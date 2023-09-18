@@ -8,38 +8,59 @@ import com.emarsys.core.session.Session
 import com.emarsys.core.storage.Storage
 import com.emarsys.core.util.log.Logger
 import com.emarsys.core.util.log.entry.StatusLog
+import com.emarsys.mobileengage.MobileEngageRequestContext
 import com.emarsys.mobileengage.event.EventServiceInternal
 
 @Mockable
-class MobileEngageSession(private val timestampProvider: TimestampProvider,
-                          private val uuidProvider: UUIDProvider,
-                          private val eventServiceInternal: EventServiceInternal,
-                          private val sessionIdHolder: SessionIdHolder,
-                          private val contactTokenStorage: Storage<String?>) : Session {
+class MobileEngageSession(
+    private val timestampProvider: TimestampProvider,
+    private val uuidProvider: UUIDProvider,
+    private val eventServiceInternal: EventServiceInternal,
+    private val sessionIdHolder: SessionIdHolder,
+    private val contactTokenStorage: Storage<String?>,
+    private val mobileEngageRequestContext: MobileEngageRequestContext
+) : Session {
 
     private var sessionStart: Long? = null
 
     override fun startSession(completionListener: CompletionListener) {
-        if (!contactTokenStorage.get().isNullOrEmpty()) {
+        if (!contactTokenStorage.get()
+                .isNullOrEmpty() && mobileEngageRequestContext.applicationCode != null
+        ) {
             sessionIdHolder.sessionId = uuidProvider.provideId()
             sessionStart = timestampProvider.provideTimestamp()
-            eventServiceInternal.trackInternalCustomEventAsync("session:start", null, completionListener)
+            eventServiceInternal.trackInternalCustomEventAsync(
+                "session:start",
+                null,
+                completionListener
+            )
         }
     }
 
     override fun endSession(completionListener: CompletionListener) {
-        if (sessionIdHolder.sessionId != null && sessionStart != null) {
+        if (sessionIdHolder.sessionId != null && sessionStart != null && mobileEngageRequestContext.applicationCode != null) {
             val sessionEnd = (timestampProvider.provideTimestamp() - sessionStart!!).toString()
             val attributes = mapOf(
-                    "duration" to sessionEnd
+                "duration" to sessionEnd
             )
-            eventServiceInternal.trackInternalCustomEventAsync("session:end", attributes, completionListener)
+            eventServiceInternal.trackInternalCustomEventAsync(
+                "session:end",
+                attributes,
+                completionListener
+            )
 
             sessionIdHolder.sessionId = null
             sessionStart = null
         } else {
             if (!contactTokenStorage.get().isNullOrEmpty()) {
-                Logger.info(StatusLog(this::class.java, "endSession", parameters = null, status = mapOf("cause" to "StartSession has to be called first!")))
+                Logger.info(
+                    StatusLog(
+                        this::class.java,
+                        "endSession",
+                        parameters = null,
+                        status = mapOf("cause" to "StartSession has to be called first!")
+                    )
+                )
             }
         }
     }

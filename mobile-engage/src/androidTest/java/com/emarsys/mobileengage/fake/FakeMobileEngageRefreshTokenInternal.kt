@@ -5,11 +5,11 @@ import com.emarsys.mobileengage.RefreshTokenInternal
 
 class FakeMobileEngageRefreshTokenInternal(private val success: Boolean = false) : RefreshTokenInternal {
 
-    override fun refreshContactToken(completionListener: CompletionListener) {
+    override fun refreshContactToken(completionListener: CompletionListener?) {
         if (success) {
-            completionListener.onCompleted(null)
+            completionListener?.onCompleted(null)
         } else {
-            completionListener.onCompleted(Exception())
+            completionListener?.onCompleted(Exception())
         }
     }
 }

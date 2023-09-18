@@ -77,19 +77,24 @@ class DefaultGeofenceInternal(
         if (!geofenceEnabledStorage.get()) {
             return
         }
-        val requestModel = requestModelFactory.createFetchGeofenceRequest()
-        requestManager.submitNow(requestModel, object : CoreCompletionHandler {
-            override fun onSuccess(id: String, responseModel: ResponseModel) {
-                geofenceResponse = geofenceResponseMapper.map(responseModel)
-                enable(completionListener)
-            }
+        try {
 
-            override fun onError(id: String, responseModel: ResponseModel) {
-            }
+            val requestModel = requestModelFactory.createFetchGeofenceRequest()
+            requestManager.submitNow(requestModel, object : CoreCompletionHandler {
+                override fun onSuccess(id: String, responseModel: ResponseModel) {
+                    geofenceResponse = geofenceResponseMapper.map(responseModel)
+                    enable(completionListener)
+                }
 
-            override fun onError(id: String, cause: Exception) {
-            }
-        })
+                override fun onError(id: String, responseModel: ResponseModel) {
+                }
+
+                override fun onError(id: String, cause: Exception) {
+                }
+            })
+        } catch (e: IllegalArgumentException) {
+            completionListener?.onCompleted(e)
+        }
     }
 
     override fun enable(completionListener: CompletionListener?) {
@@ -191,13 +196,14 @@ class DefaultGeofenceInternal(
     }
 
     private fun requestLocationUpdate(): Task<Void> {
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, FASTEST_INTERNAL)
-            .setMaxUpdateAgeMillis(MAX_WAIT_TIME)
-            .setIntervalMillis(INTERVAL)
-            .setMinUpdateDistanceMeters(5f)
-            .setGranularity(Granularity.GRANULARITY_FINE)
-            .setWaitForAccurateLocation(true)
-            .build()
+        val locationRequest =
+            LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, FASTEST_INTERNAL)
+                .setMaxUpdateAgeMillis(MAX_WAIT_TIME)
+                .setIntervalMillis(INTERVAL)
+                .setMinUpdateDistanceMeters(5f)
+                .setGranularity(Granularity.GRANULARITY_FINE)
+                .setWaitForAccurateLocation(true)
+                .build()
         return fusedLocationProviderClient.requestLocationUpdates(
             locationRequest,
             geofencePendingIntent

@@ -11,22 +11,23 @@ import com.emarsys.mobileengage.api.push.NotificationInformationListener
 class LoggingPushInternal(private val klass: Class<*>) : PushInternal {
     override fun setPushToken(pushToken: String, completionListener: CompletionListener?) {
         val parameters = mapOf(
-                "push_token" to pushToken,
-                "completion_listener" to (completionListener != null)
+            "push_token" to pushToken,
+            "completion_listener" to (completionListener != null)
         )
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    override fun getPushToken(): String? {
-        val callerMethodName = SystemUtils.getCallerMethodName()
-        debug(MethodNotAllowed(klass, callerMethodName, null))
-        return null
-    }
+    override val pushToken: String?
+        get() {
+            val callerMethodName = SystemUtils.getCallerMethodName()
+            debug(MethodNotAllowed(klass, callerMethodName, null))
+            return null
+        }
 
     override fun clearPushToken(completionListener: CompletionListener?) {
         val parameters: Map<String, Any?> = mapOf(
-                "completion_listener" to (completionListener != null)
+            "completion_listener" to (completionListener != null)
         )
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
@@ -34,41 +35,41 @@ class LoggingPushInternal(private val klass: Class<*>) : PushInternal {
 
     override fun trackMessageOpen(intent: Intent, completionListener: CompletionListener?) {
         val parameters = mapOf(
-                "intent" to intent.toString(),
-                "completion_listener" to (completionListener != null)
+            "intent" to intent.toString(),
+            "completion_listener" to (completionListener != null)
         )
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    override fun setNotificationEventHandler(notificationEventHandler: EventHandler?) {
+    override fun setNotificationEventHandler(notificationEventHandler: EventHandler) {
         val parameters: Map<String, Any?> = mapOf(
-                "notification_event_handler" to (notificationEventHandler != null)
+            "notification_event_handler" to (notificationEventHandler != null)
         )
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    override fun setSilentMessageEventHandler(silentMessageEventHandler: EventHandler?) {
+    override fun setSilentMessageEventHandler(silentMessageEventHandler: EventHandler) {
         val parameters: Map<String, Any?> = mapOf(
-                "silent_message_event_handler" to (silentMessageEventHandler != null)
+            "silent_message_event_handler" to (silentMessageEventHandler != null)
         )
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    override fun setNotificationInformationListener(notificationInformationListener: NotificationInformationListener?) {
+    override fun setNotificationInformationListener(notificationInformationListener: NotificationInformationListener) {
         val parameters: Map<String, Any?> = mapOf(
-                "notification_information_listener" to (notificationInformationListener != null)
+            "notification_information_listener" to (notificationInformationListener != null)
         )
 
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    override fun setSilentNotificationInformationListener(silentNotificationInformationListener: NotificationInformationListener?) {
+    override fun setSilentNotificationInformationListener(silentNotificationInformationListener: NotificationInformationListener) {
         val parameters: Map<String, Any?> = mapOf(
-                "notification_information_listener" to (silentNotificationInformationListener != null)
+            "notification_information_listener" to (silentNotificationInformationListener != null)
         )
         val callerMethodName = SystemUtils.getCallerMethodName()
         debug(MethodNotAllowed(klass, callerMethodName, parameters))

@@ -13,7 +13,13 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.inOrder
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 class MobileEngageRefreshTokenInternalTest {
@@ -49,21 +55,6 @@ class MobileEngageRefreshTokenInternalTest {
             mockRestClient,
             mockRequestModelFactory
         )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_tokenResponseHandler_mustNotBeNull() {
-        MobileEngageRefreshTokenInternal(null, mockRestClient, mockRequestModelFactory)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestManager_mustNotBeNull() {
-        MobileEngageRefreshTokenInternal(mockResponseHandler, null, mockRequestModelFactory)
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_requestModelFactory_mustNotBeNull() {
-        MobileEngageRefreshTokenInternal(mockResponseHandler, mockRestClient, null)
     }
 
     @Test
@@ -142,6 +133,18 @@ class MobileEngageRefreshTokenInternalTest {
         }
 
         latch.await()
+        verify(mockCompletionListener).onCompleted(any<Exception>())
+    }
+
+    @Test
+    fun testRefreshContactToken_shouldCallCompletionListener_whenRequestModelFactoryThrowsIllegalArgumentException() {
+        val mockCompletionListener: CompletionListener = mock()
+        whenever(mockRequestModelFactory.createRefreshContactTokenRequest()).thenThrow(
+            IllegalArgumentException("")
+        )
+
+        refreshTokenInternal.refreshContactToken(mockCompletionListener)
+
         verify(mockCompletionListener).onCompleted(any<Exception>())
     }
 }

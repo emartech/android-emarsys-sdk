@@ -12,7 +12,7 @@ import com.emarsys.core.response.ResponseModel
 import com.emarsys.mobileengage.api.inbox.InboxResult
 import com.emarsys.mobileengage.api.inbox.Message
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import java.util.*
+import java.util.Locale
 
 class DefaultMessageInboxInternal(
     private val concurrentHandlerHolder: ConcurrentHandlerHolder,
@@ -66,7 +66,11 @@ class DefaultMessageInboxInternal(
             predicate(it)
         } ?: true).let { shouldUpdateTag ->
             if (shouldUpdateTag) {
-                requestManager.submit(updateRequest(), completionListener)
+                try {
+                    requestManager.submit(updateRequest(), completionListener)
+                } catch (e: IllegalArgumentException) {
+                    completionListener?.onCompleted(e)
+                }
             } else {
                 completionListener?.onCompleted(null)
             }

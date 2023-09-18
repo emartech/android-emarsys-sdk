@@ -279,7 +279,7 @@ class DefaultConfigInternalTest {
         latch.await()
 
         verify(mockPushInternal).pushToken
-        verify(mockMobileEngageRequestContext).applicationCode
+        verify(mockMobileEngageRequestContext, times(2)).applicationCode
         verify(mockMobileEngageRequestContext).hasContactIdentification()
         verify(mockPushInternal).clearPushToken(any())
         verify(mockMobileEngageInternal).clearContact(any())
@@ -330,7 +330,7 @@ class DefaultConfigInternalTest {
 
         latch.await()
 
-        verify(mockMobileEngageRequestContext).applicationCode
+        verify(mockMobileEngageRequestContext, times(2)).applicationCode
         verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
         verify(mockPushInternal).setPushToken(eq(PUSH_TOKEN), any())
 
@@ -449,6 +449,24 @@ class DefaultConfigInternalTest {
     }
 
     @Test
+    fun testChangeApplicationCode_whenApplicationCodeIsMissing_shouldNotCleanPushTokenButWorkProperly() {
+        whenever(mockMobileEngageRequestContext.applicationCode).thenReturn(null)
+        whenever(mockPushInternal.pushToken).thenReturn(PUSH_TOKEN)
+
+        val latch = CountDownLatch(1)
+        val completionListener = CompletionListener {
+            latch.countDown()
+        }
+        configInternal.changeApplicationCode(OTHER_APPLICATION_CODE, completionListener)
+        latch.await()
+
+        verify(mockPushInternal, times(0)).clearPushToken(any())
+        FeatureRegistry.isFeatureEnabled(InnerFeature.MOBILE_ENGAGE) shouldBe true
+        FeatureRegistry.isFeatureEnabled(InnerFeature.EVENT_SERVICE_V4) shouldBe true
+        verify(mockMobileEngageRequestContext).applicationCode = OTHER_APPLICATION_CODE
+    }
+
+    @Test
     fun testChangeApplicationCode_whenClearPushToken_butPushTokenHasNotBeenSetPreviously_callOnSuccess() {
         whenever(mockPushInternal.clearPushToken(any())).thenAnswer { invocation ->
             (invocation.getArgument(0) as CompletionListener).onCompleted(Throwable())
@@ -481,7 +499,7 @@ class DefaultConfigInternalTest {
         latch.await()
 
         verify(mockPushInternal).pushToken
-        verify(mockMobileEngageRequestContext).applicationCode
+        verify(mockMobileEngageRequestContext, times(2)).applicationCode
         verify(mockMobileEngageRequestContext).hasContactIdentification()
         verify(mockMobileEngageRequestContext).applicationCode = null
         verify(mockPushInternal).clearPushToken(any())
