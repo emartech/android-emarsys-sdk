@@ -28,7 +28,7 @@ class SampleApplication : Application(), EventHandler, NotificationInformationLi
 
         val config = EmarsysConfig(
             application = this,
-            applicationCode = null, //if (Prefs.applicationCode.isEmpty()) null else Prefs.applicationCode,
+            applicationCode = if (Prefs.applicationCode.isEmpty()) null else Prefs.applicationCode,
             merchantId = Prefs.merchantId,
             verboseConsoleLoggingEnabled = true
         )

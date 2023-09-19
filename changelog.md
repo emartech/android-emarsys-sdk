@@ -2,12 +2,10 @@
 
 ### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk)
 
-* Kotlin updated to 1.9.0
-* jvmToolchain updated to Java 17
-* targetApi level updated to 34
+* Proguard rule added for Emarsys SDK to prevent issues when host application uses R8# What's
+  changed
 
-# What's fixed
+### [Emarsys SDK](https://github.com/emartech/android-emarsys-sdk)
 
-### [In-App](https://github.com/emartech/android-emarsys-sdk/wiki#3-inapp)
-
-* The SDK could crash in some rare cases during WebView creation
+* Prevent requests without an application code from being sent and return an
+  InvalidArgumentException instead through the CompletionListener
