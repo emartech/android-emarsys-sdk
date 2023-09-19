@@ -665,7 +665,8 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
             uuidProvider,
             eventServiceInternal,
             sessionIdHolder,
-            contactTokenStorage
+            contactTokenStorage,
+            requestContext
         )
     }
 

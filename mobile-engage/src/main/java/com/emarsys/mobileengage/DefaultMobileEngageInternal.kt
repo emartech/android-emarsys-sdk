@@ -11,17 +11,17 @@ import com.emarsys.mobileengage.session.SessionIdHolder
 
 @Mockable
 class DefaultMobileEngageInternal(
-        private val requestManager: RequestManager,
-        private val requestModelFactory: MobileEngageRequestModelFactory,
-        private val requestContext: MobileEngageRequestContext,
-        private val session: MobileEngageSession,
-        private val sessionIdHolder: SessionIdHolder
+    private val requestManager: RequestManager,
+    private val requestModelFactory: MobileEngageRequestModelFactory,
+    private val requestContext: MobileEngageRequestContext,
+    private val session: MobileEngageSession,
+    private val sessionIdHolder: SessionIdHolder
 ) : MobileEngageInternal {
 
     override fun setContact(
-            contactFieldId: Int?,
-            contactFieldValue: String?,
-            completionListener: CompletionListener?
+        contactFieldId: Int?,
+        contactFieldValue: String?,
+        completionListener: CompletionListener?
     ) {
         val shouldRestartSession = requestContext.contactFieldValue != contactFieldValue
         doSetContact(contactFieldId, contactFieldValue, completionListener = completionListener)
@@ -43,9 +43,9 @@ class DefaultMobileEngageInternal(
     }
 
     override fun setAuthenticatedContact(
-            contactFieldId: Int,
-            openIdToken: String,
-            completionListener: CompletionListener?
+        contactFieldId: Int,
+        openIdToken: String,
+        completionListener: CompletionListener?
     ) {
         val shouldRestartSession = requestContext.openIdToken != openIdToken
         doSetContact(contactFieldId, null, openIdToken, completionListener)
@@ -67,17 +67,21 @@ class DefaultMobileEngageInternal(
     }
 
     internal fun doSetContact(
-            contactFieldId: Int?,
-            contactFieldValue: String?,
-            idToken: String? = null,
-            completionListener: CompletionListener?
+        contactFieldId: Int?,
+        contactFieldValue: String?,
+        idToken: String? = null,
+        completionListener: CompletionListener?
     ) {
         requestContext.contactFieldId = contactFieldId
         requestContext.contactFieldValue = contactFieldValue
         requestContext.openIdToken = idToken
-        val requestModel =
+        try {
+            val requestModel =
                 requestModelFactory.createSetContactRequest(contactFieldId, contactFieldValue)
-        requestManager.submit(requestModel, completionListener)
+            requestManager.submit(requestModel, completionListener)
+        } catch (e: IllegalArgumentException) {
+            completionListener?.onCompleted(e)
+        }
     }
 
     override fun clearContact(completionListener: CompletionListener?) {
@@ -93,7 +97,7 @@ class DefaultMobileEngageInternal(
         }
     }
 
-   internal fun doClearContact(completionListener: CompletionListener?) {
+    internal fun doClearContact(completionListener: CompletionListener?) {
         resetContext()
 
         doSetContact(null, null, null) { setContactThrowable ->

@@ -25,23 +25,25 @@ import com.emarsys.predict.request.PredictRequestContext
 import java.util.concurrent.CountDownLatch
 
 @Mockable
-class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngageRequestContext,
-                            private val mobileEngageInternal: MobileEngageInternal,
-                            private val pushInternal: PushInternal,
-                            private val predictRequestContext: PredictRequestContext,
-                            private val deviceInfo: DeviceInfo,
-                            private val requestManager: RequestManager,
-                            private val emarsysRequestModelFactory: EmarsysRequestModelFactory,
-                            private val configResponseMapper: RemoteConfigResponseMapper,
-                            private val clientServiceStorage: Storage<String?>,
-                            private val eventServiceStorage: Storage<String?>,
-                            private val deeplinkServiceStorage: Storage<String?>,
-                            private val predictServiceStorage: Storage<String?>,
-                            private val messageInboxServiceStorage: Storage<String?>,
-                            private val logLevelStorage: Storage<String?>,
-                            private val crypto: Crypto,
-                            private val clientServiceInternal: ClientServiceInternal,
-                            private val concurrentHandlerHolder: ConcurrentHandlerHolder) : ConfigInternal {
+class DefaultConfigInternal(
+    private val mobileEngageRequestContext: MobileEngageRequestContext,
+    private val mobileEngageInternal: MobileEngageInternal,
+    private val pushInternal: PushInternal,
+    private val predictRequestContext: PredictRequestContext,
+    private val deviceInfo: DeviceInfo,
+    private val requestManager: RequestManager,
+    private val emarsysRequestModelFactory: EmarsysRequestModelFactory,
+    private val configResponseMapper: RemoteConfigResponseMapper,
+    private val clientServiceStorage: Storage<String?>,
+    private val eventServiceStorage: Storage<String?>,
+    private val deeplinkServiceStorage: Storage<String?>,
+    private val predictServiceStorage: Storage<String?>,
+    private val messageInboxServiceStorage: Storage<String?>,
+    private val logLevelStorage: Storage<String?>,
+    private val crypto: Crypto,
+    private val clientServiceInternal: ClientServiceInternal,
+    private val concurrentHandlerHolder: ConcurrentHandlerHolder
+) : ConfigInternal {
 
     override val applicationCode: String?
         get() = mobileEngageRequestContext.applicationCode
@@ -68,12 +70,16 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
         get() = deviceInfo.sdkVersion
 
 
-    override fun changeApplicationCode(applicationCode: String?, completionListener: CompletionListener?) {
+    override fun changeApplicationCode(
+        applicationCode: String?,
+        completionListener: CompletionListener?
+    ) {
         val pushToken: String? = pushInternal.pushToken
         val hasContactIdentification = mobileEngageRequestContext.hasContactIdentification()
         var throwable: Throwable? = null
         concurrentHandlerHolder.postOnBackground {
-            if (pushToken != null) {
+
+            if (pushToken != null && mobileEngageRequestContext.applicationCode != null) {
                 throwable = clearPushToken()
             }
             if ((throwable == null) && (mobileEngageRequestContext.applicationCode != null) && hasContactIdentification) {
@@ -94,13 +100,14 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
             if (throwable != null) {
                 handleAppCodeChange(null)
             }
+
             concurrentHandlerHolder.postOnMain {
                 completionListener?.onCompleted(throwable)
             }
         }
     }
 
-    private fun synchronizeMethodWithRunnerCallback(runnerCallback: (CompletionListener)->(Unit)): Throwable? {
+    private fun synchronizeMethodWithRunnerCallback(runnerCallback: (CompletionListener) -> (Unit)): Throwable? {
         var result: Throwable? = null
         val latch = CountDownLatch(1)
         val completionListener = CompletionListener {
@@ -162,7 +169,11 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
                 signatureResponse.result?.let { signature ->
                     fetchRemoteConfig(ResultListener {
                         it.result?.let { remoteConfigResponseModel ->
-                            if (crypto.verify(remoteConfigResponseModel.body!!.toByteArray(), signature)) {
+                            if (crypto.verify(
+                                    remoteConfigResponseModel.body!!.toByteArray(),
+                                    signature
+                                )
+                            ) {
                                 applyRemoteConfig(configResponseMapper.map(remoteConfigResponseModel))
                                 completionListener?.onCompleted(null)
                             } else {
@@ -195,10 +206,13 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
-                val response = Try.failure<String>(ResponseErrorException(
+                val response = Try.failure<String>(
+                    ResponseErrorException(
                         responseModel.statusCode,
                         responseModel.message,
-                        responseModel.body))
+                        responseModel.body
+                    )
+                )
 
                 resultListener.onResult(response)
             }
@@ -221,10 +235,13 @@ class DefaultConfigInternal(private val mobileEngageRequestContext: MobileEngage
             }
 
             override fun onError(id: String, responseModel: ResponseModel) {
-                val response = Try.failure<ResponseModel>(ResponseErrorException(
+                val response = Try.failure<ResponseModel>(
+                    ResponseErrorException(
                         responseModel.statusCode,
                         responseModel.message,
-                        responseModel.body))
+                        responseModel.body
+                    )
+                )
 
                 resultListener.onResult(response)
             }

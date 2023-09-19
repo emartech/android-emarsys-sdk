@@ -16,7 +16,7 @@ class Push(private val loggingInstance: Boolean = false) : PushApi {
         }
         set(value) {
             (if (loggingInstance) mobileEngage().loggingPushInternal else mobileEngage().pushInternal)
-                    .setPushToken(value, null)
+                .setPushToken(value!!, null)
         }
 
     override fun setPushToken(

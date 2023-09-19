@@ -9,7 +9,8 @@ import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 @Mockable
 class DefaultEventServiceInternal(
     private val requestModelFactory: MobileEngageRequestModelFactory,
-    private val requestManager: RequestManager): EventServiceInternal {
+    private val requestManager: RequestManager
+) : EventServiceInternal {
 
     override fun trackCustomEvent(
         eventName: String,
@@ -17,9 +18,16 @@ class DefaultEventServiceInternal(
         completionListener: CompletionListener?
     ): String? {
         Assert.notNull(eventName, "EventName must not be null!")
-        val requestModel = requestModelFactory.createCustomEventRequest(eventName, eventAttributes)
-        requestManager.submit(requestModel, completionListener)
-        return requestModel.id
+        val requestId = try {
+            val requestModel =
+                requestModelFactory.createCustomEventRequest(eventName, eventAttributes)
+            requestManager.submit(requestModel, completionListener)
+            requestModel.id
+        } catch (e: IllegalArgumentException) {
+            completionListener?.onCompleted(e)
+            null
+        }
+        return requestId
     }
 
     override fun trackCustomEventAsync(
@@ -36,10 +44,16 @@ class DefaultEventServiceInternal(
         completionListener: CompletionListener?
     ): String? {
         Assert.notNull(eventName, "EventName must not be null!")
-        val requestModel =
-            requestModelFactory.createInternalCustomEventRequest(eventName, eventAttributes)
-        requestManager.submit(requestModel, completionListener)
-        return requestModel.id
+        val requestId = try {
+            val requestModel =
+                requestModelFactory.createInternalCustomEventRequest(eventName, eventAttributes)
+            requestManager.submit(requestModel, completionListener)
+            requestModel.id
+        } catch (e: IllegalArgumentException) {
+            completionListener?.onCompleted(e)
+            null
+        }
+        return requestId
     }
 
     override fun trackInternalCustomEventAsync(
