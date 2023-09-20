@@ -74,7 +74,7 @@ jobs:
         run: echo $ANDROID_HOME > local.properties
 
       - name: Release with Gradle
-        run: ./gradlew clean assembleRelease publishToSonatype
+        run: ./gradlew clean assembleRelease && ./gradlew publishToSonatype
 
       - name: Create file 'FAILURE.TXT' and write 'true' into it
         if: ${{ failure() }}
