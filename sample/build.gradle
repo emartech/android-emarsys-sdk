@@ -11,7 +11,7 @@ android {
     defaultConfig {
         applicationId "com.emarsys.sample"
         minSdkVersion 24
-        targetSdkVersion 33
+        targetSdkVersion 34
         multiDexEnabled true
         versionCode gitVersionCode
         versionName gitVersionName
