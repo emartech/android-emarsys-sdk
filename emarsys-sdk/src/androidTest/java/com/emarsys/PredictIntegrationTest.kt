@@ -1,5 +1,6 @@
 package com.emarsys
 
+
 import android.app.Application
 import android.content.Context
 import com.emarsys.config.EmarsysConfig
@@ -7,9 +8,6 @@ import com.emarsys.core.DefaultCoreCompletionHandler
 import com.emarsys.core.api.result.Try
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-
-
-
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
@@ -18,20 +16,28 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
 import com.emarsys.di.emarsys
-
 import com.emarsys.predict.api.model.PredictCartItem
 import com.emarsys.predict.api.model.Product
 import com.emarsys.predict.api.model.RecommendationFilter
 import com.emarsys.predict.api.model.RecommendationLogic
 import com.emarsys.predict.util.CartItemUtils
-import com.emarsys.testUtil.*
+import com.emarsys.testUtil.ConnectionTestUtils
+import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.FeatureTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.IntegrationTestUtils
+import com.emarsys.testUtil.RetryUtils
+import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
 import io.kotlintest.matchers.numerics.shouldBeGreaterThan
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TestRule
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.mock
@@ -45,6 +51,11 @@ class PredictIntegrationTest {
         private const val CONTACT_FIELD_ID = 3
         private const val MERCHANT_ID = "1428C8EE286EC34B"
         private const val OTHER_MERCHANT_ID = "test_1428C8EE286EC34B"
+        const val ITEM1 = "12800"
+        const val ITEM2 = "13433"
+        const val ITEM3 = "9129-P"
+        const val SEARCH_TERM = "Ropa"
+        const val CATEGORY_PATH = "Ropa bebe nina>Ropa Interior"
     }
 
     private lateinit var latch: CountDownLatch
@@ -165,9 +176,9 @@ class PredictIntegrationTest {
     @Test
     fun testTrackCart() {
         val cartItems = listOf(
-                PredictCartItem("2168", 1.1, 10.0),
-                PredictCartItem("2200", 2.2, 20.0),
-                PredictCartItem("2509", 3.3, 30.0)
+            PredictCartItem(ITEM1, 1.1, 10.0),
+            PredictCartItem(ITEM2, 2.2, 20.0),
+            PredictCartItem(ITEM3, 3.3, 30.0)
         )
 
         responseModelMatches = {
@@ -182,9 +193,9 @@ class PredictIntegrationTest {
     @Test
     fun testTrackPurchase() {
         val cartItems = listOf(
-                PredictCartItem("2168", 1.1, 10.0),
-                PredictCartItem("2200", 2.2, 20.0),
-                PredictCartItem("2509", 3.3, 30.0)
+            PredictCartItem(ITEM1, 1.1, 10.0),
+            PredictCartItem(ITEM2, 2.2, 20.0),
+            PredictCartItem(ITEM3, 3.3, 30.0)
         )
 
         val orderId = "orderId_1234567892345678"
@@ -201,7 +212,7 @@ class PredictIntegrationTest {
 
     @Test
     fun testTrackItemView() {
-        val itemId = "2168"
+        val itemId = ITEM3
         responseModelMatches = {
             it.baseUrl.contains(itemId)
         }
@@ -213,7 +224,7 @@ class PredictIntegrationTest {
 
     @Test
     fun testTrackItemView_withProduct() {
-        val product = Product("2168", "TestTitle", "https://emarsys.com", "RELATED", "AAAA")
+        val product = Product(ITEM3, "TestTitle", "https://emarsys.com", "RELATED", "AAAA")
         responseModelMatches = {
             it.baseUrl.contains(product.productId)
         }
@@ -225,24 +236,22 @@ class PredictIntegrationTest {
 
     @Test
     fun testTrackCategoryView() {
-        val categoryId = "MEN>Shirts"
         responseModelMatches = {
-            it.baseUrl.contains(categoryId)
+            it.baseUrl.contains(CATEGORY_PATH)
         }
 
-        Emarsys.predict.trackCategoryView(categoryId)
+        Emarsys.predict.trackCategoryView(CATEGORY_PATH)
 
         eventuallyAssertSuccess()
     }
 
     @Test
     fun testTrackSearchTerm() {
-        val searchTerm = "polo shirt"
         responseModelMatches = {
-            it.baseUrl.contains(searchTerm)
+            it.baseUrl.contains(SEARCH_TERM)
         }
 
-        Emarsys.predict.trackSearchTerm(searchTerm)
+        Emarsys.predict.trackSearchTerm(SEARCH_TERM)
 
         eventuallyAssertSuccess()
     }
@@ -261,10 +270,12 @@ class PredictIntegrationTest {
 
     @Test
     fun testRecommendProducts() {
-        Emarsys.predict.recommendProducts(RecommendationLogic.search("polo shirt"),
-                listOf(RecommendationFilter.exclude("price").isValue("")),
-                3,
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)).eventuallyAssert {
+        Emarsys.predict.recommendProducts(
+            RecommendationLogic.search(SEARCH_TERM),
+            listOf(RecommendationFilter.exclude("price").isValue("")),
+            3,
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)
+        ).eventuallyAssert {
             latch.await()
 
             triedRecommendedProducts.errorCause shouldBe null
@@ -274,8 +285,10 @@ class PredictIntegrationTest {
 
     @Test
     fun testRecommendProducts_withSearch() {
-        Emarsys.predict.recommendProducts(RecommendationLogic.search("polo shirt"),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+        Emarsys.predict.recommendProducts(
+            RecommendationLogic.search(SEARCH_TERM),
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)
+        )
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -294,9 +307,9 @@ class PredictIntegrationTest {
     @Test
     fun testRecommendProducts_withCart() {
         val cartItems = listOf(
-                PredictCartItem("2168", 1.1, 10.0),
-                PredictCartItem("2200", 2.2, 20.0),
-                PredictCartItem("2509", 3.3, 30.0)
+            PredictCartItem(ITEM1, 1.1, 10.0),
+            PredictCartItem(ITEM2, 2.2, 20.0),
+            PredictCartItem(ITEM3, 3.3, 30.0)
         )
         Emarsys.predict.recommendProducts(RecommendationLogic.cart(cartItems),
                 eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
@@ -317,8 +330,10 @@ class PredictIntegrationTest {
 
     @Test
     fun testRecommendProducts_withRelated() {
-        Emarsys.predict.recommendProducts(RecommendationLogic.related("2200"),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+        Emarsys.predict.recommendProducts(
+            RecommendationLogic.related(ITEM3),
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)
+        )
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -346,8 +361,10 @@ class PredictIntegrationTest {
 
     @Test
     fun testRecommendProducts_withCategory() {
-        Emarsys.predict.recommendProducts(RecommendationLogic.category("MEN>Shirts"),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+        Emarsys.predict.recommendProducts(
+            RecommendationLogic.category(CATEGORY_PATH),
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)
+        )
 
         eventuallyAssertForTriedRecommendedProducts()
     }
@@ -365,8 +382,10 @@ class PredictIntegrationTest {
 
     @Test
     fun testRecommendProducts_withAlsoBought() {
-        Emarsys.predict.recommendProducts(RecommendationLogic.alsoBought("2200"),
-                eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter))
+        Emarsys.predict.recommendProducts(
+            RecommendationLogic.alsoBought(ITEM1),
+            eventuallyStoreResultInProperty(this::triedRecommendedProducts.setter)
+        )
 
         eventuallyAssertForTriedRecommendedProducts()
     }
