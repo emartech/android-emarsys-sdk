@@ -2,13 +2,11 @@ package com.emarsys.mobileengage.request
 
 import com.emarsys.core.CoreCompletionHandler
 import com.emarsys.core.request.RestClient
-import com.emarsys.core.request.model.CompositeRequestModel
 import com.emarsys.core.request.model.RequestMethod
 import com.emarsys.core.request.model.RequestModel
 import com.emarsys.core.response.ResponseModel
 import com.emarsys.core.storage.Storage
-import com.emarsys.mobileengage.RefreshTokenInternal
-import com.emarsys.mobileengage.fake.FakeMobileEngageRefreshTokenInternal
+import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -16,7 +14,12 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import java.net.URL
 
 class CoreCompletionHandlerRefreshTokenProxyTest {
@@ -31,49 +34,53 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     }
 
     private lateinit var mockCoreCompletionHandler: CoreCompletionHandler
+    private lateinit var mockTokenResponseHandler: MobileEngageTokenResponseHandler
     private lateinit var proxy: CoreCompletionHandlerRefreshTokenProxy
-    private lateinit var mockRefreshTokenInternal: RefreshTokenInternal
     private lateinit var mockResponseModel: ResponseModel
     private lateinit var mockRequestModel: RequestModel
     private lateinit var mockRestClient: RestClient
     private lateinit var mockContactTokenStorage: Storage<String?>
     private lateinit var mockPushTokenStorage: Storage<String?>
     private lateinit var mockRequestModelHelper: RequestModelHelper
+    private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
 
     @Before
     fun setUp() {
-        mockRequestModel = mock()
+        mockRequestModel = mock {
+            on { url } doReturn URL(CLIENT_HOST)
+        }
+
         mockResponseModel = mock {
             on { requestModel } doReturn mockRequestModel
         }
 
         mockCoreCompletionHandler = mock()
-        mockRefreshTokenInternal = mock()
         mockRestClient = mock()
         mockContactTokenStorage = mock()
         mockPushTokenStorage = mock()
+        mockRequestModelFactory = mock()
+        mockTokenResponseHandler = mock()
 
         mockRequestModelHelper = mock {
-            on {isMobileEngageRequest(any())} doReturn true
+            on { isMobileEngageRequest(any()) } doReturn true
         }
 
         proxy = CoreCompletionHandlerRefreshTokenProxy(
-                mockCoreCompletionHandler,
-                mockRefreshTokenInternal,
-                mockRestClient,
-                mockContactTokenStorage,
-                mockPushTokenStorage,
-                mockRequestModelHelper
+            mockCoreCompletionHandler,
+            mockRestClient,
+            mockContactTokenStorage,
+            mockPushTokenStorage,
+            mockTokenResponseHandler,
+            mockRequestModelHelper,
+            mockRequestModelFactory
         )
     }
 
     @Test
     fun testOnSuccess_shouldDelegate_toCoreCompletionHandler() {
-        val mockResponse: ResponseModel = mock()
+        proxy.onSuccess(REQUEST_ID, mockResponseModel)
 
-        proxy.onSuccess(REQUEST_ID, mockResponse)
-
-        verify(mockCoreCompletionHandler).onSuccess(REQUEST_ID, mockResponse)
+        verify(mockCoreCompletionHandler).onSuccess(REQUEST_ID, mockResponseModel)
     }
 
     @Test
@@ -89,30 +96,37 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     fun testOnError_shouldCall_createRefreshTokenRequest_whenStatusCodeIs401_andMobileEngageRequest() {
         whenever(mockRequestModel.url).thenReturn(URL(CLIENT_HOST))
         whenever(mockResponseModel.statusCode).thenReturn(401)
-
+        whenever(mockRequestModelFactory.createRefreshContactTokenRequest()).thenReturn(
+            mockRequestModel
+        )
         proxy.onError(REQUEST_ID, mockResponseModel)
 
-        verify(mockRefreshTokenInternal).refreshContactToken(any())
+        verify(mockRestClient).execute(mockRequestModel, proxy)
     }
 
     @Test
     fun testOnError_shouldCall_shouldGiveTheResponseToNextLevel_whenStatusCodeIs401_andNotMobileEngageRequest() {
         whenever(mockResponseModel.statusCode).thenReturn(401)
         whenever(mockRequestModelHelper.isMobileEngageRequest(any())).thenReturn(false)
-
+        whenever(mockRequestModelFactory.createRefreshContactTokenRequest()).thenReturn(
+            mockRequestModel
+        )
         proxy.onError(REQUEST_ID, mockResponseModel)
 
-        verifyNoInteractions(mockRefreshTokenInternal)
+        verify(mockRestClient, times(0)).execute(mockRequestModel, proxy)
         verify(mockCoreCompletionHandler).onError(REQUEST_ID, mockResponseModel)
     }
 
     @Test
     fun testOnError_shouldGiveTheResponseToNextLevel_whenStatusCodeIsNot401() {
         whenever(mockResponseModel.statusCode).thenReturn(400)
+        whenever(mockRequestModelFactory.createRefreshContactTokenRequest()).thenReturn(
+            mockRequestModel
+        )
 
         proxy.onError(REQUEST_ID, mockResponseModel)
 
-        verifyNoInteractions(mockRefreshTokenInternal)
+        verify(mockRestClient, times(0)).execute(mockRequestModel, proxy)
         verify(mockCoreCompletionHandler).onError(REQUEST_ID, mockResponseModel)
 
     }
@@ -120,24 +134,28 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
     @Test
     fun testOnError_shouldDelegateRequestModelsContactToken_whenStatusCodeIs401() {
         proxy = CoreCompletionHandlerRefreshTokenProxy(
-                mockCoreCompletionHandler,
-                FakeMobileEngageRefreshTokenInternal(true),
-                mockRestClient,
-                mockContactTokenStorage,
-                mockPushTokenStorage,
-                mockRequestModelHelper
+            mockCoreCompletionHandler,
+            mockRestClient,
+            mockContactTokenStorage,
+            mockPushTokenStorage,
+            mockTokenResponseHandler,
+            mockRequestModelHelper,
+            mockRequestModelFactory
         )
-        val requestModel = RequestModel(CLIENT_HOST,
-                RequestMethod.POST,
-                emptyMap(),
-                mapOf(
-                        "X-Contact-Token" to "testContactToken",
-                        "X-Client-State" to "testClientState"),
-                12345,
-                Long.MAX_VALUE, REQUEST_ID)
+        val requestModel = RequestModel(
+            CLIENT_HOST,
+            RequestMethod.POST,
+            emptyMap(),
+            mapOf(
+                "X-Contact-Token" to "testContactToken",
+                "X-Client-State" to "testClientState"
+            ),
+            12345,
+            Long.MAX_VALUE, REQUEST_ID
+        )
 
         whenever(mockResponseModel.statusCode).thenReturn(401)
-        whenever(mockResponseModel.requestModel).thenReturn(requestModel)
+        whenever(mockRequestModelFactory.createRefreshContactTokenRequest()).thenReturn(requestModel)
 
         proxy.onError(REQUEST_ID, mockResponseModel)
 
@@ -149,43 +167,27 @@ class CoreCompletionHandlerRefreshTokenProxyTest {
         whenever(mockRequestModel.id).thenReturn(REQUEST_ID)
         whenever(mockRequestModel.url).thenReturn(URL(CLIENT_HOST))
         whenever(mockResponseModel.statusCode).thenReturn(401)
+        val refreshTokenRequestModel: RequestModel = mock()
+        whenever(mockRequestModelFactory.createRefreshContactTokenRequest()).thenReturn(
+            refreshTokenRequestModel
+        )
 
+        whenever(mockRestClient.execute(refreshTokenRequestModel, proxy)).thenAnswer {
+            proxy.onError(
+                REQUEST_ID, java.lang.Exception()
+            )
+        }
         proxy = CoreCompletionHandlerRefreshTokenProxy(
-                mockCoreCompletionHandler,
-                FakeMobileEngageRefreshTokenInternal(),
-                mockRestClient,
-                mockContactTokenStorage,
-                mockPushTokenStorage,
-                mockRequestModelHelper
+            mockCoreCompletionHandler,
+            mockRestClient,
+            mockContactTokenStorage,
+            mockPushTokenStorage,
+            mockTokenResponseHandler,
+            mockRequestModelHelper,
+            mockRequestModelFactory
         )
 
         proxy.onError(REQUEST_ID, mockResponseModel)
-
-        verify(mockCoreCompletionHandler).onError(eq(REQUEST_ID), any<Exception>())
-    }
-
-    @Test
-    fun testOnError_shouldCall_coreCompletionHandler_withError_whenExceptionThrown_whenCompositeRequestModel() {
-        val mockRequestModel: CompositeRequestModel = mock {
-            on { id } doReturn "compositeRequestId"
-            on { originalRequestIds } doReturn arrayOf(REQUEST_ID)
-            on { url } doReturn URL(CLIENT_HOST)
-        }
-
-        whenever(mockResponseModel.requestModel).thenReturn(mockRequestModel)
-        whenever(mockResponseModel.statusCode).thenReturn(401)
-
-
-        proxy = CoreCompletionHandlerRefreshTokenProxy(
-                mockCoreCompletionHandler,
-                FakeMobileEngageRefreshTokenInternal(),
-                mockRestClient,
-                mockContactTokenStorage,
-                mockPushTokenStorage,
-                mockRequestModelHelper
-        )
-
-        proxy.onError("compositeRequestId", mockResponseModel)
 
         verify(mockCoreCompletionHandler).onError(eq(REQUEST_ID), any<Exception>())
     }

@@ -1,14 +1,12 @@
 package com.emarsys
 
+
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import com.emarsys.config.EmarsysConfig
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.device.LanguageProvider
-
-
-
 import com.emarsys.core.notification.NotificationManagerHelper
 import com.emarsys.core.provider.hardwareid.HardwareIdProvider
 import com.emarsys.core.provider.version.VersionProvider
@@ -16,8 +14,13 @@ import com.emarsys.core.storage.Storage
 import com.emarsys.di.DefaultEmarsysComponent
 import com.emarsys.di.DefaultEmarsysDependencies
 import com.emarsys.di.emarsys
-
-import com.emarsys.testUtil.*
+import com.emarsys.testUtil.ConnectionTestUtils
+import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.FeatureTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.IntegrationTestUtils
+import com.emarsys.testUtil.RetryUtils
+import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import com.emarsys.testUtil.rules.RetryRule
@@ -114,17 +117,6 @@ class MobileEngageRefreshContactTokenIntegrationTest {
     @After
     fun tearDown() {
         IntegrationTestUtils.tearDownEmarsys(application)
-    }
-
-    @Test
-    fun testRefreshContactToken() {
-        contactTokenStorage.remove()
-
-        val refreshTokenInternal = emarsys().refreshTokenInternal
-
-        refreshTokenInternal.refreshContactToken(this::eventuallyStoreResult).apply { eventuallyAssertSuccess() }
-
-        contactTokenStorage.get() shouldNotBe null
     }
 
     @Test

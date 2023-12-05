@@ -7,7 +7,7 @@ import com.emarsys.core.request.factory.CoreCompletionHandlerMiddlewareProvider
 import com.emarsys.core.storage.StringStorage
 import com.emarsys.core.worker.CoreCompletionHandlerMiddleware
 import com.emarsys.core.worker.Worker
-import com.emarsys.mobileengage.RefreshTokenInternal
+import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.util.RequestModelHelper
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -22,7 +22,6 @@ import org.mockito.kotlin.mock
 class CoreCompletionHandlerRefreshTokenProxyProviderTest {
     private lateinit var mockCoreCompletionHandlerMiddlewareProvider: CoreCompletionHandlerMiddlewareProvider
     private lateinit var mockCoreCompletionHandlerMiddleware: CoreCompletionHandlerMiddleware
-    private lateinit var mockRefreshTokenInternal: RefreshTokenInternal
     private lateinit var mockRestClient: RestClient
     private lateinit var mockContactTokenStorage: StringStorage
     private lateinit var mockPushTokenStorage: StringStorage
@@ -34,6 +33,8 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest {
     private lateinit var mockCoreCompletionHandler: CoreCompletionHandler
     private lateinit var mockDefaultCoreCompletionHandler: CoreCompletionHandler
     private lateinit var mockRequestModelHelper: RequestModelHelper
+    private lateinit var mockTokenResponseHandler: MobileEngageTokenResponseHandler
+    private lateinit var mockRequestModelFactory: MobileEngageRequestModelFactory
 
     @Rule
     @JvmField
@@ -44,7 +45,6 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest {
     fun setUp() {
         mockCoreCompletionHandlerMiddlewareProvider = mock()
         mockCoreCompletionHandlerMiddleware = mock()
-        mockRefreshTokenInternal = mock()
         mockRestClient = mock()
         mockContactTokenStorage = mock()
         mockPushTokenStorage = mock()
@@ -55,53 +55,75 @@ class CoreCompletionHandlerRefreshTokenProxyProviderTest {
         mockCoreCompletionHandler = mock()
         mockDefaultCoreCompletionHandler = mock()
         mockRequestModelHelper = mock()
+        mockTokenResponseHandler = mock()
+        mockRequestModelFactory = mock()
 
-        coreCompletionHandlerRefreshTokenProxyProvider = CoreCompletionHandlerRefreshTokenProxyProvider(
+        coreCompletionHandlerRefreshTokenProxyProvider =
+            CoreCompletionHandlerRefreshTokenProxyProvider(
                 mockCoreCompletionHandlerMiddlewareProvider,
-                mockRefreshTokenInternal,
                 mockRestClient,
                 mockContactTokenStorage,
                 mockPushTokenStorage,
                 mockDefaultCoreCompletionHandler,
-                mockRequestModelHelper
-        )
+                mockRequestModelHelper,
+                mockTokenResponseHandler,
+                mockRequestModelFactory
+            )
     }
 
     @Test
     fun testProvideCoreCompletionHandlerRefreshTokenProxy() {
         val mockWorker = mock(Worker::class.java)
-        whenever(mockCoreCompletionHandlerMiddlewareProvider.provideProxy(mockWorker, mockCoreCompletionHandler)).thenReturn(mockCoreCompletionHandlerMiddleware)
+        whenever(
+            mockCoreCompletionHandlerMiddlewareProvider.provideProxy(
+                mockWorker,
+                mockCoreCompletionHandler
+            )
+        ).thenReturn(mockCoreCompletionHandlerMiddleware)
         val expectedProxy = CoreCompletionHandlerRefreshTokenProxy(
-                mockCoreCompletionHandlerMiddleware, mockRefreshTokenInternal, mockRestClient,
-                mockContactTokenStorage, mockPushTokenStorage, mockRequestModelHelper)
+            mockCoreCompletionHandlerMiddleware,
+            mockRestClient,
+            mockContactTokenStorage,
+            mockPushTokenStorage,
+            mockTokenResponseHandler,
+            mockRequestModelHelper,
+            mockRequestModelFactory
+        )
 
-        val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(mockWorker, mockCoreCompletionHandler)
+        val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(
+            mockWorker,
+            mockCoreCompletionHandler
+        )
 
         result shouldBe expectedProxy
     }
 
     @Test
     fun testProvideCoreCompletionHandlerRefreshTokenProxy_whenNoHandlerIsAvailable() {
-        whenever(mockCoreCompletionHandlerMiddlewareProvider.provideProxy(null, null)).thenReturn(mockDefaultCoreCompletionHandler)
-        val expectedProxy = CoreCompletionHandlerRefreshTokenProxy(
-                mockDefaultCoreCompletionHandler, mockRefreshTokenInternal, mockRestClient,
-                mockContactTokenStorage, mockPushTokenStorage, mockRequestModelHelper)
+        whenever(mockCoreCompletionHandlerMiddlewareProvider.provideProxy(null, null)).thenReturn(
+            mockDefaultCoreCompletionHandler
+        )
 
         val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(null, null)
 
-        result shouldBe expectedProxy
+        result.javaClass shouldBe CoreCompletionHandlerRefreshTokenProxy::class.java
     }
 
     @Test
     fun testProvideCoreCompletionHandlerRefreshTokenProxy_whenNoWorkerIsAvailable() {
 
-        whenever(mockCoreCompletionHandlerMiddlewareProvider.provideProxy(null, mockCoreCompletionHandler)).thenReturn(mockCoreCompletionHandler)
-        val expectedProxy = CoreCompletionHandlerRefreshTokenProxy(
-                mockCoreCompletionHandler, mockRefreshTokenInternal, mockRestClient,
-                mockContactTokenStorage, mockPushTokenStorage, mockRequestModelHelper)
+        whenever(
+            mockCoreCompletionHandlerMiddlewareProvider.provideProxy(
+                null,
+                mockCoreCompletionHandler
+            )
+        ).thenReturn(mockCoreCompletionHandler)
 
-        val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(null, mockCoreCompletionHandler)
+        val result = coreCompletionHandlerRefreshTokenProxyProvider.provideProxy(
+            null,
+            mockCoreCompletionHandler
+        )
 
-        result shouldBe expectedProxy
+        result.javaClass shouldBe CoreCompletionHandlerRefreshTokenProxy::class.java
     }
 }

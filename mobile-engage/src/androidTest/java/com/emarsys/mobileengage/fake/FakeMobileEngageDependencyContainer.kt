@@ -34,7 +34,6 @@ import com.emarsys.core.util.log.Logger
 import com.emarsys.core.worker.Worker
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
 import com.emarsys.mobileengage.di.MobileEngageComponent
@@ -82,7 +81,6 @@ class FakeMobileEngageDependencyContainer(
     override val loggingPushInternal: PushInternal = mock(),
     override val eventServiceInternal: EventServiceInternal = mock(),
     override val loggingEventServiceInternal: EventServiceInternal = mock(),
-    override val refreshTokenInternal: RefreshTokenInternal = mock(),
     override val inAppEventHandlerInternal: InAppEventHandlerInternal = mock(),
     override val requestContext: MobileEngageRequestContext = mock(),
     override val clipboardManager: ClipboardManager = mock(),

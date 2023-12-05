@@ -96,9 +96,7 @@ import com.emarsys.mobileengage.LoggingMobileEngageInternal
 import com.emarsys.mobileengage.MobileEngage
 import com.emarsys.mobileengage.MobileEngageApi
 import com.emarsys.mobileengage.MobileEngageInternal
-import com.emarsys.mobileengage.MobileEngageRefreshTokenInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.client.DefaultClientServiceInternal
 import com.emarsys.mobileengage.client.LoggingClientServiceInternal
@@ -603,12 +601,13 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         )
         CoreCompletionHandlerRefreshTokenProxyProvider(
             coreCompletionHandlerMiddlewareProvider,
-            refreshTokenInternal,
             restClient,
             contactTokenStorage,
             pushTokenStorage,
             coreCompletionHandler,
-            requestModelHelper
+            requestModelHelper,
+            contactTokenResponseHandler,
+            mobileEngageRequestModelFactory
         )
     }
 
@@ -744,14 +743,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
 
     override val loggingPushInternal: PushInternal by lazy {
         LoggingPushInternal(Emarsys::class.java)
-    }
-
-    override val refreshTokenInternal: RefreshTokenInternal by lazy {
-        MobileEngageRefreshTokenInternal(
-            contactTokenResponseHandler,
-            restClient,
-            mobileEngageRequestModelFactory
-        )
     }
 
     override val webViewFactory: IamWebViewFactory by lazy {

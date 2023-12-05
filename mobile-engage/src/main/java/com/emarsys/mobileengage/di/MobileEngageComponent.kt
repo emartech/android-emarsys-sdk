@@ -11,7 +11,6 @@ import com.emarsys.core.response.ResponseHandlersProcessor
 import com.emarsys.core.storage.Storage
 import com.emarsys.mobileengage.MobileEngageInternal
 import com.emarsys.mobileengage.MobileEngageRequestContext
-import com.emarsys.mobileengage.RefreshTokenInternal
 import com.emarsys.mobileengage.api.event.EventHandler
 import com.emarsys.mobileengage.client.ClientServiceInternal
 import com.emarsys.mobileengage.deeplink.DeepLinkInternal
@@ -92,8 +91,6 @@ interface MobileEngageComponent : CoreComponent {
     val eventServiceInternal: EventServiceInternal
 
     val loggingEventServiceInternal: EventServiceInternal
-
-    val refreshTokenInternal: RefreshTokenInternal
 
     val inAppEventHandlerInternal: InAppEventHandlerInternal
 
