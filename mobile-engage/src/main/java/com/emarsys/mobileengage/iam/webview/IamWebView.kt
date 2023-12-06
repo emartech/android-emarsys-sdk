@@ -39,7 +39,11 @@ class IamWebView(
 
     init {
         val context = activity ?: throw IamWebViewCreationFailedException()
-        webView = WebView(context)
+        webView = try {
+            WebView(context)
+        } catch (ignored: Exception) {
+            throw IamWebViewCreationFailedException()
+        }
 
         jsBridge = jsBridgeFactory.createJsBridge(commandFactory)
         jsBridge.iamWebView = this
