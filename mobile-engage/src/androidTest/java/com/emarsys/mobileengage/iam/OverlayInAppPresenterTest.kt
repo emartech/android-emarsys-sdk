@@ -195,4 +195,36 @@ class OverlayInAppPresenterTest {
 
         verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
     }
+
+    @Test
+    fun testPresent_shouldNotShowDialog_whenFragmentManager_isInSavedState() {
+        val activity: AppCompatActivity = mock()
+        val fragmentManager: FragmentManager = mock()
+        val fragment: Fragment = mock()
+
+        whenever(mockIamDialogProvider.provideDialog(anyNotNull(), any(), any(), any())).thenReturn(
+            mockIamDialog
+        )
+        whenever(mockCurrentActivityProvider.get()).thenReturn(activity)
+        whenever(activity.supportFragmentManager).thenReturn(fragmentManager)
+        whenever(fragmentManager.isStateSaved).thenReturn(true)
+        whenever(fragmentManager.findFragmentByTag("MOBILE_ENGAGE_IAM_DIALOG_TAG")).thenReturn(null)
+
+        val countDownLatch = CountDownLatch(1)
+
+        inAppPresenter.present(
+            "1",
+            SID,
+            URL,
+            "requestId",
+            0L,
+            "<html><body><p>Hello</p></body></html>"
+        ) {
+            countDownLatch.countDown()
+        }
+
+        countDownLatch.await()
+
+        verify(mockIamDialog, times(0)).show(any<FragmentManager>(), any())
+    }
 }

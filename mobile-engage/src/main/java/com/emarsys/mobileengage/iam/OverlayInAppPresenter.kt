@@ -46,7 +46,9 @@ class OverlayInAppPresenter(
                                         endTimestamp
                                     )
                                 )
-                                iamDialog.show(it, IamDialog.TAG)
+                                if (!it.isStateSaved) {
+                                    iamDialog.show(it, IamDialog.TAG)
+                                }
                             }
                         }
                         concurrentHandlerHolder.coreHandler.post {
