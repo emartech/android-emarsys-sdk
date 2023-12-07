@@ -43,7 +43,7 @@ import com.emarsys.sample.ui.component.toast.customTextToast
 import com.emarsys.sample.ui.style.columnWithMaxWidth
 import com.emarsys.sample.ui.style.rowWithMaxWidth
 import com.emarsys.sample.ui.style.rowWithPointEightWidth
-import java.util.*
+import java.util.UUID
 
 class InAppScreen(
     override val context: Context,
@@ -58,7 +58,11 @@ class InAppScreen(
                 if (it != null) {
                     Log.e("ERROR", it.toString())
                 } else {
-                    Toast.makeText(context, context.getString(R.string.event_track_success), Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.event_track_success),
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 }
             }

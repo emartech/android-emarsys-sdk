@@ -41,12 +41,23 @@ class InlineInAppView : LinearLayout {
     private val concurrentHandlerHolder = mobileEngage().concurrentHandlerHolder
     private val requestManager = mobileEngage().requestManager
     private val requestModelFactory = mobileEngage().mobileEngageRequestModelFactory
+    private var webViewHeightParam: Int = ViewGroup.LayoutParams.WRAP_CONTENT
+    private var webViewWidthParam: Int = ViewGroup.LayoutParams.MATCH_PARENT
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         commonConstructor(attrs)
     }
 
-    constructor(context: Context) : super(context) {
+    @JvmOverloads
+    constructor(
+        context: Context,
+        overrideWebViewWidthParam: Int? = null,
+        overrideWebViewHeightParam: Int? = null
+    ) : super(
+        context
+    ) {
+        webViewWidthParam = overrideWebViewWidthParam ?: webViewWidthParam
+        webViewHeightParam = overrideWebViewHeightParam ?: webViewHeightParam
         commonConstructor()
     }
 
@@ -76,8 +87,8 @@ class InlineInAppView : LinearLayout {
     private fun setupViewHierarchy(iamWebView: IamWebView) {
         addView(iamWebView.webView)
         with(iamWebView.webView.layoutParams) {
-            width = ViewGroup.LayoutParams.MATCH_PARENT
-            height = ViewGroup.LayoutParams.WRAP_CONTENT
+            width = webViewWidthParam
+            height = webViewHeightParam
         }
     }
 
