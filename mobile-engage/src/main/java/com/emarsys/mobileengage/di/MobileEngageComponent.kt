@@ -36,7 +36,7 @@ import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvid
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
-import com.emarsys.mobileengage.service.RemoteMessageMapper
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
 import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.util.RequestModelHelper
@@ -176,7 +176,7 @@ interface MobileEngageComponent : CoreComponent {
 
     val jsOnAppEventListener: OnAppEventListener
 
-    val remoteMessageMapper: RemoteMessageMapper
+    val remoteMessageMapperFactory: RemoteMessageMapperFactory
 
     val appLifecycleObserver: AppLifecycleObserver
 

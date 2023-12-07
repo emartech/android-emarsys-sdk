@@ -22,3 +22,8 @@ data class NotificationMethod(
     val collapseId: String,
     val operation: NotificationOperation
 )
+
+data class NotificationResourceIds(
+    val smallIconResourceId: Int,
+    val colorResourceId: Int
+)

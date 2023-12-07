@@ -18,12 +18,14 @@ import com.emarsys.mobileengage.api.push.NotificationInformation
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.notification.command.SilentNotificationInformationCommand
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
 import org.json.JSONException
 import org.json.JSONObject
 
 @Mockable
 object MessagingServiceUtils {
     const val MESSAGE_FILTER = "ems_msg"
+    const val V2_MESSAGE_FILTER = "ems.version"
 
     @JvmStatic
     fun handleMessage(
@@ -32,42 +34,38 @@ object MessagingServiceUtils {
         deviceInfo: DeviceInfo,
         fileDownloader: FileDownloader,
         actionCommandFactory: ActionCommandFactory,
-        remoteMessageMapper: RemoteMessageMapper
-    ): Boolean {
-
-        var handled = false
-        if (isMobileEngageMessage(remoteMessageData)) {
-            if (isSilent(remoteMessageData)) {
-                createSilentPushCommands(actionCommandFactory, remoteMessageData).forEach {
-                    mobileEngage().concurrentHandlerHolder.postOnMain {
-                        it?.run()
-                    }
-                }
-            } else {
-                val notificationData = remoteMessageMapper.map(remoteMessageData)
-                val notificationManager =
-                    (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                val collapseId = notificationData.notificationMethod.collapseId
-                val notification = createNotification(
-                    collapseId,
-                    context.applicationContext,
-                    remoteMessageData,
-                    deviceInfo,
-                    fileDownloader,
-                    notificationData
-                )
-                when (notificationData.notificationMethod.operation) {
-                    NotificationOperation.INIT, NotificationOperation.UPDATE -> {
-                        notificationManager.notify(collapseId, collapseId.hashCode(), notification)
-                    }
-                    NotificationOperation.DELETE -> {
-                        notificationManager.cancel(collapseId, collapseId.hashCode())
-                    }
+        remoteMessageMapperFactory: RemoteMessageMapperFactory
+    ) {
+        val remoteMessageMapper = remoteMessageMapperFactory.create(remoteMessageData)
+        if (isSilent(remoteMessageData)) {
+            createSilentPushCommands(actionCommandFactory, remoteMessageData).forEach {
+                mobileEngage().concurrentHandlerHolder.postOnMain {
+                    it?.run()
                 }
             }
-            handled = true
+        } else {
+            val notificationData = remoteMessageMapper.map(remoteMessageData)
+            val notificationManager =
+                (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+            val collapseId = notificationData.notificationMethod.collapseId
+            val notification = createNotification(
+                collapseId,
+                context.applicationContext,
+                remoteMessageData,
+                deviceInfo,
+                fileDownloader,
+                notificationData
+            )
+            when (notificationData.notificationMethod.operation) {
+                NotificationOperation.INIT, NotificationOperation.UPDATE -> {
+                    notificationManager.notify(collapseId, collapseId.hashCode(), notification)
+                }
+
+                NotificationOperation.DELETE -> {
+                    notificationManager.cancel(collapseId, collapseId.hashCode())
+                }
+            }
         }
-        return handled
     }
 
     fun createSilentPushCommands(
@@ -104,9 +102,17 @@ object MessagingServiceUtils {
         return false
     }
 
+    private fun isV1Notification(remoteMessage: Map<String, String?>): Boolean {
+        return remoteMessage.containsKey(MESSAGE_FILTER)
+    }
+
+    private fun isV2Notification(remoteMessage: Map<String, String?>): Boolean {
+        return remoteMessage.containsKey(V2_MESSAGE_FILTER)
+    }
+
     @JvmStatic
-    fun isMobileEngageMessage(remoteMessageData: Map<String, String?>): Boolean {
-        return remoteMessageData.isNotEmpty() && remoteMessageData.containsKey(MESSAGE_FILTER)
+    fun isMobileEngageNotification(remoteMessage: Map<String, String?>): Boolean {
+        return isV1Notification(remoteMessage) || isV2Notification(remoteMessage)
     }
 
     fun createNotification(

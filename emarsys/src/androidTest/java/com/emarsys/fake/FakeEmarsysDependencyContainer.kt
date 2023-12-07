@@ -60,7 +60,7 @@ import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvid
 import com.emarsys.mobileengage.request.CoreCompletionHandlerRefreshTokenProxyProvider
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
-import com.emarsys.mobileengage.service.RemoteMessageMapper
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
 import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.util.RequestModelHelper
@@ -119,7 +119,6 @@ class FakeEmarsysDependencyContainer(
     override val contactTokenResponseHandler: MobileEngageTokenResponseHandler = mock(),
     override val webViewFactory: IamWebViewFactory = mock(),
     override val iamJsBridgeFactory: IamJsBridgeFactory = mock(),
-    override val remoteMessageMapper: RemoteMessageMapper = mock(),
     override val appLifecycleObserver: AppLifecycleObserver = mock(),
     override val requestModelHelper: RequestModelHelper = mock(),
     override val sessionIdHolder: SessionIdHolder = mock(),
@@ -156,4 +155,5 @@ class FakeEmarsysDependencyContainer(
     override val jsCommandFactoryProvider: JSCommandFactoryProvider = mock(),
     override val jsOnCloseListener: OnCloseListener = mock(),
     override val jsOnAppEventListener: OnAppEventListener = mock(),
+    override val remoteMessageMapperFactory: RemoteMessageMapperFactory = mock(),
 ) : MobileEngageComponent

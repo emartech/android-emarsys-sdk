@@ -35,9 +35,9 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.io.File
-import java.util.*
+import java.util.Locale
 
-class RemoteMessageMapperTest {
+class RemoteMessageMapperV1Test {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"
@@ -61,7 +61,7 @@ class RemoteMessageMapperTest {
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockFileDownloader: FileDownloader
     private lateinit var mockActionCommandFactory: ActionCommandFactory
-    private lateinit var remoteMessageMapper: RemoteMessageMapper
+    private lateinit var remoteMessageMapperV1: RemoteMessageMapperV1
 
     @Rule
     @JvmField
@@ -117,7 +117,7 @@ class RemoteMessageMapperTest {
             on { provideId() }.thenReturn("testUUID")
         }
 
-        remoteMessageMapper = RemoteMessageMapper(
+        remoteMessageMapperV1 = RemoteMessageMapperV1(
             mockMetaDataReader,
             context,
             mockFileDownloader,
@@ -147,7 +147,7 @@ class RemoteMessageMapperTest {
         input["channel_id"] = CHANNEL_ID
         input["ems"] = ems.toString()
 
-        val notificationData = remoteMessageMapper.map(input)
+        val notificationData = remoteMessageMapperV1.map(input)
 
         notificationData.body shouldBe  BODY
         notificationData.title shouldBe  TITLE
@@ -163,7 +163,7 @@ class RemoteMessageMapperTest {
         input["body"] = BODY
         input["channel_id"] = CHANNEL_ID
 
-        val notificationData = remoteMessageMapper.map(input)
+        val notificationData = remoteMessageMapperV1.map(input)
 
         notificationData.body shouldBe  BODY
         notificationData.title shouldBe  null
@@ -174,7 +174,7 @@ class RemoteMessageMapperTest {
     fun testMap_whenMapIsEmpty() {
         val input: MutableMap<String, String> = HashMap()
 
-        val notificationData = remoteMessageMapper.map(input)
+        val notificationData = remoteMessageMapperV1.map(input)
 
         notificationData shouldNotBe eq(null)
     }
@@ -187,7 +187,7 @@ class RemoteMessageMapperTest {
         input["image_url"] = IMAGE_URL
         input["channel_id"] = CHANNEL_ID
 
-        val notificationData = remoteMessageMapper.map(input)
+        val notificationData = remoteMessageMapperV1.map(input)
 
         notificationData.image shouldNotBe null
     }
@@ -200,7 +200,7 @@ class RemoteMessageMapperTest {
         input["image_url"] = "https://fa.il/img.jpg"
         input["channel_id"] = CHANNEL_ID
 
-        val notificationData = remoteMessageMapper.map(input)
+        val notificationData = remoteMessageMapperV1.map(input)
 
         notificationData.image shouldBe  null
     }
@@ -221,7 +221,7 @@ class RemoteMessageMapperTest {
         ems.put("notificationMethod", notificationMethodJson)
         input["ems"] = ems.toString()
 
-        val notificationData = remoteMessageMapper.map(input)
+        val notificationData = remoteMessageMapperV1.map(input)
 
         notificationData.notificationMethod shouldBe notificationMethod
     }
@@ -236,7 +236,7 @@ class RemoteMessageMapperTest {
         val ems = JSONObject()
         input["ems"] = ems.toString()
 
-        val notificationData = remoteMessageMapper.map(input)
+        val notificationData = remoteMessageMapperV1.map(input)
 
         notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
     }
@@ -254,7 +254,7 @@ class RemoteMessageMapperTest {
         ems.put("notificationMethod", notificationMethodJson)
         input["ems"] = ems.toString()
 
-        val notificationData = remoteMessageMapper.map(input)
+        val notificationData = remoteMessageMapperV1.map(input)
 
         notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
     }
@@ -273,7 +273,7 @@ class RemoteMessageMapperTest {
         ems.put("notificationMethod", notificationMethodJson)
         input["ems"] = ems.toString()
 
-        val notificationData = remoteMessageMapper.map(input)
+        val notificationData = remoteMessageMapperV1.map(input)
 
         notificationData.notificationMethod.operation shouldBe NotificationOperation.UPDATE
     }
@@ -291,7 +291,7 @@ class RemoteMessageMapperTest {
         ems.put("notificationMethod", notificationMethodJson)
         input["ems"] = ems.toString()
 
-        val notificationData = remoteMessageMapper.map(input)
+        val notificationData = remoteMessageMapperV1.map(input)
 
         notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
     }

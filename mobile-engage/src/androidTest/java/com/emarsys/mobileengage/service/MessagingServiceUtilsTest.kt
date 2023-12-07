@@ -24,6 +24,7 @@ import com.emarsys.mobileengage.notification.command.AppEventCommand
 import com.emarsys.mobileengage.notification.command.SilentNotificationInformationCommand
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
 import com.emarsys.mobileengage.service.MessagingServiceUtils.styleNotification
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.RetryUtils.retryRule
 import com.emarsys.testUtil.TimeoutUtils
@@ -79,9 +80,10 @@ class MessagingServiceUtilsTest {
     private lateinit var context: Context
     private lateinit var deviceInfo: DeviceInfo
     private lateinit var mockFileDownloader: FileDownloader
+    private lateinit var mockRemoteMessageMapperFactory: RemoteMessageMapperFactory
     private lateinit var mockActionCommandFactory: ActionCommandFactory
     private lateinit var mockSilentNotificationInformationListenerProvider: SilentNotificationInformationListenerProvider
-    private lateinit var mockRemoteMessageMapper: RemoteMessageMapper
+    private lateinit var mockRemoteMessageMapperV1: RemoteMessageMapperV1
 
     @Rule
     @JvmField
@@ -117,6 +119,7 @@ class MessagingServiceUtilsTest {
                 }
             }
         }
+        mockRemoteMessageMapperFactory = mock()
         mockActionCommandFactory = mock()
         mockSilentNotificationInformationListenerProvider = mock()
 
@@ -140,7 +143,7 @@ class MessagingServiceUtilsTest {
             isAutomaticPushSendingEnabled = true,
             isGooglePlayAvailable = true
         )
-        mockRemoteMessageMapper = mock()
+        mockRemoteMessageMapperV1 = mock()
 
         setupMobileEngageComponent(
             FakeMobileEngageDependencyContainer(silentNotificationInformationListenerProvider = mockSilentNotificationInformationListenerProvider)
@@ -154,33 +157,7 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    fun testHandleMessage_shouldReturnFalse_ifMessageIsNotHandled() {
-        whenever(mockRemoteMessageMapper.map(any())).thenReturn(EMPTY_NOTIFICATION_DATA)
-        MessagingServiceUtils.handleMessage(
-            context,
-            createRemoteMessageData(),
-            deviceInfo,
-            mockFileDownloader,
-            mockActionCommandFactory,
-            mockRemoteMessageMapper
-        ) shouldBe false
-    }
-
-    @Test
-    fun testHandleMessage_shouldReturnTrue_ifMessageIsHandled() {
-        whenever(mockRemoteMessageMapper.map(any())).thenReturn(EMPTY_NOTIFICATION_DATA)
-        MessagingServiceUtils.handleMessage(
-            context,
-            createEMSRemoteMessageData(),
-            deviceInfo,
-            mockFileDownloader,
-            mockActionCommandFactory,
-            mockRemoteMessageMapper
-        ) shouldBe true
-    }
-
-    @Test
-    fun testHandleMessage_shouldReturnTrue_whenSilent() {
+    fun testIsSilent_shouldReturnTrue_whenSilent() {
         val message = mapOf(
             "ems_msg" to "value",
             "ems" to JSONObject(
@@ -193,7 +170,7 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    fun testHandleMessage_shouldReturnFalse_whenNotSilent() {
+    fun testIsSilent_shouldReturnFalse_whenNotSilent() {
         val message = mapOf(
             "ems_msg" to "value",
             "ems" to JSONObject(
@@ -206,7 +183,7 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    fun testHandleMessage_shouldReturnFalse_whenSilentIsNotDefined() {
+    fun testIsSilent_shouldReturnFalse_whenSilentIsNotDefined() {
         val message = mapOf(
             "ems_msg" to "value",
             "ems" to JSONObject().toString()
@@ -215,7 +192,7 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    fun testHandleMessage_shouldUpdateMessage() {
+    fun testHandleMessage_shouldUse_V1_mapper_withOldNotificationStructure() {
         val notificationData = NotificationData(
             IMAGE,
             null,
@@ -233,7 +210,8 @@ class MessagingServiceUtilsTest {
             "ems_msg" to "value",
             "ems" to ems.toString()
         )
-        whenever(mockRemoteMessageMapper.map(message)).thenReturn(notificationData)
+        whenever(mockRemoteMessageMapperFactory.create(message)).thenReturn(mockRemoteMessageMapperV1)
+        whenever(mockRemoteMessageMapperV1.map(message)).thenReturn(notificationData)
 
         MessagingServiceUtils.handleMessage(
             context,
@@ -241,29 +219,38 @@ class MessagingServiceUtilsTest {
             deviceInfo,
             mockFileDownloader,
             mockActionCommandFactory,
-            mockRemoteMessageMapper
-        ) shouldBe true
+            mockRemoteMessageMapperFactory
+        )
+
+        verify(mockRemoteMessageMapperV1).map(message)
     }
 
     @Test
-    fun testIsMobileEngageMessage_shouldBeFalse_withEmptyData() {
+    fun testIsMobileEngageNotification_shouldBeFalse_withEmptyData() {
         val remoteMessageData: Map<String, String?> = HashMap()
-        MessagingServiceUtils.isMobileEngageMessage(remoteMessageData) shouldBe false
+        MessagingServiceUtils.isMobileEngageNotification(remoteMessageData) shouldBe false
     }
 
     @Test
-    fun testIsMobileEngageMessage_shouldBeTrue_withDataWhichContainsTheCorrectKey() {
+    fun testIsMobileEngageNotification_shouldBeTrue_withDataWhichContainsTheV1CorrectKey() {
         val remoteMessageData: MutableMap<String, String?> = HashMap()
         remoteMessageData["ems_msg"] = "value"
-        MessagingServiceUtils.isMobileEngageMessage(remoteMessageData) shouldBe true
+        MessagingServiceUtils.isMobileEngageNotification(remoteMessageData) shouldBe true
     }
 
     @Test
-    fun testIsMobileEngageMessage_shouldBeFalse_withDataWithout_ems_msg() {
+    fun testIsMobileEngageNotification_shouldBeTrue_withDataWhichContainsTheV2Key() {
+        val remoteMessageData: MutableMap<String, String?> = HashMap()
+        remoteMessageData["ems.version"] = "testValue"
+        MessagingServiceUtils.isMobileEngageNotification(remoteMessageData) shouldBe true
+    }
+
+    @Test
+    fun testIsMobileEngageNotification_shouldBeFalse_withDataWithout_ems_msg() {
         val remoteMessageData: MutableMap<String, String?> = HashMap()
         remoteMessageData["key1"] = "value1"
         remoteMessageData["key2"] = "value2"
-        MessagingServiceUtils.isMobileEngageMessage(remoteMessageData) shouldBe false
+        MessagingServiceUtils.isMobileEngageNotification(remoteMessageData) shouldBe false
     }
 
     @Test

@@ -161,7 +161,7 @@ import com.emarsys.mobileengage.responsehandler.InAppMessageResponseHandler
 import com.emarsys.mobileengage.responsehandler.MobileEngageClientStateResponseHandler
 import com.emarsys.mobileengage.responsehandler.MobileEngageTokenResponseHandler
 import com.emarsys.mobileengage.responsehandler.OnEventActionResponseHandler
-import com.emarsys.mobileengage.service.RemoteMessageMapper
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
 import com.emarsys.mobileengage.session.MobileEngageSession
 import com.emarsys.mobileengage.session.SessionIdHolder
 import com.emarsys.mobileengage.storage.MobileEngageStorageKey
@@ -879,18 +879,18 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         MobileEngageTokenResponseHandler("contactToken", contactTokenStorage, requestModelHelper)
     }
 
-    override val fileDownloader: FileDownloader by lazy {
-        FileDownloader(config.application)
-    }
-
-    override val remoteMessageMapper: RemoteMessageMapper by lazy {
-        RemoteMessageMapper(
+    override val remoteMessageMapperFactory: RemoteMessageMapperFactory by lazy {
+        RemoteMessageMapperFactory(
             MetaDataReader(),
-            config.application,
+            config.application as Context,
             fileDownloader,
             deviceInfo,
-            uuidProvider
+            uuidProvider,
         )
+    }
+
+    override val fileDownloader: FileDownloader by lazy {
+        FileDownloader(config.application)
     }
 
     override val appLifecycleObserver: AppLifecycleObserver by lazy {
