@@ -1,5 +1,6 @@
 package com.emarsys.mobileengage.notification
 
+import android.annotation.TargetApi
 import android.content.Context
 import android.content.Intent
 import com.emarsys.core.Mockable
@@ -31,7 +32,7 @@ class NotificationCommandFactory(private val context: Context) {
 
     fun createNotificationCommand(intent: Intent): Runnable {
         val actionId = intent.action
-        val notificationData = if (AndroidVersionUtils.isBelowTiramisu) intent.getParcelableExtra("payload") else intent.getParcelableExtra("payload", NotificationData::class.java)
+        val notificationData = if (AndroidVersionUtils.isBelowUpsideDownCake) intent.getParcelableExtra("payload") else extractPayload(intent)
         val action = getAction(notificationData, actionId)
 
         val commands = createMandatoryCommands(notificationData)
@@ -62,6 +63,11 @@ class NotificationCommandFactory(private val context: Context) {
             commands.add(actionCommand)
         }
         return CompositeCommand(commands.filterNotNull())
+    }
+
+    @TargetApi(34)
+    private fun extractPayload(intent: Intent): NotificationData? {
+        return intent.getParcelableExtra("payload", NotificationData::class.java)
     }
 
     private fun handlePushInformation(notificationData: NotificationData?): NotificationInformationCommand? {
