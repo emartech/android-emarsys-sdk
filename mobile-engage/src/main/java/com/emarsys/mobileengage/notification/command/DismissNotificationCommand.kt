@@ -2,19 +2,17 @@ package com.emarsys.mobileengage.notification.command
 
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
+import com.emarsys.mobileengage.service.NotificationData
 
 class DismissNotificationCommand(
     private val context: Context,
-    private val intent: Intent): Runnable {
+    private val notificationData: NotificationData?
+): Runnable {
 
     override fun run() {
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val bundle = intent.getBundleExtra("payload")
-        if (bundle != null) {
-            bundle.getString("notification_id")?.let {
-                manager.cancel(it, it.hashCode())
-            }
+        notificationData?.notificationMethod?.collapseId?.let {
+            manager.cancel(it, it.hashCode())
         }
     }
 }

@@ -7,9 +7,6 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.resource.MetaDataReader
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.mobileengage.service.MessagingServiceUtils.MESSAGE_FILTER
-import com.emarsys.mobileengage.service.RemoteMessageMapper
-import com.emarsys.mobileengage.service.RemoteMessageMapperV1
-import com.emarsys.mobileengage.service.RemoteMessageMapperV2
 
 @Mockable
 class RemoteMessageMapperFactory(

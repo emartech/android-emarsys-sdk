@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.notification.command
 
-import android.content.Intent
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Rule
@@ -15,25 +14,15 @@ class TrackMessageOpenCommandTest {
     @JvmField
     val timeout: TestRule = TimeoutUtils.timeoutRule
 
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_mobileEngageInternal_mustNotBeNull() {
-        TrackMessageOpenCommand(null, Intent())
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun testConstructor_intent_mustNotBeNull() {
-        TrackMessageOpenCommand(mock(PushInternal::class.java), null)
-    }
-
     @Test
     fun testRun_callsMobileEngageInternal() {
         val pushInternal = mock(PushInternal::class.java)
-        val intent = mock(Intent::class.java)
-        val command = TrackMessageOpenCommand(pushInternal, intent)
+        val sid = "test sid"
+        val command = TrackMessageOpenCommand(pushInternal, sid)
 
         command.run()
 
-        verify(pushInternal).trackMessageOpen(intent, null)
+        verify(pushInternal).trackMessageOpen(sid, null)
     }
 
 }

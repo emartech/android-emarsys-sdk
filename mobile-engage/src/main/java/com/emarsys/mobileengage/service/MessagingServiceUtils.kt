@@ -19,6 +19,7 @@ import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.notification.ActionCommandFactory
 import com.emarsys.mobileengage.notification.command.SilentNotificationInformationCommand
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -37,21 +38,19 @@ object MessagingServiceUtils {
         remoteMessageMapperFactory: RemoteMessageMapperFactory
     ) {
         val remoteMessageMapper = remoteMessageMapperFactory.create(remoteMessageData)
+        val notificationData = remoteMessageMapper.map(remoteMessageData)
         if (isSilent(remoteMessageData)) {
-            createSilentPushCommands(actionCommandFactory, remoteMessageData).forEach {
+            createSilentPushCommands(actionCommandFactory, notificationData).forEach {
                 mobileEngage().concurrentHandlerHolder.postOnMain {
                     it?.run()
                 }
             }
         } else {
-            val notificationData = remoteMessageMapper.map(remoteMessageData)
             val notificationManager =
                 (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
             val collapseId = notificationData.notificationMethod.collapseId
             val notification = createNotification(
-                collapseId,
                 context.applicationContext,
-                remoteMessageData,
                 deviceInfo,
                 fileDownloader,
                 notificationData
@@ -70,18 +69,17 @@ object MessagingServiceUtils {
 
     fun createSilentPushCommands(
         actionCommandFactory: ActionCommandFactory,
-        remoteMessageData: Map<String, String?>
+        notificationData: NotificationData
     ): List<Runnable?> {
-        val actionsJsonArray = JSONObject(remoteMessageData["ems"]).optJSONArray("actions")
+        val actionsJsonArray = notificationData.actions?.let { JSONArray(it) } ?: null
         val actions: MutableList<Runnable?> = mutableListOf()
-        val campaignId = JSONObject(remoteMessageData["ems"]).optString("multichannelId")
-        if (campaignId.isNotEmpty()) {
+        if (!notificationData.campaignId.isNullOrEmpty()) {
             val silentNotificationInformationListenerProvider =
                 mobileEngage().silentNotificationInformationListenerProvider
             actions.add(
                 SilentNotificationInformationCommand(
                     silentNotificationInformationListenerProvider,
-                    NotificationInformation(campaignId)
+                    NotificationInformation(notificationData.campaignId)
                 )
             )
         }
@@ -96,10 +94,12 @@ object MessagingServiceUtils {
 
     fun isSilent(remoteMessageData: Map<String, String?>?): Boolean {
         val emsPayload = remoteMessageData?.get("ems")
-        if (emsPayload != null) {
-            return JSONObject(emsPayload).optBoolean("silent", false)
-        }
-        return false
+        val v1IsSilent = if (emsPayload != null) {
+            JSONObject(emsPayload).optBoolean("silent", false)
+        } else false
+
+        val v2IsSilent = remoteMessageData?.get("ems.silent")?.let { it.toBoolean() } ?: false
+        return v1IsSilent || v2IsSilent
     }
 
     private fun isV1Notification(remoteMessage: Map<String, String?>): Boolean {
@@ -116,9 +116,7 @@ object MessagingServiceUtils {
     }
 
     fun createNotification(
-        notificationId: String,
         context: Context,
-        remoteMessageData: Map<String, String>,
         deviceInfo: DeviceInfo,
         fileDownloader: FileDownloader,
         notificationData: NotificationData
@@ -128,8 +126,6 @@ object MessagingServiceUtils {
         return createNotificationBuilder(notifData, context)
             .setupBuilder(
                 context,
-                remoteMessageData,
-                notificationId,
                 fileDownloader,
                 notifData
             )
@@ -170,21 +166,25 @@ object MessagingServiceUtils {
 
     private fun NotificationCompat.Builder.setupBuilder(
         context: Context,
-        remoteMessageData: Map<String, String>,
-        notificationId: String,
         fileDownloader: FileDownloader,
         notificationData: NotificationData
     ): NotificationCompat.Builder {
+        val actionsData = notificationData.actions?.let { JSONArray(it) }
         val actions =
-            NotificationActionUtils.createActions(context, remoteMessageData, notificationId)
+            actionsData?.let {
+                NotificationActionUtils.createActions(
+                    context,
+                    it,
+                    notificationData
+                )
+            } ?: listOf()
         val preloadedRemoteMessageData = createPreloadedRemoteMessageData(
-            remoteMessageData,
-            getInAppDescriptor(fileDownloader, remoteMessageData)
+            notificationData,
+            getInAppDescriptor(fileDownloader, notificationData.inapp),
         )
         val resultPendingIntent = IntentUtils.createNotificationHandlerServicePendingIntent(
             context,
             preloadedRemoteMessageData,
-            notificationId
         )
 
         this
@@ -214,27 +214,24 @@ object MessagingServiceUtils {
 
     fun getInAppDescriptor(
         fileDownloader: FileDownloader,
-        remoteMessageData: Map<String, String?>?
+        inappData: String?
     ): String? {
         var result: String? = null
         try {
-            if (remoteMessageData != null) {
-                val emsPayload = remoteMessageData["ems"]
-                if (emsPayload != null) {
-                    val inAppPayload = JSONObject(emsPayload).getJSONObject("inapp")
-                    val errors = JsonObjectValidator
-                        .from(inAppPayload)
-                        .hasFieldWithType("campaign_id", String::class.java)
-                        .hasFieldWithType("url", String::class.java)
-                        .validate()
-                    if (errors.isEmpty()) {
-                        val inAppUrl: String = inAppPayload.getString("url")
-                        val inAppDescriptor = JSONObject()
-                        inAppDescriptor.put("campaignId", inAppPayload.getString("campaign_id"))
-                        inAppDescriptor.put("url", inAppUrl)
-                        inAppDescriptor.put("fileUrl", fileDownloader.download(inAppUrl))
-                        result = inAppDescriptor.toString()
-                    }
+            if (inappData != null) {
+                val inAppPayload = JSONObject(inappData)
+                val errors = JsonObjectValidator
+                    .from(inAppPayload)
+                    .hasFieldWithType("campaign_id", String::class.java)
+                    .hasFieldWithType("url", String::class.java)
+                    .validate()
+                if (errors.isEmpty()) {
+                    val inAppUrl: String = inAppPayload.getString("url")
+                    val inAppDescriptor = JSONObject()
+                    inAppDescriptor.put("campaignId", inAppPayload.getString("campaign_id"))
+                    inAppDescriptor.put("url", inAppUrl)
+                    inAppDescriptor.put("fileUrl", fileDownloader.download(inAppUrl))
+                    result = inAppDescriptor.toString()
                 }
             }
         } catch (ignored: JSONException) {
@@ -243,23 +240,14 @@ object MessagingServiceUtils {
     }
 
     fun createPreloadedRemoteMessageData(
-        remoteMessageData: Map<String, String?>,
+        notificationData: NotificationData,
         inAppDescriptor: String?
-    ): Map<String, String?> {
-        val preloadedRemoteMessageData = mutableMapOf<String, String?>()
-        val keys = remoteMessageData.keys
-        for (key in keys) {
-            preloadedRemoteMessageData[key] = remoteMessageData[key]
+    ): NotificationData {
+        return if (inAppDescriptor != null) {
+            notificationData.copy(inapp = inAppDescriptor)
+        } else {
+            notificationData.copy()
         }
-        if (inAppDescriptor != null) {
-            try {
-                val ems = JSONObject(preloadedRemoteMessageData["ems"])
-                ems.put("inapp", inAppDescriptor)
-                preloadedRemoteMessageData["ems"] = ems.toString()
-            } catch (ignored: JSONException) {
-            }
-        }
-        return preloadedRemoteMessageData
     }
 
     private fun isValidChannel(

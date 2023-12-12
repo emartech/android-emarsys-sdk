@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.provider.activity.CurrentActivityProvider
 import com.emarsys.core.util.JsonUtils
@@ -17,6 +16,9 @@ import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.notification.command.*
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.service.IntentUtils
+import com.emarsys.mobileengage.service.NotificationData
+import com.emarsys.mobileengage.service.NotificationMethod
+import com.emarsys.mobileengage.service.NotificationOperation
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.mockito.whenever
@@ -35,11 +37,35 @@ import org.mockito.Mockito.mock
 import org.mockito.kotlin.mock
 
 class NotificationCommandFactoryTest {
-    companion object {
-        private const val SID = "129487fw123"
-        private const val MISSING_SID = "Missing sid"
-        private const val NAME_OF_EVENT = "nameOfTheEvent"
-        private const val NAME_OF_MANDATORY_APP_EVENT = "push:payload"
+    private companion object {
+        const val SID = "129487fw123"
+        const val MISSING_SID = "Missing sid"
+        const val NAME_OF_EVENT = "nameOfTheEvent"
+        const val NAME_OF_MANDATORY_APP_EVENT = "push:payload"
+        const val TITLE = "title"
+        const val BODY = "body"
+        const val CHANNEL_ID = "channelId"
+        const val COLLAPSE_ID = "testCollapseId"
+        const val MULTICHANNEL_ID = "test multiChannel id"
+        const val SMALL_RESOURCE_ID = 123
+        const val COLOR_RESOURCE_ID = 456
+        val notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE)
+        val notificationData = NotificationData(
+            null,
+            null,
+            null,
+            TITLE,
+            BODY,
+            CHANNEL_ID,
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_RESOURCE_ID,
+            colorResourceId = COLOR_RESOURCE_ID,
+            notificationMethod = notificationMethod,
+            actions = null,
+            defaultAction = null,
+            inapp = null
+        )
     }
 
     @Rule
@@ -78,11 +104,11 @@ class NotificationCommandFactoryTest {
         }
 
         mockDependencyContainer = FakeMobileEngageDependencyContainer(
-                eventServiceInternal = mockEventServiceInternal,
-                pushInternal = mockPushInternal,
-                notificationCacheableEventHandler = mockEventHandler,
-                notificationActionCommandFactory = mockActionCommandFactory,
-                currentActivityProvider = mockCurrentActivityProvider
+            eventServiceInternal = mockEventServiceInternal,
+            pushInternal = mockPushInternal,
+            notificationCacheableEventHandler = mockEventHandler,
+            notificationActionCommandFactory = mockActionCommandFactory,
+            currentActivityProvider = mockCurrentActivityProvider
         )
 
         setupMobileEngageComponent(mockDependencyContainer)
@@ -107,7 +133,8 @@ class NotificationCommandFactoryTest {
 
     @Test
     fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_whenTypeIsNotSupported() {
-        val command = factory.createNotificationCommand(createUnknownCommandIntent()) as CompositeCommand
+        val command =
+            factory.createNotificationCommand(createUnknownCommandIntent()) as CompositeCommand
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
@@ -135,7 +162,12 @@ class NotificationCommandFactoryTest {
 
     @Test
     fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_whenActionsKeyIsMissing() {
-        val command = factory.createNotificationCommand(createIntent(JSONObject(), "actionId")) as CompositeCommand
+        val command = factory.createNotificationCommand(
+            createIntent(
+                notificationData,
+                "actionId"
+            )
+        ) as CompositeCommand
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
@@ -217,7 +249,8 @@ class NotificationCommandFactoryTest {
 
     @Test
     fun testCreateNotificationCommand_defaultAction_shouldCreateAppLaunchCommand_insteadOf_OpenExternalLinkCommand_whenCannotResolveUrl() {
-        val command = factory.createNotificationCommand(createDefaultOpenExternalLinkIntent("Not valid url!")) as CompositeCommand
+        val command =
+            factory.createNotificationCommand(createDefaultOpenExternalLinkIntent("Not valid url!")) as CompositeCommand
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
@@ -259,16 +292,17 @@ class NotificationCommandFactoryTest {
         val eventName = "eventName"
 
         val payload = JSONObject()
-                .put("key1", true)
-                .put("key2", 3.14)
-                .put("key3", JSONObject().put("key5", "value1"))
-                .put("key4", "value2")
+            .put("key1", true)
+            .put("key2", 3.14)
+            .put("key3", JSONObject().put("key5", "value1"))
+            .put("key4", "value2")
 
         val attributes = mapOf(
-                "key1" to "true",
-                "key2" to "3.14",
-                "key3" to """{"key5":"value1"}""",
-                "key4" to "value2")
+            "key1" to "true",
+            "key2" to "3.14",
+            "key3" to """{"key5":"value1"}""",
+            "key4" to "value2"
+        )
 
         val intent = createDefaultCustomEventIntent(eventName, payload)
 
@@ -327,12 +361,32 @@ class NotificationCommandFactoryTest {
     @Test
     fun testCreateNotificationCommand_trackActionCommand_withSids() {
         forall(
-                row(SID, extractCommandFromComposite<TrackActionClickCommand>(createAppEventIntent()).sid),
-                row(MISSING_SID, extractCommandFromComposite<TrackActionClickCommand>(createAppEventIntent(hasSid = false)).sid),
-                row(SID, extractCommandFromComposite<TrackActionClickCommand>(createOpenExternalLinkIntent()).sid),
-                row(MISSING_SID, extractCommandFromComposite<TrackActionClickCommand>(createOpenExternalLinkIntent(hasSid = false)).sid),
-                row(SID, extractCommandFromComposite<TrackActionClickCommand>(createCustomEventIntent()).sid),
-                row(MISSING_SID, extractCommandFromComposite<TrackActionClickCommand>(createCustomEventIntent(hasSid = false)).sid)
+            row(
+                SID,
+                extractCommandFromComposite<TrackActionClickCommand>(createAppEventIntent()).sid
+            ),
+            row(
+                MISSING_SID,
+                extractCommandFromComposite<TrackActionClickCommand>(createAppEventIntent(hasSid = false)).sid
+            ),
+            row(
+                SID,
+                extractCommandFromComposite<TrackActionClickCommand>(createOpenExternalLinkIntent()).sid
+            ),
+            row(
+                MISSING_SID,
+                extractCommandFromComposite<TrackActionClickCommand>(
+                    createOpenExternalLinkIntent(hasSid = false)
+                ).sid
+            ),
+            row(
+                SID,
+                extractCommandFromComposite<TrackActionClickCommand>(createCustomEventIntent()).sid
+            ),
+            row(
+                MISSING_SID,
+                extractCommandFromComposite<TrackActionClickCommand>(createCustomEventIntent(hasSid = false)).sid
+            )
         ) { expectedSid, actualSid -> actualSid shouldBe expectedSid }
     }
 
@@ -359,22 +413,30 @@ class NotificationCommandFactoryTest {
         val intent = createAppEventIntent()
         val commands = extractCommandsFromComposite<AppEventCommand>(intent)
         val payload = commands.first { it.name == NAME_OF_MANDATORY_APP_EVENT }.payload
-        val expected = JSONObject(mapOf(
-                "customKey" to "customValue",
-                "title" to "testTitle",
-                "body" to "testBody",
-                "u" to mapOf(
-                        "sid" to "129487fw123"
-                ),
-                "ems" to mapOf(
-                        "actions" to JSONArray(listOf(JSONObject(mapOf(
+        val expected = JSONObject(
+            mapOf(
+                "title" to TITLE,
+                "body" to BODY,
+                "channelId" to CHANNEL_ID,
+                "campaignId" to MULTICHANNEL_ID,
+                "sid" to SID,
+                "smallIconResourceId" to SMALL_RESOURCE_ID,
+                "colorResourceId" to COLOR_RESOURCE_ID,
+                "notificationMethod" to notificationMethod.toString(),
+                "actions" to JSONArray(
+                    listOf(
+                        JSONObject(
+                            mapOf(
                                 "type" to "MEAppEvent",
                                 "id" to "uniqueActionId",
                                 "title" to "title",
                                 "name" to NAME_OF_EVENT,
                                 "payload" to JSONObject(mapOf("payloadKey" to "payloadValue"))
-                        ))))
-                ))
+                            )
+                        )
+                    )
+                )
+            )
         )
         JsonUtils.toFlatMap(payload!!) shouldBe JsonUtils.toFlatMap(expected)
     }
@@ -390,18 +452,14 @@ class NotificationCommandFactoryTest {
 
     @Test
     fun testCreateNotificationCommand_appEvent_worksWithIntentUtils() {
-        val emsPayload = """{
-                'actions':[
+        val actions = """[
                     {'id':'actionId', 'type': 'MEAppEvent', 'title':'action title', 'name':'eventName'}
                 ]
-            }"""
-        val remoteMessageData = mapOf("ems" to emsPayload)
-
+            """
         val intent = IntentUtils.createNotificationHandlerServiceIntent(
-                InstrumentationRegistry.getTargetContext().applicationContext,
-                remoteMessageData,
-                "testNotificationId",
-                "actionId"
+            InstrumentationRegistry.getTargetContext().applicationContext,
+            notificationData.copy(actions = actions),
+            "actionId"
         )
 
         val commands = extractCommandsFromComposite<AppEventCommand>(intent)
@@ -442,7 +500,8 @@ class NotificationCommandFactoryTest {
 
     @Test
     fun testCreateNotificationCommand_shouldCreateAppLaunchCommand_insteadOf_OpenExternalLinkCommand_whenCannotResolveUrl() {
-        val command = factory.createNotificationCommand(createOpenExternalLinkIntent("Not valid url!")) as CompositeCommand
+        val command =
+            factory.createNotificationCommand(createOpenExternalLinkIntent("Not valid url!")) as CompositeCommand
 
         contains<LaunchApplicationCommand>(command) shouldBe true
         contains<DismissNotificationCommand>(command) shouldBe true
@@ -483,16 +542,17 @@ class NotificationCommandFactoryTest {
         val eventName = "eventName"
 
         val payload = JSONObject()
-                .put("key1", true)
-                .put("key2", 3.14)
-                .put("key3", JSONObject().put("key5", "value1"))
-                .put("key4", "value2")
+            .put("key1", true)
+            .put("key2", 3.14)
+            .put("key3", JSONObject().put("key5", "value1"))
+            .put("key4", "value2")
 
         val attributes = mapOf(
-                "key1" to "true",
-                "key2" to "3.14",
-                "key3" to """{"key5":"value1"}""",
-                "key4" to "value2")
+            "key1" to "true",
+            "key2" to "3.14",
+            "key3" to """{"key5":"value1"}""",
+            "key4" to "value2"
+        )
 
         val intent = createCustomEventIntent(eventName, payload)
 
@@ -535,152 +595,187 @@ class NotificationCommandFactoryTest {
     @Test
     fun testCreateNotificationCommand_shouldCreateNotificationInformationCommand() {
 
-        val intent = createIntent(JSONObject(mapOf("multichannelId" to "campaignId")))
+        val intent = createIntent(notificationData)
 
         val command = extractCommandFromComposite<NotificationInformationCommand>(intent)
 
-        command.notificationInformation.campaignId shouldBe "campaignId"
+        command.notificationInformation.campaignId shouldBe MULTICHANNEL_ID
     }
 
     @Test
     fun testCreateNotificationCommand_shouldNotCreateNotificationInformationCommand_whenMultichannelId_isMissing() {
-        val intent = createIntent(JSONObject())
-
-        val command = (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<NotificationInformationCommand>().let { list ->
-            list.firstOrNull().takeIf { list.size == 1 }
-        }
+        val intent = createIntent(notificationData.copy(campaignId = null))
+        val command =
+            (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<NotificationInformationCommand>()
+                .let { list ->
+                    list.firstOrNull().takeIf { list.size == 1 }
+                }
 
         command shouldBe null
     }
 
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : Runnable> extractCommandFromComposite(intent: Intent) =
-            (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<T>().let { list ->
+        (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<T>()
+            .let { list ->
                 list.firstOrNull().takeIf { list.size == 1 }
-                        ?: error("CompositeCommand contains multiple commands of type ${T::class.java}: $list")
+                    ?: error("CompositeCommand contains multiple commands of type ${T::class.java}: $list")
             }
 
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T : Runnable> extractCommandsFromComposite(intent: Intent) =
-            (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<T>()
+        (factory.createNotificationCommand(intent) as CompositeCommand).commands.filterIsInstance<T>()
 
     @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T : Runnable> contains(command: CompositeCommand) = command.commands.filterIsInstance<T>().isNotEmpty()
+    private inline fun <reified T : Runnable> contains(command: CompositeCommand) =
+        command.commands.filterIsInstance<T>().isNotEmpty()
 
     private fun createUnknownCommandIntent(): Intent {
         val unknownType = "NOT_SUPPORTED"
-        val json = JSONObject()
-                .put("actions", JSONArray()
-                        .put(JSONObject()
-                                .put("id", "uniqueActionId")
-                                .put("name", NAME_OF_EVENT)
-                                .put("type", unknownType)))
-        return createIntent(json, "uniqueActionId", false)
+        val actions = JSONArray()
+            .put(
+                JSONObject()
+                    .put("id", "uniqueActionId")
+                    .put("name", NAME_OF_EVENT)
+                    .put("type", unknownType)
+            )
+
+        return createIntent(
+            notificationData.copy(actions = actions.toString()),
+            "uniqueActionId",
+            false
+        )
     }
 
     private fun createDefaultAppEventIntent(hasSid: Boolean = true): Intent {
         val name = NAME_OF_EVENT
         val payload = JSONObject()
-                .put("payloadKey", "payloadValue")
-        val json = JSONObject()
-                .put("default_action", JSONObject()
-                        .put("type", "MEAppEvent")
-                        .put("name", name)
-                        .put("payload", payload))
-        return createIntent(json, hasSid = hasSid)
+            .put("payloadKey", "payloadValue")
+        val defaultAction = JSONObject()
+            .put("type", "MEAppEvent")
+            .put("name", name)
+            .put("payload", payload)
+
+
+        return createIntent(
+            notificationData.copy(defaultAction = defaultAction.toString()),
+            hasSid = hasSid
+        )
     }
 
-    private fun createDefaultOpenExternalLinkIntent(url: String = "https://emarsys.com", hasSid: Boolean = true): Intent {
-        val json = JSONObject()
-                .put("default_action", JSONObject()
-                        .put("type", "OpenExternalUrl")
-                        .put("url", url))
-        return createIntent(json, hasSid = hasSid)
+    private fun createDefaultOpenExternalLinkIntent(
+        url: String = "https://emarsys.com",
+        hasSid: Boolean = true
+    ): Intent {
+        val defaultAction = JSONObject()
+            .put("type", "OpenExternalUrl")
+            .put("url", url)
+
+
+        return createIntent(
+            notificationData.copy(defaultAction = defaultAction.toString()),
+            hasSid = hasSid
+        )
     }
 
-    private fun createDefaultCustomEventIntent(eventName: String = "eventName", payload: JSONObject? = null, hasSid: Boolean = true): Intent {
-        val action = JSONObject()
-                .put("type", "MECustomEvent")
-                .put("name", eventName)
+    private fun createDefaultCustomEventIntent(
+        eventName: String = "eventName",
+        payload: JSONObject? = null,
+        hasSid: Boolean = true
+    ): Intent {
+        val defaultAction = JSONObject()
+            .put("type", "MECustomEvent")
+            .put("name", eventName)
         if (payload != null) {
-            action.put("payload", payload)
+            defaultAction.put("payload", payload)
         }
 
-        val json = JSONObject().put("default_action", action)
-
-        return createIntent(json, hasSid = hasSid)
+        return createIntent(
+            notificationData.copy(defaultAction = defaultAction.toString()),
+            hasSid = hasSid
+        )
     }
 
     private fun createAppEventIntent(hasSid: Boolean = true): Intent {
         val actionId = "uniqueActionId"
         val name = NAME_OF_EVENT
         val payload = JSONObject()
-                .put("payloadKey", "payloadValue")
-        val json = JSONObject()
-                .put("actions", JSONArray()
-                        .put(JSONObject()
-                                .put("type", "MEAppEvent")
-                                .put("id", actionId)
-                                .put("title", "title")
-                                .put("name", name)
-                                .put("payload", payload)))
-        return createIntent(json, actionId, hasSid)
+            .put("payloadKey", "payloadValue")
+        val actions = JSONArray()
+            .put(
+                JSONObject()
+                    .put("type", "MEAppEvent")
+                    .put("id", actionId)
+                    .put("title", "title")
+                    .put("name", name)
+                    .put("payload", payload)
+            )
+
+        return createIntent(notificationData.copy(actions = actions.toString()), actionId, hasSid)
     }
 
     private fun createDismissIntent(hasSid: Boolean = true): Intent {
         val actionId = "uniqueActionId"
-        val json = JSONObject()
-                .put("multichannelId", "campaignId")
-                .put("actions", JSONArray()
-                        .put(JSONObject()
-                                .put("type", "Dismiss")
-                                .put("id", actionId)
-                                .put("title", "Dismiss")))
-        return createIntent(json, actionId, hasSid)
+        val actions = JSONArray()
+            .put(
+                JSONObject()
+                    .put("type", "Dismiss")
+                    .put("id", actionId)
+                    .put("title", "Dismiss")
+            )
+
+        return createIntent(notificationData.copy(actions = actions.toString()), actionId, hasSid)
     }
 
-    private fun createOpenExternalLinkIntent(url: String = "https://emarsys.com", hasSid: Boolean = true): Intent {
+    private fun createOpenExternalLinkIntent(
+        url: String = "https://emarsys.com",
+        hasSid: Boolean = true
+    ): Intent {
         val actionId = "uniqueActionId"
-        val json = JSONObject()
-                .put("actions", JSONArray()
-                        .put(JSONObject()
-                                .put("type", "OpenExternalUrl")
-                                .put("id", actionId)
-                                .put("title", "title")
-                                .put("url", url)))
-        return createIntent(json, actionId, hasSid)
+        val actions = JSONArray().put(
+            JSONObject()
+                .put("type", "OpenExternalUrl")
+                .put("id", actionId)
+                .put("title", "title")
+                .put("url", url)
+        )
+
+        return createIntent(notificationData.copy(actions = actions.toString()), actionId, hasSid)
     }
 
-    private fun createCustomEventIntent(eventName: String = "eventName", payload: JSONObject? = null, hasSid: Boolean = true): Intent {
+    private fun createCustomEventIntent(
+        eventName: String = "eventName",
+        payload: JSONObject? = null,
+        hasSid: Boolean = true
+    ): Intent {
         val actionId = "uniqueActionId"
 
         val action = JSONObject()
-                .put("type", "MECustomEvent")
-                .put("id", actionId)
-                .put("title", "Action button title")
-                .put("name", eventName)
+            .put("type", "MECustomEvent")
+            .put("id", actionId)
+            .put("title", "Action button title")
+            .put("name", eventName)
         if (payload != null) {
             action.put("payload", payload)
         }
 
-        val json = JSONObject().put("actions", JSONArray().put(action))
+        val actions = JSONArray().put(action)
 
-        return createIntent(json, actionId, hasSid)
+        return createIntent(notificationData.copy(actions = actions.toString()), actionId, hasSid)
     }
 
-    private fun createIntent(payload: JSONObject, actionId: String? = null, hasSid: Boolean = true): Intent {
+    private fun createIntent(
+        payload: NotificationData,
+        actionId: String? = null,
+        hasSid: Boolean = true
+    ): Intent {
         val intent = Intent()
 
         intent.action = actionId
-        val bundle = Bundle()
-        bundle.putString("customKey", "customValue")
-        bundle.putString("title", "testTitle")
-        bundle.putString("body", "testBody")
-        bundle.putString("ems", payload.toString())
-        if (hasSid) {
-            bundle.putString("u", JSONObject().put("sid", SID).toString())
-        }
-        intent.putExtra("payload", bundle)
+        val notificationDataWithSidIfNeeded = if (hasSid) {
+            payload
+        } else payload.copy(sid = "Missing sid")
+        intent.putExtra("payload", notificationDataWithSidIfNeeded)
 
         return intent
     }

@@ -5,8 +5,6 @@ import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.resource.MetaDataReader
 import com.emarsys.core.util.FileDownloader
-import com.emarsys.mobileengage.service.RemoteMessageMapperV1
-import com.emarsys.mobileengage.service.RemoteMessageMapperV2
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotlintest.shouldBe
 import org.junit.Before

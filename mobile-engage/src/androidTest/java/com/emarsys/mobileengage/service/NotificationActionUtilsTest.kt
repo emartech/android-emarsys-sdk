@@ -22,6 +22,22 @@ import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 class NotificationActionUtilsTest {
+    private companion object {
+        const val SMALL_RESOURCE_ID = 123
+        const val COLOR_RESOURCE_ID = 456
+        const val SID = "test sid"
+        const val MULTICHANNEL_ID = "test multichannel id"
+        val testNotificationData = NotificationData(
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_RESOURCE_ID,
+            colorResourceId = COLOR_RESOURCE_ID,
+            notificationMethod = NotificationMethod("123", NotificationOperation.INIT),
+            inapp = null,
+            actions = null
+        )
+    }
+
     private lateinit var context: Context
 
     @Rule
@@ -30,7 +46,7 @@ class NotificationActionUtilsTest {
 
     @Before
     fun init() {
-            context = getTargetContext().applicationContext
+        context = getTargetContext().applicationContext
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
     }
 
@@ -59,74 +75,92 @@ class NotificationActionUtilsTest {
 
     @Test
     fun testCreateActions_missingId() {
-        val ems = JSONObject().put("actions",
-                JSONArray().put(JSONObject()
-                        .put("title", "title")
-                        .put("type", "MEAppEvent")
-                ))
-        val input: MutableMap<String, String> = HashMap()
-        input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
+        val testActions =
+            JSONArray().put(
+                JSONObject()
+                    .put("title", "title")
+                    .put("type", "MEAppEvent")
+            )
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            testActions,
+            testNotificationData
+        )
         Assert.assertTrue(result.isEmpty())
     }
 
     @Test
     fun testCreateActions_missingTitle() {
-        val ems = JSONObject().put("actions",
-                JSONArray().put(JSONObject()
-                        .put("id", "uniqueActionId")
-                        .put("type", "MEAppEvent")
-                ))
-        val input: MutableMap<String, String> = HashMap()
-        input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
+        val testActions = JSONArray().put(
+            JSONObject()
+                .put("id", "uniqueActionId")
+                .put("type", "MEAppEvent")
+        )
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            testActions,
+            testNotificationData
+        )
         Assert.assertTrue(result.isEmpty())
     }
 
     @Test
     fun testCreateActions_missingType() {
-        val ems = JSONObject().put("actions",
-                JSONArray().put(JSONObject()
-                        .put("id", "uniqueActionId")
-                        .put("title", "Action button title")
-                ))
-        val input: MutableMap<String, String> = HashMap()
-        input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
+        val testActions = JSONArray().put(
+            JSONObject()
+                .put("id", "uniqueActionId")
+                .put("title", "Action button title")
+        )
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            testActions,
+            testNotificationData
+        )
         Assert.assertTrue(result.isEmpty())
     }
 
     @Test
     fun testCreateActions_appEvent_missingEventName() {
-        val ems = JSONObject().put("actions",
-                JSONArray().put(JSONObject()
-                        .put("id", "uniqueActionId")
-                        .put("title", "Action button title")
-                        .put("type", "MEAppEvent")
-                ))
-        val input: MutableMap<String, String> = HashMap()
-        input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
+        val testActions = JSONArray().put(
+            JSONObject()
+                .put("id", "uniqueActionId")
+                .put("title", "Action button title")
+                .put("type", "MEAppEvent")
+        )
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            testActions,
+            testNotificationData
+        )
         Assert.assertTrue(result.isEmpty())
     }
 
     @Test
     @Throws(JSONException::class)
     fun testCreateActions_appEvent_withSingleAction() {
-        val payload = JSONObject()
-                .put("actions", JSONArray()
-                        .put(JSONObject()
-                                .put("id", "uniqueActionId")
-                                .put("title", "Action button title")
-                                .put("type", "MEAppEvent")
-                                .put("name", "Name of the event")
-                                .put("payload", JSONObject()
-                                        .put("payloadKey", "payloadValue")))
-                )
-        val input: Map<String, String> = mapOf(
-                "ems" to payload.toString()
+        val testActions = JSONArray()
+            .put(
+                JSONObject()
+                    .put("id", "uniqueActionId")
+                    .put("title", "Action button title")
+                    .put("type", "MEAppEvent")
+                    .put("name", "Name of the event")
+                    .put(
+                        "payload", JSONObject()
+                            .put("payloadKey", "payloadValue")
+                    )
+            )
+
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            testActions,
+            testNotificationData
         )
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
         result.size shouldBe 1
         result[0].title shouldBe "Action button title"
     }
@@ -134,25 +168,31 @@ class NotificationActionUtilsTest {
     @Test
     @Throws(JSONException::class)
     fun testCreateActions_appEvent_withMultipleActions() {
-        val payload = JSONObject()
-                .put("actions", JSONArray()
-                        .put(JSONObject()
-                                .put("id", "uniqueActionId1")
-                                .put("title", "title1")
-                                .put("type", "MEAppEvent")
-                                .put("name", "event1")
-                        )
-                        .put(JSONObject()
-                                .put("id", "uniqueActionId2")
-                                .put("title", "title2")
-                                .put("type", "MEAppEvent")
-                                .put("name", "event2")
-                                .put("payload", JSONObject()
-                                        .put("payloadKey", "payloadValue"))
-                        ))
-        val input: MutableMap<String, String> = HashMap()
-        input["ems"] = payload.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
+        val payload = JSONArray()
+            .put(
+                JSONObject()
+                    .put("id", "uniqueActionId1")
+                    .put("title", "title1")
+                    .put("type", "MEAppEvent")
+                    .put("name", "event1")
+            )
+            .put(
+                JSONObject()
+                    .put("id", "uniqueActionId2")
+                    .put("title", "title2")
+                    .put("type", "MEAppEvent")
+                    .put("name", "event2")
+                    .put(
+                        "payload", JSONObject()
+                            .put("payloadKey", "payloadValue")
+                    )
+            )
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            payload,
+            testNotificationData
+        )
         result.size shouldBe 2
         result[0].title shouldBe "title1"
         result[1].title shouldBe "title2"
@@ -161,33 +201,38 @@ class NotificationActionUtilsTest {
     @Test
     @Throws(JSONException::class)
     fun testCreateActions_externalUrl_missingUrl() {
-        val ems = JSONObject().put("actions",
-                JSONArray().put(JSONObject()
-                        .put("id", "uniqueActionId")
-                        .put("title", "Action button title")
-                        .put("type", "OpenExternalUrl")
-                ))
-        val input: MutableMap<String, String> = HashMap()
-        input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
+        val testActions = JSONArray().put(
+            JSONObject()
+                .put("id", "uniqueActionId")
+                .put("title", "Action button title")
+                .put("type", "OpenExternalUrl")
+        )
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            testActions,
+            testNotificationData
+        )
         result.size shouldBe 0
     }
 
     @Test
     @Throws(JSONException::class)
     fun testCreateActions_externalUrl_withSingleAction() {
-        val payload = JSONObject()
-                .put("actions", JSONArray()
-                        .put(JSONObject()
-                                .put("id", "uniqueActionId")
-                                .put("title", "Action button title")
-                                .put("type", "OpenExternalUrl")
-                                .put("url", "https://www.emarsys.com")
-                        )
-                )
-        val input: MutableMap<String, String> = HashMap()
-        input["ems"] = payload.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
+        val payload = JSONArray()
+            .put(
+                JSONObject()
+                    .put("id", "uniqueActionId")
+                    .put("title", "Action button title")
+                    .put("type", "OpenExternalUrl")
+                    .put("url", "https://www.emarsys.com")
+            )
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            payload,
+            testNotificationData
+        )
         result.size shouldBe 1
         result[0].title shouldBe "Action button title"
     }
@@ -195,24 +240,28 @@ class NotificationActionUtilsTest {
     @Test
     @Throws(JSONException::class)
     fun testCreateActions_externalUrl_withMultipleActions() {
-        val payload = JSONObject()
-                .put("actions", JSONArray()
-                        .put(JSONObject()
-                                .put("id", "uniqueActionId")
-                                .put("title", "Action button title")
-                                .put("type", "OpenExternalUrl")
-                                .put("url", "https://www.emarsys.com")
-                        )
-                        .put(JSONObject()
-                                .put("id", "uniqueActionId2")
-                                .put("title", "Second button title")
-                                .put("type", "OpenExternalUrl")
-                                .put("url", "https://www.emarsys/faq.com")
-                        )
-                )
-        val input: MutableMap<String, String> = HashMap()
-        input["ems"] = payload.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
+        val payload = JSONArray()
+            .put(
+                JSONObject()
+                    .put("id", "uniqueActionId")
+                    .put("title", "Action button title")
+                    .put("type", "OpenExternalUrl")
+                    .put("url", "https://www.emarsys.com")
+            )
+            .put(
+                JSONObject()
+                    .put("id", "uniqueActionId2")
+                    .put("title", "Second button title")
+                    .put("type", "OpenExternalUrl")
+                    .put("url", "https://www.emarsys/faq.com")
+            )
+
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            payload,
+            testNotificationData
+        )
         result.size shouldBe 2
         result[0].title shouldBe "Action button title"
         result[1].title shouldBe "Second button title"
@@ -221,35 +270,43 @@ class NotificationActionUtilsTest {
     @Test
     @Throws(JSONException::class)
     fun testCreateActions_customEvent_missingName() {
-        val ems = JSONObject().put("actions",
-                JSONArray().put(JSONObject()
-                        .put("id", "uniqueActionId")
-                        .put("title", "Action button title")
-                        .put("type", "MECustomEvent")
-                ))
-        val input: MutableMap<String, String> = HashMap()
-        input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
+        val testActions = JSONArray().put(
+            JSONObject()
+                .put("id", "uniqueActionId")
+                .put("title", "Action button title")
+                .put("type", "MECustomEvent")
+        )
+
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            testActions,
+            testNotificationData
+        )
         result.size shouldBe 0
     }
-
 
     @Test
     @Throws(JSONException::class)
     fun testCreateActions_customEvent_withSingleAction() {
-        val ems = JSONObject().put("actions",
-                JSONArray().put(JSONObject()
-                        .put("id", "uniqueActionId")
-                        .put("title", "Action button title")
-                        .put("type", "MECustomEvent")
-                        .put("name", "eventName")
-                        .put("payload", JSONObject()
-                                .put("key1", "value1")
-                                .put("key2", "value2"))
-                ))
-        val input: MutableMap<String, String> = HashMap()
-        input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
+        val testActions = JSONArray().put(
+            JSONObject()
+                .put("id", "uniqueActionId")
+                .put("title", "Action button title")
+                .put("type", "MECustomEvent")
+                .put("name", "eventName")
+                .put(
+                    "payload", JSONObject()
+                        .put("key1", "value1")
+                        .put("key2", "value2")
+                )
+        )
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            testActions,
+            testNotificationData
+        )
         result.size shouldBe 1
         result[0].title shouldBe "Action button title"
     }
@@ -257,16 +314,19 @@ class NotificationActionUtilsTest {
     @Test
     @Throws(JSONException::class)
     fun testCreateActions_customEvent_withSingleAction_withoutPayload() {
-        val ems = JSONObject().put("actions",
-                JSONArray().put(JSONObject()
-                        .put("id", "uniqueActionId")
-                        .put("title", "Action button title")
-                        .put("type", "MECustomEvent")
-                        .put("name", "eventName")
-                ))
-        val input: MutableMap<String, String> = HashMap()
-        input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
+        val testActions = JSONArray().put(
+            JSONObject()
+                .put("id", "uniqueActionId")
+                .put("title", "Action button title")
+                .put("type", "MECustomEvent")
+                .put("name", "eventName")
+        )
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            testActions,
+            testNotificationData
+        )
         result.size shouldBe 1
         result[0].title shouldBe "Action button title"
     }
@@ -274,24 +334,31 @@ class NotificationActionUtilsTest {
     @Test
     @Throws(JSONException::class)
     fun testCreateActions_customEvent_withMultipleActions() {
-        val ems = JSONObject().put("actions",
-                JSONArray().put(JSONObject()
-                        .put("id", "uniqueActionId")
-                        .put("title", "Action button title")
-                        .put("type", "MECustomEvent")
-                        .put("name", "eventName")
-                        .put("payload", JSONObject()
-                                .put("key1", "value1")
-                                .put("key2", "value2")))
-                        .put(JSONObject()
-                                .put("id", "uniqueActionId2")
-                                .put("title", "Another button title")
-                                .put("type", "MECustomEvent")
-                                .put("name", "eventName")
-                        ))
-        val input: MutableMap<String, String> = HashMap()
-        input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
+        val testActions = JSONArray().put(
+            JSONObject()
+                .put("id", "uniqueActionId")
+                .put("title", "Action button title")
+                .put("type", "MECustomEvent")
+                .put("name", "eventName")
+                .put(
+                    "payload", JSONObject()
+                        .put("key1", "value1")
+                        .put("key2", "value2")
+                )
+        )
+            .put(
+                JSONObject()
+                    .put("id", "uniqueActionId2")
+                    .put("title", "Another button title")
+                    .put("type", "MECustomEvent")
+                    .put("name", "eventName")
+            )
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            testActions,
+            testNotificationData
+        )
 
         result.size shouldBe 2
         result[0].title shouldBe "Action button title"
@@ -301,15 +368,18 @@ class NotificationActionUtilsTest {
     @Test
     @Throws(Exception::class)
     fun testCreateActions_dismiss() {
-        val ems = JSONObject().put("actions",
-                JSONArray().put(JSONObject()
-                        .put("id", "uniqueActionId")
-                        .put("title", "Action button title")
-                        .put("type", "Dismiss")
-                ))
-        val input: MutableMap<String, String> = HashMap()
-        input["ems"] = ems.toString()
-        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(context, input, "testNotificationId")
+        val testActions = JSONArray().put(
+            JSONObject()
+                .put("id", "uniqueActionId")
+                .put("title", "Action button title")
+                .put("type", "Dismiss")
+        )
+
+        val result: List<NotificationCompat.Action> = NotificationActionUtils.createActions(
+            context,
+            testActions,
+            testNotificationData
+        )
         result.size shouldBe 1
         result[0].title shouldBe "Action button title"
     }

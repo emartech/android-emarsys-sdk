@@ -3,7 +3,6 @@ package com.emarsys.mobileengage.service
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import com.emarsys.mobileengage.di.mobileEngage
 
 object IntentUtils {
@@ -19,39 +18,33 @@ object IntentUtils {
 
     @JvmStatic
     fun createNotificationHandlerServiceIntent(
-        context: Context, remoteMessageData: Map<String, String?>,
-        notificationId: String,
-        action: String?): Intent {
+        context: Context,
+        notificationData: NotificationData,
+        action: String?
+    ): Intent {
         val intent = Intent(context, mobileEngage().notificationOpenedActivityClass)
         if (action != null) {
             intent.action = action
         }
-        val bundle = Bundle()
-        val keys = remoteMessageData.keys
-        for (key in keys) {
-            bundle.putString(key, remoteMessageData[key])
-        }
 
-        bundle.putString("notification_id", notificationId)
-        intent.putExtra("payload", bundle)
+        intent.putExtra("payload", notificationData)
         return intent
     }
 
     fun createNotificationHandlerServicePendingIntent(
         context: Context,
-        remoteMessageData: Map<String, String?>,
-        notificationId: String
+        notificationData: NotificationData
     ): PendingIntent {
-        return createNotificationHandlerServicePendingIntent(context, remoteMessageData, notificationId, null)
+        return createNotificationHandlerServicePendingIntent(context, notificationData, null)
     }
 
     @JvmStatic
     fun createNotificationHandlerServicePendingIntent(
         context: Context,
-        remoteMessageData: Map<String, String?>,
-        notificationId: String,
-        action: String?): PendingIntent {
-        val intent = createNotificationHandlerServiceIntent(context, remoteMessageData, notificationId, action)
+        notificationData: NotificationData,
+        action: String?
+    ): PendingIntent {
+        val intent = createNotificationHandlerServiceIntent(context, notificationData, action)
         return PendingIntent.getActivity(
                 context,
                 (System.currentTimeMillis() % Int.MAX_VALUE).toInt(),

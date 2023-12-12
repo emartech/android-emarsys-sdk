@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.push
 
-import android.content.Intent
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.util.SystemUtils
 import com.emarsys.core.util.log.Logger.Companion.debug
@@ -33,9 +32,12 @@ class LoggingPushInternal(private val klass: Class<*>) : PushInternal {
         debug(MethodNotAllowed(klass, callerMethodName, parameters))
     }
 
-    override fun trackMessageOpen(intent: Intent, completionListener: CompletionListener?) {
+    override fun trackMessageOpen(
+        sid: String?,
+        completionListener: CompletionListener?
+    ) {
         val parameters = mapOf(
-            "intent" to intent.toString(),
+            "messageId" to sid,
             "completion_listener" to (completionListener != null)
         )
         val callerMethodName = SystemUtils.getCallerMethodName()

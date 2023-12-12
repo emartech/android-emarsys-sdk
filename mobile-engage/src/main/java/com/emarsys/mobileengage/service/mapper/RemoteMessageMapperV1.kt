@@ -1,4 +1,4 @@
-package com.emarsys.mobileengage.service
+package com.emarsys.mobileengage.service.mapper
 
 import android.content.Context
 import com.emarsys.core.Mockable
@@ -7,7 +7,14 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.resource.MetaDataReader
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.ImageUtils
-import com.emarsys.mobileengage.R
+import com.emarsys.core.util.getNullableString
+import com.emarsys.mobileengage.service.NotificationData
+import com.emarsys.mobileengage.service.NotificationMethod
+import com.emarsys.mobileengage.service.NotificationOperation
+import com.emarsys.mobileengage.service.NotificationResourceIds
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapper.Companion.DEFAULT_SMALL_NOTIFICATION_ICON
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapper.Companion.METADATA_NOTIFICATION_COLOR
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapper.Companion.METADATA_SMALL_NOTIFICATION_ICON_KEY
 import org.json.JSONObject
 
 @Mockable
@@ -17,14 +24,7 @@ class RemoteMessageMapperV1(
     private val fileDownloader: FileDownloader,
     private val deviceInfo: DeviceInfo,
     private val uuidProvider: UUIDProvider
-): RemoteMessageMapper {
-
-    companion object {
-        const val METADATA_SMALL_NOTIFICATION_ICON_KEY =
-            "com.emarsys.mobileengage.small_notification_icon"
-        const val METADATA_NOTIFICATION_COLOR = "com.emarsys.mobileengage.notification_color"
-        val DEFAULT_SMALL_NOTIFICATION_ICON = R.drawable.default_small_notification_icon
-    }
+) : RemoteMessageMapper {
 
     override fun map(remoteMessageData: Map<String, String?>): NotificationData {
         val resourceIds = getNotificationResourceIds()
@@ -42,13 +42,18 @@ class RemoteMessageMapperV1(
         val title = remoteMessageData["title"]
         val ems = extractEms(remoteMessageData)
         val style = ems.optString("style")
+        val campaignId = ems.optString("multichannelId")
         val body = remoteMessageData["body"]
         val channelId = remoteMessageData["channel_id"]
+        val sid = remoteMessageData["u"]?.let { JSONObject(it).getNullableString("sid") } ?: "Missing sid"
         val notificationMethod: NotificationMethod = if (ems.has("notificationMethod")) {
             parseNotificationMethod(ems.optJSONObject("notificationMethod"))
         } else {
             createNotificationMethod()
         }
+        val actions = ems.getNullableString("actions")
+        val defaultAction = ems.getNullableString("default_action")
+        val inapp = ems.getNullableString("inapp")
 
         return NotificationData(
             image,
@@ -57,9 +62,14 @@ class RemoteMessageMapperV1(
             title,
             body,
             channelId,
+            campaignId,
+            sid,
             resourceIds.smallIconResourceId,
             resourceIds.colorResourceId,
-            notificationMethod
+            notificationMethod,
+            actions,
+            defaultAction,
+            inapp
         )
     }
 
@@ -74,8 +84,8 @@ class RemoteMessageMapperV1(
         return NotificationResourceIds(smallIconResourceId, colorResourceId)
     }
 
-    private fun parseNotificationMethod(notificationMethod: JSONObject): NotificationMethod {
-        return if (notificationMethod.has("collapseId")) {
+    private fun parseNotificationMethod(notificationMethod: JSONObject?): NotificationMethod {
+        return if (notificationMethod != null && notificationMethod.has("collapseId")) {
             val collapseId = notificationMethod.getString("collapseId")
             val operation: NotificationOperation = parseOperation(notificationMethod)
             NotificationMethod(collapseId, operation)

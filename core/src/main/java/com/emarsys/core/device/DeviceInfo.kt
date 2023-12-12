@@ -13,7 +13,8 @@ import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.util.AndroidVersionUtils
 import org.json.JSONObject
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 
 @Mockable
 data class DeviceInfo(

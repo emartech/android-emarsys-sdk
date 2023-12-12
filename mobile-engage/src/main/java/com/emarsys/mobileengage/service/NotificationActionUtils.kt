@@ -6,6 +6,7 @@ import androidx.core.app.NotificationCompat
 import com.emarsys.core.validate.JsonObjectValidator
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.notification.NotificationCommandFactory
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -21,26 +22,22 @@ object NotificationActionUtils {
 
     fun createActions(
         context: Context,
-        remoteMessageData: Map<String, String>,
-        notificationId: String
+        actionsData: JSONArray,
+        notificationData: NotificationData
     ): List<NotificationCompat.Action> {
         val result: MutableList<NotificationCompat.Action> = ArrayList()
-        val emsPayload = remoteMessageData["ems"]
-        if (emsPayload != null) {
-            try {
-                val actions = JSONObject(emsPayload).getJSONArray("actions")
-                for (i in 0 until actions.length()) {
-                    val action = createAction(
-                            actions.getJSONObject(i),
-                            context,
-                            remoteMessageData,
-                            notificationId)
-                    if (action != null) {
-                        result.add(action)
-                    }
+        try {
+            for (i in 0 until actionsData.length()) {
+                val action = createAction(
+                    actionsData.getJSONObject(i),
+                    context,
+                    notificationData
+                )
+                if (action != null) {
+                    result.add(action)
                 }
-            } catch (ignored: JSONException) {
             }
+        } catch (ignored: JSONException) {
         }
         return result
     }
@@ -48,8 +45,7 @@ object NotificationActionUtils {
     private fun createAction(
         action: JSONObject,
         context: Context,
-        remoteMessageData: Map<String, String>,
-        notificationId: String
+        notificationData: NotificationData
     ): NotificationCompat.Action? {
         var result: NotificationCompat.Action? = null
         try {
@@ -57,9 +53,14 @@ object NotificationActionUtils {
             val validationErrors = validate(action)
             if (validationErrors.isEmpty()) {
                 result = NotificationCompat.Action.Builder(
-                        0,
-                        action.getString("title"),
-                        IntentUtils.createNotificationHandlerServicePendingIntent(context, remoteMessageData, notificationId, actionId)).build()
+                    0,
+                    action.getString("title"),
+                    IntentUtils.createNotificationHandlerServicePendingIntent(
+                        context,
+                        notificationData,
+                        actionId
+                    )
+                ).build()
             }
         } catch (ignored: JSONException) {
         }

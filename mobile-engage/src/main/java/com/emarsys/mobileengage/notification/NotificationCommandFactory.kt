@@ -2,14 +2,21 @@ package com.emarsys.mobileengage.notification
 
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import com.emarsys.core.Mockable
+import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.mobileengage.api.push.NotificationInformation
 import com.emarsys.mobileengage.di.mobileEngage
-import com.emarsys.mobileengage.notification.command.*
+import com.emarsys.mobileengage.notification.command.CompositeCommand
+import com.emarsys.mobileengage.notification.command.DismissNotificationCommand
+import com.emarsys.mobileengage.notification.command.LaunchApplicationCommand
+import com.emarsys.mobileengage.notification.command.NotificationInformationCommand
+import com.emarsys.mobileengage.notification.command.PreloadedInappHandlerCommand
+import com.emarsys.mobileengage.notification.command.TrackActionClickCommand
+import com.emarsys.mobileengage.notification.command.TrackMessageOpenCommand
+import com.emarsys.mobileengage.service.NotificationData
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
 
 @Mockable
 class NotificationCommandFactory(private val context: Context) {
@@ -24,10 +31,10 @@ class NotificationCommandFactory(private val context: Context) {
 
     fun createNotificationCommand(intent: Intent): Runnable {
         val actionId = intent.action
-        val bundle = intent.getBundleExtra("payload")
-        val action = getAction(bundle, actionId)
+        val notificationData = if (AndroidVersionUtils.isBelowTiramisu) intent.getParcelableExtra("payload") else intent.getParcelableExtra("payload", NotificationData::class.java)
+        val action = getAction(notificationData, actionId)
 
-        val commands = createMandatoryCommands(intent, bundle)
+        val commands = createMandatoryCommands(notificationData)
         if (action == null || action.optString("type") != "Dismiss") {
             val currentActivity = mobileEngage().currentActivityProvider.get()
             if (currentActivity == null ||
@@ -42,13 +49,13 @@ class NotificationCommandFactory(private val context: Context) {
                 )
             }
         }
-        val inappCommand = handleInapp(intent, bundle)
+        val inappCommand = handleInapp(notificationData)
         if (inappCommand != null) {
             commands.add(inappCommand)
         }
-        val notificationInformationCommand = handlePushInformation(bundle)
+        val notificationInformationCommand = handlePushInformation(notificationData)
         commands.add(notificationInformationCommand)
-        val trackingCommand = handleTracking(intent, actionId, bundle, action)
+        val trackingCommand = handleTracking(actionId, notificationData, action)
         commands.add(trackingCommand)
         val actionCommand = handleAction(action)
         if (actionCommand != null) {
@@ -57,28 +64,31 @@ class NotificationCommandFactory(private val context: Context) {
         return CompositeCommand(commands.filterNotNull())
     }
 
-    private fun handlePushInformation(payload: Bundle?): NotificationInformationCommand? {
-        if (payload != null) {
-            val ems = payload.getString("ems")
-            if (ems != null) {
-                val emsJson = JSONObject(ems)
-                val campaignId = emsJson.optString("multichannelId")
-                if (campaignId.isNotEmpty()) {
-                    return NotificationInformationCommand(
-                        notificationInformationListenerProvider,
-                        NotificationInformation(emsJson.getString("multichannelId"))
-                    )
-                }
-            }
+    private fun handlePushInformation(notificationData: NotificationData?): NotificationInformationCommand? {
+        val campaignId = notificationData?.campaignId
+        if (!campaignId.isNullOrEmpty()) {
+            return NotificationInformationCommand(
+                notificationInformationListenerProvider,
+                NotificationInformation(campaignId)
+            )
         }
+
         return null
     }
 
-    private fun createMandatoryCommands(intent: Intent, bundle: Bundle?): MutableList<Runnable?> {
+    private fun createMandatoryCommands(
+        notificationData: NotificationData?
+    ): MutableList<Runnable?> {
         val commands: MutableList<Runnable?> = ArrayList()
-        commands.add(DismissNotificationCommand(context, intent))
-        if (bundle != null) {
-            commands.add(actionCommandFactory.createActionCommand(createActionCommandPayload(bundle)))
+        commands.add(DismissNotificationCommand(context, notificationData))
+        if (notificationData != null) {
+            commands.add(
+                actionCommandFactory.createActionCommand(
+                    createActionCommandPayload(
+                        notificationData
+                    )
+                )
+            )
         }
         return commands
     }
@@ -95,94 +105,69 @@ class NotificationCommandFactory(private val context: Context) {
     }
 
     private fun handleTracking(
-        intent: Intent,
         actionId: String?,
-        bundle: Bundle?,
+        notificationData: NotificationData?,
         action: JSONObject?
     ): Runnable {
         return if (action != null && actionId != null) {
-            TrackActionClickCommand(eventServiceInternal, actionId, extractSid(bundle))
+            TrackActionClickCommand(eventServiceInternal, actionId, notificationData?.sid)
         } else {
-            TrackMessageOpenCommand(pushInternal, intent)
+            TrackMessageOpenCommand(pushInternal, notificationData?.sid)
         }
     }
 
-    private fun handleInapp(intent: Intent, bundle: Bundle?): Runnable? {
+    private fun handleInapp(notificationData: NotificationData?): Runnable? {
         var result: Runnable? = null
-        if (hasInapp(bundle)) {
-            result = PreloadedInappHandlerCommand(intent)
+        if (notificationData?.inapp != null) {
+            result = PreloadedInappHandlerCommand(notificationData)
         }
         return result
     }
 
-    private fun hasInapp(payload: Bundle?): Boolean {
-        var result = false
+    private fun getAction(notificationData: NotificationData?, actionId: String?): JSONObject? {
+        var result: JSONObject? = null
         try {
-            if (payload != null) {
-                val ems = payload.getString("ems")
-                if (ems != null) {
-                    val emsJson = JSONObject(ems)
-                    JSONObject(emsJson.getString("inapp"))
-                    result = true
-                }
+            if (notificationData?.actions != null && actionId != null) {
+                result = actionCommandFactory.findActionWithId(
+                    JSONArray(notificationData.actions),
+                    actionId
+                )
+            } else if (notificationData?.defaultAction != null) {
+                result = JSONObject(notificationData.defaultAction)
             }
         } catch (ignored: JSONException) {
         }
         return result
     }
 
-    private fun getAction(bundle: Bundle?, actionId: String?): JSONObject? {
-        var result: JSONObject? = null
-        if (bundle != null) {
-            val emsPayload = bundle.getString("ems")
-            if (emsPayload != null) {
-                try {
-                    result = if (actionId != null) {
-                        val actions = JSONObject(emsPayload).getJSONArray("actions")
-                        actionCommandFactory.findActionWithId(actions, actionId)
-                    } else {
-                        JSONObject(emsPayload).getJSONObject("default_action")
-                    }
-                } catch (ignored: JSONException) {
-                }
-            }
-        }
-        return result
-    }
-
-    private fun extractSid(bundle: Bundle?): String {
-        var sid: String? = null
-        if (bundle != null && bundle.containsKey("u")) {
-            try {
-                sid = JSONObject(bundle.getString("u")!!).getString("sid")
-            } catch (ignore: JSONException) {
-            }
-        }
-        if (sid == null) {
-            sid = "Missing sid"
-        }
-        return sid
-    }
-
-    private fun createActionCommandPayload(bundle: Bundle): JSONObject {
+    private fun createActionCommandPayload(notificationData: NotificationData): JSONObject {
         val payloadMap: MutableMap<String?, Any?> = HashMap()
         payloadMap["type"] = "MEAppEvent"
         payloadMap["name"] = "push:payload"
-        payloadMap["payload"] = extractMandatoryActionPayload(bundle)
+        payloadMap["payload"] = extractMandatoryActionPayload(notificationData)
         return JSONObject(payloadMap)
     }
 
-    private fun extractMandatoryActionPayload(bundle: Bundle?): JSONObject {
-        val json = JSONObject()
-        if (bundle != null) {
-            val keys = bundle.keySet()
-            for (key in keys) {
-                try {
-                    json.put(key, JSONObject.wrap(bundle[key]))
-                } catch (ignored: JSONException) {
-                }
-            }
+    private fun extractMandatoryActionPayload(notificationData: NotificationData): JSONObject {
+        val actions = notificationData.actions?.let {
+            JSONArray(it)
         }
+        val json = JSONObject()
+        json.put("image", notificationData.image)
+        json.put("iconImage", notificationData.iconImage)
+        json.put("style", notificationData.style)
+        json.put("title", notificationData.title)
+        json.put("body", notificationData.body)
+        json.put("channelId", notificationData.channelId)
+        json.put("campaignId", notificationData.campaignId)
+        json.put("sid", notificationData.sid)
+        json.put("smallIconResourceId", notificationData.smallIconResourceId)
+        json.put("colorResourceId", notificationData.colorResourceId)
+        json.put("notificationMethod", notificationData.notificationMethod)
+        json.put("actions", actions)
+        json.put("defaultAction", notificationData.defaultAction)
+        json.put("inapp", notificationData.inapp)
+
         return json
     }
 

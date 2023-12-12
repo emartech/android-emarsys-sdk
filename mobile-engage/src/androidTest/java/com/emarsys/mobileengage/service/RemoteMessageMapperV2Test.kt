@@ -16,13 +16,14 @@ import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
-import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV2
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.RetryUtils
 import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.copyInputStreamToFile
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
+import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
@@ -37,7 +38,8 @@ import org.mockito.kotlin.whenever
 import java.io.File
 import java.util.Locale
 
-class RemoteMessageMapperV1Test {
+
+class RemoteMessageMapperV2Test {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"
@@ -62,7 +64,7 @@ class RemoteMessageMapperV1Test {
     private lateinit var mockMetaDataReader: MetaDataReader
     private lateinit var mockTimestampProvider: TimestampProvider
     private lateinit var mockFileDownloader: FileDownloader
-    private lateinit var remoteMessageMapperV1: RemoteMessageMapperV1
+    private lateinit var remoteMessageMapperV2: RemoteMessageMapperV2
 
     @Rule
     @JvmField
@@ -126,7 +128,7 @@ class RemoteMessageMapperV1Test {
             on { provideId() }.thenReturn("testUUID")
         }
 
-        remoteMessageMapperV1 = RemoteMessageMapperV1(
+        remoteMessageMapperV2 = RemoteMessageMapperV2(
             mockMetaDataReader,
             context,
             mockFileDownloader,
@@ -151,16 +153,19 @@ class RemoteMessageMapperV1Test {
             )
         )
             .thenReturn(SMALL_RESOURCE_ID)
-        whenever(mockMetaDataReader.getInt(context, METADATA_NOTIFICATION_COLOR))
+        whenever(
+            mockMetaDataReader.getInt(
+                context,
+                METADATA_NOTIFICATION_COLOR
+            )
+        )
             .thenReturn(COLOR_RESOURCE_ID)
 
-        val ems = JSONObject()
-        ems.put("style", "THUMBNAIL")
         val input: MutableMap<String, String> = createRemoteMessage()
-        input["channel_id"] = CHANNEL_ID
-        input["ems"] = ems.toString()
+        input["notification.channel_id"] = CHANNEL_ID
+        input["ems.style"] = "THUMBNAIL"
 
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.body shouldBe BODY
         notificationData.title shouldBe TITLE
@@ -173,9 +178,9 @@ class RemoteMessageMapperV1Test {
     @Test
     fun testMap_whenTitleIsMissing() {
         val input: MutableMap<String, String> = createRemoteMessage(title = null)
-        input["channel_id"] = CHANNEL_ID
+        input["notification.channel_id"] = CHANNEL_ID
 
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.body shouldBe BODY
         notificationData.title shouldBe null
@@ -186,7 +191,7 @@ class RemoteMessageMapperV1Test {
     fun testMap_whenMapIsEmpty() {
         val input: MutableMap<String, String> = HashMap()
 
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData shouldNotBe eq(null)
     }
@@ -194,10 +199,9 @@ class RemoteMessageMapperV1Test {
     @Test
     fun testMap_whenImageIsAvailable() {
         val input: MutableMap<String, String> = createRemoteMessage()
-        input["image_url"] = IMAGE_URL
-        input["channel_id"] = CHANNEL_ID
+        input["notification.image"] = IMAGE_URL
 
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.image shouldNotBe null
     }
@@ -205,10 +209,9 @@ class RemoteMessageMapperV1Test {
     @Test
     fun testMap_whenImageIsNotAvailable() {
         val input: MutableMap<String, String> = createRemoteMessage()
-        input["image_url"] = "https://fa.il/img.jpg"
-        input["channel_id"] = CHANNEL_ID
+        input["notification.image"] = "https://fa.il/img.jpg"
 
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.image shouldBe null
     }
@@ -219,16 +222,10 @@ class RemoteMessageMapperV1Test {
             NotificationMethod("testNotificationId", NotificationOperation.UPDATE)
 
         val input: MutableMap<String, String> = createRemoteMessage()
-        input["image_url"] = IMAGE_URL
-        input["channel_id"] = CHANNEL_ID
-        val notificationMethodJson = JSONObject()
-        notificationMethodJson.put("collapseId", "testNotificationId")
-        notificationMethodJson.put("operation", "UPDATE")
-        val ems = JSONObject()
-        ems.put("notificationMethod", notificationMethodJson)
-        input["ems"] = ems.toString()
+        input["ems.notification_method.collapse_key"] = "testNotificationId"
+        input["ems.notification_method.operation"] = "UPDATE"
 
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.notificationMethod shouldBe notificationMethod
     }
@@ -236,12 +233,8 @@ class RemoteMessageMapperV1Test {
     @Test
     fun testMap_whenNotificationMethodIsMissing() {
         val input: MutableMap<String, String> = createRemoteMessage()
-        input["image_url"] = IMAGE_URL
-        input["channel_id"] = CHANNEL_ID
-        val ems = JSONObject()
-        input["ems"] = ems.toString()
 
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
     }
@@ -249,48 +242,9 @@ class RemoteMessageMapperV1Test {
     @Test
     fun testMap_whenNotificationMethodIsSet_withoutCollapseID_shouldReturnWithInitOperation() {
         val input: MutableMap<String, String> = createRemoteMessage()
-        input["image_url"] = IMAGE_URL
-        input["channel_id"] = CHANNEL_ID
-        val ems = JSONObject()
-        val notificationMethodJson = JSONObject()
-        notificationMethodJson.put("operation", "UPDATE")
-        ems.put("notificationMethod", notificationMethodJson)
-        input["ems"] = ems.toString()
+        input["ems.notification_method.operation"] = "UPDATE"
 
-        val notificationData = remoteMessageMapperV1.map(input)
-
-        notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
-    }
-
-    @Test
-    fun testMap_whenNotificationMethodIsSet_withCollapseID_shouldReturnWithSetOperation() {
-        val input: MutableMap<String, String> = createRemoteMessage()
-        input["image_url"] = IMAGE_URL
-        input["channel_id"] = CHANNEL_ID
-        val ems = JSONObject()
-        val notificationMethodJson = JSONObject()
-        notificationMethodJson.put("collapseId", 123)
-        notificationMethodJson.put("operation", "UPDATE")
-        ems.put("notificationMethod", notificationMethodJson)
-        input["ems"] = ems.toString()
-
-        val notificationData = remoteMessageMapperV1.map(input)
-
-        notificationData.notificationMethod.operation shouldBe NotificationOperation.UPDATE
-    }
-
-    @Test
-    fun testMap_whenNotificationMethodIsSet_withCollapseID_shouldReturnWithInitOperation_whenOperationIsMissing() {
-        val input: MutableMap<String, String> = createRemoteMessage()
-        input["image_url"] = IMAGE_URL
-        input["channel_id"] = CHANNEL_ID
-        val ems = JSONObject()
-        val notificationMethodJson = JSONObject()
-        notificationMethodJson.put("collapseId", 123)
-        ems.put("notificationMethod", notificationMethodJson)
-        input["ems"] = ems.toString()
-
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
     }
@@ -299,11 +253,9 @@ class RemoteMessageMapperV1Test {
     fun testMap_notificationData_shouldContain_campaignId() {
         val testCampaignId = "test campaign id"
         val input: MutableMap<String, String> = createRemoteMessage()
-        val ems = JSONObject()
-        ems.put("multichannelId", testCampaignId)
-        input["ems"] = ems.toString()
+        input["ems.multichannel_id"] = testCampaignId
 
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.campaignId shouldBe testCampaignId
     }
@@ -312,54 +264,68 @@ class RemoteMessageMapperV1Test {
     fun testMap_notificationData_shouldContain_sid() {
         val input: MutableMap<String, String> = createRemoteMessage()
 
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.sid shouldBe SID
     }
 
     @Test
     fun testMap_notificationData_shouldContain_actions() {
-        val testActions = "test actions"
+        val testActions = JSONArray().put(
+            JSONObject()
+                .put("type", "MECustomEvent")
+                .put("id", "Testing")
+                .put("title", JSONObject()
+                    .put("en", "Test title")
+                )
+                .put("name","test action name")
+        )
+
+        val expectedActions = """[{"type":"MECustomEvent","id":"Testing","title":{"en":"Test title"},"name":"test action name"}]"""
         val input: MutableMap<String, String> = createRemoteMessage()
         val ems = JSONObject()
         ems.put("actions", testActions)
-        input["ems"] = ems.toString()
+        input["ems.root_params"] = ems.toString()
 
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
-        notificationData.actions shouldBe testActions
+        notificationData.actions shouldBe expectedActions
+    }
+
+    @Test
+    fun testMap_notificationData_shouldContain_null_ifDefaultActionTypeIsMissing() {
+        val input: MutableMap<String, String> = createRemoteMessage()
+        input["ems.tap_actions.default_action.name"] = "test name"
+        input["ems.tap_actions.default_action.url"] = "test url"
+        input["ems.tap_actions.default_action.payload"] = " test payload"
+
+        val notificationData = remoteMessageMapperV2.map(input)
+
+        notificationData.defaultAction shouldBe null
+    }
+
+    @Test
+    fun testMap_notificationData_shouldContain_defaultAction() {
+        val input: MutableMap<String, String> = createRemoteMessage()
+        input["ems.tap_actions.default_action.name"] = "test name"
+        input["ems.tap_actions.default_action.type"] = "MECustomEvent"
+        input["ems.tap_actions.default_action.url"] = "test url"
+        input["ems.tap_actions.default_action.payload"] = "test payload"
+
+        val expectedDefaultAction = """{"name":"test name","type":"MECustomEvent","url":"test url","payload":"test payload"}"""
+
+        val notificationData = remoteMessageMapperV2.map(input)
+
+        notificationData.defaultAction shouldBe expectedDefaultAction
     }
 
     @Test
     fun testMap_notificationData_shouldContain_null_ifActionsAreMissing() {
         val input: MutableMap<String, String> = createRemoteMessage()
 
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.actions shouldBe null
-    }
-
-    @Test
-    fun testMap_notificationData_shouldContain_defaultAction() {
-        val testDefaultAction = "test default action"
-        val input: MutableMap<String, String> = createRemoteMessage()
-        val ems = JSONObject()
-        ems.put("default_action", testDefaultAction)
-        input["ems"] = ems.toString()
-
-        val notificationData = remoteMessageMapperV1.map(input)
-
-        notificationData.defaultAction shouldBe testDefaultAction
-    }
-
-    @Test
-    fun testMap_notificationData_shouldContain_null_ifDefaultActionIsMissing() {
-        val input: MutableMap<String, String> = createRemoteMessage()
-        val ems = JSONObject()
-        input["ems"] = ems.toString()
-        val notificationData = remoteMessageMapperV1.map(input)
-
-        notificationData.defaultAction shouldBe null
     }
 
     @Test
@@ -368,9 +334,9 @@ class RemoteMessageMapperV1Test {
         val input: MutableMap<String, String> = createRemoteMessage()
         val ems = JSONObject()
         ems.put("inapp", testInapp)
-        input["ems"] = ems.toString()
+        input["ems.root_params"] = ems.toString()
 
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.inapp shouldBe testInapp
     }
@@ -379,10 +345,11 @@ class RemoteMessageMapperV1Test {
     fun testMap_notificationData_shouldContain_null_ifInappIsMissing() {
         val input: MutableMap<String, String> = createRemoteMessage()
 
-        val notificationData = remoteMessageMapperV1.map(input)
+        val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.inapp shouldBe null
     }
+
 
     private fun createRemoteMessage(
         title: String? = TITLE,
@@ -390,11 +357,9 @@ class RemoteMessageMapperV1Test {
         sid: String = SID
     ): MutableMap<String, String> {
         val payload = mutableMapOf<String, String>()
-        title?.let { payload["title"] = it }
-        payload["body"] = body
-
-        val uObject = """{"sid":"$sid"}"""
-        payload["u"] = uObject
+        title?.let { payload["notification.title"] = it }
+        payload["notification.body"] = body
+        payload["ems.sid"] = sid
 
         return payload
     }

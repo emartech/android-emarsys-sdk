@@ -21,6 +21,31 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
 class IntentUtilsTest {
+    private companion object {
+        const val TITLE = "title"
+        const val BODY = "body"
+        const val CHANNEL_ID = "channelId"
+        const val COLLAPSE_ID = "testCollapseId"
+        const val MULTICHANNEL_ID = "test multiChannel id"
+        const val SID = "test sid"
+        const val SMALL_RESOURCE_ID = 123
+        const val COLOR_RESOURCE_ID = 456
+        val notificationData = NotificationData(
+            null,
+            null,
+            null,
+            TITLE,
+            BODY,
+            CHANNEL_ID,
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_RESOURCE_ID,
+            colorResourceId = COLOR_RESOURCE_ID,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
+        )
+    }
     private lateinit var context: Context
 
     @Rule
@@ -83,27 +108,24 @@ class IntentUtilsTest {
     }
 
     @Test
-    fun createNotificationHandlerServiceIntent() {
-        val notificationId = "testNotificationId"
-        val remoteMessageData: MutableMap<String, String?> = HashMap()
-        remoteMessageData["key1"] = "value1"
-        remoteMessageData["key2"] = "value2"
+    fun testCreateNotificationHandlerServiceIntent() {
         val resultIntent = createNotificationHandlerServiceIntent(
             context,
-            remoteMessageData,
-            notificationId,
+            notificationData,
             "action"
         )
         resultIntent.action shouldBe "action"
-        val payload = resultIntent.getBundleExtra("payload")
-        payload!!.getString("key1") shouldBe "value1"
-        payload.getString("key2") shouldBe "value2"
-        payload.getString("notification_id") shouldBe notificationId
+        val payload = resultIntent.getParcelableExtra<NotificationData>("payload")
+        payload shouldBe notificationData
     }
 
     @Test
     fun createNotificationHandlerServiceIntent_withoutAction() {
-        val resultIntent = createNotificationHandlerServiceIntent(context, HashMap(), "testNotificationId", null)
+        val resultIntent = createNotificationHandlerServiceIntent(
+            context,
+            notificationData,
+            null
+        )
         resultIntent.action shouldBe null
     }
 }

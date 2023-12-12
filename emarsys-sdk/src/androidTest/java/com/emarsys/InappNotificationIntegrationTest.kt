@@ -14,7 +14,14 @@ import com.emarsys.di.DefaultEmarsysDependencies
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.iam.OverlayInAppPresenter
 import com.emarsys.mobileengage.service.IntentUtils
-import com.emarsys.testUtil.*
+import com.emarsys.mobileengage.service.NotificationData
+import com.emarsys.mobileengage.service.NotificationMethod
+import com.emarsys.mobileengage.service.NotificationOperation
+import com.emarsys.testUtil.ConnectionTestUtils
+import com.emarsys.testUtil.DatabaseTestUtils
+import com.emarsys.testUtil.InstrumentationRegistry
+import com.emarsys.testUtil.IntegrationTestUtils
+import com.emarsys.testUtil.TimeoutUtils
 import com.emarsys.testUtil.fake.FakeActivity
 import com.emarsys.testUtil.rules.DuplicatedThreadRule
 import org.junit.After
@@ -22,13 +29,18 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import java.util.concurrent.CountDownLatch
 
 class InappNotificationIntegrationTest {
 
-    companion object {
-        private const val APP_ID = "14C19-A121F"
+    private companion object {
+        const val APP_ID = "14C19-A121F"
+        const val SID = "129487fw123"
     }
 
     private lateinit var completionListenerLatch: CountDownLatch
@@ -72,7 +84,7 @@ class InappNotificationIntegrationTest {
         whenever(
             mockInappPresenterOverlay.present(
                 anyOrNull(),
-                eq(null),
+                eq(SID),
                 anyOrNull(),
                 eq(null),
                 anyOrNull(),
@@ -112,14 +124,27 @@ class InappNotificationIntegrationTest {
     fun testInappPresent() {
         val url =
             FileDownloader(application).download("https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png")
-        val emsPayload =
-            """{"inapp": {"campaignId": "222","url": "https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png","fileUrl": "$url"}}"""
-        val remoteMessageData = mapOf("ems" to emsPayload)
-
+        val inappPayload =
+            """{"campaignId": "222","url": "https://s3-eu-west-1.amazonaws.com/ems-mobileteam-artifacts/test-resources/Emarsys.png","fileUrl": "$url"}"""
+        val notificationData = NotificationData(
+            null,
+            null,
+            null,
+            "title",
+            "body",
+            "channelId",
+            campaignId = "test multiChannel id",
+            sid = SID,
+            smallIconResourceId = 123,
+            colorResourceId = 456,
+            notificationMethod = NotificationMethod("testCollapseId", NotificationOperation.UPDATE),
+            actions = null,
+            defaultAction = null,
+            inapp = inappPayload
+        )
         val intent = IntentUtils.createNotificationHandlerServiceIntent(
             application,
-            remoteMessageData,
-            "testNotificationId",
+            notificationData,
             null
         )
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

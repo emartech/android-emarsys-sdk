@@ -3,7 +3,9 @@ package com.emarsys.mobileengage.notification.command
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
+import com.emarsys.mobileengage.service.NotificationData
+import com.emarsys.mobileengage.service.NotificationMethod
+import com.emarsys.mobileengage.service.NotificationOperation
 import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Rule
 import org.junit.Test
@@ -14,6 +16,31 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 
 class DismissNotificationCommandTest {
+    private companion object {
+        const val TITLE = "title"
+        const val BODY = "body"
+        const val CHANNEL_ID = "channelId"
+        const val COLLAPSE_ID = "testCollapseId"
+        const val MULTICHANNEL_ID = "test multiChannel id"
+        const val SID = "test sid"
+        const val SMALL_RESOURCE_ID = 123
+        const val COLOR_RESOURCE_ID = 456
+        val notificationData = NotificationData(
+            null,
+            null,
+            null,
+            TITLE,
+            BODY,
+            CHANNEL_ID,
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_RESOURCE_ID,
+            colorResourceId = COLOR_RESOURCE_ID,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
+        )
+    }
 
     @Rule
     @JvmField
@@ -21,8 +48,6 @@ class DismissNotificationCommandTest {
 
     @Test
     fun testDismissNotification_callsNotificationManager() {
-        val notificationId = "testNotificationId"
-
         val notificationManagerMock: NotificationManager = mock()
 
         val mockContext: Context = mock {
@@ -30,13 +55,11 @@ class DismissNotificationCommandTest {
         }
 
         val intent = Intent()
-        val bundle = Bundle()
-        bundle.putString("notification_id", notificationId)
-        intent.putExtra("payload", bundle)
+        intent.putExtra("payload", notificationData)
 
-        DismissNotificationCommand(mockContext, intent).run()
+        DismissNotificationCommand(mockContext, notificationData).run()
 
-        verify(notificationManagerMock).cancel(notificationId, notificationId.hashCode())
+        verify(notificationManagerMock).cancel(COLLAPSE_ID, COLLAPSE_ID.hashCode())
     }
 
     @Test
@@ -47,9 +70,7 @@ class DismissNotificationCommandTest {
             on { getSystemService(Context.NOTIFICATION_SERVICE) } doReturn notificationManagerMock
         }
 
-        val intent = Intent()
-
-        DismissNotificationCommand(mockContext, intent).run()
+        DismissNotificationCommand(mockContext, null).run()
 
         verifyNoInteractions(notificationManagerMock)
     }
@@ -62,11 +83,7 @@ class DismissNotificationCommandTest {
             on { getSystemService(Context.NOTIFICATION_SERVICE) } doReturn notificationManagerMock
         }
 
-        val intent = Intent()
-        val bundle = Bundle()
-        intent.putExtra("payload", bundle)
-
-        DismissNotificationCommand(mockContext, intent).run()
+        DismissNotificationCommand(mockContext, null).run()
 
         verifyNoInteractions(notificationManagerMock)
     }

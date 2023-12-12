@@ -1,9 +1,5 @@
 package com.emarsys.mobileengage.notification.command
 
-import android.content.Intent
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import com.emarsys.core.activity.ActivityLifecycleActionRegistry
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
@@ -12,6 +8,9 @@ import com.emarsys.mobileengage.di.MobileEngageComponent
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
+import com.emarsys.mobileengage.service.NotificationData
+import com.emarsys.mobileengage.service.NotificationMethod
+import com.emarsys.mobileengage.service.NotificationOperation
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.TimeoutUtils
@@ -22,7 +21,11 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.kotlin.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import java.io.File
 import java.util.concurrent.CountDownLatch
 
@@ -30,6 +33,29 @@ import java.util.concurrent.CountDownLatch
 class PreloadedInappHandlerCommandTest {
     companion object {
         private const val URL = "https://www.google.com"
+        const val TITLE = "title"
+        const val BODY = "body"
+        const val CHANNEL_ID = "channelId"
+        const val COLLAPSE_ID = "testCollapseId"
+        const val MULTICHANNEL_ID = "test multiChannel id"
+        const val SID = "test sid"
+        const val SMALL_RESOURCE_ID = 123
+        const val COLOR_RESOURCE_ID = 456
+        val notificationData = NotificationData(
+            null,
+            null,
+            null,
+            TITLE,
+            BODY,
+            CHANNEL_ID,
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_RESOURCE_ID,
+            colorResourceId = COLOR_RESOURCE_ID,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
+        )
     }
 
     private lateinit var mockDependencyContainer: MobileEngageComponent
@@ -45,7 +71,6 @@ class PreloadedInappHandlerCommandTest {
     fun setUp() {
         fileUrl =
             InstrumentationRegistry.getTargetContext().applicationContext.cacheDir.absolutePath + "/test.file"
-        val uiHandler = Handler(Looper.getMainLooper())
         concurrentHandlerHolder = ConcurrentHandlerHolderFactory.create()
         mockLifecycleActionRegistry = mock()
 
@@ -78,17 +103,10 @@ class PreloadedInappHandlerCommandTest {
             put("campaignId", "campaignId")
             put("fileUrl", fileUrl)
         }
-        val ems = JSONObject().apply {
-            put("inapp", inapp.toString())
-        }
-        val payload = Bundle().apply {
-            putString("ems", ems.toString())
-        }
-        val intent = Intent().apply {
-            putExtra("payload", payload)
-        }
 
-        PreloadedInappHandlerCommand(intent).run()
+        val testNotificationData = notificationData.copy(inapp = inapp.toString())
+
+        PreloadedInappHandlerCommand(testNotificationData).run()
 
         waitForEventLoopToFinish(concurrentHandlerHolder)
 
@@ -105,17 +123,9 @@ class PreloadedInappHandlerCommandTest {
             put("fileUrl", fileUrl)
             put("url", URL)
         }
-        val ems = JSONObject().apply {
-            put("inapp", inapp.toString())
-        }
-        val payload = Bundle().apply {
-            putString("ems", ems.toString())
-        }
-        val intent = Intent().apply {
-            putExtra("payload", payload)
-        }
+        val testNotificationData = notificationData.copy(inapp = inapp.toString())
 
-        PreloadedInappHandlerCommand(intent).run()
+        PreloadedInappHandlerCommand(testNotificationData).run()
 
         waitForEventLoopToFinish(concurrentHandlerHolder)
 
@@ -128,17 +138,9 @@ class PreloadedInappHandlerCommandTest {
             put("campaignId", "campaignId")
             put("url", URL)
         }
-        val ems = JSONObject().apply {
-            put("inapp", inapp.toString())
-        }
-        val payload = Bundle().apply {
-            putString("ems", ems.toString())
-        }
-        val intent = Intent().apply {
-            putExtra("payload", payload)
-        }
+        val testNotificationData = notificationData.copy(inapp = inapp.toString())
 
-        PreloadedInappHandlerCommand(intent).run()
+        PreloadedInappHandlerCommand(testNotificationData).run()
 
         waitForEventLoopToFinish(concurrentHandlerHolder)
 
@@ -153,19 +155,11 @@ class PreloadedInappHandlerCommandTest {
             put("campaignId", "campaignId")
             put("fileUrl", fileUrl)
         }
-        val ems = JSONObject().apply {
-            put("inapp", inapp.toString())
-        }
-        val payload = Bundle().apply {
-            putString("ems", ems.toString())
-        }
-        val intent = Intent().apply {
-            putExtra("payload", payload)
-        }
+        val testNotificationData = notificationData.copy(inapp = inapp.toString())
 
         File(fileUrl).exists() shouldBe true
 
-        PreloadedInappHandlerCommand(intent).run()
+        PreloadedInappHandlerCommand(testNotificationData).run()
 
         waitForEventLoopToFinish(concurrentHandlerHolder)
 
@@ -176,15 +170,7 @@ class PreloadedInappHandlerCommandTest {
 
     @Test
     fun testHandlePreloadedInAppMessage_shouldNotScheduleInAppDisplay_ifInAppProperty_isMissing() {
-        val ems = JSONObject()
-        val payload = Bundle().apply {
-            putString("ems", ems.toString())
-        }
-        val intent = Intent().apply {
-            putExtra("payload", payload)
-        }
-
-        PreloadedInappHandlerCommand(intent).run()
+        PreloadedInappHandlerCommand(notificationData).run()
 
         waitForEventLoopToFinish(concurrentHandlerHolder)
 

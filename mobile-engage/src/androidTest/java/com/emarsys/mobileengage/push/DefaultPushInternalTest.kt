@@ -1,7 +1,5 @@
 package com.emarsys.mobileengage.push
 
-import android.content.Intent
-import android.os.Bundle
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.concurrency.ConcurrentHandlerHolderFactory
 import com.emarsys.core.handler.ConcurrentHandlerHolder
@@ -199,66 +197,6 @@ class DefaultPushInternalTest {
     }
 
     @Test
-    fun testGetMessageId_shouldReturnNull_withEmptyIntent() {
-        val result = pushInternal.getMessageId(Intent())
-        result shouldBe null
-    }
-
-    @Test
-    fun testGetMessageId_shouldReturnNull_withMissingUParam() {
-        val bundlePayload = Bundle().apply {
-            putString("key1", "value1")
-        }
-
-        val intent = Intent().apply {
-            putExtra("payload", bundlePayload)
-        }
-
-        val result = pushInternal.getMessageId(intent)
-        result shouldBe null
-    }
-
-    @Test
-    fun testGetMessageId_shouldReturnNull_withMissingSIDParam() {
-        val bundlePayload = Bundle().apply {
-            putString("key1", "value1")
-            putString("u", "{}")
-        }
-
-        val intent = Intent().apply {
-            putExtra("payload", bundlePayload)
-        }
-
-        val result = pushInternal.getMessageId(intent)
-        result shouldBe null
-    }
-
-    @Test
-    fun testGetMessageId_shouldReturnNull_withInvalidJson() {
-
-        val bundlePayload = Bundle().apply {
-            putString("key1", "value1")
-            putString("u", "{invalidJson}")
-        }
-
-        val intent = Intent().apply {
-            putExtra("payload", bundlePayload)
-        }
-
-        val result = pushInternal.getMessageId(intent)
-
-        result shouldBe null
-    }
-
-    @Test
-    fun testGetMessageId_shouldReturnTheCorrectSIDValue() {
-        val intent = createTestIntent()
-        val result = pushInternal.getMessageId(intent)
-
-        result shouldBe SID
-    }
-
-    @Test
     fun testTrackMessageOpen() {
         val attributes = mapOf("sid" to SID, "origin" to "main")
         whenever(
@@ -268,7 +206,7 @@ class DefaultPushInternalTest {
             )
         ).thenReturn(mockRequestModel)
 
-        pushInternal.trackMessageOpen(createTestIntent(), mockCompletionListener)
+        pushInternal.trackMessageOpen(SID, mockCompletionListener)
 
         verify(mockEventServiceInternal).trackInternalCustomEventAsync(
             MESSAGE_OPEN_EVENT_NAME,
@@ -287,7 +225,7 @@ class DefaultPushInternalTest {
             )
         ).thenReturn(mockRequestModel)
 
-        pushInternal.trackMessageOpen(createTestIntent(), null)
+        pushInternal.trackMessageOpen(SID, null)
 
         verify(mockEventServiceInternal).trackInternalCustomEventAsync(
             MESSAGE_OPEN_EVENT_NAME,
@@ -298,16 +236,16 @@ class DefaultPushInternalTest {
 
     @Test
     fun testTrackMessageOpen_completionListener_canBeNull_sidIsNull() {
-        pushInternal.trackMessageOpen(createBadTestIntent(), null)
+        pushInternal.trackMessageOpen(null, null)
     }
 
     @Test
-    fun testTrackMessageOpen_shouldCallCompletionListenerWithError_whenMessageIdNotFound() {
+    fun testTrackMessageOpen_shouldCallCompletionListenerWithError_whenSidNotFound() {
         val completionListener: CompletionListener = mock()
         val countDownLatch = CountDownLatch(1)
         val fakeCompletionListener = FakeCompletionListener(countDownLatch, completionListener)
 
-        pushInternal.trackMessageOpen(createBadTestIntent(), fakeCompletionListener)
+        pushInternal.trackMessageOpen(null, fakeCompletionListener)
 
         countDownLatch.await()
 
@@ -324,31 +262,9 @@ class DefaultPushInternalTest {
         val threadSpy: ThreadSpy<CompletionListener> = ThreadSpy()
         whenever(completionListener.onCompleted(any())).doAnswer(threadSpy)
 
-        pushInternal.trackMessageOpen(createBadTestIntent(), completionListener)
+        pushInternal.trackMessageOpen(null, completionListener)
 
         threadSpy.verifyCalledOnMainThread()
-    }
-
-    private fun createTestIntent(): Intent {
-        val bundlePayload = Bundle().apply {
-            putString("key1", "value1")
-            putString("u", """{"sid": "$SID"}""")
-        }
-
-        return Intent().apply {
-            putExtra("payload", bundlePayload)
-        }
-    }
-
-    private fun createBadTestIntent(): Intent {
-        val bundlePayload = Bundle().apply {
-            putString("key1", "value1")
-            putString("u", "")
-        }
-
-        return Intent().apply {
-            putExtra("payload", bundlePayload)
-        }
     }
 
     @Test

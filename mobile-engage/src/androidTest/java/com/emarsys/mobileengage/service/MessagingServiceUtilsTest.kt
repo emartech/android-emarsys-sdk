@@ -25,6 +25,7 @@ import com.emarsys.mobileengage.notification.command.SilentNotificationInformati
 import com.emarsys.mobileengage.push.SilentNotificationInformationListenerProvider
 import com.emarsys.mobileengage.service.MessagingServiceUtils.styleNotification
 import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperFactory
+import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1
 import com.emarsys.testUtil.InstrumentationRegistry.Companion.getTargetContext
 import com.emarsys.testUtil.RetryUtils.retryRule
 import com.emarsys.testUtil.TimeoutUtils
@@ -58,11 +59,13 @@ class MessagingServiceUtilsTest {
         const val IMAGE_URL = "https://emarsys.com/image"
         const val HTML_URL = "https://hu.wikipedia.org/wiki/Mont_Blanc"
         const val COLLAPSE_ID = "testCollapseId"
+        const val COLOR = R.color.darker_gray
+        const val MULTICHANNEL_ID = "test multiChannel id"
+        const val SID = "test sid"
 
         val IMAGE: Bitmap = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
         val SMALL_NOTIFICATION_ICON =
             com.emarsys.mobileengage.R.drawable.default_small_notification_icon
-        val COLOR = R.color.darker_gray
         val NOTIFICATION_METHOD = NotificationMethod(COLLAPSE_ID, NotificationOperation.INIT)
         val EMPTY_NOTIFICATION_DATA: NotificationData = NotificationData(
             null,
@@ -71,9 +74,13 @@ class MessagingServiceUtilsTest {
             null,
             null,
             null,
-            SMALL_NOTIFICATION_ICON,
-            COLOR,
-            NOTIFICATION_METHOD
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NOTIFICATION_METHOD,
+            actions = null,
+            inapp = null
         )
     }
 
@@ -192,6 +199,22 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
+    fun testIsSilent_shouldReturnFalse_whenV2_isSilentIsFalse() {
+        val message = mapOf(
+            "ems.silent" to "false",
+        )
+        MessagingServiceUtils.isSilent(message) shouldBe false
+    }
+
+    @Test
+    fun testIsSilent_shouldReturnTru_whenV2_isSilentIsTrue() {
+        val message = mapOf(
+            "ems.silent" to "true",
+        )
+        MessagingServiceUtils.isSilent(message) shouldBe true
+    }
+
+    @Test
     fun testHandleMessage_shouldUse_V1_mapper_withOldNotificationStructure() {
         val notificationData = NotificationData(
             IMAGE,
@@ -200,9 +223,13 @@ class MessagingServiceUtilsTest {
             TITLE,
             BODY,
             CHANNEL_ID,
-            SMALL_NOTIFICATION_ICON,
-            COLOR,
-            NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE)
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
 
         val ems = JSONObject()
@@ -210,7 +237,9 @@ class MessagingServiceUtilsTest {
             "ems_msg" to "value",
             "ems" to ems.toString()
         )
-        whenever(mockRemoteMessageMapperFactory.create(message)).thenReturn(mockRemoteMessageMapperV1)
+        whenever(mockRemoteMessageMapperFactory.create(message)).thenReturn(
+            mockRemoteMessageMapperV1
+        )
         whenever(mockRemoteMessageMapperV1.map(message)).thenReturn(notificationData)
 
         MessagingServiceUtils.handleMessage(
@@ -256,22 +285,23 @@ class MessagingServiceUtilsTest {
     @Test
     fun createNotification_shouldNotBeNull() {
         val notificationData = NotificationData(
+            IMAGE,
             null,
             null,
-            null,
-            null,
-            null,
-            null,
-            SMALL_NOTIFICATION_ICON,
-            COLOR,
-            NOTIFICATION_METHOD
+            TITLE,
+            BODY,
+            CHANNEL_ID,
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
 
-        val input: MutableMap<String, String> = HashMap()
         MessagingServiceUtils.createNotification(
-            CHANNEL_ID,
             context,
-            input,
             deviceInfo,
             mockFileDownloader,
             notificationData
@@ -287,9 +317,13 @@ class MessagingServiceUtilsTest {
             TITLE,
             BODY,
             CHANNEL_ID,
-            SMALL_NOTIFICATION_ICON,
-            COLOR,
-            NOTIFICATION_METHOD
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
 
         val input: MutableMap<String, String> = HashMap()
@@ -298,9 +332,7 @@ class MessagingServiceUtilsTest {
         input["channel_id"] = CHANNEL_ID
 
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            input,
             deviceInfo,
             mockFileDownloader,
             notificationData
@@ -315,15 +347,19 @@ class MessagingServiceUtilsTest {
     @Test
     fun createNotification_withBigTextStyle_withTitle_withoutBody() {
         val notificationData = NotificationData(
-            null,
+            IMAGE,
             null,
             null,
             TITLE,
             null,
             CHANNEL_ID,
-            SMALL_NOTIFICATION_ICON,
-            COLOR,
-            NOTIFICATION_METHOD
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
 
         val input: MutableMap<String, String> = HashMap()
@@ -331,9 +367,7 @@ class MessagingServiceUtilsTest {
         input["channel_id"] = CHANNEL_ID
 
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            input,
             deviceInfo,
             mockFileDownloader,
             notificationData
@@ -354,20 +388,17 @@ class MessagingServiceUtilsTest {
             null,
             BODY,
             CHANNEL_ID,
-            SMALL_NOTIFICATION_ICON,
-            COLOR,
-            NOTIFICATION_METHOD
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
-        val input: MutableMap<String, String> = HashMap()
-        input["body"] = BODY
-        input["u"] =
-            "{\"test_field\":\"\",\"image\":\"https:\\/\\/media.giphy.com\\/media\\/ktvFa67wmjDEI\\/giphy.gif\",\"deep_link\":\"lifestylelabels.com\\/mobile\\/product\\/3245678\",\"sid\":\"sid_here\"}"
-        input["channel_id"] = CHANNEL_ID
 
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            input,
             deviceInfo,
             mockFileDownloader,
             notificationData
@@ -387,15 +418,17 @@ class MessagingServiceUtilsTest {
             TITLE,
             BODY,
             CHANNEL_ID,
-            SMALL_NOTIFICATION_ICON,
-            COLOR,
-            NOTIFICATION_METHOD
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
 
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            mapOf(),
             deviceInfo,
             mockFileDownloader,
             notificationData
@@ -418,15 +451,17 @@ class MessagingServiceUtilsTest {
             TITLE,
             BODY,
             CHANNEL_ID,
-            SMALL_NOTIFICATION_ICON,
-            COLOR,
-            NOTIFICATION_METHOD
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
 
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            mapOf(),
             deviceInfo,
             mockFileDownloader,
             notificationData
@@ -443,25 +478,25 @@ class MessagingServiceUtilsTest {
     fun testCreateNotification_setsNotificationColor() {
         val colorResourceId = R.color.darker_gray
         val notificationData = NotificationData(
-            null,
+            IMAGE,
             null,
             null,
             TITLE,
             BODY,
             CHANNEL_ID,
-            SMALL_NOTIFICATION_ICON,
-            colorResourceId,
-            NOTIFICATION_METHOD
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = colorResourceId,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
 
         val expectedColor = ContextCompat.getColor(context, colorResourceId)
-        val input: MutableMap<String, String> = HashMap()
-        input["title"] = TITLE
-        input["body"] = BODY
+
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            input,
             deviceInfo,
             mockFileDownloader,
             notificationData
@@ -472,25 +507,25 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testCreateNotification_doesNotSet_notificationColor_whenCodeIsInvalid() {
+        val invalidColor = 0
         val notificationData = NotificationData(
-            null,
+            IMAGE,
             null,
             null,
             TITLE,
             BODY,
             CHANNEL_ID,
-            SMALL_NOTIFICATION_ICON,
-            0,
-            NOTIFICATION_METHOD
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = invalidColor,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
 
-        val input: MutableMap<String, String> = HashMap()
-        input["title"] = TITLE
-        input["body"] = BODY
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            input,
             deviceInfo,
             mockFileDownloader,
             notificationData
@@ -503,26 +538,23 @@ class MessagingServiceUtilsTest {
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     fun testCreateNotification_withChannelId() {
         val notificationData = NotificationData(
-            null,
+            IMAGE,
             null,
             null,
             TITLE,
             BODY,
             CHANNEL_ID,
-            SMALL_NOTIFICATION_ICON,
-            COLOR,
-            NOTIFICATION_METHOD
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
 
-        val input: MutableMap<String, String> = HashMap()
-        input["title"] = TITLE
-        input["body"] = BODY
-        input["channel_id"] = CHANNEL_ID
-
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            input,
             deviceInfo,
             mockFileDownloader,
             notificationData
@@ -535,19 +567,21 @@ class MessagingServiceUtilsTest {
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     fun testCreateNotification_withoutChannelId() {
         val notificationData = NotificationData(
-            null,
+            IMAGE,
             null,
             null,
             TITLE,
             BODY,
             null,
-            SMALL_NOTIFICATION_ICON,
-            COLOR,
-            NOTIFICATION_METHOD
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
-        val input: MutableMap<String, String> = HashMap()
-        input["title"] = TITLE
-        input["body"] = BODY
+
         val notificationSettings: NotificationSettings = mock()
         val deviceInfo: DeviceInfo = mock()
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
@@ -555,9 +589,7 @@ class MessagingServiceUtilsTest {
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(false)
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            input,
             deviceInfo,
             mockFileDownloader,
             notificationData
@@ -570,19 +602,21 @@ class MessagingServiceUtilsTest {
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     fun testCreateNotification_withoutChannelId_inDebugMode() {
         val notificationData = NotificationData(
-            null,
+            IMAGE,
             null,
             null,
             TITLE,
             BODY,
             null,
-            SMALL_NOTIFICATION_ICON,
-            COLOR,
-            NOTIFICATION_METHOD
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
-        val input: MutableMap<String, String> = HashMap()
-        input["title"] = TITLE
-        input["body"] = BODY
+
         val notificationSettings: NotificationSettings = mock()
         val deviceInfo: DeviceInfo = mock()
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
@@ -590,9 +624,7 @@ class MessagingServiceUtilsTest {
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(true)
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            input,
             deviceInfo,
             mockFileDownloader,
             notificationData
@@ -602,39 +634,47 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testCreateNotification_setsActionsIfAvailable() {
-        val ems = JSONObject()
+        val actions = JSONArray()
             .put(
-                "actions", JSONArray()
+                JSONObject()
+                    .put("id", "uniqueActionId1")
+                    .put("title", "title1")
+                    .put("type", "MEAppEvent")
+                    .put("name", "event1")
+            )
+            .put(
+                JSONObject()
+                    .put("id", "uniqueActionId2")
+                    .put("title", "title2")
+                    .put("type", "MEAppEvent")
+                    .put("name", "event2")
                     .put(
-                        JSONObject()
-                            .put("id", "uniqueActionId1")
-                            .put("title", "title1")
-                            .put("type", "MEAppEvent")
-                            .put("name", "event1")
-                    )
-                    .put(
-                        JSONObject()
-                            .put("id", "uniqueActionId2")
-                            .put("title", "title2")
-                            .put("type", "MEAppEvent")
-                            .put("name", "event2")
-                            .put(
-                                "payload", JSONObject()
-                                    .put("payloadKey", "payloadValue")
-                            )
+                        "payload", JSONObject()
+                            .put("payloadKey", "payloadValue")
                     )
             )
-        val input: MutableMap<String, String> = HashMap()
-        input["title"] = TITLE
-        input["body"] = BODY
-        input["ems"] = ems.toString()
+
+        val notificationData = NotificationData(
+            IMAGE,
+            null,
+            null,
+            TITLE,
+            BODY,
+            CHANNEL_ID,
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = actions.toString(),
+            inapp = null
+        )
+
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            input,
             deviceInfo,
             mockFileDownloader,
-            EMPTY_NOTIFICATION_DATA
+            notificationData
         )
         result.actions shouldNotBe null
         result.actions.size shouldBe 2
@@ -644,13 +684,8 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testCreateNotification_action_withoutActions() {
-        val input: MutableMap<String, String> = HashMap()
-        input["title"] = TITLE
-        input["body"] = BODY
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            input,
             deviceInfo,
             mockFileDownloader,
             EMPTY_NOTIFICATION_DATA
@@ -662,20 +697,21 @@ class MessagingServiceUtilsTest {
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     fun testCreateNotification_returnDebugMessage_whenThereIsChannelIdMismatch() {
         val notificationData = NotificationData(
-            null,
+            IMAGE,
             null,
             null,
             TITLE,
             BODY,
             CHANNEL_ID,
-            SMALL_NOTIFICATION_ICON,
-            COLOR,
-            NOTIFICATION_METHOD
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
-        val input: MutableMap<String, String> = HashMap()
-        input["title"] = TITLE
-        input["body"] = BODY
-        input["channel_id"] = CHANNEL_ID
+
         val notificationSettings: NotificationSettings = mock()
         val deviceInfo: DeviceInfo = mock()
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
@@ -683,9 +719,7 @@ class MessagingServiceUtilsTest {
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(true)
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            input,
             deviceInfo,
             mockFileDownloader,
             notificationData
@@ -696,20 +730,21 @@ class MessagingServiceUtilsTest {
     @Test
     fun testCreateNotification_returnOriginalTitle_evenIfThereIsChannelMismatch_but_weAreNotInDebugMode() {
         val notificationData = NotificationData(
-            null,
+            IMAGE,
             null,
             null,
             TITLE,
             BODY,
             CHANNEL_ID,
-            SMALL_NOTIFICATION_ICON,
-            COLOR,
-            NOTIFICATION_METHOD
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
-        val input: MutableMap<String, String> = HashMap()
-        input["title"] = TITLE
-        input["body"] = BODY
-        input["channel_id"] = CHANNEL_ID
+
         val notificationSettings: NotificationSettings = mock()
         val deviceInfo: DeviceInfo = mock()
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
@@ -717,9 +752,7 @@ class MessagingServiceUtilsTest {
         whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
         whenever(deviceInfo.isDebugMode).thenReturn(false)
         val result = MessagingServiceUtils.createNotification(
-            COLLAPSE_ID,
             context,
-            input,
             deviceInfo,
             mockFileDownloader,
             notificationData
@@ -734,18 +767,10 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    fun testGetInAppDescriptor_shouldReturnNull_whenThereIsNoEmsInPayload() {
+    fun testGetInAppDescriptor_shouldReturnNull_whenThereIsNoInapp() {
         MessagingServiceUtils.getInAppDescriptor(
             mockFileDownloader,
-            createNoEmsInPayload()
-        ) shouldBe null
-    }
-
-    @Test
-    fun testGetInAppDescriptor_shouldReturnNull_whenThereIsNoInAppInPayload() {
-        MessagingServiceUtils.getInAppDescriptor(
-            mockFileDownloader,
-            createNoInAppInPayload()
+            null
         ) shouldBe null
     }
 
@@ -765,38 +790,32 @@ class MessagingServiceUtilsTest {
 
     @Test
     fun testGetInAppDescriptor_shouldBeNull_whenCampaignIdIsMissing() {
-        val payload: MutableMap<String, String> = HashMap()
-        val ems = JSONObject()
         val inapp = JSONObject()
         inapp.put("url", HTML_URL)
-        ems.put("inapp", inapp)
-        payload["ems"] = ems.toString()
-        MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, payload) shouldBe null
+
+        MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, inapp.toString()) shouldBe null
     }
 
     @Test
     fun testGetInAppDescriptor_shouldBeNull_whenUrlIsMissing() {
-        val payload: MutableMap<String, String> = HashMap()
-        val ems = JSONObject()
         val inapp = JSONObject()
         inapp.put("campaignId", "someId")
-        ems.put("inapp", inapp)
-        payload["ems"] = ems.toString()
 
-        MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, payload) shouldBe null
+        MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, inapp.toString()) shouldBe null
     }
 
     @Test
     fun testGetInAppDescriptor_shouldReturnWithUrlAndCampaignId_whenFileUrlIsNull() {
-        val payload: MutableMap<String, String> = HashMap()
-        val ems = JSONObject()
         val inapp = JSONObject()
         inapp.put("campaign_id", "someId")
         inapp.put("url", "https://thisIsNotARealUrl")
-        ems.put("inapp", inapp)
-        payload["ems"] = ems.toString()
         val result =
-            JSONObject(MessagingServiceUtils.getInAppDescriptor(mockFileDownloader, payload)!!)
+            JSONObject(
+                MessagingServiceUtils.getInAppDescriptor(
+                    mockFileDownloader,
+                    inapp.toString()
+                )!!
+            )
 
         result.getString("campaignId") shouldBe "someId"
         result.getString("url") shouldBe "https://thisIsNotARealUrl"
@@ -804,61 +823,78 @@ class MessagingServiceUtilsTest {
     }
 
     @Test
-    fun testCreatePreloadedRemoteMessageData_shouldPutInAppDescriptorUnderEms_whenAvailableAndInAppIsTurnedOn() {
+    fun testCreatePreloadedRemoteMessageData_shouldPutInAppDescriptorInNotificationData_whenAvailableAndInAppIsTurnedOn() {
         val inAppDescriptor = "InAppDescriptor"
-        val inAppPayload = createNoInAppInPayload()
         val result =
-            MessagingServiceUtils.createPreloadedRemoteMessageData(inAppPayload, inAppDescriptor)
+            MessagingServiceUtils.createPreloadedRemoteMessageData(
+                EMPTY_NOTIFICATION_DATA,
+                inAppDescriptor
+            )
 
-        JSONObject(result["ems"]!!).getString("inapp") shouldBe inAppDescriptor
+        result.inapp shouldBe inAppDescriptor
     }
 
     @Test
-    fun testCreatePreloadedRemoteMessageData_shouldNotPutInAppDescriptorUnderEms_whenNotAvailable() {
+    fun testCreatePreloadedRemoteMessageData_shouldNotPutInAppDescriptorInNotificationData_whenNotAvailable() {
         val inAppDescriptor: String? = null
-        val inAppPayload = createNoInAppInPayload()
         val result =
-            MessagingServiceUtils.createPreloadedRemoteMessageData(inAppPayload, inAppDescriptor)
+            MessagingServiceUtils.createPreloadedRemoteMessageData(
+                EMPTY_NOTIFICATION_DATA,
+                inAppDescriptor
+            )
 
-        JSONObject(result["ems"]!!).has("inapp") shouldBe false
+        result.inapp shouldBe null
     }
 
     @Test
     fun testCreateSilentPushCommands_shouldReturnEmptyList_whenNoActionIsDefined() {
-        val message = mapOf(
-            "ems_msg" to "value",
-            "ems" to JSONObject(
-                mapOf(
-                    "silent" to true
-                )
-            ).toString()
+        val notificationData = NotificationData(
+            IMAGE,
+            null,
+            null,
+            TITLE,
+            BODY,
+            CHANNEL_ID,
+            campaignId = null,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
 
         MessagingServiceUtils.createSilentPushCommands(
             mockActionCommandFactory,
-            message
+            notificationData
         ) shouldBe emptyList()
     }
 
     @Test
     fun testCreateSilentPushCommands_shouldCreateSilentNotificationCommand_whenMessageIsSilentAndContainsCampaignId() {
-        val message = mapOf(
-            "ems_msg" to "value",
-            "ems" to JSONObject(
-                mapOf(
-                    "multichannelId" to "testCampaignId",
-                    "silent" to true
-                )
-            ).toString()
+        val notificationData = NotificationData(
+            IMAGE,
+            null,
+            null,
+            TITLE,
+            BODY,
+            CHANNEL_ID,
+            campaignId = MULTICHANNEL_ID,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = null,
+            inapp = null
         )
 
         MessagingServiceUtils.createSilentPushCommands(
             mockActionCommandFactory,
-            message
+            notificationData
         ).size shouldBe 1
         MessagingServiceUtils.createSilentPushCommands(
             mockActionCommandFactory,
-            message
+            notificationData
         )[0] is SilentNotificationInformationCommand
     }
 
@@ -874,39 +910,47 @@ class MessagingServiceUtilsTest {
         )
         whenever(mockActionCommandFactory.createActionCommand(any())).thenReturn(expectedCommand1)
             .thenReturn(expectedCommand2)
-        val message = mapOf(
-            "ems_msg" to "value",
-            "ems" to JSONObject(
-                mapOf(
-                    "silent" to true,
-                    "actions" to JSONArray(
-                        listOf(
-                            JSONObject(
-                                mapOf(
-                                    "type" to "MEAppEvent",
-                                    "name" to "nameOfTheAppEvent"
-                                )
-                            ),
-                            JSONObject(
-                                mapOf(
-                                    "type" to "MEAppEvent",
-                                    "name" to "nameOfTheAppEvent",
-                                    "payload" to JSONObject(
-                                        mapOf(
-                                            "key" to "value"
-                                        )
-                                    )
-                                )
+        val actions = JSONArray(
+            listOf(
+                JSONObject(
+                    mapOf(
+                        "type" to "MEAppEvent",
+                        "name" to "nameOfTheAppEvent"
+                    )
+                ),
+                JSONObject(
+                    mapOf(
+                        "type" to "MEAppEvent",
+                        "name" to "nameOfTheAppEvent",
+                        "payload" to JSONObject(
+                            mapOf(
+                                "key" to "value"
                             )
                         )
                     )
                 )
-            ).toString()
+            )
+        ).toString()
+
+        val notificationData = NotificationData(
+            IMAGE,
+            null,
+            null,
+            TITLE,
+            BODY,
+            CHANNEL_ID,
+            campaignId = null,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = actions,
+            inapp = null
         )
 
         MessagingServiceUtils.createSilentPushCommands(
             mockActionCommandFactory,
-            message
+            notificationData
         ) shouldBe listOf(
             expectedCommand1,
             expectedCommand2
@@ -925,39 +969,46 @@ class MessagingServiceUtilsTest {
         )
         whenever(mockActionCommandFactory.createActionCommand(any())).thenReturn(expectedCommand1)
             .thenReturn(expectedCommand2)
-        val message = mapOf(
-            "ems_msg" to "value",
-            "ems" to JSONObject(
-                mapOf(
-                    "silent" to true,
-                    "actions" to JSONArray(
-                        listOf(
-                            JSONObject(
-                                mapOf(
-                                    "type" to "MEAppEvent",
-                                    "name" to "nameOfTheAppEvent"
-                                )
-                            ),
-                            JSONObject(
-                                mapOf(
-                                    "type" to "MEAppEvent",
-                                    "name" to "nameOfTheAppEvent",
-                                    "payload" to JSONObject(
-                                        mapOf(
-                                            "key" to "value"
-                                        )
-                                    )
-                                )
+        val actions = JSONArray(
+            listOf(
+                JSONObject(
+                    mapOf(
+                        "type" to "MEAppEvent",
+                        "name" to "nameOfTheAppEvent"
+                    )
+                ),
+                JSONObject(
+                    mapOf(
+                        "type" to "MEAppEvent",
+                        "name" to "nameOfTheAppEvent",
+                        "payload" to JSONObject(
+                            mapOf(
+                                "key" to "value"
                             )
                         )
                     )
                 )
-            ).toString()
+            )
+        ).toString()
+        val notificationData = NotificationData(
+            IMAGE,
+            null,
+            null,
+            TITLE,
+            BODY,
+            CHANNEL_ID,
+            campaignId = null,
+            sid = SID,
+            smallIconResourceId = SMALL_NOTIFICATION_ICON,
+            colorResourceId = COLOR,
+            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            actions = actions,
+            inapp = null
         )
 
         MessagingServiceUtils.createSilentPushCommands(
             mockActionCommandFactory,
-            message
+            notificationData
         ) shouldBe listOf(
             expectedCommand1,
             expectedCommand2
@@ -982,21 +1033,21 @@ class MessagingServiceUtilsTest {
             on { setContentText(any()) } doReturn it
             on { setStyle(any()) } doReturn it
         }
-        val title = "testTitle"
-        val body = "testBody"
-        val image = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
-        val icon = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
         mockBuilder.styleNotification(
             NotificationData(
-                image,
-                icon,
-                "THUMBNAIL",
-                title,
-                body,
+                IMAGE,
                 null,
-                123,
-                456,
-                NOTIFICATION_METHOD
+                "THUMBNAIL",
+                TITLE,
+                BODY,
+                CHANNEL_ID,
+                campaignId = MULTICHANNEL_ID,
+                sid = SID,
+                smallIconResourceId = SMALL_NOTIFICATION_ICON,
+                colorResourceId = COLOR,
+                notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+                actions = null,
+                inapp = null
             )
         )
 
@@ -1012,19 +1063,21 @@ class MessagingServiceUtilsTest {
     fun testStyleNotification_whenStyleIsInvalid_imageIsNotSet_shouldBeBigTextStyle() {
         val mockBuilder: NotificationCompat.Builder = mock()
 
-        val title = "testTitle"
-        val body = "testBody"
         mockBuilder.styleNotification(
             NotificationData(
                 null,
                 null,
                 "INVALID_STYLE",
-                title,
-                body,
-                null,
-                222,
-                333,
-                NOTIFICATION_METHOD
+                TITLE,
+                BODY,
+                CHANNEL_ID,
+                campaignId = MULTICHANNEL_ID,
+                sid = SID,
+                smallIconResourceId = SMALL_NOTIFICATION_ICON,
+                colorResourceId = COLOR,
+                notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+                actions = null,
+                inapp = null
             )
         )
 
@@ -1043,60 +1096,34 @@ class MessagingServiceUtilsTest {
             on { setLargeIcon(org.mockito.kotlin.any()) } doReturn it
             on { setStyle(org.mockito.kotlin.any()) } doReturn it
         }
-        val title = "testTitle"
-        val body = "testBody"
-        val image = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
         val icon = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
+
         mockBuilder.styleNotification(
             NotificationData(
-                image,
+                IMAGE,
                 icon,
                 this,
-                title,
-                body,
-                null,
-                222,
-                444,
-                NOTIFICATION_METHOD
+                TITLE,
+                BODY,
+                CHANNEL_ID,
+                campaignId = MULTICHANNEL_ID,
+                sid = SID,
+                smallIconResourceId = SMALL_NOTIFICATION_ICON,
+                colorResourceId = COLOR,
+                notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+                actions = null,
+                inapp = null
             )
         )
 
         verify(mockBuilder).setStyle(any<T>())
     }
 
-    private fun createRemoteMessageData(): Map<String, String> {
-        return mapOf(
-            "title" to "title",
-            "body" to "body"
-        )
-    }
-
-    private fun createEMSRemoteMessageData(): Map<String, String> {
-        return mapOf(
-            "title" to "title",
-            "body" to "body",
-            "ems_msg" to "value"
-        )
-    }
-
-    private fun createNoEmsInPayload(): Map<String, String> {
-        return emptyMap()
-    }
-
-    private fun createNoInAppInPayload(): Map<String, String> {
-        return mapOf(
-            "ems" to "{}"
-        )
-    }
-
-    private fun createInAppInPayload(): Map<String, String> {
-        val payload: MutableMap<String, String> = HashMap()
-        val ems = JSONObject()
+    private fun createInAppInPayload(): String {
         val inapp = JSONObject()
         inapp.put("campaign_id", "someId")
         inapp.put("url", HTML_URL)
-        ems.put("inapp", inapp)
-        payload["ems"] = ems.toString()
-        return payload
+
+        return inapp.toString()
     }
 }

@@ -1,6 +1,5 @@
 package com.emarsys.mobileengage.push
 
-import android.content.Intent
 import com.emarsys.core.api.result.CompletionListener
 import com.emarsys.core.handler.ConcurrentHandlerHolder
 import com.emarsys.core.request.RequestManager
@@ -10,8 +9,6 @@ import com.emarsys.mobileengage.api.push.NotificationInformationListener
 import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.request.MobileEngageRequestModelFactory
-import org.json.JSONException
-import org.json.JSONObject
 
 class DefaultPushInternal(
     private val requestManager: RequestManager,
@@ -61,29 +58,19 @@ class DefaultPushInternal(
         requestManager.submit(requestModel, completionListener)
     }
 
-    override fun trackMessageOpen(intent: Intent, completionListener: CompletionListener?) {
-        val messageId = getMessageId(intent)
-        messageId?.let { handleMessageOpen(completionListener, it) }
-            ?: concurrentHandlerHolder.postOnMain {
+    override fun trackMessageOpen(
+        sid: String?,
+        completionListener: CompletionListener?
+    ) {
+        if (sid != null) {
+            handleMessageOpen(completionListener, sid)
+        } else {
+            concurrentHandlerHolder.postOnMain {
                 completionListener?.onCompleted(
                     IllegalArgumentException("No messageId found!")
                 )
             }
-    }
-
-    fun getMessageId(intent: Intent): String? {
-        var sid: String? = null
-        val payload = intent.getBundleExtra("payload")
-        if (payload != null) {
-            val customData = payload.getString("u")
-            if (customData != null) {
-                try {
-                    sid = JSONObject(customData).getString("sid")
-                } catch (ignore: JSONException) {
-                }
-            }
         }
-        return sid
     }
 
     private fun handleMessageOpen(completionListener: CompletionListener?, messageId: String) {
