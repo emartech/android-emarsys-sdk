@@ -43,9 +43,9 @@ class RemoteMessageMapperV2(
         val channelId = remoteMessageData["notification.channel_id"]
         val notificationMethod: NotificationMethod = parseNotificationMethod(remoteMessageData)
         val sid = remoteMessageData["ems.sid"] ?: "Missing sid"
-        val emsRootParams = extractEmsRootParams(remoteMessageData)
-        val actions = emsRootParams.getNullableString("actions")
+        val actions = remoteMessageData["ems.actions"]
         val defaultAction = extractDefaultAction(remoteMessageData)
+        val emsRootParams = extractEmsRootParams(remoteMessageData)
         val inapp = emsRootParams.getNullableString("inapp")
 
         return NotificationData(

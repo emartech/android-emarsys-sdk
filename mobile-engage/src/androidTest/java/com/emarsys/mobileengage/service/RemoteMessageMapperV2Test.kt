@@ -283,9 +283,7 @@ class RemoteMessageMapperV2Test {
 
         val expectedActions = """[{"type":"MECustomEvent","id":"Testing","title":{"en":"Test title"},"name":"test action name"}]"""
         val input: MutableMap<String, String> = createRemoteMessage()
-        val ems = JSONObject()
-        ems.put("actions", testActions)
-        input["ems.root_params"] = ems.toString()
+        input["ems.actions"] = testActions.toString()
 
         val notificationData = remoteMessageMapperV2.map(input)
 
