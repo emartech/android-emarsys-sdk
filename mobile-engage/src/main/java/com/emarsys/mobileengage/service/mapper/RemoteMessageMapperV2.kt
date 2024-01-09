@@ -6,7 +6,6 @@ import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.resource.MetaDataReader
 import com.emarsys.core.util.FileDownloader
 import com.emarsys.core.util.ImageUtils
-import com.emarsys.core.util.getNullableString
 import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationMethod
 import com.emarsys.mobileengage.service.NotificationOperation
@@ -45,8 +44,7 @@ class RemoteMessageMapperV2(
         val sid = remoteMessageData["ems.sid"] ?: "Missing sid"
         val actions = remoteMessageData["ems.actions"]
         val defaultAction = extractDefaultAction(remoteMessageData)
-        val emsRootParams = extractEmsRootParams(remoteMessageData)
-        val inapp = emsRootParams.getNullableString("inapp")
+        val inapp = remoteMessageData["ems.inapp"]
 
         return NotificationData(
             image,
@@ -101,9 +99,6 @@ class RemoteMessageMapperV2(
             NotificationOperation.valueOf(notificationMethod.uppercase())
         } else NotificationOperation.INIT
     }
-
-    private fun extractEmsRootParams(remoteMessageData: Map<String, String?>) =
-        JSONObject(remoteMessageData["ems.root_params"] ?: "{}")
 
     private fun extractDefaultAction(remoteMessageData: Map<String, String?>): String? {
         val name = remoteMessageData.getOrDefault("ems.tap_actions.default_action.name", null)

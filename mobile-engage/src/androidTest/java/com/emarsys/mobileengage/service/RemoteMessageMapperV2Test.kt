@@ -330,9 +330,7 @@ class RemoteMessageMapperV2Test {
     fun testMap_notificationData_shouldContain_inapp() {
         val testInapp = "test inapp"
         val input: MutableMap<String, String> = createRemoteMessage()
-        val ems = JSONObject()
-        ems.put("inapp", testInapp)
-        input["ems.root_params"] = ems.toString()
+        input["ems.inapp"] = testInapp
 
         val notificationData = remoteMessageMapperV2.map(input)
 
