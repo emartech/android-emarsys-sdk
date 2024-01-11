@@ -1,16 +1,8 @@
 package com.emarsys.mobileengage.service
 
 import android.content.Context
-import com.emarsys.core.api.notification.ChannelSettings
-import com.emarsys.core.api.notification.NotificationSettings
-import com.emarsys.core.device.DeviceInfo
-import com.emarsys.core.device.LanguageProvider
-import com.emarsys.core.provider.hardwareid.HardwareIdProvider
-import com.emarsys.core.provider.timestamp.TimestampProvider
 import com.emarsys.core.provider.uuid.UUIDProvider
-import com.emarsys.core.provider.version.VersionProvider
 import com.emarsys.core.resource.MetaDataReader
-import com.emarsys.core.util.FileDownloader
 import com.emarsys.mobileengage.R
 import com.emarsys.mobileengage.di.mobileEngage
 import com.emarsys.mobileengage.di.setupMobileEngageComponent
@@ -20,7 +12,6 @@ import com.emarsys.mobileengage.service.mapper.RemoteMessageMapperV1
 import com.emarsys.testUtil.InstrumentationRegistry
 import com.emarsys.testUtil.RetryUtils
 import com.emarsys.testUtil.TimeoutUtils
-import com.emarsys.testUtil.copyInputStreamToFile
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import org.json.JSONObject
@@ -29,24 +20,16 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import org.mockito.ArgumentMatchers
-import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import java.io.File
-import java.util.Locale
 
 class RemoteMessageMapperV1Test {
     private companion object {
         const val TITLE = "title"
         const val BODY = "body"
         const val CHANNEL_ID = "channelId"
-        const val HARDWARE_ID = "hwid"
-        const val SDK_VERSION = "sdkVersion"
-        const val LANGUAGE = "en-US"
         const val IMAGE_URL = "https://emarsys.com/image"
-        const val HTML_URL = "https://hu.wikipedia.org/wiki/Mont_Blanc"
         const val SMALL_RESOURCE_ID = 123
         const val COLOR_RESOURCE_ID = 456
         const val SID = "test sid"
@@ -58,10 +41,7 @@ class RemoteMessageMapperV1Test {
     }
 
     private lateinit var context: Context
-    private lateinit var deviceInfo: DeviceInfo
     private lateinit var mockMetaDataReader: MetaDataReader
-    private lateinit var mockTimestampProvider: TimestampProvider
-    private lateinit var mockFileDownloader: FileDownloader
     private lateinit var remoteMessageMapperV1: RemoteMessageMapperV1
 
     @Rule
@@ -75,62 +55,17 @@ class RemoteMessageMapperV1Test {
     @Before
     fun init() {
         context = InstrumentationRegistry.getTargetContext()
-        val mockNotificationSettings: NotificationSettings = mock()
-        val mockHardwareIdProvider: HardwareIdProvider = mock()
-        val mockVersionProvider: VersionProvider = mock()
-        val mockLanguageProvider: LanguageProvider = mock()
-        val channelSettings = ChannelSettings(channelId = CHANNEL_ID)
-        mockFileDownloader = mock<FileDownloader>().apply {
-            whenever(download(any(), any())).thenAnswer {
-                if (it.arguments[0] == IMAGE_URL || it.arguments[0] == HTML_URL) {
-                    val fileContent =
-                        InstrumentationRegistry.getTargetContext().resources.openRawResource(
-                            InstrumentationRegistry.getTargetContext().resources.getIdentifier(
-                                "test_image",
-                                "raw", InstrumentationRegistry.getTargetContext().packageName
-                            )
-                        )
-                    val file = File(
-                        InstrumentationRegistry.getTargetContext().cacheDir.toURI()
-                            .toURL().path + "/testFile.tmp"
-                    )
-                    file.copyInputStreamToFile(fileContent)
-                    file.toURI().toURL().path
-                } else {
-                    null
-                }
-            }
-        }
-        whenever(mockNotificationSettings.channelSettings).thenReturn(listOf(channelSettings))
-        whenever(mockHardwareIdProvider.provideHardwareId()).thenReturn(HARDWARE_ID)
-        whenever(mockLanguageProvider.provideLanguage(ArgumentMatchers.any(Locale::class.java))).thenReturn(
-            LANGUAGE
-        )
-        whenever(mockVersionProvider.provideSdkVersion()).thenReturn(SDK_VERSION)
-        deviceInfo = DeviceInfo(
-            context,
-            mockHardwareIdProvider,
-            mockVersionProvider,
-            mockLanguageProvider,
-            mockNotificationSettings,
-            isAutomaticPushSendingEnabled = true,
-            isGooglePlayAvailable = true
-        )
-        mockMetaDataReader = mock()
-        mockTimestampProvider = mock()
-        whenever(mockTimestampProvider.provideTimestamp()).thenReturn(1L)
 
         setupMobileEngageComponent(FakeMobileEngageDependencyContainer())
 
         val uuidProvider: UUIDProvider = mock {
             on { provideId() }.thenReturn("testUUID")
         }
+        mockMetaDataReader = mock()
 
         remoteMessageMapperV1 = RemoteMessageMapperV1(
             mockMetaDataReader,
             context,
-            mockFileDownloader,
-            deviceInfo,
             uuidProvider
         )
     }
@@ -199,18 +134,19 @@ class RemoteMessageMapperV1Test {
 
         val notificationData = remoteMessageMapperV1.map(input)
 
-        notificationData.image shouldNotBe null
+        notificationData.imageUrl shouldNotBe null
     }
 
     @Test
     fun testMap_whenImageIsNotAvailable() {
+        val testImageUrl = "https://fa.il/img.jpg"
         val input: MutableMap<String, String> = createRemoteMessage()
-        input["image_url"] = "https://fa.il/img.jpg"
+        input["image_url"] = testImageUrl
         input["channel_id"] = CHANNEL_ID
 
         val notificationData = remoteMessageMapperV1.map(input)
 
-        notificationData.image shouldBe null
+        notificationData.imageUrl shouldBe testImageUrl
     }
 
     @Test

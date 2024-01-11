@@ -3,8 +3,9 @@ package com.emarsys.mobileengage.service
 import android.R
 import android.app.Notification
 import android.content.Context
-import android.graphics.Bitmap
+import android.content.res.Resources
 import android.os.Build.VERSION_CODES
+import android.util.DisplayMetrics
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.test.filters.SdkSuppress
@@ -57,13 +58,13 @@ class MessagingServiceUtilsTest {
         const val SDK_VERSION = "sdkVersion"
         const val LANGUAGE = "en-US"
         const val IMAGE_URL = "https://emarsys.com/image"
+        const val ICON_URL = "https://emarsys.com/icon_image"
         const val HTML_URL = "https://hu.wikipedia.org/wiki/Mont_Blanc"
         const val COLLAPSE_ID = "testCollapseId"
         const val COLOR = R.color.darker_gray
         const val MULTICHANNEL_ID = "test multiChannel id"
         const val SID = "test sid"
 
-        val IMAGE: Bitmap = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
         val SMALL_NOTIFICATION_ICON =
             com.emarsys.mobileengage.R.drawable.default_small_notification_icon
         val NOTIFICATION_METHOD = NotificationMethod(COLLAPSE_ID, NotificationOperation.INIT)
@@ -110,7 +111,7 @@ class MessagingServiceUtilsTest {
         val channelSettings = ChannelSettings(channelId = CHANNEL_ID)
         mockFileDownloader = mock<FileDownloader>().apply {
             whenever(download(any(), any())).thenAnswer {
-                if (it.arguments[0] == IMAGE_URL || it.arguments[0] == HTML_URL) {
+                if (it.arguments[0] == IMAGE_URL || it.arguments[0] == ICON_URL || it.arguments[0] == HTML_URL) {
                     val fileContent = getTargetContext().resources.openRawResource(
                         getTargetContext().resources.getIdentifier(
                             "test_image",
@@ -217,7 +218,7 @@ class MessagingServiceUtilsTest {
     @Test
     fun testHandleMessage_shouldUse_V1_mapper_withOldNotificationStructure() {
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -285,7 +286,7 @@ class MessagingServiceUtilsTest {
     @Test
     fun createNotification_shouldNotBeNull() {
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -347,7 +348,7 @@ class MessagingServiceUtilsTest {
     @Test
     fun createNotification_withBigTextStyle_withTitle_withoutBody() {
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -412,7 +413,7 @@ class MessagingServiceUtilsTest {
     @Test
     fun testCreateNotification_withBigPictureStyle_whenImageIsAvailable() {
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -478,7 +479,7 @@ class MessagingServiceUtilsTest {
     fun testCreateNotification_setsNotificationColor() {
         val colorResourceId = R.color.darker_gray
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -509,7 +510,7 @@ class MessagingServiceUtilsTest {
     fun testCreateNotification_doesNotSet_notificationColor_whenCodeIsInvalid() {
         val invalidColor = 0
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -538,7 +539,7 @@ class MessagingServiceUtilsTest {
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     fun testCreateNotification_withChannelId() {
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -567,7 +568,7 @@ class MessagingServiceUtilsTest {
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     fun testCreateNotification_withoutChannelId() {
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -583,14 +584,15 @@ class MessagingServiceUtilsTest {
         )
 
         val notificationSettings: NotificationSettings = mock()
-        val deviceInfo: DeviceInfo = mock()
+        val mockDeviceInfo: DeviceInfo = mock()
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
-        whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
-        whenever(deviceInfo.isDebugMode).thenReturn(false)
+        whenever(mockDeviceInfo.notificationSettings).thenReturn(notificationSettings)
+        whenever(mockDeviceInfo.isDebugMode).thenReturn(false)
+        whenever(mockDeviceInfo.displayMetrics).thenReturn(Resources.getSystem().displayMetrics)
         val result = MessagingServiceUtils.createNotification(
             context,
-            deviceInfo,
+            mockDeviceInfo,
             mockFileDownloader,
             notificationData
         )
@@ -602,7 +604,7 @@ class MessagingServiceUtilsTest {
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     fun testCreateNotification_withoutChannelId_inDebugMode() {
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -618,14 +620,15 @@ class MessagingServiceUtilsTest {
         )
 
         val notificationSettings: NotificationSettings = mock()
-        val deviceInfo: DeviceInfo = mock()
+        val mockDeviceInfo: DeviceInfo = mock()
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
-        whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
-        whenever(deviceInfo.isDebugMode).thenReturn(true)
+        whenever(mockDeviceInfo.notificationSettings).thenReturn(notificationSettings)
+        whenever(mockDeviceInfo.isDebugMode).thenReturn(true)
+        whenever(mockDeviceInfo.displayMetrics).thenReturn(Resources.getSystem().displayMetrics)
         val result = MessagingServiceUtils.createNotification(
             context,
-            deviceInfo,
+            mockDeviceInfo,
             mockFileDownloader,
             notificationData
         )
@@ -655,7 +658,7 @@ class MessagingServiceUtilsTest {
             )
 
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -697,7 +700,7 @@ class MessagingServiceUtilsTest {
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     fun testCreateNotification_returnDebugMessage_whenThereIsChannelIdMismatch() {
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -713,14 +716,15 @@ class MessagingServiceUtilsTest {
         )
 
         val notificationSettings: NotificationSettings = mock()
-        val deviceInfo: DeviceInfo = mock()
+        val mockDeviceInfo: DeviceInfo = mock()
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
-        whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
-        whenever(deviceInfo.isDebugMode).thenReturn(true)
+        whenever(mockDeviceInfo.notificationSettings).thenReturn(notificationSettings)
+        whenever(mockDeviceInfo.isDebugMode).thenReturn(true)
+        whenever(mockDeviceInfo.displayMetrics).thenReturn(Resources.getSystem().displayMetrics)
         val result = MessagingServiceUtils.createNotification(
             context,
-            deviceInfo,
+            mockDeviceInfo,
             mockFileDownloader,
             notificationData
         )
@@ -730,7 +734,7 @@ class MessagingServiceUtilsTest {
     @Test
     fun testCreateNotification_returnOriginalTitle_evenIfThereIsChannelMismatch_but_weAreNotInDebugMode() {
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -746,14 +750,16 @@ class MessagingServiceUtilsTest {
         )
 
         val notificationSettings: NotificationSettings = mock()
-        val deviceInfo: DeviceInfo = mock()
+        val displayMetrics: DisplayMetrics = Resources.getSystem().displayMetrics
+        val mockDeviceInfo: DeviceInfo = mock()
         val channelSettings = ChannelSettings(channelId = "notMatchingChannelId")
         whenever(notificationSettings.channelSettings).thenReturn(listOf(channelSettings))
-        whenever(deviceInfo.notificationSettings).thenReturn(notificationSettings)
-        whenever(deviceInfo.isDebugMode).thenReturn(false)
+        whenever(mockDeviceInfo.notificationSettings).thenReturn(notificationSettings)
+        whenever(mockDeviceInfo.isDebugMode).thenReturn(false)
+        whenever(mockDeviceInfo.displayMetrics).thenReturn(displayMetrics)
         val result = MessagingServiceUtils.createNotification(
             context,
-            deviceInfo,
+            mockDeviceInfo,
             mockFileDownloader,
             notificationData
         )
@@ -849,7 +855,7 @@ class MessagingServiceUtilsTest {
     @Test
     fun testCreateSilentPushCommands_shouldReturnEmptyList_whenNoActionIsDefined() {
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -873,7 +879,7 @@ class MessagingServiceUtilsTest {
     @Test
     fun testCreateSilentPushCommands_shouldCreateSilentNotificationCommand_whenMessageIsSilentAndContainsCampaignId() {
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -933,7 +939,7 @@ class MessagingServiceUtilsTest {
         ).toString()
 
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -991,7 +997,7 @@ class MessagingServiceUtilsTest {
             )
         ).toString()
         val notificationData = NotificationData(
-            IMAGE,
+            IMAGE_URL,
             null,
             null,
             TITLE,
@@ -1035,7 +1041,7 @@ class MessagingServiceUtilsTest {
         }
         mockBuilder.styleNotification(
             NotificationData(
-                IMAGE,
+                IMAGE_URL,
                 null,
                 "THUMBNAIL",
                 TITLE,
@@ -1048,7 +1054,9 @@ class MessagingServiceUtilsTest {
                 notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
                 actions = null,
                 inapp = null
-            )
+            ),
+            mockFileDownloader,
+            deviceInfo
         )
 
         verify(mockBuilder).setStyle(any<NotificationCompat.BigTextStyle>())
@@ -1078,7 +1086,9 @@ class MessagingServiceUtilsTest {
                 notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
                 actions = null,
                 inapp = null
-            )
+            ),
+            mockFileDownloader,
+            deviceInfo
         )
 
         verify(mockBuilder).setStyle(any<NotificationCompat.BigTextStyle>())
@@ -1096,12 +1106,11 @@ class MessagingServiceUtilsTest {
             on { setLargeIcon(org.mockito.kotlin.any()) } doReturn it
             on { setStyle(org.mockito.kotlin.any()) } doReturn it
         }
-        val icon = Bitmap.createBitmap(51, 51, Bitmap.Config.ARGB_8888)
 
         mockBuilder.styleNotification(
             NotificationData(
-                IMAGE,
-                icon,
+                IMAGE_URL,
+                ICON_URL,
                 this,
                 TITLE,
                 BODY,
@@ -1113,7 +1122,9 @@ class MessagingServiceUtilsTest {
                 notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
                 actions = null,
                 inapp = null
-            )
+            ),
+            mockFileDownloader,
+            deviceInfo
         )
 
         verify(mockBuilder).setStyle(any<T>())

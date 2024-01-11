@@ -13,6 +13,7 @@ import com.emarsys.core.api.notification.NotificationSettings
 import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.util.AndroidVersionUtils
 import com.emarsys.core.util.FileDownloader
+import com.emarsys.core.util.ImageUtils
 import com.emarsys.core.validate.JsonObjectValidator
 import com.emarsys.mobileengage.api.push.NotificationInformation
 import com.emarsys.mobileengage.di.mobileEngage
@@ -129,7 +130,7 @@ object MessagingServiceUtils {
                 fileDownloader,
                 notifData
             )
-            .styleNotification(notifData)
+            .styleNotification(notifData, fileDownloader, deviceInfo)
             .build()
     }
 
@@ -202,13 +203,19 @@ object MessagingServiceUtils {
         return this
     }
 
-    fun NotificationCompat.Builder.styleNotification(notificationData: NotificationData): NotificationCompat.Builder {
+    fun NotificationCompat.Builder.styleNotification(
+        notificationData: NotificationData,
+        fileDownloader: FileDownloader,
+        deviceInfo: DeviceInfo
+    ): NotificationCompat.Builder {
+        val image =  ImageUtils.loadOptimizedBitmap(fileDownloader, notificationData.imageUrl, deviceInfo)
+        val iconImage = ImageUtils.loadOptimizedBitmap(fileDownloader, notificationData.iconImageUrl, deviceInfo)
         return when (notificationData.style) {
-            "MESSAGE" -> MessageStyle.apply(this, notificationData)
-            "THUMBNAIL" -> ThumbnailStyle.apply(this, notificationData)
-            "BIG_PICTURE" -> BigPictureStyle.apply(this, notificationData)
-            "BIG_TEXT" -> BigTextStyle.apply(this, notificationData)
-            else -> DefaultStyle.apply(this, notificationData)
+            "MESSAGE" -> MessageStyle.apply(this, notificationData, image, iconImage)
+            "THUMBNAIL" -> ThumbnailStyle.apply(this, notificationData, image, iconImage)
+            "BIG_PICTURE" -> BigPictureStyle.apply(this, notificationData, image, iconImage)
+            "BIG_TEXT" -> BigTextStyle.apply(this, notificationData, image, iconImage)
+            else -> DefaultStyle.apply(this, notificationData, image, iconImage)
         }
     }
 

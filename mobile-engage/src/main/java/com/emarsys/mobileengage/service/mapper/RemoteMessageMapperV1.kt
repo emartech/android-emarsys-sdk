@@ -2,11 +2,8 @@ package com.emarsys.mobileengage.service.mapper
 
 import android.content.Context
 import com.emarsys.core.Mockable
-import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.resource.MetaDataReader
-import com.emarsys.core.util.FileDownloader
-import com.emarsys.core.util.ImageUtils
 import com.emarsys.core.util.getNullableString
 import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationMethod
@@ -21,24 +18,14 @@ import org.json.JSONObject
 class RemoteMessageMapperV1(
     private val metaDataReader: MetaDataReader,
     private val context: Context,
-    private val fileDownloader: FileDownloader,
-    private val deviceInfo: DeviceInfo,
     private val uuidProvider: UUIDProvider
 ) : RemoteMessageMapper {
 
     override fun map(remoteMessageData: Map<String, String?>): NotificationData {
         val resourceIds = getNotificationResourceIds()
 
-        val image = ImageUtils.loadOptimizedBitmap(
-            fileDownloader,
-            remoteMessageData["image_url"],
-            deviceInfo
-        )
-        val iconImage = ImageUtils.loadOptimizedBitmap(
-            fileDownloader,
-            remoteMessageData["icon_url"],
-            deviceInfo
-        )
+        val image = remoteMessageData["image_url"]
+        val iconImage = remoteMessageData["icon_url"]
         val title = remoteMessageData["title"]
         val ems = extractEms(remoteMessageData)
         val style = ems.optString("style")

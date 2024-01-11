@@ -9,7 +9,6 @@ import java.io.File
 object ImageUtils {
     private const val RETRY_COUNT = 3
 
-    @JvmStatic
     fun loadOptimizedBitmap(fileDownloader: FileDownloader, imageUrl: String?, deviceInfo: DeviceInfo): Bitmap? {
         var result: Bitmap? = null
         if (isImageUrlValid(imageUrl)) {

@@ -1,11 +1,8 @@
 package com.emarsys.mobileengage.service.mapper
 
 import android.content.Context
-import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.resource.MetaDataReader
-import com.emarsys.core.util.FileDownloader
-import com.emarsys.core.util.ImageUtils
 import com.emarsys.mobileengage.service.NotificationData
 import com.emarsys.mobileengage.service.NotificationMethod
 import com.emarsys.mobileengage.service.NotificationOperation
@@ -18,23 +15,13 @@ import org.json.JSONObject
 class RemoteMessageMapperV2(
     private val metaDataReader: MetaDataReader,
     private val context: Context,
-    private val fileDownloader: FileDownloader,
-    private val deviceInfo: DeviceInfo,
     private val uuidProvider: UUIDProvider
 ) : RemoteMessageMapper {
     override fun map(remoteMessageData: Map<String, String?>): NotificationData {
         val resourceIds = getNotificationResourceIds()
 
-        val image = ImageUtils.loadOptimizedBitmap(
-            fileDownloader,
-            remoteMessageData["notification.image"],
-            deviceInfo
-        )
-        val iconImage = ImageUtils.loadOptimizedBitmap(
-            fileDownloader,
-            remoteMessageData["notification.icon"],
-            deviceInfo
-        )
+        val image = remoteMessageData["notification.image"]
+        val iconImage = remoteMessageData["notification.icon"]
         val title = remoteMessageData["notification.title"]
         val style = remoteMessageData["ems.style"]
         val campaignId = remoteMessageData["ems.multichannel_id"]

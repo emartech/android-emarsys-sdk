@@ -1,13 +1,12 @@
 package com.emarsys.mobileengage.service
 
-import android.graphics.Bitmap
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class NotificationData(
-    val image: Bitmap? = null,
-    val iconImage: Bitmap? = null,
+    val imageUrl: String? = null,
+    val iconImageUrl: String? = null,
     val style: String? = null,
     val title: String? = null,
     val body: String? = null,

@@ -883,8 +883,6 @@ open class DefaultEmarsysComponent(config: EmarsysConfig) : EmarsysComponent {
         RemoteMessageMapperFactory(
             MetaDataReader(),
             config.application as Context,
-            fileDownloader,
-            deviceInfo,
             uuidProvider,
         )
     }

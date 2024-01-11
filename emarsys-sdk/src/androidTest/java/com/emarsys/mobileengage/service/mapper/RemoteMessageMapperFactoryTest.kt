@@ -1,10 +1,8 @@
 package com.emarsys.mobileengage.service.mapper
 
 import android.content.Context
-import com.emarsys.core.device.DeviceInfo
 import com.emarsys.core.provider.uuid.UUIDProvider
 import com.emarsys.core.resource.MetaDataReader
-import com.emarsys.core.util.FileDownloader
 import com.emarsys.testUtil.InstrumentationRegistry
 import io.kotlintest.shouldBe
 import org.junit.Before
@@ -15,8 +13,6 @@ import org.mockito.kotlin.mock
 class RemoteMessageMapperFactoryTest {
     private lateinit var mockMetaDataReader: MetaDataReader
     private lateinit var context: Context
-    private lateinit var mockFileDownloader: FileDownloader
-    private lateinit var mockDeviceInfo: DeviceInfo
     private lateinit var mockUuidProvider: UUIDProvider
     private lateinit var remoteMessageMapperFactory: RemoteMessageMapperFactory
 
@@ -24,11 +20,13 @@ class RemoteMessageMapperFactoryTest {
     fun init() {
         mockMetaDataReader = mock()
         context = InstrumentationRegistry.getTargetContext()
-        mockFileDownloader = mock()
-        mockDeviceInfo = mock()
         mockUuidProvider = mock()
 
-        remoteMessageMapperFactory = RemoteMessageMapperFactory(mockMetaDataReader, context, mockFileDownloader, mockDeviceInfo, mockUuidProvider)
+        remoteMessageMapperFactory = RemoteMessageMapperFactory(
+            mockMetaDataReader,
+            context,
+            mockUuidProvider
+        )
     }
 
     @Test
