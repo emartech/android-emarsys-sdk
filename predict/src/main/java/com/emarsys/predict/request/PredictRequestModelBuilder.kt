@@ -93,6 +93,11 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
         if (availabilityZone != null) {
             uriBuilder.appendQueryParameter("az", availabilityZone)
         }
+
+        if (this.filters != null) {
+            uriBuilder.appendQueryParameter("ex", createRecommendationFilterQueryValues())
+        }
+
         val url: String = if (RecommendationLogic.PERSONAL == logic.logicName
                 || RecommendationLogic.HOME == logic.logicName) {
             createUrlWithVariants(logic)
@@ -106,10 +111,6 @@ class PredictRequestModelBuilder(private val requestContext: PredictRequestConte
 
     private fun createUrlWithData(logic: Logic): String {
         uriBuilder.appendQueryParameter("f", "f:${logic.logicName},l:$limit,o:0")
-
-        if (this.filters != null) {
-            uriBuilder.appendQueryParameter("ex", createRecommendationFilterQueryValues())
-        }
 
         val data = logic.data.toMutableMap()
 
