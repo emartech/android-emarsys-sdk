@@ -9,7 +9,6 @@ import com.emarsys.mobileengage.di.setupMobileEngageComponent
 import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
 import com.emarsys.mobileengage.service.NotificationData
-import com.emarsys.mobileengage.service.NotificationMethod
 import com.emarsys.mobileengage.service.NotificationOperation
 import com.emarsys.testUtil.FileTestUtils
 import com.emarsys.testUtil.InstrumentationRegistry
@@ -52,7 +51,8 @@ class PreloadedInappHandlerCommandTest {
             sid = SID,
             smallIconResourceId = SMALL_RESOURCE_ID,
             colorResourceId = COLOR_RESOURCE_ID,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = NotificationOperation.INIT.name,
             actions = null,
             inapp = null
         )

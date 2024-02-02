@@ -4,7 +4,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import com.emarsys.mobileengage.service.NotificationData
-import com.emarsys.mobileengage.service.NotificationMethod
 import com.emarsys.mobileengage.service.NotificationOperation
 import com.emarsys.testUtil.TimeoutUtils
 import org.junit.Rule
@@ -25,6 +24,7 @@ class DismissNotificationCommandTest {
         const val SID = "test sid"
         const val SMALL_RESOURCE_ID = 123
         const val COLOR_RESOURCE_ID = 456
+        val OPERATION = NotificationOperation.INIT.name
         val notificationData = NotificationData(
             null,
             null,
@@ -36,7 +36,8 @@ class DismissNotificationCommandTest {
             sid = SID,
             smallIconResourceId = SMALL_RESOURCE_ID,
             colorResourceId = COLOR_RESOURCE_ID,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )

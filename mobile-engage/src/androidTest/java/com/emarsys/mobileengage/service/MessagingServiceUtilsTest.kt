@@ -60,14 +60,14 @@ class MessagingServiceUtilsTest {
         const val IMAGE_URL = "https://emarsys.com/image"
         const val ICON_URL = "https://emarsys.com/icon_image"
         const val HTML_URL = "https://hu.wikipedia.org/wiki/Mont_Blanc"
-        const val COLLAPSE_ID = "testCollapseId"
         const val COLOR = R.color.darker_gray
         const val MULTICHANNEL_ID = "test multiChannel id"
         const val SID = "test sid"
+        const val COLLAPSE_ID = "testCollapseId"
+        val OPERATION = NotificationOperation.INIT.name
 
         val SMALL_NOTIFICATION_ICON =
             com.emarsys.mobileengage.R.drawable.default_small_notification_icon
-        val NOTIFICATION_METHOD = NotificationMethod(COLLAPSE_ID, NotificationOperation.INIT)
         val EMPTY_NOTIFICATION_DATA: NotificationData = NotificationData(
             null,
             null,
@@ -79,7 +79,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NOTIFICATION_METHOD,
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -228,9 +229,10 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
         )
 
         val ems = JSONObject()
@@ -296,7 +298,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -322,9 +325,10 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
-            inapp = null
+            inapp = null,
         )
 
         val input: MutableMap<String, String> = HashMap()
@@ -358,7 +362,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -393,7 +398,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -423,7 +429,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -456,7 +463,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -489,7 +497,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = colorResourceId,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -520,7 +529,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = invalidColor,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -549,7 +559,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -578,7 +589,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -614,7 +626,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -668,7 +681,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = actions.toString(),
             inapp = null
         )
@@ -710,7 +724,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -744,7 +759,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -865,7 +881,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -889,7 +906,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = null,
             inapp = null
         )
@@ -949,7 +967,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = actions,
             inapp = null
         )
@@ -1007,7 +1026,8 @@ class MessagingServiceUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_NOTIFICATION_ICON,
             colorResourceId = COLOR,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
             actions = actions,
             inapp = null
         )
@@ -1051,7 +1071,8 @@ class MessagingServiceUtilsTest {
                 sid = SID,
                 smallIconResourceId = SMALL_NOTIFICATION_ICON,
                 colorResourceId = COLOR,
-                notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+                collapseId = COLLAPSE_ID,
+                operation = OPERATION,
                 actions = null,
                 inapp = null
             ),
@@ -1083,7 +1104,8 @@ class MessagingServiceUtilsTest {
                 sid = SID,
                 smallIconResourceId = SMALL_NOTIFICATION_ICON,
                 colorResourceId = COLOR,
-                notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+                collapseId = COLLAPSE_ID,
+                operation = OPERATION,
                 actions = null,
                 inapp = null
             ),
@@ -1119,7 +1141,8 @@ class MessagingServiceUtilsTest {
                 sid = SID,
                 smallIconResourceId = SMALL_NOTIFICATION_ICON,
                 colorResourceId = COLOR,
-                notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+                collapseId = COLLAPSE_ID,
+                operation = OPERATION,
                 actions = null,
                 inapp = null
             ),

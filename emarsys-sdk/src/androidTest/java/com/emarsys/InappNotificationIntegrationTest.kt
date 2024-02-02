@@ -15,7 +15,6 @@ import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.iam.OverlayInAppPresenter
 import com.emarsys.mobileengage.service.IntentUtils
 import com.emarsys.mobileengage.service.NotificationData
-import com.emarsys.mobileengage.service.NotificationMethod
 import com.emarsys.mobileengage.service.NotificationOperation
 import com.emarsys.testUtil.ConnectionTestUtils
 import com.emarsys.testUtil.DatabaseTestUtils
@@ -137,7 +136,8 @@ class InappNotificationIntegrationTest {
             sid = SID,
             smallIconResourceId = 123,
             colorResourceId = 456,
-            notificationMethod = NotificationMethod("testCollapseId", NotificationOperation.UPDATE),
+            collapseId = "collapseId",
+            operation = NotificationOperation.INIT.name,
             actions = null,
             defaultAction = null,
             inapp = inappPayload

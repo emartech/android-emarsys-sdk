@@ -151,14 +151,13 @@ class RemoteMessageMapperV1Test {
 
     @Test
     fun testMap_whenNotificationMethodIsSet() {
-        val notificationMethod =
-            NotificationMethod("testNotificationId", NotificationOperation.UPDATE)
+        val collapseId = "testNotificationId"
 
         val input: MutableMap<String, String> = createRemoteMessage()
         input["image_url"] = IMAGE_URL
         input["channel_id"] = CHANNEL_ID
         val notificationMethodJson = JSONObject()
-        notificationMethodJson.put("collapseId", "testNotificationId")
+        notificationMethodJson.put("collapseId", collapseId)
         notificationMethodJson.put("operation", "UPDATE")
         val ems = JSONObject()
         ems.put("notificationMethod", notificationMethodJson)
@@ -166,7 +165,8 @@ class RemoteMessageMapperV1Test {
 
         val notificationData = remoteMessageMapperV1.map(input)
 
-        notificationData.notificationMethod shouldBe notificationMethod
+        notificationData.collapseId shouldBe collapseId
+        notificationData.operation shouldBe NotificationOperation.UPDATE.name
     }
 
     @Test
@@ -179,7 +179,7 @@ class RemoteMessageMapperV1Test {
 
         val notificationData = remoteMessageMapperV1.map(input)
 
-        notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
+        notificationData.operation shouldBe NotificationOperation.INIT.name
     }
 
     @Test
@@ -195,7 +195,7 @@ class RemoteMessageMapperV1Test {
 
         val notificationData = remoteMessageMapperV1.map(input)
 
-        notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
+        notificationData.operation shouldBe NotificationOperation.INIT.name
     }
 
     @Test
@@ -212,7 +212,7 @@ class RemoteMessageMapperV1Test {
 
         val notificationData = remoteMessageMapperV1.map(input)
 
-        notificationData.notificationMethod.operation shouldBe NotificationOperation.UPDATE
+        notificationData.operation shouldBe NotificationOperation.UPDATE.name
     }
 
     @Test
@@ -228,7 +228,7 @@ class RemoteMessageMapperV1Test {
 
         val notificationData = remoteMessageMapperV1.map(input)
 
-        notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
+        notificationData.operation shouldBe NotificationOperation.INIT.name
     }
 
     @Test

@@ -11,7 +11,7 @@ class DismissNotificationCommand(
 
     override fun run() {
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationData?.notificationMethod?.collapseId?.let {
+        notificationData?.collapseId?.let {
             manager.cancel(it, it.hashCode())
         }
     }

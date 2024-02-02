@@ -41,7 +41,8 @@ class IntentUtilsTest {
             sid = SID,
             smallIconResourceId = SMALL_RESOURCE_ID,
             colorResourceId = COLOR_RESOURCE_ID,
-            notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE),
+            collapseId = COLLAPSE_ID,
+            operation = NotificationOperation.INIT.name,
             actions = null,
             inapp = null
         )

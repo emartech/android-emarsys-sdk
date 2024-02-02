@@ -27,14 +27,17 @@ class NotificationActionUtilsTest {
         const val COLOR_RESOURCE_ID = 456
         const val SID = "test sid"
         const val MULTICHANNEL_ID = "test multichannel id"
+        const val COLLAPSE_ID = "testCollapseId"
+        val OPERATION = NotificationOperation.INIT.name
         val testNotificationData = NotificationData(
             campaignId = MULTICHANNEL_ID,
             sid = SID,
             smallIconResourceId = SMALL_RESOURCE_ID,
             colorResourceId = COLOR_RESOURCE_ID,
-            notificationMethod = NotificationMethod("123", NotificationOperation.INIT),
-            inapp = null,
-            actions = null
+            collapseId = COLLAPSE_ID,
+            operation = OPERATION,
+            actions = null,
+            inapp = null
         )
     }
 

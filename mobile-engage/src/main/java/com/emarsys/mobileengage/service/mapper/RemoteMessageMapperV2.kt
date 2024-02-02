@@ -34,20 +34,21 @@ class RemoteMessageMapperV2(
         val inapp = remoteMessageData["ems.inapp"]
 
         return NotificationData(
-            image,
-            iconImage,
-            style,
-            title,
-            body,
-            channelId,
-            campaignId,
-            sid,
-            resourceIds.smallIconResourceId,
-            resourceIds.colorResourceId,
-            notificationMethod,
-            actions,
-            defaultAction,
-            inapp
+            imageUrl = image,
+            iconImageUrl = iconImage,
+            style = style,
+            title = title,
+            body = body,
+            channelId = channelId,
+            campaignId = campaignId,
+            sid = sid,
+            smallIconResourceId = resourceIds.smallIconResourceId,
+            colorResourceId = resourceIds.colorResourceId,
+            collapseId = notificationMethod.collapseId,
+            operation = notificationMethod.operation.name,
+            actions = actions,
+            defaultAction = defaultAction,
+            inapp = inapp
         )
     }
 

@@ -49,14 +49,14 @@ object MessagingServiceUtils {
         } else {
             val notificationManager =
                 (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-            val collapseId = notificationData.notificationMethod.collapseId
+            val collapseId = notificationData.collapseId
             val notification = createNotification(
                 context.applicationContext,
                 deviceInfo,
                 fileDownloader,
                 notificationData
             )
-            when (notificationData.notificationMethod.operation) {
+            when (NotificationOperation.valueOf(notificationData.operation)) {
                 NotificationOperation.INIT, NotificationOperation.UPDATE -> {
                     notificationManager.notify(collapseId, collapseId.hashCode(), notification)
                 }

@@ -13,7 +13,15 @@ import com.emarsys.mobileengage.di.tearDownMobileEngageComponent
 import com.emarsys.mobileengage.event.CacheableEventHandler
 import com.emarsys.mobileengage.event.EventServiceInternal
 import com.emarsys.mobileengage.fake.FakeMobileEngageDependencyContainer
-import com.emarsys.mobileengage.notification.command.*
+import com.emarsys.mobileengage.notification.command.AppEventCommand
+import com.emarsys.mobileengage.notification.command.CompositeCommand
+import com.emarsys.mobileengage.notification.command.CustomEventCommand
+import com.emarsys.mobileengage.notification.command.DismissNotificationCommand
+import com.emarsys.mobileengage.notification.command.LaunchApplicationCommand
+import com.emarsys.mobileengage.notification.command.NotificationInformationCommand
+import com.emarsys.mobileengage.notification.command.OpenExternalUrlCommand
+import com.emarsys.mobileengage.notification.command.TrackActionClickCommand
+import com.emarsys.mobileengage.notification.command.TrackMessageOpenCommand
 import com.emarsys.mobileengage.push.PushInternal
 import com.emarsys.mobileengage.service.IntentUtils
 import com.emarsys.mobileengage.service.NotificationData
@@ -49,7 +57,7 @@ class NotificationCommandFactoryTest {
         const val MULTICHANNEL_ID = "test multiChannel id"
         const val SMALL_RESOURCE_ID = 123
         const val COLOR_RESOURCE_ID = 456
-        val notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.UPDATE)
+        val notificationMethod = NotificationMethod(COLLAPSE_ID, NotificationOperation.INIT)
         val notificationData = NotificationData(
             null,
             null,
@@ -61,7 +69,8 @@ class NotificationCommandFactoryTest {
             sid = SID,
             smallIconResourceId = SMALL_RESOURCE_ID,
             colorResourceId = COLOR_RESOURCE_ID,
-            notificationMethod = notificationMethod,
+            collapseId = COLLAPSE_ID,
+            operation = NotificationOperation.INIT.name,
             actions = null,
             defaultAction = null,
             inapp = null
@@ -422,7 +431,8 @@ class NotificationCommandFactoryTest {
                 "sid" to SID,
                 "smallIconResourceId" to SMALL_RESOURCE_ID,
                 "colorResourceId" to COLOR_RESOURCE_ID,
-                "notificationMethod" to notificationMethod.toString(),
+                "collapseId" to COLLAPSE_ID,
+                "operation" to notificationMethod.operation.name,
                 "actions" to JSONArray(
                     listOf(
                         JSONObject(

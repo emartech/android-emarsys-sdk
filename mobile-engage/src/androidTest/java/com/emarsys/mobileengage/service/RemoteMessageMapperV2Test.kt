@@ -154,16 +154,15 @@ class RemoteMessageMapperV2Test {
 
     @Test
     fun testMap_whenNotificationMethodIsSet() {
-        val notificationMethod =
-            NotificationMethod("testNotificationId", NotificationOperation.UPDATE)
-
+        val collapseId =  "testNotificationId"
         val input: MutableMap<String, String> = createRemoteMessage()
-        input["ems.notification_method.collapse_key"] = "testNotificationId"
+        input["ems.notification_method.collapse_key"] = collapseId
         input["ems.notification_method.operation"] = "UPDATE"
 
         val notificationData = remoteMessageMapperV2.map(input)
 
-        notificationData.notificationMethod shouldBe notificationMethod
+        notificationData.collapseId shouldBe collapseId
+        notificationData.operation shouldBe NotificationOperation.UPDATE.name
     }
 
     @Test
@@ -172,7 +171,7 @@ class RemoteMessageMapperV2Test {
 
         val notificationData = remoteMessageMapperV2.map(input)
 
-        notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
+        notificationData.operation shouldBe NotificationOperation.INIT.name
     }
 
     @Test
@@ -182,7 +181,7 @@ class RemoteMessageMapperV2Test {
 
         val notificationData = remoteMessageMapperV2.map(input)
 
-        notificationData.notificationMethod.operation shouldBe NotificationOperation.INIT
+        notificationData.operation shouldBe NotificationOperation.INIT.name
     }
 
     @Test

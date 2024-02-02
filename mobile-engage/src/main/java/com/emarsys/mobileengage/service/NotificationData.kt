@@ -15,7 +15,8 @@ data class NotificationData(
     val sid: String,
     val smallIconResourceId: Int,
     val colorResourceId: Int,
-    val notificationMethod: NotificationMethod,
+    val collapseId: String,
+    val operation: String,
     val actions: String? = null,
     val defaultAction: String? = null,
     val inapp: String? = null
@@ -25,11 +26,10 @@ enum class NotificationOperation {
     INIT, UPDATE, DELETE
 }
 
-@Parcelize
 data class NotificationMethod(
     val collapseId: String,
     val operation: NotificationOperation
-) : Parcelable
+)
 
 data class NotificationResourceIds(
     val smallIconResourceId: Int,
