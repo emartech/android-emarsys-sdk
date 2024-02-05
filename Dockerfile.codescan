@@ -15,4 +15,4 @@ RUN git reset --hard
 RUN git checkout dev
 
 RUN ./gradlew build -x :sample:build -x lint --stacktrace --info --no-watch-fs
-RUN cp ~/.gradle/caches /workspace/source
+RUN cp -r ~/.gradle/caches /workspace/source
