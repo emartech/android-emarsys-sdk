@@ -15,7 +15,4 @@ RUN git reset --hard
 RUN git checkout dev
 
 RUN ./gradlew build -x :sample:build -x lint --stacktrace --info --no-watch-fs
-
-RUN ./gradlew :emarsys-sdk:dependencies > dependencies.txt
-
-RUN cat dependencies.txt
+RUN cp ~/.gradle/caches /workspace/source
