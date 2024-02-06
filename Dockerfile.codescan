@@ -7,4 +7,4 @@ RUN echo $ANDROID_HOME > local.properties
 
 WORKDIR /workspace/source
 
-CMD ./gradlew build -x :sample:build -x lint -x test --stacktrace --info --no-watch-fs --no-daemon
+CMD ./gradlew clean :emarsys-sdk:dependencies  > dependencyGraph.txt
