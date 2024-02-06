@@ -7,4 +7,5 @@ dependencies {
 }
 android {
     namespace "com.emarsys.predict"
+    sourceCompatibility = 17
 }

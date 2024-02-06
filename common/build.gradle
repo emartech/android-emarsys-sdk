@@ -4,4 +4,5 @@ dependencies {
 }
 android {
     namespace "com.emarsys.common"
+    sourceCompatibility = 17
 }

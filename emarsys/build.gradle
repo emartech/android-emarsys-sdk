@@ -12,4 +12,5 @@ dependencies {
 }
 android {
     namespace "com.emarsys.inner"
+    sourceCompatibility = 17
 }

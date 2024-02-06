@@ -10,4 +10,5 @@ dependencies {
 }
 android {
     namespace "com.emarsys.huawei"
+    sourceCompatibility = 17
 }

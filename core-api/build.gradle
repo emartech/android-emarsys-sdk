@@ -10,4 +10,5 @@ dependencies {
 }
 android {
     namespace "com.emarsys.core.api"
+    sourceCompatibility = 17
 }

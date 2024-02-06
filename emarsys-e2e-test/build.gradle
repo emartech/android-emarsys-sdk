@@ -8,6 +8,7 @@ dependencies {
 }
 android {
     namespace "com.emarsys.test.e2e"
+    sourceCompatibility = 17
 }
 
 //task enableMockLocationForTestsOnDevice(type: Exec, dependsOn: 'installDebugAndroidTest') {

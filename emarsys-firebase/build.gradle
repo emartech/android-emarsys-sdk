@@ -10,4 +10,5 @@ dependencies {
 }
 android {
     namespace "com.emarsys.firebase"
+    sourceCompatibility = 17
 }

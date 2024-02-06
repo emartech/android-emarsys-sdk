@@ -4,6 +4,7 @@ apply plugin: 'kotlin-android'
 android {
     namespace = "com.emarsys.testUtil"
     compileSdk Config.targetApiLevel
+    sourceCompatibility = 17
     defaultConfig {
         minSdkVersion Config.minApiLevel
         targetSdkVersion Config.targetApiLevel

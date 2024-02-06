@@ -8,6 +8,7 @@ android {
     namespace = "com.emarsys.sample"
     buildToolsVersion Config.buildToolsVersion
     compileSdkVersion Config.targetApiLevel
+    sourceCompatibility = 17
     defaultConfig {
         applicationId "com.emarsys.sample"
         minSdkVersion 24
