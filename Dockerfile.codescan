@@ -3,4 +3,4 @@ USER root
 
 WORKDIR /workspace/source
 
-RUN ./gradlew build -x :sample:build -x lint -x test --stacktrace --info --no-watch-fs --no-daemon
+CMD ./gradlew build -x :sample:build -x lint -x test --stacktrace --info --no-watch-fs --no-daemon
