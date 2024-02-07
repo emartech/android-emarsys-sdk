@@ -17,7 +17,7 @@ ext {
     git = Grgit.open(currentDir: projectDir)
 
     if ((System.env.BLACKDUCK == null ? false : System.env.BLACKDUCK) == false) {
-        git.fetch { remote = "git@github.com:emartech/android-emarsys-sdk.git" }
+        git.fetch(refSpecs: ["refs/heads/master:refs/heads/master"])
     }
 
     gitVersionName = System.env.RELEASE_VERSION == null ? git.describe() : System.env.RELEASE_VERSION
