@@ -1,0 +1,10 @@
+FROM eu.gcr.io/ems-mobile-sdk/android-container:latest
+USER root
+
+RUN export ANDROID_HOME=android
+RUN export BLACKDUCK=true
+RUN echo $ANDROID_HOME > local.properties
+
+WORKDIR /workspace/source
+
+CMD ./gradlew clean :emarsys-sdk:dependencies  > dependencyGraph.txt
