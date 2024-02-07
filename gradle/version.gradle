@@ -16,16 +16,8 @@ import org.ajoberstar.grgit.Grgit
 ext {
     git = Grgit.open(currentDir: projectDir)
 
-    // add origin for blackduck
-    if(!git.remote.list()*.name.contains("origin")) {
-        git.remote.add {
-            name = "origin"
-            url = "git@github.com:emartech/android-emarsys-sdk.git"
-        }
-    }
-
     if ((System.env.BLACKDUCK == null ? false : System.env.BLACKDUCK) == false) {
-        git.fetch()
+        git.fetch { remote = "git@github.com:emartech/android-emarsys-sdk.git" }
     }
 
     gitVersionName = System.env.RELEASE_VERSION == null ? git.describe() : System.env.RELEASE_VERSION
