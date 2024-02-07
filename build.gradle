@@ -22,10 +22,6 @@ buildscript {
     }
 }
 
-
-// for blackduck:
-// sourceCompatibility = 17
-
 apply from: 'gradle/dev.gradle'
 apply from: 'gradle/version.gradle'
 apply from: 'gradle/common.gradle'
