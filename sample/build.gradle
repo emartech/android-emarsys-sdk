@@ -127,21 +127,7 @@ dependencies {
     implementation "com.google.code.gson:gson:2.10.1"
 
     debugImplementation "androidx.compose.ui:ui-tooling:1.6.0"
-
-    testImplementation 'junit:junit:4.13.2'
-
-    androidTestImplementation "androidx.test.ext:junit:1.1.5"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:1.6.0"
-    androidTestImplementation 'androidx.test:rules:1.5.0'
-    androidTestImplementation 'androidx.test:runner:1.5.2'
-    androidTestImplementation('com.adevinta.android:barista:4.3.0') {
-        exclude group: 'org.jetbrains.kotlin'
-    }
-    androidTestImplementation 'androidx.test.espresso:espresso-web:3.5.1'
-    androidTestImplementation 'io.kotlintest:kotlintest-runner-junit4:3.4.2'
 }
-
 
 task startApp(type: Exec, dependsOn: 'installDebug') {
     commandLine 'adb', 'shell', 'am', 'start', '-n', 'com.emarsys.sample/.main.MainActivity'
