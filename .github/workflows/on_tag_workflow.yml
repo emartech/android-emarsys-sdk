@@ -61,31 +61,11 @@ jobs:
           echo "${{ secrets.SIGNING_KEY_FILE_ASC }}" > secring.asc
           gpg --dearmor secring.asc > secring.gpg
 
-      - name: Create file 'FAILURE.TXT' and write 'false' into it
-        run: echo 'false' > FAILURE.TXT
-
-      - name: Upload file 'FAILURE.TXT' as an artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: failure_file
-          path: FAILURE.TXT
-
       - name: create local.properties
         run: echo $ANDROID_HOME > local.properties
 
       - name: Release with Gradle
         run: ./gradlew clean assembleRelease && ./gradlew publishToSonatype
-
-      - name: Create file 'FAILURE.TXT' and write 'true' into it
-        if: ${{ failure() }}
-        run: echo 'true' > FAILURE.TXT
-
-      - name: Upload file 'FAILURE.TXT' as an artifact
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v1
-        with:
-          name: failure_file
-          path: FAILURE.TXT
 
   CreateSampleReleaseBundle:
     name: Create release bundle from sample app
@@ -128,17 +108,6 @@ jobs:
           name: mobile-sdk-sample
           path: sample/build/outputs/bundle/release/sample-release.aab
 
-      - name: Create file 'FAILURE.TXT' and write 'true' into it
-        if: ${{ failure() }}
-        run: echo 'true' > FAILURE.TXT
-
-      - name: Upload file 'FAILURE.TXT' as an artifact
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v1
-        with:
-          name: failure_file
-          path: FAILURE.TXT
-
   ReleaseSample:
     name: Release sample app
     runs-on: ubuntu-latest
@@ -179,17 +148,6 @@ jobs:
           body_path: changelog.md
           draft: false
           prerelease: false
-
-      - name: Create file 'FAILURE.TXT' and write 'true' into it
-        if: ${{ failure() }}
-        run: echo 'true' > FAILURE.TXT
-
-      - name: Upload file 'FAILURE.TXT' as an artifact
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v1
-        with:
-          name: failure_file
-          path: FAILURE.TXT
 
   SlackNotification:
     name: Send slack notification
@@ -259,7 +217,7 @@ jobs:
     name: Handle on Error
     runs-on: ubuntu-latest
     needs: [ReleaseSample]
-    if: always()
+    if: ${{ failure() }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -267,25 +225,14 @@ jobs:
           fetch-depth: 0 # 0 indicates all history
       - run: git fetch --all || echo "==> Accept any result"
 
-      - name: Download file 'FAILURE.TXT' from artifact
-        uses: actions/download-artifact@v1
-        with:
-          name: failure_file
-
-      - name: Read file 'FAILURE.TXT' and set output parameter
-        id: set_output
-        run: echo "::set-output name=FAILURE::$(<failure_file/FAILURE.TXT)"
-
       - name: setup RELEASE_VERSION
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - name: prepare to revert release
-        if: steps.set_output.outputs.FAILURE == 'true'
         run: chmod +x revoke.sh
       - name: Slack Notification
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_MOBILE_TEAM_CI_CHANNEL_WEBHOOK }}
-        if: steps.set_output.outputs.FAILURE == 'true'
         uses: megamegax/slack_action@0.2.3
         with:
           channel: '${{env.SLACK_CHANNEL}}'
