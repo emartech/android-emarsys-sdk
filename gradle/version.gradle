@@ -16,8 +16,12 @@ import org.ajoberstar.grgit.Grgit
 ext {
     git = Grgit.open(currentDir: projectDir)
 
-    if ((System.env.BLACKDUCK == null ? false : System.env.BLACKDUCK) == false) {
-        git.fetch(refSpecs: ["refs/heads/master:refs/heads/master"])
+    try {
+        if ((System.env.BLACKDUCK == null ? false : System.env.BLACKDUCK) == false) {
+            git.fetch()
+        }
+    } catch(Exception e) {
+        println("GrGit fetch failed ${e.printStackTrace()}")
     }
 
     gitVersionName = System.env.RELEASE_VERSION == null ? git.describe() : System.env.RELEASE_VERSION
