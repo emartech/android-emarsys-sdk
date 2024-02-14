@@ -73,7 +73,11 @@ class NotificationCommandFactoryTest {
             operation = NotificationOperation.INIT.name,
             actions = null,
             defaultAction = null,
-            inapp = null
+            inapp = null,
+            rootParams = mapOf(
+                "rootParamKey1" to "rootParamValue1",
+                "rootParamKey2" to "rootParamValue2"
+            )
         )
     }
 
@@ -424,6 +428,8 @@ class NotificationCommandFactoryTest {
         val payload = commands.first { it.name == NAME_OF_MANDATORY_APP_EVENT }.payload
         val expected = JSONObject(
             mapOf(
+                "rootParamKey1" to "rootParamValue1",
+                "rootParamKey2" to "rootParamValue2",
                 "title" to TITLE,
                 "body" to BODY,
                 "channelId" to CHANNEL_ID,
@@ -711,6 +717,7 @@ class NotificationCommandFactoryTest {
         val name = NAME_OF_EVENT
         val payload = JSONObject()
             .put("payloadKey", "payloadValue")
+
         val actions = JSONArray()
             .put(
                 JSONObject()

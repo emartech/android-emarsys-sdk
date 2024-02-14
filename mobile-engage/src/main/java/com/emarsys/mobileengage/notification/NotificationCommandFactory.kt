@@ -159,6 +159,9 @@ class NotificationCommandFactory(private val context: Context) {
             JSONArray(it)
         }
         val json = JSONObject()
+        notificationData.rootParams.entries.forEach {
+            json.put(it.key, it.value)
+        }
         json.put("imageUrl", notificationData.imageUrl)
         json.put("iconImageUrl", notificationData.iconImageUrl)
         json.put("style", notificationData.style)

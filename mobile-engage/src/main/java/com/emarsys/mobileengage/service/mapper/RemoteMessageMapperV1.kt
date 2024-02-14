@@ -23,16 +23,17 @@ class RemoteMessageMapperV1(
 
     override fun map(remoteMessageData: Map<String, String?>): NotificationData {
         val resourceIds = getNotificationResourceIds()
+        val messageDataCopy = remoteMessageData.toMutableMap()
 
-        val image = remoteMessageData["image_url"]
-        val iconImage = remoteMessageData["icon_url"]
-        val title = remoteMessageData["title"]
-        val ems = extractEms(remoteMessageData)
+        val image = messageDataCopy.remove("image_url")
+        val iconImage = messageDataCopy.remove("icon_url")
+        val title = messageDataCopy.remove("title")
+        val ems = JSONObject(messageDataCopy.remove("ems") ?: "{}")
         val style = ems.optString("style")
         val campaignId = ems.optString("multichannelId")
-        val body = remoteMessageData["body"]
-        val channelId = remoteMessageData["channel_id"]
-        val sid = remoteMessageData["u"]?.let { JSONObject(it).getNullableString("sid") } ?: "Missing sid"
+        val body = messageDataCopy.remove("body")
+        val channelId = messageDataCopy.remove("channel_id")
+        val sid = messageDataCopy.remove("u")?.let { JSONObject(it).getNullableString("sid") } ?: "Missing sid"
         val notificationMethod: NotificationMethod = if (ems.has("notificationMethod")) {
             parseNotificationMethod(ems.optJSONObject("notificationMethod"))
         } else {
@@ -57,7 +58,8 @@ class RemoteMessageMapperV1(
             operation = notificationMethod.operation.name,
             actions = actions,
             defaultAction = defaultAction,
-            inapp = inapp
+            inapp = inapp,
+            rootParams = messageDataCopy
         )
     }
 
@@ -91,7 +93,4 @@ class RemoteMessageMapperV1(
             NotificationOperation.valueOf(notificationMethod.getString("operation").uppercase())
         } else NotificationOperation.INIT
     }
-
-    private fun extractEms(remoteMessageData: Map<String, String?>) =
-        JSONObject(remoteMessageData["ems"] ?: "{}")
 }
