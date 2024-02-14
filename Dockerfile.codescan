@@ -5,3 +5,6 @@ RUN export ANDROID_HOME=android
 RUN export BLACKDUCK=true
 RUN echo $ANDROID_HOME > local.properties
 WORKDIR /workspace/source
+
+# we don't want to scan the sample app
+CMD rm -rf sample
