@@ -32,6 +32,7 @@ class RemoteMessageMapperV2(
         val actions = remoteMessageData["ems.actions"]
         val defaultAction = extractDefaultAction(remoteMessageData)
         val inapp = remoteMessageData["ems.inapp"]
+        val rootParams = extractRootParams(remoteMessageData["ems.root_params"])
 
         return NotificationData(
             imageUrl = image,
@@ -48,7 +49,8 @@ class RemoteMessageMapperV2(
             operation = notificationMethod.operation.name,
             actions = actions,
             defaultAction = defaultAction,
-            inapp = inapp
+            inapp = inapp,
+            rootParams
         )
     }
 
@@ -104,5 +106,24 @@ class RemoteMessageMapperV2(
         } else null
 
         return defaultAction?.toString()
+    }
+
+    private fun extractRootParams(rootParams: String?): Map<String, String?> {
+        val mappedRootParams = mutableMapOf<String, String?>()
+        val json = rootParams?.let {
+            try {
+                JSONObject(it)
+            } catch (ignored: Exception) {
+                JSONObject("{}")
+            }
+        }
+
+        json?.let {
+            it.keys().forEach { key ->
+                mappedRootParams[key] = it[key].toString()
+            }
+        }
+
+        return mappedRootParams
     }
 }

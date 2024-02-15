@@ -154,7 +154,7 @@ class RemoteMessageMapperV2Test {
 
     @Test
     fun testMap_whenNotificationMethodIsSet() {
-        val collapseId =  "testNotificationId"
+        val collapseId = "testNotificationId"
         val input: MutableMap<String, String> = createRemoteMessage()
         input["ems.notification_method.collapse_key"] = collapseId
         input["ems.notification_method.operation"] = "UPDATE"
@@ -210,13 +210,15 @@ class RemoteMessageMapperV2Test {
             JSONObject()
                 .put("type", "MECustomEvent")
                 .put("id", "Testing")
-                .put("title", JSONObject()
-                    .put("en", "Test title")
+                .put(
+                    "title", JSONObject()
+                        .put("en", "Test title")
                 )
-                .put("name","test action name")
+                .put("name", "test action name")
         )
 
-        val expectedActions = """[{"type":"MECustomEvent","id":"Testing","title":{"en":"Test title"},"name":"test action name"}]"""
+        val expectedActions =
+            """[{"type":"MECustomEvent","id":"Testing","title":{"en":"Test title"},"name":"test action name"}]"""
         val input: MutableMap<String, String> = createRemoteMessage()
         input["ems.actions"] = testActions.toString()
 
@@ -245,7 +247,8 @@ class RemoteMessageMapperV2Test {
         input["ems.tap_actions.default_action.url"] = "test url"
         input["ems.tap_actions.default_action.payload"] = "test payload"
 
-        val expectedDefaultAction = """{"name":"test name","type":"MECustomEvent","url":"test url","payload":"test payload"}"""
+        val expectedDefaultAction =
+            """{"name":"test name","type":"MECustomEvent","url":"test url","payload":"test payload"}"""
 
         val notificationData = remoteMessageMapperV2.map(input)
 
@@ -279,6 +282,48 @@ class RemoteMessageMapperV2Test {
         val notificationData = remoteMessageMapperV2.map(input)
 
         notificationData.inapp shouldBe null
+    }
+
+    @Test
+    fun testMap_rootParams_shouldContain_rootParams_as_map() {
+        val input: MutableMap<String, String> = createRemoteMessage()
+        input["ems.root_params"] = """{"key1":"value1","key2":"123"}"""
+
+        val expectedRootParams = mapOf(
+            "key1" to "value1",
+            "key2" to "123"
+        )
+
+        val notificationData = remoteMessageMapperV2.map(input)
+
+        notificationData.rootParams shouldBe expectedRootParams
+    }
+
+    @Test
+    fun testMap_rootParams_shouldContain_rootParams_as_map_even_if_the_value_is_a_json() {
+        val input: MutableMap<String, String> = createRemoteMessage()
+        input["ems.root_params"] = """{"key1":"value1","key2":"123","key3":{"test":"test"}}"""
+
+        val expectedRootParams = mapOf(
+            "key1" to "value1",
+            "key2" to "123",
+            "key3" to """{"test":"test"}"""
+        )
+
+        val notificationData = remoteMessageMapperV2.map(input)
+
+        notificationData.rootParams shouldBe expectedRootParams
+    }
+
+    @Test
+    fun testMap_rootParams_shouldContain_empty_map_if_rootParams_are_missing() {
+        val input: MutableMap<String, String> = createRemoteMessage()
+
+        val expectedRootParams = mapOf<String, String>()
+
+        val notificationData = remoteMessageMapperV2.map(input)
+
+        notificationData.rootParams shouldBe expectedRootParams
     }
 
 
