@@ -1,45 +1,29 @@
 import org.ajoberstar.grgit.Grgit
-import java.io.FileInputStream
-import java.util.Properties
 
 plugins {
-    alias(libs.plugins.androidLibrary) apply false
-    alias(libs.plugins.androidApplication) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin) apply false
     alias(libs.plugins.kapt) apply false
-    alias(libs.plugins.navigationSafeArgs) apply false
-    alias(libs.plugins.googleServices) apply false
-    alias(libs.plugins.kotlinAllOpen) apply false
-    alias(libs.plugins.grGit)
+    alias(libs.plugins.androidx.navigation.safeargs) apply false
+    alias(libs.plugins.google.services) apply false
+//    alias(libs.plugins.huawei.agconnect) apply false
+    alias(libs.plugins.kotlin.allopen) apply false
+    alias(libs.plugins.grgit)
+    alias(libs.plugins.dotenv)
+    alias(libs.plugins.kotlin.parcelize) apply false
     id("com.github.ben-manes.versions") version "0.46.0"
 }
 
 versionData()
-loadDevConfig()
-
-fun loadDevConfig() {
-
-    ext["devConfig"] = Properties()
-
-    try {
-        val inputStream = FileInputStream("$projectDir/localConfig.properties")
-        (ext["devConfig"] as Properties).load(inputStream)
-
-    } catch (ignore: Exception) {
-    }
-
-    if (ext["devConfig"] != null) {
-        println("Using devConfig: ${ext["devConfig"]}")
-    }
-}
 
 fun versionData() {
     val git = Grgit.open(
         mapOf("currentDir" to project.rootDir)
     )
-
-    if ((if (System.getenv("BLACKDUCK") == null) false else System.getenv("BLACKDUCK")) == false) {
+    try {
         git.fetch()
+    } catch (ignored: Exception) {
     }
     if (git.describe() == null) {
         throw RuntimeException("Couldn't get Version Name")
@@ -52,11 +36,9 @@ fun versionData() {
         versionCode = ((System.currentTimeMillis() - 1602845230) / 10000).toInt(),
         versionCodeTime = git.head().time
     )
-    ext["gitVersionName"] = v.versionName
-    ext["gitVersionCode"] = v.versionCode
-    ext["gitVersionCodeTime"] = v.versionCodeTime
+
+    val version by extra(v)
 
     println("versionName: ${v.versionName}")
     println("versionCode: ${v.versionCode}")
-
 }

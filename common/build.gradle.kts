@@ -5,17 +5,11 @@ plugins {
     alias(libs.plugins.kapt)
 }
 dependencies {
-    api(libs.androidx.annotation)
-    api(libs.androidx.appcompat)
-    api(libs.kotlin.stdlib)
-    api(libs.androidx.espresso.idling.resource)
-    api(libs.androidx.lifecycle.common.java8)
-    api(libs.androidx.lifecycle.process)
-    api(libs.androidx.security.crypto)
+    implementation(project(":core-api"))
     androidTestImplementation(project(":testUtils"))
 }
 android {
-    namespace = "com.emarsys.core.api"
+    namespace = "com.emarsys.common"
     defaultConfig {
         compileSdk = libs.versions.android.compileSdk.get().toInt()
     }
@@ -25,4 +19,6 @@ allOpen {
     annotation("com.emarsys.core.Mockable")
 }
 
-kotlin { jvmToolchain(17) }
+kotlin {
+    jvmToolchain(17)
+}

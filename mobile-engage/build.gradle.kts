@@ -1,8 +1,9 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlin.allopen)
+    alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kapt)
-    alias(libs.plugins.kotlinAllOpen)
 }
 
 dependencies {
@@ -17,6 +18,13 @@ dependencies {
 }
 android {
     namespace = "com.emarsys.mobileengage"
+    defaultConfig {
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+    }
+}
+
+allOpen {
+    annotation("com.emarsys.core.Mockable")
 }
 
 kotlin {

@@ -1,14 +1,16 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin)
 }
 
 android {
     namespace = "com.emarsys.testUtil"
-    compileSdk = 34
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
-        minSdkVersion(24)
-        targetSdkVersion(34)
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        lint {
+            targetSdk = libs.versions.android.targetSdk.get().toInt()
+        }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

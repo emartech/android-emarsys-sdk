@@ -24,6 +24,7 @@ dependencyResolutionManagement {
         maven(url = "https://maven.google.com")
         maven(url = "https://developer.huawei.com/repo/")
         maven(url = "https://ajoberstar.org/bintray-backup/")
+        maven(url = "https://androidx.dev/storage/compose-compiler/repository/")
     }
 }
 rootProject.name = "Android Emarsys SDK"

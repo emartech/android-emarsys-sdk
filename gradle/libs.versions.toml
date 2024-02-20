@@ -1,5 +1,10 @@
 [versions]
 agp = "8.2.2"
+kotlin = "1.9.21"
+kotlinxCoroutines = "1.7.3"
+compose = "1.6.1"
+compose-compiler = "1.5.6"
+compose-plugin = "1.6.0-dev1419"
 android-compileSdk = "34"
 android-minSdk = "28"
 android-targetSdk = "34"
@@ -16,14 +21,9 @@ androidx-lifecycle = "2.7.0"
 androidx-espresso-idling-resource = "3.5.1"
 androidx-security-crypto = "1.1.0-alpha06"
 androidx-navigation-safe-args = "2.5.0"
-compose = "1.6.1"
-compose-compiler = "1.5.6"
-compose-plugin = "1.6.0-dev1419"
 dokka = "1.9.10"
 junit = "4.13.2"
 tink = "1.9.0"
-kotlin = "1.9.0"
-kotlinxCoroutines = "1.7.3"
 kotest = "5.8.0"
 mockk = "1.13.9"
 fcm = "23.4.0"
@@ -36,6 +36,7 @@ mockito = "4.9.0"
 mockito-kotlin = "4.1.0"
 grGit = "5.0.0-rc.3"
 byte-buddy = "1.14.11"
+dotEnv = "4.0.0"
 
 [libraries]
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
@@ -82,16 +83,15 @@ androidx-test-fragment = { module = "androidx.fragment:fragment-testing", versio
 androidx-test-multidex = { module = "androidx.multidex:multidex-instrumentation", version.ref = "androidx-test-runner" }
 
 [plugins]
-androidApplication = { id = "com.android.application", version.ref = "agp" }
-androidLibrary = { id = "com.android.library", version.ref = "agp" }
-jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
-kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-navigationSafeArgs = { id = "androidx.navigation.safeargs", version.ref = "androidx-navigation-safe-args" }
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+androidx-navigation-safeargs = { id = "androidx.navigation.safeargs", version.ref = "androidx-navigation-safe-args" }
 kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlinAllOpen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
-kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+kotlin-allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
-agconnect = { id = "com.huawei.agconnect", version.ref = "agconnect_core" }
-googleServices = { id = "com.google.gms.google-services", version.ref = "googleServices" }
-grGit = { id = "org.ajoberstar.grgit", version.ref = "grGit" }
+huawei-agconnect = { id = "com.huawei.agconnect", version.ref = "agconnect_core" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+grgit = { id = "org.ajoberstar.grgit", version.ref = "grGit" }
+dotenv = { id = "co.uzzu.dotenv.gradle", version.ref = "dotEnv" }

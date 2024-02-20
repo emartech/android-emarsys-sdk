@@ -1,8 +1,8 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlin.allopen)
     alias(libs.plugins.kapt)
-    alias(libs.plugins.kotlinAllOpen)
 }
 
 dependencies {
@@ -14,6 +14,17 @@ dependencies {
 }
 android {
     namespace = "com.emarsys.core"
+    defaultConfig {
+        val version: GitVersion by rootProject.extra
+
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        buildConfigField("int", "VERSION_CODE", "${version.versionCode}")
+        buildConfigField("String", "VERSION_NAME", "\"${version.versionName}\"")
+    }
+}
+
+allOpen {
+    annotation("com.emarsys.core.Mockable")
 }
 
 kotlin {
