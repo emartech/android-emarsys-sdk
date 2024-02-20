@@ -8,3 +8,4 @@ localConfig.properties
 sample/google-services.json
 sample/agconnect-services.json
 .fleet
+.env

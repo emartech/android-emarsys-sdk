@@ -11,12 +11,12 @@ dependencies {
     implementation(project(":mobile-engage"))
     implementation(project(":mobile-engage-api"))
 
-    api(libs.google.fcm, { exclude group: 'androidx' })
-
+    api(libs.huawei.agconnect.core)
+    api(libs.huawei.hms.push)
     androidTestImplementation(project(":testUtils"))
 }
 android {
-    namespace = "com.emarsys.firebase"
+    namespace = "com.emarsys.huawei"
 }
 
 kotlin {

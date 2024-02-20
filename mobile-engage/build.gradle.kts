@@ -6,17 +6,17 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":core-api"))
+    implementation(project(":common"))
     implementation(project(":core"))
-    implementation(project(":mobile-engage"))
+    implementation(project(":core-api"))
     implementation(project(":mobile-engage-api"))
 
-    api(libs.google.fcm, { exclude group: 'androidx' })
+    implementation(libs.androidx.webkit)
 
     androidTestImplementation(project(":testUtils"))
 }
 android {
-    namespace = "com.emarsys.firebase"
+    namespace = "com.emarsys.mobileengage"
 }
 
 kotlin {

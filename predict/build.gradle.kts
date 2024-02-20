@@ -6,17 +6,15 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":core-api"))
     implementation(project(":core"))
-    implementation(project(":mobile-engage"))
-    implementation(project(":mobile-engage-api"))
-
-    api(libs.google.fcm, { exclude group: 'androidx' })
+    implementation(project(":core-api"))
+    implementation(project(":predict-api"))
 
     androidTestImplementation(project(":testUtils"))
 }
+
 android {
-    namespace = "com.emarsys.firebase"
+    namespace = "com.emarsys.predict"
 }
 
 kotlin {

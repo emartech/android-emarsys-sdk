@@ -1,6 +1,12 @@
+plugins {
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.kapt)
+    alias(libs.plugins.kotlinAllOpen)
+}
 dependencies {
-    implementation project(':core-api')
-    androidTestImplementation project(':testUtils')
+    implementation project(":core-api")
+    androidTestImplementation project(":testUtils")
 }
 android {
     namespace "com.emarsys.common"

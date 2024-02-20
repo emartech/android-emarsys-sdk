@@ -1,14 +1,16 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'androidx.navigation.safeargs'
+plugins {
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.kapt)
+    alias(libs.plugins.navigationSafeArgs)
+    alias(libs.plugins.kotlinAllOpen)
+}
 
 group = 'com.emarsys.sample'
 
 android {
     namespace = "com.emarsys.sample"
-    buildToolsVersion Config.buildToolsVersion
-    compileSdkVersion Config.targetApiLevel
-    sourceCompatibility = 17
+    compileSdkVersion 34
     defaultConfig {
         applicationId "com.emarsys.sample"
         minSdkVersion 24
@@ -74,19 +76,6 @@ android {
     }
 }
 
-buildscript {
-    repositories {
-        mavenLocal()
-        google()
-        mavenCentral()
-        maven { url 'https://developer.huawei.com/repo/' }
-    }
-    dependencies {
-        classpath 'com.google.gms:google-services:4.4.0'
-        classpath 'com.huawei.agconnect:agcp:1.9.1.303'
-    }
-}
-
 dependencies {
     if (project.devConfig.useLocalDependency == true || System.env.DEVELOPMENT_MODE == true) {
         implementation project(':emarsys-sdk')
@@ -127,10 +116,3 @@ dependencies {
     implementation "com.google.code.gson:gson:2.10.1"
     debugImplementation "androidx.compose.ui:ui-tooling:1.6.0"
 }
-
-task startApp(type: Exec, dependsOn: 'installDebug') {
-    commandLine 'adb', 'shell', 'am', 'start', '-n', 'com.emarsys.sample/.main.MainActivity'
-}
-
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.huawei.agconnect'

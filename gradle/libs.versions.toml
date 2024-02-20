@@ -15,6 +15,7 @@ androidx-test-junit = "1.1.5"
 androidx-lifecycle = "2.7.0"
 androidx-espresso-idling-resource = "3.5.1"
 androidx-security-crypto = "1.1.0-alpha06"
+androidx-navigation-safe-args = "2.5.0"
 compose = "1.6.1"
 compose-compiler = "1.5.6"
 compose-plugin = "1.6.0-dev1419"
@@ -33,6 +34,8 @@ location-services = "21.1.0"
 webkit = "1.7.0"
 mockito = "4.9.0"
 mockito-kotlin = "4.1.0"
+grGit = "5.0.0-rc.3"
+byte-buddy = "1.14.11"
 
 [libraries]
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
@@ -70,7 +73,8 @@ mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 mockk-agent = { module = "io.mockk:mockk-agent-jvm", version.ref = "mockk" }
 mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockito" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin" }
-#byte-buddy = { module = "net.bytebuddy:byte-buddy", version.ref = "byte-buddy" }
+mockito-core = { module = "org.mockito.kotlin:mockito-core", version.ref = "mockito" }
+byte-buddy = { module = "net.bytebuddy:byte-buddy", version.ref = "byte-buddy" }
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
 androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-test-runner" }
 androidx-test-extensions = { module = "androidx.test.ext:junit", version.ref = "androidx-test-runner" }
@@ -82,8 +86,12 @@ androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+navigationSafeArgs = { id = "androidx.navigation.safeargs", version.ref = "androidx-navigation-safe-args" }
+kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlinAllOpen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 agconnect = { id = "com.huawei.agconnect", version.ref = "agconnect_core" }
 googleServices = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+grGit = { id = "org.ajoberstar.grgit", version.ref = "grGit" }

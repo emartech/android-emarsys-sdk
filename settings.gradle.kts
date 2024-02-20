@@ -7,16 +7,26 @@ pluginManagement {
         maven(url = "https://developer.huawei.com/repo/")
         maven(url = "https://ajoberstar.org/bintray-backup/")
     }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.namespace == "com.huawei") {
+                if (requested.id.id == "com.huawei.agconnect") {
+                    useModule("com.huawei.agconnect:agcp:${requested.version}")
+                }
+            }
+        }
+    }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
         maven(url = "https://maven.google.com")
         maven(url = "https://developer.huawei.com/repo/")
+        maven(url = "https://ajoberstar.org/bintray-backup/")
     }
 }
+rootProject.name = "Android Emarsys SDK"
 
 include(
     ":common",

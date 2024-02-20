@@ -1,9 +1,0 @@
-dependencies {
-    implementation project(':core')
-    api project(':core-api')
-    androidTestImplementation project(':testUtils')
-}
-android {
-    namespace "com.emarsys.predict.api"
-    sourceCompatibility = 17
-}

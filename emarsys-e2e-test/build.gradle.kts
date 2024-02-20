@@ -1,14 +1,24 @@
-dependencies {
-    implementation project(':emarsys-sdk')
-    implementation project(':core')
-    implementation project(':mobile-engage')
-    implementation project(':predict')
+plugins {
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.kapt)
+    alias(libs.plugins.kotlinAllOpen)
+}
 
-    androidTestImplementation project(':testUtils')
+dependencies {
+    implementation(project(":emarsys-sdk"))
+    implementation(project(":core"))
+    implementation(project(":mobile-engage"))
+    implementation(project(":predict"))
+
+    androidTestImplementation(project(":testUtils"))
 }
 android {
-    namespace "com.emarsys.test.e2e"
-    sourceCompatibility = 17
+    namespace = "com.emarsys.test.e2e"
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 //task enableMockLocationForTestsOnDevice(type: Exec, dependsOn: 'installDebugAndroidTest') {
