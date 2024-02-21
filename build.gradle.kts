@@ -1,4 +1,5 @@
 import org.ajoberstar.grgit.Grgit
+import java.util.Base64
 
 plugins {
     alias(libs.plugins.android.library) apply false
@@ -41,4 +42,22 @@ fun versionData() {
 
     println("versionName: ${v.versionName}")
     println("versionCode: ${v.versionCode}")
+}
+
+tasks {
+    register("base64EnvToFile") {
+        val propertyName = project.property("propertyName") as String?
+            ?: throw IllegalArgumentException("Property 'propertyName' is not provided.")
+        val file = project.property("file") as String?
+            ?: throw IllegalArgumentException("Property 'file' is not provided.")
+
+        doLast {
+            val base64String = env.fetch(propertyName)
+            val decoder = Base64.getDecoder()
+            val decodedString = String(decoder.decode(base64String))
+
+            val outputFile = file(file)
+            outputFile.writeText(decodedString)
+        }
+    }
 }
